@@ -1,0 +1,18 @@
+<div class="col-lg-4 mt-4">
+    <a href="{% url 'post_detail' username=post.author url=post.url %}">
+        {% if post.image %}
+        <div class="list-image back-image" style="background-image: url({{ post.image.url }});"></div>
+        {% else %}
+        <div class="list-image back-image" style="background-image: url({{ static_url }}/assets/images/default.png);"></div>
+        {% endif %}
+    </a>
+    <h5 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title | truncatechars:50 }}</a></h5>
+    <a href="{% url 'user_profile' username=post.author %}">
+        {% if post.author.profile.avatar %}
+        <div class="back-image thumb list-thumb" style="background-image:url({{ post.author.profile.avatar.url }})"></div>
+        {% else %}
+        <div class="back-image thumb list-thumb" style="background-image:url({{static_url}}/avatar/default.gif)"></div>
+        {% endif %}
+    </a>
+    <p class="vs serif">{{ post.created_date | date:"" }}<br><a class="shallow-dark" href="{% url 'user_profile' username=post.author %}">{{ post.author }}</a>님이 작성함</p>
+</div>

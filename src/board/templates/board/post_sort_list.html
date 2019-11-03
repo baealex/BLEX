@@ -1,0 +1,44 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ site_title }} - {{ site_description }}{% endblock %}
+
+{% block seo %}
+<meta name="description" content="{{ sort }}로 정렬된 {{ site_title }}의 글들 입니다.">
+<meta property="og:site_name" content="{{ site_title }}">
+<meta property="og:title" content="{{ site_title }}">
+<meta name="og:description" content="{{ sort }}로 정렬된 {{ site_title }}의 글들 입니다.">
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+<meta name = "twitter : card" content="summary"> 
+<meta name = "twitter : title" content="{{ site_title }}"> 
+<meta name = "twitter : description" content="{{ sort }}로 정렬된 {{ site_title }}의 글들 입니다."> 
+{% endblock %}
+
+{% block content %}
+<div class="search-box serif" onclick="location.href='/search';">
+    검색어를 입력하세요.
+</div>
+
+{% include 'board/include/list_page/post_nav.html' %}
+
+<div id="card-wrapper" class="row">
+{% for post in pageposts%}
+    {% include 'board/include/post_card.html' %}
+{% endfor %}
+</div>
+
+{% endblock %}
+
+{% block footer%}
+    {% include 'board/include/footer.html' %}
+{% endblock %}
+
+{% block image-script %}
+<script src="{{ static_url }}/assets/js/lib/InfiniteScroll.js"></script>
+<script type="text/javascript">
+var postWrapperId = 'card-wrapper';
+var paginatePath = '/posts/{{ sort }}?page=';
+var lastPage = {{ pageposts.paginator.num_pages }};
+new InfiniteScroll(paginatePath, postWrapperId, lastPage);
+</script>
+{% endblock %}

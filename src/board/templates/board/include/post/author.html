@@ -1,0 +1,24 @@
+<div class="row post-top-meta">
+    <a href="{% url 'user_profile' username=post.author.username%}">
+        {% if post.author.profile.avatar %}
+        <div class="back-image thumb author-thumb" style="background-image:url({{ post.author.profile.avatar.url }})"></div>
+        {% else %}
+        <div class="back-image thumb author-thumb" style="background-image:url({{static_url}}/avatar/default.gif)"></div>
+        {% endif %}
+    </a>
+    <div class="author-info">
+        <h5>WRITTEN BY</h5>
+        <h4><a href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a></h4>
+        <p>
+            {% if post.author.profile.bio %}
+            <span class="author-description">{{ post.author.profile.bio }}</span>
+            <br>
+            {% endif%}
+            {% if request.user.is_active %}
+            <a class="author-email" href="mailto:{{ post.author.email }}">{{ post.author.email }}</a>
+            {% else %}
+            <a class="author-email" href="{% url 'login' %}">Sign in to view email</a>
+            {% endif %}
+        </p>
+    </div>
+</div>

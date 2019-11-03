@@ -1,0 +1,17 @@
+<h4 class="mt-5 serif foot-deco">
+    {% if not sort %}
+    <span class="foot-deco-active">공지</span>
+    {% else %}
+    <a href="/">공지</a>
+    {% endif %}
+    {% if sort == 'top' %}
+    <span class="foot-deco-active">인기</span>
+    {% else %}
+    <a href="{% url 'post_sort_list' sort='top' %}">인기</a>
+    {% endif %}
+    {% if sort == 'newest' %}
+    <span class="foot-deco-active">최신</span>
+    {% else %}
+    <a href="{% url 'post_sort_list' sort='newest' %}">최신</a>
+    {% endif %}
+</h4>

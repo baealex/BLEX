@@ -1,0 +1,35 @@
+<div id="notify-content" style="position: fixed; top: 70px; right: 5px;">
+</div>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: "https://blex.kr/notify/count",
+        type: "get",
+    }).done(function (data) {
+        if (data > 0) {
+            getUserNotifyContent();
+        }
+    });
+});
+function getUserNotifyContent() {
+    $.ajax({
+        url: "https://blex.kr/notify/content",
+        type: "get",
+    }).done(function (data) {
+        $("#notify-content").html(data);
+        $('.toast').toast({
+            // 'delay': 4000
+            'autohide': false
+        });
+        $('.toast').toast('show');
+    });
+}
+function justRemove(readurl) {
+    $.ajax({
+        url: readurl,
+        type: "get",
+    }).done(function (data) {
+        console.log(data);
+    });
+}
+</script>

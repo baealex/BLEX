@@ -1,0 +1,55 @@
+{% if request.user.profile.avatar %}
+<img src="{{ request.user.profile.avatar.url }}" width="100px;" class="mb-3">
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="custom-file">
+        {{ p_form.avatar }}
+        <label class="custom-file-label" for="id_avatar">자신의 아바타를 선택하세요.</label>
+    </div>
+    <p>{{ p_form.bio }}</p>
+    <label>Homepage : </label>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">https://</span>
+        </div>
+        {{ p_form.homepage }}
+    </div>
+    <label>GitHub : </label>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">https://github.com/</span>
+        </div>
+        {{ p_form.github }}
+    </div>
+    <label>Twitter : </label>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">https://twitter.com/</span>
+        </div>
+        {{ p_form.twitter }}
+    </div>
+    <label>Facebook : </label>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">https://facebook.com/</span>
+        </div>
+        {{ p_form.facebook }}
+    </div>
+    <label>Instagram : </label>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">https://instagram.com/</span>
+        </div>
+        {{ p_form.instagram }}
+    </div>
+    <label>YouTube : </label>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text">https://youtube.com/channel/</span>
+        </div>
+        {{ p_form.youtube }}
+    </div>
+    <button type="submit" class="btn btn-dark">프로필 변경</button>
+</form>

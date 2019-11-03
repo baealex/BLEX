@@ -1,0 +1,25 @@
+<style>
+.post-info {
+    list-style: none;
+    padding-left: 0px;
+}
+.post-info li {
+    display: inline-block;
+    margin: 5px;
+}
+</style>
+<div>
+    <ul class="list-group">
+        {% for post in posts%}
+        <li class="card p-3 mb-2">
+            <p><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title }} </a></p>
+            <ul class="post-info">
+                <li><i class="far fa-eye"></i> {{ post.view_cnt }}</li>
+                <li><i class="far fa-thumbs-up"></i> {{ post.total_likes }}</li>
+                <li><i class="far fa-comment"></i> {{ post.comments.count }}</li>
+                <li><i class="fas fa-chart-line"></i> {{ post.trendy }}</li>
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+</div>

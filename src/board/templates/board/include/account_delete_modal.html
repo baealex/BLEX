@@ -1,0 +1,19 @@
+<div class="modal fade" id="SignoutModal" tabindex="-1" role="dialog" aria-labelledby="SignoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">정말 탈퇴 하시겠습니까?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                회원님의 정보와 작성한 게시물은 전체 삭제되며 이 작업은 되돌릴 수 없습니다!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-dark" onclick="location.href='{% url 'signout' %}'">확인</button>
+            </div>
+        </div>
+    </div>
+</div>

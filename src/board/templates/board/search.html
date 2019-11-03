@@ -1,0 +1,61 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ site_title }} - Search{% endblock %}
+
+{% block seo %}
+<meta name="description" content="{{ site_title }}에서 검색해보세요!">
+<meta property="og:site_name" content="{{ site_title }}">
+<meta property="og:title" content="{{ site_title }}">
+<meta name="og:description" content="{{ site_title }}에서 검색해보세요!">
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+<meta name = "twitter : card" content="summary"> 
+<meta name = "twitter : title" content="{{ site_title }}"> 
+<meta name = "twitter : description" content="{{ site_title }}에서 검색해보세요!"> 
+{% endblock %}
+
+{% block content %}
+<style>.post-list { border-top: none; }</style>
+<form action="search">
+    <input id="search-box" autocomplete="off" name="value" type="text" placeholder="검색어를 입력하세요.">
+</form>
+</div>
+</div>
+<div id="post-list-parent">
+{% for post in posts %}
+    {% if post.image %}
+    <div class="post-list" style="background-image: url({{ post.image.url }})">
+    {% else %}
+    <div class="post-list" style="background-image: url({{ static_url }}/assets/images/default.png)">
+    {% endif %}
+        <a href="{% url 'post_detail' username=post.author url=post.url %}" class="post-title">
+            <div class="post-mask">
+                <h3 class="serif">{{ post.title }}</h3>
+                <span class="date">{{ post.created_date | date:'' }}</span>
+            </div>
+        </a>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block footer%}
+    {% include 'board/include/footer.html' %}
+{% endblock %}
+
+{% block image-script %}
+<script>
+    {% if not value %}
+    $('#search-box').focus();
+    {% else %}
+    $('#search-box').val('{{ value }}')
+    {% endif %}
+</script>
+<script src="{{ static_url }}/assets/js/lib/InfiniteScroll.js"></script>
+<script type="text/javascript">
+var postWrapperId = 'post-list-parent';
+var paginatePath = '/search?value={{ value }}&page=';
+var lastPage = {{ posts.paginator.num_pages }};
+new InfiniteScroll(paginatePath, postWrapperId, lastPage);
+</script>
+{% endblock %}

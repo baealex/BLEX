@@ -1,0 +1,13 @@
+{% if post.image %}
+<li class="back-image" style="background-image: url({{ post.image.url }});">
+{% else %}
+<li class="back-image" style="background-image: url({{ static_url }}/assets/images/default.png);">
+{% endif %}
+    <a href="{% url 'post_detail' username=post.author url=post.url %}">
+        <div class="mask">
+            <h4 class="serif font-weight-bold mt-3">0{{ forloop.counter }}</h4>
+            <h5 class="serif font-weight-bold">{{ post.title | truncatechars:50 }}</h5>
+            <p class="vs serif">{{ post.created_date | date:"" }}<br>{{ post.author }}님이 작성함</p>
+        </div>
+    </a>
+</li>

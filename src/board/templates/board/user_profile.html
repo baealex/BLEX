@@ -1,0 +1,84 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ user.username }} ({{ user.first_name }}){% endblock %}
+
+{% block seo %}
+<meta name="description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+<meta property="og:site_name" content="{{ site_title }}">
+<meta property="og:title" content="{{ site_title }} - {{ user.username }}">
+<meta name="og:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+{% if user.profile.avatar %}<meta property="og:image" content="{{ user.profile.avatar.url }}">{% endif %}
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+<meta name = "twitter:card" content="summary">
+<meta name = "twitter:title" content="{{ site_title }} - {{ user.username }}">
+<meta name = "twitter:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+{% if user.profile.avatar %}<meta property="twitter:image" content="{{ user.profile.avatar.url }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12 padding-remove">
+    {% if  message%}
+    <div class="alert alert-success" role="alert">{{ message }}</div>
+    {% endif %}
+    {% if user.profile.avatar %}
+    <div class="user-avatar back-image" style="background-image:url({{ user.profile.avatar.url }})"></div>
+    {% else %}
+    <div class="user-avatar back-image" style="background-image:url({{ static_url }}/avatar/default.gif)"></div>
+    {% endif %}
+    <div class="user-profile">
+        <h4 class="serif username">{{ user.first_name }}</h4>
+        <h5 class="serif">@{{ user.username }}</h5>
+        {% if user.profile.homepage %}<a class="vivid-purple" href="https://{{ user.profile.homepage }}">https://{{ user.profile.homepage }}</a>{% endif %}
+        <p class="user-profile-desc mt-5">
+            {% if user.profile.bio %}
+                {{ user.profile.bio|linebreaksbr }}<br>
+            {% endif%}
+            {% if request.user.is_active %}
+            <a class="vivid-purple" href="mailto:{{ user.email }}">{{ user.email }}</a>
+            {% else %}
+            <a class="vivid-purple" href="{% url 'login' %}">Sign in to view email</a>
+            {% endif %}
+        </p>
+        <ul class="social-link">
+            {% if user.profile.github %}<li><a class="vivid-purple" href="https://github.com/{{ user.profile.github }}"><i class="fab fa-github-square"></i></a></li>{% endif %}
+            {% if user.profile.twitter %}<li><a class="vivid-purple" href="https://twitter.com/{{ user.profile.twitter }}"><i class="fab fa-twitter-square"></i></a></li>{% endif %}
+            {% if user.profile.youtube %}<li><a class="vivid-purple" href="https://www.youtube.com/channel/{{ user.profile.youtube }}"><i class="fab fa-youtube-square"></i></a></li>{% endif %}
+            {% if user.profile.facebook %}<li><a class="vivid-purple" href="https://www.facebook.com/{{ user.profile.facebook }}"><i class="fab fa-facebook-square"></i></a></li>{% endif %}
+            {% if user.profile.instagram %}<li><a class="vivid-purple" href="https://www.instagram.com/{{ user.profile.facebook }}"><i class="fab fa-instagram"></i></a></li>{% endif %}
+        </ul>
+    </div>
+</div>
+</div>
+</div>
+<div id="post-list-parent">
+{% for post in posts %}
+    {% if post.image %}
+    <div class="post-list" style="background-image: url({{ post.image.url }})">
+    {% else %}
+    <div class="post-list" style="background-image: url({{ static_url }}/assets/images/default.png)">
+    {% endif %}
+        <a href="{% url 'post_detail' username=post.author url=post.url %}" class="post-title">
+            <div class="post-mask">
+                <h3 class="serif">{{ post.title }}</h3>
+                <span class="date">{{ post.created_date | date:'' }}</span>
+            </div>
+        </a>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block footer%}
+    {% include 'board/include/footer.html' %}
+{% endblock %}
+
+{% block image-script %}
+<script src="{{ static_url }}/assets/js/lib/InfiniteScroll.js"></script>
+<script type="text/javascript">
+var postWrapperId = 'post-list-parent';
+var paginatePath = '/@{{ user.username }}?page=';
+var lastPage = {{ posts.paginator.num_pages }};
+new InfiniteScroll(paginatePath, postWrapperId, lastPage);
+</script>
+{% endblock %}

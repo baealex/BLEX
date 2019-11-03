@@ -1,0 +1,79 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{% if subtitle %}Your {{ subtitle }}{% else %}Setting{% endif %}{% endblock %}
+
+{% block seo %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3 mb-4">
+        <ul class="nav serif text-right sticky-top sticky-top-100" style="display: block; border-right: 2px solid #8c00ff;">
+            <li class="nav-item">
+                <a class="nav-link vivid-purple{% if tab == 'account'%} disabled{% endif %}" href="?tab=account">계정 수정</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link vivid-purple{% if tab == 'profile'%} disabled{% endif %}" href="?tab=profile">프로필 수정</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link vivid-purple{% if tab == 'activity'%} disabled{% endif %}" href="?tab=activity">글 & 시리즈</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link vivid-purple{% if tab == 'analysis'%} disabled{% endif %}" href="?tab=analysis">글 분석</a>
+            </li>
+        </ul>
+    </div>
+    <style>
+    .custom-control-input:checked~.custom-control-label::before {
+        color: #fff;
+        border-color: #8c00ff;
+        background-color: #8c00ff;
+    }
+    </style>
+    <div class="col-lg-9">
+        {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+        {% if message %}<div class="alert alert-success">{{ message }}</div>{% endif %}
+        {% if tab == 'account' %}
+            {% include 'board/include/setting_page/account.html'%}
+        {% endif %}
+        {% if tab == 'profile' %}
+            {% include 'board/include/setting_page/profile.html'%}
+        {% endif %}
+        {% if tab == 'activity' %}
+            {% include 'board/include/setting_page/activity.html'%}
+        {% endif %}
+        {% if tab == 'analysis' %}
+            {% include 'board/include/setting_page/analysis.html'%}
+        {% endif %}
+        {% if not subtitle %}
+            <img width="100%" src="{{ static_url }}/assets/images/default.png">
+        {% endif  %}
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include 'board/include/footer.html' %}
+{% endblock %}
+
+{% block image-script %}
+<style>
+.list-hidden {
+    display: none;
+}
+</style>
+<script>
+    function showList(target) {
+        if ($('#' + target).hasClass('list-hidden')) {
+            $('#' + target).removeClass('list-hidden');
+        } else {
+            $('#' + target).addClass('list-hidden');
+        }
+    }
+    
+    $('#id_avatar').on('change',function(){
+        var fileName = $(this).val();
+        $(this).next('.custom-file-label').html(fileName);
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h3 class="serif font-weight-bold">@{{ request.user.username }}</h3>
+    <p class="serif">{{ request.user.date_joined|date:'' }}</p>
+    <p>{{ u_form.first_name }}</p>
+    <p>{{ u_form.email }}</p>
+    <p>{{ u_form.new_password }}</p>
+    <p>{{ u_form.password_check }}</p>
+    <div class="custom-control custom-checkbox mt-3">
+        {{ c_form.agree_email }}
+        <label class="custom-control-label" for="id_agree_email">이메일 전송 허용</lable>
+    </div>
+    <div class="custom-control custom-checkbox mt-3 mb-3">
+        {{ c_form.agree_history }}
+        <label class="custom-control-label" for="id_agree_history">사용자 활동 수집 허용</lable>
+    </div>
+    <button type="submit" class="btn btn-dark">정보 변경</button>
+    <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#SignoutModal">회원 탈퇴</button>
+    <button type="button" class="btn btn-dark" onclick="location.href='/backup';">컨텐츠 백업</button>
+</form>
+{% include 'board/include/account_delete_modal.html' %}

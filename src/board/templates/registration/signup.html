@@ -1,0 +1,19 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ site_title }} - Join us{% endblock %}
+
+{% block content %}
+<div class="card p-3 col-lg-5 mx-auto">
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p><a href="{% url 'login' %}">이미 회원이신가요?</a></p>
+        <button type="submit" class="btn btn-dark">회원가입</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include 'board/include/footer.html' %}
+{% endblock %}

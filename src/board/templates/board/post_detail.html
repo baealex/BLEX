@@ -1,0 +1,204 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ post.title }} - {{ post.author }}{% endblock %}
+
+{% block seo %}
+{% if get_series %}<meta name="robots" content="noindex">{% endif %}
+<meta name="description" content="{{ post.text_html | striptags | truncatewords:30 }}">
+<meta property="og:site_name" content="{{ site_title }}">
+<meta property="og:title" content="{{ post.title | truncatewords:20 }}">
+<meta name="og:description" content="{{ post.text_html | striptags | truncatewords:30 }}">
+{% if post.image %}<meta property="og:image" content="{{ post.image.url }}">{% endif %}
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+<meta name="twitter : card" content="summary">
+<meta name="twitter : title" content="{{ post.title | truncatewords:20 }}">
+<meta name="twitter : description" content="{{ post.text_html | striptags | truncatewords:30 }}">
+{% if post.image %}<meta name="twitter : image" content="{{ post.image.url }}">{% endif %}
+{% endblock %}
+
+{% block usernav %}
+<ul class="navbar-nav">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block image-title%}
+{% if post.image %}
+<style>.content {margin-top: 20px;} #mNavigation {background: rgba(0, 0, 0, 0); position: absolute;}</style>
+<div class="post-title-image back-image" style="background-image: url({{ post.image.url }});">
+    <div class="mask">
+        <h1 class="post-headline">{{ post.title }}</h1>
+        <p class="post-date">
+            {{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}
+            <span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-2 pl-4 pr-4">
+        {% include 'board/include/post/share_and_like.html'%}
+    </div>
+    <div class="col-lg-8 col-md-10">
+        {% if not post.image %}
+        <h1 class="post-headline">{{ post.title }}</h1>
+        <p class="post-date">
+            {{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}
+            <span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
+        {% endif %}
+        {% if post.author == request.user %}
+        <a class="btn btn-dark" href="{% url 'post_edit' pk=post.pk %}">수정</a>
+        <a class="btn btn-dark" href="" data-toggle="modal" data-target="#PostDeleteModal">삭제</a>
+        {% endif %}
+        {% include 'board/include/post/author.html' %}
+        {% if prev_serise %}
+        <div class="jumbotron text-center">
+            <div class="container">
+                <h5 class="serif">'{{ this_series }}' 시리즈의 이전 글</h5>
+                <p><a class="serif shallow-dark" href="{{ prev_serise.get_absolute_url }}?series={{this_series}}">{{ prev_serise }}</a></p>
+            </div>
+        </div>
+        {% endif %}
+        <article class="article post-content">
+            {{ post.text_html | safe }}
+        </article>
+        {% if next_serise %}
+        <div class="jumbotron text-center">
+            <div class="container">
+                <h5 class="serif">'{{ this_series }}' 시리즈의 다음 글</h5>
+                <p><a class="serif shallow-dark" href="{{ next_serise.get_absolute_url }}?series={{this_series}}">{{ next_serise }}</a></p>
+            </div>
+        </div>
+        {% else %}
+            {% if prev_serise %}
+        <div class="jumbotron jumbotron-fluid text-center">
+            <div class="container">
+                <h5 class="serif">'{{ this_series }}' 시리즈의 마지막 글입니다.</h5>
+            </div>
+        </div>
+            {% endif %}
+        {% endif %}
+        {% load tagging_tags %}
+        {% tags_for_object post as tags %}
+        {% for tag in tags %}
+        <span class="tag-list"><a href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></span>
+        {% endfor %}
+    </div>
+    <div class="col-lg-2 mobile-disable">
+        <div id="article-nav" class="sticky-top sticky-top-100"></div>
+    </div>
+</div>
+
+<div id="comment" class="mt-5">
+    {% if post.search %}
+    <div class="comment-list">
+        <p>댓글이 닫혀 있습니다.</p>
+    </div>
+    {% else %}
+        {% for comment in post.comments.all %}
+        <div class="comment-list">
+            <a href="{% url 'user_profile' username=comment.author %}">
+                {% if comment.author.profile.avatar %}
+                <div class="back-image thumb comment-thumb" style="background-image:url({{ comment.author.profile.avatar.url }})"></div>
+                {% else %}
+                <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/avatar/default.gif)"></div>
+                {% endif %}
+            </a>
+            <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=comment.author %}">{{ comment.author }}</a>
+            <br>
+            <small>{{ comment.created_date | timesince }}전{% if comment.edit %} <span class="vs">edited</span>{% endif %}</small>
+            {% if comment.author == request.user %}
+                <a class="vs shallow-dark" href="javascript:void(0)" onclick="window.open('{% url 'comment_update' cpk=comment.pk %}', '댓글 수정', 'width=500, height=190, left=100, top=50');">수정</a>
+                <a class="vs shallow-dark" href="javascript:void(0)" onclick="rm_comment('{% url 'comment_remove' cpk=comment.pk %}');">삭제</a>
+            {% endif %}
+            <p>{{ comment.text|linebreaks }}</p>
+        </div>
+        {% empty %}
+        <div class="comment-list">
+            <p>작성된 댓글이 없습니다!</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% if not post.search %}
+    {% if request.user.is_active %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="button" onclick="comment()" class="btn btn-dark">댓글 작성</button>
+    </form>
+    {% else %}
+    <div class="alert alert-warning">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
+    {% endif %}
+{% endif %}
+</div>
+</div>
+<div class="rel-posts">
+    <div class="container pt-4 pb-2">
+        <div class="header-title">
+            <h4 class="serif">이 작성자가 게시한 다른 글</h4>
+        </div>
+        <div class="row">
+        {% for another_post in another_posts %}
+            <div class="col-md-4">
+                <a href="{{ another_post.get_absolute_url }}"><div class="back-image rel-post-image" style="background-image: url({% if another_post.image %}{{ another_post.image.url }}{% else %}{{ static_url }}/assets/images/default.png{% endif %});"></div></a>
+                <h5 class="serif pt-3 pb-4 ns"><a class="text-dark" href="{{ another_post.get_absolute_url }}">{{ another_post.title }}</a></h5>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer%}
+    {% include 'board/include/footer_reverse.html' %}
+    {% include 'board/include/post/delete_modal.html'%}
+{% endblock %}
+
+{% block image-script %}
+{% if post.image %}
+<script type="text/javascript" src="{{ static_url }}/assets/js/inner-post/navigation.js"></script>
+{% endif %}
+<script type="text/javascript" src="{{ static_url }}/assets/js/post.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/main.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/prism.js"></script>
+<script>
+function like() {
+    {% if request.user.is_active %}
+        {% if not request.user == post.author %}
+    POST_like('{% url 'post_like' pk=post.pk%}');
+        {% else %}
+    alert('자신의 글은 추천할 수 없습니다.');
+        {% endif %}
+    {% else %}
+    alert("로그인 된 사용자만 사용할 수 있습니다.");
+    {% endif %}
+}
+function comment() {
+    POST_comment('{% url 'comment_post' username=post.author url=post.url %}');
+    POST_tag_notify('{{ request.user.username }}');
+}
+function rm_comment(pk) {
+    if ( confirm('댓글을 정말 삭제합니까?')==true ) {
+        DELETE_comment(pk);
+    } else {
+        return;
+    }
+}
+{% if request.user.is_active %}
+var mPK = {{ post.pk }};
+var mName = '{{ request.user.username }}';
+var userList = [];
+var sendUser = [];
+</script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/inner-post/user-tag.js"></script>
+{% else%}
+</script>
+{% endif %}
+{% endblock %}
