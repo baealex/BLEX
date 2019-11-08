@@ -15,9 +15,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     {% block seo %}{% endblock %}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'css/lib/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'library/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
-    <link rel="stylesheet" href="{% static 'css/lib/prism.css' %}">
+    <link rel="stylesheet" href="{% static 'library/prism.css' %}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR">
     <link rel="icon" href="{% static 'images/logo.png' %}">
     <title>{% block title %}{% endblock %}</title>
@@ -81,8 +81,8 @@
     </div>
     {% block footer %}
     {% endblock %}
-    <script src="{% static 'js/lib/jquery-3.4.0.min.js' %}"></script>
-    <script src="{% static 'js/lib/bootstrap.min.js' %}"></script>
+    <script src="{% static 'library/jquery-3.4.0.min.js' %}"></script>
+    <script src="{% static 'library/bootstrap.min.js' %}"></script>
     {% block image-script %}{%endblock%}
     {% if request.user.is_active %}
     {% include 'board/include/notify.html' %}
