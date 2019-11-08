@@ -19,7 +19,7 @@ if __name__ == '__main__':
     soup = BeautifulSoup(html, 'html.parser')
     post_urls = soup.select('url > loc')
 
-    image_names = []
+    image_names = dict()
     for url in post_urls:
         # print(url.text)
         req = requests.get(url.text)
@@ -29,8 +29,7 @@ if __name__ == '__main__':
         
         for image in images:
             # print(image.get('src'))
-            image_names.append(image.get('src').split('/')[-1])
-    image_names = list(set(image_names))
+            image_names[image.get('src').split('/')[-1]] = 0
 
     for (path, dir, files) in os.walk(TARGET_DIR):
         for filename in files:

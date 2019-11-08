@@ -297,7 +297,7 @@ def post_sort_list(request, sort):
         raise Http404()
     
     posts = get_posts(sort)
-    paginator = Paginator(posts, 9)
+    paginator = Paginator(posts, 15)
     page = request.GET.get('page')
     
     render_args = {
@@ -560,7 +560,7 @@ def post_list_in_tag(request, tag):
     posts = Post.objects.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
     if len(posts) == 0:
         raise Http404()
-    paginator = Paginator(posts, 9)
+    paginator = Paginator(posts, 15)
     page = request.GET.get('page')
     pageposts = paginator.get_page(page)
     return render(request, 'board/post_list_in_tag.html',{ 'tag':tag, 'pageposts':pageposts, 'white_nav':True })

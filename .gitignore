@@ -1,15 +1,14 @@
 base.html
 settings.py
+count.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-image/
 title/
 avatar/
-
 migrations/
 
 # C extensions
