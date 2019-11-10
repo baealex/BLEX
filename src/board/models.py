@@ -27,7 +27,7 @@ def avatar_path(instance, filename):
 
 def image_path(instance, filename):
     dt = datetime.datetime.now()
-    return 'title/'+instance.author.username+'/'+str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour)+str(dt.minute)+str(dt.second)+'.'+filename.split('.')[-1]
+    return 'title/'+instance.author.username+'/'+str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour)+'_'+randstr(4)+'.'+filename.split('.')[-1]
 
 def create_notify(target, url, content):
     new_notify = Notify(to_user=target, from_user=url, infomation=content)
