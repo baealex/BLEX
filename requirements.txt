@@ -1,3 +1,5 @@
+beautifulsoup4==4.8.1
+bs4==0.0.1
 certifi==2019.9.11
 chardet==3.0.4
 defusedxml==0.6.0
@@ -13,5 +15,6 @@ python3-openid==3.1.0
 pytz==2019.3
 requests==2.22.0
 requests-oauthlib==1.2.0
+soupsieve==1.9.5
 urllib3==1.25.6
 uWSGI==2.0.18
