@@ -1,7 +1,7 @@
 {% if post.image %}
 <li class="back-image" style="background-image: url({{ post.image.url }});">
 {% else %}
-<li class="back-image" style="background-image: url({{ static_url }}/assets/images/default.png);">
+<li class="back-image" style="background-image: url({{ static_url }}/assets/images/default-post.png);">
 {% endif %}
     <a href="{% url 'post_detail' username=post.author url=post.url %}">
         <div class="mask">

@@ -3,7 +3,7 @@
         {% if post.image %}
         <div class="list-image back-image" style="background-image: url({{ post.image.url }});"></div>
         {% else %}
-        <div class="list-image back-image" style="background-image: url({{ static_url }}/assets/images/default.png);"></div>
+        <div class="list-image back-image" style="background-image: url({{ static_url }}/assets/images/default-post.png);"></div>
         {% endif %}
     </a>
     <h5 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title | truncatechars:50 }}</a></h5>
@@ -11,7 +11,7 @@
         {% if post.author.profile.avatar %}
         <div class="back-image thumb list-thumb" style="background-image:url({{ post.author.profile.avatar.url }})"></div>
         {% else %}
-        <div class="back-image thumb list-thumb" style="background-image:url({{static_url}}/avatar/default.gif)"></div>
+        <div class="back-image thumb list-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
         {% endif %}
     </a>
     <p class="vs serif">{{ post.created_date | date:"" }}<br><a class="shallow-dark" href="{% url 'user_profile' username=post.author %}">{{ post.author }}</a>님이 작성함</p>

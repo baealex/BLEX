@@ -24,7 +24,7 @@
     {% if user.profile.avatar %}
     <div class="user-avatar back-image" style="background-image:url({{ user.profile.avatar.url }})"></div>
     {% else %}
-    <div class="user-avatar back-image" style="background-image:url({{ static_url }}/avatar/default.gif)"></div>
+    <div class="user-avatar back-image" style="background-image:url({{ static_url }}/assets/images/default-avatar.jpg)"></div>
     {% endif %}
     <div class="user-profile">
         <h4 class="serif username">{{ user.first_name }}</h4>
@@ -56,7 +56,7 @@
     {% if post.image %}
     <div class="post-list" style="background-image: url({{ post.image.url }})">
     {% else %}
-    <div class="post-list" style="background-image: url({{ static_url }}/assets/images/default.png)">
+    <div class="post-list" style="background-image: url({{ static_url }}/assets/images/default-post.png)">
     {% endif %}
         <a href="{% url 'post_detail' username=post.author url=post.url %}" class="post-title">
             <div class="post-mask">
