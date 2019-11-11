@@ -132,6 +132,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button type="button" onclick="comment()" class="btn btn-dark">댓글 작성</button>
+        <button type="button" onclick="tagging()" class="btn btn-dark">사용자 태그</button>
     </form>
     {% else %}
     <div class="alert alert-warning">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
@@ -162,13 +163,56 @@
 {% endblock %}
 
 {% block image-script %}
-{% if post.image %}
-<script type="text/javascript" src="{{ static_url }}/assets/js/inner-post/navigation.js"></script>
-{% endif %}
-<script type="text/javascript" src="{{ static_url }}/assets/js/post.js"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/js/main.js"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
+{% if post.image %}
+<script type="text/javascript" src="{{ static_url }}/assets/js/post/navigation.js"></script>
+{% endif %}
+{% if request.user.is_active %}
+<script type="text/javascript" src="{{ static_url }}/assets/js/inner-post/main.js"></script>
+{% endif %}
 <script>
+{% if request.user.is_active %}
+$(document).ready(function() {
+  var csrftoken = getCookie('csrftoken');
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      }
+    }
+  });
+});
+var userList = [];
+var sendUser = [];
+$(document).ready(function () {
+    $.ajax({
+        url: "https://blex.kr/post/{{ post.pk }}/commentor",
+        type: "get",
+    }).done(function (data) {
+        userList = data.split(',');
+        userList.pop();
+    });
+});
+function tagging() {
+    var username = prompt('태그할 사용자');
+    var isFind;
+    for ( x in userList ) {
+        if ( username == userList[x] ) {
+            document.getElementById("id_text").value += '@' + username;
+            sendUser.push(username);
+            isFind = true;
+            break;
+        }
+        else {
+            isFind = false;
+        }
+    }
+    if ( !isFind ) {
+        alert('이 포스트에 댓글이 있는 사용자가 아닙니다.');
+    }
+}
+{% endif %}
 function like() {
     {% if request.user.is_active %}
         {% if not request.user == post.author %}
@@ -182,7 +226,7 @@ function like() {
 }
 function comment() {
     POST_comment('{% url 'comment_post' username=post.author url=post.url %}');
-    POST_tag_notify('{{ request.user.username }}');
+    POST_tag_notify('{{ post.pk }}', '{{ request.user.username }}', sendList)
 }
 function rm_comment(pk) {
     if ( confirm('댓글을 정말 삭제합니까?')==true ) {
@@ -191,14 +235,5 @@ function rm_comment(pk) {
         return;
     }
 }
-{% if request.user.is_active %}
-var mPK = {{ post.pk }};
-var mName = '{{ request.user.username }}';
-var userList = [];
-var sendUser = [];
 </script>
-<script type="text/javascript" src="{{ static_url }}/assets/js/inner-post/user-tag.js"></script>
-{% else%}
-</script>
-{% endif %}
 {% endblock %}
