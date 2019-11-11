@@ -101,23 +101,7 @@
     </div>
     {% else %}
         {% for comment in post.comments.all %}
-        <div class="comment-list">
-            <a href="{% url 'user_profile' username=comment.author %}">
-                {% if comment.author.profile.avatar %}
-                <div class="back-image thumb comment-thumb" style="background-image:url({{ comment.author.profile.avatar.url }})"></div>
-                {% else %}
-                <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/avatar/default.gif)"></div>
-                {% endif %}
-            </a>
-            <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=comment.author %}">{{ comment.author }}</a>
-            <br>
-            <small>{{ comment.created_date | timesince }}전{% if comment.edit %} <span class="vs">edited</span>{% endif %}</small>
-            {% if comment.author == request.user %}
-                <a class="vs shallow-dark" href="javascript:void(0)" onclick="window.open('{% url 'comment_update' cpk=comment.pk %}', '댓글 수정', 'width=500, height=190, left=100, top=50');">수정</a>
-                <a class="vs shallow-dark" href="javascript:void(0)" onclick="rm_comment('{% url 'comment_remove' cpk=comment.pk %}');">삭제</a>
-            {% endif %}
-            <p>{{ comment.text|linebreaks }}</p>
-        </div>
+            {% include 'board/include/post/comment.html' %}
         {% empty %}
         <div class="comment-list">
             <p>작성된 댓글이 없습니다!</p>
