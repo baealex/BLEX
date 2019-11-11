@@ -9,6 +9,11 @@
     {% else %}
     <a href="{% url 'post_sort_list' sort='top' %}">인기</a>
     {% endif %}
+    {% if sort == 'trendy' %}
+    <span class="foot-deco-active">경향</span>
+    {% else %}
+    <a href="{% url 'post_sort_list' sort='trendy' %}">경향</a>
+    {% endif %}
     {% if sort == 'newest' %}
     <span class="foot-deco-active">최신</span>
     {% else %}
