@@ -554,14 +554,14 @@ a.page-link {
     font-size: 1.2rem;
     margin: 20px;
     cursor: pointer;
-    overflow: hidden;
-    word-wrap: break-word;
 }
 #active li {
     list-style: none;
     border: 1px solid #eee;
     margin: 10px;
     padding: 20px;
+    overflow: hidden;
+    word-wrap: break-word;
 }
 #active blockquote {
     margin: 10px 0px;
