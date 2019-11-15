@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $.ajax({
-        url: "https://blex.kr/notify/count",
+        url: "/notify/count",
         type: "get",
     }).done(function (data) {
         if (data > 0) {
@@ -11,7 +11,7 @@ $(document).ready(function () {
 });
 function getUserNotifyContent() {
     $.ajax({
-        url: "https://blex.kr/notify/content",
+        url: "/notify/content",
         type: "get",
     }).done(function (data) {
         $("#notify-content").html(data);

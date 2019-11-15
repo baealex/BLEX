@@ -36,7 +36,7 @@ function POST_tag_notify(pk, userName, sendUser) {
 
     for( x in sendUser ) {
         $.ajax({
-            url: "https://blex.kr/notify/tagging/" + sendUser[x] + "/" + userName +"?blex=" + pk,
+            url: "/notify/tagging/" + sendUser[x] + "/" + userName +"?blex=" + pk,
             type: "post",
         }).done(function (data) {
             console.log(data);

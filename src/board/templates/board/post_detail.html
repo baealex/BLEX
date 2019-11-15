@@ -168,10 +168,10 @@ $(document).ready(function() {
   });
 });
 var userList = [];
-var sendUser = [];
+var sendList = [];
 $(document).ready(function () {
     $.ajax({
-        url: "https://blex.kr/post/{{ post.pk }}/commentor",
+        url: "/post/{{ post.pk }}/commentor",
         type: "get",
     }).done(function (data) {
         userList = data.split(',');
@@ -184,7 +184,7 @@ function tagging() {
     for ( x in userList ) {
         if ( username == userList[x] ) {
             document.getElementById("id_text").value += '@' + username;
-            sendUser.push(username);
+            sendList.push(username);
             isFind = true;
             break;
         }
