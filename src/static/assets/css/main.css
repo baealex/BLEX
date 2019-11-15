@@ -162,10 +162,6 @@ a.notice > b {
     width: 100%;
     height: 100%;
     color:#fff;
-    text-align: center;
-}
-.mask > h1 {
-    padding-top: 45vh;
 }
 .color-dark {
     background: rgba(0,0,0,.84);
@@ -277,6 +273,26 @@ form > p > textarea, input {
 .post-headline {
     font-family: 'Noto Serif KR', serif;
     font-weight: bold;
+    font-size: 2rem;
+}
+.post-title-image .post-headline {
+    max-width: 550px;
+    position: absolute;
+    bottom: 15%;
+    left: 8%;
+}
+.post-date {
+    font-size: 0.8rem;
+}
+.post-title-image .post-date {
+    position: absolute;
+    bottom: 11%;
+    left: 8%;
+}
+.post-series {
+    display: block;
+    font-size: 16px;
+    margin-bottom:5px;
 }
 .post-content {
     margin-top:50px;
@@ -285,6 +301,9 @@ form > p > textarea, input {
 .post-content img {
     max-width: 100%;
     margin-bottom:30px;
+}
+.jumbotron {
+    background: none;
 }
 @keyframes link_animation {0% {box-shadow: inset 0 -4px 0 #888;}100% {box-shadow: inset 0 -40px 0 #000;}}
 @-moz-keyframes link_animation {0% {box-shadow: inset 0 -4px 0 #888;}100% {box-shadow: inset 0 -40px 0 #000;}}
@@ -303,10 +322,6 @@ form > p > textarea, input {
     box-shadow: inset 0 -40px 0 #000;
     text-decoration: none;
     color: #fff;
-}
-.post-date {
-    font-size:12px;
-    margin-bottom:40px;
 }
 #comment {
     margin-bottom: 25px;
@@ -502,8 +517,7 @@ a.page-link {
     background-position: center;
     text-align: center;
     height: 300px;
-    border-bottom: none;
-    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #eee;
 }
 .post-mask {
     transition: all 0.15s;
@@ -554,6 +568,7 @@ a.page-link {
     list-style: none;
 }
 .top-post-slide li {
+    text-align: center;
     width:calc(100% / 4);
     height:300px;
     margin:0;

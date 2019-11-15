@@ -30,10 +30,8 @@
 <style>.content {margin-top: 20px;} #mNavigation {background: rgba(0, 0, 0, 0); position: absolute;}</style>
 <div class="post-title-image back-image" style="background-image: url({{ post.image.url }});">
     <div class="mask">
-        <h1 class="post-headline">{{ post.title }}</h1>
-        <p class="post-date">
-            {{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}
-            <span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
+        <h1 class="post-headline">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
+        <p class="post-date">{{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}<span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
     </div>
 </div>
 {% endif %}
@@ -46,7 +44,7 @@
     </div>
     <div class="col-lg-8 col-md-10">
         {% if not post.image %}
-        <h1 class="post-headline">{{ post.title }}</h1>
+        <h1 class="post-headline">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
         <p class="post-date">
             {{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}
             <span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
@@ -132,7 +130,7 @@
         <div class="row">
         {% for another_post in another_posts %}
             <div class="col-md-4">
-                <a href="{{ another_post.get_absolute_url }}"><div class="back-image rel-post-image" style="background-image: url({% if another_post.image %}{{ another_post.image.url }}{% else %}{{ static_url }}/assets/images/default.png{% endif %});"></div></a>
+                <a href="{{ another_post.get_absolute_url }}"><div class="back-image rel-post-image" style="background-image: url({% if another_post.image %}{{ another_post.image.url }}{% else %}{{ static_url }}/assets/images/default-post.png{% endif %});"></div></a>
                 <h5 class="serif pt-3 pb-4 ns"><a class="text-dark" href="{{ another_post.get_absolute_url }}">{{ another_post.title }}</a></h5>
             </div>
         {% endfor %}

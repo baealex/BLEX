@@ -189,12 +189,8 @@ def setting(request):
 
             subpost = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
             hidepost = Post.objects.filter(author=user, hide=True).order_by('created_date').reverse()
-            comments = Comment.objects.filter(author=user).order_by('created_date').reverse()
-            likeposts = Post.objects.filter(likes=user).reverse()
             render_args['subpost'] = subpost
             render_args['hidepost'] = hidepost
-            render_args['comments'] = comments
-            render_args['likeposts'] = likeposts
         
         elif tab == 'analysis':
             render_args['subtitle'] = 'Analysis'
@@ -517,12 +513,15 @@ def comment_remove(request, cpk):
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
-    paginator = Paginator(posts, 10)
-    page = request.GET.get('page')
-    pageposts = paginator.get_page(page)
+    series = Series.objects.filter(owner=user).order_by('name')
+    comments = Comment.objects.filter(author=user).order_by('created_date').reverse()
+    likeposts = Post.objects.filter(likes=user).reverse()
     render_args = {
         'user': user,
-        'posts': pageposts,
+        'posts': posts,
+        'series': series,
+        'likeposts': likeposts,
+        'comments': comments,
         'white_nav' : True,
     }
     return render(request, 'board/user_profile.html', render_args)
