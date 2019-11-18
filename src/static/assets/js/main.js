@@ -1,4 +1,4 @@
-function MoveSlide(target) {
+function moveSlide(target) {
     $('html, body').animate({ scrollTop: $('#' + target).offset().top - 80 }, 500);
 }
 
@@ -22,3 +22,27 @@ function csrfSafeMethod(method) {
   // these HTTP methods do not require CSRF protection
   return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
+
+function distoryLatelyPosition() {
+  document.cookie='latelyposition=';
+}
+
+function saveLatelyPosition() {
+  document.cookie='latelyposition='+$(document).scrollTop();
+}
+
+function init() {
+  var desPos = getCookie('latelyposition');
+  var findLatelyPosition = setInterval(function() {
+    var nowPos = $(document).scrollTop();
+    if(nowPos != desPos) {
+      $(document).scrollTop(desPos);
+    } else {
+      clearTimeout(findLatelyPosition);
+    }
+  }, 100);
+}
+
+$(document).ready(function() {
+  init();
+});

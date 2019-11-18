@@ -1,11 +1,10 @@
-$(document).ready(function () {
+$(document).ready(function() {
     $.ajax({
         url: "/notify/count",
         type: "get",
     }).done(function (data) {
         if (data > 0) {
-            if ($("#notice-icon").addClass("active"));
-            document.getElementById('notice-count').innerHTML = data;
+            getUserNotifyContent();
         }
     });
 });
@@ -15,5 +14,16 @@ function getUserNotifyContent() {
         type: "get",
     }).done(function (data) {
         $("#notify-content").html(data);
+        $('.toast').toast({
+            // 'delay': 4000
+            'autohide': false
+        });
+        $('.toast').toast('show');
+    });
+}
+function justRemove(readurl) {
+    $.ajax({
+        url: readurl,
+        type: "get",
     });
 }

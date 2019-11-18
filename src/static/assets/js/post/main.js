@@ -1,9 +1,9 @@
 function reloadComment() {
     $("#comment").load(document.URL + " #comment");
 }
-function POST_like(m_url) {
+function likeArticle(paramUrl) {
     $.ajax({
-        url: m_url,
+        url: paramUrl,
         type: "post",
     }).done(function (data) {
         if($("#like").hasClass("like-active")) {
@@ -14,25 +14,29 @@ function POST_like(m_url) {
         document.getElementById('like-count').innerHTML = data;
     });
 }
-function POST_comment(m_url) {
+function writeComment(paramUrl) {
     $.ajax({
-        url: m_url,
-        type: "post",
+        url: paramUrl,
+        type: "POST",
         data: $("form").serialize(),
     }).done(function(data) {
         reloadComment();
         document.getElementById('id_text').value = "";
     });
 }
-function DELETE_comment(m_url) {
-    $.ajax({
-        url: m_url,
-        type: "post",
-    }).done(function(data) {
-        reloadComment();
-    });
+function removeComment(paramUrl) {
+    if ( confirm('댓글을 정말 삭제합니까?')==true ) {
+        $.ajax({
+            url: paramUrl,
+            type: "POST",
+        }).done(function(data) {
+            reloadComment();
+        });
+    } else {
+        return;
+    }
 }
-function POST_tag_notify(pk, userName, sendUser) {
+function sendTagNotify(pk, userName, sendUser) {
     sendUser = sendUser.filter(function(item, pos, self) {
         return self.indexOf(item) == pos;
     });
