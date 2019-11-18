@@ -1,4 +1,4 @@
-<div class="col-lg-4 mt-4" onmouseover="saveLatelyPosition()">
+<div class="col-lg-4 mt-4" onmousedown="saveLatelyPosition()">
     <a href="{% url 'post_detail' username=post.author url=post.url %}">
         {% if post.image %}
         <div class="list-image back-image" style="background-image: url({{ post.image.url }});"></div>

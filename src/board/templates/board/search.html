@@ -21,20 +21,9 @@
 </form>
 </div>
 </div>
-<div id="post-list-parent">
+<div id="card-wrapper">
 {% for post in posts %}
-    {% if post.image %}
-    <div class="post-list" style="background-image: url({{ post.image.url }})">
-    {% else %}
-    <div class="post-list" style="background-image: url({{ static_url }}/assets/images/default-post.png)">
-    {% endif %}
-        <a href="{% url 'post_detail' username=post.author url=post.url %}" class="post-title">
-            <div class="post-mask">
-                <h3 class="serif">{{ post.title }}</h3>
-                <span class="date">{{ post.created_date | date:'' }}</span>
-            </div>
-        </a>
-    </div>
+    {% include 'board/include/post_card.html' %}
 {% endfor %}
 </div>
 {% endblock %}
@@ -53,7 +42,7 @@
 </script>
 <script src="{{ static_url }}/assets/library/InfiniteScroll.js"></script>
 <script type="text/javascript">
-var postWrapperId = 'post-list-parent';
+var postWrapperId = 'card-wrapper';
 var paginatePath = '/search?value={{ value }}&page=';
 var lastPage = {{ posts.paginator.num_pages }};
 new InfiniteScroll(paginatePath, postWrapperId, lastPage);

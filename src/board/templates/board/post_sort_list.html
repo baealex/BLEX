@@ -41,5 +41,4 @@ var paginatePath = '/posts/{{ sort }}?page=';
 var lastPage = {{ pageposts.paginator.num_pages }};
 new InfiniteScroll(paginatePath, postWrapperId, lastPage);
 </script>
-<script src="{{ static_url }}/assets/js/infiniteAddon.js"></script>
 {% endblock %}
