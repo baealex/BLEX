@@ -16,7 +16,7 @@
 
 {% block content %}
 <h4 class="mt-5 serif foot-deco"><span class="foot-deco-active">{{ tag }}</span></h4>
-<div class="row">
+<div id="card-wrapper" class="row">
     {% for post in pageposts %}
         {% include 'board/include/post_card.html' %}
     {% endfor %}
@@ -30,7 +30,7 @@
 {% block image-script %}
 <script src="{{ static_url }}/library/InfiniteScroll.js"></script>
 <script type="text/javascript">
-var postWrapperId = 'post-list-parent';
+var postWrapperId = 'card-wrapper';
 var paginatePath = '/topic/{{ tag }}?page=';
 var lastPage = {{ pageposts.paginator.num_pages }};
 new InfiniteScroll(paginatePath, postWrapperId, lastPage);

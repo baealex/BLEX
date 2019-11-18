@@ -19,9 +19,8 @@
 <form action="search">
     <input id="search-box" autocomplete="off" name="value" type="text" placeholder="검색어를 입력하세요.">
 </form>
-</div>
-</div>
-<div id="card-wrapper">
+
+<div id="card-wrapper" class="row">
 {% for post in posts %}
     {% include 'board/include/post_card.html' %}
 {% endfor %}
