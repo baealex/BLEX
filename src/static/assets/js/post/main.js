@@ -38,8 +38,6 @@ function POST_tag_notify(pk, userName, sendUser) {
         $.ajax({
             url: "/notify/tagging/" + sendUser[x] + "/" + userName +"?blex=" + pk,
             type: "post",
-        }).done(function (data) {
-            console.log(data);
         });
     }
 }

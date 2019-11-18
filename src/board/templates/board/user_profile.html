@@ -112,13 +112,18 @@
 
 {% block image-script %}
 <script>
-show('#post');
+if (!getCookie('tab')) {
+    show('#post');
+} else {
+    show(getCookie('tab'));
+}
 function show(section) {
     var section_list = ['#serise', '#post', '#active'];
     section_list.forEach(function(element) {
         $(element).css('display', 'none');
     });
     $(section).css('display', 'block');
+    document.cookie='tab='+section;
 }
 </script>
 {% endblock %}

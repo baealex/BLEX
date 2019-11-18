@@ -81,12 +81,11 @@
     </div>
     {% block footer %}
     {% endblock %}
-    <script src="{% static 'library/jquery.js' %}"></script>
-    <script src="{% static 'library/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/main.js"></script>
     {% block image-script %}{%endblock%}
-    {% if request.user.is_active %}
-    {% include 'board/include/notify.html' %}
-    {% endif %}
+    {% if request.user.is_active %}{% include 'board/include/notify.html' %}{% endif %}
 </body>
 </html>
 {% endwith %}
