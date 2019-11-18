@@ -206,7 +206,7 @@ function like() {
     {% endif %}
 }
 function comment() {
-    writeComment('{% url 'comment_post' username=post.author url=post.url %}');
+    writeComment('{% url 'comment_post' pk=post.pk %}');
     sendTagNotify('{{ post.pk }}', '{{ request.user.username }}', sendList)
 }
 </script>

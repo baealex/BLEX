@@ -202,6 +202,26 @@ def setting(request):
 
 
 
+# Profile
+def user_profile(request, username):
+    user = get_object_or_404(User, username=username)
+    posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
+    series = Series.objects.filter(owner=user).order_by('name')
+    comments = Comment.objects.filter(author=user).order_by('created_date').reverse()
+    likeposts = Post.objects.filter(likes=user).reverse()
+    render_args = {
+        'user': user,
+        'posts': posts,
+        'series': series,
+        'likeposts': likeposts,
+        'comments': comments,
+        'white_nav' : True,
+    }
+    return render(request, 'board/user_profile.html', render_args)
+# ------------------------------------------------------------ Profile End
+
+
+
 # Series
 def series_update(request, spk):
     series = get_object_or_404(Series, pk=spk, owner=request.user)
@@ -267,7 +287,169 @@ def notify_user_tagging(request, touser, fromuser):
 
 
 
+# Comment
+def comment_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.post = post
+            comment.save()
+            
+            if not comment.author == post.author:
+                send_notify_rederct_url = '/@'+post.author.username+'/'+post.url
+                send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
+                create_notify(target=post.author, url=send_notify_rederct_url, content=send_notify_content)
+            
+            return HttpResponse(str(0))
+    else:
+        raise Http404()
+
+def get_commentor(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    comments = Comment.objects.filter(post=post).order_by('created_date').reverse()
+    m_list  = []
+    for comment in comments:
+        m_list.append(comment.author.username)
+    m_list = list(set(m_list))
+    result = ''
+    for commentor in m_list:
+        result += commentor + ','
+    return HttpResponse(result)
+
+def comment_update(request, cpk):
+    comment = Comment.objects.get(pk=cpk)
+    if not request.user == comment.author:
+        return redirect('post_detail', username=comment.post.author, url=comment.post.url)
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.edit = True
+            comment.save()
+            return HttpResponse('done')
+        else:
+            return HttpResponse('fail')
+    else:
+        form = CommentForm(instance=comment)
+        return render(request, 'board/small/comment_update.html',{ 'form':form })
+
+def comment_remove(request, cpk):
+    comment = Comment.objects.get(pk=cpk)
+    if not comment.author == request.user:
+        return HttpResponse(str(0))
+    else:
+        comment.delete()
+        return HttpResponse(str(1))
+# ------------------------------------------------------------ Comment End
+
+
+
+# Others
+def search(request):
+    value = request.GET.get('value', '')
+    render_args = {
+        'white_nav' : True,
+        'value' : value,
+    }
+    if not value == '':
+        posts = get_posts('all')
+        posts = posts.filter(Q(title__icontains=value) | Q(author__username=value))
+        paginator = Paginator(posts, 10)
+        page = request.GET.get('page')
+        pageposts = paginator.get_page(page)
+        render_args['posts'] = pageposts
+    return render(request, 'board/search.html', render_args)
+
+def content_backup(request):
+    if not request.user.is_active:
+        return redirect('post_list')
+    user = request.user
+    posts = Post.objects.filter(author=user).order_by('created_date')
+    user_content = []
+    for post in posts:
+        user_content += [ [post.title, post.image, post.created_date, post.updated_date, post.text_md] ]
+    return render(request, 'board/content_backup.html', {'user_content':user_content})
+
+def post_list_in_tag(request, tag):
+    posts = Post.objects.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
+    if len(posts) == 0:
+        raise Http404()
+    paginator = Paginator(posts, 15)
+    page = request.GET.get('page')
+    pageposts = paginator.get_page(page)
+    return render(request, 'board/post_list_in_tag.html',{ 'tag':tag, 'pageposts':pageposts, 'white_nav':True })
+# ------------------------------------------------------------ Others End
+
+
+
 # Article
+def post_detail(request, username, url):
+    user = get_object_or_404(User, username=username)
+    post = get_object_or_404(Post, author=user, url=url)
+    if post.hide == True and not post.author == request.user:
+        return HttpResponse(str('<script>alert(\'비공개 글입니다.\');history.back();</script>'))
+    
+    another_posts = Post.objects.filter(author=user, hide=False).exclude(pk=post.pk).order_by('?')[:3]
+    render_args = {
+        'post' : post,
+        'form' : CommentForm(),
+        'another_posts' : another_posts,
+        'check_like' : post.likes.filter(id=request.user.id).exists(),
+        'current_path': request.get_full_path()
+    }
+
+    get_series = request.GET.get('series')
+    if get_series:
+        render_args['get_series'] = True
+        series = Series.objects.filter(name=get_series, owner=user, posts=post.id)
+    else:
+        series = Series.objects.filter(owner=user, posts=post.id)
+
+    if series:
+        this_number = 0
+        this_series = None
+        for i in range(len(series)):
+            if series[i].posts.first()== post:
+                this_series = series[i]
+        if not this_series:
+            this_series = series[0]
+        render_args['this_series'] = this_series
+        for series_post in this_series.posts.all():
+            if str(post.title) == str(series_post):
+                break
+            this_number += 1
+        try:
+            render_args['next_serise'] = this_series.posts.all()[this_number + 1]
+        except:
+            pass
+        try:
+            render_args['prev_serise'] = this_series.posts.all()[this_number - 1]
+        except:
+            pass
+
+    response = render(request, 'board/post_detail.html', render_args)
+    cookie_name = 'hit'
+    today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
+    expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
+    if request.COOKIES.get(cookie_name) is not None:
+        cookies = request.COOKIES.get(cookie_name)
+        cookies_list = cookies.split('|')
+        if str(post.pk) not in cookies_list:
+            response.set_cookie(cookie_name, cookies + '|' + str(post.pk), expires =expires)
+            post.view_cnt += 1
+            post.save()
+            return response
+    else:
+        response.set_cookie(cookie_name, post.pk, expires =expires)
+        post.view_cnt += 1
+        post.save()
+        return response
+    
+    return render(request, 'board/post_detail.html',  render_args)
+
 def post_list(request):
     render_args = {
         'pageposts' : get_posts(''),
@@ -333,94 +515,6 @@ def post_write(request):
         form = PostForm()
     return render(request, 'board/post_write.html',{ 'form':form })
 
-def post_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if not post.author == request.user:
-        return redirect('post_detail', username=post.author, url=post.url)
-    if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.updated_date = timezone.now()
-            post.text_html = parsedown(post.text_md)
-            post.save()
-            return redirect('post_detail', username=post.author, url=post.url)
-    else:
-        form = PostForm(instance=post)
-    return render(request, 'board/post_write.html', {'form': form, 'post': post })
-
-def post_remove(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if not post.author == request.user:
-        return redirect('post_detail', username=post.author, url=post.url)
-    else:
-        post.delete()
-        return redirect('post_list')
-
-def post_detail(request, username, url):
-    user = get_object_or_404(User, username=username)
-    post = get_object_or_404(Post, author=user, url=url)
-    if post.hide == True and not post.author == request.user:
-        return HttpResponse(str('<script>alert(\'비공개 글입니다.\');history.back();</script>'))
-    
-    another_posts = Post.objects.filter(author=user, hide=False).exclude(pk=post.pk).order_by('?')[:3]
-    render_args = {
-        'post' : post,
-        'form' : CommentForm(),
-        'another_posts' : another_posts,
-        'check_like' : post.likes.filter(id=request.user.id).exists(),
-        'current_path': request.get_full_path()
-    }
-
-    get_series = request.GET.get('series')
-    if get_series:
-        render_args['get_series'] = True
-        series = Series.objects.filter(name=get_series, owner=user, posts=post.id)
-    else:
-        series = Series.objects.filter(owner=user, posts=post.id)
-
-    if series:
-        this_number = 0
-        this_series = None
-        for i in range(len(series)):
-            if series[i].posts.first()== post:
-                this_series = series[i]
-        if not this_series:
-            this_series = series[0]
-        render_args['this_series'] = this_series
-        for series_post in this_series.posts.all():
-            if str(post.title) == str(series_post):
-                break
-            this_number += 1
-        try:
-            render_args['next_serise'] = this_series.posts.all()[this_number + 1]
-        except:
-            pass
-        try:
-            render_args['prev_serise'] = this_series.posts.all()[this_number - 1]
-        except:
-            pass
-
-    response = render(request, 'board/post_detail.html', render_args)
-    cookie_name = 'hit'
-    today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
-    expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
-    if request.COOKIES.get(cookie_name) is not None:
-        cookies = request.COOKIES.get(cookie_name)
-        cookies_list = cookies.split('|')
-        if str(post.pk) not in cookies_list:
-            response.set_cookie(cookie_name, cookies + '|' + str(post.pk), expires =expires)
-            post.view_cnt += 1
-            post.save()
-            return response
-    else:
-        response.set_cookie(cookie_name, post.pk, expires =expires)
-        post.view_cnt += 1
-        post.save()
-        return response
-    
-    return render(request, 'board/post_detail.html',  render_args)
-
 def post_like(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == 'POST':
@@ -447,122 +541,27 @@ def post_like(request, pk):
         return HttpResponse(str(post.total_likes()))
     return redirect('post_list')
 
-def get_commentor(request, pk):
+def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    comments = Comment.objects.filter(post=post).order_by('created_date').reverse()
-    m_list  = []
-    for comment in comments:
-        m_list.append(comment.author.username)
-    m_list = list(set(m_list))
-    result = ''
-    for commentor in m_list:
-        result += commentor + ','
-    return HttpResponse(result)
-# ------------------------------------------------------------ Article End
-
-
-
-# Comment
-def comment_post(request, username, url):
-    user = get_object_or_404(User, username=username)
-    post = get_object_or_404(Post, author=user, url=url)
+    if not post.author == request.user:
+        return redirect('post_detail', username=post.author, url=post.url)
     if request.method == 'POST':
-        form = CommentForm(request.POST)
+        form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
-            comment = form.save(commit=False)
-            comment.author = request.user
-            comment.post = post
-            comment.save()
-            
-            if not comment.author == post.author:
-                send_notify_rederct_url = '/@'+post.author.username+'/'+post.url
-                send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
-                create_notify(target=post.author, url=send_notify_rederct_url, content=send_notify_content)
-            
-            return HttpResponse(str(0))
+            post = form.save(commit=False)
+            post.updated_date = timezone.now()
+            post.text_html = parsedown(post.text_md)
+            post.save()
+            return redirect('post_detail', username=post.author, url=post.url)
     else:
-        raise Http404()
+        form = PostForm(instance=post)
+    return render(request, 'board/post_write.html', {'form': form, 'post': post })
 
-def comment_update(request, cpk):
-    comment = Comment.objects.get(pk=cpk)
-    if not request.user == comment.author:
-        return redirect('post_detail', username=comment.post.author, url=comment.post.url)
-    if request.method == 'POST':
-        form = CommentForm(request.POST, instance=comment)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.edit = True
-            comment.save()
-            return HttpResponse('done')
-        else:
-            return HttpResponse('fail')
+def post_remove(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if not post.author == request.user:
+        return redirect('post_detail', username=post.author, url=post.url)
     else:
-        form = CommentForm(instance=comment)
-        return render(request, 'board/small/comment_update.html',{ 'form':form })
-
-def comment_remove(request, cpk):
-    comment = Comment.objects.get(pk=cpk)
-    if not comment.author == request.user:
-        return HttpResponse(str(0))
-    else:
-        comment.delete()
-        return HttpResponse(str(1))
-# ------------------------------------------------------------ Comment End
-
-
-
-# Profile
-def user_profile(request, username):
-    user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
-    series = Series.objects.filter(owner=user).order_by('name')
-    comments = Comment.objects.filter(author=user).order_by('created_date').reverse()
-    likeposts = Post.objects.filter(likes=user).reverse()
-    render_args = {
-        'user': user,
-        'posts': posts,
-        'series': series,
-        'likeposts': likeposts,
-        'comments': comments,
-        'white_nav' : True,
-    }
-    return render(request, 'board/user_profile.html', render_args)
-# ------------------------------------------------------------ Profile End
-from django.core.serializers.json import DjangoJSONEncoder
-
-
-# Others
-def search(request):
-    value = request.GET.get('value', '')
-    render_args = {
-        'white_nav' : True,
-        'value' : value,
-    }
-    if not value == '':
-        posts = get_posts('all')
-        posts = posts.filter(Q(title__icontains=value) | Q(author__username=value))
-        paginator = Paginator(posts, 10)
-        page = request.GET.get('page')
-        pageposts = paginator.get_page(page)
-        render_args['posts'] = pageposts
-    return render(request, 'board/search.html', render_args)
-
-def content_backup(request):
-    if not request.user.is_active:
+        post.delete()
         return redirect('post_list')
-    user = request.user
-    posts = Post.objects.filter(author=user).order_by('created_date')
-    user_content = []
-    for post in posts:
-        user_content += [ [post.title, post.image, post.created_date, post.updated_date, post.text_md] ]
-    return render(request, 'board/content_backup.html', {'user_content':user_content})
-
-def post_list_in_tag(request, tag):
-    posts = Post.objects.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
-    if len(posts) == 0:
-        raise Http404()
-    paginator = Paginator(posts, 15)
-    page = request.GET.get('page')
-    pageposts = paginator.get_page(page)
-    return render(request, 'board/post_list_in_tag.html',{ 'tag':tag, 'pageposts':pageposts, 'white_nav':True })
-# ------------------------------------------------------------ Others End
+# ------------------------------------------------------------ Article End

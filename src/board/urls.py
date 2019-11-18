@@ -19,6 +19,10 @@ urlpatterns = [
     path('setting',views.setting,name='setting'),
     # ------------------------------------------------------------ Account End
 
+    # Profile
+    path('@<username>', views.user_profile,name='user_profile'),
+    # ------------------------------------------------------------ Profile End
+
     # Series
     path('series/<int:spk>/update', views.series_update, name='series_update'),
     path('series/<int:spk>/remove', views.series_remove, name='series_remove'),
@@ -32,27 +36,12 @@ urlpatterns = [
     path('notify/tagging/<touser>/<fromuser>', views.notify_user_tagging, name='notify_user_tagging'),
     # ------------------------------------------------------------ Notify End
 
-    # Article
-    path('',views.post_list,name='post_list'), 
-    path('posts/<sort>',views.post_sort_list,name='post_sort_list'),
-    path('write',views.post_write,name='post_write'),
-    path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
-    path('post/<int:pk>/remove', views.post_remove, name='post_remove'), 
-    path('@<username>/<url>', views.post_detail, name='post_detail'),
-    # Sub Option
-    path('post/<int:pk>/like', views.post_like, name='post_like'),
-    path('post/<int:pk>/commentor',views.get_commentor,name='get_commentor'),
-    # ------------------------------------------------------------ Article End
-
     # Comment
-    path('@<username>/<url>/comment', views.comment_post, name='comment_post'),
+    path('post/<int:pk>/comment', views.comment_post, name='comment_post'),
+    path('post/<int:pk>/commentor',views.get_commentor,name='get_commentor'),
     path('comment/<int:cpk>/update', views.comment_update, name='comment_update'),
     path('comment/<int:cpk>/remove', views.comment_remove, name='comment_remove'),
     # ------------------------------------------------------------ Comment End
-
-    # Profile
-    path('@<username>', views.user_profile,name='user_profile'),
-    # ------------------------------------------------------------ Profile End
 
     # Others
     path('search', views.search, name='search'),
@@ -62,4 +51,14 @@ urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     # ------------------------------------------------------------ Others End
+
+    # Article
+    path('@<username>/<url>', views.post_detail, name='post_detail'),
+    path('',views.post_list,name='post_list'), 
+    path('write',views.post_write,name='post_write'),
+    path('<sort>',views.post_sort_list,name='post_sort_list'),
+    path('post/<int:pk>/like', views.post_like, name='post_like'),
+    path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
+    path('post/<int:pk>/remove', views.post_remove, name='post_remove'), 
+    # ------------------------------------------------------------ Article End
 ]

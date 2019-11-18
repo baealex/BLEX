@@ -54,9 +54,9 @@
 <div class="profile-tab back-image" style="background-image:url({{ user.profile.avatar.url }})">
     <div class="mask">
         <ul class="serif">
-            <li onclick="show('#serise')">시리즈</li>
-            <li onclick="show('#post')">포스트</li>
-            <li onclick="show('#active')">활동</li>
+            <li onclick="showProfile('#serise')">시리즈</li>
+            <li onclick="showProfile('#post')">포스트</li>
+            <li onclick="showProfile('#active')">활동</li>
         </ul>
     </div>
 </div>
@@ -111,19 +111,5 @@
 {% endblock %}
 
 {% block image-script %}
-<script>
-if (!getCookie('tab')) {
-    show('#post');
-} else {
-    show(getCookie('tab'));
-}
-function show(section) {
-    var section_list = ['#serise', '#post', '#active'];
-    section_list.forEach(function(element) {
-        $(element).css('display', 'none');
-    });
-    $(section).css('display', 'block');
-    document.cookie='tab='+section;
-}
-</script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/profile/main.js"></script>
 {% endblock %}
