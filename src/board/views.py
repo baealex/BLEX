@@ -493,7 +493,9 @@ def comment_update(request, cpk):
             comment = form.save(commit=False)
             comment.edit = True
             comment.save()
-            return HttpResponse('<script>self.close();opener.location.href = opener.location.href;</script>')
+            return HttpResponse('done')
+        else:
+            return HttpResponse('fail')
     else:
         form = CommentForm(instance=comment)
         return render(request, 'board/small/comment_update.html',{ 'form':form })

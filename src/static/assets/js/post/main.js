@@ -1,3 +1,6 @@
+function reloadComment() {
+    $("#comment").load(document.URL + " #comment");
+}
 function POST_like(m_url) {
     $.ajax({
         url: m_url,
@@ -17,7 +20,7 @@ function POST_comment(m_url) {
         type: "post",
         data: $("form").serialize(),
     }).done(function(data) {
-        $("#comment").load(document.URL + " #comment");
+        reloadComment();
         document.getElementById('id_text').value = "";
     });
 }
@@ -26,7 +29,7 @@ function DELETE_comment(m_url) {
         url: m_url,
         type: "post",
     }).done(function(data) {
-        $("#comment").load(document.URL + " #comment");
+        reloadComment();
     });
 }
 function POST_tag_notify(pk, userName, sendUser) {
