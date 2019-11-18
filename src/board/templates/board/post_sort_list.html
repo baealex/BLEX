@@ -36,10 +36,10 @@
 {% block image-script %}
 <script src="{{ static_url }}/assets/library/InfiniteScroll.js"></script>
 <script type="text/javascript">
-init();
 var postWrapperId = 'card-wrapper';
 var paginatePath = '/posts/{{ sort }}?page=';
 var lastPage = {{ pageposts.paginator.num_pages }};
 new InfiniteScroll(paginatePath, postWrapperId, lastPage);
 </script>
+<script src="{{ static_url }}/assets/js/infiniteAddon.js"></script>
 {% endblock %}

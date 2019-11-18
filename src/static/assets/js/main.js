@@ -30,19 +30,3 @@ function distoryLatelyPosition() {
 function saveLatelyPosition() {
   document.cookie='latelyposition='+$(document).scrollTop();
 }
-
-function init() {
-  var desPos = getCookie('latelyposition');
-  var findLatelyPosition = setInterval(function() {
-    var nowPos = $(document).scrollTop();
-    if(nowPos != desPos) {
-      $(document).scrollTop(desPos);
-    } else {
-      clearTimeout(findLatelyPosition);
-    }
-  }, 100);
-}
-
-$(document).ready(function() {
-  init();
-});
