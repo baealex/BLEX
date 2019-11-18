@@ -196,25 +196,18 @@ function tagging() {
 {% endif %}
 function like() {
     {% if request.user.is_active %}
-        {% if not request.user == post.author %}
-    POST_like('{% url 'post_like' pk=post.pk%}');
-        {% else %}
+        {% if request.user == post.author %}
     alert('자신의 글은 추천할 수 없습니다.');
+        {% else %}
+    likeArticle('{% url 'post_like' pk=post.pk%}');
         {% endif %}
     {% else %}
     alert("로그인 된 사용자만 사용할 수 있습니다.");
     {% endif %}
 }
 function comment() {
-    POST_comment('{% url 'comment_post' username=post.author url=post.url %}');
-    POST_tag_notify('{{ post.pk }}', '{{ request.user.username }}', sendList)
-}
-function rm_comment(pk) {
-    if ( confirm('댓글을 정말 삭제합니까?')==true ) {
-        DELETE_comment(pk);
-    } else {
-        return;
-    }
+    writeComment('{% url 'comment_post' username=post.author url=post.url %}');
+    sendTagNotify('{{ post.pk }}', '{{ request.user.username }}', sendList)
 }
 </script>
 {% endblock %}
