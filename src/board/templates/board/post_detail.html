@@ -180,7 +180,7 @@ function tagging() {
     var isFind;
     for ( x in userList ) {
         if ( username == userList[x] ) {
-            document.getElementById("id_text").value += '@' + username;
+            $('#id_text').val($('#id_text').val() + ('@' + username)).focus();
             sendList.push(username);
             isFind = true;
             break;
