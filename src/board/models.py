@@ -71,7 +71,7 @@ class Profile(models.Model):
         except:
             pass
         super(Profile, self).save(*args, **kwargs)
-    
+
 class Post(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     url = models.SlugField(max_length=50, unique=True, allow_unicode=True)
@@ -82,7 +82,7 @@ class Post(models.Model):
     view_cnt = models.IntegerField(default=0)
     hide = models.BooleanField(default=False)
     notice = models.BooleanField(default=False)
-    search = models.BooleanField(default=False)
+    block_comment = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(blank=True, default=timezone.now)
     last_like_date = models.DateTimeField(blank=True, default=timezone.now)

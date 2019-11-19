@@ -357,7 +357,7 @@ def search(request):
     if not value == '':
         posts = get_posts('all')
         posts = posts.filter(Q(title__icontains=value) | Q(author__username=value))
-        paginator = Paginator(posts, 10)
+        paginator = Paginator(posts, 15)
         page = request.GET.get('page')
         pageposts = paginator.get_page(page)
         render_args['posts'] = pageposts

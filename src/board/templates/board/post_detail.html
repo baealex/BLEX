@@ -93,7 +93,7 @@
 </div>
 
 <div id="comment" class="mt-5">
-    {% if post.search %}
+    {% if post.block_comment %}
     <div class="comment-list">
         <p>댓글이 닫혀 있습니다.</p>
     </div>
@@ -108,7 +108,7 @@
     {% endif %}
 </div>
 
-{% if not post.search %}
+{% if not post.block_comment %}
     {% if request.user.is_active %}
     <form method="post">
         {% csrf_token %}

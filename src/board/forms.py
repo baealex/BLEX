@@ -5,7 +5,7 @@ from .models import *
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('image', 'title', 'text_md', 'tag', 'notice', 'hide', 'search') # 'category'
+        fields = ('image', 'title', 'text_md', 'tag', 'notice', 'hide', 'block_comment') # 'category'
 
         widgets={
             'title':forms.TextInput(attrs={'placeholder':'제목을 입력하세요. 제목은 URL 주소가 됩니다.','class':'blex-title-input'}),
@@ -13,7 +13,7 @@ class PostForm(forms.ModelForm):
             'tag':forms.TextInput(attrs={'placeholder':'파이썬, 장고, 웹개발, 백앤드','class':'form-control'}),
             'notice':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'hide':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
-            'search':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'block_comment':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'image':forms.FileInput(attrs={'style':'display: none;','class':'form-control', 'required': False})
         }
         labels={
