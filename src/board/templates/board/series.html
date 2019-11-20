@@ -1,0 +1,100 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ user.username }} ({{ user.first_name }}){% endblock %}
+
+{% block seo %}
+<meta name="description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+<meta property="og:site_name" content="{{ site_title }}">
+<meta property="og:title" content="{{ site_title }} - {{ user.username }}">
+<meta name="og:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+{% if user.profile.avatar %}<meta property="og:image" content="{{ user.profile.avatar.url }}">{% endif %}
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ site_title }} - {{ user.username }}">
+<meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta name="twitter:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+{% if user.profile.avatar %}<meta property="twitter:image" content="{{ user.profile.avatar.url }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+</div>
+</div>
+
+<style>
+.series-title-image {
+    position: absolute;
+    text-align: center;
+    height: 50vh;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+.series-title-image h3 {
+    padding-top: 24vh;
+}
+.series-title-image .user-thumb {
+    border-radius: 100%;
+    border: 10px solid #fff;
+    position: absolute;
+    top: 50vh;
+    transform:translateY(-50%);
+    right: 5%;
+    width: 15vh;
+    height: 15vh;
+}
+.series-list {
+    margin-top: 60vh;
+}
+.series-list > .col-lg-8 {
+    min-height: 150px;
+}
+.series-list-image {
+    width: 150px;
+    height: 150px;
+    float: right;
+    margin-left: 20px;
+    border: 1px solid #ccc;
+}
+</style>
+{% if series.posts.first.image %}
+<div class="back-image series-title-image" style="background-image: url({{ series.posts.first.image.url }});">
+{% else %}
+<div class="back-image series-title-image" style="background-image: url({{ static_url }}/assets/images/default-post.png);">
+{% endif %}
+    <div class="mask">
+        <h3 class="serif font-weight-bold"><span class="post-series">@{{ user.username }}</span>'{{ series.name }}' 시리즈</h3>
+    </div>
+    <a href="{% url 'user_profile' username=user.username %}">
+        {% if user.profile.avatar %}
+        <div class="user-thumb back-image" style="background-image:url({{ user.profile.avatar.url }})"></div>
+        {% else %}
+        <div class="user-thumb back-image" style="background-image:url({{ static_url }}/assets/images/default-avatar.jpg)"></div>
+        {% endif %}
+    </a>
+</div>
+
+<div class="container series-list">
+    {% for post in series.posts.all %}
+    <div class="mb-5 col-lg-8 mx-auto">
+        <a href="{% url 'post_detail' username=post.author url=post.url %}">
+            {% if post.image %}
+            <div class="series-list-image back-image" style="background-image: url({{ post.image.url }});"></div>
+            {% else %}
+            <div class="series-list-image back-image" style="background-image: url({{ static_url }}/assets/images/default-post.png);"></div>
+            {% endif %}
+        </a>
+        <h5 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title | truncatechars:50 }}</a></h5>
+        <p><a class="shallow-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.text_html | striptags | truncatewords:30 }}</a></p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block footer%}
+    {% include 'board/include/footer.html' %}
+{% endblock %}
+
+{% block image-script %}
+
+{% endblock %}

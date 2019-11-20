@@ -52,7 +52,11 @@
 </div>
 </div>
 </div>
+{% if user.profile.avatar %}
 <div class="profile-tab back-image" style="background-image:url({{ user.profile.avatar.url }})">
+{% else %}
+<div class="profile-tab back-image" style="background-image:url({{ static_url }}/assets/images/default-avatar.jpg)">
+{% endif %}
     <div class="mask">
         <ul class="serif">
             <li onclick="showProfile('#serise')">시리즈</li>
@@ -66,7 +70,7 @@
     {% for mseries in series %}
     {% if mseries.posts.first %}
         <div class="col-lg-4 mt-4">
-            <a href="{{ mseries.posts.first.get_absolute_url }}">
+            <a href="{% url 'series_list' username=user.username name=mseries.name %}">
                 {% if mseries.posts.first.image %}
                 <div class="list-image back-image" style="background-image: url({{ mseries.posts.first.image.url }});"></div>
                 {% else %}
@@ -96,13 +100,13 @@
 {% endfor %}
 </div>
 <div id="active" class="container">
+    {% for post in likeposts %}
+    <li><i class="fas fa-heart"></i> <a class="shallow-dark" href="{{ post.get_absolute_url }}">'{{ post }}'</a>글을 좋아합니다.</li>
+    {% endfor %}
     {% for comment in comments %}
     <li><i class="fas fa-comment"></i> <a class="shallow-dark" href="{{ comment.post.get_absolute_url }}">'{{ comment.post }}'</a>에 댓글을 남겼습니다.
         <blockquote>{{ comment.text }}</blockquote>
     </li>
-    {% endfor %}
-    {% for post in likeposts %}
-    <li><i class="fas fa-heart"></i> <a class="shallow-dark" href="{{ post.get_absolute_url }}">'{{ post }}'</a>글을 좋아합니다.</li>
     {% endfor %}
 </div>
 {% endblock %}

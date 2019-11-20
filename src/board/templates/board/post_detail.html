@@ -60,7 +60,7 @@
         {% if prev_serise %}
         <div class="jumbotron text-center">
             <div class="container">
-                <h5 class="serif">'{{ this_series }}' 시리즈의 이전 글</h5>
+                <h5 class="serif"><a class="shallow-dark" href="{% url 'series_list' username=post.author name=this_series %}">'{{ this_series }}'</a> 시리즈의 이전 글</h5>
                 <p><a class="serif shallow-dark" href="{{ prev_serise.get_absolute_url }}?series={{this_series}}">{{ prev_serise }}</a></p>
             </div>
         </div>
@@ -71,7 +71,7 @@
         {% if next_serise %}
         <div class="jumbotron text-center">
             <div class="container">
-                <h5 class="serif">'{{ this_series }}' 시리즈의 다음 글</h5>
+                <h5 class="serif"><a class="shallow-dark" href="{% url 'series_list' username=post.author name=this_series %}">'{{ this_series }}'</a> 시리즈의 다음 글</h5>
                 <p><a class="serif shallow-dark" href="{{ next_serise.get_absolute_url }}?series={{this_series}}">{{ next_serise }}</a></p>
             </div>
         </div>

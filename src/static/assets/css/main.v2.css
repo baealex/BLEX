@@ -341,7 +341,7 @@ form > p > textarea, input {
   word-break: break-all;
 }
 .article h1, .article h2, .article h3, .article h4, .article h5, .article h6 {
-  margin: 1.5em 0 10px;
+  margin: 0.5em 0 0.5em;
   font-weight: bold;
   font-family: 'Noto Serif KR', serif;
 }
@@ -370,7 +370,7 @@ form > p > textarea, input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  font-family: 'Nanum Gothic Coding', monospace;
+  font-family: monospace;
 }
 .article .rouge-gutter {
   border-right: 1px solid #888;
@@ -682,4 +682,39 @@ a.page-link {
     border-radius: 15px;
     color: #ccc;
     cursor: pointer;
+}
+/* SERIES */
+.series-title-image {
+    position: absolute;
+    text-align: center;
+    height: 50vh;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+.series-title-image h3 {
+    padding-top: 24vh;
+}
+.series-title-image .user-thumb {
+    border-radius: 100%;
+    border: 10px solid #fff;
+    position: absolute;
+    top: 50vh;
+    transform:translateY(-50%);
+    right: 5%;
+    width: 15vh;
+    height: 15vh;
+}
+.series-list {
+    margin-top: 60vh;
+}
+.series-list > .col-lg-8 {
+    min-height: 150px;
+}
+.series-list-image {
+    width: 150px;
+    height: 150px;
+    float: right;
+    margin-left: 20px;
+    border: 1px solid #ccc;
 }

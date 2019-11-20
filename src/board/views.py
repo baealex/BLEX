@@ -241,6 +241,15 @@ def series_remove(request, spk):
     series = get_object_or_404(Series, pk=spk, owner=request.user)
     series.delete()
     return HttpResponse('<script>self.close();opener.location.href = opener.location.href;</script>')
+
+def series_list(request, username, name):
+    user = get_object_or_404(User, username=username)
+    series = get_object_or_404(Series, owner=user, name=name)
+    render_args = {
+        'user': user,
+        'series': series
+    }
+    return render(request, 'board/series.html', render_args)
 # ------------------------------------------------------------ Series End
 
 
@@ -458,7 +467,7 @@ def post_list(request):
     }
 
     if request.user.is_active:
-        render_args['write_btn'] = True 
+        render_args['write_btn'] = True
     
     tags = get_clean_all_tags()
     alltaglist = []
@@ -470,7 +479,7 @@ def post_list(request):
     return render(request, 'board/post_list.html', render_args)
 
 def post_sort_list(request, sort):
-    available_sort = [ 'top', 'trendy', 'newest', 'oldest' ]
+    available_sort = [ 'trendy', 'newest', 'oldest' ]
     if not sort in available_sort:
         raise Http404()
     

@@ -26,7 +26,7 @@ urlpatterns = [
     # Series
     path('series/<int:spk>/update', views.series_update, name='series_update'),
     path('series/<int:spk>/remove', views.series_remove, name='series_remove'),
-    # path('@<username>/series/<name>', views.some, name='some'),
+    path('@<username>/series/<name>', views.series_list, name='series_list'),
     # ------------------------------------------------------------ Series End
 
     # Notify
