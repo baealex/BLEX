@@ -5,12 +5,12 @@
 {% block seo %}
 <meta name="description" content="{{ sort }}로 정렬된 {{ site_title }}의 글들 입니다.">
 <meta property="og:site_name" content="{{ site_title }}">
-<meta property="og:title" content="{{ site_title }}">
+<meta property="og:title" content="{{ sort }}">
 <meta name="og:description" content="{{ sort }}로 정렬된 {{ site_title }}의 글들 입니다.">
 <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta property="og:type" content="blog">
 <meta name = "twitter : card" content="summary"> 
-<meta name = "twitter : title" content="{{ site_title }}"> 
+<meta name = "twitter : title" content="{{ sort }}"> 
 <meta name = "twitter : description" content="{{ sort }}로 정렬된 {{ site_title }}의 글들 입니다."> 
 {% endblock %}
 

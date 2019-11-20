@@ -39,9 +39,11 @@
 {% endif %}
 
 {% if tags %}<h4 class="mt-5 serif foot-deco mb-3"><span class="foot-deco-active">태그</span> 클라우드</h4>{% endif %}
-{% for tag in tags %}
-<span class="tag-list"><a href="{% url 'post_list_in_tag' tag=tag|last %}">{{ tag.1 }}<span class="ns">({{ tag.0 }})</span></a></span>
-{% endfor %}
+<ul class="tag-list">
+    {% for tag in tags %}
+    <li><a href="{% url 'post_list_in_tag' tag=tag|last %}">{{ tag.1 }}<span class="ns">({{ tag.0 }})</span></a></li>
+    {% endfor %}
+</ul>
 
 {% endblock %}
 

@@ -4,17 +4,20 @@
 
 {% block seo %}
 {% if get_series %}<meta name="robots" content="noindex">{% endif %}
-<meta name="description" content="{{ post.text_html | striptags | truncatewords:30 }}">
-<meta property="og:site_name" content="{{ site_title }}">
-<meta property="og:title" content="{{ post.title | truncatewords:20 }}">
-<meta name="og:description" content="{{ post.text_html | striptags | truncatewords:30 }}">
-{% if post.image %}<meta property="og:image" content="{{ post.image.url }}">{% endif %}
+<meta name="description" content="{{ post.text_html | striptags | truncatewords:50 }}">
 <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta property="og:type" content="blog">
-<meta name="twitter : card" content="summary">
-<meta name="twitter : title" content="{{ post.title | truncatewords:20 }}">
-<meta name="twitter : description" content="{{ post.text_html | striptags | truncatewords:30 }}">
-{% if post.image %}<meta name="twitter : image" content="{{ post.image.url }}">{% endif %}
+<meta property="og:title" content="{{ post.title | truncatewords:20 }}">
+<meta property="og:description" content="{{ post.text_html | striptags | truncatewords:50 }}">
+<meta property="og:site_name" content="{{ site_title }}">
+{% if post.image %}<meta property="og:image" content="{{ post.image.url }}">{% endif %}
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="{{ post.author }}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ post.title | truncatewords:20 }}">
+<meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta name="twitter:description" content="{{ post.text_html | striptags | truncatewords:50 }}">
+{% if post.image %}<meta name="twitter:image" content="{{ post.image.url }}">{% endif %}
 {% endblock %}
 
 {% block usernav %}
@@ -83,9 +86,11 @@
         {% endif %}
         {% load tagging_tags %}
         {% tags_for_object post as tags %}
-        {% for tag in tags %}
-        <span class="tag-list"><a href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></span>
-        {% endfor %}
+        <ul class="tag-list">
+            {% for tag in tags %}
+            <li><a href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></li>
+            {% endfor %}
+        </ul>
     </div>
     <div class="col-lg-2 mobile-disable">
         <div id="article-nav" class="sticky-top sticky-top-100"></div>

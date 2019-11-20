@@ -10,9 +10,10 @@
 {% if user.profile.avatar %}<meta property="og:image" content="{{ user.profile.avatar.url }}">{% endif %}
 <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta property="og:type" content="blog">
-<meta name = "twitter:card" content="summary">
-<meta name = "twitter:title" content="{{ site_title }} - {{ user.username }}">
-<meta name = "twitter:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ site_title }} - {{ user.username }}">
+<meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta name="twitter:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
 {% if user.profile.avatar %}<meta property="twitter:image" content="{{ user.profile.avatar.url }}">{% endif %}
 {% endblock %}
 
