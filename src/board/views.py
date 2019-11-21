@@ -36,7 +36,7 @@ def get_posts(sort):
         return Post.objects.filter(notice=True).order_by('created_date')
 
 def get_clean_all_tags():
-    tagslist = list(Post.objects.values_list('tag', flat=True).distinct())
+    tagslist = list(Post.objects.filter(hide=False).values_list('tag', flat=True).distinct())
     tags = []
     for anothertags in tagslist:
         for subtag in anothertags.split(','):
@@ -383,7 +383,7 @@ def content_backup(request):
     return render(request, 'board/content_backup.html', {'user_content':user_content})
 
 def post_list_in_tag(request, tag):
-    posts = Post.objects.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
+    posts = Post.objects.filter(hide=False, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
     if len(posts) == 0:
         raise Http404()
     paginator = Paginator(posts, 15)
