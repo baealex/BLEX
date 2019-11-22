@@ -207,8 +207,8 @@ def user_profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
     series = Series.objects.filter(owner=user).order_by('name')
-    comments = Comment.objects.filter(author=user).order_by('created_date').reverse()
-    likeposts = Post.objects.filter(likes=user).reverse()
+    comments = Comment.objects.filter(author=user, post__hide=False).order_by('created_date').reverse()
+    likeposts = Post.objects.filter(likes=user, hide=False).reverse()
     render_args = {
         'user': user,
         'posts': posts,
