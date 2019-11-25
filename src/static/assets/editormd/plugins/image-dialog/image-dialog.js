@@ -90,7 +90,7 @@
                                 alert(imageLang.imageURLEmpty);
                                 return false;
                             }
-                            alert(ext);
+                            
                             if (ext === "mp4") {
                                 cm.replaceSelection("<video autoplay muted loop><source src=\"" + url + "\" type=\"video/mp4\" /></video>");
                                 cm.setCursor(cursor.line, cursor.ch + 2);
