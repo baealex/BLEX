@@ -49,10 +49,10 @@
                                         "<label>" + imageLang.url + "</label>" +
                                         "<input id='data-url' type=\"text\" data-url />" + (function(){
                                             return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
-                                                                                                "<form id='image-form' enctype='multipart/form-data'>" +
-                                                                                                "<input type=\"file\" name='image' accept=\"image/*\" />" +
-                                                                                                "<input type=\"button\" value=\"" + imageLang.uploadButton + "\" class='editormd-btn'/>" +
-                                                                                                "<form></div>" : "";
+                                                                            "<form id='image-form' enctype='multipart/form-data'>" +
+                                                                            "<input type=\"file\" name='image' accept=\"image/*\" />" +
+                                                                            "<input type=\"button\" value=\"" + imageLang.uploadButton + "\" class='editormd-btn'/>" +
+                                                                            "<form></div>" : "";
                                         })() +
                                         "<br/>" +
                                         "<label>" + imageLang.alt + "</label>" +
@@ -83,6 +83,7 @@
                             var url  = this.find("[data-url]").val();
                             var alt  = this.find("[data-alt]").val();
                             var link = this.find("[data-link]").val();
+                            var ext  = url.slice(url.indexOf(".") + 1).toLowerCase();
 
                             if (url === "")
                             {
@@ -90,19 +91,25 @@
                                 return false;
                             }
 
-							var altAttr = (alt !== "") ? " \"" + alt + "\"" : "";
-
-                            if (link === "" || link === "http://")
-                            {
-                                cm.replaceSelection("![" + alt + "](" + url + altAttr + ")");
-                            }
-                            else
-                            {
-                                cm.replaceSelection("[![" + alt + "](" + url + altAttr + ")](" + link + altAttr + ")");
-                            }
-
-                            if (alt === "") {
+                            if (ext === "mp4") {
+                                cm.replaceSelection("<video autoplay muted loop><source src=\"" + url + "\" type=\"video/mp4\" /></video>");
                                 cm.setCursor(cursor.line, cursor.ch + 2);
+                            }
+                            else {
+                                var altAttr = (alt !== "") ? " \"" + alt + "\"" : "";
+
+                                if (link === "" || link === "http://")
+                                {
+                                    cm.replaceSelection("![" + alt + "](" + url + altAttr + ")");
+                                }
+                                else
+                                {
+                                    cm.replaceSelection("[![" + alt + "](" + url + altAttr + ")](" + link + altAttr + ")");
+                                }
+
+                                if (alt === "") {
+                                    cm.setCursor(cursor.line, cursor.ch + 2);
+                                }
                             }
 
                             this.hide().lockScreen(false).hideMask();
