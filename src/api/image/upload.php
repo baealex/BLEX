@@ -10,13 +10,7 @@ $year = date("Y");
 $month = date("m");
 $day = date("d");
 
-$hostname = $_SERVER["HTTP_HOST"];
-$uri = $_SERVER['REQUEST_URI'];
-$query_string = getenv("QUERY_STRING");
-$phpself = $_SERVER["PHP_SELF"];
-$basename = basename($_SERVER["PHP_SELF"]);
-
-$uploads_url = 'https://'.$hostname.'/image';
+$uploads_url = 'https://static.blex.kr/image';
 $allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
 
 $filePath = "./count.txt";

@@ -83,14 +83,14 @@
                             var url  = this.find("[data-url]").val();
                             var alt  = this.find("[data-alt]").val();
                             var link = this.find("[data-link]").val();
-                            var ext  = url.slice(url.indexOf(".") + 1).toLowerCase();
+                            var ext  = url.split('.').pop();
 
                             if (url === "")
                             {
                                 alert(imageLang.imageURLEmpty);
                                 return false;
                             }
-
+                            alert(ext);
                             if (ext === "mp4") {
                                 cm.replaceSelection("<video autoplay muted loop><source src=\"" + url + "\" type=\"video/mp4\" /></video>");
                                 cm.setCursor(cursor.line, cursor.ch + 2);
