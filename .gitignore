@@ -1,14 +1,16 @@
-base.html
-settings.py
-count.txt
+src/board/templates/board/base.html
+src/board/templates/board/small/base.html
+src/main/settings.py
+src/api/image/count.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-title/
-avatar/
+src/static/title/
+src/static/avatar/
+src/static/image/
 migrations/
 
 # C extensions
@@ -60,6 +62,7 @@ coverage.xml
 *.pot
 
 # Django stuff:
+*.ini
 *.log
 local_settings.py
 db.sqlite3
