@@ -33,17 +33,34 @@ def create_notify(target, url, content):
     new_notify = Notify(to_user=target, from_user=url, infomation=content)
     new_notify.save()
 
+"""
+class Team(models.Model):
+    name = models.CharField(max_length=15, blank=True, unique=True)
+    owner = models.ForeignKey('auth.User', blank=True)
+    member = models.ManyToManyField(User, related_name='members', blank=True)
+    bio = models.TextField(max_length=500, blank=True)
+    avatar = models.ImageField(blank=True,upload_to=avatar_path)
+"""
+
 class History(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    post_pk = models.TextField(blank=True)
+    read_post = models.TextField(blank=True)
 
     def __str__(self):
         return self.user.username
+
+class Font(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+
+class Theme(models.Model):
+    color = models.CharField(max_length=30, unique=True)
 
 class Config(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     agree_email = models.BooleanField(default=False)
     agree_history = models.BooleanField(default=False)
+    post_fonts = models.ForeignKey('board.Font', on_delete=models.CASCADE, blank=True, null=True)
+    post_theme = models.ForeignKey('board.Theme', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -87,7 +104,7 @@ class Post(models.Model):
     updated_date = models.DateTimeField(blank=True, default=timezone.now)
     last_like_date = models.DateTimeField(blank=True, default=timezone.now)
     image = models.ImageField(blank=True, upload_to=image_path)
-    likes = models.ManyToManyField(User, related_name='likes', blank=True)
+    likes = models.ManyToManyField(User, through='PostLikes', related_name='likes', blank=True)
     tag = TagField()
     
     def __str__(self):
@@ -107,6 +124,17 @@ class Post(models.Model):
         except:
             pass
         super(Post, self).save(*args, **kwargs)
+
+class PostLikes(models.Model):
+    class Meta:
+        db_table = 'board_post_likes'
+        auto_created = True
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.post.title
 
 class Comment(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -131,6 +159,7 @@ class Series(models.Model):
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=True)
     posts = models.ManyToManyField(Post, related_name='postlist', blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name

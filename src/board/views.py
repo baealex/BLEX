@@ -10,6 +10,7 @@ from django.db.models import Count, Q
 from django.utils.html import strip_tags
 from django.utils.text import slugify
 from django.utils import timezone
+from itertools import chain
 from .models import *
 from .forms import *
 import threading, json
@@ -207,14 +208,16 @@ def user_profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
     series = Series.objects.filter(owner=user).order_by('name')
-    comments = Comment.objects.filter(author=user, post__hide=False).order_by('created_date').reverse()
-    likeposts = Post.objects.filter(likes=user, hide=False).reverse()
+    
+    comments = Comment.objects.filter(author=user, post__hide=False)
+    likeposts = PostLikes.objects.filter(user=user)
+    activity = sorted(chain(comments, likeposts), key=lambda instance: instance.created_date, reverse=True)
+
     render_args = {
         'user': user,
         'posts': posts,
         'series': series,
-        'likeposts': likeposts,
-        'comments': comments,
+        'activity': activity,
         'white_nav' : True,
     }
     return render(request, 'board/user_profile.html', render_args)
