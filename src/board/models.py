@@ -18,7 +18,7 @@ def randstr(length):
 
 def parsedown(text):
     data = {'Text': text.encode('utf-8')}
-    res = requests.post('https://baealex.run.goorm.io/api/parsedown/get.php', data=data)
+    res = requests.post('https://api.blex.kr/parsedown/get.php', data=data)
     return res.text
 
 def avatar_path(instance, filename):
@@ -52,8 +52,14 @@ class History(models.Model):
 class Font(models.Model):
     name = models.CharField(max_length=30, unique=True)
 
+    def __str__(self):
+        return self.name
+
 class Theme(models.Model):
     color = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.color
 
 class Config(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

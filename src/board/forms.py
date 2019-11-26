@@ -99,11 +99,13 @@ class ProfileForm(forms.ModelForm):
 class ConfigForm(forms.ModelForm):
     class Meta:
         model = Config
-        fields = ('agree_email','agree_history')
+        fields = ('agree_email','agree_history','post_fonts','post_theme')
 
         widgets={
             'agree_email':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'agree_history':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'post_fonts':forms.Select(attrs={'class':'custom-select'}),
+            'post_theme':forms.Select(attrs={'class':'custom-select'}),
         }
 
 class SeriesForm(forms.ModelForm):

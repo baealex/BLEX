@@ -13,7 +13,7 @@
                 <a class="nav-link vivid-purple{% if tab == 'profile'%} disabled{% endif %}" href="?tab=profile">프로필 수정</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link vivid-purple{% if tab == 'activity'%} disabled{% endif %}" href="?tab=activity">글 & 시리즈</a>
+                <a class="nav-link vivid-purple{% if tab == 'series'%} disabled{% endif %}" href="?tab=series">시리즈 편집</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link vivid-purple{% if tab == 'analysis'%} disabled{% endif %}" href="?tab=analysis">글 분석</a>
@@ -36,8 +36,8 @@
         {% if tab == 'profile' %}
             {% include 'board/include/setting_page/profile.html'%}
         {% endif %}
-        {% if tab == 'activity' %}
-            {% include 'board/include/setting_page/activity.html'%}
+        {% if tab == 'series' %}
+            {% include 'board/include/setting_page/series.html'%}
         {% endif %}
         {% if tab == 'analysis' %}
             {% include 'board/include/setting_page/analysis.html'%}

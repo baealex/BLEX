@@ -116,7 +116,7 @@ def setting(request):
     else:
         user = request.user
         tab = request.GET.get('tab', '')
-        available_tab = [ '', 'account', 'profile', 'activity', 'analysis' ]
+        available_tab = [ '', 'account', 'profile', 'series', 'analysis' ]
         if not tab in available_tab:
             raise Http404()
         render_args = { 'tab':tab, 'page_setting':True, 'white_nav' : True, }
@@ -152,6 +152,11 @@ def setting(request):
                 c_form = ConfigForm()
             render_args['u_form'] = u_form
             render_args['c_form'] = c_form
+
+            subpost = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
+            hidepost = Post.objects.filter(author=user, hide=True).order_by('created_date').reverse()
+            render_args['subpost'] = subpost
+            render_args['hidepost'] = hidepost
         
         elif tab == 'profile':
             render_args['subtitle'] = 'Profile'
@@ -173,7 +178,7 @@ def setting(request):
                 p_form = ProfileForm()
             render_args['p_form'] = p_form
         
-        elif tab == 'activity':
+        elif tab == 'series':
             render_args['subtitle'] = 'Activity'
             series = Series.objects.filter(owner=user).order_by('name')
             if request.method == 'POST':
@@ -187,11 +192,6 @@ def setting(request):
             s_form = SeriesForm()
             render_args['s_form'] = s_form
             render_args['series'] = series
-
-            subpost = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
-            hidepost = Post.objects.filter(author=user, hide=True).order_by('created_date').reverse()
-            render_args['subpost'] = subpost
-            render_args['hidepost'] = hidepost
         
         elif tab == 'analysis':
             render_args['subtitle'] = 'Analysis'

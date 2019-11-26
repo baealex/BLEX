@@ -2,6 +2,21 @@
 @-moz-keyframes slide_bottom {0% {top: -100px;}100% {top: 0px;}}
 @-webkit-keyframes slide_bottom {0% {top: -100px;}100% {top: 0px;}}
 @-o-keyframes slide_bottom {0% {top: -100px;}100% {top: 0px;}}
+@font-face {
+    font-family: 'RIDIBatang';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+.serif {
+	font-family: 'Noto Serif KR', serif;
+}
+.Noto-Sans {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+.RIDIBatang {
+    font-family: 'RIDIBatang', sans-serif;
+}
 .slide_bottom
 {
     animation: slide_bottom .5s 1;
@@ -121,9 +136,6 @@ a.notice > b {
 	border-bottom: #ddd solid 1px;
 	margin-bottom: 10px;
 	padding-bottom: 5px;
-}
-.serif {
-	font-family: 'Noto Serif KR', serif;
 }
 .share {
     text-align:center;
@@ -339,7 +351,6 @@ form > p > textarea, input {
 .article {
   margin-top: 30px;
   min-width: 100%;
-  font-family: 'Noto Sans KR', sans-serif;
   font-size: 1.028em;
   line-height: 1.865;
   word-break: break-all;
