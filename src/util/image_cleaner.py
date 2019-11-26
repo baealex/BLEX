@@ -31,7 +31,6 @@ if __name__ == '__main__':
         videos = soup.select('source')
         for video in videos:
             content_video_names[video.get('src').split('/')[-1]] = 0
-            print(content_video_names)
     
     for(path, dir, files) in os.walk(TITLE_IMAGE_DIR):
         for filename in files:

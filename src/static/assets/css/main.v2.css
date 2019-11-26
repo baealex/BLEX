@@ -48,6 +48,9 @@ a.shallow-dark:hover {
 a.notice > b {
 	color: #f00;
 }
+.card-title {
+    word-break: keep-all;
+}
 .card-subtitle {
     text-transform: capitalize;
 }
@@ -272,6 +275,7 @@ form > p > textarea, input {
 }
 .post-headline {
     font-family: 'Noto Serif KR', serif;
+    word-break: keep-all;
     font-weight: bold;
     font-size: 2rem;
 }
@@ -341,7 +345,7 @@ form > p > textarea, input {
   word-break: break-all;
 }
 .article h1, .article h2, .article h3, .article h4, .article h5, .article h6 {
-  margin: 0.5em 0 0.5em;
+  margin: 1em 0 1em;
   font-weight: bold;
   font-family: 'Noto Serif KR', serif;
 }
@@ -383,7 +387,7 @@ form > p > textarea, input {
   overflow: initial;
   border: none;
 }
-.article p, .article ul, .article ol, .article .highlighter-rouge {
+.article p, .article ul, .article ol, .article .highlighter-rouge, .article table {
   margin: 0 0 1em;
 }
 .article img, .article video {
