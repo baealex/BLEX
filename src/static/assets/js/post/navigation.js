@@ -15,8 +15,10 @@ $(document).ready(function () {
     }));
 
     var screenHeight = $(window).height();
-    if($('.article').hasClass('purple')) {
+    if($('body').hasClass('theme-purple')) {
         var themeColor = "#474787";
+    } else if($('body').hasClass('theme-glue')) {
+        var themeColor = "rgba(0, 0, 0, .84)";
     } else {
         var themeColor = "rgba(0, 0, 0, .84)";
     }

@@ -22,7 +22,7 @@
     <link rel="icon" href="{% static 'images/logo.png' %}">
     <title>{% block title %}{% endblock %}</title>
 </head>
-<body>
+<body class="{% if theme %}theme-{{ theme }}{% endif %}">
     {% block image-title %}{%endblock%}
     {% include 'board/include/topnav.html' %}
     {% if write_btn == True %}

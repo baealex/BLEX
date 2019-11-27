@@ -421,7 +421,8 @@ def post_detail(request, username, url):
     }
     theme_mapping = {
         'Black' : '',
-        'Violet' : 'purple'
+        'Violet' : 'purple',
+        'Green & Blue' : 'glue'
     }
 
     select_font = 'Noto Sans'
