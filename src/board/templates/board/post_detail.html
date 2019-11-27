@@ -65,7 +65,7 @@
             </div>
         </div>
         {% endif %}
-        <article class="article post-content {% if post.author.config %}{{ post.author.config.post_fonts }}{% endif %}">
+        <article class="article {{ fonts }} {{ theme }}">
             {{ post.text_html | safe }}
         </article>
         {% if next_serise %}

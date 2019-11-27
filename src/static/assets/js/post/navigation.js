@@ -15,17 +15,22 @@ $(document).ready(function () {
     }));
 
     var screenHeight = $(window).height();
+    if($('.article').hasClass('purple')) {
+        var themeColor = "#474787";
+    } else {
+        var themeColor = "rgba(0, 0, 0, .84)";
+    }
 
     $(window).scroll(function () {
         screenPosition = $(this).scrollTop();
         if (screenPosition < screenHeight) {
             $('#mNavigation').css("position", "absolute");
             $('#mNavigation').css("background", "rgba(0,0,0,0)");
-            $("#mNavigation").removeClass("slide_bottom");
+            $("#mNavigation").removeClass("slide-bottom");
         } else {
             $('#mNavigation').css("position", "fixed");
-            $('#mNavigation').css("background", "rgba(0,0,0,.84)");
-            $("#mNavigation").addClass("slide_bottom");
+            $('#mNavigation').css("background", themeColor);
+            $("#mNavigation").addClass("slide-bottom");
         }
         if (isCreateNav) {
             var btween = screenPosition - (screenHeight - 100);

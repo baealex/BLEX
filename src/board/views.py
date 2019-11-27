@@ -403,7 +403,7 @@ def post_detail(request, username, url):
     post = get_object_or_404(Post, author=user, url=url)
     if post.hide == True and not post.author == request.user:
         return HttpResponse(str('<script>alert(\'비공개 글입니다.\');history.back();</script>'))
-    
+
     another_posts = Post.objects.filter(author=user, hide=False).exclude(pk=post.pk).order_by('?')[:3]
     render_args = {
         'post' : post,
@@ -413,6 +413,32 @@ def post_detail(request, username, url):
         'current_path': request.get_full_path()
     }
 
+    # Fonts & Theme
+    font_mapping = {
+        'Noto Sans' : 'noto',
+        'RIDIBatang' : 'ridi',
+        'Noto Sans Serif' : 'serif'
+    }
+    theme_mapping = {
+        'Black' : '',
+        'Violet' : 'purple'
+    }
+
+    select_font = 'Noto Sans'
+    select_theme = 'Black'
+    if hasattr(post.author, 'config'):
+        if post.author.config.post_fonts:
+            user_font = str(post.author.config.post_fonts)
+            if user_font in font_mapping:
+                select_font = user_font
+        if post.author.config.post_theme:
+            user_theme = str(post.author.config.post_theme)
+            if user_theme in theme_mapping:
+                select_theme = user_theme
+    render_args['fonts'] = font_mapping[select_font]
+    render_args['theme'] = theme_mapping[select_theme]
+
+    # Select right series
     get_series = request.GET.get('series')
     if get_series:
         render_args['get_series'] = True
@@ -442,6 +468,7 @@ def post_detail(request, username, url):
         except:
             pass
 
+    # View Count by cookie
     response = render(request, 'board/post_detail.html', render_args)
     cookie_name = 'hit'
     today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
@@ -460,7 +487,7 @@ def post_detail(request, username, url):
         post.save()
         return response
     
-    return render(request, 'board/post_detail.html',  render_args)
+    return render(request, 'board/post_detail.html', render_args)
 
 def post_list(request):
     render_args = {
@@ -533,8 +560,8 @@ def post_like(request, pk):
         user = User.objects.get(username=request.user)
         if post.likes.filter(id = user.id).exists():
             post.likes.remove(user)
-            if post.trendy > 20 :
-                post.trendy -= 20
+            if post.trendy > 10 :
+                post.trendy -= 10
             else :
                 post.trendy = 0
             post.save()
@@ -542,7 +569,7 @@ def post_like(request, pk):
             post.likes.add(user)
             date_sub = timezone.now() - post.last_like_date
             date_sub = int(date_sub.days)
-            post.trendy += int(20/(date_sub + 1))
+            post.trendy += int(10/(date_sub + 1))
             post.last_like_date = timezone.now()
             post.save()
 
