@@ -20,7 +20,7 @@
     {% block form %}{% endblock %}
     <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/main.js"></script>
+    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
     {% block script %}{% endblock %}
 </body>
 </html>

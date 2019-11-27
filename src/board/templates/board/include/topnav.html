@@ -1,0 +1,41 @@
+{% if white_nav %}
+<nav id="mNavigation" class="navbar navbar-expand-sm navbar-light bg-rlight fixed-top">
+    <div class="container">
+        <a class="navbar-brand" onmousedown="distoryLatelyPosition()" href="{{ site_url }}">
+            <img src="{{ static_url }}/assets/images/logo.png" width="35" height="35" alt="">
+        </a>
+{% else %}
+<nav id="mNavigation" class="navbar navbar-expand-sm navbar-dark bg-rdark {% if theme %}bg-{{ theme }}{% endif %} fixed-top">
+    <div class="container">
+        <a class="navbar-brand" onmousedown="distoryLatelyPosition()" href="{{ site_url }}">
+            <img src="{{ static_url }}/assets/images/logor.png" width="35" height="35" alt="">
+        </a>
+        {% block usernav %}{% endblock %}
+{% endif %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+            <ul class="navbar-nav">
+            {% if request.user.is_active %}
+                <li class="nav-item {% if request.get_full_path == '/@'|add:request.user.username%}active{% endif %}">
+                    <a class="nav-link" href="{% url 'user_profile' username=request.user %}">{{ request.user.first_name }} <i class="fas fa-user"></i></a>
+                </li>
+                <li class="nav-item {% if page_setting %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'setting' %}">설정 <i class="fas fa-cogs"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">로그아웃 <i class="fas fa-sign-out-alt"></i></a>
+                </li>
+            {% else %}
+                <li class="nav-item {% if request.get_full_path == '/login' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'login' %}">로그인 <i class="fas fa-sign-in-alt"></i></a>
+                </li>
+                <li class="nav-item {% if request.get_full_path == '/signup' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'signup' %}">회원가입 <i class="fas fa-users"></i></a>
+                </li>
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
