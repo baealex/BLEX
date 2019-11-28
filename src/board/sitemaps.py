@@ -8,3 +8,7 @@ class PostSitemap(Sitemap):
         return Post.objects.filter(created_date__isnull=False, hide=False).order_by('created_date')
     def lastmod(self, obj):
         return obj.updated_date
+
+sitemaps = {
+    'posts': PostSitemap,
+}

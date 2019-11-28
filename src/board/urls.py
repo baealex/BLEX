@@ -1,13 +1,10 @@
 from django.urls import path
-from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.sitemaps.views import sitemap
-from .sitemaps import PostSitemap
 from django.views.generic import TemplateView
-
-sitemaps = {
-    'posts':PostSitemap,
-}
+from .sitemaps import PostSitemap, sitemaps
+from .feeds import LatestPostFeed
+from . import views
 
 urlpatterns = [
     # Account
@@ -48,6 +45,7 @@ urlpatterns = [
     path('backup',views.content_backup,name='content_backup'),
     path('topic/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
     # Not in views
+    path('rss', LatestPostFeed()),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     # ------------------------------------------------------------ Others End
