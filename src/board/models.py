@@ -17,7 +17,7 @@ def randstr(length):
     return result
 
 def parsedown(text):
-    data = {'Text': text.encode('utf-8')}
+    data = {'md': text.encode('utf-8')}
     res = requests.post('https://baealex.run.goorm.io/api/parsedown/get.php', data=data)
     return res.text
 

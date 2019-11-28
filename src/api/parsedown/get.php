@@ -1,12 +1,12 @@
 <?php
     include "./parsedown.php";
     
-    $Text = $_POST['Text'];
+    $text = $_POST['md'];
     //$Text = str_replace('<', '&lt;', $Text);
     //$Text = str_replace('>', '&gt;', $Text);
 
-    $Parsedown = new Parsedown();
-    $ParseText = $Parsedown->text($Text);
+    $parsedown = new Parsedown();
+    $result = $parsedown->text($text);
     
-    echo $ParseText;
+    echo $result;
 ?>
