@@ -14,5 +14,7 @@ from board.models import Font, Theme
 # RIDIBatang
 # Noto Sans Serif
 
-# Black
+# Default
+# Dark Mode
 # Violet
+# Green & Blue

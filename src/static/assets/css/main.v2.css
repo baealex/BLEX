@@ -746,3 +746,70 @@ a.page-link {
     color: #8c00ff;
     background-color: #eef;
 }
+/* THEME DARK */
+.theme-dark {
+    background-color: #333;
+    color: #eee;
+}
+.theme-dark .share, .theme-dark .share a {
+    color: #ccc;
+    fill: #ccc;
+}
+.theme-dark .rel-posts {
+    background-color: #222;
+}
+.theme-dark .article a {
+    color: #fff;
+    box-shadow: inset 0 -3px 0 #eef;
+}
+.theme-dark .article a:hover{
+    color: #000;
+    box-shadow: inset 0 -1em 0 #fff;
+}
+.theme-dark .author-info a {
+    color: #fff;
+}
+.theme-dark a.deep-dark {
+    color: #fff !important;
+}
+.theme-dark a.shallow-dark {
+    color: #ccc !important;
+}
+.theme-dark .article code {
+    color: #fff;
+    background-color: #000;
+}
+.theme-dark .form-control:focus {
+    color: #fff;
+    background-color: #000;
+}
+.theme-dark .form-control {
+    background-color: #000;
+}
+.theme-dark .form-control::placeholder {
+    color: #ccc;
+}
+.theme-dark a.nav-now {
+    color: #fff !important;
+}
+.theme-dark #article-nav a {
+    color: #777;
+}
+.theme-dark #article-nav a:hover {
+    color: #ccc;
+}
+.theme-dark .tag-list li {
+    background-color:#333;
+}
+.theme-dark .tag-list a {
+    color: #aaa;
+}
+.theme-dark .tag-list a:hover {
+    color: #fff;
+    text-decoration: none;
+}
+.theme-dark .tag-list a:before {
+    content: '#';
+    color: #fff;
+    font-weight: bold;
+}

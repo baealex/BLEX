@@ -420,13 +420,14 @@ def post_detail(request, username, url):
         'Noto Sans Serif' : 'serif'
     }
     theme_mapping = {
-        'Black' : '',
+        'Default' : '',
+        'Dark Mode' : 'dark',
         'Violet' : 'purple',
         'Green & Blue' : 'glue'
     }
 
     select_font = 'Noto Sans'
-    select_theme = 'Black'
+    select_theme = 'Default'
     if hasattr(post.author, 'config'):
         if post.author.config.post_fonts:
             user_font = str(post.author.config.post_fonts)

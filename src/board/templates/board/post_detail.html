@@ -136,7 +136,7 @@
         {% for another_post in another_posts %}
             <div class="col-md-4">
                 <a href="{{ another_post.get_absolute_url }}"><div class="back-image rel-post-image" style="background-image: url({% if another_post.image %}{{ another_post.image.url }}{% else %}{{ static_url }}/assets/images/default-post.png{% endif %});"></div></a>
-                <h5 class="serif pt-3 pb-4 ns"><a class="text-dark" href="{{ another_post.get_absolute_url }}">{{ another_post.title }}</a></h5>
+                <h5 class="serif pt-3 pb-4 ns"><a class="deep-dark" href="{{ another_post.get_absolute_url }}">{{ another_post.title }}</a></h5>
             </div>
         {% endfor %}
         </div>
