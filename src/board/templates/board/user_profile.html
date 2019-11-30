@@ -86,7 +86,7 @@
             <div class="profile-post">
                 <a href="{% url 'post_detail' username=post.author url=post.url %}">
                     {% if post.image %}
-                    <div class="back-image" style="background-image: url({{ static_url }}/assets/images/default-post.png);"></div>
+                    <div class="back-image" style="background-image: url({{ post.image.url }});"></div>
                     {% endif %}
                 </a>
                 <h4 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title | truncatechars:50 }}</a></h5>
