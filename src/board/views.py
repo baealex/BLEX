@@ -116,8 +116,7 @@ def setting(request):
     else:
         user = request.user
         tab = request.GET.get('tab', '')
-        available_tab = [ '', 'account', 'profile', 'series', 'analysis' ]
-        if not tab in available_tab:
+        if not tab in [ '', 'account', 'profile', 'series', 'analysis' ]:
             raise Http404()
         render_args = { 'tab':tab, 'page_setting':True, 'white_nav' : True, }
         if tab == 'account':
@@ -207,19 +206,34 @@ def setting(request):
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
-    series = Series.objects.filter(owner=user).order_by('name')
-    
-    comments = Comment.objects.filter(author=user, post__hide=False)
-    likeposts = PostLikes.objects.filter(user=user)
-    activity = sorted(chain(comments, likeposts), key=lambda instance: instance.created_date, reverse=True)
 
     render_args = {
         'user': user,
         'posts': posts,
-        'series': series,
-        'activity': activity,
         'white_nav' : True,
     }
+    return render(request, 'board/user_profile.html', render_args)
+
+def user_profile_tab(request, username, tab):
+    if not tab in [ 'series', 'activity' ]:
+        return post_detail(request, username, tab)
+    
+    user = get_object_or_404(User, username=username)
+    render_args = {
+        'tab': tab,
+        'user': user,
+        'white_nav' : True,
+    }
+
+    if tab == 'series':
+        series = Series.objects.filter(owner=user).order_by('name')
+        render_args['series'] = series
+    if tab == 'activity':
+        comments = Comment.objects.filter(author=user, post__hide=False)
+        likeposts = PostLikes.objects.filter(user=user)
+        activity = sorted(chain(comments, likeposts), key=lambda instance: instance.created_date, reverse=True)
+        render_args['activity'] = activity
+
     return render(request, 'board/user_profile.html', render_args)
 # ------------------------------------------------------------ Profile End
 
@@ -252,6 +266,15 @@ def series_list(request, username, name):
         'user': user,
         'series': series
     }
+
+    select_theme = 'Default'
+    if hasattr(user, 'config'):
+        if user.config.post_theme:
+            user_theme = str(user.config.post_theme)
+            if user_theme in theme_mapping:
+                select_theme = user_theme
+    render_args['theme'] = theme_mapping[select_theme]
+
     return render(request, 'board/series.html', render_args)
 # ------------------------------------------------------------ Series End
 
@@ -414,18 +437,6 @@ def post_detail(request, username, url):
     }
 
     # Fonts & Theme
-    font_mapping = {
-        'Noto Sans' : 'noto',
-        'RIDIBatang' : 'ridi',
-        'Noto Sans Serif' : 'serif'
-    }
-    theme_mapping = {
-        'Default' : '',
-        'Dark Mode' : 'dark',
-        'Violet' : 'purple',
-        'Green & Blue' : 'glue'
-    }
-
     select_font = 'Noto Sans'
     select_theme = 'Default'
     if hasattr(post.author, 'config'):

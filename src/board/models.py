@@ -8,6 +8,19 @@ import datetime
 import random
 from django.template.loader import render_to_string
 
+font_mapping = {
+    'Noto Sans' : 'noto',
+    'RIDIBatang' : 'ridi',
+    'Noto Sans Serif' : 'serif'
+}
+
+theme_mapping = {
+    'Default' : '',
+    'Dark Mode' : 'dark',
+    'Violet' : 'purple',
+    'Green & Blue' : 'glue'
+}
+
 def randstr(length):
     rstr = '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ'
     rstr_len = len(rstr) - 1
@@ -169,3 +182,6 @@ class Series(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        return reverse('series_list', args=[self.owner, self.name])

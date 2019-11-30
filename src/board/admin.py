@@ -22,10 +22,22 @@ class ConfigAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'title', 'trendy', 'created_date', 'updated_date' ]
+    list_display = ['id', 'author', 'title', 'trendy', 'hide', 'created_date', 'updated_date']
     list_display_links = ['id', 'title']
     list_filter = ['author']
+    actions = ['make_open', 'make_hide']
     list_per_page = 30
+
+    def make_open(self, request, queryset):
+        updated_count = queryset.update(hide=False)
+        self.message_user(request, str(updated_count)+'건의 글을 공개로 변경')
+    
+    def make_hide(self, request, queryset):
+        updated_count = queryset.update(hide=True)
+        self.message_user(request, str(updated_count)+'건의 글을 공개로 변경')
+    
+    make_open.short_description = '지정 포스트를 공개'
+    make_hide.short_description = '지정 포스트를 숨김'
 
 @admin.register(PostLikes)
 class PostLikesAdmin(admin.ModelAdmin):

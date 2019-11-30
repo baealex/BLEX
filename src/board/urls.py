@@ -18,6 +18,7 @@ urlpatterns = [
 
     # Profile
     path('@<username>', views.user_profile,name='user_profile'),
+    path('@<username>/<tab>', views.user_profile_tab, name='user_profile_tab'),
     # ------------------------------------------------------------ Profile End
 
     # Series

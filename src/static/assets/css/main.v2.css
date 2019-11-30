@@ -373,8 +373,11 @@ form > p > textarea, input {
   overflow: initial;
   border: none;
 }
-.article p, .article ul, .article ol, .article .highlighter-rouge, .article table {
+.article p, .article ul, .article ol, .article .highlighter-rouge, .article table, .article div {
   margin: 0 0 1em;
+}
+.article div > p {
+    margin: 0;
 }
 .article img, .article video {
   max-width: 100%;
@@ -590,6 +593,10 @@ a.page-link {
     font-size: 1.2rem;
     margin: 20px;
     cursor: pointer;
+}
+.profile-tab li a {
+    color: #fff;
+    text-decoration: none;
 }
 #active li {
     list-style: none;
