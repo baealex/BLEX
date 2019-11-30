@@ -36,15 +36,28 @@ def get_posts(sort):
     else:
         return Post.objects.filter(notice=True).order_by('created_date')
 
-def get_clean_all_tags():
-    tagslist = list(Post.objects.filter(hide=False).values_list('tag', flat=True).distinct())
-    tags = []
+def get_clean_all_tags(user):
+    if user == None:
+        tagslist = list(Post.objects.filter(hide=False).values_list('tag', flat=True).distinct())
+    else:
+        tagslist = list(Post.objects.filter(hide=False, author=user).values_list('tag', flat=True).distinct())
+        
+    all_tags = []
     for anothertags in tagslist:
         for subtag in anothertags.split(','):
             if not subtag.strip() == '':
-                tags.append(subtag.strip())
-    tags = list(set(tags))
-    return tags
+                all_tags.append(subtag.strip())
+    all_tags = list(set(all_tags))
+
+    all_tags_dict = list()
+    for tag in all_tags:
+        tag_dict = { 'name': tag }
+        if user == None:
+            tag_dict['count'] = len(Post.objects.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
+        else:
+            tag_dict['count'] = len(Post.objects.filter(author=user, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
+        all_tags_dict.append(tag_dict)
+    return all_tags_dict
 
 def send_mail(title, mail_args, mail_list):
     html_message = render_to_string('mail_template.html', mail_args)
@@ -211,6 +224,8 @@ def user_profile(request, username):
         'user': user,
         'posts': posts,
         'white_nav' : True,
+        'posts_count': len(posts),
+        'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
     }
     return render(request, 'board/user_profile.html', render_args)
 
@@ -234,6 +249,23 @@ def user_profile_tab(request, username, tab):
         activity = sorted(chain(comments, likeposts), key=lambda instance: instance.created_date, reverse=True)
         render_args['activity'] = activity
 
+    return render(request, 'board/user_profile.html', render_args)
+
+def user_profile_topic(request, username, tag):
+    user = get_object_or_404(User, username=username)
+    total_posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
+    posts = total_posts.filter(tag__iregex=r'\b%s\b' % tag)
+    if len(posts) == 0:
+        raise Http404()
+    
+    render_args = {
+        'user': user,
+        'posts': posts,
+        'white_nav' : True,
+        'selected_tag': tag,
+        'posts_count': len(total_posts),
+        'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
+    }
     return render(request, 'board/user_profile.html', render_args)
 # ------------------------------------------------------------ Profile End
 
@@ -504,21 +536,15 @@ def post_detail(request, username, url):
 
 def post_list(request):
     render_args = {
-        'pageposts' : get_posts(''),
-        'weekly_top' : get_posts('week-top')[:4],
-        'white_nav' : True
+        'white_nav': True,
+        'pageposts': get_posts(''),
+        'weekly_top': get_posts('week-top')[:4],
+        'tags': sorted(get_clean_all_tags(None), key=lambda instance:instance['count'], reverse=True)
     }
 
     if request.user.is_active:
         render_args['write_btn'] = True
-    
-    tags = get_clean_all_tags()
-    alltaglist = []
-    for tag in tags:
-        alltaglist += [[len(Post.objects.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag)), tag]]
-    # alltaglist.sort(key=lambda x:x[1])
-    alltaglist.sort(reverse=True)
-    render_args['tags'] = alltaglist
+
     return render(request, 'board/post_list.html', render_args)
 
 def post_sort_list(request, sort):

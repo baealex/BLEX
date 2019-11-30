@@ -598,7 +598,7 @@ a.page-link {
     color: #fff;
     text-decoration: none;
 }
-#active li {
+.profile-activity li {
     list-style: none;
     border: 1px solid #eee;
     margin: 10px;
@@ -606,10 +606,48 @@ a.page-link {
     overflow: hidden;
     word-wrap: break-word;
 }
-#active blockquote {
+.profile-activity blockquote {
     margin: 10px 0px;
     padding: 10px;
     border-left: 3px solid #ccc;
+}
+.profile-tags ul {
+    list-style: none;
+    padding-left: 0;
+}
+.profile-tags h5 {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+.profile-tags li {
+    margin: 5px;
+}
+.profile-tags li {
+    margin: 5px;
+}
+.profile-tags li::before {
+    content: '– ';
+}
+.profile-tags li a {
+    color: #8c00ff;
+    text-decoration: none;
+}
+.profile-tags li a.active {
+    color: #777;
+}
+@media only screen and (max-width: 991px) {
+	.profile-tags {
+        display: none;
+    }
+}
+.profile-post {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #eee;
+}
+.profile-post .back-image {
+    height: 300px;
+    width: 100%;
 }
 .wirte-btn {
     cursor: pointer;
