@@ -31,7 +31,7 @@ def randstr(length):
 
 def parsedown(text):
     data = {'md': text.encode('utf-8')}
-    res = requests.post('https://baealex.run.goorm.io/api/parsedown/get.php', data=data)
+    res = requests.post('http://baealex.dothome.co.kr/api/parsedown/get.php', data=data)
     return res.text
 
 def avatar_path(instance, filename):

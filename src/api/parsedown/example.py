@@ -10,5 +10,5 @@ def parsedown():
     """
 
     data = {'md': text.encode('utf-8')}
-    res = requests.post('https://blex.kr/API/parsedown/get.php', data=data)
+    res = requests.post('https://api.blex.kr/parsedown/get.php', data=data)
     return res.text
