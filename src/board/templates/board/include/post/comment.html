@@ -13,5 +13,5 @@
         <a class="vs shallow-dark" href="javascript:void(0)" onclick="window.open('{% url 'comment_update' cpk=comment.pk %}', '댓글 수정', 'width=500, height=190,left=100, top=50');">수정</a>
         <a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment('{% url 'comment_remove' cpk=comment.pk %}');">삭제</a>
     {% endif %}
-    <p>{{ comment.text|linebreaks }}</p>
+    <div class="mt-3 noto">{{ comment.text|linebreaks }}</div>
 </div>

@@ -182,20 +182,19 @@ $(document).ready(function () {
 });
 function tagging() {
     var username = prompt('태그할 사용자');
-    var isFind;
-    for ( x in userList ) {
-        if ( username == userList[x] ) {
-            $('#id_text').val($('#id_text').val() + ('@' + username)).focus();
-            sendList.push(username);
-            isFind = true;
-            break;
+    if(username != null) {
+        var isFind = false;
+        for ( x in userList ) {
+            if ( username == userList[x] ) {
+                $('#id_text').val($('#id_text').val() + ('@' + username)).focus();
+                sendList.push(username);
+                isFind = true;
+                break;
+            }
         }
-        else {
-            isFind = false;
+        if ( !isFind ) {
+            alert('이 포스트에 댓글이 있는 사용자가 아닙니다.');
         }
-    }
-    if ( !isFind ) {
-        alert('이 포스트에 댓글이 있는 사용자가 아닙니다.');
     }
 }
 {% endif %}

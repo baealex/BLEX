@@ -68,19 +68,11 @@
     <div class="row">
         <div class="profile-tags col-lg-3">
             {% if tags %}
-            <ul class="mt-4">
+            <ul class="mt-4 noto">
                 <h5 class="serif">카테고리</h5>
-                <li>
-                    <a {% if not selected_tag %}class="active"{% endif %} href="{% url 'user_profile' username=user %}">
-                        전체<span class="ns">({{ posts_count }})</span>
-                    </a>
-                </li>
+                <li><a {% if not selected_tag %}class="active"{% endif %} href="{% url 'user_profile' username=user %}">전체<span class="ns">({{ posts_count }})</span></a></li>
                 {% for tag in tags %}
-                <li>
-                    <a {% if selected_tag == tag.name %}class="active"{% endif %} href="{% url 'user_profile_topic' username=user tag=tag.name %}">
-                        {{ tag.name }}<span class="ns">({{ tag.count }})</span>
-                    </a>
-                </li>
+                <li><a {% if selected_tag == tag.name %}class="active"{% endif %} href="{% url 'user_profile_topic' username=user tag=tag.name %}">{{ tag.name }}<span class="ns">({{ tag.count }})</span></a></li>
                 {% endfor %}
             </ul>
             {% endif %}
@@ -96,20 +88,14 @@
                 </a>
                 {% endif %}
                 <h4 class="card-title serif font-weight-bold mt-3">
-                    <a class="deep-dark" href="{{ post.get_absolute_url }}">
-                        {{ post.title | truncatechars:50 }}
-                    </a>
+                    <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post.title | truncatechars:50 }}</a>
                 </h4>
-                <p>
-                    <a class="shallow-dark" href="{{ post.get_absolute_url }}">{{ post.text_html | striptags | truncatewords:50 }}</a>
-                </p>
+                <p class="noto"><a class="shallow-dark" href="{{ post.get_absolute_url }}">{{ post.text_html | striptags | truncatewords:50 }}</a></p>
                 {% tags_for_object post as tags %}
                 {% if tags %}
                 <ul class="tag-list">
                     {% for tag in tags %}
-                    <li>
-                        <a href="{% url 'user_profile_topic' username=user tag=tag.name %}">{{ tag.name }}</a>
-                    </li>
+                    <li><a href="{% url 'user_profile_topic' username=user tag=tag.name %}">{{ tag.name }}</a></li>
                     {% endfor %}
                 </ul>
                 {% endif %}
@@ -146,7 +132,7 @@
 {% if tab == 'activity' %}
 <div class="container profile-activity">
     <div class="col-lg-9 mx-auto p-0">
-        <ul id="wrapper" class="p-0">
+        <ul id="wrapper" class="p-0 noto">
             {% for active in elements %}
             <li onmousedown="saveLatelyPosition()">
             {% if active.text_md %}
@@ -183,5 +169,8 @@ var postWrapperId = 'wrapper';
 var paginatePath = '{{ request.get_full_path }}?page=';
 var lastPage = {{ elements.paginator.num_pages }};
 new InfiniteScroll(paginatePath, postWrapperId, lastPage);
+{% if selected_tag %}
+moveSlide('wrapper');
+{% endif %}
 </script>
 {% endblock %}

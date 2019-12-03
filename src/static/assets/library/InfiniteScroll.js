@@ -54,15 +54,22 @@ $(document).ready(function() {
     if(getCookie('latelyposition')) {
         $('#return-position').css('display', 'block');
         var desPos = getCookie('latelyposition');
+        var count = 0;
         var findLatelyPosition = setInterval(function() {
             var nowPos = $(document).scrollTop();
             if(nowPos < desPos - 10) {
                 $(document).scrollTop(desPos);
+                count += 1;
+                if(count > 100) {
+                    clearTimeout(findLatelyPosition);
+                    $('#return-position').css('display', 'none');
+                    distoryLatelyPosition();    
+                }
             } else {
                 clearTimeout(findLatelyPosition);
                 $('#return-position').css('display', 'none');
                 distoryLatelyPosition();
             }
-        }, 10);
+        }, 50);
     }
 });

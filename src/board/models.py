@@ -149,7 +149,6 @@ class Post(models.Model):
                 this.image.delete(save=False)
         except:
             pass
-        self.text_html = parsedown(self.text_md)
         super(Post, self).save(*args, **kwargs)
 
 class PostLikes(models.Model):
