@@ -223,10 +223,14 @@ def user_profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
 
+    paginator = Paginator(posts, 6)
+    page = request.GET.get('page')
+    elements = paginator.get_page(page)
+
     render_args = {
         'user': user,
-        'posts': posts,
         'white_nav' : True,
+        'elements': elements,
         'posts_count': len(posts),
         'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
     }
@@ -245,12 +249,21 @@ def user_profile_tab(request, username, tab):
 
     if tab == 'series':
         series = Series.objects.filter(owner=user).order_by('name')
-        render_args['series'] = series
+        paginator = Paginator(series, 10)
+        page = request.GET.get('page')
+        elements = paginator.get_page(page)
     if tab == 'activity':
-        comments = Comment.objects.filter(author=user, post__hide=False)
+        posts = Post.objects.filter(author=user, hide=False)
+        series = Series.objects.filter(owner=user)
         likeposts = PostLikes.objects.filter(user=user)
-        activity = sorted(chain(comments, likeposts), key=lambda instance: instance.created_date, reverse=True)
-        render_args['activity'] = activity
+        comments = Comment.objects.filter(author=user, post__hide=False)
+        activity = sorted(chain(posts, series, comments, likeposts), key=lambda instance: instance.created_date, reverse=True)
+        
+        paginator = Paginator(activity, 15)
+        page = request.GET.get('page')
+        elements = paginator.get_page(page)
+    
+    render_args['elements'] = elements
 
     return render(request, 'board/user_profile.html', render_args)
 
@@ -261,11 +274,15 @@ def user_profile_topic(request, username, tag):
     if len(posts) == 0:
         raise Http404()
     
+    paginator = Paginator(posts, 6)
+    page = request.GET.get('page')
+    elements = paginator.get_page(page)
+    
     render_args = {
         'user': user,
-        'posts': posts,
         'white_nav' : True,
         'selected_tag': tag,
+        'elements': elements,
         'posts_count': len(total_posts),
         'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
     }
