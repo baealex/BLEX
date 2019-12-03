@@ -198,7 +198,7 @@ def setting(request):
                 if s_form.is_valid():
                     create_series = s_form.save(commit=False)
                     create_series.owner = user
-                    create_series.url = slugify(create_series.name)
+                    create_series.url = slugify(create_series.name, allow_unicode=True)
                     if create_series.url == '':
                         create_series.url = randstr(15)
                     create_series.save()
@@ -490,7 +490,7 @@ def post_detail(request, username, url):
     get_series = request.GET.get('series')
     if get_series:
         render_args['get_series'] = True
-        series = Series.objects.filter(name=get_series, owner=user, posts=post.id)
+        series = Series.objects.filter(url=get_series, owner=user, posts=post.id)
     else:
         series = Series.objects.filter(owner=user, posts=post.id)
 
