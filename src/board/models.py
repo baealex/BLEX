@@ -48,11 +48,18 @@ def create_notify(target, url, content):
 
 """
 class Team(models.Model):
-    name = models.CharField(max_length=15, blank=True, unique=True)
-    owner = models.ForeignKey('auth.User', blank=True)
+    name = models.CharField(max_length=15, unique=True)
+    owner = models.ForeignKey('auth.User')
     member = models.ManyToManyField(User, related_name='members', blank=True)
     bio = models.TextField(max_length=500, blank=True)
-    avatar = models.ImageField(blank=True,upload_to=avatar_path)
+    about = models.TextField(blank=True)
+    avatar = models.ImageField(blank=True, upload_to=team_logo_path)
+
+class TeamPost(models.Model):
+    pass
+
+class TeamCategory(models.Model):
+    pass
 """
 
 class History(models.Model):
@@ -110,8 +117,8 @@ class Profile(models.Model):
 
 class Post(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    url = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     title = models.CharField(max_length=50)
+    url = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     text_md = models.TextField()
     text_html = models.TextField()
     trendy = models.IntegerField(default=0)
@@ -119,10 +126,10 @@ class Post(models.Model):
     hide = models.BooleanField(default=False)
     notice = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(blank=True, default=timezone.now)
-    last_like_date = models.DateTimeField(blank=True, default=timezone.now)
     image = models.ImageField(blank=True, upload_to=image_path)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
+    last_like_date = models.DateTimeField(default=timezone.now)
     likes = models.ManyToManyField(User, through='PostLikes', related_name='likes', blank=True)
     tag = TagField()
     
@@ -142,6 +149,7 @@ class Post(models.Model):
                 this.image.delete(save=False)
         except:
             pass
+        self.text_html = parsedown(self.text_md)
         super(Post, self).save(*args, **kwargs)
 
 class PostLikes(models.Model):
@@ -177,6 +185,7 @@ class Notify(models.Model):
 class Series(models.Model):
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=True)
+    url = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     posts = models.ManyToManyField(Post, related_name='postlist', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
@@ -184,4 +193,4 @@ class Series(models.Model):
         return self.name
     
     def get_absolute_url(self):
-        return reverse('series_list', args=[self.owner, self.name])
+        return reverse('series_list', args=[self.owner, self.url])

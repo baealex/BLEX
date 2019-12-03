@@ -198,6 +198,9 @@ def setting(request):
                 if s_form.is_valid():
                     create_series = s_form.save(commit=False)
                     create_series.owner = user
+                    create_series.url = slugify(create_series.name)
+                    if create_series.url == '':
+                        create_series.url = randstr(15)
                     create_series.save()
                     render_args['message'] = '성공적으로 생성되었습니다.'
                 else: render_args['error'] = '이미 존재하는 이름입니다.'
@@ -291,9 +294,9 @@ def series_remove(request, spk):
     series.delete()
     return HttpResponse('<script>self.close();opener.location.href = opener.location.href;</script>')
 
-def series_list(request, username, name):
+def series_list(request, username, url):
     user = get_object_or_404(User, username=username)
-    series = get_object_or_404(Series, owner=user, name=name)
+    series = get_object_or_404(Series, owner=user, url=url)
     render_args = {
         'user': user,
         'series': series
@@ -576,11 +579,9 @@ def post_write(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.tag = post.tag.replace(' ','')
             post.url = slugify(post.title, allow_unicode=True)
             if post.url == '':
                 post.url = randstr(15)
-            post.text_html = parsedown(post.text_md)
             i = 1
             while True:
                 try:
@@ -629,8 +630,6 @@ def post_edit(request, pk):
         if form.is_valid():
             post = form.save(commit=False)
             post.updated_date = timezone.now()
-            post.tag = post.tag.replace(' ','')
-            post.text_html = parsedown(post.text_md)
             post.save()
             return redirect('post_detail', username=post.author, url=post.url)
     else:
