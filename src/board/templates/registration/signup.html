@@ -7,7 +7,15 @@
     {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <p>{{ form.username }}</p>
+        <div id="idCheck" role="alert"></div>
+        <p>{{ form.password }}</p>
+        <p>{{ form.password_check }}</p>
+        <p>{{ form.first_name }}</p>
+        <p>{{ form.email }}</p>
+        <div class="alert alert-warning" role="alert">
+            {{form.email.help_text}}
+        </div>
         <p><a href="{% url 'login' %}">이미 회원이신가요?</a></p>
         <button type="submit" class="btn btn-dark">회원가입</button>
     </form>
@@ -16,4 +24,39 @@
 
 {% block footer %}
     {% include 'board/include/footer.html' %}
+{% endblock %}
+
+{% block image-script %}
+<script>
+    $(document).ready(function() {
+        var csrftoken = getCookie('csrftoken');
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    });
+    $('#id_username').focusout(function(){
+        if($('#id_username').val() != '') {
+            $.ajax({
+                url: '{% url 'id_check' %}',
+                type: 'POST',
+                data: { 'id': $('#id_username').val() },
+            }).done(function(data) {
+                $('#idCheck').addClass('alert');
+                if(data.result == 'ERORR_OVERLAP') {
+                    $('#idCheck').removeClass('alert-success');
+                    $('#idCheck').addClass('alert-danger');
+                    $('#idCheck').text('이미 사용중인 필명입니다!');
+                } else {
+                    $('#idCheck').removeClass('alert-danger');
+                    $('#idCheck').addClass('alert-success');
+                    $('#idCheck').text('https://blex.kr/@' + data.name);
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

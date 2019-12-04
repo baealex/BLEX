@@ -33,12 +33,12 @@ class CustomUserChangeForm(UserChangeForm):
         model = User
         fields = ['first_name','password']
         widgets={
-            'first_name':forms.TextInput(attrs={'placeholder':'이름','class':'form-control'}),
-            'email':forms.TextInput(attrs={'placeholder':'이메일 주소','class':'form-control'}),
+            'first_name': forms.TextInput(attrs={'placeholder':'이름','class':'form-control'}),
+            'email': forms.TextInput(attrs={'placeholder':'이메일 주소','class':'form-control'}),
         }
         labels={
-            'first_name':'',
-            'email':'',
+            'first_name': '',
+            'email': '',
         }
 
 class UserForm(forms.ModelForm):
@@ -49,7 +49,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['username','password','first_name','email']
         widgets = {
-            'username':forms.TextInput(attrs={'placeholder':'아이디(닉네임)','class':'form-control'}),
+            'username':forms.TextInput(attrs={'placeholder':'아이디(필명)','class':'form-control'}),
             'password':forms.PasswordInput(attrs={'placeholder':'비밀번호','class':'form-control'}),
             'first_name':forms.TextInput(attrs={'placeholder':'이름','class':'form-control'}),
             'email':forms.TextInput(attrs={'placeholder':'이메일 주소','class':'form-control'}),

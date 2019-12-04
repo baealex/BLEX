@@ -685,7 +685,7 @@ a.page-link {
 }
 @media only screen and (max-width: 991px) {
 	.profile-tags {
-        overflow: scroll;
+        overflow-x: scroll;
     }
     .profile-tags ul {
         white-space: nowrap;

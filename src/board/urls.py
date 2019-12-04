@@ -11,6 +11,7 @@ urlpatterns = [
     path('login', auth_views.login, name='login'),
     path('logout', auth_views.logout, name='logout', kwargs={'next_page': '/'}),
     path('signup',views.signup,name='signup'),
+    path('signup/help/id',views.id_check, name='id_check'),
     path('active/<token>', views.user_active,name='user_active'),
     path('signout',views.signout,name='signout'),
     path('setting',views.setting,name='setting'),

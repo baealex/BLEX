@@ -100,6 +100,22 @@ def signup(request):
         form = UserForm()
     return render(request, 'registration/signup.html',{'form':form })
 
+def id_check(request):
+    if request.method == 'POST':
+        result_json = {
+            'name': request.POST['id']
+        }
+        user = User.objects.filter(username=request.POST['id'])
+        if len(user) > 0:
+            result_json['result'] = 'ERORR_OVERLAP'
+        else:
+            result_json['result'] = 'TRUE'
+        return JsonResponse(
+            result_json, json_dumps_params = {'ensure_ascii': True}
+        )
+    else:
+        raise Http404()
+
 def user_active(request, token):
     user = get_object_or_404(User, last_name=token)
     if user.date_joined < timezone.now() - datetime.timedelta(days=7):
