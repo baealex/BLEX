@@ -206,8 +206,12 @@ footer a:hover {
 .mainheading {
     margin-top: 100px;
 }
+.sticky-top-200 {
+    top: 200px !important;
+    margin-bottom: 30px;
+}
 .sticky-top-100 {
-    top:100px !important;
+    top: 100px !important;
     margin-bottom: 30px;
 }
 .sticky-margin-top-40 {
@@ -331,9 +335,13 @@ form > p > textarea, input {
   margin-top:50px;
 }
 .article h1, .article h2, .article h3, .article h4, .article h5, .article h6 {
+  font-size: 1.6rem;
   margin: 1em 0 1em;
   font-weight: bold;
   font-family: 'Noto Serif KR', serif;
+}
+.article h5, .article h6 {
+    font-size: 1.2rem;
 }
 .article ul, .article ol {
   padding-left: 30px;
@@ -459,16 +467,54 @@ form > p > textarea, input {
     overflow: hidden;
 }
 #article-nav a {
-    color: #ccc;
+    transition: all 0.3s;
+    color: #fff;
     display: block;
     white-space: nowrap;
-    font-size:14px;
+    font-size: 14px;
+    margin: 3px;
+}
+#article-nav:hover a {
+    color: #ccc;
+    cursor: pointer;
 }
 #article-nav a:hover {
     color: #777;
     text-decoration: none;
 }
-a.nav-now {
+.title-1::before, .title-2::before, .title-3::before {
+    transition: all 0.3s;
+    content: '';
+    display: inline-block;
+    transform: translateY(-100%);
+    position: relative;
+    border-top: 2.5px solid #ccc;
+}
+#article-nav .title-1::before {
+    width: 40px;
+}
+#article-nav .title-2::before {
+    width: 20px;
+}
+#article-nav .title-3::before {
+    width: 10px;
+}
+#article-nav:hover .title-1::before {
+    width: 0px;
+    margin-left: 5px;
+}
+#article-nav:hover .title-2::before {
+    width: 0px;
+    margin-left: 15px;
+}
+#article-nav:hover .title-3::before {
+    width: 0px;
+    margin-left: 30px;
+}
+.nav-now.title-1::before, .nav-now.title-2::before, .nav-now.title-3::before {
+    border-color: #000;
+}
+#article-nav:hover a.nav-now {
     color: #000 !important;
 }
 .tag-back {
@@ -637,7 +683,19 @@ a.page-link {
 }
 @media only screen and (max-width: 991px) {
 	.profile-tags {
+        overflow: scroll;
+    }
+    .profile-tags ul {
+        white-space: nowrap;
+    }
+    .profile-tags ul > h5 {
         display: none;
+    }
+    .profile-tags li::before {
+        content: '';
+    }
+    .profile-tags li {
+        display: inline-block;
     }
 }
 .profile-post {

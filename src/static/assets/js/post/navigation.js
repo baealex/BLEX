@@ -8,7 +8,15 @@ $(document).ready(function () {
         var makeTag = document.createElement('a');
         makeTag.appendChild(document.createTextNode($(this).text()));
         makeTag.setAttribute('id', 'nav' + navcounter);
-        makeTag.href = 'javascript:void(0)';
+        if($(this).prop('tagName') == 'H1' || $(this).prop('tagName') == 'H2') {
+            makeTag.setAttribute('class', 'title-1');
+        }
+        else if($(this).prop('tagName') == 'H3' || $(this).prop('tagName') == 'H4') {
+            makeTag.setAttribute('class', 'title-2');
+        }
+        else {
+            makeTag.setAttribute('class', 'title-3');
+        }
         makeTag.setAttribute('onclick', 'moveSlide(' + '\'headline' + navcounter + '\')');
         $('#article-nav').append(makeTag);
         return $(this).attr('id', 'headline' + navcounter );
