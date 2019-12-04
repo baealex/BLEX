@@ -482,7 +482,9 @@ form > p > textarea, input {
     color: #777;
     text-decoration: none;
 }
-.title-1::before, .title-2::before, .title-3::before {
+.title-1::before,
+.title-2::before,
+.title-3::before {
     transition: all 0.3s;
     content: '';
     display: inline-block;
@@ -892,17 +894,33 @@ a.page-link {
 .theme-dark .form-control::placeholder {
     color: #ccc;
 }
-.theme-dark a.nav-now {
+.theme-dark #article-nav:hover a.nav-now {
     color: #fff !important;
 }
 .theme-dark #article-nav a {
     color: #777;
 }
-.theme-dark #article-nav a:hover {
+.theme-dark #article-nav a {
+    color: #333;
+}
+.theme-dark #article-nav:hover a {
+    color: #777;
+}
+.theme-dark #article-nav:hover a:hover {
     color: #ccc;
 }
+.theme-dark .title-1::before,
+.theme-dark .title-2::before,
+.theme-dark .title-3::before {
+    border-top: 2.5px solid #777;
+}
+.theme-dark .nav-now.title-1::before,
+.theme-dark .nav-now.title-2::before,
+.theme-dark .nav-now.title-3::before {
+    border-color: #ccc;
+}
 .theme-dark .tag-list li {
-    background-color:#333;
+    background-color:#aaa;
 }
 .theme-dark .tag-list a {
     color: #aaa;
