@@ -10,6 +10,7 @@ from django.db.models import Count, Q
 from django.utils.html import strip_tags
 from django.utils.text import slugify
 from django.utils import timezone
+from django.utils.timesince import timesince
 from itertools import chain
 from .models import *
 from .forms import *
@@ -102,17 +103,15 @@ def signup(request):
 
 def id_check(request):
     if request.method == 'POST':
-        result_json = {
+        data = {
             'name': request.POST['id']
         }
         user = User.objects.filter(username=request.POST['id'])
         if len(user) > 0:
-            result_json['result'] = 'ERORR_OVERLAP'
+            data['result'] = 'ERORR_OVERLAP'
         else:
-            result_json['result'] = 'TRUE'
-        return JsonResponse(
-            result_json, json_dumps_params = {'ensure_ascii': True}
-        )
+            data['result'] = 'TRUE'
+        return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
     else:
         raise Http404()
 
@@ -348,29 +347,28 @@ def series_list(request, username, url):
 
 
 # Notify
-def notify_read(request):
-    notify_num = request.GET.get('redirect')
-    notify = Notify.objects.get(pk=notify_num)
-    if not notify.to_user == request.user:
-        return HttpResponse(str('<script>alert(\'잘못된 접근입니다.\');history.back();</script>'))
-    redirect_url = notify.from_user
-    notify.delete()
-    return HttpResponseRedirect(redirect_url)
-
-def notify_count(request):
-    notify = Notify.objects.filter(to_user=request.user)
-    notify_num = len(notify)
-    return HttpResponse(str(notify_num))
-
-def notify_content(request):
-    notify = Notify.objects.filter(to_user=request.user).order_by('created_date').reverse()
-    result_data = ''
-    for notify_one in notify:
-        data = { 'pk': notify_one.pk, 'infomation': notify_one.infomation, 'created_date': notify_one.created_date }
-        result_data += render_to_string('board/part_render/notify_toast.html', data)
-    return HttpResponse(result_data)
-    data = list(notify)
-    return JsonResponse(data)
+def user_notify(request):
+    if request.method == 'GET':
+        if request.GET.get('redirect'):
+            notify = Notify.objects.get(pk=request.GET.get('redirect'))
+            if not notify.to_user == request.user:
+                return HttpResponse(str('<script>alert(\'잘못된 접근입니다.\');history.back();</script>'))
+            redirect_url = notify.from_user
+            notify.delete()
+            return HttpResponseRedirect(redirect_url)
+        notify = Notify.objects.filter(to_user=request.user).order_by('created_date').reverse()
+        data = {
+            'count': len(notify),
+            'content': list()
+        }
+        if data['count'] > 1:
+            for notify_one in notify:
+                data['content'].append({
+                    'pk': notify_one.pk,
+                    'infomation': notify_one.infomation,
+                    'created_date': timesince(notify_one.created_date)
+                })
+        return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
 
 def notify_user_tagging(request, touser, fromuser):
     if request.method == 'POST':

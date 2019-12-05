@@ -14,7 +14,7 @@
         <p>{{ form.first_name }}</p>
         <p>{{ form.email }}</p>
         <div class="alert alert-warning" role="alert">
-            {{form.email.help_text}}
+            {{ form.email.help_text }}
         </div>
         <p><a href="{% url 'login' %}">이미 회원이신가요?</a></p>
         <button type="submit" class="btn btn-dark">회원가입</button>
@@ -53,7 +53,7 @@
                 } else {
                     $('#idCheck').removeClass('alert-danger');
                     $('#idCheck').addClass('alert-success');
-                    $('#idCheck').text('https://blex.kr/@' + data.name);
+                    $('#idCheck').text('https://' + window.location.hostname + '/@' + data.name);
                 }
             });
         }

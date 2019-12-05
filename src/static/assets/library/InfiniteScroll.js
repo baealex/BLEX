@@ -52,7 +52,6 @@ class InfiniteScroll {
 
 $(document).ready(function() {
     if(getCookie('latelyposition')) {
-        $('#return-position').css('display', 'block');
         var desPos = getCookie('latelyposition');
         var count = 0;
         var findLatelyPosition = setInterval(function() {
@@ -62,14 +61,16 @@ $(document).ready(function() {
                 count += 1;
                 if(count > 100) {
                     clearTimeout(findLatelyPosition);
-                    $('#return-position').css('display', 'none');
+                    $('#return-position').remove();
                     distoryLatelyPosition();    
                 }
             } else {
                 clearTimeout(findLatelyPosition);
-                $('#return-position').css('display', 'none');
+                $('#return-position').remove();
                 distoryLatelyPosition();
             }
         }, 50);
+    } else {
+        $('#return-position').remove();
     }
 });

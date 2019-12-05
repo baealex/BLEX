@@ -60,8 +60,10 @@ a.shallow-dark:hover {
 	color: rgba(0,0,0,.54)!important;
 	text-decoration: none;
 }
-a.notice > b {
-	color: #f00;
+#notify-content {
+    position: fixed;
+    top: 70px;
+    right: 5px;
 }
 .card-title {
     word-break: keep-all;
@@ -920,7 +922,7 @@ a.page-link {
     border-color: #ccc;
 }
 .theme-dark .tag-list li {
-    background-color:#aaa;
+    background-color:#555;
 }
 .theme-dark .tag-list a {
     color: #aaa;

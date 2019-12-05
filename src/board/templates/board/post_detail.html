@@ -152,10 +152,10 @@
 {% block image-script %}
 <script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
 {% if post.image %}
-<script type="text/javascript" src="{{ static_url }}/assets/js/post/navigation.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js"></script>
 {% endif %}
 {% if request.user.is_active %}
-<script type="text/javascript" src="{{ static_url }}/assets/js/post/main.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/post.js"></script>
 {% endif %}
 <script>
 {% if request.user.is_active %}

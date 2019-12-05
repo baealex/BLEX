@@ -30,9 +30,7 @@ urlpatterns = [
     # ------------------------------------------------------------ Series End
 
     # Notify
-    path('notify', views.notify_read, name='notify_read'),
-    path('notify/count', views.notify_count, name='notify_count'),
-    path('notify/content', views.notify_content, name='notify_content'),
+    path('user/notify', views.user_notify, name='user_notify'),
     path('notify/tagging/<touser>/<fromuser>', views.notify_user_tagging, name='notify_user_tagging'),
     # ------------------------------------------------------------ Notify End
 
