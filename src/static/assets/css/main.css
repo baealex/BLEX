@@ -468,6 +468,12 @@ form > p > textarea, input {
     position: sticky;
     overflow: hidden;
 }
+#article-nav a::selection {
+	background: rgba(0, 0, 0, 0);
+}
+#article-nav a::-moz-selection {
+	background: rgba(0, 0, 0, 0);
+}
 #article-nav a {
     transition: all 0.3s;
     color: #fff;

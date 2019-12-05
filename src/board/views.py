@@ -469,10 +469,17 @@ def content_backup(request):
         return redirect('post_list')
     user = request.user
     posts = Post.objects.filter(author=user).order_by('created_date')
-    user_content = []
+    contents = []
     for post in posts:
-        user_content += [ [post.title, post.image, post.created_date, post.updated_date, post.text_md] ]
-    return render(request, 'board/content_backup.html', {'user_content':user_content})
+        contents.append({
+            'title': post.title,
+            'image': post.image,
+            'tags': post.tag,
+            'date': post.created_date,
+            'update': post.updated_date,
+            'content': post.text_md
+        })
+    return render(request, 'board/content_backup.html', {'contents':contents})
 
 def post_list_in_tag(request, tag):
     posts = Post.objects.filter(hide=False, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()

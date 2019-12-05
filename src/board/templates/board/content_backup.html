@@ -2,15 +2,19 @@
     body { background: #000; } pre { /* white-space: pre-wrap; */ } .info { border-top: 4px solid #0f0; color: #0f0; } .info a { color: #0ff; } .content { color: #fff; }
 </style>
 <body>
-{% for content in user_content %}
+{% for content in contents %}
 <pre class="{{ forloop.counter }} info">
-TITLE : {{ content.0 }}
-IMAGE : {% if content.1 %}<a href="https://static.blex.kr/{{ content.1 }}">https://static.blex.kr/{{ content.1 }}{% endif %}</a>
-CREATE : {{ content.2 }}
-UPDATE : {{ content.3 }}
+---
+layout: post
+title: "{{ content.title }}"
+image: {% if content.image %}<a href="https://static.blex.kr/{{ content.image }}">https://static.blex.kr/{{ content.image }}{% endif %}</a>
+date : {{ content.date | date }}
+update : {{ content.update | date }}
+tags: [ {{ content.tags }} ]
+---
 </pre>
 <pre class="{{ forloop.counter }} content">
-{{ content|last }}
+{{ content.content }}
 </pre>
 {% endfor %}
 </body>
