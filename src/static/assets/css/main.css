@@ -476,7 +476,7 @@ form > p > textarea, input {
 }
 #article-nav a {
     transition: all 0.3s;
-    color: #fff;
+    color: rgba(0,0,0,0);
     display: block;
     white-space: nowrap;
     font-size: 14px;
@@ -864,6 +864,9 @@ a.page-link {
     background-color: #333;
     color: #eee;
 }
+.theme-dark .like-active {
+    fill: #ffae00;
+}
 .theme-dark .share, .theme-dark .share a {
     color: #ccc;
     fill: #ccc;
@@ -904,12 +907,6 @@ a.page-link {
 }
 .theme-dark #article-nav:hover a.nav-now {
     color: #fff !important;
-}
-.theme-dark #article-nav a {
-    color: #777;
-}
-.theme-dark #article-nav a {
-    color: #333;
 }
 .theme-dark #article-nav:hover a {
     color: #777;

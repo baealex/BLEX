@@ -52,6 +52,7 @@ class InfiniteScroll {
 
 $(document).ready(function() {
     if(getCookie('latelyposition')) {
+        $('#return-position').css('display', 'block');
         var desPos = getCookie('latelyposition');
         var count = 0;
         var findLatelyPosition = setInterval(function() {

@@ -28,6 +28,9 @@
 {% endblock %}
 
 {% block image-script %}
+<div id="return-position" class="col-lg-6 mx-auto alert alert-dark noto text-center fixed-bottom" style="display: none;" role="alert">
+    <i class="fas fa-spinner fa-pulse"></i> 원래의 자리를 찾아가는 중
+</div>
 <script src="{{ static_url }}/library/InfiniteScroll.js"></script>
 <script type="text/javascript">
 var postWrapperId = 'card-wrapper';

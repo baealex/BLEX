@@ -350,7 +350,7 @@ def series_list(request, username, url):
 def user_notify(request):
     if request.method == 'GET':
         if request.GET.get('redirect'):
-            notify = Notify.objects.get(pk=request.GET.get('redirect'))
+            notify = get_object_or_404(Notify, pk=request.GET.get('redirect'))
             if not notify.to_user == request.user:
                 return HttpResponse(str('<script>alert(\'잘못된 접근입니다.\');history.back();</script>'))
             redirect_url = notify.from_user
