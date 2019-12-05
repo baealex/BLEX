@@ -361,7 +361,7 @@ def user_notify(request):
             'count': len(notify),
             'content': list()
         }
-        if data['count'] > 1:
+        if data['count'] > 0:
             for notify_one in notify:
                 data['content'].append({
                     'pk': notify_one.pk,
