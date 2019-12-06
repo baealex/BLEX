@@ -8,8 +8,8 @@ from . import views
 
 urlpatterns = [
     # Account
-    path('login', auth_views.login, name='login'),
-    path('logout', auth_views.logout, name='logout', kwargs={'next_page': '/'}),
+    path('login', auth_views.LoginView, name='login'),
+    path('logout', auth_views.LogoutView, name='logout', kwargs={'next_page': '/'}),
     path('signup',views.signup,name='signup'),
     path('signup/help/id',views.id_check, name='id_check'),
     path('active/<token>', views.user_active,name='user_active'),

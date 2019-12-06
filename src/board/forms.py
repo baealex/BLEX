@@ -10,7 +10,7 @@ class PostForm(forms.ModelForm):
         widgets={
             'title':forms.TextInput(attrs={'placeholder':'제목을 입력하세요. 제목은 URL 주소가 됩니다.','class':'blex-title-input'}),
             'text_md':forms.Textarea(attrs={'placeholder':'부적절한 컨텐츠는 삭제될 수 있습니다.','class':'blex-content-input'}),
-            'tag':forms.TextInput(attrs={'placeholder':'BLEX,Develop,Python','class':'form-control'}),
+            'tag':forms.TextInput(attrs={'class':'form-control'}),
             'notice':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'hide':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'block_comment':forms.CheckboxInput(attrs={'class':'custom-control-input'}),

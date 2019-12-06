@@ -27,21 +27,20 @@ def get_posts(sort):
     elif sort == 'oldest':
         return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('created_date')
     elif sort == 'week-top':
-        now_date = datetime.datetime.now()
-        now_date_str = str(now_date.year) + '-' + str(now_date.month) + '-' + str(now_date.day)
-        seven_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
-        seven_days_ago_str = str(seven_days_ago.year) + '-' + str(seven_days_ago.month) + '-' + str(seven_days_ago.day)
-        return Post.objects.filter(created_date__range=[seven_days_ago_str, now_date_str], notice=False, hide=False).order_by('view_cnt').reverse()
+        now_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        seven_days_ago = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
+        return Post.objects.filter(created_date__range=[seven_days_ago, now_date], notice=False, hide=False).order_by('view_cnt').reverse()
     elif sort == 'all':
         return Post.objects.filter(hide=False).order_by('created_date').reverse()
     else:
         return Post.objects.filter(notice=True).order_by('created_date')
 
 def get_clean_all_tags(user):
+    posts = Post.objects.filter()
     if user == None:
-        tagslist = list(Post.objects.filter(hide=False).values_list('tag', flat=True).distinct())
+        tagslist = list(posts.filter(hide=False).values_list('tag', flat=True).distinct())
     else:
-        tagslist = list(Post.objects.filter(hide=False, author=user).values_list('tag', flat=True).distinct())
+        tagslist = list(posts.filter(hide=False, author=user).values_list('tag', flat=True).distinct())
         
     all_tags = []
     for anothertags in tagslist:
@@ -54,9 +53,9 @@ def get_clean_all_tags(user):
     for tag in all_tags:
         tag_dict = { 'name': tag }
         if user == None:
-            tag_dict['count'] = len(Post.objects.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
+            tag_dict['count'] = len(posts.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
         else:
-            tag_dict['count'] = len(Post.objects.filter(author=user, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
+            tag_dict['count'] = len(posts.filter(author=user, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
         all_tags_dict.append(tag_dict)
     return all_tags_dict
 
@@ -618,6 +617,7 @@ def post_write(request):
             post = form.save(commit=False)
             post.author = request.user
             post.text_html = parsedown(post.text_md)
+            post.tag = slugify(post.tag.replace(',', '-')).replace('-', ',')
             post.url = slugify(post.title, allow_unicode=True)
             if post.url == '':
                 post.url = randstr(15)
@@ -670,6 +670,7 @@ def post_edit(request, pk):
             post = form.save(commit=False)
             post.updated_date = timezone.now()
             post.text_html = parsedown(post.text_md)
+            post.tag = slugify(post.tag.replace(',', '-')).replace('-', ',')
             post.save()
             return redirect('post_detail', username=post.author, url=post.url)
     else:
