@@ -617,7 +617,7 @@ def post_write(request):
             post = form.save(commit=False)
             post.author = request.user
             post.text_html = parsedown(post.text_md)
-            post.tag = slugify(post.tag.replace(',', '-')).replace('-', ',')
+            post.tag = slugify(post.tag.replace(',', '-'), allow_unicode=True).replace('-', ',')
             post.url = slugify(post.title, allow_unicode=True)
             if post.url == '':
                 post.url = randstr(15)
@@ -670,7 +670,7 @@ def post_edit(request, pk):
             post = form.save(commit=False)
             post.updated_date = timezone.now()
             post.text_html = parsedown(post.text_md)
-            post.tag = slugify(post.tag.replace(',', '-')).replace('-', ',')
+            post.tag = slugify(post.tag.replace(',', '-'), allow_unicode=True).replace('-', ',')
             post.save()
             return redirect('post_detail', username=post.author, url=post.url)
     else:
