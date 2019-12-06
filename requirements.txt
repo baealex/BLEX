@@ -3,7 +3,7 @@ bs4==0.0.1
 certifi==2019.9.11
 chardet==3.0.4
 defusedxml==0.6.0
-Django==2.0.13
+Django==2.2.8
 django-allauth==0.40.0
 django-smtp-ssl==1.0
 django-tagging==0.4.6
@@ -16,5 +16,6 @@ pytz==2019.3
 requests==2.22.0
 requests-oauthlib==1.2.0
 soupsieve==1.9.5
+sqlparse==0.3.0
 urllib3==1.25.6
 uWSGI==2.0.18
