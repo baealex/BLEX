@@ -578,7 +578,7 @@ def post_list(request):
     render_args = {
         'white_nav': True,
         'pageposts': get_posts(''),
-        'weekly_top': get_posts('week-top')[:4],
+        'weekly_top' : get_posts('trendy')[:4],
         'tags': sorted(get_clean_all_tags(None), key=lambda instance:instance['count'], reverse=True)
     }
 
@@ -599,7 +599,6 @@ def post_sort_list(request, sort):
     render_args = {
         'sort' : sort,
         'pageposts' : paginator.get_page(page),
-        'weekly_top' : get_posts('week-top')[:4],
         'white_nav' : True
     }
 

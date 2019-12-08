@@ -71,9 +71,6 @@ a.shallow-dark:hover {
 .card-subtitle {
     text-transform: capitalize;
 }
-.navbar-brand {
-    font-family:Righteous;
-}
 .padding-remove {
     padding-right: 0px !important;
     padding-left: 0px !important;
@@ -342,15 +339,15 @@ form > p > textarea, input {
   font-weight: bold;
   font-family: 'Noto Serif KR', serif;
 }
+.article h1, .article h2 {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ccc;
+}
 .article h5, .article h6 {
     font-size: 1.2rem;
 }
 .article ul, .article ol {
   padding-left: 30px;
-}
-.article h1, .article h2 {
-    padding-bottom: 12px;
-    border-bottom: 1px solid #ccc;
 }
 .article code {
   color: #000;
@@ -681,9 +678,6 @@ a.page-link {
 .profile-tags li {
     margin: 5px;
 }
-.profile-tags li::before {
-    content: '– ';
-}
 .profile-tags li a {
     color: #8c00ff;
     text-decoration: none;
@@ -700,9 +694,6 @@ a.page-link {
     }
     .profile-tags ul > h5 {
         display: none;
-    }
-    .profile-tags li::before {
-        content: '';
     }
     .profile-tags li {
         display: inline-block;
