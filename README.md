@@ -1,21 +1,78 @@
-
 # BLEX
 
-### BLOG TO FLEX
+> BLOG EXPRESS ME, "블로그는 나를 표현한다" 기록은 인간에게 가장 오래된 습관이며 블로그는 여전히 자신을 표현하기 위한 완벽한 공간입니다.
 
-블로그는 저에게 가장 오래된 활동입니다. 처음에는 많은 방문자가 발생하는게 재밌었고, 방문자에게 멋진 레이아웃을 보여주는게 재밌었고, 제 서버를 통해서 보여주는게 재밌었고, 이번에는 '서비스형 블로그를 만들어보자!'라는 생각을 했습니다. 이 프로젝트는 혼자서 풀 사이클 개발(디자인, 개발, 테스트, 배포, 운영, 지원)을 진행한 것이라 어려움도 있었지만 어려웠던 만큼 페이지가 사용자에게 전달되는 기쁨이 매우 큽니다. 블렉스가 추구하는 건 별다른게 없습니다. 글만 쓰면 알아서 검색도 잘되고 예쁜 프로필도 가질 수 있는 그저 잘 만들어진 블로그 서비스입니다.
+더 나은 블로그를 만들기 위해 블로그만 4번 이사한 블로거가 마지막으로 정착하기 위해 직접 제작하는 블로그 서비스. 사용해봤던 블로그들의 장점에 집중하고 더 나은 서비스를 개발하고자 합니다. 네이버 블로그의 '쉽다!', 티스토리 블로그의 '자유롭다!', 깃허브 블로그의 '마크다운 글쓰기!', 미디엄의 '아름답다!' 등 그 외 블로그를 운영하며 다져진 노하우를 잘 녹여낸 블로그입니다.
 
-[서비스 이동](https://blex.kr) / [설치 방법](./HOW_TO_INSTALL.md) / [업데이트 내역](./CHANGELOG.md)
+![BLEX LOGO](https://user-images.githubusercontent.com/35596687/70400241-3f101f00-1a6d-11ea-8952-9f622224c57e.png)
 
-![0_aivZqFWhQQvyjh5](https://user-images.githubusercontent.com/35596687/68086623-0b9c0c80-fe91-11e9-8ef4-00d846076c3e.png)
-![1_ODQ1W2haJHl463h](https://user-images.githubusercontent.com/35596687/68086624-0b9c0c80-fe91-11e9-8605-ae75030f6d24.png)
-![2_fW6oYalS4fzhOI7](https://user-images.githubusercontent.com/35596687/68086625-0c34a300-fe91-11e9-8b89-0e5ab8c83241.png)
-![4_e95WF6goojY74A0](https://user-images.githubusercontent.com/35596687/68086627-0ccd3980-fe91-11e9-8bac-388bea1ed853.png)
-![5_Y7RuulhKG4feYOa](https://user-images.githubusercontent.com/35596687/68086628-0ccd3980-fe91-11e9-8a16-f1d0a34bdbb2.png)
-![6_JF0c0iRaATx79KR](https://user-images.githubusercontent.com/35596687/68086629-0ccd3980-fe91-11e9-99f5-da9b2b7c3566.png)
-![7_GIFZNl7H4QndTn5](https://user-images.githubusercontent.com/35596687/68086630-0ccd3980-fe91-11e9-924a-1f49bfad8a6b.png)
-![8_NvnYNsgAgeZ31S1](https://user-images.githubusercontent.com/35596687/68086631-0d65d000-fe91-11e9-9422-c9a650ef4c5e.png)
-![9_ATaBR29MY2iBt6E](https://user-images.githubusercontent.com/35596687/68086632-0d65d000-fe91-11e9-98fe-5abf8c7f8be3.png)
+<br>
+
+## 설치 방법
+
+#### 리눅스(데비안) :
+
+- 가상환경 및 패키지 설치
+
+```shell
+# 두 명령어중 동작하는 명령어로 설치
+sudo apt-get install python3-venv
+sudo pip install virtualenv
+
+python3 -m venv mvenv
+source mvenv/bin/activate
+pip install -U -r requirements.txt
+```
+
+- 설정 파일 및 기본 템플릿 수정
+
+`main/settings_1.py`
+
+```python
+STATIC_URL = 'https://static.domain.com/assets/'
+STAITC_ROOT=os.path.join('/static/assets/')
+
+MEDIA_URL = 'https://static.domain.com/'
+MEDIA_ROOT = os.path.join('/static/')
+
+...
+
+EMAIL_HOST_USER = '********@gmail.com'
+EMAIL_HOST_PASSWORD = '********'
+```
+
+설정 파일의 각 변수를 지정하세요. `Static`, `Media` 파일은 `NginX`에서 별도의 서버를 열어 제공하였습니다. 수정후 `settings.py`로 이름을 변경하세요.
+
+`board/template` > `base_1.html`, `board/template/small` > `base_1.html`
+
+```
+{% with site_title='BLEX' site_url='https://site.example.com' site_description='Site Description' static_url='https://static.example.com' api_url='https://api.example.com'%}
+```
+
+상단의 `with` 변수를 자신에 환경에 맞게 변경하세요. `API` 역시 별도의 `PHP` 서버를 개설하여 사용하였습니다. 수정후 `base.html`로 이름을 변경하세요.
+
+- 데이터 베이스 동기화 및 서비스 실행
+
+```shell
+python manage.py migrate --run-syncdb
+
+uwsgi --socket :8000 --module main.wsgi --enable-threads
+```
+
+- `NginX`에서 `uwsgi` 연동
+
+```nginx
+location / {
+    uwsgi_pass 127.0.0.1:8000;
+    include /.../BLEX/src/uwsgi_params;
+}
+```
+
+<br>
+
+## 업데이트 내역
+
+**[참고](./CHANGELOG.md))**
 
 <br>
 
