@@ -38,9 +38,9 @@ def avatar_path(instance, filename):
     dt = datetime.datetime.now()
     return 'avatar/u/'+instance.user.username+ '/' + randstr(4) +'.'+filename.split('.')[-1]
 
-def image_path(instance, filename):
+def title_image_path(instance, filename):
     dt = datetime.datetime.now()
-    return 'title/'+instance.author.username+'/'+str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour)+'_'+randstr(4)+'.'+filename.split('.')[-1]
+    return 'title/'+instance.author.username+'/'+str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour) + randstr(4)+'.'+filename.split('.')[-1]
 
 def create_notify(target, url, content):
     new_notify = Notify(to_user=target, from_user=url, infomation=content)
@@ -126,7 +126,7 @@ class Post(models.Model):
     hide = models.BooleanField(default=False)
     notice = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
-    image = models.ImageField(blank=True, upload_to=image_path)
+    image = models.ImageField(blank=True, upload_to=title_image_path)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
     last_like_date = models.DateTimeField(default=timezone.now)

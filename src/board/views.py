@@ -1,8 +1,8 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404
 from django.contrib.auth import update_session_auth_hash, login
 from django.template.loader import render_to_string
-from django.shortcuts import render, get_object_or_404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator
 from django.core.mail import EmailMessage
@@ -14,7 +14,7 @@ from django.utils.timesince import timesince
 from itertools import chain
 from .models import *
 from .forms import *
-import threading, json
+import threading, json, os
 
 # Method
 def get_posts(sort):
@@ -488,6 +488,48 @@ def post_list_in_tag(request, tag):
     page = request.GET.get('page')
     pageposts = paginator.get_page(page)
     return render(request, 'board/post_list_in_tag.html',{ 'tag':tag, 'pageposts':pageposts, 'white_nav':True })
+
+@csrf_exempt
+def image_upload(request):
+    if request.method == 'POST':
+        if request.FILES['image']:
+            allowed_ext = ['jpg', 'jpeg', 'png', 'gif']
+            
+            image = request.FILES['image']
+            ext = str(request.FILES['image']).split('.')[-1].lower()
+
+            if not ext in allowed_ext:
+                return HttpResponse('허용된 확장자가 아닙니다.')
+                
+            dt = datetime.datetime.now()
+            upload_path = 'static/image/'
+            date_path = str(dt.year)
+            if not os.path.exists(upload_path + date_path):
+                os.makedirs(upload_path + date_path)
+            date_path += '/' + str(dt.month) 
+            if not os.path.exists(upload_path + date_path):
+                os.makedirs(upload_path + date_path)
+            date_path += '/' + str(dt.day)
+            if not os.path.exists(upload_path + date_path):
+                os.makedirs(upload_path + date_path)
+
+            file_name = randstr(20)
+            with open(upload_path + date_path + '/' + file_name +'.'+ ext, 'wb+') as destination:
+                for chunk in image.chunks():
+                    destination.write(chunk)
+            
+            if ext == 'gif':
+                try:
+                    os.system('ffmpeg -i '+ upload_path + date_path + '/' + file_name + '.gif' + ' -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart '+ upload_path + date_path + '/' + file_name +'.mp4')
+                    os.system('rm ' + upload_path + date_path + '/' + file_name + '.gif')
+                    ext = 'mp4'
+                except:
+                    return HttpResponse('이미지 업로드를 실패했습니다.')
+            return HttpResponse('https://static.blex.kr/image/' + date_path + '/' + file_name +'.'+ ext)
+        else:
+            return HttpResponse('이미지 파일이 아닙니다.')
+    else:
+        raise Http404
 # ------------------------------------------------------------ Others End
 
 

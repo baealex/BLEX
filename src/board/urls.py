@@ -44,6 +44,7 @@ urlpatterns = [
     # Others
     path('search', views.search, name='search'),
     path('backup',views.content_backup,name='content_backup'),
+    path('upload/image', views.image_upload, name='image_upload'),
     path('topic/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
     # Not in views
     path('rss', LatestPostFeed()),

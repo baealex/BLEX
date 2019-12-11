@@ -162,8 +162,8 @@
                         var image_form = document.getElementById('image-form');
                         formData = new FormData(image_form);
                         $.ajax({
-                            url: "https://api.blex.kr/image/upload.php",
-                            type: "post",
+                            url: "/upload/image",
+                            type: "POST",
                             data: formData,
                             contentType: false,
                             cache: false,
