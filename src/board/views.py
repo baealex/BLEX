@@ -178,11 +178,6 @@ def setting(request):
                 c_form = ConfigForm()
             render_args['u_form'] = u_form
             render_args['c_form'] = c_form
-
-            subpost = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
-            hidepost = Post.objects.filter(author=user, hide=True).order_by('created_date').reverse()
-            render_args['subpost'] = subpost
-            render_args['hidepost'] = hidepost
         
         elif tab == 'profile':
             render_args['subtitle'] = 'Profile'
@@ -224,7 +219,7 @@ def setting(request):
         
         elif tab == 'analysis':
             render_args['subtitle'] = 'Analysis'
-            posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
+            posts = Post.objects.filter(author=user).order_by('created_date').reverse()
             render_args['posts'] = posts
 
         return render(request, 'board/setting.html', render_args)
@@ -701,10 +696,20 @@ def post_like(request, pk):
         return HttpResponse(str(post.total_likes()))
     return redirect('post_list')
 
+def post_hide(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if not post.author == request.user:
+        raise Http404
+    if request.method == 'POST':
+        post.hide = not post.hide
+        post.save()
+        return JsonResponse({'hide': post.hide})
+    raise Http404
+
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if not post.author == request.user:
-        return redirect('post_detail', username=post.author, url=post.url)
+        raise Http404
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():

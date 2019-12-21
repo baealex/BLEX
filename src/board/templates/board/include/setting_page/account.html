@@ -15,36 +15,6 @@
         <label class="custom-control-label" for="id_agree_history">사용자 활동 수집 허용</lable>
     </div>
     <hr>
-    <ul class="list-group mb-3">
-        <a class="deep-dark" href="javascript:void(0)" onclick="showList('sub-post')">
-            <li class="list-group-item d-flex justify-content-between align-items-center bg-light">공개 글
-                <span class="badge badge-purple badge-pill">{{ subpost | length }}</span>
-            </li>
-        </a>
-        <div id="sub-post" class="list-hidden">
-            {% for post in subpost%}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title  }}</a>
-                <small class="mobile-disable">{{ post.created_date | date:"" }}</small>
-            </li>
-            {% endfor %}
-        </div>
-    </ul>
-    <ul class="list-group mb-3">
-        <a class="deep-dark" href="javascript:void(0)" onclick="showList('hidden-post')">
-            <li class="list-group-item d-flex justify-content-between align-items-center bg-light">숨긴 글
-                <span class="badge badge-purple badge-pill">{{ hidepost | length }}</span>
-            </li>
-        </a>
-        <div id="hidden-post" class="list-hidden">
-            {% for post in hidepost%}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title  }}</a>
-                <small class="mobile-disable">{{ post.created_date | date:"" }}</small>
-            </li>
-            {% endfor %}
-        </div>
-    </ul>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
             <label class="input-group-text" for="id_post_theme">글 상당바 색상</label>

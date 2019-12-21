@@ -285,9 +285,6 @@ footer a:hover {
     padding:20px;
     margin-top:30px;
 }
-form > p > textarea, input {
-    width: 100%;
-}
 .post-headline {
     font-family: 'Noto Serif KR', serif;
     word-break: keep-all;
@@ -707,6 +704,9 @@ a.page-link {
 .profile-post .back-image {
     height: 300px;
     width: 100%;
+}
+.profile-post p {
+    word-break:break-all;
 }
 .wirte-btn {
     cursor: pointer;

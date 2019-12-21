@@ -54,23 +54,18 @@
 {% endblock %}
 
 {% block image-script %}
-<style>
-.list-hidden {
-    display: none;
-}
-</style>
+<script type="text/javascript" src="{{ static_url }}/assets/js/setting.js"></script>
 <script>
-    function showList(target) {
-        if ($('#' + target).hasClass('list-hidden')) {
-            $('#' + target).removeClass('list-hidden');
-        } else {
-            $('#' + target).addClass('list-hidden');
-        }
-    }
-    
-    $('#id_avatar').on('change',function(){
-        var fileName = $(this).val();
-        $(this).next('.custom-file-label').html(fileName);
-    })
+    $(document).ready(function() {
+        var csrftoken = getCookie('csrftoken');
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    });
 </script>
+<script 
 {% endblock %}

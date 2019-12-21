@@ -7,13 +7,20 @@
     display: inline-block;
     margin: 5px;
 }
+.post-lock .fa-lock {
+    color: #b00;
+}
+.post-lock .fa-lock-open {
+    color: #0b0;
+}
 </style>
 <div>
     <ul class="list-group">
         {% for post in posts%}
         <li class="card p-3 mb-2">
-            <p><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title }} </a></p>
+            <p><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title }}</a></p>
             <ul class="post-info">
+                <li><a class="post-lock" href="javascript:postLock({{ post.pk }})"><i id="lock-{{ post.pk }}" class="fas fa-lock{% if not post.hide %}-open{% endif %}"></i></a></li>
                 <li><i class="far fa-eye"></i> {{ post.view_cnt }}</li>
                 <li><i class="far fa-thumbs-up"></i> {{ post.total_likes }}</li>
                 <li><i class="far fa-comment"></i> {{ post.comments.count }}</li>

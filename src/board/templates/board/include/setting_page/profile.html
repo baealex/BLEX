@@ -6,7 +6,7 @@
     {% csrf_token %}
     <div class="custom-file">
         {{ p_form.avatar }}
-        <label class="custom-file-label" for="id_avatar">자신의 아바타를 선택하세요.</label>
+        <label class="custom-file-label" for="id_avatar">{% if request.user.profile.avatar %}{{ request.user.profile.avatar.url }}{% else %}자신의 아바타를 선택하세요.{% endif %}</label>
     </div>
     <p>{{ p_form.bio }}</p>
     <label>Homepage : </label>

@@ -58,6 +58,7 @@ urlpatterns = [
     path('write',views.post_write,name='post_write'),
     path('<sort>',views.post_sort_list,name='post_sort_list'),
     path('post/<int:pk>/like', views.post_like, name='post_like'),
+    path('post/<int:pk>/hide', views.post_hide, name='post_hide'),
     path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
     path('post/<int:pk>/remove', views.post_remove, name='post_remove'), 
     # ------------------------------------------------------------ Article End
