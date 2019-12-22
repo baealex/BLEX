@@ -84,7 +84,9 @@
             <div class="profile-post">
                 {% if post.image %}
                 <a href="{{ post.get_absolute_url }}">
-                    <div class="back-image" style="background-image: url({{ post.image.url }});"></div>
+                    <picture>
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}"/>
+                    </picture>
                 </a>
                 {% endif %}
                 <h4 class="card-title serif font-weight-bold mt-3">

@@ -1,9 +1,13 @@
 <div class="col-lg-4 mt-4" onmousedown="saveLatelyPosition()">
     <a href="{% url 'post_detail' username=post.author url=post.url %}">
         {% if post.image %}
-        <div class="list-image back-image" style="background-image: url({{ post.image.url }});"></div>
+        <picture>
+            <img class="list-image" src="{{ post.image.url }}" alt="{{ post.title }}"/>
+        </picture>
         {% else %}
-        <div class="list-image back-image" style="background-image: url({{ static_url }}/assets/images/default-post.png);"></div>
+        <picture>
+            <img class="list-image" src="{{ static_url }}/assets/images/default-post.png"/>
+        </picture>
         {% endif %}
     </a>
     <h5 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title | truncatechars:50 }}</a></h5>

@@ -31,11 +31,14 @@
 {% block image-title%}
 {% if post.image %}
 <style>.content {margin-top: 20px;} #mNavigation {background: rgba(0, 0, 0, 0); position: absolute;}</style>
-<div class="post-title-image back-image" style="background-image: url({{ post.image.url }});">
-    <div class="mask">
-        <h1 class="post-headline">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
-        <p class="post-date">{{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}<span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
-    </div>
+<div>
+    <picture class="post-title-image">
+        <img src="{{ post.image.url }}" alt="{{ post.image.url }}">
+        <div class="post-image-mask">
+            <h1 class="post-headline">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
+            <p class="post-date">{{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}<span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
+        </div>
+    </picture>
 </div>
 {% endif %}
 {% endblock %}
