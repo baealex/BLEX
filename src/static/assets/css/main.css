@@ -557,7 +557,8 @@ a.page-link {
     height: 250px;
     border-radius: 100%;
     border: 1px solid #ccc;
-    margin: 15px auto;
+    margin: 15px;
+    object-fit: cover
 }
 .user-profile {
     margin: 0 auto;

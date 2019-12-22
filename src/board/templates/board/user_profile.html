@@ -19,12 +19,16 @@
 
 {% block content %}
 <div class="col-md-12 padding-remove">
-    {% if user.profile.avatar %}
-    <div class="user-avatar back-image" style="background-image:url({{ user.profile.avatar.url }})"></div>
-    {% else %}
-    <div class="user-avatar back-image" style="background-image:url({{ static_url }}/assets/images/default-avatar.jpg)"></div>
-    {% endif %}
     <div class="user-profile">
+        {% if user.profile.avatar %}
+        <picture>
+            <img class="user-avatar" src="{{ user.profile.avatar.url }}"/>
+        </picture>
+        {% else %}
+        <picture>
+            <img class="user-avatar" src="{{ static_url }}/assets/images/default-avatar.jpg"/>
+        </picture>
+        {% endif %}
         <h4 class="serif username">{{ user.first_name }}</h4>
         <h5 class="serif">@{{ user.username }}</h5>
         {% if user.profile.homepage %}<a class="vivid-purple" href="https://{{ user.profile.homepage }}">https://{{ user.profile.homepage }}</a>{% endif %}
@@ -85,7 +89,7 @@
                 {% if post.image %}
                 <a href="{{ post.get_absolute_url }}">
                     <picture>
-                        <img src="{{ post.image.url }}" alt="{{ post.title }}"/>
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy"/>
                     </picture>
                 </a>
                 {% endif %}

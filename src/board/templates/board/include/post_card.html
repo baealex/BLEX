@@ -2,7 +2,7 @@
     <a href="{% url 'post_detail' username=post.author url=post.url %}">
         {% if post.image %}
         <picture>
-            <img class="list-image" src="{{ post.image.url }}" alt="{{ post.title }}"/>
+            <img class="list-image" src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy"/>
         </picture>
         {% else %}
         <picture>
