@@ -783,6 +783,7 @@ a.page-link {
     border: 1px solid #dedede;
     padding: 15px;
     border-radius: 15px;
+    width: 100%;
     cursor: pointer;
     transition: all ease 0.5s 0s;
     -webkit-transition: all ease 0.5s 0s;
