@@ -117,6 +117,8 @@ a.shallow-dark:hover {
     .list-image {
         width: 150px;
         height: 150px;
+        min-width: 150px;
+        min-height: 150px;
         float: right;
         margin-left: 20px;
         border: 1px solid #ccc;
