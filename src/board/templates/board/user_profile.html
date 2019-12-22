@@ -22,11 +22,11 @@
     <div class="user-profile">
         {% if user.profile.avatar %}
         <picture>
-            <img class="user-avatar" src="{{ user.profile.avatar.url }}"/>
+            <img class="user-avatar" src="{{ user.profile.avatar.url }}" alt="{{ user.username }}"/>
         </picture>
         {% else %}
         <picture>
-            <img class="user-avatar" src="{{ static_url }}/assets/images/default-avatar.jpg"/>
+            <img class="user-avatar" src="{{ static_url }}/assets/images/default-avatar.jpg" alt="{{ user.username }}"/>
         </picture>
         {% endif %}
         <h4 class="serif username">{{ user.first_name }}</h4>
