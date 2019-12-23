@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404
 from django.contrib.auth import update_session_auth_hash, login
 from django.template.loader import render_to_string
+from django.template.defaultfilters import linebreaks
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
@@ -8,6 +9,7 @@ from django.core.paginator import Paginator
 from django.core.mail import EmailMessage
 from django.db.models import Count, Q
 from django.utils.html import strip_tags
+from django.utils.html import escape
 from django.utils.text import slugify
 from django.utils import timezone
 from django.utils.timesince import timesince
@@ -64,6 +66,25 @@ def send_mail(title, mail_args, mail_list):
     email = EmailMessage('[ BLEX ] '+ title, html_message, to=mail_list)
     email.content_subtype = 'html'
     return email.send()
+
+def compereUser(req, res):
+    if not req == res:
+        raise Http404
+
+def get_comment_json_element(user, comment):
+    element = {
+        'pk': comment.pk,
+        'author': comment.author.username,
+        'created_date': timesince(comment.created_date),
+        'content': linebreaks(escape(comment.text)),
+    }
+
+    if hasattr(user, 'profile'):
+        element['thumbnail'] = user.profile.avatar.url
+    else:
+        element['thumbnail'] = 'https://static.blex.kr/assets/images/default-avatar.jpg'
+
+    return element
 # ------------------------------------------------------------ Method End
 
 
@@ -394,11 +415,17 @@ def comment_post(request, pk):
             comment.save()
             
             if not comment.author == post.author:
-                send_notify_rederct_url = '/@'+post.author.username+'/'+post.url
+                send_notify_rederct_url = post.get_absolute_url()
                 send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
                 create_notify(target=post.author, url=send_notify_rederct_url, content=send_notify_content)
             
-            return HttpResponse(str(0))
+            data = {
+                'state': 'true',
+                'element': get_comment_json_element(request.user, comment)
+            }
+            data['element']['edited'] = ''
+            
+            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
     else:
         raise Http404()
 
@@ -416,28 +443,39 @@ def get_commentor(request, pk):
 
 def comment_update(request, cpk):
     comment = Comment.objects.get(pk=cpk)
-    if not request.user == comment.author:
-        return redirect('post_detail', username=comment.post.author, url=comment.post.url)
+    compereUser(request.user, comment.author)
+
     if request.method == 'POST':
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             comment = form.save(commit=False)
             comment.edit = True
             comment.save()
-            return HttpResponse('done')
+            
+            data = {
+                'state': 'true',
+                'element': get_comment_json_element(request.user, comment)
+            }
+            data['element']['edited'] = 'edited'
+
+            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         else:
             return HttpResponse('fail')
     else:
         form = CommentForm(instance=comment)
-        return render(request, 'board/small/comment_update.html',{ 'form':form })
+        return render(request, 'board/small/comment_update.html', {'form': form})
 
 def comment_remove(request, cpk):
     comment = Comment.objects.get(pk=cpk)
-    if not comment.author == request.user:
-        return HttpResponse(str(0))
-    else:
+    compereUser(request.user, comment.author)
+    
+    if request.method == 'POST':
+        data = {
+            'pk': comment.pk
+        }
         comment.delete()
-        return HttpResponse(str(1))
+        return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+    raise Http404
 # ------------------------------------------------------------ Comment End
 
 
@@ -646,7 +684,7 @@ def post_sort_list(request, sort):
 
 def post_write(request):
     if not request.user.is_active:
-        return redirect('post_list')
+        raise Http404
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():

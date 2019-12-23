@@ -6,8 +6,8 @@
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="button" onclick="update_comment();" class="btn btn-dark">수정</button>
-    <button type="button" onclick="dialog_close();" class="btn btn-dark">닫기</button>
+    <button type="button" onclick="updateComment();" class="btn btn-dark">수정</button>
+    <button type="button" onclick="dialogClose();" class="btn btn-dark">닫기</button>
 </form>
 {% endblock %}
 
@@ -17,22 +17,24 @@
         var csrftoken = getCookie('csrftoken');
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
             }
         });
     });
-    function update_comment() {
+    function updateComment() {
         $.ajax({
             type: "post",
             data: $("form").serialize(),
         }).done(function(data) {
-            opener.reloadComment();
-            dialog_close();
+            if(data.state == 'true') {
+                opener.reloadComment(data.element);
+            }
+            dialogClose();
         });
     }
-    function dialog_close() {
+    function dialogClose() {
         self.close();
     }
 </script>

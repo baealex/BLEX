@@ -102,14 +102,14 @@
 
 <div id="comment" class="mt-5">
     {% if post.block_comment %}
-    <div class="comment-list">
+    <div id="comment-close" class="comment-list">
         <p>댓글이 닫혀 있습니다.</p>
     </div>
     {% else %}
         {% for comment in post.comments.all %}
             {% include 'board/include/post/comment.html' %}
         {% empty %}
-        <div class="comment-list">
+        <div id="comment-empty" class="comment-list">
             <p>작성된 댓글이 없습니다!</p>
         </div>
         {% endfor %}

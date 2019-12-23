@@ -1,17 +1,19 @@
-<div class="comment-list">
-    <a href="{% url 'user_profile' username=comment.author %}">
-        {% if comment.author.profile.avatar %}
-        <div class="back-image thumb comment-thumb" style="background-image:url({{ comment.author.profile.avatar.url }})"></div>
-        {% else %}
-        <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
+<div id="comment-{{ comment.pk }}">
+    <div class="comment-list">
+        <a href="{% url 'user_profile' username=comment.author %}">
+            {% if comment.author.profile.avatar %}
+            <div class="back-image thumb comment-thumb" style="background-image:url({{ comment.author.profile.avatar.url }})"></div>
+            {% else %}
+            <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
+            {% endif %}
+        </a>
+        <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=comment.author %}">{{ comment.author }}</a>
+        <br>
+        <small>{{ comment.created_date | timesince }}전{% if comment.edit %} <span class="vs">edited</span>{% endif %}</small>
+        {% if comment.author == request.user %}
+            <a class="vs shallow-dark" href="javascript:void(0)" onclick="window.open('{% url 'comment_update' cpk=comment.pk %}', '댓글 수정', 'width=500, height=190,left=100, top=50');">수정</a>
+            <a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment('{% url 'comment_remove' cpk=comment.pk %}');">삭제</a>
         {% endif %}
-    </a>
-    <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=comment.author %}">{{ comment.author }}</a>
-    <br>
-    <small>{{ comment.created_date | timesince }}전{% if comment.edit %} <span class="vs">edited</span>{% endif %}</small>
-    {% if comment.author == request.user %}
-        <a class="vs shallow-dark" href="javascript:void(0)" onclick="window.open('{% url 'comment_update' cpk=comment.pk %}', '댓글 수정', 'width=500, height=190,left=100, top=50');">수정</a>
-        <a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment('{% url 'comment_remove' cpk=comment.pk %}');">삭제</a>
-    {% endif %}
-    <div class="mt-3 noto">{{ comment.text|linebreaks }}</div>
+        <div class="mt-3 noto">{{ comment.text|linebreaks }}</div>
+    </div>
 </div>
