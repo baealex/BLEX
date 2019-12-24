@@ -1,41 +1,6 @@
-{% extends 'board/small/base.html' %}
-
-{% block title %}Comment Update{% endblock %}
-
-{% block form %}
-<form method="post">
+<form id="comment-{{ comment.pk }}-form">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="button" onclick="updateComment();" class="btn btn-dark">수정</button>
-    <button type="button" onclick="dialogClose();" class="btn btn-dark">닫기</button>
+    <button type="button" onclick="updateComment({{ comment.pk }});" class="btn btn-dark">수정</button>
+    <button type="button" onclick="editCancle({{ comment.pk }});" class="btn btn-dark">취소</button>
 </form>
-{% endblock %}
-
-{% block script %}
-<script>
-    $(document).ready(function() {
-        var csrftoken = getCookie('csrftoken');
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-    });
-    function updateComment() {
-        $.ajax({
-            type: "post",
-            data: $("form").serialize(),
-        }).done(function(data) {
-            if(data.state == 'true') {
-                opener.reloadComment(data.element);
-            }
-            dialogClose();
-        });
-    }
-    function dialogClose() {
-        self.close();
-    }
-</script>
-{% endblock %}

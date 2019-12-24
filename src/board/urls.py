@@ -37,8 +37,8 @@ urlpatterns = [
     # Comment
     path('post/<int:pk>/comment', views.comment_post, name='comment_post'),
     path('post/<int:pk>/commentor',views.get_commentor,name='get_commentor'),
+    path('comment/<int:cpk>', views.comment_rest, name='comment_rest'),
     path('comment/<int:cpk>/update', views.comment_update, name='comment_update'),
-    path('comment/<int:cpk>/remove', views.comment_remove, name='comment_remove'),
     # ------------------------------------------------------------ Comment End
 
     # Others

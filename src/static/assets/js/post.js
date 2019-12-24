@@ -18,25 +18,57 @@ function writeComment(paramUrl) {
     $.ajax({
         url: paramUrl,
         type: "POST",
-        data: $("form").serialize(),
+        data: $("#comment-form").serialize(),
     }).done(function(data) {
         if(data.state == 'true') {
             $('#comment').append(`<div id="comment-${data.element.pk}">${renderComment(data.element)}</div>`);
-            document.getElementById('id_text').value = "";
+            if($('#comment-empty')) {
+                $('#comment-empty').remove();
+            }
+            $('#comment-form textarea').val('');
         }
     });
 }
-function removeComment(paramUrl) {
+function removeComment(pk) {
     if (confirm('댓글을 정말 삭제합니까?') == true) {
         $.ajax({
-            url: paramUrl,
-            type: "POST",
+            url: `/comment/${pk}`,
+            type: "DELETE",
         }).done(function(data) {
             $(`#comment-${data.pk}`).remove();
         });
     } else {
         return;
     }
+}
+function editComment(pk) {
+    $.ajax({
+        type: "GET",
+        url: `/comment/${pk}/update`,
+    }).done(function(data) {
+        $(`#comment-${pk}`).html(data);
+    });
+}
+function updateComment(pk) {
+    $.ajax({
+        type: "POST",
+        url: `/comment/${pk}/update`,
+        data: $(`#comment-${pk}-form`).serialize(),
+    }).done(function(data) {
+        if(data.state == 'true') {
+            reloadComment(data.element);
+        }
+    });
+}
+function editCancle(pk) {
+    $.ajax({
+        type: "GET",
+        url: `/comment/${pk}`,
+    }).done(function(data) {
+        if(data.state == 'true') {
+            reloadComment(data.element);
+        }
+    });
 }
 function renderComment(element) {
     return `\
@@ -45,8 +77,8 @@ function renderComment(element) {
         <a class="font-weight-bold deep-dark">${element.author}</a>\
         <br>\
         <small>${element.created_date}전 <span class="vs">${element.edited}</span></small>\
-        <a class="vs shallow-dark" href="javascript:void(0)" onclick="window.open('/comment/${element.pk}/update', '댓글 수정', 'width=500, height=190,left=100, top=50');">수정</a>\
-        <a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment('/comment/${element.pk}/remove');">삭제</a>\
+        <a class="vs shallow-dark" href="javascript:void(0)" onclick="editComment(${element.pk})">수정</a>\
+        <a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment(${element.pk});">삭제</a>\
         <div class="mt-3 noto">${element.content}</div>\
     </div>`
 }

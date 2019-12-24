@@ -1,5 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404
 from django.contrib.auth import update_session_auth_hash, login
+from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from django.template.defaultfilters import linebreaks
 from django.shortcuts import render, redirect, get_object_or_404
@@ -158,6 +159,7 @@ def signout(request):
     message = '정상적으로 탈퇴되었습니다. 그동안 이용해 주셔서 감사합니다.'
     return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/\';</script>')
 
+@login_required(login_url='/login')
 def setting(request):
     if not request.user.is_active:
         return redirect('post_list')
@@ -461,20 +463,30 @@ def comment_update(request, cpk):
             return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         else:
             return HttpResponse('fail')
-    else:
-        form = CommentForm(instance=comment)
-        return render(request, 'board/small/comment_update.html', {'form': form})
 
-def comment_remove(request, cpk):
+    form = CommentForm(instance=comment)
+    return render(request, 'board/small/comment_update.html', {'form': form, 'comment': comment})
+
+def comment_rest(request, cpk):
     comment = Comment.objects.get(pk=cpk)
     compereUser(request.user, comment.author)
+
+    if request.method == 'GET':
+        data = {
+            'state': 'true',
+            'element': get_comment_json_element(request.user, comment)
+        }
+        data['element']['edited'] = 'edited'
+
+        return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
     
-    if request.method == 'POST':
+    if request.method == 'DELETE':
         data = {
             'pk': comment.pk
         }
         comment.delete()
         return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+
     raise Http404
 # ------------------------------------------------------------ Comment End
 
@@ -535,8 +547,10 @@ def image_upload(request):
                 return HttpResponse('허용된 확장자가 아닙니다.')
                 
             dt = datetime.datetime.now()
-            upload_path = 'static/image/'
-            date_path = str(dt.year)
+            upload_path = 'static/image'
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+            date_path += '/' + str(dt.year)
             if not os.path.exists(upload_path + date_path):
                 os.makedirs(upload_path + date_path)
             date_path += '/' + str(dt.month) 
@@ -682,6 +696,7 @@ def post_sort_list(request, sort):
 
     return render(request, 'board/post_sort_list.html', render_args)
 
+@login_required(login_url='/login')
 def post_write(request):
     if not request.user.is_active:
         raise Http404

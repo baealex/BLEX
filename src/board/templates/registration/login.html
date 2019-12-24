@@ -10,7 +10,7 @@
         {% if form.errors %}
         <div class="alert alert-danger" role="alert">아이디와 패스워드가 틀립니다. 다시 시도해 보세요.</div>
         {% endif %}
-        <form method="post" action="{% url 'login' %}">
+        <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}">
         {% csrf_token %}
             <p><input type="text" name="username" autofocus="" maxlength="254" required="" id="id_username" class="form-control" placeholder="아이디" autocomplete="off"></p>
             <p><input type="password" name="password" id="id_password" required="" class="form-control" placeholder="비밀번호"></p>

@@ -118,7 +118,7 @@
 
 {% if not post.block_comment %}
     {% if request.user.is_active %}
-    <form method="post">
+    <form id="comment-form" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="button" onclick="comment()" class="btn btn-dark">댓글 작성</button>
