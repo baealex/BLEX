@@ -1,4 +1,4 @@
-<form id="comment-{{ comment.pk }}-form">
+<form id="comment-{{ comment.pk }}-form" class="mb-3">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="button" onclick="updateComment({{ comment.pk }});" class="btn btn-dark">수정</button>

@@ -154,6 +154,7 @@
 
 {% block image-script %}
 <script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
 {% if post.image %}
 <script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js"></script>
 {% endif %}
@@ -182,6 +183,7 @@ $(document).ready(function () {
         userList = data.split(',');
         userList.pop();
     });
+    autolink($('#comment'));
 });
 function tagging() {
     var username = prompt('태그할 사용자');

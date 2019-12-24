@@ -13,6 +13,7 @@ function likeArticle(paramUrl) {
 }
 function reloadComment(element) {
     $(`#comment-${element.pk}`).html(renderComment(element));
+    autolink($(`#comment-${element.pk}`));
 }
 function writeComment(paramUrl) {
     $.ajax({
@@ -26,6 +27,7 @@ function writeComment(paramUrl) {
                 $('#comment-empty').remove();
             }
             $('#comment-form textarea').val('');
+            autolink($(`#comment-${data.element.pk}`));
         }
     });
 }
