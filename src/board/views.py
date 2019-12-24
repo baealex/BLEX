@@ -337,18 +337,25 @@ def series_update(request, spk):
         form = SeriesUpdateForm(request.POST, instance=series)
         if form.is_valid():
             series = form.save(commit=False)
-            series.save()
+            series.url = slugify(series.name, allow_unicode=True)
+            if series.url == '':
+                series.url = randstr(15)
+            i = 1
+            while True:
+                try:
+                    series.save()
+                    break
+                except:
+                    series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
+                    i += 1
             form.save_m2m()
-            return HttpResponse('<script>self.close();opener.location.href = opener.location.href;</script>')
-    else:
-        form = SeriesUpdateForm(instance=series)
-        form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
-        return render(request, 'board/small/series_update.html',{'form': form, 'spk': spk})
+            return HttpResponseRedirect(series.get_absolute_url())
 
 def series_remove(request, spk):
     series = get_object_or_404(Series, pk=spk, owner=request.user)
-    series.delete()
-    return HttpResponse('<script>self.close();opener.location.href = opener.location.href;</script>')
+    if request.method == 'POST':
+        series.delete()
+        return HttpResponse('done')
 
 def series_list(request, username, url):
     user = get_object_or_404(User, username=username)
@@ -359,26 +366,8 @@ def series_list(request, username, url):
     }
 
     if request.user == series.owner:
-        if request.method == 'POST':
-            form = SeriesUpdateForm(request.POST, instance=series)
-            if form.is_valid():
-                series = form.save(commit=False)
-                series.url = slugify(series.name, allow_unicode=True)
-                if series.url == '':
-                    series.url = randstr(15)
-                i = 1
-                while True:
-                    try:
-                        series.save()
-                        break
-                    except:
-                        series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
-                        i += 1
-                form.save_m2m()
-                return HttpResponseRedirect(series.get_absolute_url())
         form = SeriesUpdateForm(instance=series)
         form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
-
         render_args['form'] = form
 
     select_theme = 'Default'
@@ -425,8 +414,8 @@ def notify_user_tagging(request, touser, fromuser):
                 senduser = get_object_or_404(User, username=touser)
                 post = get_object_or_404(Post, pk=post_pk)
 
-                send_notify_rederct_url = '/@'+post.author.username+'/'+post.url
-                send_notify_content = '\''+ post.title +'\' 글에서 \''+ fromuser +'\'님이 당신을 태그했습니다.'
+                send_notify_rederct_url = post.get_absolute_url()
+                send_notify_content = '\''+ post.title +'\' 글에서 \''+ fromuser +'\'님이 회원님을 태그했습니다.'
                 create_notify(target=senduser, url=send_notify_rederct_url, content=send_notify_content)
                 
                 return HttpResponse(str(0))

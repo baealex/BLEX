@@ -12,7 +12,18 @@ function postLock(pk) {
         }
     });
 }
-
+function seriesRemove(pk) {
+    if(confirm("정말 삭제하십니까?") == true) {
+        $.ajax({
+            url: `/series/${pk}/remove`,
+            type: "post",
+        }).done(function (data) {
+            if(data == 'done') {
+                location.href='/';
+            }
+        });
+    }
+}
 $('#id_avatar').on('change',function(){
     var fileName = $(this).val();
     $(this).next('.custom-file-label').html(fileName);
