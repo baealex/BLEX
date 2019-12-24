@@ -7,7 +7,7 @@
     <div id="series">
         {% for name in series %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a class="vivid-purple" href="javascript:void(0)" onclick="window.open('{% url 'series_update' spk=name.pk %}', '시리즈 편집', 'width=500, height=300, left=100, top=50');">{{ name }}</a>
+            <a class="vivid-purple" href="{{ name.get_absolute_url }}">{{ name }}</a>
             <small>{{ name.posts.count }} <i class="fas fa-book-open"></i></small>
         </li>
         {% endfor %}

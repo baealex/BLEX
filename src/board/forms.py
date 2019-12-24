@@ -120,14 +120,16 @@ class SeriesForm(forms.ModelForm):
             'name':''
         }
 
-class SeriesPostForm(forms.ModelForm):
+class SeriesUpdateForm(forms.ModelForm):
     class Meta:
         model = Series
-        fields = ('posts',)
+        fields = ('name', 'posts',)
 
         widgets={
+            'name':forms.TextInput(attrs={'placeholder':'시리즈의 이름','class':'form-control'}),
             'posts':forms.SelectMultiple(attrs={'class':'custom-select','size':'10'}),
         }
         labels={
+            'name':'',
             'posts':''
         }

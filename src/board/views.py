@@ -233,7 +233,14 @@ def setting(request):
                     create_series.url = slugify(create_series.name, allow_unicode=True)
                     if create_series.url == '':
                         create_series.url = randstr(15)
-                    create_series.save()
+                    i = 1
+                    while True:
+                        try:
+                            create_series.save()
+                            break
+                        except:
+                            create_series.url = slugify(create_series.name+'-'+str(i), allow_unicode=True)
+                            i += 1
                     render_args['message'] = '성공적으로 생성되었습니다.'
                 else: render_args['error'] = '이미 존재하는 이름입니다.'
             s_form = SeriesForm()
@@ -327,16 +334,16 @@ def user_profile_topic(request, username, tag):
 def series_update(request, spk):
     series = get_object_or_404(Series, pk=spk, owner=request.user)
     if request.method == 'POST':
-        form = SeriesPostForm(request.POST, instance=series)
+        form = SeriesUpdateForm(request.POST, instance=series)
         if form.is_valid():
             series = form.save(commit=False)
             series.save()
             form.save_m2m()
             return HttpResponse('<script>self.close();opener.location.href = opener.location.href;</script>')
     else:
-        form = SeriesPostForm(instance=series)
+        form = SeriesUpdateForm(instance=series)
         form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
-        return render(request, 'board/small/series_update.html',{ 'form':form, 'spk':spk })
+        return render(request, 'board/small/series_update.html',{'form': form, 'spk': spk})
 
 def series_remove(request, spk):
     series = get_object_or_404(Series, pk=spk, owner=request.user)
@@ -350,6 +357,29 @@ def series_list(request, username, url):
         'user': user,
         'series': series
     }
+
+    if request.user == series.owner:
+        if request.method == 'POST':
+            form = SeriesUpdateForm(request.POST, instance=series)
+            if form.is_valid():
+                series = form.save(commit=False)
+                series.url = slugify(series.name, allow_unicode=True)
+                if series.url == '':
+                    series.url = randstr(15)
+                i = 1
+                while True:
+                    try:
+                        series.save()
+                        break
+                    except:
+                        series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
+                        i += 1
+                form.save_m2m()
+                return HttpResponseRedirect(series.get_absolute_url())
+        form = SeriesUpdateForm(instance=series)
+        form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
+
+        render_args['form'] = form
 
     select_theme = 'Default'
     if hasattr(user, 'config'):
