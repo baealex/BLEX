@@ -569,7 +569,7 @@ def image_upload(request):
             upload_path = 'static/image'
             if not os.path.exists(upload_path):
                 os.makedirs(upload_path)
-            date_path += '/' + str(dt.year)
+            date_path = '/' + str(dt.year)
             if not os.path.exists(upload_path + date_path):
                 os.makedirs(upload_path + date_path)
             date_path += '/' + str(dt.month) 
