@@ -43,7 +43,7 @@ $(document).ready(function () {
             $("#mNavigation").addClass("slide-bottom");
         }
         if (isCreateNav) {
-            var btween = screenPosition - (screenHeight - 100);
+            var btween = screenPosition - (screenHeight/2 - 100);
             for(let i=1; i<navcounter; i++) {
                 if(btween > $(`#headline${i}`).position().top && btween < $(`#headline${i+1}`).position().top) {
                     $(`#nav${i}`).addClass('nav-now');
