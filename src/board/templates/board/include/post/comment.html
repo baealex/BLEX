@@ -1,4 +1,4 @@
-<div id="comment-{{ comment.pk }}">
+<div {% if comment.author == request.user %}id="comment-{{ comment.pk }}"{% endif %}>
     <div class="comment-list">
         <a href="{% url 'user_profile' username=comment.author %}">
             {% if comment.author.profile.avatar %}
