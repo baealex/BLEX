@@ -33,7 +33,7 @@ $(document).ready(function () {
 
     $(window).scroll(function () {
         screenPosition = $(this).scrollTop();
-        if (screenPosition < screenHeight) {
+        if (screenPosition < screenHeight/2) {
             $('#mNavigation').css("position", "absolute");
             $('#mNavigation').css("background", "rgba(0,0,0,0)");
             $("#mNavigation").removeClass("slide-bottom");
