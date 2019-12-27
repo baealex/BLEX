@@ -1,19 +1,19 @@
 {% extends 'board/base.html' %}
 
-{% block title %}@{{ user.username }}님의 '{{ series.name }}' 시리즈{% endblock %}
+{% block title %}{{ user.username }} – '{{ series.name }}' 시리즈{% endblock %}
 
 {% block seo %}
-<meta name="description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+<meta name="description" content="@{{ user.username }} ({{ user.first_name }})님이 작성한 '{{ series.name }}' 시리즈를 만나보세요!">
 <meta property="og:site_name" content="{{ site_title }}">
-<meta property="og:title" content="@{{ user.username }}님의 '{{ series.name }}' 시리즈">
-<meta property="og:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+<meta property="og:title" content="{{ user.username }} – '{{ series.name }}' 시리즈">
+<meta property="og:description" content="@{{ user.username }} ({{ user.first_name }})님이 작성한 '{{ series.name }}' 시리즈를 만나보세요!">
 {% if user.profile.avatar %}<meta property="og:image" content="{{ user.profile.avatar.url }}">{% endif %}
 <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta property="og:type" content="blog">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="@{{ user.username }}님의 '{{ series.name }}' 시리즈">
+<meta name="twitter:title" content="{{ user.username }} – '{{ series.name }}' 시리즈">
 <meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
-<meta name="twitter:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
+<meta name="twitter:description" content="@{{ user.username }} ({{ user.first_name }})님이 작성한 '{{ series.name }}' 시리즈를 만나보세요!">
 {% if user.profile.avatar %}<meta property="twitter:image" content="{{ user.profile.avatar.url }}">{% endif %}
 {% endblock %}
 
