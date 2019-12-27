@@ -613,7 +613,8 @@ def post_detail(request, username, url):
         'form' : CommentForm(),
         'another_posts' : another_posts,
         'check_like' : post.likes.filter(id=request.user.id).exists(),
-        'current_path': request.get_full_path()
+        'current_path': request.get_full_path(),
+        'post_usernav_action': True
     }
 
     # Fonts & Theme

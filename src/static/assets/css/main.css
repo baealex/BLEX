@@ -124,6 +124,9 @@ a.shallow-dark:hover {
         border: 1px solid #ccc;
     }
 }
+#heart .fas {
+    color: #c00;
+}
 .post-title-image > img {
     width: 100%;
     height: 100vh;
@@ -469,9 +472,6 @@ footer a:hover {
     content: '#';
     color: #8c00ff;
     font-weight: bold;
-}
-.like-active {
-    fill: #8c00ff;
 }
 #article-nav {
     position: sticky;
@@ -872,9 +872,6 @@ a.page-link {
 .theme-dark {
     background-color: #333;
     color: #eee;
-}
-.theme-dark .like-active {
-    fill: #ffae00;
 }
 .theme-dark .share, .theme-dark .share a {
     color: #ccc;

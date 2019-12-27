@@ -28,6 +28,34 @@
 </ul>
 {% endblock %}
 
+{% block usernav_action %}
+<ul class="navbar-nav">
+    <li class="nav-item">
+        <a id="heart" class="nav-link" href="javascript:void(0);" onclick="like();">
+            <i class="{%if check_like %}fas{% else %}far{% endif %} fa-heart"></i> <span id="like-count">{{ post.total_likes }}</span>
+        </a>
+    </li>
+    {% if not post.block_comment %}
+    <li class="nav-item">
+        <a class="nav-link" href="javascript:void(0)" onclick="moveSlide('comment')">
+            <i class="far fa-comment"></i> {{ post.comments.count }}
+        </a>
+    </li>
+    {% endif %}
+    <li class="nav-item">
+        <div class="dropdown">
+            <a class="nav-link" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"">
+                <i class="fas fa-share-alt"></i>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item" target="_blank" href="https://facebook.com/sharer.php?u={{ site_url }}{{ current_path }}" onclick="window.open(this.href, 'facebook-share', 'width=550,height=435');return false;"><i class="fab fa-facebook-square"></i> Facebook</a>
+                <a class="dropdown-item" target="_blank" href="https://twitter.com/intent/tweet?text={{ post.title }}&url={{ site_url }}{{ current_path }}" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"><i class="fab fa-twitter-square"></i> Twitter</a>
+            </div>
+        </div>
+    </li>
+</ul>
+{% endblock %}
+
 {% block image-title%}
 {% if post.image %}
 <style>.content {margin-top: 20px;} #mNavigation {background: rgba(0, 0, 0, 0); position: absolute;}</style>
@@ -45,10 +73,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-2 pl-4 pr-4">
-        {% include 'board/include/post/share_and_like.html'%}
-    </div>
-    <div class="col-lg-8 col-md-10">
+    <div class="ml-auto col-lg-8 col-md-10">
         {% if not post.image %}
         <h1 class="post-headline">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
         <p class="post-date">

@@ -3,10 +3,12 @@ function likeArticle(paramUrl) {
         url: paramUrl,
         type: "post",
     }).done(function (data) {
-        if($("#like").hasClass("like-active")) {
-            $("#like").removeClass("like-active");
+        if($("#heart i").hasClass("fas")) {
+            $("#heart i").removeClass("fas");
+            $("#heart i").addClass("far");
         } else {
-            $("#like").addClass("like-active");
+            $("#heart i").removeClass("far");
+            $("#heart i").addClass("fas");
         }
         document.getElementById('like-count').innerHTML = data;
     });
