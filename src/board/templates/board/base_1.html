@@ -43,10 +43,13 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+            {% block usernav_action %}{% endblock %}
+            {% if not post_usernav_action %}
                 <ul class="navbar-nav">
                 {% if request.user.is_active %}
-                    <li class="nav-item {% if request.get_full_path == '/@'|add:request.user.username%}active{% endif %}">
-                        <a class="nav-link" href="{% url 'user_profile' username=request.user %}">{{ request.user.first_name }} <i class="fas fa-user"></i></a>
+                    {% url 'user_profile' username=request.user as my_profile %}
+                    <li class="nav-item {% if request.get_full_path == my_profile %}active{% endif %}">
+                        <a class="nav-link" href="{{ my_profile }}">{{ request.user.first_name }} <i class="fas fa-user"></i></a>
                     </li>
                     <li class="nav-item {% if page_setting %}active{% endif %}">
                         <a class="nav-link" href="{% url 'setting' %}">설정 <i class="fas fa-cogs"></i></a>
@@ -63,6 +66,7 @@
                     </li>
                 {% endif %}
                 </ul>
+            {% endif %}
             </div>
         </div>
     </nav>
