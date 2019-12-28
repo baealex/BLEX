@@ -17,6 +17,9 @@
 .ridi {
     font-family: 'RIDIBatang', sans-serif;
 }
+.h-150 {
+    height: 150px;
+}
 .slide-bottom
 {
     animation: slide-bottom .5s 1;

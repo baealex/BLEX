@@ -46,7 +46,7 @@
         </div>
         {% endif %}
         {% for post in series.posts.all %}
-        <div class="mb-5">
+        <div class="mb-5 h-150">
             <a href="{% url 'post_detail' username=post.author url=post.url %}">
                 {% if post.image %}
                 <div class="series-list-image back-image" style="background-image: url({{ post.image.url }});"></div>
