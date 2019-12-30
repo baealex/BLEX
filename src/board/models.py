@@ -62,6 +62,7 @@ class TeamCategory(models.Model):
     pass
 """
 
+"""
 class Request(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     post = models.ForeignKey('board.Post', on_delete = models.CASCADE)
@@ -69,6 +70,12 @@ class Request(models.Model):
     content = models.TextField(blank=True)
     is_apply = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
+"""
+
+"""
+class MiddleComment(models.Model):
+    pass
+"""
 
 class History(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -98,10 +105,8 @@ class Theme(models.Model):
 
 class Config(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    exp = models.IntegerField(default=0)
     agree_email = models.BooleanField(default=False)
     agree_history = models.BooleanField(default=False)
-    grade = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
     post_fonts = models.ForeignKey('board.Font', on_delete=models.CASCADE, blank=True, null=True)
     post_theme = models.ForeignKey('board.Theme', on_delete=models.CASCADE, blank=True, null=True)
 
@@ -111,6 +116,8 @@ class Config(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     subscriber = models.ManyToManyField(User, related_name='subscriber', blank=True)
+    grade = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
+    exp = models.IntegerField(default=0)
     bio = models.TextField(max_length=500, blank=True)
     avatar = models.ImageField(blank=True,upload_to=avatar_path)
     github = models.CharField(max_length=15, blank=True)
@@ -138,6 +145,7 @@ class Post(models.Model):
     url = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     text_md = models.TextField()
     text_html = models.TextField()
+    title_height = models.IntegerField(default=50)
     trendy = models.IntegerField(default=0)
     view_cnt = models.IntegerField(default=0)
     hide = models.BooleanField(default=False)
