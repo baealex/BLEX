@@ -68,7 +68,7 @@ def send_mail(title, mail_args, mail_list):
     email.content_subtype = 'html'
     return email.send()
 
-def compereUser(req, res):
+def compere_user(req, res):
     if not req == res:
         raise Http404
 
@@ -146,11 +146,6 @@ def user_active(request, token):
         user.last_name = ''
         user.save()
         message = '이메일이 인증되었습니다.'
-
-        send_notify_rederct_url = '/@baealex/%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%9D%B4%EC%9A%A9%EC%95%BD%EA%B4%80'
-        send_notify_content = 'BLEX의 회원이 되신 것을 진심으로 환영합니다.'
-        create_notify(target=user, url=send_notify_rederct_url, content=send_notify_content)
-    
     return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
 
 def signout(request):
@@ -387,24 +382,26 @@ def user_notify(request):
     if request.method == 'GET':
         if request.GET.get('redirect'):
             notify = get_object_or_404(Notify, pk=request.GET.get('redirect'))
-            if not notify.to_user == request.user:
-                return HttpResponse(str('<script>alert(\'잘못된 접근입니다.\');history.back();</script>'))
-            redirect_url = notify.from_user
-            notify.delete()
-            return HttpResponseRedirect(redirect_url)
-        notify = Notify.objects.filter(to_user=request.user).order_by('created_date').reverse()
-        data = {
-            'count': len(notify),
-            'content': list()
-        }
-        if data['count'] > 0:
-            for notify_one in notify:
-                data['content'].append({
-                    'pk': notify_one.pk,
-                    'infomation': notify_one.infomation,
-                    'created_date': timesince(notify_one.created_date)
-                })
-        return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+            if notify.is_read == False:
+                notify.is_read = True
+                notify.save()
+                return HttpResponseRedirect(notify.post.get_absolute_url())
+            else:
+                raise Http404
+        else:
+            notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
+            data = {
+                'count': len(notify),
+                'content': list()
+            }
+            if data['count'] > 0:
+                for notify_one in notify:
+                    data['content'].append({
+                        'pk': notify_one.pk,
+                        'infomation': notify_one.infomation,
+                        'created_date': timesince(notify_one.created_date)
+                    })
+            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
 
 def notify_user_tagging(request, touser, fromuser):
     if request.method == 'POST':
@@ -414,9 +411,8 @@ def notify_user_tagging(request, touser, fromuser):
                 senduser = get_object_or_404(User, username=touser)
                 post = get_object_or_404(Post, pk=post_pk)
 
-                send_notify_rederct_url = post.get_absolute_url()
                 send_notify_content = '\''+ post.title +'\' 글에서 \''+ fromuser +'\'님이 회원님을 태그했습니다.'
-                create_notify(target=senduser, url=send_notify_rederct_url, content=send_notify_content)
+                create_notify(user=senduser, post=post, infomation=send_notify_content)
                 
                 return HttpResponse(str(0))
     return redirect('post_list')
@@ -436,9 +432,8 @@ def comment_post(request, pk):
             comment.save()
             
             if not comment.author == post.author:
-                send_notify_rederct_url = post.get_absolute_url()
                 send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
-                create_notify(target=post.author, url=send_notify_rederct_url, content=send_notify_content)
+                create_notify(user=post.author, post=post, infomation=send_notify_content)
             
             data = {
                 'state': 'true',
@@ -464,7 +459,7 @@ def get_commentor(request, pk):
 
 def comment_update(request, cpk):
     comment = Comment.objects.get(pk=cpk)
-    compereUser(request.user, comment.author)
+    compere_user(request.user, comment.author)
 
     if request.method == 'POST':
         form = CommentForm(request.POST, instance=comment)
@@ -488,7 +483,7 @@ def comment_update(request, cpk):
 
 def comment_rest(request, cpk):
     comment = Comment.objects.get(pk=cpk)
-    compereUser(request.user, comment.author)
+    compere_user(request.user, comment.author)
 
     if request.method == 'GET':
         data = {
@@ -762,9 +757,8 @@ def post_like(request, pk):
             post.last_like_date = timezone.now()
             post.save()
 
-            send_notify_rederct_url = '/@'+post.author.username+'/'+post.url
             send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
-            create_notify(target=post.author, url=send_notify_rederct_url, content=send_notify_content)
+            create_notify(user=post.author, post=post, infomation=send_notify_content)
 
         return HttpResponse(str(post.total_likes()))
     return redirect('post_list')

@@ -4,7 +4,7 @@ from.models import *
 # Register your models here.
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'read_post']
+    list_display = ['id', 'user', 'post']
 
 @admin.register(Font)
 class FontAdmin(admin.ModelAdmin):
@@ -52,7 +52,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(Notify)
 class NotifyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'to_user', 'from_user', 'infomation', 'created_date']
+    list_display = ['id', 'user', 'post', 'infomation', 'created_date']
 
 @admin.register(Series)
 class SeriesAdmin(admin.ModelAdmin):

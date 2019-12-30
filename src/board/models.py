@@ -42,8 +42,8 @@ def title_image_path(instance, filename):
     dt = datetime.datetime.now()
     return 'title/'+instance.author.username+'/'+str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour) + randstr(4)+'.'+filename.split('.')[-1]
 
-def create_notify(target, url, content):
-    new_notify = Notify(to_user=target, from_user=url, infomation=content)
+def create_notify(user, post, infomation):
+    new_notify = Notify(user=user, post=post, infomation=infomation)
     new_notify.save()
 
 """
@@ -62,12 +62,27 @@ class TeamCategory(models.Model):
     pass
 """
 
+class Request(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', on_delete = models.CASCADE)
+    comment = models.ForeignKey('board.Comment', related_name='request', on_delete = models.CASCADE)
+    content = models.TextField(blank=True)
+    is_apply = models.BooleanField(default=False)
+    created_date = models.DateTimeField(default=timezone.now)
+
 class History(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    read_post = models.TextField(blank=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', on_delete = models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.user.username
+
+class Grade(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Font(models.Model):
     name = models.CharField(max_length=30, unique=True)
@@ -83,8 +98,10 @@ class Theme(models.Model):
 
 class Config(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    exp = models.IntegerField(default=0)
     agree_email = models.BooleanField(default=False)
     agree_history = models.BooleanField(default=False)
+    grade = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
     post_fonts = models.ForeignKey('board.Font', on_delete=models.CASCADE, blank=True, null=True)
     post_theme = models.ForeignKey('board.Theme', on_delete=models.CASCADE, blank=True, null=True)
 
@@ -173,10 +190,11 @@ class Comment(models.Model):
         return self.text
 
 class Notify(models.Model):
-    to_user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    from_user = models.CharField(max_length=50)
-    infomation = models.TextField()
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
+    infomation = models.TextField()
+    is_read = models.BooleanField(default=False)
 
     def __str__(self):
         return self.infomation
