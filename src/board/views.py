@@ -86,6 +86,32 @@ def get_comment_json_element(user, comment):
         element['thumbnail'] = 'https://static.blex.kr/assets/images/default-avatar.jpg'
 
     return element
+
+def add_exp(user, num):
+    if hasattr(user, 'profile'):
+        user.profile.exp += num
+        if user.profile.exp > 100:
+            user.profile.exp = 100
+        user.profile.save()
+    else:
+        new_profile = Profile(user=user, exp=num)
+        new_profile.save()
+
+def get_exp(user):
+    if hasattr(user, 'profile'):
+        if user.profile.exp >= 0 and user.profile.exp < 15:
+            return 'empty'
+        elif user.profile.exp >= 15 and user.profile.exp < 40:
+            return 'quarter'
+        elif user.profile.exp >= 40 and user.profile.exp < 65:
+            return 'half'
+        elif user.profile.exp >= 65 and user.profile.exp < 85:
+            return 'three-quarters'
+        elif user.profile.exp >= 85:
+            return 'full'
+    else:
+        return 'empty'
+
 # ------------------------------------------------------------ Method End
 
 
@@ -430,6 +456,7 @@ def comment_post(request, pk):
             comment.author = request.user
             comment.post = post
             comment.save()
+            add_exp(request.user, 5)
             
             if not comment.author == post.author:
                 send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
@@ -609,8 +636,12 @@ def post_detail(request, username, url):
         'another_posts' : another_posts,
         'check_like' : post.likes.filter(id=request.user.id).exists(),
         'current_path': request.get_full_path(),
-        'post_usernav_action': True
+        'battery': get_exp(user),
+        'post_usernav_action': True,
     }
+
+    print(get_exp(user))
+    print("hhhhh")
 
     # Fonts & Theme
     select_font = 'Noto Sans'
@@ -733,6 +764,7 @@ def post_write(request):
                 except:
                     post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
                     i += 1
+            add_exp(request.user, 10)
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm()
@@ -756,6 +788,7 @@ def post_like(request, pk):
             post.trendy += int(10/(date_sub + 1))
             post.last_like_date = timezone.now()
             post.save()
+            add_exp(request.user, 5)
 
             send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
             create_notify(user=post.author, post=post, infomation=send_notify_content)

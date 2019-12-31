@@ -8,7 +8,7 @@
     </a>
     <div class="author-info">
         <h5>WRITTEN BY</h5>
-        <h4><a href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a></h4>
+        <h4><a href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a>{% if battery %} <span class="ns"><i class="fas fa-battery-{{ battery }}"></i></span>{% endif %}</h4>
         <p>
             {% if post.author.profile.bio %}
             <span class="author-description">{{ post.author.profile.bio }}</span>
