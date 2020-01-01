@@ -733,23 +733,24 @@ def post_detail(request, username, url):
             pass
 
     # View Count by cookie
-    response = render(request, 'board/post_detail.html', render_args)
-    cookie_name = 'hit'
-    today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
-    expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
-    if request.COOKIES.get(cookie_name) is not None:
-        cookies = request.COOKIES.get(cookie_name)
-        cookies_list = cookies.split('|')
-        if str(post.pk) not in cookies_list:
-            response.set_cookie(cookie_name, cookies + '|' + str(post.pk), expires =expires)
+    if not request.user == post.author:
+        response = render(request, 'board/post_detail.html', render_args)
+        cookie_name = 'hit'
+        today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
+        expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
+        if request.COOKIES.get(cookie_name) is not None:
+            cookies = request.COOKIES.get(cookie_name)
+            cookies_list = cookies.split('|')
+            if str(post.pk) not in cookies_list:
+                response.set_cookie(cookie_name, cookies + '|' + str(post.pk), expires =expires)
+                post.view_cnt += 1
+                post.save()
+                return response
+        else:
+            response.set_cookie(cookie_name, post.pk, expires =expires)
             post.view_cnt += 1
             post.save()
             return response
-    else:
-        response.set_cookie(cookie_name, post.pk, expires =expires)
-        post.view_cnt += 1
-        post.save()
-        return response
     
     return render(request, 'board/post_detail.html', render_args)
 
