@@ -16,6 +16,11 @@ class ThemeAdmin(admin.ModelAdmin):
     list_display = ['id', 'color']
     list_editable = ['color']
 
+@admin.register(Grade)
+class GradeAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    list_editable = ['name']
+
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
     list_display = ['user', 'agree_email', 'agree_history']

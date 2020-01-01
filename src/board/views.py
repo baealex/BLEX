@@ -298,6 +298,15 @@ def user_profile(request, username):
         'posts_count': len(posts),
         'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
     }
+
+    select_grade = 'blogger'
+    if hasattr(user, 'profile'):
+        if user.profile.grade:
+            user_grade = str(user.profile.grade)
+            if user_grade in grade_mapping:
+                select_grade = user_grade
+    render_args['grade'] = grade_mapping[select_grade]
+
     return render(request, 'board/user_profile.html', render_args)
 
 def user_follow(request, username):
@@ -328,6 +337,14 @@ def user_profile_tab(request, username, tab):
         'user': user,
         'white_nav' : True,
     }
+
+    select_grade = 'blogger'
+    if hasattr(user, 'profile'):
+        if user.profile.grade:
+            user_grade = str(user.profile.grade)
+            if user_grade in grade_mapping:
+                select_grade = user_grade
+    render_args['grade'] = grade_mapping[select_grade]
 
     if tab == 'series':
         series = Series.objects.filter(owner=user).order_by('name')
@@ -676,6 +693,14 @@ def post_detail(request, username, url):
                 select_theme = user_theme
     render_args['fonts'] = font_mapping[select_font]
     render_args['theme'] = theme_mapping[select_theme]
+
+    select_grade = 'blogger'
+    if hasattr(post.author, 'profile'):
+        if post.author.profile.grade:
+            user_grade = str(post.author.profile.grade)
+            if user_grade in grade_mapping:
+                select_grade = user_grade
+    render_args['grade'] = grade_mapping[select_grade]
 
     # Select right series
     get_series = request.GET.get('series')

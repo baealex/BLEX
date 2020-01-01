@@ -23,7 +23,7 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     <title>{% block title %}{% endblock %}</title>
 </head>
-<body class="{% if theme %}theme-{{ theme }}{% endif %}">
+<body {% if theme %}class="theme-{{ theme }}"{% endif %}>
     {% block image-title %}{%endblock%}
     {% if white_nav %}
     <nav id="mNavigation" class="navbar navbar-expand-sm navbar-light bg-rlight fixed-top">

@@ -32,6 +32,14 @@
         <h4 class="serif username">{{ user.first_name }}</h4>
         <h5 class="serif">@{{ user.username }}</h5>
         {% if user.profile.homepage %}<a class="vivid-purple" href="https://{{ user.profile.homepage }}">https://{{ user.profile.homepage }}</a>{% endif %}
+        <ul class="author-state">
+            <li>
+                <img src="https://img.shields.io/badge/-{{ grade }}">
+            </li>
+            <li onclick="follow()">
+                <img class="follow-badge" src="https://img.shields.io/badge/subscriber-{% if user.profile.subscriber %}{{ user.profile.total_subscriber }}{% else %}0{% endif %}-red?style=social">
+            </li>
+        </ul>
         <p class="user-profile-desc mt-5">
             {% if user.profile.bio %}
                 {{ user.profile.bio|linebreaksbr }}<br>
@@ -186,6 +194,19 @@ $(document).ready(function() {
   });
 });
 {% endif %}
+function follow() {
+    {% if request.user.is_active %}
+        {% if request.user == user %}
+    alert('자신은 구독할 수 없습니다.');
+        {% else %}
+    userFollow('{{ user.username }}');
+        {% endif %}
+    {% else %}
+    location.href='/login?next={{ request.get_full_path }}';
+    {% endif %}
+}
+</script>
+<script type="text/javascript">
 var postWrapperId = 'wrapper';
 var paginatePath = '{{ request.get_full_path }}?page=';
 var lastPage = {{ elements.paginator.num_pages }};
