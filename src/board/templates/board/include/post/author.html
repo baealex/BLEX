@@ -7,17 +7,22 @@
         {% endif %}
     </a>
     <div class="author-info">
-        <h5>WRITTEN BY</h5>
-        <h4><a href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a>{% if battery %} <span class="ns"><i class="fas fa-battery-{{ battery }}"></i></span>{% endif %}</h4>
-        <p>
+        <h4><a href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a>{% if battery %}<span class="ns ml-2"><i class="fas fa-battery-{{ battery }}"></i> {% if post.author.profile.exp %}{{ post.author.profile.exp }}{% else %}0{% endif %}%{% endif %}</span></h4>
             {% if post.author.profile.bio %}
-            <span class="author-description">{{ post.author.profile.bio }}</span>
-            <br>
+            <p class="author-description">{{ post.author.profile.bio }}</p>
             {% endif%}
+            <ul class="author-state">
+                <li>
+                    <img src="https://img.shields.io/badge/-{% if post.author.profile.grade %}{{ post.author.profile.grade }}{% else %}common-gray{% endif %}">
+                </li>
+                <li onclick="follow()">
+                    <img class="follow-badge" src="https://img.shields.io/badge/subscriber-{% if post.author.profile.subscriber %}{{ post.author.profile.total_subscriber }}{% else %}0{% endif %}-red?style=social">
+                </li>
+            </ul>
             {% if request.user.is_active %}
-            <a class="author-email" href="mailto:{{ post.author.email }}">{{ post.author.email }}</a>
+            <a class="author-email d-block" href="mailto:{{ post.author.email }}">{{ post.author.email }}</a>
             {% else %}
-            <a class="author-email" href="{% url 'login' %}">Sign in to view email</a>
+            <a class="author-email d-block" href="{% url 'login' %}">Sign in to view email</a>
             {% endif %}
         </p>
     </div>

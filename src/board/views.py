@@ -68,9 +68,13 @@ def send_mail(title, mail_args, mail_list):
     email.content_subtype = 'html'
     return email.send()
 
-def compere_user(req, res):
-    if not req == res:
-        raise Http404
+def compere_user(req, res, same='none'):
+    if same == 'same?':
+        if req == res:
+            raise Http404
+    else:
+        if not req == res:
+            raise Http404
 
 def get_comment_json_element(user, comment):
     element = {
@@ -295,6 +299,24 @@ def user_profile(request, username):
         'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
     }
     return render(request, 'board/user_profile.html', render_args)
+
+def user_follow(request, username):
+    following = get_object_or_404(User, username=username)
+    compere_user(request.user, following, 'same?')
+    if request.method == 'POST':
+        follower = User.objects.get(username=request.user)
+        if hasattr(following, 'profile'):
+            if following.profile.subscriber.filter(id = follower.id).exists():
+                following.profile.subscriber.remove(follower)
+            else:
+                following.profile.subscriber.add(follower)
+        else:
+            profile = Profile(user=following)
+            profile.save()
+            profile.subscriber.add(follower)
+        
+        return HttpResponse(str(following.profile.total_subscriber()))
+    return redirect('post_list')
 
 def user_profile_tab(request, username, tab):
     if not tab in [ 'series', 'activity' ]:
@@ -640,9 +662,6 @@ def post_detail(request, username, url):
         'post_usernav_action': True,
     }
 
-    print(get_exp(user))
-    print("hhhhh")
-
     # Fonts & Theme
     select_font = 'Noto Sans'
     select_theme = 'Default'
@@ -772,6 +791,7 @@ def post_write(request):
 
 def post_like(request, pk):
     post = get_object_or_404(Post, pk=pk)
+    compere_user(request.user, post.author, 'same?')
     if request.method == 'POST':
         user = User.objects.get(username=request.user)
         if post.likes.filter(id = user.id).exists():
@@ -783,10 +803,7 @@ def post_like(request, pk):
             post.save()
         else:
             post.likes.add(user)
-            date_sub = timezone.now() - post.last_like_date
-            date_sub = int(date_sub.days)
-            post.trendy += int(10/(date_sub + 1))
-            post.last_like_date = timezone.now()
+            post.trendy += 10
             post.save()
             add_exp(request.user, 5)
 

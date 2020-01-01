@@ -263,14 +263,6 @@ footer a:hover {
         margin-top:150px;
         margin-bottom:90px;
     }
-    .author-info h5 {
-        margin-top:0px;
-    }
-}
-.author-info h5 {
-    font-size:10px;
-    font-weight:bold;
-    margin-top:10px;
 }
 .author-info a {
     color:#000;
@@ -283,6 +275,13 @@ footer a:hover {
 }
 .author-description {
     color: #aaa;
+}
+.author-state {
+    padding: 0;
+    margin: 5px 0;
+}
+.author-state li {
+    display: inline-block;
 }
 .btn.follow {
     border-color:#333;

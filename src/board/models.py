@@ -115,7 +115,7 @@ class Config(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    subscriber = models.ManyToManyField(User, related_name='subscriber', blank=True)
+    subscriber = models.ManyToManyField(User, through='Follow', related_name='subscriber', blank=True)
     grade = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
     exp = models.IntegerField(default=0)
     bio = models.TextField(max_length=500, blank=True)
@@ -129,6 +129,9 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def total_subscriber(self):
+        return self.subscriber.count()
 
     def save(self, *args, **kwargs):
         try:
@@ -139,22 +142,31 @@ class Profile(models.Model):
             pass
         super(Profile, self).save(*args, **kwargs)
 
+class Follow(models.Model):
+    class Meta:
+        db_table = 'board_user_follow'
+        auto_created = True
+    following = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    follower = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.post.title
+
 class Post(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
     url = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    image = models.ImageField(blank=True, upload_to=title_image_path)
     text_md = models.TextField()
     text_html = models.TextField()
-    title_height = models.IntegerField(default=50)
     trendy = models.IntegerField(default=0)
     view_cnt = models.IntegerField(default=0)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
     hide = models.BooleanField(default=False)
     notice = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
-    image = models.ImageField(blank=True, upload_to=title_image_path)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
-    last_like_date = models.DateTimeField(default=timezone.now)
     likes = models.ManyToManyField(User, through='PostLikes', related_name='likes', blank=True)
     tag = TagField()
     

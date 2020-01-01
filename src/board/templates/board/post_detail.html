@@ -73,7 +73,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="ml-auto col-lg-8 col-md-10">
+    <div class="ml-auto col-lg-8">
         {% if not post.image %}
         <h1 class="post-headline">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
         <p class="post-date">
@@ -185,6 +185,7 @@
 {% endif %}
 {% if request.user.is_active %}
 <script type="text/javascript" src="{{ static_url }}/assets/js/post.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/user.js"></script>
 {% endif %}
 <script>
 {% if request.user.is_active %}
@@ -234,6 +235,17 @@ function like() {
     alert('자신의 글은 추천할 수 없습니다.');
         {% else %}
     likeArticle('{% url 'post_like' pk=post.pk%}');
+        {% endif %}
+    {% else %}
+    location.href='/login?next={{ request.get_full_path }}';
+    {% endif %}
+}
+function follow() {
+    {% if request.user.is_active %}
+        {% if request.user == post.author %}
+    alert('자신은 구독할 수 없습니다.');
+        {% else %}
+    userFollow('{{ post.author.username }}');
         {% endif %}
     {% else %}
     location.href='/login?next={{ request.get_full_path }}';
