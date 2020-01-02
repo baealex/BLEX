@@ -1,12 +1,13 @@
-from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import User
-from django.urls import reverse
-from tagging.fields import TagField
 import requests
 import datetime
 import random
+
+from django.db import models
+from django.contrib.auth.models import User
 from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils import timezone
+from tagging.fields import TagField
 
 font_mapping = {
     'Noto Sans'       : 'noto',

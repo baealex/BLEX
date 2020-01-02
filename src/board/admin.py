@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from.models import *
 
 # Register your models here.
@@ -6,20 +7,9 @@ from.models import *
 class HistoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'post']
 
-@admin.register(Font)
-class FontAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
-    list_editable = ['name']
-
-@admin.register(Theme)
-class ThemeAdmin(admin.ModelAdmin):
-    list_display = ['id', 'color']
-    list_editable = ['color']
-
-@admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
-    list_editable = ['name']
+admin.site.register(Font)
+admin.site.register(Theme)
+admin.site.register(Grade)
 
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
@@ -63,4 +53,7 @@ class NotifyAdmin(admin.ModelAdmin):
 class SeriesAdmin(admin.ModelAdmin):
     list_display = ['id', 'owner', 'name', 'created_date']
 
-admin.site.register(Profile)
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'grade']
+    list_editable = ['grade']

@@ -1,7 +1,8 @@
-from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.contrib.sitemaps.views import sitemap
+from django.urls import path
 from django.views.generic import TemplateView
+
 from .sitemaps import PostSitemap, sitemaps
 from .feeds import LatestPostFeed
 from . import views
