@@ -1,4 +1,5 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404
+from django.http import (
+    HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404)
 from django.contrib.auth import update_session_auth_hash, login
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
@@ -17,10 +18,12 @@ from django.utils.timesince import timesince
 from itertools import chain
 from .models import *
 from .forms import *
-import threading, json, os
+import threading
+import json
+import os
 
 # Method
-def get_posts(sort):
+def get_posts(sort='all'):
     if sort == 'top':
         return Post.objects.filter(notice=False, hide=False).annotate(like_count=Count('likes')).order_by('-like_count')
     elif sort == 'trendy':
@@ -30,15 +33,15 @@ def get_posts(sort):
     elif sort == 'oldest':
         return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('created_date')
     elif sort == 'week-top':
-        now_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        seven_days_ago = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
-        return Post.objects.filter(created_date__range=[seven_days_ago, now_date], notice=False, hide=False).order_by('view_cnt').reverse()
+        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+        today          = timezone.make_aware(datetime.datetime.now())
+        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('view_cnt').reverse()
     elif sort == 'all':
         return Post.objects.filter(hide=False).order_by('created_date').reverse()
-    else:
+    elif sort == 'notice':
         return Post.objects.filter(notice=True).order_by('created_date')
 
-def get_clean_all_tags(user):
+def get_clean_all_tags(user=None):
     posts = Post.objects.filter()
     if user == None:
         tagslist = list(posts.filter(hide=False).values_list('tag', flat=True).distinct())
@@ -68,8 +71,8 @@ def send_mail(title, mail_args, mail_list):
     email.content_subtype = 'html'
     return email.send()
 
-def compere_user(req, res, same='none'):
-    if same == 'same?':
+def compere_user(req, res, give_404_if='none'):
+    if same == 'same':
         if req == res:
             raise Http404
     else:
@@ -115,6 +118,33 @@ def get_exp(user):
             return 'full'
     else:
         return 'empty'
+
+def get_theme(user):
+    select_theme = 'Default'
+    if hasattr(user, 'config'):
+        if user.config.post_theme:
+            user_theme = str(user.config.post_theme)
+            if user_theme in theme_mapping:
+                select_theme = user_theme
+    return theme_mapping[select_theme]
+
+def get_fonts(user):
+    select_font = 'Noto Sans'
+    if hasattr(user, 'config'):
+        if user.config.post_fonts:
+            user_font = str(user.config.post_fonts)
+            if user_font in font_mapping:
+                select_font = user_font
+    return font_mapping[select_font]
+
+def get_grade(user):
+    select_grade = 'blogger'
+    if hasattr(user, 'profile'):
+        if user.profile.grade:
+            user_grade = str(user.profile.grade)
+            if user_grade in grade_mapping:
+                select_grade = user_grade
+    return grade_mapping[select_grade]
 
 # ------------------------------------------------------------ Method End
 
@@ -296,22 +326,15 @@ def user_profile(request, username):
         'white_nav' : True,
         'elements': elements,
         'posts_count': len(posts),
+        'grade':  get_grade(user),
         'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
     }
-
-    select_grade = 'blogger'
-    if hasattr(user, 'profile'):
-        if user.profile.grade:
-            user_grade = str(user.profile.grade)
-            if user_grade in grade_mapping:
-                select_grade = user_grade
-    render_args['grade'] = grade_mapping[select_grade]
 
     return render(request, 'board/user_profile.html', render_args)
 
 def user_follow(request, username):
     following = get_object_or_404(User, username=username)
-    compere_user(request.user, following, 'same?')
+    compere_user(request.user, following, give_404_if='same')
     if request.method == 'POST':
         follower = User.objects.get(username=request.user)
         if hasattr(following, 'profile'):
@@ -336,15 +359,8 @@ def user_profile_tab(request, username, tab):
         'tab': tab,
         'user': user,
         'white_nav' : True,
+        'grade': get_grade(user)
     }
-
-    select_grade = 'blogger'
-    if hasattr(user, 'profile'):
-        if user.profile.grade:
-            user_grade = str(user.profile.grade)
-            if user_grade in grade_mapping:
-                select_grade = user_grade
-    render_args['grade'] = grade_mapping[select_grade]
 
     if tab == 'series':
         series = Series.objects.filter(owner=user).order_by('name')
@@ -422,21 +438,14 @@ def series_list(request, username, url):
     series = get_object_or_404(Series, owner=user, url=url)
     render_args = {
         'user': user,
-        'series': series
+        'series': series,
+        'theme': get_theme(user)
     }
 
     if request.user == series.owner:
         form = SeriesUpdateForm(instance=series)
         form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
         render_args['form'] = form
-
-    select_theme = 'Default'
-    if hasattr(user, 'config'):
-        if user.config.post_theme:
-            user_theme = str(user.config.post_theme)
-            if user_theme in theme_mapping:
-                select_theme = user_theme
-    render_args['theme'] = theme_mapping[select_theme]
 
     return render(request, 'board/series.html', render_args)
 # ------------------------------------------------------------ Series End
@@ -525,7 +534,7 @@ def get_commentor(request, pk):
 
 def comment_update(request, cpk):
     comment = Comment.objects.get(pk=cpk)
-    compere_user(request.user, comment.author)
+    compere_user(request.user, comment.author, give_404_if='different')
 
     if request.method == 'POST':
         form = CommentForm(request.POST, instance=comment)
@@ -549,7 +558,7 @@ def comment_update(request, cpk):
 
 def comment_rest(request, cpk):
     comment = Comment.objects.get(pk=cpk)
-    compere_user(request.user, comment.author)
+    compere_user(request.user, comment.author, give_404_if='different')
 
     if request.method == 'GET':
         data = {
@@ -677,30 +686,10 @@ def post_detail(request, username, url):
         'current_path': request.get_full_path(),
         'battery': get_exp(user),
         'post_usernav_action': True,
+        'fonts': get_fonts(user),
+        'theme': get_theme(user),
+        'grade': get_grade(user)
     }
-
-    # Fonts & Theme
-    select_font = 'Noto Sans'
-    select_theme = 'Default'
-    if hasattr(post.author, 'config'):
-        if post.author.config.post_fonts:
-            user_font = str(post.author.config.post_fonts)
-            if user_font in font_mapping:
-                select_font = user_font
-        if post.author.config.post_theme:
-            user_theme = str(post.author.config.post_theme)
-            if user_theme in theme_mapping:
-                select_theme = user_theme
-    render_args['fonts'] = font_mapping[select_font]
-    render_args['theme'] = theme_mapping[select_theme]
-
-    select_grade = 'blogger'
-    if hasattr(post.author, 'profile'):
-        if post.author.profile.grade:
-            user_grade = str(post.author.profile.grade)
-            if user_grade in grade_mapping:
-                select_grade = user_grade
-    render_args['grade'] = grade_mapping[select_grade]
 
     # Select right series
     get_series = request.GET.get('series')
@@ -757,9 +746,9 @@ def post_detail(request, username, url):
 def post_list(request):
     render_args = {
         'white_nav': True,
-        'pageposts': get_posts(''),
-        'weekly_top' : get_posts('trendy')[:4],
-        'tags': sorted(get_clean_all_tags(None), key=lambda instance:instance['count'], reverse=True)
+        'pageposts': get_posts('notice'),
+        'weekly_top' : get_posts('week-top')[:4],
+        'tags': sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
     }
 
     if request.user.is_active:
@@ -817,10 +806,10 @@ def post_write(request):
 
 def post_like(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    compere_user(request.user, post.author, 'same?')
+    compere_user(request.user, post.author, give_404_if='same')
     if request.method == 'POST':
         user = User.objects.get(username=request.user)
-        if post.likes.filter(id = user.id).exists():
+        if post.likes.filter(id=user.id).exists():
             post.likes.remove(user)
             if post.trendy > 10 :
                 post.trendy -= 10

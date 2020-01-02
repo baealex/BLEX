@@ -9,25 +9,25 @@ import random
 from django.template.loader import render_to_string
 
 font_mapping = {
-    'Noto Sans' : 'noto',
-    'RIDIBatang' : 'ridi',
+    'Noto Sans'       : 'noto',
+    'RIDIBatang'      : 'ridi',
     'Noto Sans Serif' : 'serif'
 }
 
 theme_mapping = {
-    'Default' : '',
-    'Dark Mode' : 'dark',
-    'Violet' : 'purple',
+    'Default'      : '',
+    'Dark Mode'    : 'dark',
+    'Violet'       : 'purple',
     'Green & Blue' : 'glue'
 }
 
 grade_mapping = {
-    'blogger' : 'blogger-gray',
+    'blogger'     : 'blogger-gray',
     'contributor' : 'contributor-green',
-    'supporter' : 'supporter-orange',
-    'sponsor' : 'sponsor-ff69b4',
-    'partner' : 'partner-blueviolet',
-    'master' : 'master-purple'
+    'supporter'   : 'supporter-orange',
+    'sponsor'     : 'sponsor-ff69b4',
+    'partner'     : 'partner-blueviolet',
+    'master'      : 'master-purple'
 }
 
 def randstr(length):
@@ -87,8 +87,8 @@ class MiddleComment(models.Model):
 """
 
 class History(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    post = models.ForeignKey('board.Post', on_delete = models.CASCADE)
+    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    post         = models.ForeignKey('board.Post', on_delete = models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -113,28 +113,28 @@ class Theme(models.Model):
         return self.color
 
 class Config(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    agree_email = models.BooleanField(default=False)
+    user          = models.OneToOneField(User, on_delete=models.CASCADE)
+    agree_email   = models.BooleanField(default=False)
     agree_history = models.BooleanField(default=False)
-    post_fonts = models.ForeignKey('board.Font', on_delete=models.CASCADE, blank=True, null=True)
-    post_theme = models.ForeignKey('board.Theme', on_delete=models.CASCADE, blank=True, null=True)
+    post_fonts    = models.ForeignKey('board.Font', on_delete=models.CASCADE, blank=True, null=True)
+    post_theme    = models.ForeignKey('board.Theme', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.user.username
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user       = models.OneToOneField(User, on_delete=models.CASCADE)
     subscriber = models.ManyToManyField(User, through='Follow', related_name='subscriber', blank=True)
-    grade = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
-    exp = models.IntegerField(default=0)
-    bio = models.TextField(max_length=500, blank=True)
-    avatar = models.ImageField(blank=True,upload_to=avatar_path)
-    github = models.CharField(max_length=15, blank=True)
-    twitter = models.CharField(max_length=15, blank=True)
-    youtube = models.CharField(max_length=30, blank=True)
-    facebook = models.CharField(max_length=30, blank=True)
-    instagram = models.CharField(max_length=15, blank=True)
-    homepage = models.CharField(max_length=100, blank=True)
+    grade      = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
+    exp        = models.IntegerField(default=0)
+    bio        = models.TextField(max_length=500, blank=True)
+    avatar     = models.ImageField(blank=True,upload_to=avatar_path)
+    github     = models.CharField(max_length=15, blank=True)
+    twitter    = models.CharField(max_length=15, blank=True)
+    youtube    = models.CharField(max_length=30, blank=True)
+    facebook   = models.CharField(max_length=30, blank=True)
+    instagram  = models.CharField(max_length=15, blank=True)
+    homepage   = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -155,29 +155,29 @@ class Follow(models.Model):
     class Meta:
         db_table = 'board_user_follow'
         auto_created = True
-    following = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    follower = models.ForeignKey(User, on_delete=models.CASCADE)
+    following    = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    follower     = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.post.title
 
 class Post(models.Model):
-    author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title = models.CharField(max_length=50)
-    url = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    image = models.ImageField(blank=True, upload_to=title_image_path)
-    text_md = models.TextField()
-    text_html = models.TextField()
-    trendy = models.IntegerField(default=0)
-    view_cnt = models.IntegerField(default=0)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
-    hide = models.BooleanField(default=False)
-    notice = models.BooleanField(default=False)
+    author        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title         = models.CharField(max_length=50)
+    url           = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    image         = models.ImageField(blank=True, upload_to=title_image_path)
+    text_md       = models.TextField()
+    text_html     = models.TextField()
+    trendy        = models.IntegerField(default=0)
+    view_cnt      = models.IntegerField(default=0)
+    hide          = models.BooleanField(default=False)
+    notice        = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
-    likes = models.ManyToManyField(User, through='PostLikes', related_name='likes', blank=True)
-    tag = TagField()
+    likes         = models.ManyToManyField(User, through='PostLikes', related_name='likes', blank=True)
+    tag           = TagField()
+    created_date  = models.DateTimeField(default=timezone.now)
+    updated_date  = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
         return self.title
@@ -201,38 +201,38 @@ class PostLikes(models.Model):
     class Meta:
         db_table = 'board_post_likes'
         auto_created = True
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post         = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user         = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.post.title
 
 class Comment(models.Model):
-    author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    post = models.ForeignKey('board.Post', related_name='comments', on_delete = models.CASCADE)
-    text = models.TextField(max_length=300)
+    author       = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    post         = models.ForeignKey('board.Post', related_name='comments', on_delete = models.CASCADE)
+    text         = models.TextField(max_length=300)
+    edit         = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
-    edit = models.BooleanField(default=False)
 
     def __str__(self):
         return self.text
 
 class Notify(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    post         = models.ForeignKey(Post, on_delete=models.CASCADE)
+    is_read      = models.BooleanField(default=False)
+    infomation   = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
-    infomation = models.TextField()
-    is_read = models.BooleanField(default=False)
 
     def __str__(self):
         return self.infomation
 
 class Series(models.Model):
-    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    name = models.CharField(max_length=50, unique=True)
-    url = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    posts = models.ManyToManyField(Post, related_name='postlist', blank=True)
+    owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    name         = models.CharField(max_length=50, unique=True)
+    url          = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    posts        = models.ManyToManyField(Post, related_name='postlist', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
