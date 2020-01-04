@@ -8,13 +8,20 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-from board.models import Profile
+from board.models import Font, Theme, Grade
 
-datas = Profile.objects.all()
+# Noto Sans
+# RIDIBatang
+# Noto Sans Serif
 
-if __name__ == '__main__':
-    for data in datas:
-        if data.exp > 0:
-            data.exp -= 5
-            data.save()
-    print('ALL DONE!')
+# Default
+# Dark Mode
+# Violet
+# Green & Blue
+
+# blogger
+# contributor
+# supporter
+# sponsor
+# partner
+# master
