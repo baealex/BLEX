@@ -154,7 +154,7 @@ a.shallow-dark:hover {
 .post-title-image .post-headline {
     max-width: 550px;
     position: absolute;
-    bottom: 15%;
+    bottom: 65px;
     left: 8%;
 }
 .post-date {
@@ -162,7 +162,7 @@ a.shallow-dark:hover {
 }
 .post-title-image .post-date {
     position: absolute;
-    bottom: 8%;
+    bottom: 30px;
     left: 8%;
 }
 .rel-post-image {
