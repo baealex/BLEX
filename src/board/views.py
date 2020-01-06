@@ -74,7 +74,7 @@ def send_mail(title, mail_args, mail_list):
     return email.send()
 
 def compere_user(req, res, give_404_if='none'):
-    if same == 'same':
+    if give_404_if == 'same':
         if req == res:
             raise Http404
     else:
