@@ -203,11 +203,13 @@ $(document).ready(function () {
 });
 var sendList = [];
 function tagging(username) {
-    if(username in sendList) {
-        
-    } else {
-        $('#id_text').val($('#id_text').val() + ('@' + username)).focus();
-        sendList.push(username);
+    var textValue = $('#id_text').val();
+    if(textValue.indexOf(username) == -1) {
+        $('#id_text').val(textValue + ('@' + username)).focus();
+        if(sendList.indexOf(username) == -1) {
+            sendList.push(username);
+            alert(sendList);
+        }
     }
 }
 {% endif %}

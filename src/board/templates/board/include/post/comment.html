@@ -14,7 +14,9 @@
             <a class="vs shallow-dark" href="javascript:void(0)" onclick="editComment({{comment.pk}})">수정</a>
             <a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment({{comment.pk}});">삭제</a>
         {% else %}
+            {% if request.user.is_active %}
             <a class="vs shallow-dark" href="javascript:void(0)" onclick="tagging('{{comment.author}}')">태그</a>
+            {% endif %}
         {% endif %}
         <div class="mt-3 noto">{{ comment.text|linebreaks }}</div>
     </div>
