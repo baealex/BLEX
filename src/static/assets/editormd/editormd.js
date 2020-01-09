@@ -165,12 +165,12 @@
         tocDropdown          : false,
         tocContainer         : "",
         tocStartLevel        : 1,              // Said from H1 to create ToC
-        htmlDecode           : false,          // Open the HTML tag identification 
+        htmlDecode           : true,           // Open the HTML tag identification 
         pageBreak            : true,           // Enable parse page break [========]
-        atLink               : true,           // for @link
-        emailLink            : true,           // for email address auto link
+        atLink               : false,          // for @link
+        emailLink            : false,          // for email address auto link
         taskList             : false,          // Enable Github Flavored Markdown task lists
-        emoji                : true,          // :emoji: , Support Github emoji, Twitter Emoji (Twemoji);
+        emoji                : true,           // :emoji: , Support Github emoji, Twitter Emoji (Twemoji);
                                                // Support FontAwesome icon emoji :fa-xxx: > Using fontAwesome icon web fonts;
                                                // Support Editor.md logo icon emoji :editormd-logo: :editormd-logo-1x: > 1~8x;
         tex                  : false,          // TeX(LaTeX), based on KaTeX
@@ -1614,48 +1614,7 @@
                 {
                     var _keyMap = editormd.keyMaps[k];
                     var handle = (typeof _keyMap === "string") ? $.proxy(toolbarHandlers[_keyMap], _this) : $.proxy(_keyMap, _this);
-                    
-                    if ($.inArray(k, ["F9", "F10", "F11"]) < 0 && $.inArray(k, disabledKeyMaps) < 0)
-                    {
-                        var _map = {};
-                        _map[k] = handle;
-
-                        cm.addKeyMap(_map);
-                    }
                 }
-                
-                $(window).keydown(function(event) {
-                    
-                    var keymaps = {
-                        "120" : "F9",
-                        "121" : "F10",
-                        "122" : "F11"
-                    };
-                    
-                    if ( $.inArray(keymaps[event.keyCode], disabledKeyMaps) < 0 )
-                    {
-                        switch (event.keyCode)
-                        {
-                            case 120:
-                                    $.proxy(toolbarHandlers["watch"], _this)();
-                                    return false;
-                                break;
-                                
-                            case 121:
-                                    $.proxy(toolbarHandlers["preview"], _this)();
-                                    return false;
-                                break;
-                                
-                            case 122:
-                                    $.proxy(toolbarHandlers["fullscreen"], _this)();                        
-                                    return false;
-                                break;
-                                
-                            default:
-                                break;
-                        }
-                    }
-                });
             }
 
             return this;
@@ -3303,13 +3262,9 @@
         "Shift-Ctrl-P"     : "preformatted-text",
         "Shift-Ctrl-T"     : "table",
         "Shift-Alt-P"      : "pagebreak",
-        "F9"               : "watch",
-        "F10"              : "preview",
-        "F11"              : "fullscreen",
     };
     
     /**
-     * 清除字符串两边的空格
      * Clear the space of strings both sides.
      * 
      * @param   {String}    str            string
@@ -3385,7 +3340,6 @@
     };
 
     /**
-     * 自定义marked的解析器
      * Custom Marked renderer rules
      * 
      * @param   {Array}    markdownToC     传入用于接收TOC的数组
@@ -3398,8 +3352,8 @@
             tocm                 : false,
             tocStartLevel        : 1,              // Said from H1 to create ToC  
             pageBreak            : true,
-            atLink               : true,           // for @link
-            emailLink            : true,           // for mail address auto link
+            atLink               : false,          // for @link
+            emailLink            : false,          // for mail address auto link
             taskList             : false,          // Enable Github Flavored Markdown task lists
             emoji                : false,          // :emoji: , Support Twemoji, fontAwesome, Editor.md logo emojis.
             tex                  : false,          // TeX(LaTeX), based on KaTeX
@@ -3893,7 +3847,6 @@
     };
     
     /**
-     * 将Markdown文档解析为HTML用于前台显示
      * Parse Markdown to HTML for Font-end preview.
      * 
      * @param   {String}   id            用于显示HTML的对象ID
@@ -3915,8 +3868,8 @@
             htmlDecode           : false,
             autoLoadKaTeX        : true,
             pageBreak            : true,
-            atLink               : true,    // for @link
-            emailLink            : true,    // for mail address auto link
+            atLink               : false,    // for @link
+            emailLink            : false,    // for mail address auto link
             tex                  : false,
             taskList             : false,   // Github Flavored Markdown task lists
             emoji                : false,
