@@ -674,7 +674,7 @@ def image_upload(request):
                     ext = 'mp4'
                 except:
                     return HttpResponse('이미지 업로드를 실패했습니다.')
-            return HttpResponse('https://static.blex.kr/image/' + date_path + '/' + file_name +'.'+ ext)
+            return HttpResponse('https://static.blex.kr/image' + date_path + '/' + file_name +'.'+ ext)
         else:
             return HttpResponse('이미지 파일이 아닙니다.')
     else:
