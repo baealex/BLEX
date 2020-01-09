@@ -218,14 +218,24 @@ def signout(request):
 
 @login_required(login_url='/login')
 def setting(request):
-    if not request.user.is_active:
-        return redirect('post_list')
+    render_args = { 
+        'tab': '',
+        'page_setting': True,
+        'white_nav' : True
+    }
+    return render(request, 'board/setting.html', render_args)
+
+@login_required(login_url='/login')
+def setting_tab(request, tab):
+    if not tab in [ '', 'account', 'profile', 'series', 'analysis' ]:
+        raise Http404()
     else:
         user = request.user
-        tab = request.GET.get('tab', '')
-        if not tab in [ '', 'account', 'profile', 'series', 'analysis' ]:
-            raise Http404()
-        render_args = { 'tab':tab, 'page_setting':True, 'white_nav' : True, }
+        render_args = { 
+            'tab':tab,
+            'page_setting':True,
+            'white_nav' : True,
+        }
         if tab == 'account':
             render_args['subtitle'] = 'Account'
             if request.method == 'POST':
@@ -353,9 +363,8 @@ def user_follow(request, username):
     return redirect('post_list')
 
 def user_profile_tab(request, username, tab):
-    if not tab in [ 'series', 'activity' ]:
-        return post_detail(request, username, tab)
-    
+    if not tab in ['about', 'series', 'activity']:
+        raise Http404
     user = get_object_or_404(User, username=username)
     render_args = {
         'tab': tab,
@@ -363,12 +372,15 @@ def user_profile_tab(request, username, tab):
         'white_nav' : True,
         'grade': get_grade(user)
     }
-
+    if tab == 'about':
+        pass
+    
     if tab == 'series':
         series = Series.objects.filter(owner=user).order_by('name')
         paginator = Paginator(series, 10)
         page = request.GET.get('page')
         elements = paginator.get_page(page)
+        render_args['elements'] = elements
     if tab == 'activity':
         posts = Post.objects.filter(author=user, hide=False)
         series = Series.objects.filter(owner=user)
@@ -379,8 +391,7 @@ def user_profile_tab(request, username, tab):
         paginator = Paginator(activity, 15)
         page = request.GET.get('page')
         elements = paginator.get_page(page)
-    
-    render_args['elements'] = elements
+        render_args['elements'] = elements
 
     return render(request, 'board/user_profile.html', render_args)
 

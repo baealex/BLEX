@@ -1,0 +1,20 @@
+<div id="wrapper">
+{% for mseries in elements %}
+    {% if mseries.posts.first %}
+    <div onmousedown="saveLatelyPosition()">
+        {% if mseries.posts.first.image %}
+        <div class="post-list" style="background-image: url({{ mseries.posts.first.image.url }})">
+        {% else %}
+        <div class="post-list" style="background-image: url({{ static_url }}/assets/images/default-post.png)">
+        {% endif %}
+            <a href="{{ mseries.get_absolute_url }}" class="post-title">
+                <div class="post-mask">
+                    <h3 class="serif">'{{ mseries }}' 시리즈</h3>
+                    <span class="date">{{ mseries.created_date | date:'' }}</span>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+</div>

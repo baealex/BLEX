@@ -1,0 +1,42 @@
+<div id="user-posts" class="container">
+    <div class="row">
+        <div class="profile-tags col-lg-3">
+            {% if tags %}
+            <ul class="mt-4 noto">
+                <h5 class="serif">카테고리</h5>
+                <li><a {% if not selected_tag %}class="active"{% endif %} href="{% url 'user_profile' username=user %}">전체<span class="ns">({{ posts_count }})</span></a></li>
+                {% for tag in tags %}
+                <li><a {% if selected_tag == tag.name %}class="active"{% endif %} href="{% url 'user_profile_topic' username=user tag=tag.name %}">{{ tag.name }}<span class="ns">({{ tag.count }})</span></a></li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <div class="col-lg-8 mt-4">
+        {% load tagging_tags %}
+        <div id="wrapper">
+        {% for post in elements %}
+            <div class="profile-post">
+                {% if post.image %}
+                <a href="{{ post.get_absolute_url }}">
+                    <picture>
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy"/>
+                    </picture>
+                </a>
+                {% endif %}
+                <h4 class="card-title serif font-weight-bold mt-3">
+                    <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post.title | truncatechars:50 }}</a>
+                </h4>
+                <p class="noto"><a class="shallow-dark" href="{{ post.get_absolute_url }}">{{ post.text_html | striptags | truncatewords:50 }}</a></p>
+                {% tags_for_object post as tags %}
+                {% if tags %}
+                <ul class="tag-list">
+                    {% for tag in tags %}
+                    <li><a href="{% url 'user_profile_topic' username=user tag=tag.name %}">{{ tag.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
