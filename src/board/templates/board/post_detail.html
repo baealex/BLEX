@@ -147,7 +147,6 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button type="button" onclick="comment()" class="btn btn-dark">댓글 작성</button>
-        <button type="button" onclick="tagging()" class="btn btn-dark">사용자 태그</button>
     </form>
     {% else %}
     <div class="alert alert-warning">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
@@ -199,33 +198,16 @@ $(document).ready(function() {
     }
   });
 });
-var userList = [];
-var sendList = [];
 $(document).ready(function () {
-    $.ajax({
-        url: "/post/{{ post.pk }}/commentor",
-        type: "get",
-    }).done(function (data) {
-        userList = data.split(',');
-        userList.pop();
-    });
     autolink($('#comment'));
 });
-function tagging() {
-    var username = prompt('태그할 사용자');
-    if(username != null) {
-        var isFind = false;
-        for ( x in userList ) {
-            if ( username == userList[x] ) {
-                $('#id_text').val($('#id_text').val() + ('@' + username)).focus();
-                sendList.push(username);
-                isFind = true;
-                break;
-            }
-        }
-        if ( !isFind ) {
-            alert('이 포스트에 댓글이 있는 사용자가 아닙니다.');
-        }
+var sendList = [];
+function tagging(username) {
+    if(username in sendList) {
+        
+    } else {
+        $('#id_text').val($('#id_text').val() + ('@' + username)).focus();
+        sendList.push(username);
     }
 }
 {% endif %}
