@@ -12,6 +12,16 @@ function postLock(pk) {
         }
     });
 }
+function tagChange(pk) {
+    $.ajax({
+        url: `/post/${pk}/tag`,
+        type: "post",
+        data: $(`#post-${pk} form`).serialize(),
+    }).done(function (data) {
+        alert('태그가 변경되었습니다.');
+        $(`#post-${pk} form`).find('[name=tag]').val(data.tag);
+    });
+}
 function postDelete(pk) {
 	if(confirm("정말 삭제하십니까?") == true){
     	$.ajax({

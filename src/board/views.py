@@ -841,6 +841,16 @@ def post_like(request, pk):
         return HttpResponse(str(post.total_likes()))
     return redirect('post_list')
 
+def post_tag(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    compere_user(request.user, post.author, give_404_if='different')
+
+    if request.method == 'POST':
+        post.tag = slugify(request.POST['tag'].replace(',', '-'), allow_unicode=True).replace('-', ',')
+        post.save()
+        return JsonResponse({'tag': post.tag})
+    raise Http404
+
 def post_hide(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if not post.author == request.user:

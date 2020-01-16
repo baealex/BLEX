@@ -60,6 +60,7 @@ urlpatterns = [
     path('',views.post_list,name='post_list'), 
     path('write',views.post_write,name='post_write'),
     path('<sort>',views.post_sort_list,name='post_sort_list'),
+    path('post/<int:pk>/tag', views.post_tag, name='post_tag'),
     path('post/<int:pk>/like', views.post_like, name='post_like'),
     path('post/<int:pk>/hide', views.post_hide, name='post_hide'),
     path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
