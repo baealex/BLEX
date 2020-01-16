@@ -411,6 +411,7 @@ def user_profile_topic(request, username, tag):
         'white_nav' : True,
         'selected_tag': tag,
         'elements': elements,
+        'grade': get_grade(user),
         'posts_count': len(total_posts),
         'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
     }
