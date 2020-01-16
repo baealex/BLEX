@@ -61,9 +61,9 @@ def get_clean_all_tags(user=None):
     for tag in all_tags:
         tag_dict = { 'name': tag }
         if user == None:
-            tag_dict['count'] = len(posts.filter(created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
+            tag_dict['count'] = len(posts.filter(hide=False, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
         else:
-            tag_dict['count'] = len(posts.filter(author=user, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
+            tag_dict['count'] = len(posts.filter(hide=False, author=user, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
         all_tags_dict.append(tag_dict)
     return all_tags_dict
 
