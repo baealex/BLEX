@@ -12,6 +12,16 @@ function postLock(pk) {
         }
     });
 }
+function postDelete(pk) {
+	if(confirm("정말 삭제하십니까?") == true){
+    	$.ajax({
+            url: `/post/${pk}/remove`,
+            type: "post",
+        }).done(function (data) {
+            $('#post-' + pk).remove();
+    	});
+	}
+}
 function seriesRemove(pk) {
     if(confirm("정말 삭제하십니까?") == true) {
         $.ajax({

@@ -870,9 +870,9 @@ def post_edit(request, pk):
 
 def post_remove(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    if not post.author == request.user:
-        return redirect('post_detail', username=post.author, url=post.url)
-    else:
+    if post.author == request.user:
         post.delete()
         return redirect('post_list')
+    else:
+        raise Http404
 # ------------------------------------------------------------ Article End
