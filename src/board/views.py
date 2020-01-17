@@ -3,6 +3,7 @@ import json
 import os
 
 from django.db.models import Count, Q
+from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.core.serializers.json import DjangoJSONEncoder
@@ -762,7 +763,6 @@ def post_list(request):
         'white_nav': True,
         'pageposts': get_posts('notice'),
         'weekly_top' : get_posts('week-top')[:4],
-        'tags': sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
     }
 
     if request.user.is_active:
@@ -887,3 +887,19 @@ def post_remove(request, pk):
     else:
         raise Http404
 # ------------------------------------------------------------ Article End
+
+
+
+# API V1
+def topics_api_v1(request):
+    cache_key = 'main_page_topics'
+    tags = cache.get(cache_key)
+    if not tags:
+        tags = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
+        cache_time = 3600
+        cache.set(cache_key, tags, cache_time)
+        print('cache not hit')
+    else:
+        print('cache hit')
+    return JsonResponse({'tags': tags}, json_dumps_params = {'ensure_ascii': True})
+# ------------------------------------------------------------ API V1 End

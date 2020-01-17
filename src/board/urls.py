@@ -66,4 +66,8 @@ urlpatterns = [
     path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
     path('post/<int:pk>/remove', views.post_remove, name='post_remove'), 
     # ------------------------------------------------------------ Article End
+
+    # API V1
+    path('api/v1/topics', views.topics_api_v1, name='topics_api_v1'),
+    # ------------------------------------------------------------ API V1 End
 ]

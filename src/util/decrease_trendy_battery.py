@@ -15,7 +15,10 @@ posts = Post.objects.all()
 for data in posts:
     if data.trendy > 0:
         data.trendy -= 1
-        data.save()
+    data.total += data.yesterday
+    data.yesterday = data.today
+    data.today = 0
+    data.save()
 print('ALL POSTS DONE!')
 
 from board.models import Profile
