@@ -37,7 +37,7 @@ def get_posts(sort='all'):
     elif sort == 'week-top':
         seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
         today          = timezone.make_aware(datetime.datetime.now())
-        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('view_cnt').reverse()
+        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('today').reverse()
     elif sort == 'all':
         return Post.objects.filter(hide=False).order_by('created_date').reverse()
     elif sort == 'notice':
@@ -746,12 +746,12 @@ def post_detail(request, username, url):
             cookies_list = cookies.split('|')
             if str(post.pk) not in cookies_list:
                 response.set_cookie(cookie_name, cookies + '|' + str(post.pk), expires =expires)
-                post.view_cnt += 1
+                post.today += 1
                 post.save()
                 return response
         else:
             response.set_cookie(cookie_name, post.pk, expires =expires)
-            post.view_cnt += 1
+            post.today += 1
             post.save()
             return response
     

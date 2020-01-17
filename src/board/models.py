@@ -56,37 +56,6 @@ def create_notify(user, post, infomation):
     new_notify = Notify(user=user, post=post, infomation=infomation)
     new_notify.save()
 
-"""
-class Team(models.Model):
-    name = models.CharField(max_length=15, unique=True)
-    owner = models.ForeignKey('auth.User')
-    member = models.ManyToManyField(User, related_name='members', blank=True)
-    bio = models.TextField(max_length=500, blank=True)
-    about = models.TextField(blank=True)
-    avatar = models.ImageField(blank=True, upload_to=team_logo_path)
-
-class TeamPost(models.Model):
-    pass
-
-class TeamCategory(models.Model):
-    pass
-"""
-
-"""
-class Request(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    post = models.ForeignKey('board.Post', on_delete = models.CASCADE)
-    comment = models.ForeignKey('board.Comment', related_name='request', on_delete = models.CASCADE)
-    content = models.TextField(blank=True)
-    is_apply = models.BooleanField(default=False)
-    created_date = models.DateTimeField(default=timezone.now)
-"""
-
-"""
-class MiddleComment(models.Model):
-    pass
-"""
-
 class History(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     post         = models.ForeignKey('board.Post', on_delete = models.CASCADE)
@@ -136,6 +105,8 @@ class Profile(models.Model):
     facebook   = models.CharField(max_length=30, blank=True)
     instagram  = models.CharField(max_length=15, blank=True)
     homepage   = models.CharField(max_length=100, blank=True)
+    about_md   = models.TextField()
+    about_html = models.TextField()
 
     def __str__(self):
         return self.user.username
@@ -171,7 +142,9 @@ class Post(models.Model):
     text_md       = models.TextField()
     text_html     = models.TextField()
     trendy        = models.IntegerField(default=0)
-    view_cnt      = models.IntegerField(default=0)
+    today         = models.IntegerField(default=0)
+    yesterday     = models.IntegerField(default=0)
+    total         = models.IntegerField(default=0)
     hide          = models.BooleanField(default=False)
     notice        = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
@@ -214,10 +187,15 @@ class Comment(models.Model):
     post         = models.ForeignKey('board.Post', related_name='comments', on_delete = models.CASCADE)
     text         = models.TextField(max_length=300)
     edit         = models.BooleanField(default=False)
+    heart        = models.BooleanField(default=False)
+    likes        = models.ManyToManyField(User, related_name='commentlist', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.text
+    
+    def total_likes(self):
+        return self.likes.count()
 
 class Notify(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
