@@ -72,7 +72,7 @@ location / {
 
 ## 업데이트 내역
 
-**[기술 스택 및 개선된 항목, 개선할 사항](./CHANGELOG.md)**
+[기술 스택 및 로그](https://blex.kr/@baealex/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8)
 
 <br>
 
