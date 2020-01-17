@@ -24,7 +24,7 @@
                 <li><a class="text-dark" href="{% url 'post_edit' pk=post.pk %}"><i class="far fa-edit"></i></a></li>
                 <li><a class="text-dark" href="javascript:postDelete({{ post.pk }})"><i class="far fa-trash-alt"></i></a></li>
                 <li>|</li>
-                <li><i class="far fa-eye"></i> <span class="ns">(Today : {{ post.today }}, Yesterday : {{ post.yesterday }}, Total : {{ post.total|add:post.today }})</span></li>
+                <li><i class="far fa-eye"></i> <span class="ns">(Today : {{ post.today }}, Yesterday : {{ post.yesterday }}, Total : {{ post.total|add:post.today|add:post.yesterday }})</span></li>
                 <li><i class="far fa-thumbs-up"></i> {{ post.total_likes }}</li>
                 <li><i class="far fa-comment"></i> {{ post.comments.count }}</li>
                 <li><i class="fas fa-chart-line"></i> {{ post.trendy }}</li>

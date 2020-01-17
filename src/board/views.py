@@ -30,19 +30,19 @@ def get_posts(sort='all'):
     if sort == 'top':
         return Post.objects.filter(notice=False, hide=False).annotate(like_count=Count('likes')).order_by('-like_count')
     elif sort == 'trendy':
-        return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('trendy').reverse()
+        return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-trendy')
     elif sort == 'newest':
-        return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('created_date').reverse()
+        return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-created_date')
     elif sort == 'oldest':
         return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('created_date')
     elif sort == 'week-top':
         seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
         today          = timezone.make_aware(datetime.datetime.now())
-        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('today').reverse()
+        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('-today')
     elif sort == 'all':
-        return Post.objects.filter(hide=False).order_by('created_date').reverse()
+        return Post.objects.filter(hide=False).order_by('-created_date')
     elif sort == 'notice':
-        return Post.objects.filter(notice=True).order_by('created_date')
+        return Post.objects.filter(notice=True).order_by('-created_date')
 
 def get_clean_all_tags(user=None):
     posts = Post.objects.filter()

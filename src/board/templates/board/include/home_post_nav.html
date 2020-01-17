@@ -5,9 +5,9 @@
     <a href="/">공지</a>
     {% endif %}
     {% if sort == 'trendy' %}
-    <span class="foot-deco-active">인기</span>
+    <span class="foot-deco-active">경향</span>
     {% else %}
-    <a href="{% url 'post_sort_list' sort='trendy' %}">인기</a>
+    <a href="{% url 'post_sort_list' sort='trendy' %}">경향</a>
     {% endif %}
     {% if sort == 'newest' %}
     <span class="foot-deco-active">최신</span>
