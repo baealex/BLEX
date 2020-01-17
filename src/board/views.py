@@ -603,6 +603,7 @@ def search(request):
         'white_nav' : True,
         'value' : value,
     }
+    """
     if not value == '':
         posts = get_posts('all')
         posts = posts.filter(Q(title__icontains=value) | Q(author__username=value))
@@ -610,6 +611,7 @@ def search(request):
         page = request.GET.get('page')
         pageposts = paginator.get_page(page)
         render_args['posts'] = pageposts
+    """
     return render(request, 'board/search.html', render_args)
 
 def content_backup(request):

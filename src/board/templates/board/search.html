@@ -20,11 +20,7 @@
     <input id="search-box" autocomplete="off" name="value" type="text" placeholder="검색어를 입력하세요.">
 </form>
 
-<div id="card-wrapper" class="row">
-{% for post in posts %}
-    {% include 'board/include/post_card.html' %}
-{% endfor %}
-</div>
+<div class="gcse-searchresults-only"></div>
 {% endblock %}
 
 {% block footer%}
@@ -39,14 +35,5 @@
     $('#search-box').val('{{ value }}')
     {% endif %}
 </script>
-<div id="return-position" class="col-lg-6 mx-auto alert alert-dark noto text-center fixed-bottom" style="display: none;" role="alert">
-        <i class="fas fa-spinner fa-pulse"></i> 원래의 자리를 찾아가는 중
-    </div>
-<script src="{{ static_url }}/assets/library/InfiniteScroll.js"></script>
-<script type="text/javascript">
-var postWrapperId = 'card-wrapper';
-var paginatePath = '/search?value={{ value }}&page=';
-var lastPage = {{ posts.paginator.num_pages }};
-new InfiniteScroll(paginatePath, postWrapperId, lastPage);
-</script>
+<script async src="https://cse.google.com/cse.js?cx=partner-pub-1254068519466911:9532536280"></script>
 {% endblock %}
