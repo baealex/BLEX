@@ -1,3 +1,14 @@
+<style>
+.none-list {
+    list-style: none;
+    padding-left: 0;
+    display: inline;
+}
+.none-list li { 
+    display: inline-block;
+}
+</style>
+
 <div {% if comment.author == request.user %}id="comment-{{ comment.pk }}"{% endif %}>
     <div class="comment-list">
         <a href="{% url 'user_profile' username=comment.author %}">
@@ -10,14 +21,26 @@
         <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=comment.author %}">{{ comment.author }}</a>
         <br>
         <small>{{ comment.created_date | timesince }}전{% if comment.edit %} <span class="vs">edited</span>{% endif %}</small>
+        <ul class="none-list">
         {% if comment.author == request.user %}
-            <a class="vs shallow-dark" href="javascript:void(0)" onclick="editComment({{comment.pk}})">수정</a>
-            <a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment({{comment.pk}});">삭제</a>
+            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="editComment({{comment.pk}})">수정</a></li>
+            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment({{comment.pk}});">삭제</a></li>
         {% else %}
             {% if request.user.is_active %}
-            <a class="vs shallow-dark" href="javascript:void(0)" onclick="tagging('{{comment.author}}')">태그</a>
+            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="tagging('{{comment.author}}')"><i class="fas fa-user-tag"></i></a></li>
             {% endif %}
         {% endif %}
+        </ul>
         <div class="mt-3 noto">{{ comment.text|linebreaks }}</div>
+        <ul class="none-list">
+            <li>
+                <a class="shallow-dark" href="javascript:void(0);" onclick="likeComment({{ comment.pk }})">
+                    <i class="fas fa-angle-up"></i> <span id="clc{{ comment.pk }}">{{ comment.total_likes }}</span>
+                </a>
+            </li>
+            {% if post.author == request.user %}
+            <!-- HEART -->
+            {% endif %}
+        </ul>
     </div>
 </div>

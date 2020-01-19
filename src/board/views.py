@@ -38,7 +38,7 @@ def get_posts(sort='all'):
     elif sort == 'week-top':
         seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
         today          = timezone.make_aware(datetime.datetime.now())
-        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('-today')
+        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('-total')
     elif sort == 'all':
         return Post.objects.filter(hide=False).order_by('-created_date')
     elif sort == 'notice':
@@ -88,7 +88,13 @@ def get_comment_json_element(user, comment):
         'author': comment.author.username,
         'created_date': timesince(comment.created_date),
         'content': linebreaks(escape(comment.text)),
+        'total_likes': comment.total_likes(),
     }
+
+    if comment.edit == True:
+        element['edited'] = 'edited'
+    else:
+        element['edited'] = ''
 
     if hasattr(user, 'profile'):
         element['thumbnail'] = user.profile.avatar.url
@@ -562,7 +568,6 @@ def comment_update(request, cpk):
                 'state': 'true',
                 'element': get_comment_json_element(request.user, comment)
             }
-            data['element']['edited'] = 'edited'
 
             return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         else:
@@ -580,7 +585,6 @@ def comment_rest(request, cpk):
             'state': 'true',
             'element': get_comment_json_element(request.user, comment)
         }
-        data['element']['edited'] = 'edited'
 
         return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
     
@@ -592,6 +596,27 @@ def comment_rest(request, cpk):
         return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
 
     raise Http404
+
+def comment_like(request, cpk):
+    if not request.user.is_active:
+        return HttpResponse('error:NL')
+
+    comment = get_object_or_404(Comment, pk=cpk)
+    
+    if request.user == comment.author:
+        return HttpResponse('error:SU')
+
+    if request.method == 'POST':
+        user = User.objects.get(username=request.user)
+        if comment.likes.filter(id=user.id).exists():
+            comment.likes.remove(user)
+            comment.save()
+        else:
+            comment.likes.add(user)
+            comment.save()
+        
+        return HttpResponse(str(comment.total_likes()))
+    
 # ------------------------------------------------------------ Comment End
 
 

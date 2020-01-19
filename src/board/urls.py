@@ -41,6 +41,7 @@ urlpatterns = [
     path('post/<int:pk>/comment', views.comment_post, name='comment_post'),
     path('post/<int:pk>/commentor',views.get_commentor,name='get_commentor'),
     path('comment/<int:cpk>', views.comment_rest, name='comment_rest'),
+    path('comment/<int:cpk>/like', views.comment_like, name='comment_like'),
     path('comment/<int:cpk>/update', views.comment_update, name='comment_update'),
     # ------------------------------------------------------------ Comment End
 

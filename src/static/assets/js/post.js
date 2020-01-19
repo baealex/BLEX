@@ -53,6 +53,22 @@ function editComment(pk) {
         $(`#comment-${pk}`).html(data);
     });
 }
+function likeComment(pk) {
+    $.ajax({
+        type: "POST",
+        url: `/comment/${pk}/like`,
+    }).done(function(data) {
+        if(data=='error:NL') {
+            location.href='/login?next=' + location.pathname;
+        }
+        else if(data=='error:SU') {
+            alert('자신의 댓글은 추천할 수 없습니다.')
+        }
+        else {
+            $(`#clc${pk}`).html(data);
+        }
+    });
+}
 function updateComment(pk) {
     $.ajax({
         type: "POST",
@@ -81,9 +97,18 @@ function renderComment(element) {
         <a class="font-weight-bold deep-dark">${element.author}</a>\
         <br>\
         <small>${element.created_date}전 <span class="vs">${element.edited}</span></small>\
-        <a class="vs shallow-dark" href="javascript:void(0)" onclick="editComment(${element.pk})">수정</a>\
-        <a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment(${element.pk});">삭제</a>\
+        <ul class="none-list">
+            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="editComment(${element.pk})">수정</a></li>\
+            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment(${element.pk});">삭제</a></li>\
+        </ul>\
         <div class="mt-3 noto">${element.content}</div>\
+        <ul class="none-list">\
+            <li>\
+                <a class="shallow-dark" href="javascript:void(0);" onclick="likeComment(${element.pk})">\
+                    <i class="fas fa-angle-up"></i> <span id="clc${element.pk}">${element.total_likes}</span>\
+                </a>\
+            </li>\
+        </ul>\
     </div>`
 }
 function sendTagNotify(pk, userName, sendUser) {
