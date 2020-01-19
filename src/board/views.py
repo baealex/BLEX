@@ -352,8 +352,14 @@ def user_profile(request, username):
     return render(request, 'board/user_profile.html', render_args)
 
 def user_follow(request, username):
+    if not request.user.is_active:
+        return HttpResponse('error:NL')
+    
     following = get_object_or_404(User, username=username)
-    compere_user(request.user, following, give_404_if='same')
+
+    if request.user == following:
+        return HttpResponse('error:SU')
+    
     if request.method == 'POST':
         follower = User.objects.get(username=request.user)
         if hasattr(following, 'profile'):
@@ -846,8 +852,14 @@ def post_write(request):
     return render(request, 'board/post_write.html',{ 'form':form })
 
 def post_like(request, pk):
+    if not request.user.is_active:
+        return HttpResponse('error:NL')
+    
     post = get_object_or_404(Post, pk=pk)
-    compere_user(request.user, post.author, give_404_if='same')
+
+    if request.user == post.author:
+        return HttpResponse('error:SU')
+    
     if request.method == 'POST':
         user = User.objects.get(username=request.user)
         if post.likes.filter(id=user.id).exists():

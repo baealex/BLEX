@@ -1,32 +1,64 @@
-$(document).ready(function() {
+function getNotify() {
     $.ajax({
         url: "/user/notify",
         type: "get",
     }).done(function (data) {
         if(data.count > 0) {
-            var result = "";
             data.content.forEach(function(element) {
-                result +=  makeToast(element);
+                $("#notify-content").append(renderToast(element));
             });
-            $("#notify-content").html(result);
             $('.toast').toast({
-                //'delay': 4000,
                 'autohide': false
             });
             $('.toast').toast('show');
         }
     });
-});
+}
+var notifyCounter = 0;
+function appendToast(info) {
+    var pk = notifyCounter++;
+    $("#notify-content").append(
+        renderCommonToast({
+            pk: pk,
+            info: info
+        })
+    );
+    $('.toast').toast({
+        'delay': 3000,
+    });
+    $('.toast').toast('show');
+    setTimeout(function() {
+        $('#pretoast' + pk).remove();
+    }, 3000);
+}
 function justRemove(pk) {
     $.ajax({
         url: '/user/notify',
         type: 'GET',
         data: { 'redirect': pk },
+    }).done(function (data) {
+        $('#toast' + pk).remove();
     });
 }
-function makeToast(element) {
+function renderCommonToast(element) {
     return "\
-    <div class=\"toast\" role=\"alert\" aria-live=\"assertive\" aria-atomic=\"true\">\
+    <div id=\"pretoast" + element.pk + "\" class=\"toast\" role=\"alert\" aria-live=\"assertive\" aria-atomic=\"true\">\
+        <div class=\"toast-header\">\
+            <img src=\"https://static.blex.kr/assets/images/logo.png\" class=\"rounded mr-2\" width=\"20px\">\
+            <strong class=\"mr-auto\">알림</strong>\
+            <button type=\"button\" class=\"ml-2 mb-1 close\" data-dismiss=\"toast\" aria-label=\"Close\">\
+                <span aria-hidden=\"true\">&times;</span>\
+            </button>\
+        </div>\
+        <div class=\"toast-body\">\
+            " + element.info + "\
+        </div>\
+    </div>\
+    "
+}
+function renderToast(element) {
+    return "\
+    <div id=\"toast" + element.pk + "\" class=\"toast\" role=\"alert\" aria-live=\"assertive\" aria-atomic=\"true\">\
         <div class=\"toast-header\">\
             <img src=\"https://static.blex.kr/assets/images/logo.png\" class=\"rounded mr-2\" width=\"20px\">\
             <strong class=\"mr-auto\">알림</strong>\

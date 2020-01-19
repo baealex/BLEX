@@ -36,7 +36,7 @@
             <li>
                 <img src="https://img.shields.io/badge/-{{ grade }}">
             </li>
-            <li onclick="follow()">
+            <li onclick="userFollow('{{ user }}')">
                 <img class="follow-badge" src="https://img.shields.io/badge/subscriber-{% if user.profile.subscriber %}{{ user.profile.total_subscriber }}{% else %}0{% endif %}-red?style=social">
             </li>
         </ul>
@@ -97,13 +97,8 @@
     {% include 'board/include/footer.html' %}
 {% endblock %}
 
-{% block image-script %}
-<div id="return-position" class="col-lg-6 mx-auto alert alert-dark noto text-center fixed-bottom" style="display: none;" role="alert">
-    <i class="fas fa-spinner fa-pulse"></i> 원래의 자리를 찾아가는 중
-</div>
-<script src="{{ static_url }}/assets/library/InfiniteScroll.js"></script>
+{% block script %}
 <script type="text/javascript">
-{% if request.user.is_active %}
 $(document).ready(function() {
   var csrftoken = getCookie('csrftoken');
   $.ajaxSetup({
@@ -114,19 +109,8 @@ $(document).ready(function() {
     }
   });
 });
-{% endif %}
-function follow() {
-    {% if request.user.is_active %}
-        {% if request.user == user %}
-    alert('자신은 구독할 수 없습니다.');
-        {% else %}
-    userFollow('{{ user.username }}');
-        {% endif %}
-    {% else %}
-    location.href='/login?next={{ request.get_full_path }}';
-    {% endif %}
-}
 </script>
+<script src="{{ static_url }}/assets/library/InfiniteScroll.js"></script>
 <script type="text/javascript">
 {% if elements %}
 var postWrapperId = 'wrapper';

@@ -67,6 +67,7 @@ a.shallow-dark:hover {
     position: fixed;
     top: 70px;
     right: 5px;
+    z-index: 9999;
 }
 .card-title {
     word-break: keep-all;

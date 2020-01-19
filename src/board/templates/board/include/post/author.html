@@ -15,7 +15,7 @@
                 <li>
                     <img src="https://img.shields.io/badge/-{{ grade }}">
                 </li>
-                <li onclick="follow()">
+                <li onclick="userFollow('{{ post.author }}')">
                     <img class="follow-badge" src="https://img.shields.io/badge/subscriber-{% if post.author.profile.subscriber %}{{ post.author.profile.total_subscriber }}{% else %}0{% endif %}-red?style=social">
                 </li>
             </ul>

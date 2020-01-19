@@ -31,7 +31,7 @@
 {% block usernav_action %}
 <ul class="navbar-nav">
     <li class="nav-item">
-        <a id="heart" class="nav-link" href="javascript:void(0);" onclick="like();">
+        <a id="heart" class="nav-link" href="javascript:void(0);" onclick="likeArticle({{ post.pk }});">
             <i class="{%if check_like %}fas{% else %}far{% endif %} fa-heart"></i> <span id="like-count">{{ post.total_likes }}</span>
         </a>
     </li>
@@ -176,18 +176,15 @@
     {% include 'board/include/post/delete_modal.html'%}
 {% endblock %}
 
-{% block image-script %}
+{% block script %}
 <script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/post.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/user.js"></script>
 {% if post.image %}
 <script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js"></script>
 {% endif %}
-{% if request.user.is_active %}
-<script type="text/javascript" src="{{ static_url }}/assets/js/post.js"></script>
-<script type="text/javascript" src="{{ static_url }}/assets/js/user.js"></script>
-{% endif %}
 <script>
-{% if request.user.is_active %}
 $(document).ready(function() {
   var csrftoken = getCookie('csrftoken');
   $.ajaxSetup({
@@ -210,29 +207,6 @@ function tagging(username) {
             sendList.push(username);
         }
     }
-}
-{% endif %}
-function like() {
-    {% if request.user.is_active %}
-        {% if request.user == post.author %}
-    alert('자신의 글은 추천할 수 없습니다.');
-        {% else %}
-    likeArticle('{% url 'post_like' pk=post.pk%}');
-        {% endif %}
-    {% else %}
-    location.href='/login?next={{ request.get_full_path }}';
-    {% endif %}
-}
-function follow() {
-    {% if request.user.is_active %}
-        {% if request.user == post.author %}
-    alert('자신은 구독할 수 없습니다.');
-        {% else %}
-    userFollow('{{ post.author.username }}');
-        {% endif %}
-    {% else %}
-    location.href='/login?next={{ request.get_full_path }}';
-    {% endif %}
 }
 function comment() {
     writeComment('{% url 'comment_post' pk=post.pk %}');

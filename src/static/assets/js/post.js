@@ -1,16 +1,24 @@
-function likeArticle(paramUrl) {
+function likeArticle(pk) {
     $.ajax({
-        url: paramUrl,
+        url: `/post/${pk}/like`,
         type: "post",
     }).done(function (data) {
-        if($("#heart i").hasClass("fas")) {
-            $("#heart i").removeClass("fas");
-            $("#heart i").addClass("far");
-        } else {
-            $("#heart i").removeClass("far");
-            $("#heart i").addClass("fas");
+        if(data=='error:NL') {
+            location.href='/login?next=' + location.pathname;
         }
-        document.getElementById('like-count').innerHTML = data;
+        else if(data=='error:SU') {
+            appendToast('자신의 글은 추천할 수 없습니다.')
+        }
+        else {
+            if($("#heart i").hasClass("fas")) {
+                $("#heart i").removeClass("fas");
+                $("#heart i").addClass("far");
+            } else {
+                $("#heart i").removeClass("far");
+                $("#heart i").addClass("fas");
+            }
+            document.getElementById('like-count').innerHTML = data;
+        }
     });
 }
 function reloadComment(element) {
@@ -62,7 +70,7 @@ function likeComment(pk) {
             location.href='/login?next=' + location.pathname;
         }
         else if(data=='error:SU') {
-            alert('자신의 댓글은 추천할 수 없습니다.')
+            appendToast('자신의 댓글은 추천할 수 없습니다.')
         }
         else {
             $(`#clc${pk}`).html(data);

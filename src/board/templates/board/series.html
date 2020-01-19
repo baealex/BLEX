@@ -92,7 +92,7 @@
     {% include 'board/include/footer.html' %}
 {% endblock %}
 
-{% block image-script %}
+{% block script %}
 {% if series.owner == request.user %}
 <script type="text/javascript" src="{{ static_url }}/assets/js/setting.js"></script>
 <script>

@@ -18,7 +18,7 @@ function tagChange(pk) {
         type: "post",
         data: $(`#post-${pk} form`).serialize(),
     }).done(function (data) {
-        alert('태그가 변경되었습니다.');
+        appendToast('태그가 변경되었습니다.');
         $(`#post-${pk} form`).find('[name=tag]').val(data.tag);
     });
 }

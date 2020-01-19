@@ -62,16 +62,12 @@ $(document).ready(function() {
                 count += 1;
                 if(count > 100) {
                     clearTimeout(findLatelyPosition);
-                    $('#return-position').remove();
-                    distoryLatelyPosition();    
+                    distoryLatelyPosition();
                 }
             } else {
                 clearTimeout(findLatelyPosition);
-                $('#return-position').remove();
                 distoryLatelyPosition();
             }
         }, 50);
-    } else {
-        $('#return-position').remove();
     }
 });
