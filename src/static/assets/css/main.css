@@ -20,6 +20,14 @@
 .h-150 {
     height: 150px;
 }
+.none-list {
+    list-style: none;
+    padding-left: 0;
+    display: inline;
+}
+.none-list li { 
+    display: inline-block;
+}
 .slide-bottom
 {
     animation: slide-bottom .5s 1;

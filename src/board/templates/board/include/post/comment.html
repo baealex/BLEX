@@ -1,14 +1,3 @@
-<style>
-.none-list {
-    list-style: none;
-    padding-left: 0;
-    display: inline;
-}
-.none-list li { 
-    display: inline-block;
-}
-</style>
-
 <div {% if comment.author == request.user %}id="comment-{{ comment.pk }}"{% endif %}>
     <div class="comment-list">
         <a href="{% url 'user_profile' username=comment.author %}">
