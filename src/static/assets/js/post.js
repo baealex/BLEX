@@ -1,7 +1,8 @@
 function likeArticle(pk) {
     $.ajax({
-        url: `/post/${pk}/like`,
-        type: "post",
+        url: `/api/v1/posts/${pk}`,
+        type: "PUT",
+        data: {like: 'like'},
     }).done(function (data) {
         if(data=='error:NL') {
             location.href='/login?next=' + location.pathname;
@@ -131,3 +132,26 @@ function sendTagNotify(pk, userName, sendUser) {
         });
     }
 }
+function deletePosts(pk) {
+    if(confirm('포스트를 정말 삭제하시겠습니까?') == true) {
+        $.ajax({
+            type: "DELETE",
+            url: `/api/v1/posts/${pk}`,
+        }).done(function (data) {
+            appendToast('포스트가 삭제되었습니다.');
+        });
+    }
+}
+var sendList = [];
+function tagging(username) {
+    var textValue = $('#id_text').val();
+    if(textValue.indexOf(username) == -1) {
+        $('#id_text').val(textValue + ('@' + username)).focus();
+        if(sendList.indexOf(username) == -1) {
+            sendList.push(username);
+        }
+    }
+}
+$(document).ready(function () {
+    autolink($('#comment'));
+});

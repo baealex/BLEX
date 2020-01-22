@@ -1,7 +1,8 @@
 function postLock(pk) {
     $.ajax({
-        url: `/post/${pk}/hide`,
-        type: "post",
+        url: `/api/v1/posts/${pk}`,
+        type: "PUT",
+        data: {hide: 'changed'}
     }).done(function (data) {
         if(data.hide) {
             $(`#lock-${pk}`).removeClass('fa-lock-open');
@@ -14,8 +15,8 @@ function postLock(pk) {
 }
 function tagChange(pk) {
     $.ajax({
-        url: `/post/${pk}/tag`,
-        type: "post",
+        url: `/api/v1/posts/${pk}`,
+        type: "PUT",
         data: $(`#post-${pk} form`).serialize(),
     }).done(function (data) {
         appendToast('태그가 변경되었습니다.');
@@ -25,8 +26,8 @@ function tagChange(pk) {
 function postDelete(pk) {
 	if(confirm("정말 삭제하십니까?") == true){
     	$.ajax({
-            url: `/post/${pk}/remove`,
-            type: "post",
+            url: `/api/v1/posts/${pk}`,
+            type: "DELETE",
         }).done(function (data) {
             $('#post-' + pk).remove();
     	});

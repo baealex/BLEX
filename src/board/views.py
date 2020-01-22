@@ -10,7 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth import update_session_auth_hash, login
 from django.contrib.auth.decorators import login_required
 from django.http import (
-    HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404)
+    HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404, QueryDict)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.template.defaultfilters import linebreaks
@@ -851,56 +851,6 @@ def post_write(request):
         form = PostForm()
     return render(request, 'board/post_write.html',{ 'form':form })
 
-def post_like(request, pk):
-    if not request.user.is_active:
-        return HttpResponse('error:NL')
-    
-    post = get_object_or_404(Post, pk=pk)
-
-    if request.user == post.author:
-        return HttpResponse('error:SU')
-    
-    if request.method == 'POST':
-        user = User.objects.get(username=request.user)
-        if post.likes.filter(id=user.id).exists():
-            post.likes.remove(user)
-            if post.trendy > 10 :
-                post.trendy -= 10
-            else :
-                post.trendy = 0
-            post.save()
-        else:
-            post.likes.add(user)
-            post.trendy += 10
-            post.save()
-            add_exp(request.user, 5)
-
-            send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
-            create_notify(user=post.author, post=post, infomation=send_notify_content)
-
-        return HttpResponse(str(post.total_likes()))
-    return redirect('post_list')
-
-def post_tag(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    compere_user(request.user, post.author, give_404_if='different')
-
-    if request.method == 'POST':
-        post.tag = slugify(request.POST['tag'].replace(',', '-'), allow_unicode=True).replace('-', ',')
-        post.save()
-        return JsonResponse({'tag': post.tag})
-    raise Http404
-
-def post_hide(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if not post.author == request.user:
-        raise Http404
-    if request.method == 'POST':
-        post.hide = not post.hide
-        post.save()
-        return JsonResponse({'hide': post.hide})
-    raise Http404
-
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if not post.author == request.user:
@@ -917,28 +867,67 @@ def post_edit(request, pk):
     else:
         form = PostForm(instance=post)
     return render(request, 'board/post_write.html', {'form': form, 'post': post })
-
-def post_remove(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if post.author == request.user:
-        post.delete()
-        return redirect('post_list')
-    else:
-        raise Http404
 # ------------------------------------------------------------ Article End
 
 
 
 # API V1
 def topics_api_v1(request):
-    cache_key = 'main_page_topics'
-    tags = cache.get(cache_key)
-    if not tags:
-        tags = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
-        cache_time = 3600
-        cache.set(cache_key, tags, cache_time)
-        print('cache not hit')
-    else:
-        print('cache hit')
-    return JsonResponse({'tags': tags}, json_dumps_params = {'ensure_ascii': True})
+    if request.method == 'GET':
+        cache_key = 'main_page_topics'
+        tags = cache.get(cache_key)
+        if not tags:
+            tags = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
+            cache_time = 3600
+            cache.set(cache_key, tags, cache_time)
+            print('cache not hit')
+        else:
+            print('cache hit')
+        return JsonResponse({'tags': tags}, json_dumps_params = {'ensure_ascii': True})
+
+def posts_api_v1(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+
+    if request.method == 'PUT':
+        put = QueryDict(request.body)
+        if put.get('like'):
+            if not request.user.is_active:
+                return HttpResponse('error:NL')
+            if request.user == post.author:
+                return HttpResponse('error:SU')
+            user = User.objects.get(username=request.user)
+            if post.likes.filter(id=user.id).exists():
+                post.likes.remove(user)
+                if post.trendy > 10 :
+                    post.trendy -= 10
+                else :
+                    post.trendy = 0
+                post.save()
+            else:
+                post.likes.add(user)
+                post.trendy += 10
+                post.save()
+                add_exp(request.user, 5)
+
+                send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
+                create_notify(user=post.author, post=post, infomation=send_notify_content)
+
+            return HttpResponse(str(post.total_likes()))
+        if put.get('hide'):
+            compere_user(request.user, post.author, give_404_if='different')
+            post.hide = not post.hide
+            post.save()
+            return JsonResponse({'hide': post.hide})
+        if put.get('tag'):
+            compere_user(request.user, post.author, give_404_if='different')
+            post.tag = slugify(put.get('tag').replace(',', '-'), allow_unicode=True).replace('-', ',')
+            post.save()
+            return JsonResponse({'tag': post.tag}, json_dumps_params = {'ensure_ascii': True})
+    
+    if request.method == 'DELETE':
+        compere_user(request.user, post.author, give_404_if='different')
+        post.delete()
+        return HttpResponse('DONE')
+    
+    raise Http404
 # ------------------------------------------------------------ API V1 End

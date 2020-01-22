@@ -82,7 +82,7 @@
         {% endif %}
         {% if post.author == request.user %}
         <a class="btn btn-dark" href="{% url 'post_edit' pk=post.pk %}">수정</a>
-        <a class="btn btn-dark" href="" data-toggle="modal" data-target="#PostDeleteModal">삭제</a>
+        <a class="btn btn-dark" href="javascript:void(0)" onclick=deletePosts({{ post.pk }})>삭제</a>
         {% endif %}
         {% include 'board/include/post/author.html' %}
         {% if prev_serise %}
@@ -173,7 +173,6 @@
 
 {% block footer%}
     {% include 'board/include/footer_reverse.html' %}
-    {% include 'board/include/post/delete_modal.html'%}
 {% endblock %}
 
 {% block script %}
@@ -195,22 +194,11 @@ $(document).ready(function() {
     }
   });
 });
-$(document).ready(function () {
-    autolink($('#comment'));
-});
-var sendList = [];
-function tagging(username) {
-    var textValue = $('#id_text').val();
-    if(textValue.indexOf(username) == -1) {
-        $('#id_text').val(textValue + ('@' + username)).focus();
-        if(sendList.indexOf(username) == -1) {
-            sendList.push(username);
-        }
-    }
-}
+{% if request.user.is_active %}
 function comment() {
     writeComment('{% url 'comment_post' pk=post.pk %}');
     sendTagNotify('{{ post.pk }}', '{{ request.user.username }}', sendList)
 }
+{% endif %}
 </script>
 {% endblock %}

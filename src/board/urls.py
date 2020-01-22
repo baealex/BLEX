@@ -61,14 +61,11 @@ urlpatterns = [
     path('',views.post_list,name='post_list'), 
     path('write',views.post_write,name='post_write'),
     path('<sort>',views.post_sort_list,name='post_sort_list'),
-    path('post/<int:pk>/tag', views.post_tag, name='post_tag'),
-    path('post/<int:pk>/like', views.post_like, name='post_like'),
-    path('post/<int:pk>/hide', views.post_hide, name='post_hide'),
     path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
-    path('post/<int:pk>/remove', views.post_remove, name='post_remove'), 
     # ------------------------------------------------------------ Article End
 
     # API V1
     path('api/v1/topics', views.topics_api_v1, name='topics_api_v1'),
+    path('api/v1/posts/<int:pk>', views.posts_api_v1, name='posts_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]
