@@ -97,6 +97,18 @@ class ProfileForm(forms.ModelForm):
             'avatar':'프로필 이미지',
         }
 
+class AboutForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('about_md',)
+
+        widgets={
+            'about_md':forms.Textarea(attrs={'placeholder':'자신을 설명하세요.','class':'form-control','rows':10}),
+        }
+        labels={
+            'about_md':''
+        }
+
 class ConfigForm(forms.ModelForm):
     class Meta:
         model = Config

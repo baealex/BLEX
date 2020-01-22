@@ -1,0 +1,5 @@
+<form>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="about" value="about">
+</form>

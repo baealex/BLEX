@@ -1,6 +1,6 @@
-function userFollow(pk) {
+function userFollow(username) {
     $.ajax({
-        url: `/api/v1/users/${pk}`,
+        url: `/api/v1/users/${username}`,
         type: "PUT",
         data: {follow: 'follow'},
     }).done(function(data) {
@@ -14,4 +14,28 @@ function userFollow(pk) {
             $('.follow-badge').attr('src', `https://img.shields.io/badge/subscriber-${data}-red?style=social`)
         }
     });
+}
+function editAbout(username) {
+    if($('#aboutButton').hasClass('edit')) {
+        $.ajax({
+            method: 'GET',
+            url: `/api/v1/users/${username}?form=about`,
+        }).done(function (data) {
+            $('#about').html(data);
+            $('#aboutButton').text('완료');
+            $('#aboutButton').addClass('submit');
+            $('#aboutButton').removeClass('edit');
+        });
+    } else {
+        $.ajax({
+            method: 'PUT',
+            url: `/api/v1/users/${username}`,
+            data: $('form').serialize()
+        }).done(function (data) {
+            $('#about').html(data);
+            $('#aboutButton').text('편집');
+            $('#aboutButton').addClass('edit');
+            $('#aboutButton').removeClass('submit');
+        });
+    }
 }

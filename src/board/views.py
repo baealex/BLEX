@@ -890,6 +890,12 @@ def posts_api_v1(request, pk):
 def users_api_v1(request, username):
     user = get_object_or_404(User, username=username)
 
+    if request.method == 'GET':
+        if request.GET.get('form') == 'about':
+            if hasattr(user, 'profile'):
+                form = AboutForm(instance=user.profile)
+                return render(request, 'board/small/about_input.html', {'form': form})
+
     if request.method == 'PUT':
         put = QueryDict(request.body)
         if put.get('follow'):
@@ -908,17 +914,30 @@ def users_api_v1(request, username):
                 profile = Profile(user=user)
                 profile.save()
                 profile.subscriber.add(follower)
-            
             return HttpResponse(str(user.profile.total_subscriber()))
         
         if put.get('tagging'):
             post_pk = request.GET.get('on')
             post = get_object_or_404(Post, pk=post_pk)
-            
             send_notify_content = '\''+ post.title +'\' 글에서 \''+ request.user.username +'\'님이 회원님을 태그했습니다.'
             create_notify(user=user, post=post, infomation=send_notify_content)
-            
             return HttpResponse(str(0))
+        
+        if put.get('about'):
+            compere_user(request.user, user, give_404_if='different')
+            about_md = put.get('about_md')
+            about_html = parsedown(about_md)
+            if hasattr(user, 'profile'):
+                user.profile.about_md = about_md
+                user.profile.about_html = about_html
+                user.profile.save()
+            else:
+                profile = Profile(user=user)
+                profile.about_md = about_md
+                profile.about_html = about_html
+                profile.save()
+            
+            return HttpResponse(about_html)
     
     raise Http404
 # ------------------------------------------------------------ API V1 End
