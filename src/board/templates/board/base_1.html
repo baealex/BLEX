@@ -1,4 +1,4 @@
-{% with site_title='BLEX' site_url='https://your.domain' site_description='BLOG EXPRESS' static_url='https://static.your.domain'%}
+{% with site_title='BLEX' site_url='https://your.domain' site_description='BLOG EXPRESS' static_url='https://static.your.domain' static_version='version=1.0.0' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
@@ -15,9 +15,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     {% block seo %}{% endblock %}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
-    <link rel="stylesheet" href="{% static 'library/prism.css' %}">
+    <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}?{{ static_version }}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?{{ static_version }}">
+    <link rel="stylesheet" href="{% static 'library/prism.css' %}?{{ static_version }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR">
     <link rel="icon" href="{% static 'images/logo.png' %}">
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
@@ -83,10 +83,10 @@
         </div>
     </div>
     {% block footer %}{% endblock %}
-    <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
-    <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/main.js"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/notify.js"></script>
+    <script type="text/javascript" src="{% static 'library/jquery.js' %}?{{ static_version }}"></script>
+    <script type="text/javascript" src="{% static 'library/bootstrap.js' %}?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/main.js?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/notify.js?{{ static_version }}"></script>
     <div id="notify-content"></div>
     {% block script %}{% endblock %}
     {% if request.user.is_active %}{% include 'board/include/notify.html' %}{% endif %}

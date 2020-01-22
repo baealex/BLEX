@@ -177,12 +177,12 @@
 {% endblock %}
 
 {% block script %}
-<script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
-<script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
-<script type="text/javascript" src="{{ static_url }}/assets/js/post.js"></script>
-<script type="text/javascript" src="{{ static_url }}/assets/js/user.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/library/prism.js?{{ static_version }}"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js?{{ static_version }}"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/post.js?{{ static_version }}"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/user.js?{{ static_version }}"></script>
 {% if post.image %}
-<script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js?{{ static_version }}"></script>
 {% endif %}
 <script>
 $(document).ready(function() {

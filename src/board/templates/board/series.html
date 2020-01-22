@@ -94,7 +94,7 @@
 
 {% block script %}
 {% if series.owner == request.user %}
-<script type="text/javascript" src="{{ static_url }}/assets/js/setting.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/setting.js?{{ static_version }}"></script>
 <script>
     $(document).ready(function() {
         var csrftoken = getCookie('csrftoken');

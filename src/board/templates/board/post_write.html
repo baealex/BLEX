@@ -1,3 +1,4 @@
+{% with static_version='version=1.0.0' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="ko">
@@ -8,14 +9,14 @@
     <meta name="theme-color" content="#000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<link rel="stylesheet" href="{% static 'editormd/editormd.css' %}"/>
+	<link rel="stylesheet" href="{% static 'editormd/editormd.css' %}?{{ static_version }}"/>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}">
-	<link rel="stylesheet" href="{% static 'css/main.css' %}">
-	<link rel="stylesheet" href="{% static 'css/write.css' %}">
+    <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}?{{ static_version }}">
+	<link rel="stylesheet" href="{% static 'css/main.css' %?{{ static_version }}}">
+	<link rel="stylesheet" href="{% static 'css/write.css' %}?{{ static_version }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR">
-	<link rel="icon" href="{% static 'images/logo.png' %}">
-	<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+	<link rel="icon" href="{% static 'images/logo.png' %}?{{ static_version }}">
+	<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}?{{ static_version }}"/>
 	<title>Post Write</title>
 </head>
 <body>
@@ -96,9 +97,9 @@
 			</div>
 		</div>
 	</div>
-    <script src="{% static 'library/jquery.js' %}"></script>
-    <script src="{% static 'library/bootstrap.js' %}"></script>
-    <script src="{% static 'editormd/editormd.js' %}"></script>
+    <script src="{% static 'library/jquery.js' %}?{{ static_version }}"></script>
+    <script src="{% static 'library/bootstrap.js' %}?{{ static_version }}"></script>
+    <script src="{% static 'editormd/editormd.js' %}?{{ static_version }}"></script>
 	<script type="text/javascript">
 	if($(window).width() > 800) {
 		var testEditor;
@@ -128,3 +129,4 @@
 	</script>
 </body>
 </html>
+{% endwith %}

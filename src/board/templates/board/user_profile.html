@@ -110,7 +110,7 @@ $(document).ready(function() {
   });
 });
 </script>
-<script src="{{ static_url }}/assets/library/InfiniteScroll.js"></script>
+<script src="{{ static_url }}/assets/library/InfiniteScroll.js?{{ static_version }}"></script>
 <script type="text/javascript">
 {% if elements %}
 var postWrapperId = 'wrapper';
@@ -122,5 +122,5 @@ new InfiniteScroll(paginatePath, postWrapperId, lastPage);
 moveSlide('wrapper');
 {% endif %}
 </script>
-<script src="{{ static_url }}/assets/js/user.js"></script>
+<script src="{{ static_url }}/assets/js/user.js?{{ static_version }}"></script>
 {% endblock %}
