@@ -351,30 +351,6 @@ def user_profile(request, username):
 
     return render(request, 'board/user_profile.html', render_args)
 
-def user_follow(request, username):
-    if not request.user.is_active:
-        return HttpResponse('error:NL')
-    
-    following = get_object_or_404(User, username=username)
-
-    if request.user == following:
-        return HttpResponse('error:SU')
-    
-    if request.method == 'POST':
-        follower = User.objects.get(username=request.user)
-        if hasattr(following, 'profile'):
-            if following.profile.subscriber.filter(id = follower.id).exists():
-                following.profile.subscriber.remove(follower)
-            else:
-                following.profile.subscriber.add(follower)
-        else:
-            profile = Profile(user=following)
-            profile.save()
-            profile.subscriber.add(follower)
-        
-        return HttpResponse(str(following.profile.total_subscriber()))
-    return redirect('post_list')
-
 def user_profile_tab(request, username, tab):
     if not tab in ['about', 'series', 'activity']:
         raise Http404
@@ -476,48 +452,6 @@ def series_list(request, username, url):
 
     return render(request, 'board/series.html', render_args)
 # ------------------------------------------------------------ Series End
-
-
-# Notify
-def user_notify(request):
-    if request.method == 'GET':
-        if request.GET.get('redirect'):
-            notify = get_object_or_404(Notify, pk=request.GET.get('redirect'))
-            if notify.is_read == False:
-                notify.is_read = True
-                notify.save()
-                return HttpResponseRedirect(notify.post.get_absolute_url())
-            else:
-                raise Http404
-        else:
-            notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
-            data = {
-                'count': len(notify),
-                'content': list()
-            }
-            if data['count'] > 0:
-                for notify_one in notify:
-                    data['content'].append({
-                        'pk': notify_one.pk,
-                        'infomation': notify_one.infomation,
-                        'created_date': timesince(notify_one.created_date)
-                    })
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-
-def notify_user_tagging(request, touser, fromuser):
-    if request.method == 'POST':
-        if request.user.username == fromuser:
-            if not touser == fromuser:
-                post_pk = request.GET.get('blex')
-                senduser = get_object_or_404(User, username=touser)
-                post = get_object_or_404(Post, pk=post_pk)
-
-                send_notify_content = '\''+ post.title +'\' 글에서 \''+ fromuser +'\'님이 회원님을 태그했습니다.'
-                create_notify(user=senduser, post=post, infomation=send_notify_content)
-                
-                return HttpResponse(str(0))
-    return redirect('post_list')
-# ------------------------------------------------------------ Notify End
 
 
 
@@ -872,6 +806,31 @@ def post_edit(request, pk):
 
 
 # API V1
+def notify_api_v1(request):
+    if request.method == 'GET':
+        if request.GET.get('id'):
+            notify = get_object_or_404(Notify, pk=request.GET.get('id'))
+            if notify.is_read == False:
+                notify.is_read = True
+                notify.save()
+                return HttpResponseRedirect(notify.post.get_absolute_url())
+            else:
+                raise Http404
+        else:
+            notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
+            data = {
+                'count': len(notify),
+                'content': list()
+            }
+            if data['count'] > 0:
+                for notify_one in notify:
+                    data['content'].append({
+                        'pk': notify_one.pk,
+                        'infomation': notify_one.infomation,
+                        'created_date': timesince(notify_one.created_date)
+                    })
+            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+
 def topics_api_v1(request):
     if request.method == 'GET':
         cache_key = 'main_page_topics'
@@ -880,9 +839,6 @@ def topics_api_v1(request):
             tags = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
             cache_time = 3600
             cache.set(cache_key, tags, cache_time)
-            print('cache not hit')
-        else:
-            print('cache hit')
         return JsonResponse({'tags': tags}, json_dumps_params = {'ensure_ascii': True})
 
 def posts_api_v1(request, pk):
@@ -928,6 +884,41 @@ def posts_api_v1(request, pk):
         compere_user(request.user, post.author, give_404_if='different')
         post.delete()
         return HttpResponse('DONE')
+    
+    raise Http404
+
+def users_api_v1(request, username):
+    user = get_object_or_404(User, username=username)
+
+    if request.method == 'PUT':
+        put = QueryDict(request.body)
+        if put.get('follow'):
+            if not request.user.is_active:
+                return HttpResponse('error:NL')
+            if request.user == user:
+                return HttpResponse('error:SU')
+            
+            follower = User.objects.get(username=request.user)
+            if hasattr(user, 'profile'):
+                if user.profile.subscriber.filter(id = follower.id).exists():
+                    user.profile.subscriber.remove(follower)
+                else:
+                    user.profile.subscriber.add(follower)
+            else:
+                profile = Profile(user=user)
+                profile.save()
+                profile.subscriber.add(follower)
+            
+            return HttpResponse(str(user.profile.total_subscriber()))
+        
+        if put.get('tagging'):
+            post_pk = request.GET.get('on')
+            post = get_object_or_404(Post, pk=post_pk)
+            
+            send_notify_content = '\''+ post.title +'\' 글에서 \''+ request.user.username +'\'님이 회원님을 태그했습니다.'
+            create_notify(user=user, post=post, infomation=send_notify_content)
+            
+            return HttpResponse(str(0))
     
     raise Http404
 # ------------------------------------------------------------ API V1 End

@@ -1,7 +1,8 @@
-function userFollow(username) {
+function userFollow(pk) {
     $.ajax({
-        url: `/@${username}/follow`,
-        type: "POST",
+        url: `/api/v1/users/${pk}`,
+        type: "PUT",
+        data: {follow: 'follow'},
     }).done(function(data) {
         if(data=='error:NL') {
             location.href='/login?next=' + location.pathname;

@@ -21,7 +21,6 @@ urlpatterns = [
 
     # Profile
     path('@<username>', views.user_profile, name='user_profile'),
-    path('@<username>/follow', views.user_follow, name='user_follow'),
     path('@<username>/profile/<tab>', views.user_profile_tab, name='user_profile_tab'),
     path('@<username>/topic/<tag>', views.user_profile_topic, name='user_profile_topic'),
     # ------------------------------------------------------------ Profile End
@@ -31,11 +30,6 @@ urlpatterns = [
     path('series/<int:spk>/remove', views.series_remove, name='series_remove'),
     path('@<username>/series/<url>', views.series_list, name='series_list'),
     # ------------------------------------------------------------ Series End
-
-    # Notify
-    path('user/notify', views.user_notify, name='user_notify'),
-    path('notify/tagging/<touser>/<fromuser>', views.notify_user_tagging, name='notify_user_tagging'),
-    # ------------------------------------------------------------ Notify End
 
     # Comment
     path('post/<int:pk>/comment', views.comment_post, name='comment_post'),
@@ -65,7 +59,9 @@ urlpatterns = [
     # ------------------------------------------------------------ Article End
 
     # API V1
+    path('api/v1/notify', views.notify_api_v1, name='notify_api_v1'),
     path('api/v1/topics', views.topics_api_v1, name='topics_api_v1'),
     path('api/v1/posts/<int:pk>', views.posts_api_v1, name='posts_api_v1'),
+    path('api/v1/users/<username>', views.users_api_v1, name='users_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

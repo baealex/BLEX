@@ -1,6 +1,6 @@
 function getNotify() {
     $.ajax({
-        url: "/user/notify",
+        url: "/api/v1/notify",
         type: "get",
     }).done(function (data) {
         if(data.count > 0) {
@@ -33,9 +33,9 @@ function appendToast(info) {
 }
 function justRemove(pk) {
     $.ajax({
-        url: '/user/notify',
+        url: '/api/v1/notify',
         type: 'GET',
-        data: { 'redirect': pk },
+        data: { 'id': pk },
     }).done(function (data) {
         $('#toast' + pk).remove();
     });
@@ -68,7 +68,7 @@ function renderToast(element) {
             </button>\
         </div>\
         <div class=\"toast-body\">\
-            <a class=\"deep-dark\" href=\"/user/notify?redirect="+ element.pk + "\">" + element.infomation + "</a>\
+            <a class=\"deep-dark\" href=\"/api/v1/notify?id="+ element.pk + "\">" + element.infomation + "</a>\
         </div>\
     </div>\
     "

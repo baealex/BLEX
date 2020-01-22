@@ -146,7 +146,7 @@
     <form id="comment-form" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="button" onclick="comment()" class="btn btn-dark">댓글 작성</button>
+        <button type="button" onclick="writeComment({{ post.pk }})" class="btn btn-dark">댓글 작성</button>
     </form>
     {% else %}
     <div class="alert alert-warning">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
@@ -194,11 +194,5 @@ $(document).ready(function() {
     }
   });
 });
-{% if request.user.is_active %}
-function comment() {
-    writeComment('{% url 'comment_post' pk=post.pk %}');
-    sendTagNotify('{{ post.pk }}', '{{ request.user.username }}', sendList)
-}
-{% endif %}
 </script>
 {% endblock %}

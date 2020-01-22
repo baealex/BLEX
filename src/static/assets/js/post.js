@@ -26,9 +26,9 @@ function reloadComment(element) {
     $(`#comment-${element.pk}`).html(renderComment(element));
     autolink($(`#comment-${element.pk}`));
 }
-function writeComment(paramUrl) {
+function writeComment(pk) {
     $.ajax({
-        url: paramUrl,
+        url: `/post/${pk}/comment`,
         type: "POST",
         data: $("#comment-form").serialize(),
     }).done(function(data) {
@@ -39,6 +39,7 @@ function writeComment(paramUrl) {
             }
             $('#comment-form textarea').val('');
             autolink($(`#comment-${data.element.pk}`));
+            sendTagNotify(pk);
         }
     });
 }
@@ -120,28 +121,6 @@ function renderComment(element) {
         </ul>\
     </div>`
 }
-function sendTagNotify(pk, userName, sendUser) {
-    sendUser = sendUser.filter(function(item, pos, self) {
-        return self.indexOf(item) == pos;
-    });
-
-    for( x in sendUser ) {
-        $.ajax({
-            url: "/notify/tagging/" + sendUser[x] + "/" + userName +"?blex=" + pk,
-            type: "post",
-        });
-    }
-}
-function deletePosts(pk) {
-    if(confirm('포스트를 정말 삭제하시겠습니까?') == true) {
-        $.ajax({
-            type: "DELETE",
-            url: `/api/v1/posts/${pk}`,
-        }).done(function (data) {
-            appendToast('포스트가 삭제되었습니다.');
-        });
-    }
-}
 var sendList = [];
 function tagging(username) {
     var textValue = $('#id_text').val();
@@ -151,6 +130,15 @@ function tagging(username) {
             sendList.push(username);
         }
     }
+}
+function sendTagNotify(pk) {
+    sendList.forEach(function (element){
+        $.ajax({
+            url: "/api/v1/users/" + element + "?on=" + pk,
+            type: "PUT",
+            data: {tagging: 'tagging'}
+        });
+    });
 }
 $(document).ready(function () {
     autolink($('#comment'));
