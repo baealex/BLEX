@@ -96,7 +96,7 @@ def get_comment_json_element(user, comment):
     else:
         element['edited'] = ''
 
-    if hasattr(user, 'profile'):
+    if user.profile.avatar:
         element['thumbnail'] = user.profile.avatar.url
     else:
         element['thumbnail'] = 'https://static.blex.kr/assets/images/default-avatar.jpg'
@@ -214,6 +214,13 @@ def user_active(request, token):
         user.is_active = True
         user.last_name = ''
         user.save()
+
+        profile = Profile(user=user)
+        profile.save()
+
+        config = Config(user=user)
+        config.save()
+
         message = '이메일이 인증되었습니다.'
     return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
 
@@ -362,7 +369,7 @@ def user_profile_tab(request, username, tab):
         'grade': get_grade(user)
     }
     if tab == 'about':
-        pass
+        render_args['fonts'] = get_fonts(user)
     
     if tab == 'series':
         series = Series.objects.filter(owner=user).order_by('name')
@@ -456,87 +463,6 @@ def series_list(request, username, url):
 
 
 # Comment
-def comment_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.author = request.user
-            comment.post = post
-            comment.save()
-            add_exp(request.user, 5)
-            
-            if not comment.author == post.author:
-                send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
-                create_notify(user=post.author, post=post, infomation=send_notify_content)
-            
-            data = {
-                'state': 'true',
-                'element': get_comment_json_element(request.user, comment)
-            }
-            data['element']['edited'] = ''
-            
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-    else:
-        raise Http404()
-
-def get_commentor(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    comments = Comment.objects.filter(post=post).order_by('created_date').reverse()
-    m_list  = []
-    for comment in comments:
-        m_list.append(comment.author.username)
-    m_list = list(set(m_list))
-    result = ''
-    for commentor in m_list:
-        result += commentor + ','
-    return HttpResponse(result)
-
-def comment_update(request, cpk):
-    comment = Comment.objects.get(pk=cpk)
-    compere_user(request.user, comment.author, give_404_if='different')
-
-    if request.method == 'POST':
-        form = CommentForm(request.POST, instance=comment)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.edit = True
-            comment.save()
-            
-            data = {
-                'state': 'true',
-                'element': get_comment_json_element(request.user, comment)
-            }
-
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-        else:
-            return HttpResponse('fail')
-
-    form = CommentForm(instance=comment)
-    return render(request, 'board/small/comment_update.html', {'form': form, 'comment': comment})
-
-def comment_rest(request, cpk):
-    comment = Comment.objects.get(pk=cpk)
-    compere_user(request.user, comment.author, give_404_if='different')
-
-    if request.method == 'GET':
-        data = {
-            'state': 'true',
-            'element': get_comment_json_element(request.user, comment)
-        }
-
-        return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-    
-    if request.method == 'DELETE':
-        data = {
-            'pk': comment.pk
-        }
-        comment.delete()
-        return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-
-    raise Http404
-
 def comment_like(request, cpk):
     if not request.user.is_active:
         return HttpResponse('error:NL')
@@ -844,6 +770,18 @@ def topics_api_v1(request):
 def posts_api_v1(request, pk):
     post = get_object_or_404(Post, pk=pk)
 
+    if request.method == 'GET':
+        if request.GET.get('get') == 'commentor':
+                comments = Comment.objects.filter(post=post).order_by('created_date').reverse()
+                m_list  = []
+                for comment in comments:
+                    m_list.append(comment.author.username)
+                m_list = list(set(m_list))
+                result = ''
+                for commentor in m_list:
+                    result += commentor + ','
+                return HttpResponse(result)
+    
     if request.method == 'PUT':
         put = QueryDict(request.body)
         if put.get('like'):
@@ -887,13 +825,77 @@ def posts_api_v1(request, pk):
     
     raise Http404
 
+def comment_api_v1(request, pk=None):
+    if not pk:
+        if request.method == 'POST':
+            post = get_object_or_404(Post, pk=request.GET.get('fk'))
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.author = request.user
+                comment.post = post
+                comment.save()
+                add_exp(request.user, 5)
+                
+                if not comment.author == post.author:
+                    send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
+                    create_notify(user=post.author, post=post, infomation=send_notify_content)
+                
+                data = {
+                    'state': 'true',
+                    'element': get_comment_json_element(request.user, comment)
+                }
+                data['element']['edited'] = ''
+                
+                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+    
+    if pk:
+        comment = get_object_or_404(Comment, pk=pk)
+        if not request.user == comment.author:
+            return HttpResponse('error:DU')
+        if request.method == 'GET':
+            if request.GET.get('get') == 'form':
+                form = CommentForm(instance=comment)
+                return render(request, 'board/small/comment_update.html', {'form': form, 'comment': comment})
+            else:
+                data = {
+                    'state': 'true',
+                    'element': get_comment_json_element(request.user, comment)
+                }
+                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+        
+        if request.method == 'PUT':
+            put = QueryDict(request.body)
+            if put.get('text'):
+                comment.text = put.get('text')
+                comment.edit = True
+                comment.save()
+                
+                data = {
+                    'state': 'true',
+                    'element': get_comment_json_element(request.user, comment)
+                }
+
+                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+        
+        if request.method == 'DELETE':
+            data = {
+                'pk': comment.pk
+            }
+            comment.delete()
+            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+        
+
 def users_api_v1(request, username):
     user = get_object_or_404(User, username=username)
 
     if request.method == 'GET':
-        if request.GET.get('form') == 'about':
+        if request.GET.get('get') == 'about-form':
             if hasattr(user, 'profile'):
                 form = AboutForm(instance=user.profile)
+                return render(request, 'board/small/about_input.html', {'form': form})
+            else:
+                form = AboutForm()
                 return render(request, 'board/small/about_input.html', {'form': form})
 
     if request.method == 'PUT':
@@ -924,7 +926,8 @@ def users_api_v1(request, username):
             return HttpResponse(str(0))
         
         if put.get('about'):
-            compere_user(request.user, user, give_404_if='different')
+            if not request.user == user:
+                return HttpResponse('error:DU')
             about_md = put.get('about_md')
             about_html = parsedown(about_md)
             if hasattr(user, 'profile'):

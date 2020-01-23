@@ -19,7 +19,7 @@ function editAbout(username) {
     if($('#aboutButton').hasClass('edit')) {
         $.ajax({
             method: 'GET',
-            url: `/api/v1/users/${username}?form=about`,
+            url: `/api/v1/users/${username}?get=about-form`,
         }).done(function (data) {
             $('#about').html(data);
             $('#aboutButton').text('완료');

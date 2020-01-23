@@ -34,7 +34,6 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text">TAG</div>
                     </div>
-                    {% csrf_token %}
                     <input type="text" name="tag" value="{{post.tag}}" class="form-control" maxlength="255">
                     <button type="button" class="btn btn-dark" onclick="tagChange({{ post.pk }})">
                         변경

@@ -26,9 +26,9 @@ function reloadComment(element) {
     $(`#comment-${element.pk}`).html(renderComment(element));
     autolink($(`#comment-${element.pk}`));
 }
-function writeComment(pk) {
+function writeComment(fk) {
     $.ajax({
-        url: `/post/${pk}/comment`,
+        url: `/api/v1/comments?fk=${fk}`,
         type: "POST",
         data: $("#comment-form").serialize(),
     }).done(function(data) {
@@ -39,15 +39,15 @@ function writeComment(pk) {
             }
             $('#comment-form textarea').val('');
             autolink($(`#comment-${data.element.pk}`));
-            sendTagNotify(pk);
+            sendTagNotify(fk);
         }
     });
 }
 function removeComment(pk) {
     if (confirm('댓글을 정말 삭제합니까?') == true) {
         $.ajax({
-            url: `/comment/${pk}`,
             type: "DELETE",
+            url: `/api/v1/comments/${pk}`,
         }).done(function(data) {
             $(`#comment-${data.pk}`).remove();
         });
@@ -58,7 +58,7 @@ function removeComment(pk) {
 function editComment(pk) {
     $.ajax({
         type: "GET",
-        url: `/comment/${pk}/update`,
+        url: `/api/v1/comments/${pk}?get=form`,
     }).done(function(data) {
         $(`#comment-${pk}`).html(data);
     });
@@ -81,8 +81,8 @@ function likeComment(pk) {
 }
 function updateComment(pk) {
     $.ajax({
-        type: "POST",
-        url: `/comment/${pk}/update`,
+        type: "PUT",
+        url: `/api/v1/comments/${pk}`,
         data: $(`#comment-${pk}-form`).serialize(),
     }).done(function(data) {
         if(data.state == 'true') {
@@ -93,7 +93,7 @@ function updateComment(pk) {
 function editCancle(pk) {
     $.ajax({
         type: "GET",
-        url: `/comment/${pk}`,
+        url: `/api/v1/comments/${pk}`,
     }).done(function(data) {
         if(data.state == 'true') {
             reloadComment(data.element);

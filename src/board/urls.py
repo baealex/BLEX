@@ -11,10 +11,10 @@ urlpatterns = [
     # Account
     path('login', auth_views.LoginView.as_view(), name='login'),
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
-    path('signup',views.signup, name='signup'),
-    path('signup/help/id',views.id_check, name='id_check'),
+    path('signup', views.signup, name='signup'),
+    path('signup/help/id', views.id_check, name='id_check'),
     path('active/<token>', views.user_active, name='user_active'),
-    path('signout',views.signout, name='signout'),
+    path('signout', views.signout, name='signout'),
     path('setting', views.setting, name='setting'),
     path('setting/<tab>', views.setting_tab, name='setting_tab'),
     # ------------------------------------------------------------ Account End
@@ -32,11 +32,7 @@ urlpatterns = [
     # ------------------------------------------------------------ Series End
 
     # Comment
-    path('post/<int:pk>/comment', views.comment_post, name='comment_post'),
-    path('post/<int:pk>/commentor',views.get_commentor,name='get_commentor'),
-    path('comment/<int:cpk>', views.comment_rest, name='comment_rest'),
     path('comment/<int:cpk>/like', views.comment_like, name='comment_like'),
-    path('comment/<int:cpk>/update', views.comment_update, name='comment_update'),
     # ------------------------------------------------------------ Comment End
 
     # Others
@@ -62,6 +58,8 @@ urlpatterns = [
     path('api/v1/notify', views.notify_api_v1, name='notify_api_v1'),
     path('api/v1/topics', views.topics_api_v1, name='topics_api_v1'),
     path('api/v1/posts/<int:pk>', views.posts_api_v1, name='posts_api_v1'),
+    path('api/v1/comments', views.comment_api_v1, name='comment_api_v1'),
+    path('api/v1/comments/<int:pk>', views.comment_api_v1, name='comment_api_v1'),
     path('api/v1/users/<username>', views.users_api_v1, name='users_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]
