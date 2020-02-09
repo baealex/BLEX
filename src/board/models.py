@@ -70,24 +70,10 @@ class Grade(models.Model):
     def __str__(self):
         return self.name
 
-class Font(models.Model):
-    name = models.CharField(max_length=30, unique=True)
-
-    def __str__(self):
-        return self.name
-
-class Theme(models.Model):
-    color = models.CharField(max_length=30, unique=True)
-
-    def __str__(self):
-        return self.color
-
 class Config(models.Model):
     user          = models.OneToOneField(User, on_delete=models.CASCADE)
     agree_email   = models.BooleanField(default=False)
     agree_history = models.BooleanField(default=False)
-    post_fonts    = models.ForeignKey('board.Font', on_delete=models.CASCADE, blank=True, null=True)
-    post_theme    = models.ForeignKey('board.Theme', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.user.username

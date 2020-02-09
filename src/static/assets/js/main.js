@@ -1,5 +1,5 @@
-function moveSlide(target) {
-    $('html, body').animate({ scrollTop: $('#' + target).offset().top - 80 }, 500);
+function moveSlide(target, margin=80) {
+    $('html, body').animate({ scrollTop: $('#' + target).offset().top - margin }, 500);
 }
 
 function getCookie(name) {

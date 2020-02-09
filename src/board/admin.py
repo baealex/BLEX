@@ -7,8 +7,6 @@ from.models import *
 class HistoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'post']
 
-admin.site.register(Font)
-admin.site.register(Theme)
 admin.site.register(Grade)
 
 @admin.register(Config)

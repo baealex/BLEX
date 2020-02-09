@@ -128,24 +128,6 @@ def get_exp(user):
     else:
         return 'empty'
 
-def get_theme(user):
-    select_theme = 'Default'
-    if hasattr(user, 'config'):
-        if user.config.post_theme:
-            user_theme = str(user.config.post_theme)
-            if user_theme in theme_mapping:
-                select_theme = user_theme
-    return theme_mapping[select_theme]
-
-def get_fonts(user):
-    select_font = 'Noto Sans'
-    if hasattr(user, 'config'):
-        if user.config.post_fonts:
-            user_font = str(user.config.post_fonts)
-            if user_font in font_mapping:
-                select_font = user_font
-    return font_mapping[select_font]
-
 def get_grade(user):
     select_grade = 'blogger'
     if hasattr(user, 'profile'):
@@ -449,7 +431,6 @@ def series_list(request, username, url):
     render_args = {
         'user': user,
         'series': series,
-        'theme': get_theme(user)
     }
 
     if request.user == series.owner:
@@ -594,8 +575,6 @@ def post_detail(request, username, url):
         'current_path': request.get_full_path(),
         'battery': get_exp(user),
         'post_usernav_action': True,
-        'fonts': get_fonts(user),
-        'theme': get_theme(user),
         'grade': get_grade(user)
     }
 

@@ -14,9 +14,6 @@
 .noto {
     font-family: 'Noto Sans KR', sans-serif;
 }
-.ridi {
-    font-family: 'RIDIBatang', sans-serif;
-}
 .h-150 {
     height: 150px;
 }
@@ -141,14 +138,14 @@ a.shallow-dark:hover {
 }
 .post-title-image > img {
     width: 100%;
-    height: 50vh;
-    min-height: 50vh;
+    height: 100vh;
+    min-height: 100vh;
     object-fit: cover;
 }
 .post-image-mask {
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.65);
     width: 100%;
-    height: 50vh;
+    height: 100vh;
     position: absolute;
     top: 0;
     left: 0;
@@ -160,19 +157,44 @@ a.shallow-dark:hover {
     font-weight: bold;
     font-size: 2rem;
 }
+.post-title-image .post-headline, .post-title-image .post-date, .post-title-image .scroll-downs {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
 .post-title-image .post-headline {
     max-width: 550px;
-    position: absolute;
-    bottom: 65px;
-    left: 8%;
-}
-.post-date {
-    font-size: 0.8rem;
+    bottom: 150px;
 }
 .post-title-image .post-date {
-    position: absolute;
-    bottom: 30px;
-    left: 8%;
+    font-size: 0.8rem;
+    bottom: 115px;
+}
+.post-title-image .scroll-downs {
+    bottom: 55px;
+}
+.post-title-image .mousey {
+    width: 3px;
+    padding: 5px 12px;
+    height: 35px;
+    border: 2px solid #fff;
+    border-radius: 25px;
+    box-sizing: content-box;
+}
+.post-title-image .scroller {
+    width: 3px;
+    height: 10px;
+    border-radius: 25%;
+    background-color: #fff;
+    animation-name: scroll;
+    animation-duration: 1.5s;
+    animation-timing-function: cubic-bezier(.15,.41,.69,.94);
+    animation-iteration-count: infinite;
+}
+@keyframes scroll {
+    0% { opacity: 0; }
+    10% { transform: translateY(0); opacity: 1; height: 10px; }
+    100% { transform: translateY(20px); opacity: 0; height: 3px;}
 }
 .rel-post-image {
 	width: 100%;
@@ -855,33 +877,6 @@ a.page-link {
     float: right;
     margin-left: 20px;
     border: 1px solid #ccc;
-}
-/* THEME PURPLE */
-.theme-purple .rel-posts {
-	background-color:#eef;
-}
-.theme-purple .share, .theme-purple .share a {
-    color: #474787;
-    fill: #474787;
-}
-.theme-purple .bg-theme {
-    background: #474787;
-    border: none;
-}
-.theme-purple .article a {
-    color: #8c00ff;
-    box-shadow: inset 0 -3px 0 #eef;
-}
-.theme-purple .article a:hover{
-    color: #fff;
-    box-shadow: inset 0 -1em 0 #474787;
-}
-.theme-purple .article blockquote {
-    border-left: 3px solid #8c00ff;
-}
-.theme-purple .article code {
-    color: #8c00ff;
-    background-color: #eef;
 }
 /* THEME DARK */
 .theme-dark {

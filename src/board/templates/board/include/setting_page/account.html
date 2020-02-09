@@ -14,19 +14,6 @@
         {{ c_form.agree_history }}
         <label class="custom-control-label" for="id_agree_history">사용자 활동 수집 허용</lable>
     </div>
-    <hr>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <label class="input-group-text" for="id_post_theme">글 상당바 색상</label>
-        </div>
-        {{ c_form.post_theme }}
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <label class="input-group-text" for="id_post_font">글 본문의 폰트</label>
-        </div>
-        {{ c_form.post_fonts }}
-    </div>
     <button type="submit" class="btn btn-dark">정보 변경</button>
     <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#SignoutModal">회원 탈퇴</button>
     <button type="button" class="btn btn-dark" onclick="location.href='/backup';">컨텐츠 백업</button>
