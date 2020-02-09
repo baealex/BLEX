@@ -26,7 +26,7 @@ $(document).ready(function () {
     $(window).scroll(function () {
         screenPosition = $(this).scrollTop();
 
-        if (screenPosition < screenHeight) {
+        if (screenPosition < screenHeight/2) {
             $('#mNavigation').css("position", "absolute");
             $('#mNavigation').css("background", "rgba(0,0,0,0)");
             $("#mNavigation").removeClass("slide-bottom");
@@ -36,7 +36,7 @@ $(document).ready(function () {
             $("#mNavigation").addClass("slide-bottom");
         }
         if (isCreateNav) {
-            var btween = screenPosition - (screenHeight - 100);
+            var btween = screenPosition - (screenHeight/2 - 100);
             for(let i=1; i<navcounter; i++) {
                 if(btween > $(`#headline${i}`).position().top && btween < $(`#headline${i+1}`).position().top) {
                     $(`#nav${i}`).addClass('nav-now');
