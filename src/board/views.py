@@ -351,7 +351,7 @@ def user_profile_tab(request, username, tab):
         'grade': get_grade(user)
     }
     if tab == 'about':
-        render_args['fonts'] = get_fonts(user)
+        pass
     
     if tab == 'series':
         series = Series.objects.filter(owner=user).order_by('name')
