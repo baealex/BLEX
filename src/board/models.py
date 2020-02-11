@@ -124,6 +124,9 @@ class Thread(models.Model):
     tag               = TagField()
     bookmark          = models.ManyToManyField(User, related_name='thread_subscribe', blank=True)
 
+    def __str__(self):
+        return self.title
+
     def get_absolute_url(self):
         return reverse('thread_detail', args=[self.url])
 
@@ -136,6 +139,9 @@ class Story(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
     disagree     = models.ManyToManyField(User, related_name='story_disagree', blank=True)
+
+    def __str__(self):
+        return self.title
 
     def total_disagree(self):
         return self.disagree.count()

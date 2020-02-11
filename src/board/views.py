@@ -49,11 +49,14 @@ def get_posts(sort='all'):
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
 
 def get_clean_all_tags(user=None):
-    posts = Post.objects.filter()
+    posts = Post.objects.filter(hide=False)
+    thread = Thread.objects.filter(hide=False)
     if user == None:
-        tagslist = list(posts.filter(hide=False).values_list('tag', flat=True).distinct())
+        tagslist = list(posts.values_list('tag', flat=True).distinct()) + (
+            list(thread.values_list('tag', flat=True).distinct()))
     else:
-        tagslist = list(posts.filter(hide=False, author=user).values_list('tag', flat=True).distinct())
+        tagslist = list(posts.filter(author=user).values_list('tag', flat=True).distinct()) + (
+            list(thread.filter(author=user).values_list('tag', flat=True).distinct()))
         
     all_tags = []
     for anothertags in tagslist:
@@ -66,11 +69,22 @@ def get_clean_all_tags(user=None):
     for tag in all_tags:
         tag_dict = { 'name': tag }
         if user == None:
-            tag_dict['count'] = len(posts.filter(hide=False, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
+            tag_dict['count'] = len(posts.filter(tag__iregex=r'\b%s\b' % tag)) + (
+                len(thread.filter(tag__iregex=r'\b%s\b' % tag)))
         else:
-            tag_dict['count'] = len(posts.filter(hide=False, author=user, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag))
+            tag_dict['count'] = len(posts.filter(author=user, tag__iregex=r'\b%s\b' % tag)) + (
+                len(thread.filter(author=user, tag__iregex=r'\b%s\b' % tag)))
         all_tags_dict.append(tag_dict)
     return all_tags_dict
+
+def get_user_topics(user):
+    cache_key = user.username + '_topics'
+    tags = cache.get(cache_key)
+    if not tags:
+        tags = sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
+        cache_time = 1000
+        cache.set(cache_key, tags, cache_time)
+    return tags
 
 def send_mail(title, mail_args, mail_list):
     html_message = render_to_string('mail_template.html', mail_args)
@@ -346,8 +360,10 @@ def setting_tab(request, tab):
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
+    thread = Thread.objects.filter(author=user, hide=False).order_by('created_date').reverse()
+    posts_and_thread = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
 
-    paginator = Paginator(posts, 6)
+    paginator = Paginator(posts_and_thread, 6)
     page = request.GET.get('page')
     elements = paginator.get_page(page)
 
@@ -357,7 +373,7 @@ def user_profile(request, username):
         'elements': elements,
         'posts_count': len(posts),
         'grade':  get_grade(user),
-        'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
+        'tags': get_user_topics(user),
     }
 
     return render(request, 'board/user_profile.html', render_args)
@@ -397,12 +413,14 @@ def user_profile_tab(request, username, tab):
 
 def user_profile_topic(request, username, tag):
     user = get_object_or_404(User, username=username)
-    total_posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
-    posts = total_posts.filter(tag__iregex=r'\b%s\b' % tag)
-    if len(posts) == 0:
+    total_posts = len(Post.objects.filter(author=user, hide=False))
+    posts = Post.objects.filter(author=user, hide=False, tag__iregex=r'\b%s\b' % tag)
+    thread = Thread.objects.filter(author=user, hide=False, tag__iregex=r'\b%s\b' % tag)
+    posts_and_thread = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
+    if len(posts_and_thread) == 0:
         raise Http404()
     
-    paginator = Paginator(posts, 6)
+    paginator = Paginator(posts_and_thread, 6)
     page = request.GET.get('page')
     elements = paginator.get_page(page)
     
@@ -412,8 +430,8 @@ def user_profile_topic(request, username, tag):
         'selected_tag': tag,
         'elements': elements,
         'grade': get_grade(user),
-        'posts_count': len(total_posts),
-        'tags': sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
+        'posts_count': total_posts,
+        'tags': get_user_topics(user),
     }
     return render(request, 'board/user_profile.html', render_args)
 # ------------------------------------------------------------ Profile End

@@ -14,6 +14,13 @@
     <div class="p-4">
       <h1 class="post-headline">{{ thread.title }}</h1>
       <p class="post-date">{{ thread.created_date | timesince }}전{% if thread.story.all|length > 0 %} 새로운 스토리가 추가됨{% endif %}</p>
+      {% load tagging_tags %}
+      {% tags_for_object thread as tags %}
+      <ul class="tag-list">
+          {% for tag in tags %}
+          <li><a href="{% url 'user_profile_topic' username=thread.author tag=tag.name %}">{{ tag.name }}</a></li>
+          {% endfor %}
+      </ul>
       {% if thread.author == request.user %}
       <a class="btn btn-dark" href="javascript:void(0)" onclick=thread.edit({{ thread.pk }})>수정</a>
       <a class="btn btn-dark" href="javascript:void(0)" onclick=thread.remove({{ thread.pk }})>삭제</a>
