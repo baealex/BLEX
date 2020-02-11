@@ -1,0 +1,7 @@
+<form id="story-{{ story.pk }}-form" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="button" onclick="story.update({{ story.pk }})" class="btn btn-dark">수정</button>
+    <button type="button" onclick="story.editCancle({{ story.pk }});" class="btn btn-dark">취소</button>
+</form>
+<hr>

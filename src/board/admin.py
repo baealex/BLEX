@@ -8,6 +8,8 @@ class HistoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'post']
 
 admin.site.register(Grade)
+admin.site.register(Thread)
+admin.site.register(Story)
 
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):

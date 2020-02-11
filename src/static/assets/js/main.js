@@ -30,3 +30,18 @@ function distoryLatelyPosition() {
 function saveLatelyPosition() {
   document.cookie='latelyposition='+$(document).scrollTop();
 }
+
+function showThreadModal() {
+  if(!document.getElementById('createThread')) {
+    $.ajax({
+      url: "/api/v1/thread?get=modal",
+      type: "get",
+    }).done(function (data) {
+      $('body').append(data);
+      $('#createThread').modal('show')
+    });
+  }
+  else {
+    $('#createThread').modal('show')
+  }
+}

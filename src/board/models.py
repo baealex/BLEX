@@ -9,19 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 from tagging.fields import TagField
 
-font_mapping = {
-    'Noto Sans'       : 'noto',
-    'RIDIBatang'      : 'ridi',
-    'Noto Sans Serif' : 'serif'
-}
-
-theme_mapping = {
-    'Default'      : '',
-    'Dark Mode'    : 'dark',
-    'Violet'       : 'purple',
-    'Green & Blue' : 'glue'
-}
-
 grade_mapping = {
     'blogger'     : 'blogger-gray',
     'contributor' : 'contributor-green',
@@ -120,24 +107,60 @@ class Follow(models.Model):
     def __str__(self):
         return self.post.title
 
+class Thread(models.Model):
+    author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title             = models.CharField(max_length=50)
+    url               = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    image             = models.ImageField(blank=True, upload_to=title_image_path)
+    trendy            = models.IntegerField(default=0)
+    today             = models.IntegerField(default=0)
+    yesterday         = models.IntegerField(default=0)
+    total             = models.IntegerField(default=0)
+    hide              = models.BooleanField(default=False)
+    notice            = models.BooleanField(default=False)
+    allow_write       = models.BooleanField(default=False)
+    created_date      = models.DateTimeField(default=timezone.now)
+    real_created_date = models.DateTimeField(default=timezone.now)
+    tag               = TagField()
+    bookmark          = models.ManyToManyField(User, related_name='thread_subscribe', blank=True)
+
+    def get_absolute_url(self):
+        return reverse('thread_detail', args=[self.url])
+
+class Story(models.Model):
+    thread       = models.ForeignKey('board.Thread', related_name='story', on_delete = models.CASCADE)
+    author       = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title        = models.CharField(max_length=50)
+    text_md      = models.TextField()
+    text_html    = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
+    disagree     = models.ManyToManyField(User, related_name='story_disagree', blank=True)
+
+    def total_disagree(self):
+        return self.disagree.count()
+
+    class Meta:
+        ordering = ['-created_date']
+
 class Post(models.Model):
-    author        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title         = models.CharField(max_length=50)
-    url           = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    image         = models.ImageField(blank=True, upload_to=title_image_path)
-    text_md       = models.TextField()
-    text_html     = models.TextField()
-    trendy        = models.IntegerField(default=0)
-    today         = models.IntegerField(default=0)
-    yesterday     = models.IntegerField(default=0)
-    total         = models.IntegerField(default=0)
-    hide          = models.BooleanField(default=False)
-    notice        = models.BooleanField(default=False)
-    block_comment = models.BooleanField(default=False)
-    likes         = models.ManyToManyField(User, through='PostLikes', related_name='likes', blank=True)
-    tag           = TagField()
-    created_date  = models.DateTimeField(default=timezone.now)
-    updated_date  = models.DateTimeField(default=timezone.now)
+    author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title             = models.CharField(max_length=50)
+    url               = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    image             = models.ImageField(blank=True, upload_to=title_image_path)
+    text_md           = models.TextField()
+    text_html         = models.TextField()
+    trendy            = models.IntegerField(default=0)
+    today             = models.IntegerField(default=0)
+    yesterday         = models.IntegerField(default=0)
+    total             = models.IntegerField(default=0)
+    hide              = models.BooleanField(default=False)
+    notice            = models.BooleanField(default=False)
+    block_comment     = models.BooleanField(default=False)
+    likes             = models.ManyToManyField(User, through='PostLikes', related_name='likes', blank=True)
+    tag               = TagField()
+    created_date      = models.DateTimeField(default=timezone.now)
+    updated_date      = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
         return self.title

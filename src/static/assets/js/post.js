@@ -143,3 +143,13 @@ function sendTagNotify(pk) {
 $(document).ready(function () {
     autolink($('#comment'));
 });
+function deletePosts(pk) {
+	if(confirm("정말 삭제하십니까?") == true){
+    	$.ajax({
+            url: `/api/v1/posts/${pk}`,
+            type: "DELETE",
+        }).done(function (data) {
+            location.href = '/';
+    	});
+	}
+}

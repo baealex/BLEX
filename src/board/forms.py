@@ -6,7 +6,7 @@ from .models import *
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('image', 'title', 'text_md', 'tag', 'notice', 'hide', 'block_comment') # 'category'
+        fields = ('image', 'title', 'text_md', 'tag', 'notice', 'hide', 'block_comment',)
 
         widgets={
             'title':forms.TextInput(attrs={'placeholder':'제목을 입력하세요. 제목은 URL 주소가 됩니다.','class':'blex-title-input'}),
@@ -23,6 +23,39 @@ class PostForm(forms.ModelForm):
             'text_md':'',
             'image':'표지 이미지',
             'tag':'태그',
+        }
+
+class ThreadForm(forms.ModelForm):
+    class Meta:
+        model = Thread
+        fields = ('image', 'title', 'tag', 'notice', 'hide', 'allow_write',)
+
+        widgets={
+            'title':forms.TextInput(attrs={'placeholder':'스레드의 제목, 제목은 URL 주소가 됩니다.','class':'form-control'}),
+            'tag':forms.TextInput(attrs={'class':'form-control'}),
+            'notice':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'hide':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'allow_write':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'image':forms.FileInput(attrs={'style':'display: none;','class':'form-control', 'required': False})
+        }
+        labels={
+            'title':'',
+            'image':'표지 이미지',
+            'tag':'태그',
+        }
+
+class StoryForm(forms.ModelForm):
+    class Meta:
+        model = Story
+        fields = ('title', 'text_md')
+
+        widgets={
+            'title': forms.TextInput(attrs={'placeholder':'제목을 입력하세요.','class':'form-control'}),
+            'text_md': forms.Textarea(attrs={'placeholder':'마크다운으로 내용을 작성하세요.','class':'form-control','rows':5}),
+        }
+        labels={
+            'title': '',
+            'text_md': ''
         }
 
 class CustomUserChangeForm(UserChangeForm):

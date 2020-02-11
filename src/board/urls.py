@@ -46,6 +46,11 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     # ------------------------------------------------------------ Others End
 
+    # Thread
+    path('thread/<url>', views.thread_detail, name='thread_detail'),
+    path('create', views.thread_create, name='thread_create'),
+    path('thread/<int:pk>/edit', views.thread_edit, name='thread_edit'),
+
     # Article
     path('@<username>/<url>', views.post_detail, name='post_detail'),
     path('',views.post_list,name='post_list'), 
@@ -61,5 +66,9 @@ urlpatterns = [
     path('api/v1/comments', views.comment_api_v1, name='comment_api_v1'),
     path('api/v1/comments/<int:pk>', views.comment_api_v1, name='comment_api_v1'),
     path('api/v1/users/<username>', views.users_api_v1, name='users_api_v1'),
+    path('api/v1/thread', views.thread_api_v1, name='thread_api_v1'),
+    path('api/v1/thread/<int:pk>', views.thread_api_v1, name='thread_api_v1'),
+    path('api/v1/story', views.story_api_v1, name='story_api_v1'),
+    path('api/v1/story/<int:pk>', views.story_api_v1, name='story_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

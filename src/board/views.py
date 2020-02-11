@@ -32,7 +32,9 @@ def get_posts(sort='all'):
     elif sort == 'trendy':
         return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-trendy')
     elif sort == 'newest':
-        return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-created_date')
+        posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+        threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+        return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
     elif sort == 'oldest':
         return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('created_date')
     elif sort == 'week-top':
@@ -42,7 +44,9 @@ def get_posts(sort='all'):
     elif sort == 'all':
         return Post.objects.filter(hide=False).order_by('-created_date')
     elif sort == 'notice':
-        return Post.objects.filter(notice=True).order_by('-created_date')
+        posts = Post.objects.filter(notice=True).order_by('-created_date')
+        threads = Thread.objects.filter(notice=True).order_by('-created_date')
+        return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
 
 def get_clean_all_tags(user=None):
     posts = Post.objects.filter()
@@ -101,6 +105,24 @@ def get_comment_json_element(user, comment):
     else:
         element['thumbnail'] = 'https://static.blex.kr/assets/images/default-avatar.jpg'
 
+    return element
+
+def get_story_json_element(user, story):
+    element = {
+        'pk': story.pk,
+        'title': story.title,
+        'author': story.author.username,
+        'content': story.text_html,
+        'disagree': story.total_disagree(),
+        'created_date': story.created_date.strftime("%Y-%m-%d %H:%M"),
+        'updated_date': story.updated_date.strftime("%Y-%m-%d %H:%M"),
+    }
+
+    if user.profile.avatar:
+        element['thumbnail'] = user.profile.avatar.url
+    else:
+        element['thumbnail'] = 'https://static.blex.kr/assets/images/default-avatar.jpg'
+    
     return element
 
 def add_exp(user, num):
@@ -559,6 +581,53 @@ def image_upload(request):
 
 
 
+# Thread
+def thread_create(request):
+    if request.method == 'POST':
+        form = ThreadForm(request.POST, request.FILES)
+        if form.is_valid():
+            thread = form.save(commit=False)
+            thread.author = request.user
+            thread.tag = slugify(thread.tag.replace(',', '-'), allow_unicode=True).replace('-', ',')
+            thread.url = slugify(thread.title, allow_unicode=True)
+            if thread.url == '':
+                thread.url = randstr(15)
+            i = 1
+            while True:
+                try:
+                    thread.save()
+                    break
+                except:
+                    thread.url = slugify(thread.title+'-'+str(i), allow_unicode=True)
+                    i += 1
+            add_exp(request.user, 10)
+            return redirect('thread_detail', url=thread.url)
+
+def thread_edit(request, pk):
+    thread = get_object_or_404(Thread, pk=pk)
+    if request.method == 'POST':
+        thread_allow_write_state = thread.allow_write
+        form = ThreadForm(request.POST, request.FILES, instance=thread)
+        if form.is_valid():
+            thread = form.save(commit=False)
+            thread.tag = slugify(thread.tag.replace(',', '-'), allow_unicode=True).replace('-', ',')
+            thread.allow_write = thread_allow_write_state
+            thread.save()
+            return redirect('thread_detail', url=thread.url)
+
+def thread_detail(request, url):
+    thread = get_object_or_404(Thread, url=url)
+    render_args = {
+        'thread': thread,
+        'white_nav': True,
+        'form': StoryForm(),
+        'grade': get_grade(thread.author),
+    }
+    return render(request, 'board/thread_detail.html', render_args)
+
+# ------------------------------------------------------------ Thread End
+
+
 # Article
 def post_detail(request, username, url):
     user = get_object_or_404(User, username=username)
@@ -922,4 +991,85 @@ def users_api_v1(request, username):
             return HttpResponse(about_html)
     
     raise Http404
+
+def thread_api_v1(request, pk=None):
+    if not pk:
+        if request.method == 'GET':
+            if request.GET.get('get') == 'modal':
+                form = ThreadForm()
+                return render(request, 'board/small/thread_write.html', {'form': form})
+    if pk:
+        thread = get_object_or_404(Thread, pk=pk)
+        if not request.user == thread.author:
+            return HttpResponse('error:DU')
+        if request.method == 'GET':
+            if request.GET.get('get') == 'modal':
+                form = ThreadForm(instance=thread)
+                return render(request, 'board/small/thread_write.html', {'form': form, 'edit': True, 'pk': pk})
+        if request.method == 'DELETE':
+            thread.delete()
+            return HttpResponse('DONE')
+    raise Http404()
+
+def story_api_v1(request, pk=None):
+    if not pk:
+        if request.method == 'POST':
+            thread = get_object_or_404(Thread, pk=request.GET.get('fk'))
+            form = StoryForm(request.POST)
+            if form.is_valid():
+                story = form.save(commit=False)
+                story.text_html = parsedown(story.text_md)
+                story.author = request.user
+                story.thread = thread
+                story.save()
+                thread.created_date = story.created_date
+                thread.save()
+                add_exp(request.user, 5)
+
+                data = {
+                    'element': get_story_json_element(request.user, story),
+                }
+
+                """
+                if not story.author == thread.author:
+                    send_notify_content = '\''+ thread.title +'\'스레드 에 \''+ story.author.username +'\'님이 새로운 스토리를 발행했습니다.'
+                    create_notify(user=post.author, post=post, infomation=send_notify_content)
+                """
+                
+                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+    if pk:
+        story = get_object_or_404(Story, pk=pk)
+        if not request.user == story.author:
+            return HttpResponse('error:DU')
+        if request.method == 'GET':
+            if request.GET.get('get') == 'form':
+                form = StoryForm(instance=story)
+                return render(request, 'board/small/story_update.html', {'form': form, 'story': story})
+            else:
+                data = {
+                    'state': 'true',
+                    'element': get_story_json_element(request.user, story)
+                }
+                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+        if request.method == 'PUT':
+            put = QueryDict(request.body)
+            print(put)
+            if put.get('title'):
+                story.title = put.get('title')
+            if put.get('text_md'):
+                story.text_md = put.get('text_md')
+                story.text_html = parsedown(story.text_md)
+            story.updated_date = timezone.now()
+            story.save()
+                
+            data = {
+                'state': 'true',
+                'element': get_story_json_element(request.user, story)
+            }
+
+            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+        if request.method == 'DELETE':
+            story.delete()
+            return HttpResponse('DONE')
+
 # ------------------------------------------------------------ API V1 End

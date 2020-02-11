@@ -1,0 +1,75 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ thread.title }} – {{ site_title }}{% endblock %}
+
+{% block seo %}
+{% endblock %}
+
+{% block content %}
+<div class="col-md-10 mx-auto">
+  <div class="thread-card">
+    {% if thread.image %}
+    <img src="{{ thread.image.url }}" alt="{{ thread.title }}">
+    {% endif %}
+    <div class="p-4">
+      <h1 class="post-headline">{{ thread.title }}</h1>
+      <p class="post-date">{{ thread.created_date | timesince }}전{% if thread.story.all|length > 0 %} 새로운 스토리가 추가됨{% endif %}</p>
+      {% if thread.author == request.user %}
+      <a class="btn btn-dark" href="javascript:void(0)" onclick=thread.edit({{ thread.pk }})>수정</a>
+      <a class="btn btn-dark" href="javascript:void(0)" onclick=thread.remove({{ thread.pk }})>삭제</a>
+      {% endif %}
+    </div>
+  </div>
+  {% if thread.allow_write or thread.author == request.user %}
+    {% if request.user.is_active %}
+    <form id="story-form" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="button" onclick="story.write({{ thread.pk }})" class="btn btn-dark">스토리 작성</button>
+    </form>
+    <hr>
+    {% else %}
+    <div class="thread-card p-4">로그인 후 이용하세요.</div>
+    {% endif %}
+  {% else %}
+  <div class="thread-card p-4">참여할 수 없는 스레드입니다.</div>
+  {% endif %}
+  <article id="story" class="noto">
+    {% for story in thread.story.all %}
+    <div id="story-{{ story.pk }}">
+      {% include 'board/include/thread/story.html' %}
+    </div>
+    {% empty %}
+    <div id="story-empty" class="thread-card p-4">
+      <p>추가된 스토리가 없습니다!</p>
+    </div>
+    {% endfor %}
+  </article>
+</div>
+{% endblock %}
+
+{% block footer%}
+{% include 'board/include/footer.html' %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ static_url }}/assets/library/prism.js?{{ static_version }}"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js?{{ static_version }}"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/thread.js?{{ static_version }}"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/user.js?{{ static_version }}"></script>
+{% if post.image %}
+<script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js?{{ static_version }}"></script>
+{% endif %}
+<script>
+  $(document).ready(function () {
+    var csrftoken = getCookie('csrftoken');
+    $.ajaxSetup({
+      beforeSend: function (xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

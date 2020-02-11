@@ -1,0 +1,22 @@
+<div class="thread-card p-4">
+    <p class="serif"><strong>{{ story.title }}</strong></p>
+    <a href="{% url 'user_profile' username=thread.author %}">
+        {% if thread.author.profile.avatar %}
+        <div class="back-image thumb comment-thumb" style="background-image:url({{ thread.author.profile.avatar.url }})"></div>
+        {% else %}
+        <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
+        {% endif %}
+    </a>
+    <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=thread.author %}">@{{ thread.author }}</a>
+    <br>
+    <small>{{ story.created_date|date:"Y-m-d H:i" }}{% if story.updated_date|date:"YmdHi" > story.created_date|date:"YmdHi"%}(Last Update: {{ story.updated_date|date:"Y-m-d H:i" }}){% endif %}</small>
+    <ul class="none-list">
+    {% if story.author == request.user %}
+        <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="story.edit({{story.pk}})">수정</a></li>
+        <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="story.remove({{story.pk}});">삭제</a></li>
+    {% endif %}
+    </ul>
+    <div class="article">
+        {{ story.text_html | safe }}
+    </div>
+</div>
