@@ -623,6 +623,27 @@ def thread_detail(request, url):
         'form': StoryForm(),
         'grade': get_grade(thread.author),
     }
+
+    # View Count by cookie
+    if not request.user == thread.author:
+        response = render(request, 'board/thread_detail.html', render_args)
+        cookie_name = 'hit'
+        today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
+        expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
+        if request.COOKIES.get(cookie_name) is not None:
+            cookies = request.COOKIES.get(cookie_name)
+            cookies_list = cookies.split('|')
+            if 't' + str(thread.pk) not in cookies_list:
+                response.set_cookie(cookie_name, cookies + '|' + 't' + str(thread.pk), expires=expires)
+                thread.today += 1
+                thread.save()
+                return response
+        else:
+            response.set_cookie(cookie_name, 't' + str(thread.pk), expires=expires)
+            thread.today += 1
+            thread.save()
+            return response
+    
     return render(request, 'board/thread_detail.html', render_args)
 
 # ------------------------------------------------------------ Thread End
@@ -686,13 +707,13 @@ def post_detail(request, username, url):
         if request.COOKIES.get(cookie_name) is not None:
             cookies = request.COOKIES.get(cookie_name)
             cookies_list = cookies.split('|')
-            if str(post.pk) not in cookies_list:
-                response.set_cookie(cookie_name, cookies + '|' + str(post.pk), expires =expires)
+            if 'p' + str(post.pk) not in cookies_list:
+                response.set_cookie(cookie_name, cookies + '|' + 'p' + str(post.pk), expires=expires)
                 post.today += 1
                 post.save()
                 return response
         else:
-            response.set_cookie(cookie_name, post.pk, expires =expires)
+            response.set_cookie(cookie_name, 'p' + str(post.pk), expires=expires)
             post.today += 1
             post.save()
             return response
