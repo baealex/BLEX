@@ -1,13 +1,13 @@
 <div class="thread-card p-4">
     <p class="serif"><strong>{{ story.title }}</strong></p>
-    <a href="{% url 'user_profile' username=thread.author %}">
-        {% if thread.author.profile.avatar %}
-        <div class="back-image thumb comment-thumb" style="background-image:url({{ thread.author.profile.avatar.url }})"></div>
+    <a href="{% url 'user_profile' username=story.author %}">
+        {% if story.author.profile.avatar %}
+        <div class="back-image thumb comment-thumb" style="background-image:url({{ story.author.profile.avatar.url }})"></div>
         {% else %}
         <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
         {% endif %}
     </a>
-    <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=thread.author %}">@{{ thread.author }}</a>
+    <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=story.author %}">@{{ story.author }}</a>
     <br>
     <small>{{ story.created_date|date:"Y-m-d H:i" }}{% if story.updated_date|date:"YmdHi" > story.created_date|date:"YmdHi"%}(Last Update: {{ story.updated_date|date:"Y-m-d H:i" }}){% endif %}</small>
     <ul class="none-list">
