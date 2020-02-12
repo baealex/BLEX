@@ -29,10 +29,14 @@
   </div>
   {% if thread.allow_write or thread.author == request.user %}
     {% if request.user.is_active %}
+    <form id='image-form' enctype='multipart/form-data'>
+      <input name="image" type="file" accept="image/*" onchange="imageUpload()" style="display: none;"/>
+    </form>
     <form id="story-form" method="post">
       {% csrf_token %}
       {{ form.as_p }}
       <button type="button" onclick="story.write({{ thread.pk }})" class="btn btn-dark">스토리 작성</button>
+      <button id="image-upload-button" type="button" class="btn btn-dark">이미지 업로드</button>
     </form>
     <hr>
     {% else %}
