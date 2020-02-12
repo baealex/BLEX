@@ -94,10 +94,10 @@ function imageUpload() {
         processData: false,
     }).done(function (data) {
         $('#story-form textarea').val($('#story-form textarea').val() + `\n![](${data})\n`);
-        appendToast('이미지가 업로드 되었습니다.');
+        notify.append('이미지가 업로드 되었습니다.');
     }).fail(function () {
-        appendToast('이미지 업로드에 실패했습니다.');
+        notify.append('이미지 업로드에 실패했습니다.');
     });
     $('#image-form > input').val('');
-    appendToast('이미지를 업로드하는 중입니다.');
+    notify.append('이미지를 업로드하는 중입니다.');
 }

@@ -1,5 +1,5 @@
-function moveSlide(target, margin=80) {
-    $('html, body').animate({ scrollTop: $('#' + target).offset().top - margin }, 500);
+function moveSlide(target, margin = 80) {
+  $('html, body').animate({ scrollTop: $('#' + target).offset().top - margin }, 500);
 }
 
 function getCookie(name) {
@@ -24,15 +24,15 @@ function csrfSafeMethod(method) {
 }
 
 function distoryLatelyPosition() {
-  document.cookie='latelyposition=';
+  document.cookie = 'latelyposition=';
 }
 
 function saveLatelyPosition() {
-  document.cookie='latelyposition='+$(document).scrollTop();
+  document.cookie = 'latelyposition=' + $(document).scrollTop();
 }
 
 function showThreadModal() {
-  if(!document.getElementById('createThread')) {
+  if (!document.getElementById('createThread')) {
     $.ajax({
       url: "/api/v1/thread?get=modal",
       type: "get",
@@ -44,4 +44,19 @@ function showThreadModal() {
   else {
     $('#createThread').modal('show')
   }
+}
+
+function getTopics() {
+  $(document).ready(() => {
+    $.ajax({
+      url: '/api/v1/topics',
+      type: 'get',
+    }).done((data) => {
+      var result = '';
+      data.tags.forEach((element) => {
+        result += `<li><a href="/topic/${element.name}">${element.name}<span class="ns">(${element.count})</span></a></li>`
+      });
+      $('#tagList').html(result);
+    });
+  });
 }

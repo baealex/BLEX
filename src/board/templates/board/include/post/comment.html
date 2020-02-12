@@ -12,8 +12,8 @@
         <small>{{ comment.created_date | timesince }}전{% if comment.edit %} <span class="vs">edited</span>{% endif %}</small>
         <ul class="none-list">
         {% if comment.author == request.user %}
-            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="editComment({{comment.pk}})">수정</a></li>
-            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="removeComment({{comment.pk}});">삭제</a></li>
+            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="comment.edit({{comment.pk}})">수정</a></li>
+            <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="comment.remove({{comment.pk}});">삭제</a></li>
         {% else %}
             {% if request.user.is_active %}
             <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="tagging('{{comment.author}}')"><i class="fas fa-user-tag"></i></a></li>
@@ -23,7 +23,7 @@
         <div class="mt-3 noto">{{ comment.text|linebreaks }}</div>
         <ul class="none-list">
             <li>
-                <a class="shallow-dark" href="javascript:void(0);" onclick="likeComment({{ comment.pk }})">
+                <a class="shallow-dark" href="javascript:void(0);" onclick="comment.like({{ comment.pk }})">
                     <i class="fas fa-angle-up"></i> <span id="clc{{ comment.pk }}">{{ comment.total_likes }}</span>
                 </a>
             </li>

@@ -19,7 +19,7 @@ function tagChange(pk) {
         type: "PUT",
         data: $(`#post-${pk} form`).serialize(),
     }).done(function (data) {
-        appendToast('태그가 변경되었습니다.');
+        notify.append('태그가 변경되었습니다.');
         $(`#post-${pk} form`).find('[name=tag]').val(data.tag);
     });
 }

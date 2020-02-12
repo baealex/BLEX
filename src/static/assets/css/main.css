@@ -947,3 +947,9 @@ a.page-link {
     -moz-box-shadow: none;
     box-shadow: none;
 }
+/* OVERWRITE BOOTSTRAP */
+.custom-control-input:checked~.custom-control-label::before {
+    color: #fff;
+    border-color: #8c00ff;
+    background-color: #8c00ff;
+}

@@ -18,11 +18,6 @@
     padding: 5px;
     height: 80vh;
 }
-.custom-control-input:checked~.custom-control-label::before {
-    color: #fff;
-    border-color: #8c00ff;
-    background-color: #8c00ff;
-}
 .editormd { margin-bottom: 3px; }
 body { background: #1A1A17; }
 @keyframes movebtn {

@@ -31,7 +31,7 @@
 {% block usernav_action %}
 <ul class="navbar-nav">
     <li class="nav-item">
-        <a id="heart" class="nav-link" href="javascript:void(0);" onclick="likeArticle({{ post.pk }});">
+        <a id="heart" class="nav-link" href="javascript:void(0);" onclick="posts.like({{ post.pk }});">
             <i class="{%if check_like %}fas{% else %}far{% endif %} fa-heart"></i> <span id="like-count">{{ post.total_likes }}</span>
         </a>
     </li>
@@ -82,7 +82,7 @@
         {% endif %}
         {% if post.author == request.user %}
         <a class="btn btn-dark" href="{% url 'post_edit' pk=post.pk %}">수정</a>
-        <a class="btn btn-dark" href="javascript:void(0)" onclick=deletePosts({{ post.pk }})>삭제</a>
+        <a class="btn btn-dark" href="javascript:void(0)" onclick=posts.remove({{ post.pk }})>삭제</a>
         {% endif %}
         {% include 'board/include/post/author.html' %}
         {% if prev_serise %}
@@ -146,7 +146,7 @@
     <form id="comment-form" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="button" onclick="writeComment({{ post.pk }})" class="btn btn-dark">댓글 작성</button>
+        <button type="button" onclick="comment.write({{ post.pk }})" class="btn btn-dark">댓글 작성</button>
     </form>
     {% else %}
     <div class="alert alert-warning">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
@@ -178,7 +178,7 @@
 {% block script %}
 <script type="text/javascript" src="{{ static_url }}/assets/library/prism.js?{{ static_version }}"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js?{{ static_version }}"></script>
-<script type="text/javascript" src="{{ static_url }}/assets/js/post.js?{{ static_version }}"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/posts.js?{{ static_version }}"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/js/user.js?{{ static_version }}"></script>
 {% if post.image %}
 <script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js?{{ static_version }}"></script>
