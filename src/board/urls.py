@@ -53,9 +53,9 @@ urlpatterns = [
 
     # Article
     path('@<username>/<url>', views.post_detail, name='post_detail'),
-    path('',views.post_list,name='post_list'), 
-    path('write',views.post_write,name='post_write'),
-    path('<sort>',views.post_sort_list,name='post_sort_list'),
+    path('',views.index, name='index'), 
+    path('write',views.post_write, name='post_write'),
+    path('<sort>',views.post_sort_list, name='post_sort_list'),
     path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
     # ------------------------------------------------------------ Article End
 

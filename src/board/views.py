@@ -528,7 +528,7 @@ def search(request):
 
 def content_backup(request):
     if not request.user.is_active:
-        return redirect('post_list')
+        return redirect('index')
     user = request.user
     posts = Post.objects.filter(author=user).order_by('created_date')
     contents = []
@@ -738,17 +738,8 @@ def post_detail(request, username, url):
     
     return render(request, 'board/post_detail.html', render_args)
 
-def post_list(request):
-    render_args = {
-        'white_nav': True,
-        'pageposts': get_posts('notice'),
-        'weekly_top' : get_posts('week-top')[:4],
-    }
-
-    if request.user.is_active:
-        render_args['write_btn'] = True
-
-    return render(request, 'board/post_list.html', render_args)
+def index(request):
+    return redirect('post_sort_list', sort='trendy')
 
 def post_sort_list(request, sort):
     available_sort = [ 'trendy', 'newest', 'oldest' ]
