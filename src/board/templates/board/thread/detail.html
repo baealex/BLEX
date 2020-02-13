@@ -1,8 +1,22 @@
 {% extends 'board/base.html' %}
 
-{% block title %}{{ thread.title }} – {{ site_title }}{% endblock %}
+{% block title %}{{ thread.title }} –  {% if thread.allow_write %}{{ site_title }}{% else %}{{ thread.author.username }}{% endif %}{% endblock %}
 
 {% block seo %}
+<meta name="description" content="{{ thread.story.first.text_html | striptags | truncatewords:50 }}">
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="{{ thread.title | truncatewords:20 }}">
+<meta property="og:description" content="{{ thread.story.first.text_html | striptags | truncatewords:50 }}">
+<meta property="og:site_name" content="{{ site_title }}">
+{% if thread.image %}<meta property="og:image" content="{{ thread.image.url }}">{% endif %}
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="{% if thread.allow_write %}{{ site_title }}{% else %}{{ thread.author.username }}{% endif %}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ thread.title | truncatewords:20 }}">
+<meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta name="twitter:description" content="{{ thread.story.first.text_html | striptags | truncatewords:50 }}">
+{% if thread.image %}<meta name="twitter:image" content="{{ thread.image.url }}">{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -12,8 +26,8 @@
     <img src="{{ thread.image.url }}" alt="{{ thread.title }}">
     {% endif %}
     <div class="p-4">
-      <h1 class="post-headline">{{ thread.title }}</h1>
-      <p class="post-date">{{ thread.created_date | timesince }}전{% if thread.story.all|length > 0 %} 새로운 스토리가 추가됨{% endif %}</p>
+      <h1 class="thread-headline">{{ thread.title }}</h1>
+      <p class="thread-date">{{ thread.created_date | timesince }}전{% if thread.story.all|length > 0 %} 새로운 스토리가 추가됨{% endif %}</p>
       {% load tagging_tags %}
       {% tags_for_object thread as tags %}
       <ul class="tag-list">
@@ -32,7 +46,7 @@
     <form id='image-form' enctype='multipart/form-data'>
       <input name="image" type="file" accept="image/*" onchange="imageUpload()" style="display: none;"/>
     </form>
-    <form id="story-form" method="post">
+    <form id="story-form" method="thread">
       {% csrf_token %}
       {{ form.as_p }}
       <button type="button" onclick="story.write({{ thread.pk }})" class="btn btn-dark">스토리 작성</button>
@@ -68,7 +82,7 @@
 <script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js?{{ static_version }}"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/js/thread.js?{{ static_version }}"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/js/user.js?{{ static_version }}"></script>
-{% if post.image %}
+{% if thread.image %}
 <script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js?{{ static_version }}"></script>
 {% endif %}
 <script>
