@@ -18,13 +18,13 @@
 <h4 class="mt-5 serif foot-deco"><span class="foot-deco-active">{{ tag }}</span></h4>
 <div id="card-wrapper" class="row">
     {% for post in pageposts %}
-        {% include 'board/include/post_card.html' %}
+        {% include 'board/posts/shape/card.html' %}
     {% endfor %}
 </div>
 {% endblock %}
 
 {% block footer%}
-    {% include 'board/include/footer.html' %}
+    {% include 'board/common/include/footer.html' %}
 {% endblock %}
 
 {% block script %}

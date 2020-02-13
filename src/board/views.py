@@ -87,7 +87,7 @@ def get_user_topics(user):
     return tags
 
 def send_mail(title, mail_args, mail_list):
-    html_message = render_to_string('mail_template.html', mail_args)
+    html_message = render_to_string('email/template.html', mail_args)
     email = EmailMessage('[ BLEX ] '+ title, html_message, to=mail_list)
     email.content_subtype = 'html'
     return email.send()
@@ -255,7 +255,7 @@ def setting(request):
         'page_setting': True,
         'white_nav' : True
     }
-    return render(request, 'board/setting.html', render_args)
+    return render(request, 'board/setting/index.html', render_args)
 
 @login_required(login_url='/login')
 def setting_tab(request, tab):
@@ -351,7 +351,7 @@ def setting_tab(request, tab):
             posts = Post.objects.filter(author=user).order_by('created_date').reverse()
             render_args['posts'] = posts
 
-        return render(request, 'board/setting.html', render_args)
+        return render(request, 'board/setting/index.html', render_args)
 # ------------------------------------------------------------ Account End
 
 
@@ -376,7 +376,7 @@ def user_profile(request, username):
         'tags': get_user_topics(user),
     }
 
-    return render(request, 'board/user_profile.html', render_args)
+    return render(request, 'board/profile/index.html', render_args)
 
 def user_profile_tab(request, username, tab):
     if not tab in ['about', 'series', 'activity']:
@@ -409,7 +409,7 @@ def user_profile_tab(request, username, tab):
         elements = paginator.get_page(page)
         render_args['elements'] = elements
 
-    return render(request, 'board/user_profile.html', render_args)
+    return render(request, 'board/profile/index.html', render_args)
 
 def user_profile_topic(request, username, tag):
     user = get_object_or_404(User, username=username)
@@ -433,7 +433,7 @@ def user_profile_topic(request, username, tag):
         'posts_count': total_posts,
         'tags': get_user_topics(user),
     }
-    return render(request, 'board/user_profile.html', render_args)
+    return render(request, 'board/profile/index.html', render_args)
 # ------------------------------------------------------------ Profile End
 
 
@@ -478,7 +478,7 @@ def series_list(request, username, url):
         form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
         render_args['form'] = form
 
-    return render(request, 'board/series.html', render_args)
+    return render(request, 'board/posts/series.html', render_args)
 # ------------------------------------------------------------ Series End
 
 
@@ -524,7 +524,7 @@ def search(request):
         pageposts = paginator.get_page(page)
         render_args['posts'] = pageposts
     """
-    return render(request, 'board/search.html', render_args)
+    return render(request, 'board/common/search.html', render_args)
 
 def content_backup(request):
     if not request.user.is_active:
@@ -541,7 +541,7 @@ def content_backup(request):
             'update': post.updated_date,
             'content': post.text_md
         })
-    return render(request, 'board/content_backup.html', {'contents':contents})
+    return render(request, 'board/posts/backup.html', {'contents':contents})
 
 def post_list_in_tag(request, tag):
     posts = Post.objects.filter(hide=False, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
@@ -550,7 +550,7 @@ def post_list_in_tag(request, tag):
     paginator = Paginator(posts, 15)
     page = request.GET.get('page')
     pageposts = paginator.get_page(page)
-    return render(request, 'board/post_list_in_tag.html',{ 'tag':tag, 'pageposts':pageposts, 'white_nav':True })
+    return render(request, 'board/posts/list_tag.html',{ 'tag':tag, 'pageposts':pageposts, 'white_nav':True })
 
 @csrf_exempt
 def image_upload(request):
@@ -644,7 +644,7 @@ def thread_detail(request, url):
 
     # View Count by cookie
     if not request.user == thread.author:
-        response = render(request, 'board/thread_detail.html', render_args)
+        response = render(request, 'board/thread/detail.html', render_args)
         cookie_name = 'hit'
         today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
         expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
@@ -662,7 +662,7 @@ def thread_detail(request, url):
             thread.save()
             return response
     
-    return render(request, 'board/thread_detail.html', render_args)
+    return render(request, 'board/thread/detail.html', render_args)
 
 # ------------------------------------------------------------ Thread End
 
@@ -718,7 +718,7 @@ def post_detail(request, username, url):
 
     # View Count by cookie
     if not request.user == post.author:
-        response = render(request, 'board/post_detail.html', render_args)
+        response = render(request, 'board/posts/detail.html', render_args)
         cookie_name = 'hit'
         today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
         expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
@@ -736,7 +736,7 @@ def post_detail(request, username, url):
             post.save()
             return response
     
-    return render(request, 'board/post_detail.html', render_args)
+    return render(request, 'board/posts/detail.html', render_args)
 
 def index(request):
     return redirect('post_sort_list', sort='trendy')
@@ -759,7 +759,7 @@ def post_sort_list(request, sort):
     if request.user.is_active:
         render_args['write_btn'] = True
 
-    return render(request, 'board/post_sort_list.html', render_args)
+    return render(request, 'board/posts/list_sort.html', render_args)
 
 @login_required(login_url='/login')
 def post_write(request):
@@ -787,7 +787,7 @@ def post_write(request):
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm()
-    return render(request, 'board/post_write.html',{ 'form':form })
+    return render(request, 'board/posts/write.html', { 'form': form })
 
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)
@@ -804,7 +804,7 @@ def post_edit(request, pk):
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm(instance=post)
-    return render(request, 'board/post_write.html', {'form': form, 'post': post })
+    return render(request, 'board/posts/write.html', {'form': form, 'post': post })
 # ------------------------------------------------------------ Article End
 
 
@@ -934,7 +934,7 @@ def comment_api_v1(request, pk=None):
         if request.method == 'GET':
             if request.GET.get('get') == 'form':
                 form = CommentForm(instance=comment)
-                return render(request, 'board/small/comment_update.html', {'form': form, 'comment': comment})
+                return render(request, 'board/posts/form/comment.html', {'form': form, 'comment': comment})
             else:
                 data = {
                     'state': 'true',
@@ -971,10 +971,10 @@ def users_api_v1(request, username):
         if request.GET.get('get') == 'about-form':
             if hasattr(user, 'profile'):
                 form = AboutForm(instance=user.profile)
-                return render(request, 'board/small/about_input.html', {'form': form})
+                return render(request, 'board/profile/form/about.html', {'form': form})
             else:
                 form = AboutForm()
-                return render(request, 'board/small/about_input.html', {'form': form})
+                return render(request, 'board/profile/form/about.html', {'form': form})
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
@@ -1027,7 +1027,7 @@ def thread_api_v1(request, pk=None):
         if request.method == 'GET':
             if request.GET.get('get') == 'modal':
                 form = ThreadForm()
-                return render(request, 'board/small/thread_write.html', {'form': form})
+                return render(request, 'board/thread/form/thread.html', {'form': form})
     if pk:
         thread = get_object_or_404(Thread, pk=pk)
         if not request.user == thread.author:
@@ -1035,7 +1035,7 @@ def thread_api_v1(request, pk=None):
         if request.method == 'GET':
             if request.GET.get('get') == 'modal':
                 form = ThreadForm(instance=thread)
-                return render(request, 'board/small/thread_write.html', {'form': form, 'edit': True, 'pk': pk})
+                return render(request, 'board/thread/form/thread.html', {'form': form, 'edit': True, 'pk': pk})
         if request.method == 'DELETE':
             thread.delete()
             return HttpResponse('DONE')
@@ -1074,7 +1074,7 @@ def story_api_v1(request, pk=None):
         if request.method == 'GET':
             if request.GET.get('get') == 'form':
                 form = StoryForm(instance=story)
-                return render(request, 'board/small/story_update.html', {'form': form, 'story': story})
+                return render(request, 'board/thread/form/story.html', {'form': form, 'story': story})
             else:
                 data = {
                     'state': 'true',

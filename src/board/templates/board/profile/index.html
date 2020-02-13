@@ -77,25 +77,25 @@
 </div>
 
 {% if not tab %}
-    {% include 'board/include/profile_page/default.html'%}
+    {% include 'board/profile/include/default.html'%}
 {% endif %}
 
 {% if tab == 'series' %}
-    {% include 'board/include/profile_page/series.html'%}
+    {% include 'board/profile/include/series.html'%}
 {% endif %}
 
 {% if tab == 'activity' %}
-    {% include 'board/include/profile_page/activity.html'%}
+    {% include 'board/profile/include/activity.html'%}
 {% endif %}
 
 {% if tab == 'about' %}
-    {% include 'board/include/profile_page/about.html'%}
+    {% include 'board/profile/include/about.html'%}
 {% endif %}
 
 {% endblock %}
 
 {% block footer%}
-    {% include 'board/include/footer.html' %}
+    {% include 'board/common/include/footer.html' %}
 {% endblock %}
 
 {% block script %}

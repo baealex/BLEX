@@ -20,27 +20,20 @@
             </li>
         </ul>
     </div>
-    <style>
-    .custom-control-input:checked~.custom-control-label::before {
-        color: #fff;
-        border-color: #8c00ff;
-        background-color: #8c00ff;
-    }
-    </style>
     <div class="col-lg-9">
         {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
         {% if message %}<div class="alert alert-success">{{ message }}</div>{% endif %}
         {% if tab == 'account' %}
-            {% include 'board/include/setting_page/account.html'%}
+            {% include 'board/setting/include/account.html'%}
         {% endif %}
         {% if tab == 'profile' %}
-            {% include 'board/include/setting_page/profile.html'%}
+            {% include 'board/setting/include/profile.html'%}
         {% endif %}
         {% if tab == 'series' %}
-            {% include 'board/include/setting_page/series.html'%}
+            {% include 'board/setting/include/series.html'%}
         {% endif %}
         {% if tab == 'analysis' %}
-            {% include 'board/include/setting_page/analysis.html'%}
+            {% include 'board/setting/include/analysis.html'%}
         {% endif %}
         {% if not subtitle %}
             <img width="100%" src="{{ static_url }}/assets/images/default-post.png">
@@ -50,7 +43,7 @@
 {% endblock %}
 
 {% block footer %}
-    {% include 'board/include/footer.html' %}
+    {% include 'board/common/include/footer.html' %}
 {% endblock %}
 
 {% block script %}

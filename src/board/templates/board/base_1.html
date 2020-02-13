@@ -95,7 +95,7 @@
     <script type="text/javascript" src="{{ static_url }}/assets/js/notify.js?{{ static_version }}"></script>
     <div id="notify-content"></div>
     {% block script %}{% endblock %}
-    {% if request.user.is_active %}{% include 'board/include/notify.html' %}{% endif %}
+    {% if request.user.is_active %}{% include 'board/common/include/notify.html' %}{% endif %}
 </body>
 </html>
 {% endwith %}

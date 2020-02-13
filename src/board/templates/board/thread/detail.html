@@ -48,7 +48,7 @@
   <article id="story" class="noto">
     {% for story in thread.story.all %}
     <div id="story-{{ story.pk }}">
-      {% include 'board/include/thread/story.html' %}
+      {% include 'board/thread/include/story.html' %}
     </div>
     {% empty %}
     <div id="story-empty" class="thread-card p-4">
@@ -60,7 +60,7 @@
 {% endblock %}
 
 {% block footer%}
-{% include 'board/include/footer.html' %}
+{% include 'board/common/include/footer.html' %}
 {% endblock %}
 
 {% block script %}

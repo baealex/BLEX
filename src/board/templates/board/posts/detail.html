@@ -84,7 +84,7 @@
         <a class="btn btn-dark" href="{% url 'post_edit' pk=post.pk %}">수정</a>
         <a class="btn btn-dark" href="javascript:void(0)" onclick=posts.remove({{ post.pk }})>삭제</a>
         {% endif %}
-        {% include 'board/include/post/author.html' %}
+        {% include 'board/posts/include/author.html' %}
         {% if prev_serise %}
         <div class="jumbotron text-center">
             <div class="container">
@@ -132,7 +132,7 @@
     </div>
     {% else %}
         {% for comment in post.comments.all %}
-            {% include 'board/include/post/comment.html' %}
+            {% include 'board/posts/include/comment.html' %}
         {% empty %}
         <div id="comment-empty" class="comment-list">
             <p>작성된 댓글이 없습니다!</p>
@@ -172,7 +172,7 @@
 {% endblock %}
 
 {% block footer%}
-    {% include 'board/include/footer_reverse.html' %}
+    {% include 'board/common/include/footer_reverse.html' %}
 {% endblock %}
 
 {% block script %}

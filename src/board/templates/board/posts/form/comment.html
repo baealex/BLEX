@@ -1,0 +1,6 @@
+<form id="comment-{{ comment.pk }}-form" class="mb-3">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="button" onclick="comment.update({{ comment.pk }});" class="btn btn-dark">수정</button>
+    <button type="button" onclick="comment.editCancle({{ comment.pk }});" class="btn btn-dark">취소</button>
+</form>
