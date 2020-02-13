@@ -26,7 +26,7 @@
                 <h4 class="card-title serif font-weight-bold mt-3">
                     <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post.title | truncatechars:50 }}</a>
                 </h4>
-                <p class="noto"><a class="shallow-dark" href="{{ post.get_absolute_url }}">{{ post.text_html | striptags | truncatewords:50 }}</a></p>
+                <p class="noto"><a class="shallow-dark" href="{{ post.get_absolute_url }}">{% if post.text_html %}{{ post.text_html | striptags | truncatewords:50 }}{% else %}{{ post.story.first.text_html | striptags | truncatewords:50 }}{% endif %}</a></p>
                 {% tags_for_object post as tags %}
                 {% if tags %}
                 <ul class="tag-list">
