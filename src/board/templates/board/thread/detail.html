@@ -26,8 +26,8 @@
     <img src="{{ thread.image.url }}" alt="{{ thread.title }}">
     {% endif %}
     <div class="p-4">
-      <h1 class="thread-headline">{{ thread.title }}</h1>
-      <p class="thread-date">{{ thread.created_date | timesince }}전{% if thread.story.all|length > 0 %} 새로운 스토리가 추가됨{% endif %}</p>
+      <h1 class="post-headline">{{ thread.title }}</h1>
+      <p class="post-date">{{ thread.created_date | timesince }}전{% if thread.story.all|length > 0 %} 새로운 스토리가 추가됨{% endif %}</p>
       {% load tagging_tags %}
       {% tags_for_object thread as tags %}
       <ul class="tag-list">
