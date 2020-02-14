@@ -32,7 +32,7 @@ var notify = {
             $(`#pretoast${pk}`).remove();
         }, 3000);
     },
-    read: () => {
+    read: (pk) => {
         $.ajax({
             url: '/api/v1/notify',
             type: 'GET',
