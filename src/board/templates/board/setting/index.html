@@ -16,7 +16,10 @@
                 <a class="nav-link vivid-purple{% if tab == 'series'%} disabled{% endif %}" href="{% url 'setting_tab' tab='series' %}">시리즈</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link vivid-purple{% if tab == 'analysis'%} disabled{% endif %}" href="{% url 'setting_tab' tab='analysis' %}">포스트</a>
+                <a class="nav-link vivid-purple{% if tab == 'posts'%} disabled{% endif %}" href="{% url 'setting_tab' tab='posts' %}">포스트</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link vivid-purple{% if tab == 'thread'%} disabled{% endif %}" href="{% url 'setting_tab' tab='thread' %}">스레드</a>
             </li>
         </ul>
     </div>
@@ -32,8 +35,11 @@
         {% if tab == 'series' %}
             {% include 'board/setting/include/series.html'%}
         {% endif %}
-        {% if tab == 'analysis' %}
-            {% include 'board/setting/include/analysis.html'%}
+        {% if tab == 'posts' %}
+            {% include 'board/setting/include/posts.html'%}
+        {% endif %}
+        {% if tab == 'thread' %}
+            {% include 'board/setting/include/thread.html'%}
         {% endif %}
         {% if not subtitle %}
             <img width="100%" src="{{ static_url }}/assets/images/default-post.png">

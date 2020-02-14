@@ -118,6 +118,20 @@ var comment = {
         });
     }
 }
+var series = {
+    remove: (pk) => {
+        if(confirm("정말 삭제하십니까?") == true) {
+            $.ajax({
+                url: `/series/${pk}/remove`,
+                type: "post",
+            }).done(function (data) {
+                if(data == 'done') {
+                    location.href='/';
+                }
+            });
+        }
+    }
+}
 var sendList = [];
 function tagging(username) {
     var textValue = $('#id_text').val();

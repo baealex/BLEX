@@ -47,7 +47,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(Notify)
 class NotifyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'post', 'infomation', 'created_date']
+    list_display = ['id', 'user', 'infomation', 'created_date']
 
 @admin.register(Series)
 class SeriesAdmin(admin.ModelAdmin):

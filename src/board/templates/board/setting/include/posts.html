@@ -7,12 +7,6 @@
     display: inline-block;
     margin: 5px;
 }
-.post-lock .fa-lock {
-    color: #b00;
-}
-.post-lock .fa-lock-open {
-    color: #0b0;
-}
 </style>
 <div>
     <ul class="list-group">
@@ -20,9 +14,9 @@
         <li id="post-{{ post.pk }}" class="card p-3 mb-2">
             <p><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title }}</a></p>
             <ul class="post-info">
-                <li><a class="post-lock" href="javascript:postLock({{ post.pk }})"><i id="lock-{{ post.pk }}" class="fas fa-lock{% if not post.hide %}-open{% endif %}"></i></a></li>
+                <li><a class="element-lock" href="javascript:setting.posts.lock({{ post.pk }})"><i id="lock-{{ post.pk }}" class="fas fa-lock{% if not post.hide %}-open{% endif %}"></i></a></li>
                 <li><a class="text-dark" href="{% url 'post_edit' pk=post.pk %}"><i class="far fa-edit"></i></a></li>
-                <li><a class="text-dark" href="javascript:postDelete({{ post.pk }})"><i class="far fa-trash-alt"></i></a></li>
+                <li><a class="text-dark" href="javascript:setting.posts.remove({{ post.pk }})"><i class="far fa-trash-alt"></i></a></li>
                 <li>|</li>
                 <li><i class="far fa-eye"></i> <span class="ns">(Today : {{ post.today }}, Yesterday : {{ post.yesterday }}, Total : {{ post.total|add:post.today|add:post.yesterday }})</span></li>
                 <li><i class="far fa-thumbs-up"></i> {{ post.total_likes }}</li>
@@ -35,7 +29,7 @@
                         <div class="input-group-text">TAG</div>
                     </div>
                     <input type="text" name="tag" value="{{post.tag}}" class="form-control" maxlength="255">
-                    <button type="button" class="btn btn-dark" onclick="tagChange({{ post.pk }})">
+                    <button type="button" class="btn btn-dark" onclick="setting.posts.changeTag({{ post.pk }})">
                         변경
                     </button>
                 </div>

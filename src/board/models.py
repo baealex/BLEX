@@ -39,8 +39,8 @@ def title_image_path(instance, filename):
     dt = datetime.datetime.now()
     return 'title/'+instance.author.username+'/'+str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour) + randstr(4)+'.'+filename.split('.')[-1]
 
-def create_notify(user, post, infomation):
-    new_notify = Notify(user=user, post=post, infomation=infomation)
+def create_notify(user, url, infomation):
+    new_notify = Notify(user=user, url=url, infomation=infomation)
     new_notify.save()
 
 class History(models.Model):
@@ -123,6 +123,9 @@ class Thread(models.Model):
     real_created_date = models.DateTimeField(default=timezone.now)
     tag               = TagField()
     bookmark          = models.ManyToManyField(User, related_name='thread_subscribe', blank=True)
+
+    def total_bookmark(self):
+        return self.bookmark.count()
 
     def __str__(self):
         return self.title
@@ -214,7 +217,7 @@ class Comment(models.Model):
 
 class Notify(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    post         = models.ForeignKey(Post, on_delete=models.CASCADE)
+    url          = models.CharField(max_length=255)
     is_read      = models.BooleanField(default=False)
     infomation   = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)

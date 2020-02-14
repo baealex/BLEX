@@ -953,3 +953,10 @@ a.page-link {
     border-color: #8c00ff;
     background-color: #8c00ff;
 }
+/* SETTING */
+.element-lock .fa-lock {
+    color: #b00;
+}
+.element-lock .fa-lock-open {
+    color: #0b0;
+}

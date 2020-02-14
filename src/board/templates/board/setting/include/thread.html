@@ -1,0 +1,39 @@
+<style>
+    .thread-info {
+        list-style: none;
+        padding-left: 0px;
+    }
+    .thread-info li {
+        display: inline-block;
+        margin: 5px;
+    }
+    </style>
+    <div>
+        <ul class="list-group">
+            {% for thread in threads %}
+            <li id="thread-{{ thread.pk }}" class="card p-3 mb-2">
+                <p><a class="deep-dark" href="{{ thread.get_absolute_url }}">{{ thread.title }}</a></p>
+                <ul class="thread-info">
+                    <li><a class="element-lock" href="javascript:setting.thread.lock({{ thread.pk }})"><i id="lock-{{ thread.pk }}" class="fas fa-lock{% if not thread.hide %}-open{% endif %}"></i></a></li>
+                    <li><a class="text-dark" href="{% url 'thread_edit' pk=thread.pk %}"><i class="far fa-edit"></i></a></li>
+                    <li><a class="text-dark" href="javascript:setting.thread.remove({{ thread.pk }})"><i class="far fa-trash-alt"></i></a></li>
+                    <li>|</li>
+                    <li><i class="far fa-eye"></i> <span class="ns">(Today : {{ thread.today }}, Yesterday : {{ thread.yesterday }}, Total : {{ thread.total|add:thread.today|add:thread.yesterday }})</span></li>
+                    <li><i class="far fa-bookmark"></i> {{ thread.total_bookmark }}</li>
+                    <li><i class="far fa-comment"></i> {{ thread.story.count }}</li>
+                </ul>
+                <form>
+                    <div class="input-group mt-2 mr-sm-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">TAG</div>
+                        </div>
+                        <input type="text" name="tag" value="{{thread.tag}}" class="form-control" maxlength="255">
+                        <button type="button" class="btn btn-dark" onclick="setting.thread.changeTag({{ thread.pk }})">
+                            변경
+                        </button>
+                    </div>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>

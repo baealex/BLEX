@@ -42,7 +42,7 @@
         {% if series.owner == request.user %}
         <div class="text-right">
             <a class="btn btn-dark" href="javascript:void(0)" data-toggle="modal" data-target="#eidtModal">수정</a>
-            <a class="btn btn-dark" href="javascript:void(0)" onclick="seriesRemove({{ series.pk }})">삭제</a>
+            <a class="btn btn-dark" href="javascript:void(0)" onclick="series.remove({{ series.pk }})">삭제</a>
         </div>
         {% endif %}
         {% for post in series.posts.all %}
@@ -73,8 +73,8 @@
             </div>
             <form action="{% url 'series_update' spk=series.pk %}" method="post">
             <div class="modal-body">
-                    {% csrf_token %}
-                    {{ form.as_p }}
+                {% csrf_token %}
+                {{ form.as_p }}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
@@ -94,7 +94,7 @@
 
 {% block script %}
 {% if series.owner == request.user %}
-<script type="text/javascript" src="{{ static_url }}/assets/js/setting.js?{{ static_version }}"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/js/posts.js?{{ static_version }}"></script>
 <script>
     $(document).ready(function() {
         var csrftoken = getCookie('csrftoken');

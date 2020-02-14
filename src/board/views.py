@@ -259,7 +259,7 @@ def setting(request):
 
 @login_required(login_url='/login')
 def setting_tab(request, tab):
-    if not tab in [ '', 'account', 'profile', 'series', 'analysis' ]:
+    if not tab in [ '', 'account', 'profile', 'series', 'posts', 'thread' ]:
         raise Http404()
     else:
         user = request.user
@@ -346,10 +346,15 @@ def setting_tab(request, tab):
             render_args['s_form'] = s_form
             render_args['series'] = series
         
-        elif tab == 'analysis':
-            render_args['subtitle'] = 'Analysis'
+        elif tab == 'posts':
+            render_args['subtitle'] = 'Posts'
             posts = Post.objects.filter(author=user).order_by('created_date').reverse()
             render_args['posts'] = posts
+        
+        elif tab == 'thread':
+            render_args['subtitle'] = 'Thread'
+            threads = Thread.objects.filter(author=user, allow_write=False).order_by('created_date').reverse()
+            render_args['threads'] = threads
 
         return render(request, 'board/setting/index.html', render_args)
 # ------------------------------------------------------------ Account End
@@ -817,7 +822,7 @@ def notify_api_v1(request):
             if notify.is_read == False:
                 notify.is_read = True
                 notify.save()
-                return HttpResponseRedirect(notify.post.get_absolute_url())
+                return HttpResponseRedirect(notify.url)
             else:
                 raise Http404
         else:
@@ -882,7 +887,7 @@ def posts_api_v1(request, pk):
                 add_exp(request.user, 5)
 
                 send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
-                create_notify(user=post.author, post=post, infomation=send_notify_content)
+                create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
 
             return HttpResponse(str(post.total_likes()))
         if put.get('hide'):
@@ -917,7 +922,7 @@ def comment_api_v1(request, pk=None):
                 
                 if not comment.author == post.author:
                     send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
-                    create_notify(user=post.author, post=post, infomation=send_notify_content)
+                    create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
                 
                 data = {
                     'state': 'true',
@@ -1000,7 +1005,7 @@ def users_api_v1(request, username):
             post_pk = request.GET.get('on')
             post = get_object_or_404(Post, pk=post_pk)
             send_notify_content = '\''+ post.title +'\' 글에서 \''+ request.user.username +'\'님이 회원님을 태그했습니다.'
-            create_notify(user=user, post=post, infomation=send_notify_content)
+            create_notify(user=user, url=post.get_absolute_url(), infomation=send_notify_content)
             return HttpResponse(str(0))
         
         if put.get('about'):
@@ -1036,6 +1041,31 @@ def thread_api_v1(request, pk=None):
             if request.GET.get('get') == 'modal':
                 form = ThreadForm(instance=thread)
                 return render(request, 'board/thread/form/thread.html', {'form': form, 'edit': True, 'pk': pk})
+        if request.method == 'PUT':
+            put = QueryDict(request.body)
+            if put.get('bookmark'):
+                if not request.user.is_active:
+                    return HttpResponse('error:NL')
+                if request.user == thread.author:
+                    return HttpResponse('error:SU')
+                user = User.objects.get(username=request.user)
+                if thread.bookmark.filter(id=user.id).exists():
+                    thread.bookmark.remove(user)
+                    post.save()
+                else:
+                    thread.bookmark.add(user)
+                    post.save()
+                return HttpResponse(str(post.total_likes()))
+            if put.get('hide'):
+                compere_user(request.user, thread.author, give_404_if='different')
+                thread.hide = not thread.hide
+                thread.save()
+                return JsonResponse({'hide': thread.hide})
+            if put.get('tag'):
+                compere_user(request.user, thread.author, give_404_if='different')
+                thread.tag = slugify(put.get('tag').replace(',', '-'), allow_unicode=True).replace('-', ',')
+                thread.save()
+                return JsonResponse({'tag': post.tag}, json_dumps_params = {'ensure_ascii': True})
         if request.method == 'DELETE':
             thread.delete()
             return HttpResponse('DONE')
@@ -1060,11 +1090,10 @@ def story_api_v1(request, pk=None):
                     'element': get_story_json_element(request.user, story),
                 }
 
-                """
-                if not story.author == thread.author:
-                    send_notify_content = '\''+ thread.title +'\'스레드 에 \''+ story.author.username +'\'님이 새로운 스토리를 발행했습니다.'
-                    create_notify(user=post.author, post=post, infomation=send_notify_content)
-                """
+                send_notify_content = '\''+ thread.title +'\'스레드 에 \''+ story.author.username +'\'님이 새로운 스토리를 발행했습니다.'
+                for user in thread.bookmark.all():
+                    create_notify(user=user, url=thread.get_absolute_url(), infomation=send_notify_content)
+                    print(user)
                 
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
     if pk:
