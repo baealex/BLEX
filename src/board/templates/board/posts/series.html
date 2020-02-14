@@ -46,16 +46,9 @@
         </div>
         {% endif %}
         {% for post in series.posts.all %}
-        <div class="mb-5 h-150">
-            <a href="{% url 'post_detail' username=post.author url=post.url %}">
-                {% if post.image %}
-                <div class="series-list-image back-image" style="background-image: url({{ post.image.url }});"></div>
-                {% else %}
-                <div class="series-list-image back-image" style="background-image: url({{ static_url }}/assets/images/default-post.png);"></div>
-                {% endif %}
-            </a>
-            <h5 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title | truncatechars:50 }}</a></h5>
-            <p><a class="shallow-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.text_html | striptags | truncatewords:30 }}</a></p>
+        <div class="mb-5">
+            <h5 class="card-title serif font-weight-bold"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title | truncatechars:50 }}</a></h5>
+            <p><a class="shallow-dark noto" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.text_html | striptags | truncatewords:50 }}</a></p>
         </div>
         {% endfor %}
     </div>
@@ -66,7 +59,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="eidtModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="eidtModalLabel">Series Update</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -77,8 +70,8 @@
                 {{ form.as_p }}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
-                <button type="submit" class="btn btn-primary">수정 완료</button>
+                <button type="button" class="btn btn-dark" data-dismiss="modal">닫기</button>
+                <button type="submit" class="btn btn-dark">완료</button>
             </div>
             </form>
         </div>
@@ -89,7 +82,7 @@
 {% endblock %}
 
 {% block footer%}
-    {% include 'board/common/include/footer.html' %}
+    {% include 'board/common/include/footer_reverse.html' %}
 {% endblock %}
 
 {% block script %}
