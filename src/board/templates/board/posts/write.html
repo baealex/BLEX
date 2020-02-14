@@ -21,7 +21,7 @@
 </head>
 <body>
 	<div class="container-fluid">
-		<form method="POST" action='' enctype="multipart/form-data">{% csrf_token %}
+		<form method="POST" action='' enctype="multipart/form-data" onkeydown="return captureReturnKey(event)">{% csrf_token %}
 			<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModal" aria-hidden="true">
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
@@ -122,10 +122,13 @@
 	}
 	</script>
 	<script>
-    $('#id_image').on('change',function(){
+    $('#id_image').on('change', function(){
         var fileName = $(this).val();
         $(this).next('.custom-file-label').html(fileName);
-    })
+	})
+	function captureReturnKey(e) {
+		if(e.keyCode==13) return false;
+	}
 	</script>
 </body>
 </html>
