@@ -85,32 +85,11 @@
         <a class="btn btn-dark" href="javascript:void(0)" onclick=posts.remove({{ post.pk }})>삭제</a>
         {% endif %}
         {% include 'board/posts/include/author.html' %}
-        {% if prev_serise %}
-        <div class="jumbotron text-center">
-            <div class="container">
-                <h5 class="serif"><a class="shallow-dark" href="{{ this_series.get_absolute_url }}">'{{ this_series }}'</a> 시리즈의 이전 글</h5>
-                <p><a class="serif shallow-dark" href="{{ prev_serise.get_absolute_url }}?series={{ this_series.url }}">{{ prev_serise }}</a></p>
-            </div>
-        </div>
-        {% endif %}
         <article class="article noto">
             {{ post.text_html | safe }}
         </article>
-        {% if next_serise %}
-        <div class="jumbotron text-center">
-            <div class="container">
-                <h5 class="serif"><a class="shallow-dark" href="{{ this_series.get_absolute_url }}">'{{ this_series }}'</a> 시리즈의 다음 글</h5>
-                <p><a class="serif shallow-dark" href="{{ next_serise.get_absolute_url }}?series={{ this_series.url }}">{{ next_serise }}</a></p>
-            </div>
-        </div>
-        {% else %}
-            {% if prev_serise %}
-        <div class="jumbotron jumbotron-fluid text-center">
-            <div class="container">
-                <h5 class="serif"><a class="shallow-dark" href="{{ this_series.get_absolute_url }}">'{{ this_series }}'</a> 시리즈의 마지막 글입니다.</h5>
-            </div>
-        </div>
-            {% endif %}
+        {% if this_series %}
+            {% include 'board/posts/include/series.html' %}
         {% endif %}
         {% load tagging_tags %}
         {% tags_for_object post as tags %}
