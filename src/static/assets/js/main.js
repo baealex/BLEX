@@ -2,6 +2,8 @@ function moveSlide(target, margin = 80) {
   $('html, body').animate({ scrollTop: $('#' + target).offset().top - margin }, 500);
 }
 
+/* TEST */
+
 function getCookie(name) {
   var cookieValue = null;
   if (document.cookie && document.cookie != '') {

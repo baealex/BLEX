@@ -15,15 +15,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     {% block seo %}{% endblock %}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}?{{ static_version }}">
+    <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'library/prism.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}?{{ static_version }}">
-    <link rel="stylesheet" href="{% static 'library/prism.css' %}?{{ static_version }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR">
     <link rel="icon" href="{% static 'images/logo.png' %}">
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     <title>{% block title %}{% endblock %}</title>
 </head>
-<body {% if theme %}class="theme-{{ theme }}"{% endif %}>
+<body>
     {% block image-title %}{%endblock%}
     {% if white_nav %}
     <nav id="mNavigation" class="navbar navbar-expand-sm navbar-light bg-rlight fixed-top">
@@ -88,8 +88,8 @@
         </div>
     </div>
     {% block footer %}{% endblock %}
-    <script type="text/javascript" src="{% static 'library/jquery.js' %}?{{ static_version }}"></script>
-    <script type="text/javascript" src="{% static 'library/bootstrap.js' %}?{{ static_version }}"></script>
+    <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/main.js?{{ static_version }}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/renderer.js?{{ static_version }}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/notify.js?{{ static_version }}"></script>
