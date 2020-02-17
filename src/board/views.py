@@ -180,8 +180,7 @@ def get_grade(user):
 # Account
 def signup(request):
     if request.user.is_active:
-        message = '이미 로그인 된 사용자입니다.'
-        return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/\';</script>')
+        return redirect('post_sort_list', sort='trendy')
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
@@ -189,11 +188,16 @@ def signup(request):
             if form.cleaned_data['username'] in filter_name:
                 return render(request, 'registration/signup.html',{'form':form, 'error':'사용할 수 없는 아이디입니다.'})
             if form.cleaned_data['password']  == form.cleaned_data['password_check']:
-                new_user = User.objects.create_user(form.cleaned_data['username'],form.cleaned_data['email'],form.cleaned_data['password'])
+                new_user = User.objects.create_user(
+                    form.cleaned_data['username'],
+                    form.cleaned_data['email'],
+                    form.cleaned_data['password']
+                )
                 new_user.first_name = form.cleaned_data['first_name']
                 new_user.last_name = randstr(35)
                 new_user.is_active = False
                 new_user.save()
+
                 mail_args = {
                     'active_mail': True,
                     'to':new_user.first_name, 
@@ -201,13 +205,14 @@ def signup(request):
                 }
                 t = threading.Thread(target=send_mail, args=('이메일을 인증해 주세요', mail_args, [form.cleaned_data['email']]))
                 t.start()
+                
                 message = new_user.first_name + '님께서 입력하신 메일로 인증 링크를 발송했습니다.'
                 return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
             else:
-                return render(request, 'registration/signup.html',{'form':form, 'error':'입력한 비밀번호가 일치하지 않습니다.'})
+                return render(request, 'registration/signup.html',{ 'form': form, 'error':'입력한 비밀번호가 일치하지 않습니다.'})
     else:
         form = UserForm()
-    return render(request, 'registration/signup.html',{'form':form })
+    return render(request, 'registration/signup.html',{ 'form': form })
 
 def id_check(request):
     if request.method == 'POST':
@@ -745,7 +750,39 @@ def post_detail(request, username, url):
     return render(request, 'board/posts/detail.html', render_args)
 
 def index(request):
-    return redirect('post_sort_list', sort='trendy')
+    if request.user.is_active:
+        return redirect('post_sort_list', sort='trendy')
+    else:
+        cache_time = 60 * 60 * 24
+
+        tags = cache.get('intro_top_topics')
+        if not tags:
+            tags = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)[:30]
+            cache.set('intro_top_topics', tags, cache_time)
+        
+        user_count = cache.get('intro_user_count')
+        if not user_count:
+            user_count = User.objects.all().count()
+            cache.set('intro_user_count', user_count, cache_time)
+        
+        posts_count = cache.get('intro_posts_count')
+        if not posts_count:
+            posts_count = Post.objects.all().count()
+            cache.set('intro_posts_count', posts_count, cache_time)
+        
+        thread_count = cache.get('intro_thread_count')
+        if not thread_count:
+            thread_count = Thread.objects.all().count()
+            cache.set('intro_thread_count', thread_count, cache_time)
+
+        render_args = {
+            'white_nav': True,
+            'tags': tags,
+            'user_count': user_count,
+            'posts_count': posts_count,
+            'thread_count': thread_count,
+        }
+        return render(request, 'board/index.html', render_args)
 
 def post_sort_list(request, sort):
     available_sort = [ 'trendy', 'newest', 'oldest' ]

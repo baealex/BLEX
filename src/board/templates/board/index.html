@@ -1,0 +1,51 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ site_title }} – {{ site_description }}{% endblock %}
+
+{% block seo %}
+<link rel="stylesheet" href="{{ static_url }}/assets/css/intro.css?{{ static_version }}">
+{% endblock %}
+
+{% block content %}
+<div class="intro">
+    <h1 class="text-center g-sans-b main-title">나를 표현하는 블로그</h1>
+    <div class="row justify-content-sm-center mt-5">
+        <div class="col-sm-2 mt-3">
+            <h5 class="text-center g-sans-m">블렉스 사용자</h5>
+            <h6 id="user-counter" class="text-center g-sans-l counter">{{ user_count }}</h5>
+        </div>
+        <div class="col-sm-2 mt-3">
+            <h5 class="text-center g-sans-m">게시된 포스트</h5>
+            <h6 id="posts-counter" class="text-center g-sans-l counter">{{ posts_count }}</h5>
+        </div>
+        <div class="col-sm-2 mt-3">
+            <h5 class="text-center g-sans-m">생성된 스레드</h5>
+            <h6 id="thread-counter" class="text-center g-sans-l counter">{{ thread_count }}</h5>
+        </div>
+    </div>
+    <div class="text-center">
+        <a href="/signup">
+            <button class="get-start g-sans-m mt-5 mb-3">지금 시작하기</button>
+        </a>
+    </div>
+    <h5 class="text-center g-sans-m mt-5">인기있는 주제들</h5>
+    <ul class="text-center intro-topics">
+    {% for tag in tags %}
+        <li><a class="deep-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block footer%}
+{% include 'board/common/include/footer.html' %}
+{% endblock %}
+
+{% block script %}
+
+<script>
+    new numberCounter("user-counter", {{ user_count }});
+    new numberCounter("posts-counter", {{ posts_count }});
+    new numberCounter("thread-counter", {{ thread_count }});
+</script>
+{% endblock %}

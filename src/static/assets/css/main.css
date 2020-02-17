@@ -2,12 +2,6 @@
 @-moz-keyframes slide-bottom {0% {top: -100px;}100% {top: 0px;}}
 @-webkit-keyframes slide-bottom {0% {top: -100px;}100% {top: 0px;}}
 @-o-keyframes slide-bottom {0% {top: -100px;}100% {top: 0px;}}
-@font-face {
-    font-family: 'RIDIBatang';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-}
 .serif {
 	font-family: 'Noto Serif KR', serif;
 }
