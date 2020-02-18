@@ -753,34 +753,34 @@ def index(request):
     if request.user.is_active:
         return redirect('post_sort_list', sort='trendy')
     else:
-        cache_time = 60 * 60 * 24
+        intro_info = cache.get('intro_info')
+        if not intro_info:
+            cache_time = 60 * 60 * 24
+            intro_info = dict()
 
-        tags = cache.get('intro_top_topics')
-        if not tags:
-            tags = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)[:30]
-            cache.set('intro_top_topics', tags, cache_time)
-        
-        user_count = cache.get('intro_user_count')
-        if not user_count:
-            user_count = User.objects.all().count()
-            cache.set('intro_user_count', user_count, cache_time)
-        
-        posts_count = cache.get('intro_posts_count')
-        if not posts_count:
-            posts_count = Post.objects.all().count()
-            cache.set('intro_posts_count', posts_count, cache_time)
-        
-        thread_count = cache.get('intro_thread_count')
-        if not thread_count:
-            thread_count = Thread.objects.all().count()
-            cache.set('intro_thread_count', thread_count, cache_time)
+            intro_info['user_count'] = User.objects.all().count()
+            
+            topics = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
+            intro_info['top_topics'] = topics[:30]
+            intro_info['topic_count'] = len(topics)
+
+            posts = Post.objects.all()
+            intro_info['posts_count'] = len(posts)
+
+            threads = Thread.objects.all()
+            intro_info['thread_count'] = len(threads)
+
+            intro_info['page_view_count'] = 0
+            for post in posts:
+                intro_info['page_view_count'] += post.yesterday
+            for thread in threads:
+                intro_info['page_view_count'] += thread.yesterday
+
+            cache.set('intro_info', intro_info, cache_time)
 
         render_args = {
             'white_nav': True,
-            'tags': tags,
-            'user_count': user_count,
-            'posts_count': posts_count,
-            'thread_count': thread_count,
+            'intro_info': intro_info,
         }
         return render(request, 'board/index.html', render_args)
 

@@ -12,15 +12,25 @@
     <div class="row justify-content-sm-center mt-5">
         <div class="col-sm-2 mt-3">
             <h5 class="text-center g-sans-m">블렉스 사용자</h5>
-            <h6 id="user-counter" class="text-center g-sans-l counter">{{ user_count }}</h5>
+            <h6 id="user-counter" class="text-center g-sans-l counter">{{ intro_info.user_count }}</h5>
         </div>
         <div class="col-sm-2 mt-3">
-            <h5 class="text-center g-sans-m">게시된 포스트</h5>
-            <h6 id="posts-counter" class="text-center g-sans-l counter">{{ posts_count }}</h5>
+            <h5 class="text-center g-sans-m">일간 페이지뷰</h5>
+            <h6 id="view-counter" class="text-center g-sans-l counter">{{ intro_info.page_view_count }}</h5>
+        </div>
+    </div>
+    <div class="row justify-content-sm-center mt-5">
+        <div class="col-sm-2 mt-3">
+            <h5 class="text-center g-sans-m">작성된 포스트</h5>
+            <h6 id="posts-counter" class="text-center g-sans-l counter">{{ intro_info.posts_count }}</h5>
         </div>
         <div class="col-sm-2 mt-3">
             <h5 class="text-center g-sans-m">생성된 스레드</h5>
-            <h6 id="thread-counter" class="text-center g-sans-l counter">{{ thread_count }}</h5>
+            <h6 id="thread-counter" class="text-center g-sans-l counter">{{ intro_info.thread_count }}</h5>
+        </div>
+        <div class="col-sm-2 mt-3">
+            <h5 class="text-center g-sans-m">연결된 태그들</h5>
+            <h6 id="topic-counter" class="text-center g-sans-l counter">{{ intro_info.topic_count }}</h5>
         </div>
     </div>
     <div class="text-center">
@@ -28,9 +38,9 @@
             <button class="get-start g-sans-m mt-5 mb-3">지금 시작하기</button>
         </a>
     </div>
-    <h5 class="text-center g-sans-m mt-5">인기있는 주제들</h5>
+    <h5 class="text-center g-sans-m mt-5">인기있는 태그들</h5>
     <ul class="text-center intro-topics">
-    {% for tag in tags %}
+    {% for tag in intro_info.top_topics %}
         <li><a class="deep-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></li>
     {% endfor %}
     </ul>
@@ -44,8 +54,10 @@
 {% block script %}
 
 <script>
-    new numberCounter("user-counter", {{ user_count }});
-    new numberCounter("posts-counter", {{ posts_count }});
-    new numberCounter("thread-counter", {{ thread_count }});
+    new numberCounter("user-counter", {{ intro_info.user_count }});
+    new numberCounter("view-counter", {{ intro_info.page_view_count }});
+    new numberCounter("posts-counter", {{ intro_info.posts_count }});
+    new numberCounter("thread-counter", {{ intro_info.thread_count }});
+    new numberCounter("topic-counter", {{ intro_info.topic_count }});
 </script>
 {% endblock %}
