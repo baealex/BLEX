@@ -646,6 +646,8 @@ def thread_edit(request, pk):
 
 def thread_detail(request, url):
     thread = get_object_or_404(Thread, url=url)
+    if thread.hide == True and not thread.author == request.user:
+        return HttpResponse(str('<script>alert(\'비공개 스레드입니다.\');history.back();</script>'))
     render_args = {
         'thread': thread,
         'white_nav': True,
