@@ -95,6 +95,9 @@ class Profile(models.Model):
         except:
             pass
         super(Profile, self).save(*args, **kwargs)
+    
+    def get_absolute_url(self):
+        return reverse('user_profile', args=[self.user])
 
 class Follow(models.Model):
     class Meta:
