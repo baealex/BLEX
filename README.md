@@ -1,4 +1,4 @@
-# BLEX ![django version](https://img.shields.io/badge/django-2.2.8-blue?style=flat-square) ![license mit](https://img.shields.io/badge/license-MIT-yellow?style=flat-square)
+# BLEX ![django version](https://img.shields.io/badge/django-2.2.10-blue?style=flat-square) ![license mit](https://img.shields.io/badge/license-MIT-yellow?style=flat-square)
 
 > BLOG EXPRESS ME, "블로그는 나를 표현한다" 기록은 인간에게 가장 오래된 습관이며 블로그는 여전히 자신을 표현하기 위한 완벽한 공간입니다.
 
