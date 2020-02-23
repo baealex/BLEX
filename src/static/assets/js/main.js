@@ -1,3 +1,16 @@
+function setCookie(cookie) {
+  var willCookie = '';
+  if(cookie.name != undefined && cookie.value != undefined)
+    willCookie += cookie.name + '=' + cookie.value + ';';
+  if(cookie.expire != undefined)
+    willCookie += 'Expires=' + cookie.expire + ';';
+  if(cookie.damain != undefined)
+    willCookie += 'Domain=' + cookie.domain + ';';
+  if(cookie.path != undefined)
+    willCookie += 'Path=' + cookie.path + ';';
+  document.cookie = willCookie;
+}
+
 function getCookie(name) {
   var cookieValue = null;
   if (document.cookie && document.cookie != '') {
@@ -50,11 +63,25 @@ numberCounter.prototype.counter = function() {
 };
 
 function distoryLatelyPosition() {
-  document.cookie = 'latelyposition=';
+  var date = new Date();
+  date.setTime(date.getTime() - 1); 
+  setCookie({
+    name: 'latelyposition',
+    value: '',
+    expire: date,
+    path: location.pathname,
+  });
 }
 
 function saveLatelyPosition() {
-  document.cookie = 'latelyposition=' + $(document).scrollTop();
+  var date = new Date();
+  date.setTime(date.getTime() + (20 * 60 * 1000)); 
+  setCookie({
+    name: 'latelyposition',
+    value: $(document).scrollTop(),
+    expire: date,
+    path: location.pathname,
+  });
 }
 
 /* RENDERING */

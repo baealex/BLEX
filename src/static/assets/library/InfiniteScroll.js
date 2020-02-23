@@ -9,6 +9,26 @@ class InfiniteScroll {
         this.enable = true;
 
         this.detectScroll();
+
+        if(getCookie('latelyposition')) {
+            $('#return-position').css('display', 'block');
+            var desPos = getCookie('latelyposition');
+            var count = 0;
+            var findLatelyPosition = setInterval(function() {
+                var nowPos = $(document).scrollTop();
+                if(nowPos < desPos - 10) {
+                    $(document).scrollTop(desPos);
+                    count += 1;
+                    if(count > 100) {
+                        clearTimeout(findLatelyPosition);
+                        distoryLatelyPosition();
+                    }
+                } else {
+                    clearTimeout(findLatelyPosition);
+                    distoryLatelyPosition();
+                }
+            }, 50);
+        }
     }
 
     detectScroll() {
@@ -49,25 +69,3 @@ class InfiniteScroll {
         });
     }
 }
-
-$(document).ready(function() {
-    if(getCookie('latelyposition')) {
-        $('#return-position').css('display', 'block');
-        var desPos = getCookie('latelyposition');
-        var count = 0;
-        var findLatelyPosition = setInterval(function() {
-            var nowPos = $(document).scrollTop();
-            if(nowPos < desPos - 10) {
-                $(document).scrollTop(desPos);
-                count += 1;
-                if(count > 100) {
-                    clearTimeout(findLatelyPosition);
-                    distoryLatelyPosition();
-                }
-            } else {
-                clearTimeout(findLatelyPosition);
-                distoryLatelyPosition();
-            }
-        }, 50);
-    }
-});
