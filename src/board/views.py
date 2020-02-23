@@ -13,10 +13,8 @@ from django.http import (
     HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404, QueryDict)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
-from django.template.defaultfilters import linebreaks
 from django.utils import timezone
 from django.utils.html import strip_tags
-from django.utils.html import escape
 from django.utils.text import slugify
 from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
@@ -99,45 +97,6 @@ def compere_user(req, res, give_404_if='none'):
     else:
         if not req == res:
             raise Http404
-
-def get_comment_json_element(user, comment):
-    element = {
-        'pk': comment.pk,
-        'author': comment.author.username,
-        'created_date': timesince(comment.created_date),
-        'content': linebreaks(escape(comment.text)),
-        'total_likes': comment.total_likes(),
-    }
-
-    if comment.edit == True:
-        element['edited'] = 'edited'
-    else:
-        element['edited'] = ''
-
-    if user.profile.avatar:
-        element['thumbnail'] = user.profile.avatar.url
-    else:
-        element['thumbnail'] = 'https://static.blex.kr/assets/images/default-avatar.jpg'
-
-    return element
-
-def get_story_json_element(user, story):
-    element = {
-        'pk': story.pk,
-        'title': story.title,
-        'author': story.author.username,
-        'content': story.text_html,
-        'disagree': story.total_disagree(),
-        'created_date': story.created_date.strftime("%Y-%m-%d %H:%M"),
-        'updated_date': story.updated_date.strftime("%Y-%m-%d %H:%M"),
-    }
-
-    if user.profile.avatar:
-        element['thumbnail'] = user.profile.avatar.url
-    else:
-        element['thumbnail'] = 'https://static.blex.kr/assets/images/default-avatar.jpg'
-    
-    return element
 
 def add_exp(user, num):
     if hasattr(user, 'profile'):
@@ -873,11 +832,7 @@ def notify_api_v1(request):
             }
             if data['count'] > 0:
                 for notify_one in notify:
-                    data['content'].append({
-                        'pk': notify_one.pk,
-                        'infomation': notify_one.infomation,
-                        'created_date': timesince(notify_one.created_date)
-                    })
+                    data['content'].append(notify_one.to_dict())
             return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
 
 def topics_api_v1(request):
@@ -966,7 +921,7 @@ def comment_api_v1(request, pk=None):
                 
                 data = {
                     'state': 'true',
-                    'element': get_comment_json_element(request.user, comment)
+                    'element': comment.to_dict()
                 }
                 data['element']['edited'] = ''
                 
@@ -983,7 +938,7 @@ def comment_api_v1(request, pk=None):
             else:
                 data = {
                     'state': 'true',
-                    'element': get_comment_json_element(request.user, comment)
+                    'element': comment.to_dict()
                 }
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         
@@ -996,7 +951,7 @@ def comment_api_v1(request, pk=None):
                 
                 data = {
                     'state': 'true',
-                    'element': get_comment_json_element(request.user, comment)
+                    'element': comment.to_dict()
                 }
 
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
@@ -1127,7 +1082,7 @@ def story_api_v1(request, pk=None):
                 add_exp(request.user, 5)
 
                 data = {
-                    'element': get_story_json_element(request.user, story),
+                    'element': story.to_dict(),
                 }
 
                 send_notify_content = '\''+ thread.title +'\'스레드 에 \''+ story.author.username +'\'님이 새로운 스토리를 발행했습니다.'
@@ -1147,7 +1102,7 @@ def story_api_v1(request, pk=None):
             else:
                 data = {
                     'state': 'true',
-                    'element': get_story_json_element(request.user, story)
+                    'element': story.to_dict()
                 }
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         if request.method == 'PUT':
@@ -1163,7 +1118,7 @@ def story_api_v1(request, pk=None):
                 
             data = {
                 'state': 'true',
-                'element': get_story_json_element(request.user, story)
+                'element': story.to_dict()
             }
 
             return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})

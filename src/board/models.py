@@ -5,8 +5,11 @@ import random
 from django.db import models
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
+from django.template.defaultfilters import linebreaks
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape
+from django.utils.timesince import timesince
 from tagging.fields import TagField
 
 grade_mapping = {
@@ -42,6 +45,12 @@ def title_image_path(instance, filename):
 def create_notify(user, url, infomation):
     new_notify = Notify(user=user, url=url, infomation=infomation)
     new_notify.save()
+
+def get_user_thumbnail(user):
+    if user.profile.avatar:
+        return user.profile.avatar.url
+    else:
+        return 'https://static.blex.kr/assets/images/default-avatar.jpg'
 
 class History(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -103,6 +112,7 @@ class Follow(models.Model):
     class Meta:
         db_table = 'board_user_follow'
         auto_created = True
+    
     following    = models.ForeignKey(Profile, on_delete=models.CASCADE)
     follower     = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
@@ -137,6 +147,9 @@ class Thread(models.Model):
         return reverse('thread_detail', args=[self.url])
 
 class Story(models.Model):
+    class Meta:
+        ordering = ['-created_date']
+    
     thread       = models.ForeignKey('board.Thread', related_name='story', on_delete = models.CASCADE)
     author       = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title        = models.CharField(max_length=50)
@@ -152,8 +165,17 @@ class Story(models.Model):
     def total_disagree(self):
         return self.disagree.count()
 
-    class Meta:
-        ordering = ['-created_date']
+    def to_dict(self):
+        return {
+            'pk': self.pk,
+            'title': self.title,
+            'author': self.author.username,
+            'content': self.text_html,
+            'disagree': self.total_disagree(),
+            'thumbnail': get_user_thumbnail(self.author),
+            'created_date': self.created_date.strftime("%Y-%m-%d %H:%M"),
+            'updated_date': self.updated_date.strftime("%Y-%m-%d %H:%M"),
+        }
 
 class Post(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -217,6 +239,17 @@ class Comment(models.Model):
     
     def total_likes(self):
         return self.likes.count()
+    
+    def to_dict(self):
+        return {
+            'pk': self.pk,
+            'author': self.author.username,
+            'created_date': timesince(self.created_date),
+            'content': linebreaks(escape(self.text)),
+            'total_likes': self.total_likes(),
+            'thumbnail': get_user_thumbnail(self.author),
+            'edited': 'edited' if self.edit == True else '',
+        }
 
 class Notify(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -227,6 +260,13 @@ class Notify(models.Model):
 
     def __str__(self):
         return self.infomation
+
+    def to_dict(self):
+        return {
+            'pk': self.pk,
+            'infomation': self.infomation,
+            'created_date': timesince(self.created_date)
+        }
 
 class Series(models.Model):
     owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
