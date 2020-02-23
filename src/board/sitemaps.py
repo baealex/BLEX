@@ -1,27 +1,91 @@
 from django.contrib.sitemaps import Sitemap
+from django.urls import reverse
 from itertools import chain
 
 from .models import Post, Thread, Series, Profile
 
-class PostSitemap(Sitemap):
+class StaticSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+    
+    def items(self):
+        return ('', '/login', '/signup', '/trendy', '/newest')
+    
+    def location(self, item):
+        return str(item)
+
+class PostsSitemap(Sitemap):
     changefreq = 'weekly'
     priority = 0.5
 
     def items(self):
-        posts = Post.objects.filter(hide=False)
-        series = Series.objects.all()
-        profiles = Profile.objects.all()
-        threads = Thread.objects.filter(hide=False)
-        return sorted(chain(posts, threads, series, profiles), key=self.lastmod)
+        return Post.objects.filter(hide=False).order_by('pk')
+    
     def lastmod(self, element):
-        if hasattr(element, 'updated_date'):
-            return element.updated_date
-        elif hasattr(element, 'created_date'):
-            return element.created_date
-        else:
-            return element.user.date_joined
+        return element.updated_date
 
+class SeriesSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Series.objects.all().order_by('pk')
+
+class UserSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Profile.objects.all().order_by('pk')
+
+class UserSeriesSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Profile.objects.all().order_by('pk')
+    
+    def location(self, item):
+        return reverse('user_profile_tab', args=[item.user, 'series'])
+
+class UserAboutSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Profile.objects.all().order_by('pk')
+    
+    def location(self, item):
+        return reverse('user_profile_tab', args=[item.user, 'about'])
+
+class UserSeriesSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Profile.objects.all().order_by('pk')
+    
+    def location(self, item):
+        return reverse('user_profile_tab', args=[item.user, 'series'])
+
+class ThreadSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Thread.objects.filter(hide=False).order_by('pk')
+        
+    def lastmod(self, element):
+        return element.created_date
 
 sitemaps = {
-    'posts': PostSitemap,
+    'static_sitemap': StaticSitemap,
+    
+    'posts_sitemap': PostsSitemap,
+    'thread_sitemap': ThreadSitemap,
+    'series_sitemap': SeriesSitemap,
+
+    'user_sitemap': UserSitemap,
+    'user_about_sitemap': UserAboutSitemap,
+    'user_series_sitemap': UserSeriesSitemap,
 }
