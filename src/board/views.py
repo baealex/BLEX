@@ -606,7 +606,7 @@ def thread_edit(request, pk):
 def thread_detail(request, url):
     thread = get_object_or_404(Thread, url=url)
     if thread.hide == True and not thread.author == request.user:
-        return HttpResponse(str('<script>alert(\'비공개 스레드입니다.\');history.back();</script>'))
+        raise Http404()
     render_args = {
         'thread': thread,
         'white_nav': True,
@@ -644,7 +644,7 @@ def post_detail(request, username, url):
     user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, author=user, url=url)
     if post.hide == True and not post.author == request.user:
-        return HttpResponse(str('<script>alert(\'비공개 글입니다.\');history.back();</script>'))
+        raise Http404()
 
     another_posts = Post.objects.filter(author=user, hide=False).exclude(pk=post.pk).order_by('?')[:3]
     render_args = {
