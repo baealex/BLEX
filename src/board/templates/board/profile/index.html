@@ -51,6 +51,7 @@
             {% endif %}
         </p>
         <ul class="social-link">
+            <li><a class="vivid-purple" href="{% url 'user_rss_feed' username=user %}"><i class="fas fa-rss-square"></i></a></li>
             {% if user.profile.github %}<li><a class="vivid-purple" href="https://github.com/{{ user.profile.github }}"><i class="fab fa-github-square"></i></a></li>{% endif %}
             {% if user.profile.twitter %}<li><a class="vivid-purple" href="https://twitter.com/{{ user.profile.twitter }}"><i class="fab fa-twitter-square"></i></a></li>{% endif %}
             {% if user.profile.youtube %}<li><a class="vivid-purple" href="https://youtube.com/channel/{{ user.profile.youtube }}"><i class="fab fa-youtube-square"></i></a></li>{% endif %}

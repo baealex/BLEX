@@ -4,7 +4,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 
 from .sitemaps import sitemaps
-from .feeds import LatestPostFeed
+from .feeds import SitePostsFeed, UserPostsFeed
 from . import views
 
 urlpatterns = [
@@ -41,7 +41,8 @@ urlpatterns = [
     path('upload/image', views.image_upload, name='image_upload'),
     path('topic/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
     # Not in views
-    path('rss', LatestPostFeed()),
+    path('rss', SitePostsFeed()),
+    path('rss/@<username>', UserPostsFeed(), name="user_rss_feed"),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     # ------------------------------------------------------------ Others End
