@@ -1088,7 +1088,6 @@ def story_api_v1(request, pk=None):
                 send_notify_content = '\''+ thread.title +'\'스레드 에 \''+ story.author.username +'\'님이 새로운 스토리를 발행했습니다.'
                 for user in thread.bookmark.all():
                     create_notify(user=user, url=thread.get_absolute_url(), infomation=send_notify_content)
-                    print(user)
                 
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
     if pk:
@@ -1107,7 +1106,6 @@ def story_api_v1(request, pk=None):
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         if request.method == 'PUT':
             put = QueryDict(request.body)
-            print(put)
             if put.get('title'):
                 story.title = put.get('title')
             if put.get('text_md'):
