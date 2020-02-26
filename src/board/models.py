@@ -182,7 +182,7 @@ class Post(models.Model):
     title             = models.CharField(max_length=50)
     url               = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     image             = models.ImageField(blank=True, upload_to=title_image_path)
-    text_md           = models.TextField()
+    text_md           = models.TextField(blank=True)
     text_html         = models.TextField()
     trendy            = models.IntegerField(default=0)
     today             = models.IntegerField(default=0)
