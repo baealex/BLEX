@@ -41,7 +41,4 @@ class TelegramBot:
 if __name__ == '__main__':
     # PRIVATE MODULE
     import telegram_token
-    
     bot = TelegramBot(telegram_token.BOT_TOKEN)
-    #bot.delete_webhook()
-    print(bot.set_webhook('https://test.blex.kr/api/v1/telegram/webHook'))

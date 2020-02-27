@@ -1,20 +1,38 @@
 {% extends 'board/base.html' %}
 
-{% block title %}{{ user.username }} ({{ user.first_name }}){% endblock %}
+{% block title %}{% if not selected_tag %}{{ user.username }} ({{ user.first_name }}){% if tab %} — {{ tab_show }}{% endif %}{% else %}{{ user.username }}'s {{ selected_tag }}{% endif %}{% endblock %}
 
 {% block seo %}
-<meta name="description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
-<meta property="og:site_name" content="{{ site_title }}">
-<meta property="og:title" content="{{ user.username }} ({{ user.first_name }})">
-<meta property="og:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
-{% if user.profile.avatar %}<meta property="og:image" content="{{ user.profile.avatar.url }}">{% endif %}
-<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
-<meta property="og:type" content="blog">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="{{ user.username }} ({{ user.first_name }})">
-<meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
-<meta name="twitter:description" content="{{ site_description }} {{ user.username }}({{ user.first_name }})">
-{% if user.profile.avatar %}<meta property="twitter:image" content="{{ user.profile.avatar.url }}">{% endif %}
+    <meta property="og:site_name" content="{{ site_title }}">
+    <meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
+    <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+    <meta property="og:type" content="blog">
+    <meta name="twitter:card" content="summary">
+    {% if user.profile.avatar %}
+    <meta property="og:image" content="{{ user.profile.avatar.url }}">
+    <meta property="twitter:image" content="{{ user.profile.avatar.url }}">
+    {% endif %}
+    {% if not selected_tag %}
+    <meta property="og:title" content="{{ user.username }} ({{ user.first_name }}){% if tab %} — {{ tab_show }}{% endif %}"/>
+    <meta property="twitter:title" content="{{ user.username }} ({{ user.first_name }}){% if tab %} — {{ tab_show }}{% endif %}"/>
+        {% if not tab %}
+            {% if user.profile.bio %}
+    <meta property="og:description" content="{{ user.profile.bio }}">
+    <meta name="twitter:description" content="{{ user.profile.bio }}">
+    <meta name="description" content="{{ user.profile.bio }}">
+            {% endif %}
+        {% else %}
+    <meta property="og:description" content="{{ user.username }} ({{ user.first_name }})님의 {{ tab_show }}입니다.">
+    <meta name="twitter:description" content="{{ user.username }} ({{ user.first_name }})님의 {{ tab_show }}입니다.">
+    <meta name="description" content="{{ user.username }} ({{ user.first_name }})님의 {{ tab_show }}입니다.">
+        {% endif %}
+    {% else %}
+    <meta property="og:title" content="{{ user.username }}'s {{ selected_tag }}"/>
+    <meta property="twitter:title" content="{{ user.username }}'s {{ selected_tag }}"/>
+    <meta property="og:description" content="{{ user.username }}님이 {{ selected_tag }}를 주제로 작성한 포스트입니다.">
+    <meta name="twitter:description" content="{{ user.username }}님이 {{ selected_tag }}를 주제로 작성한 포스트입니다.">
+    <meta name="description" content="{{ user.username }}님이 {{ selected_tag }}를 주제로 작성한 포스트입니다.">
+    {% endif %}
 {% endblock %}
 
 {% block content %}

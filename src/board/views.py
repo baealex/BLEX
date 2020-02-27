@@ -368,15 +368,18 @@ def user_profile_tab(request, username, tab):
         'grade': get_grade(user)
     }
     if tab == 'about':
+        render_args['tab_show'] = '소개'
         pass
     
     if tab == 'series':
+        render_args['tab_show'] = '시리즈'
         series = Series.objects.filter(owner=user).order_by('name')
         paginator = Paginator(series, 10)
         page = request.GET.get('page')
         elements = paginator.get_page(page)
         render_args['elements'] = elements
     if tab == 'activity':
+        render_args['tab_show'] = '활동'
         posts = Post.objects.filter(author=user, hide=False)
         series = Series.objects.filter(owner=user)
         likeposts = PostLikes.objects.filter(user=user)
