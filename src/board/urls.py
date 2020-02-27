@@ -39,7 +39,6 @@ urlpatterns = [
     path('search', views.search, name='search'),
     path('backup',views.content_backup,name='content_backup'),
     path('upload/image', views.image_upload, name='image_upload'),
-    path('topic/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
     # Not in views
     path('rss', SitePostsFeed()),
     path('rss/@<username>', UserPostsFeed(), name="user_rss_feed"),
@@ -57,6 +56,7 @@ urlpatterns = [
     path('',views.index, name='index'), 
     path('write',views.post_write, name='post_write'),
     path('<sort>',views.post_sort_list, name='post_sort_list'),
+    path('topic/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
     path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
     # ------------------------------------------------------------ Article End
 
@@ -71,5 +71,6 @@ urlpatterns = [
     path('api/v1/thread/<int:pk>', views.thread_api_v1, name='thread_api_v1'),
     path('api/v1/story', views.story_api_v1, name='story_api_v1'),
     path('api/v1/story/<int:pk>', views.story_api_v1, name='story_api_v1'),
+    path('api/v1/telegram/<parameter>', views.telegram_api_v1, name='telegram_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

@@ -22,6 +22,7 @@ from itertools import chain
 
 from .models import *
 from .forms import *
+from . import telegram, telegram_token
 
 # Method
 def get_posts(sort='all'):
@@ -131,6 +132,15 @@ def get_grade(user):
             if user_grade in grade_mapping:
                 select_grade = user_grade
     return grade_mapping[select_grade]
+
+def create_notify(user, url, infomation):
+    new_notify = Notify(user=user, url=url, infomation=infomation)
+    new_notify.save()
+    if hasattr(user, 'config'):
+        telegram_id = user.config.telegram_id
+        if not telegram_id == '':
+            bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
+            bot.send_message_async(telegram_id, 'https://blex.kr' + url + ' — ' + infomation)
 
 # ------------------------------------------------------------ Method End
 
@@ -1124,4 +1134,33 @@ def story_api_v1(request, pk=None):
             story.delete()
             return HttpResponse('DONE')
 
+@csrf_exempt
+def telegram_api_v1(request, parameter):
+    if parameter == 'webHook':
+        if request.method == 'POST':
+            req = json.loads(request.body.decode("utf-8"))
+            req_token = req['message']['text']
+            req_userid = req['message']['from']['id']
+            check = get_object_or_404(Config, telegram_token=req_token)
+            
+            if check:
+                check.telegram_token = ''
+                check.telegram_id = req_userid
+                check.save()
+
+                bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
+                bot.send_message_async(req_userid, '정상적으로 연동되었습니다.')
+            return HttpResponse('None')
+    if parameter == 'makeToken':
+        if request.method == 'POST':
+            if hasattr(request.user, 'config'):
+                config = request.user.config
+                config.telegram_token = randstr(8)
+                config.save()
+                return HttpResponse(request.user.config.telegram_token)
+            else:
+                config = Config(user=request.user)
+                config.telegram_token = randstr(8)
+                config.save()
+                return HttpResponse(config.telegram_token)
 # ------------------------------------------------------------ API V1 End

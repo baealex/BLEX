@@ -42,10 +42,6 @@ def title_image_path(instance, filename):
     dt = datetime.datetime.now()
     return 'title/'+instance.author.username+'/'+str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour) + randstr(4)+'.'+filename.split('.')[-1]
 
-def create_notify(user, url, infomation):
-    new_notify = Notify(user=user, url=url, infomation=infomation)
-    new_notify.save()
-
 def get_user_thumbnail(user):
     if user.profile.avatar:
         return user.profile.avatar.url
@@ -67,9 +63,11 @@ class Grade(models.Model):
         return self.name
 
 class Config(models.Model):
-    user          = models.OneToOneField(User, on_delete=models.CASCADE)
-    agree_email   = models.BooleanField(default=False)
-    agree_history = models.BooleanField(default=False)
+    user           = models.OneToOneField(User, on_delete=models.CASCADE)
+    agree_email    = models.BooleanField(default=False)
+    agree_history  = models.BooleanField(default=False)
+    telegram_token = models.CharField(max_length=8, blank=True)
+    telegram_id    = models.CharField(max_length=15, blank=True)
 
     def __str__(self):
         return self.user.username

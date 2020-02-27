@@ -84,3 +84,11 @@ $('#id_avatar').on('change',function(){
     var fileName = $(this).val();
     $(this).next('.custom-file-label').html(fileName);
 })
+function telegram() {
+    $.ajax({
+        url: `/api/v1/telegram/makeToken`,
+        type: "POST",
+    }).done(function (data) {
+        $(`#telegram-token`).text(data);
+    });
+}
