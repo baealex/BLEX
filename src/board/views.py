@@ -1,4 +1,5 @@
 import threading
+import random
 import json
 import os
 
@@ -1141,18 +1142,28 @@ def story_api_v1(request, pk=None):
 def telegram_api_v1(request, parameter):
     if parameter == 'webHook':
         if request.method == 'POST':
+            bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
             req = json.loads(request.body.decode("utf-8"))
             req_token = req['message']['text']
             req_userid = req['message']['from']['id']
-            check = get_object_or_404(Config, telegram_token=req_token)
-            
+            check = None
+            try:
+                check = Config.objects.get(telegram_token=req_token)
+            except:
+                pass
             if check:
                 check.telegram_token = ''
                 check.telegram_id = req_userid
                 check.save()
-
-                bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
                 bot.send_message_async(req_userid, '정상적으로 연동되었습니다.')
+            else:
+                message = [
+                    '안녕하세요? BLEX_BOT 입니다!',
+                    'BLEX — BLOG EXPRESS ME!',
+                    '회원님의 알림을 이곳으로 보내드릴게요!',
+                    '오늘은 어떤게 업데이트 되었을까요?\n\nhttps://blex.kr/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
+                ]
+                bot.send_message_async(req_userid, message[random.randint(0, len(message))])
             return HttpResponse('None')
     if parameter == 'makeToken':
         if request.method == 'POST':
