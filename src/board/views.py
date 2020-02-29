@@ -385,7 +385,7 @@ def user_profile_tab(request, username, tab):
         series = Series.objects.filter(owner=user)
         likeposts = PostLikes.objects.filter(user=user)
         comments = Comment.objects.filter(author=user, post__hide=False)
-        story = Story.objects.filter(author=user)
+        story = Story.objects.filter(author=user, thread__hide=False)
         activity = sorted(chain(posts, series, comments, likeposts, story), key=lambda instance: instance.created_date, reverse=True)
         
         paginator = Paginator(activity, 15)
