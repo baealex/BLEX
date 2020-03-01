@@ -100,6 +100,14 @@ def compere_user(req, res, give_404_if='none'):
         if not req == res:
             raise Http404
 
+def page_check(page, paginator):
+    try:
+        page = int(page)
+    except:
+        raise Http404()
+    if not page or int(page) > paginator.num_pages or int(page) < 1:
+        raise Http404()
+
 def add_exp(user, num):
     if hasattr(user, 'profile'):
         user.profile.exp += num
@@ -324,12 +332,22 @@ def setting_tab(request, tab):
         elif tab == 'posts':
             render_args['subtitle'] = 'Posts'
             posts = Post.objects.filter(author=user).order_by('created_date').reverse()
-            render_args['posts'] = posts
+            
+            page = request.GET.get('page', 1)
+            paginator = Paginator(posts, 8)
+            page_check(page, paginator)
+            elements = paginator.get_page(page)
+            render_args['elements'] = elements
         
         elif tab == 'thread':
             render_args['subtitle'] = 'Thread'
             threads = Thread.objects.filter(author=user, allow_write=False).order_by('created_date').reverse()
-            render_args['threads'] = threads
+
+            page = request.GET.get('page', 1)
+            paginator = Paginator(threads, 8)
+            page_check(page, paginator)
+            elements = paginator.get_page(page)
+            render_args['elements'] = elements
 
         return render(request, 'board/setting/index.html', render_args)
 # ------------------------------------------------------------ Account End
@@ -343,8 +361,9 @@ def user_profile(request, username):
     thread = Thread.objects.filter(author=user, hide=False).order_by('created_date').reverse()
     posts_and_thread = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
 
+    page = request.GET.get('page', 1)
     paginator = Paginator(posts_and_thread, 6)
-    page = request.GET.get('page')
+    page_check(page, paginator)
     elements = paginator.get_page(page)
 
     render_args = {
@@ -355,6 +374,10 @@ def user_profile(request, username):
         'grade':  get_grade(user),
         'tags': get_user_topics(user),
     }
+    try:
+        render_args['get_page'] = request.GET.get('page')
+    except:
+        pass
 
     return render(request, 'board/profile/index.html', render_args)
 
@@ -375,8 +398,10 @@ def user_profile_tab(request, username, tab):
     if tab == 'series':
         render_args['tab_show'] = '시리즈'
         series = Series.objects.filter(owner=user).order_by('name')
+        
+        page = request.GET.get('page', 1)
         paginator = Paginator(series, 10)
-        page = request.GET.get('page')
+        page_check(page, paginator)
         elements = paginator.get_page(page)
         render_args['elements'] = elements
     if tab == 'activity':
@@ -388,8 +413,9 @@ def user_profile_tab(request, username, tab):
         story = Story.objects.filter(author=user, thread__hide=False)
         activity = sorted(chain(posts, series, comments, likeposts, story), key=lambda instance: instance.created_date, reverse=True)
         
+        page = request.GET.get('page', 1)
         paginator = Paginator(activity, 15)
-        page = request.GET.get('page')
+        page_check(page, paginator)
         elements = paginator.get_page(page)
         render_args['elements'] = elements
 
@@ -404,8 +430,9 @@ def user_profile_topic(request, username, tag):
     if len(posts_and_thread) == 0:
         raise Http404()
     
+    page = request.GET.get('page', 1)
     paginator = Paginator(posts_and_thread, 6)
-    page = request.GET.get('page')
+    page_check(page, paginator)
     elements = paginator.get_page(page)
     
     render_args = {
@@ -499,15 +526,6 @@ def search(request):
         'white_nav' : True,
         'value' : value,
     }
-    """
-    if not value == '':
-        posts = get_posts('all')
-        posts = posts.filter(Q(title__icontains=value) | Q(author__username=value))
-        paginator = Paginator(posts, 15)
-        page = request.GET.get('page')
-        pageposts = paginator.get_page(page)
-        render_args['posts'] = pageposts
-    """
     return render(request, 'board/common/search.html', render_args)
 
 def content_backup(request):
@@ -531,10 +549,11 @@ def post_list_in_tag(request, tag):
     posts = Post.objects.filter(hide=False, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
     if len(posts) == 0:
         raise Http404()
+    page = request.GET.get('page', 1)
     paginator = Paginator(posts, 15)
-    page = request.GET.get('page')
-    pageposts = paginator.get_page(page)
-    return render(request, 'board/posts/list_tag.html',{ 'tag':tag, 'pageposts':pageposts, 'white_nav':True })
+    page_check(page, paginator)
+    elements = paginator.get_page(page)
+    return render(request, 'board/posts/list_tag.html',{ 'tag':tag, 'elements': elements, 'white_nav':True })
 
 @csrf_exempt
 def image_upload(request):
@@ -763,14 +782,14 @@ def post_sort_list(request, sort):
     available_sort = [ 'trendy', 'newest', 'oldest' ]
     if not sort in available_sort:
         raise Http404()
-    
     posts = get_posts(sort)
+
+    page = request.GET.get('page', 1)
     paginator = Paginator(posts, 15)
-    page = request.GET.get('page')
-    
+    page_check(page, paginator)
     render_args = {
         'sort' : sort,
-        'pageposts' : paginator.get_page(page),
+        'elements' : paginator.get_page(page),
         'white_nav' : True
     }
 

@@ -167,6 +167,49 @@
     content: '#';
 }
 /* ------------------------------ */
+/* CLASS : PAGENATION */
+.pgnav {
+    margin-top: 30px;
+}
+.pi {
+    text-align: center;
+    line-height: 1.6em;
+    width: 1.8em;
+    font-size: 1.025em;
+}
+.pl {
+    color: #3a3a3a;
+}
+.pl:hover {
+    color: #8c00ff;
+    text-decoration: none;
+}
+.ps {
+    float: right;
+}
+.ps .pn {
+    border: 1px solid #8e44ad;
+    border-radius: 5px;
+    padding: 2px;
+    width: 50px;
+}
+.ps .gp {
+    border: none;
+    background: none;
+}
+.ps *:focus {
+    outline: none;
+}
+.pgnav .active {
+    border: 2px solid #9b59b6;
+    text-align: center;
+    color: #fff;
+    border-radius: 100%;
+}
+.pgnav .disabled .pl {
+    color: #cfcfcf;
+}
+/* ------------------------------ */
 /* USER : THUMBNAIL */
 .thumb {
     float: left;

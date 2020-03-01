@@ -10,7 +10,7 @@
 </style>
 <div>
     <ul class="list-group">
-        {% for post in posts %}
+        {% for post in elements %}
         <li id="post-{{ post.pk }}" class="card p-3 mb-2">
             <p><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title }}</a></p>
             <ul class="post-info">
@@ -37,4 +37,5 @@
         </li>
         {% endfor %}
     </ul>
+    {% include 'board/common/include/pagenation.html' %}
 </div>

@@ -1,0 +1,98 @@
+{% spaceless %}
+<nav class="pgnav noto" aria-label="Page navigation">
+    <ul class="pg none-list">
+    {% if elements.has_previous %}
+        <li class="pi">    
+            <a class="pl" href="?page={{ elements.previous_page_number }}">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        </li>
+        <li class="pi">
+            <a class="pl pl" href="?page=1">
+                <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+            </a>
+        </li>
+    {% else %}
+        <li class="pi disabled">    
+            <a class="pl" href="#" tabindex="-1">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        </li>
+        <li class="pi disabled">
+            <a class="pl pl" href="#" tabindex="-1">
+                <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+            </a>
+        </li>
+    {% endif %}
+    {% for num in elements.paginator.page_range %}
+        {% if elements.number == num %}
+        <li class="pi active">    
+            <a class="pl" href="?page={{ num }}">
+                {{ num }}
+            </a>
+        </li>
+        {% elif elements.number == 1 and num < elements.number|add:'5' %}
+        <li class="pi">    
+            <a class="pl" href="?page={{ num }}">
+                {{ num }}
+            </a>
+        </li>
+        {% elif elements.number == 2 and num < elements.number|add:'4' %}
+        <li class="pi">    
+            <a class="pl" href="?page={{ num }}">
+                {{ num }}
+            </a>
+        </li>
+        {% elif num > elements.number|add:'-3' and num < elements.number|add:'3' %}
+        <li class="pi">    
+            <a class="pl" href="?page={{ num }}">
+                {{ num }}
+            </a>
+        </li>
+        {% elif elements.number == elements.paginator.num_pages|add:'-1' and num > elements.number|add:'-4' %}
+        <li class="pi">    
+            <a class="pl" href="?page={{ num }}">
+                {{ num }}
+            </a>
+        </li>
+        {% elif elements.number == elements.paginator.num_pages and num > elements.number|add:'-5' %}
+        <li class="pi">    
+            <a class="pl" href="?page={{ num }}">
+                {{ num }}
+            </a>
+        </li>
+        {% endif %}
+    {% endfor %}
+    {% if elements.has_next %}
+        <li class="pi">
+            <a class="pl" href="?page={{ elements.paginator.num_pages }}">
+                <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li class="pi">
+            <a class="pl" href="?page={{ elements.next_page_number }}">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </li>
+    {% else %}
+        <li class="pi disabled">
+            <a class="pl" href="#" tabindex="-1">
+                <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li class="pi disabled">
+            <a class="pl" href="#" tabindex="-1">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </li>
+    {% endif %}
+    </ul>
+    <ul class="ps none-list">
+        <form onsubmit="return false">
+            <span class="vs shallow-dark mr-2">Go to page</span>
+            <input class="pn" name="page" type="number" min="1" max="{{ elements.paginator.num_pages }}">
+            <button class="gp">Go <i class="fas fa-chevron-right"></i></button>
+        </form>
+    </ul>
+</nav>
+{% endspaceless %}

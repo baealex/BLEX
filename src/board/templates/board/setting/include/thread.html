@@ -10,7 +10,7 @@
     </style>
     <div>
         <ul class="list-group">
-            {% for thread in threads %}
+            {% for thread in elements %}
             <li id="thread-{{ thread.pk }}" class="card p-3 mb-2">
                 <p><a class="deep-dark" href="{{ thread.get_absolute_url }}">{{ thread.title }}</a></p>
                 <ul class="thread-info">
@@ -36,4 +36,5 @@
             </li>
             {% endfor %}
         </ul>
+        {% include 'board/common/include/pagenation.html' %}
     </div>

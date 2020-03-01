@@ -62,28 +62,6 @@ numberCounter.prototype.counter = function() {
   }
 };
 
-function distoryLatelyPosition() {
-  var date = new Date();
-  date.setTime(date.getTime() - 1); 
-  setCookie({
-    name: 'latelyposition',
-    value: '',
-    expire: date,
-    path: location.pathname,
-  });
-}
-
-function saveLatelyPosition() {
-  var date = new Date();
-  date.setTime(date.getTime() + (20 * 60 * 1000)); 
-  setCookie({
-    name: 'latelyposition',
-    value: $(document).scrollTop(),
-    expire: date,
-    path: location.pathname,
-  });
-}
-
 /* RENDERING */
 
 function showThreadModal() {
@@ -117,3 +95,11 @@ function getTopics() {
     });
   });
 }
+
+$('.gp').on('click', function(){
+  location.href='?page=' + $('.pn').val();
+})
+
+$('.pn').on('submit', function(){
+  location.href='?page=' + $('.pn').val();
+})

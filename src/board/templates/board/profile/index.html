@@ -3,6 +3,7 @@
 {% block title %}{% if not selected_tag %}{{ user.username }} ({{ user.first_name }}){% if tab %} — {{ tab_show }}{% endif %}{% else %}{{ user.username }}'s {{ selected_tag }}{% endif %}{% endblock %}
 
 {% block seo %}
+    {% if get_page %}<meta name="robots" content="noindex">{% endif %}
     <meta property="og:site_name" content="{{ site_title }}">
     <meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
     <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
@@ -130,17 +131,19 @@ $(document).ready(function() {
   });
 });
 </script>
+{% if tab == 'series' or tab == 'activity' %}
 <script src="{{ static_url }}/assets/library/InfiniteScroll.js?{{ static_version }}"></script>
 <script type="text/javascript">
-{% if elements %}
-var postWrapperId = 'wrapper';
-var paginatePath = '{{ request.get_full_path }}?page=';
-var lastPage = {{ elements.paginator.num_pages }};
-new InfiniteScroll(paginatePath, postWrapperId, lastPage);
-{% endif %}
-{% if selected_tag %}
-moveSlide('wrapper');
-{% endif %}
+    var postWrapperId = 'wrapper';
+    var paginatePath = '{{ request.get_full_path }}?page=';
+    var lastPage = {{ elements.paginator.num_pages }};
+    new InfiniteScroll(paginatePath, postWrapperId, lastPage);
 </script>
+{% endif %}
+{% if selected_tag or get_page %}
+<script>
+    moveSlide('wrapper');
+</script>
+{% endif %}
 <script src="{{ static_url }}/assets/js/user.js?{{ static_version }}"></script>
 {% endblock %}
