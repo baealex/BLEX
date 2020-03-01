@@ -24,7 +24,8 @@ for config in Config.objects.all():
         send_user_lists[username] = {
             'id': config.telegram_id,
             'data': {
-                'total': 0,
+                'yesterday_total': 0,
+                'today_total': 0,
                 'top': None,
                 'top_count': 0,
             }
@@ -36,7 +37,8 @@ thread = Thread.objects.all()
 for post in posts:
     username = post.author.username
     if username in send_user_names:
-        send_user_lists[username]['data']['total'] += post.today
+        send_user_lists[username]['data']['yesterday_total'] += post.yesterday
+        send_user_lists[username]['data']['today_total'] += post.today
         if post.today > send_user_lists[username]['data']['top_count']:
             send_user_lists[username]['data']['top_count'] = post.today
             send_user_lists[username]['data']['top'] = post.title
@@ -70,13 +72,24 @@ from board.telegram import TelegramBot
 from board.telegram_token import BOT_TOKEN
 bot = TelegramBot(BOT_TOKEN)
 for username in send_user_names:
-    total = send_user_lists[username]['data']['total']
+    today_total = send_user_lists[username]['data']['today_total']
+    yesterday_total = send_user_lists[username]['data']['yesterday_total']
     top_posts = send_user_lists[username]['data']['top']
-    text = ''
-    if total:
-        text += '오늘의 총 조회수 : ' + str(total) + '\n'
+    text = ':: \"' + username + '\" 님을 위한 오늘의 보고서 ::\n\n'
+    if today_total:
+        text += '— 조회수 분석 —\n'
+        text += '오늘 총 조회수 : ' + str(today_total) + '\n'
+        if yesterday_total:
+            percentage = int((today_total/yesterday_total)*100)
+            if percentage > 100:
+                text += '전일 대비 : ' + str(percentage) + '%로 증가!\n'
+            else:
+                text += '전일 대비 : ' + str(percentage) + '%로 감소...\n'
+        text += '\n'
     if top_posts:
-        text += '오늘 가장 많이 조회된 글 : ' + top_posts + '\n\n'
+        text += '— 가장 많이 조회된 포스트 —\n'
+        text += '\"' + top_posts + '\"\n'
+        text += '\n'
     emoji = ['😀', '😁', '😙', '🤗', '😏', '😥', '🥱', '😪', '😗', '😆', '🥰']
     text += '오늘 하루도 고생하셨습니다 ' + emoji[random.randint(0, len(emoji))]
     bot.send_message_async(send_user_lists[username]['id'], text)

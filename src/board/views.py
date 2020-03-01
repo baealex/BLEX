@@ -149,7 +149,8 @@ def create_notify(user, url, infomation):
         telegram_id = user.config.telegram_id
         if not telegram_id == '':
             bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
-            bot.send_message_async(telegram_id, 'https://blex.kr' + url + ' — ' + infomation)
+            bot.send_message_async(telegram_id, 'https://blex.kr' + url)
+            bot.send_message_async(telegram_id, infomation)
 
 # ------------------------------------------------------------ Method End
 
