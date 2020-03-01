@@ -21,7 +21,7 @@
 </head>
 <body>
 	<div class="container-fluid">
-		<form method="POST" action='' enctype="multipart/form-data" onkeydown="return captureReturnKey(event)">{% csrf_token %}
+		<form id="posts-form" method="POST" action='' enctype="multipart/form-data" onkeydown="return captureReturnKey(event)">{% csrf_token %}
 			<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModal" aria-hidden="true">
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
@@ -56,7 +56,7 @@
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-							<button type="submit" class="btn btn-dark">확인</button>
+							<button onclick="onSubmit()" class="btn btn-dark">확인</button>
 						</div>
 					</div>
 				</div>
@@ -129,6 +129,14 @@
 	function captureReturnKey(e) {
 		if(e.keyCode==13) return false;
 	}
+	function onSubmit() {
+		checkUnload = false;
+    	$("#posts-form").submit();
+	}
+	var checkUnload = true;
+	$(window).bind("beforeunload", function (e){
+		if(checkUnload) return "변경 사항이 적용되지 않습니다. 정말 종료합니까?";
+	});
 	</script>
 </body>
 </html>
