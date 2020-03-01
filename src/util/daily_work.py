@@ -15,6 +15,9 @@ from board.models import Post, Thread, Config
 send_user_names = tuple()
 send_user_lists = dict()
 for config in Config.objects.all():
+    if not config.telegram_token == '':
+        config.telegram_token = ''
+        config.save()
     if not config.telegram_id == '':
         username = config.user.username
         send_user_names += (username,)

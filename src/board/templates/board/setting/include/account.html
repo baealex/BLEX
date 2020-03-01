@@ -16,11 +16,9 @@
     </div>
     <button type="submit" class="btn btn-dark">정보 변경</button>
     <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#SignoutModal">회원 탈퇴</button>
-    <button type="button" class="btn btn-dark" onclick="location.href='/backup';">컨텐츠 백업</button>
-    <button type="button" class="btn btn-dark" onclick="telegram()" data-toggle="modal" data-target="#TelegramModal">텔레그램 연동</button>
+    <button type="button" class="btn btn-primary" onclick="telegram()" data-toggle="modal" data-target="#TelegramModal"><i class="fab fa-telegram-plane"></i> 텔레그램 연동</button>
 </form>
-
-<div class="modal fade" id="SignoutModal" tabindex="-1" role="dialog" aria-labelledby="SignoutModalLabel" aria-hidden="true">
+<div class="modal fade noto" id="SignoutModal" tabindex="-1" role="dialog" aria-labelledby="SignoutModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -39,8 +37,7 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="TelegramModal" tabindex="-1" role="dialog" aria-labelledby="TelegramModalLabel" aria-hidden="true">
+<div class="modal fade noto" id="TelegramModal" tabindex="-1" role="dialog" aria-labelledby="TelegramModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -50,9 +47,17 @@
                 </button>
             </div>
             <div class="modal-body">
-                회원님의 소식을 텔레그램으로 알려드립니다. 텔레그램에서 <code>blex_bot</code>을 추가하시고
-                봇에게 <strong id="telegram-token"></strong>라고 말해주세요!
-                해당 코드는 오늘이 지나면 파기됩니다.
+                텔레그램과 연동하면 어떤 효과가 있나요?
+                <ul>
+                    <li>회원님의 알림을 텔레그램으로 푸시받을 수 있습니다.</li>
+                    <li>회원님에게 일간 보고서를 전달해 드립니다.</li>
+                </ul>
+                어떻게 연동하나요?
+                <ul>
+                    <li>텔레그램을 실행하시고 <a href="http://t.me/blex_bot" class="vivid-purple">@blex_bot</a>을 추가해주세요!</li>
+                    <li>봇에게 <strong id="telegram-token"></strong>라고 말해주세요!</li>
+                </ul>
+                해당 토큰은 회원님을 위해 생성된 일회성 토큰이며 연동을 완료시거나 오늘이 지나면 파기됩니다.
             </div>
         </div>
     </div>
