@@ -1,15 +1,29 @@
-<div style="width:100%; margin: 0 auto; background:rgb(250,250,250); text-align: center;">
-    <img style="max-width:100%;" src="https://baealex.run.goorm.io/api/blog-together/image/uploads/2019/09/27/geyxjnGjJF.png">
+<body style="margin: 0; padding: 0;">
+    <table border="1" cellpadding="0" cellspacing="0" width="600px" style="margin: 0 auto;">
+        <tr>
+            <td align="center">
+                <img src="https://static.blex.kr/assets/images/default-post.png" width="600" height="auto" style="display: block;"/>
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#ffffff" style="padding: 40px 30px 40px 30px;">
+                {% if active_mail %}
+                <h2>'{{ to }}'님! 메일을 인증해 주세요!</h2>
+                <p><a href="{{ link }}">{{ link }}</a></p>
+                <p>7일 이내에 인증을 완료해주세요!</p>
+                {% endif %}
 
-    {% if active_mail %}
-    <h2>'{{ to }}'님! 메일을 인증해 주세요!</h2>
-    <p><a href="{{ link }}">{{ link }}</a></p>
-    <p>7일 이내에 메일을 인증하세요!</p>
-    {% endif %}
-
-    {% if comment_notify %}
-    <h2>'{{ to }}'님! 댓글이 달렸습니다!</h2>
-    <p>'{{ from }}'님께서 <a href="{{ link }}">'{{title}}'</a>에 댓글을 다셨습니다.</p>
-    <p>"{{ message }}"</p>
-    {% endif%}
-</div>
+                {% if comment_notify %}
+                <h2>'{{ to }}'님! 댓글이 달렸습니다!</h2>
+                <p>'{{ from }}'님께서 <a href="{{ link }}">'{{title}}'</a>에 댓글을 다셨습니다.</p>
+                <p>"{{ message }}"</p>
+                {% endif%}
+            </td>
+        </tr>
+        <tr>
+            <td bgcolor="#2e2e2e" style="padding: 30px 30px 30px 30px;">
+                <span style="color:#fff;">Copyright © 2019 BaeJino.</a>
+            </td>
+        </tr>
+    </table>
+</body>
