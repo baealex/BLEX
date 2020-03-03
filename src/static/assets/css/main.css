@@ -72,10 +72,10 @@
 }
 .bg-rlight {
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
-    background: rgba(255,255,255,.98);
+    background: rgba(255, 255, 255, .98);
 }
 .bg-theme {
-    background: rgba(0,0,0,.84);
+    background: rgba(0, 0, 0, .98);
     border: none;
 }
 .bg-border-purple {
@@ -168,6 +168,12 @@
 }
 /* ------------------------------ */
 /* CLASS : PAGENATION */
+
+@media only screen and (max-width: 992px) {
+    .pgnav {
+        text-align: center;
+    }
+}
 .pgnav {
     margin-top: 30px;
 }
@@ -970,6 +976,14 @@ footer a:hover {
 }
 .element-lock .fa-lock-open {
     color: #0b0;
+}
+.setting-list-info {
+    list-style: none;
+    padding-left: 0px;
+}
+.setting-list-info li {
+    display: inline-block;
+    margin: 5px;
 }
 /* DARK THEME MODE */
 .theme-dark {

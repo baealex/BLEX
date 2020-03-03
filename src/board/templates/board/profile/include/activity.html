@@ -21,6 +21,10 @@
                 <a class="shallow-dark" href="{{ active.post.get_absolute_url }}">'{{ active }}'</a> 포스트를 추천했습니다.</li>
                 {% endif %}
             </li>
+            {% empty %}
+            <div class="mt-3 bg-border-purple p-3 bg-light vivid-purple">
+                아직 아무런 활동이 없습니다.
+            </div>
             {% endfor %}
         </ul>
     </div>

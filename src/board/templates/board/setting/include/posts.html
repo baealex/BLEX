@@ -1,19 +1,12 @@
-<style>
-.post-info {
-    list-style: none;
-    padding-left: 0px;
-}
-.post-info li {
-    display: inline-block;
-    margin: 5px;
-}
-</style>
 <div>
+    <button class="btn btn-dark btn-block mb-2" onclick="location.href='{% url 'post_write' %}'">
+        새로운 포스트 작성
+    </button>
     <ul class="list-group">
         {% for post in elements %}
         <li id="post-{{ post.pk }}" class="card p-3 mb-2">
             <p><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title }}</a></p>
-            <ul class="post-info">
+            <ul class="setting-list-info">
                 <li><a class="element-lock" href="javascript:setting.posts.lock({{ post.pk }})"><i id="lock-{{ post.pk }}" class="fas fa-lock{% if not post.hide %}-open{% endif %}"></i></a></li>
                 <li><a class="text-dark" href="{% url 'post_edit' pk=post.pk %}"><i class="far fa-edit"></i></a></li>
                 <li><a class="text-dark" href="javascript:setting.posts.remove({{ post.pk }})"><i class="far fa-trash-alt"></i></a></li>

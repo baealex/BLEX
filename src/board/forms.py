@@ -117,7 +117,7 @@ class ProfileForm(forms.ModelForm):
         fields = ('avatar','bio','github','twitter','youtube','facebook','instagram','homepage')
 
         widgets={
-            'bio':forms.Textarea(attrs={'placeholder':'자신을 설명하세요.','class':'form-control','rows':6}),
+            'bio':forms.Textarea(attrs={'placeholder':'자신을 간단하게 설명하세요.','class':'form-control','rows':6}),
             'github':forms.TextInput(attrs={'placeholder':'','class':'form-control'}),
             'twitter':forms.TextInput(attrs={'placeholder':'','class':'form-control'}),
             'youtube':forms.TextInput(attrs={'placeholder':'','class':'form-control'}),
@@ -136,7 +136,7 @@ class AboutForm(forms.ModelForm):
         fields = ('about_md',)
 
         widgets={
-            'about_md':forms.Textarea(attrs={'placeholder':'자신을 설명하세요.','class':'form-control','rows':10}),
+            'about_md':forms.Textarea(attrs={'placeholder':'자신을 상세하게 설명하세요.','class':'form-control','rows':10}),
         }
         labels={
             'about_md':''

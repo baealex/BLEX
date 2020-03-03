@@ -26,13 +26,13 @@
 <body>
     {% block image-title %}{%endblock%}
     {% if white_nav %}
-    <nav id="mNavigation" class="navbar navbar-expand-sm navbar-light bg-rlight fixed-top">
+    <nav id="top-nav" class="navbar navbar-expand-sm navbar-light bg-rlight fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ site_url }}">
                 <img src="{{ static_url }}/assets/images/logo.png" width="35" height="35" alt="">
             </a>
     {% else %}
-    <nav id="mNavigation" class="navbar navbar-expand-sm navbar-dark bg-theme fixed-top">
+    <nav id="top-nav" class="navbar navbar-expand-sm navbar-dark bg-theme fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ site_url }}">
                 <img src="{{ static_url }}/assets/images/logor.png" width="35" height="35" alt="">

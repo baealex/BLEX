@@ -27,13 +27,13 @@ $(document).ready(function () {
         screenPosition = $(this).scrollTop();
 
         if (screenPosition < screenHeight) {
-            $('#mNavigation').css("position", "absolute");
-            $('#mNavigation').css("background", "rgba(0,0,0,0)");
-            $("#mNavigation").removeClass("slide-bottom");
+            $('#top-nav').css("position", "absolute");
+            $('#top-nav').css("background", "rgba(0, 0, 0, 0)");
+            $("#top-nav").removeClass("slide-bottom");
         } else {
-            $('#mNavigation').css("position", "fixed");
-            $('#mNavigation').css("background", "rgba(0, 0, 0, .84)");
-            $("#mNavigation").addClass("slide-bottom");
+            $('#top-nav').css("position", "fixed");
+            $('#top-nav').css("background", "rgba(0, 0, 0, .98)");
+            $("#top-nav").addClass("slide-bottom");
         }
         if (isCreateNav) {
             var btween = screenPosition - (screenHeight - 100);

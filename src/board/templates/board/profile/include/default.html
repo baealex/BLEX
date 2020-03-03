@@ -19,7 +19,7 @@
                 {% if post.image %}
                 <a href="{{ post.get_absolute_url }}">
                     <picture>
-                        <img src="{{ static_url }}/{{ post.get_thumbnail }}" alt="{{ post.title }}" loading="lazy"/>
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy"/>
                     </picture>
                 </a>
                 {% endif %}
@@ -36,6 +36,10 @@
                 </ul>
                 {% endif %}
             </div>
+        {% empty %}
+        <div class="bg-border-purple noto p-3 bg-light vivid-purple">
+            아직 작성된 포스트가 없습니다.
+        </div>
         {% endfor %}
         </div>
         {% include 'board/common/include/pagenation.html' %}

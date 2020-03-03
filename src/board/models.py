@@ -98,7 +98,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         will_make_thumbnail = False
-        if not self.pk:
+        if not self.pk and self.avatar:
             will_make_thumbnail = True
         try:
             this = Profile.objects.get(id=self.id)
@@ -108,9 +108,10 @@ class Profile(models.Model):
         except:
             pass
         super(Profile, self).save(*args, **kwargs)
-        image = Image.open(self.avatar)
-        image.thumbnail((350, 350), Image.ANTIALIAS)
-        image.save('static/' + str(self.avatar), quality=85)
+        if will_make_thumbnail:
+            image = Image.open(self.avatar)
+            image.thumbnail((350, 350), Image.ANTIALIAS)
+            image.save('static/' + str(self.avatar), quality=85)
     
     def get_absolute_url(self):
         return reverse('user_profile', args=[self.user])
@@ -158,7 +159,7 @@ class Thread(models.Model):
 
     def save(self, *args, **kwargs):
         will_make_thumbnail = False
-        if not self.pk:
+        if not self.pk and self.image:
             will_make_thumbnail = True
         try:
             this = Thread.objects.get(id=self.id)

@@ -1,0 +1,17 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ site_title }} - Notification{% endblock %}
+
+{% block content %}
+    <div class="mx-auto col-lg-4 noto bg-border-purple p-3 bg-light vivid-purple">
+        "{{ user.first_name }}"님께서 입력하신 "{{ user.email }}"로 메일을 발송하겠습니다!
+        보내는 사람은 "im@baejino.com"입니다.
+        메일 발송이 지연(최대 10분 소요)될 수 있으니 양해 부탁드립니다!
+        그래도 메일이 도착하지 않는다면 입력하신 메일이 틀리진 않았는지 확인해 주세요!
+        입력하신 메일이 맞다면 "im@baejino.com"으로 문의 바랍니다. 😥
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {% include 'board/common/include/footer.html' %}
+{% endblock %}

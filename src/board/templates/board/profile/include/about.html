@@ -1,7 +1,14 @@
 <div class="container">
     <div class="col-lg-9 mx-auto p-0">
         <article {% if user == request.user %}id="about"{% endif %} class="article noto">
-            {% if user.profile %}{{ user.profile.about_html | safe }}{% endif %}
+            {% if user.profile %}
+                {{ user.profile.about_html | safe }}
+                {% if not user.profile.about_html %}
+                    <div class="bg-border-purple p-3 bg-light vivid-purple">
+                        아직 작성된 소개가 없습니다.
+                    </div>
+                {% endif %}
+            {% endif %}
         </article>
         {% if user == request.user %}
         <button id="aboutButton" class="btn btn-dark btn-block mt-3 edit" onclick="editAbout('{{ request.user.username }}')">편집</button>

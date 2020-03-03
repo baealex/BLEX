@@ -184,11 +184,9 @@ def signup(request):
                 }
                 t = threading.Thread(target=send_mail, args=('이메일을 인증해 주세요', mail_args, [form.cleaned_data['email']]))
                 t.start()
-                
-                message = new_user.first_name + '님께서 입력하신 메일로 인증 링크를 발송했습니다.'
-                return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
+                return render(request, 'email/notification.html', { 'user': new_user })
             else:
-                return render(request, 'registration/signup.html',{ 'form': form, 'error':'입력한 비밀번호가 일치하지 않습니다.'})
+                return render(request, 'registration/signup.html', { 'form': form, 'error':'입력한 비밀번호가 일치하지 않습니다.'})
     else:
         form = UserForm()
     return render(request, 'registration/signup.html',{ 'form': form })
@@ -375,6 +373,9 @@ def user_profile(request, username):
         'grade':  get_grade(user),
         'tags': get_user_topics(user),
     }
+    if request.user == user:
+        render_args['write_btn'] = True
+    
     try:
         render_args['get_page'] = request.GET.get('page')
     except:
@@ -392,6 +393,9 @@ def user_profile_tab(request, username, tab):
         'white_nav' : True,
         'grade': get_grade(user)
     }
+    if request.user == user:
+        render_args['write_btn'] = True
+    
     if tab == 'about':
         render_args['tab_show'] = '소개'
         pass

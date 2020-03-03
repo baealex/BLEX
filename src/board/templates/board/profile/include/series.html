@@ -1,7 +1,7 @@
 <div id="wrapper">
 {% for mseries in elements %}
     {% if mseries.posts.first %}
-    <div onmousedown="saveLatelyPosition()">
+    <div>
         {% if mseries.posts.first.image %}
         <div class="post-list" style="background-image: url({{ mseries.posts.first.image.url }})">
         {% else %}
@@ -16,5 +16,11 @@
         </div>
     </div>
     {% endif %}
+{% empty %}
+    <div class="container mt-3">
+        <div class="mx-auto col-lg-9 noto bg-border-purple p-3 bg-light vivid-purple">
+            아직 생성된 시리즈가 없습니다.
+        </div>
+    </div>
 {% endfor %}
 </div>
