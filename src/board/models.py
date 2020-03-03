@@ -12,6 +12,8 @@ from django.utils.html import escape
 from django.utils.timesince import timesince
 from tagging.fields import TagField
 
+from PIL import Image
+
 grade_mapping = {
     'blogger'     : 'blogger-gray',
     'contributor' : 'contributor-green',
@@ -95,13 +97,20 @@ class Profile(models.Model):
         return self.subscriber.count()
 
     def save(self, *args, **kwargs):
+        will_make_thumbnail = False
+        if not self.pk:
+            will_make_thumbnail = True
         try:
             this = Profile.objects.get(id=self.id)
             if this.avatar != self.avatar:
                 this.avatar.delete(save=False)
+                will_make_thumbnail = True
         except:
             pass
         super(Profile, self).save(*args, **kwargs)
+        image = Image.open(self.avatar)
+        image.thumbnail((350, 350), Image.ANTIALIAS)
+        image.save('static/' + str(self.avatar), quality=85)
     
     def get_absolute_url(self):
         return reverse('user_profile', args=[self.user])
@@ -143,6 +152,26 @@ class Thread(models.Model):
 
     def get_absolute_url(self):
         return reverse('thread_detail', args=[self.url])
+
+    def get_thumbnail(self):
+        return str(self.image) + '_500.' + str(self.image).split('.')[-1]
+
+    def save(self, *args, **kwargs):
+        will_make_thumbnail = False
+        if not self.pk:
+            will_make_thumbnail = True
+        try:
+            this = Thread.objects.get(id=self.id)
+            if this.image != self.image:
+                this.image.delete(save=False)
+                will_make_thumbnail = True
+        except:
+            pass
+        super(Thread, self).save(*args, **kwargs)
+        if will_make_thumbnail:
+            image = Image.open(self.image)
+            image.thumbnail((500, 500), Image.ANTIALIAS)
+            image.save('static/' + self.get_thumbnail(), quality=85)
 
 class Story(models.Model):
     class Meta:
@@ -202,15 +231,26 @@ class Post(models.Model):
 
     def total_likes(self):
         return self.likes.count()
+    
+    def get_thumbnail(self):
+        return str(self.image) + '_500.' + str(self.image).split('.')[-1]
 
     def save(self, *args, **kwargs):
+        will_make_thumbnail = False
+        if not self.pk:
+            will_make_thumbnail = True
         try:
             this = Post.objects.get(id=self.id)
             if this.image != self.image:
                 this.image.delete(save=False)
+                will_make_thumbnail = True
         except:
             pass
         super(Post, self).save(*args, **kwargs)
+        if will_make_thumbnail:
+            image = Image.open(self.image)
+            image.thumbnail((500, 500), Image.ANTIALIAS)
+            image.save('static/' + self.get_thumbnail(), quality=85)
 
 class PostLikes(models.Model):
     class Meta:

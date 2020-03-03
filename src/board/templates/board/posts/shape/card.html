@@ -2,7 +2,7 @@
     <a href="{{ post.get_absolute_url }}">
         {% if post.image %}
         <picture>
-            <img class="list-image" src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy"/>
+            <img class="list-image" src="{{ static_url }}/{{ post.get_thumbnail }}" alt="{{ post.title }}" loading="lazy"/>
         </picture>
         {% else %}
         <picture>
