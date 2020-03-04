@@ -5,7 +5,7 @@ import os
 
 from django.db.models import Count, Q
 from django.core.cache import cache
-from django.core.mail import EmailMessage
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth import update_session_auth_hash, login
@@ -86,12 +86,6 @@ def get_user_topics(user):
         cache.set(cache_key, tags, cache_time)
     return tags
 
-def send_mail(title, mail_args, mail_list):
-    html_message = render_to_string('email/template.html', mail_args)
-    email = EmailMessage('[ BLEX ] '+ title, html_message, to=mail_list)
-    email.content_subtype = 'html'
-    return email.send()
-
 def compere_user(req, res, give_404_if='none'):
     if give_404_if == 'same':
         if req == res:
@@ -165,8 +159,10 @@ def signup(request):
         if form.is_valid():
             filter_name = ['root', 'sudo', 'admin', 'administrator', 'manager', 'master', 'superuser', '관리자']
             if form.cleaned_data['username'] in filter_name:
-                return render(request, 'registration/signup.html',{'form':form, 'error':'사용할 수 없는 아이디입니다.'})
-            if form.cleaned_data['password']  == form.cleaned_data['password_check']:
+                return render(request, 'registration/signup.html', { 'form': form, 'error': '사용할 수 없는 아이디입니다.' })
+            if not form.cleaned_data['password'] == form.cleaned_data['password_check']:
+                return render(request, 'registration/signup.html', { 'form': form, 'error': '입력한 비밀번호가 일치하지 않습니다.' })
+            else:
                 new_user = User.objects.create_user(
                     form.cleaned_data['username'],
                     form.cleaned_data['email'],
@@ -177,16 +173,17 @@ def signup(request):
                 new_user.is_active = False
                 new_user.save()
 
-                mail_args = {
-                    'active_mail': True,
-                    'to':new_user.first_name, 
-                    'link': 'https://blex.kr/active/' + new_user.last_name
-                }
-                t = threading.Thread(target=send_mail, args=('이메일을 인증해 주세요', mail_args, [form.cleaned_data['email']]))
-                t.start()
+                send_mail(
+                    subject = '[ BLEX ] 이메일을 인증해 주세요!',
+                    message = 'https://blex.kr/active/' + new_user.last_name,
+                    from_email = 'im@baejino.com',
+                    recipient_list = [new_user.email],
+                    # html_message = render_to_string('email/template.html', {
+                    #     'username': new_user.first_name,
+                    #     'active_token': 'https://blex.kr/active/' + new_user.last_name,
+                    # })
+                )
                 return render(request, 'email/notification.html', { 'user': new_user })
-            else:
-                return render(request, 'registration/signup.html', { 'form': form, 'error':'입력한 비밀번호가 일치하지 않습니다.'})
     else:
         form = UserForm()
     return render(request, 'registration/signup.html',{ 'form': form })

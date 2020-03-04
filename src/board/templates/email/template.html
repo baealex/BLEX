@@ -7,17 +7,9 @@
         </tr>
         <tr>
             <td bgcolor="#ffffff" style="padding: 40px 30px 40px 30px;">
-                {% if active_mail %}
-                <h2>'{{ to }}'님! 메일을 인증해 주세요!</h2>
-                <p><a href="{{ link }}">{{ link }}</a></p>
+                <h2>'{{ username }}'님! 메일을 인증해 주세요!</h2>
+                <p><a href="{{ active_token }}">{{ active_token }}</a></p>
                 <p>7일 이내에 인증을 완료해주세요!</p>
-                {% endif %}
-
-                {% if comment_notify %}
-                <h2>'{{ to }}'님! 댓글이 달렸습니다!</h2>
-                <p>'{{ from }}'님께서 <a href="{{ link }}">'{{title}}'</a>에 댓글을 다셨습니다.</p>
-                <p>"{{ message }}"</p>
-                {% endif%}
             </td>
         </tr>
         <tr>
