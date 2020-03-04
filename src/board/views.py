@@ -1207,4 +1207,13 @@ def telegram_api_v1(request, parameter):
                 config.telegram_token = randstr(8)
                 config.save()
                 return HttpResponse(config.telegram_token)
+    if parameter == 'unpair':
+        if request.method == 'POST':
+            config = request.user.config
+            if not config.telegram_id == '':
+                config.telegram_id = ''
+                config.save()
+                return HttpResponse('DONE')
+            else:
+                return HttpResponse('error:AU')
 # ------------------------------------------------------------ API V1 End

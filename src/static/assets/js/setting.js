@@ -92,3 +92,26 @@ function telegram() {
         $(`#telegram-token`).text(data);
     });
 }
+var telegram = {
+    pair: () => {
+        $.ajax({
+            url: `/api/v1/telegram/makeToken`,
+            type: "POST",
+        }).done(function (data) {
+            $(`#telegram-token`).text(data);
+        });
+    },
+    unpair: () => {
+        $.ajax({
+            url: `/api/v1/telegram/unpair`,
+            type: "POST",
+        }).done(function (data) {
+            if(data == 'error:AU') {
+                notify.append('텔레그램과의 연동이 이미 해제되었습니다.');
+            } else {
+                notify.append('텔레그램과의 연동이 정상적으로 해제되었습니다.');
+            }
+            $('#TelegramModal').modal("hide");
+        });
+    }
+}
