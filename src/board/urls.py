@@ -15,6 +15,7 @@ urlpatterns = [
     path('signup/help/id', views.id_check, name='id_check'),
     path('active/<token>', views.user_active, name='user_active'),
     path('signout', views.signout, name='signout'),
+    path('opinion', views.opinion, name='opinion'),
     path('setting', views.setting, name='setting'),
     path('setting/<tab>', views.setting_tab, name='setting_tab'),
     # ------------------------------------------------------------ Account End

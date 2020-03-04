@@ -16,7 +16,11 @@
     </div>
     <button type="submit" class="btn btn-dark">정보 변경</button>
     <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#SignoutModal">회원 탈퇴</button>
+    {% if request.user.config.telegram_id %}
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#TelegramModal"><i class="fab fa-telegram-plane"></i> 연동해제</button>
+    {% else %}
     <button type="button" class="btn btn-primary" onclick="telegram()" data-toggle="modal" data-target="#TelegramModal"><i class="fab fa-telegram-plane"></i> 텔레그램 연동</button>
+    {% endif %}
 </form>
 <div class="modal fade noto" id="SignoutModal" tabindex="-1" role="dialog" aria-labelledby="SignoutModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -31,12 +35,36 @@
                 회원님의 정보와 작성한 게시물은 전체 삭제되며 이 작업은 되돌릴 수 없습니다!
             </div>
             <div class="modal-footer">
+                <form method="POST" action="{% url 'signout' %}">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-dark">확인</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% if request.user.config.telegram_id %}
+<div class="modal fade noto" id="TelegramModal" tabindex="-1" role="dialog" aria-labelledby="TelegramModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="TelegramModalLabel">텔레그램을 연동을 해지합니다.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                텔레그램에서 더이상 회원님의 알림과 보고서를 받아볼 수 없습니다. 정말 연동을 해지할까요?
+            </div>
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
                 <button type="button" class="btn btn-dark" onclick="location.href='{% url 'signout' %}'">확인</button>
             </div>
         </div>
     </div>
 </div>
+{% else %}
 <div class="modal fade noto" id="TelegramModal" tabindex="-1" role="dialog" aria-labelledby="TelegramModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -62,3 +90,4 @@
         </div>
     </div>
 </div>
+{% endif %}

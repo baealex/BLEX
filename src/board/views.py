@@ -178,12 +178,12 @@ def signup(request):
                     message = 'https://blex.kr/active/' + new_user.last_name,
                     from_email = 'im@baejino.com',
                     recipient_list = [new_user.email],
-                    # html_message = render_to_string('email/template.html', {
+                    # html_message = render_to_string('email.html', {
                     #     'username': new_user.first_name,
                     #     'active_token': 'https://blex.kr/active/' + new_user.last_name,
                     # })
                 )
-                return render(request, 'email/notification.html', { 'user': new_user })
+                return render(request, 'infomation/signup.html', { 'user': new_user })
     else:
         form = UserForm()
     return render(request, 'registration/signup.html',{ 'form': form })
@@ -222,10 +222,17 @@ def user_active(request, token):
     return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
 
 def signout(request):
-    user = User.objects.get(username=request.user)
-    user.delete()
-    message = '정상적으로 탈퇴되었습니다. 그동안 이용해 주셔서 감사합니다.'
-    return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/\';</script>')
+    if request.method == 'POST':
+        user = User.objects.get(username=request.user)
+        user.delete()
+        return render(request, 'infomation/signout.html', { 'user': user })
+
+def opinion(request):
+    if request.method == 'POST':
+        req = QueryDict(request.body)
+        bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
+        bot.send_message_async(telegram_token.ADMIN_ID, 'Opinion : ' + req['opinion'])
+        return render(request, 'infomation/thanks.html')
 
 @login_required(login_url='/login')
 def setting(request):
@@ -860,15 +867,17 @@ def notify_api_v1(request):
             else:
                 raise Http404
         else:
-            notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
-            data = {
-                'count': len(notify),
-                'content': list()
-            }
-            if data['count'] > 0:
-                for notify_one in notify:
-                    data['content'].append(notify_one.to_dict())
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+            if request.user.is_active:
+                notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
+                data = {
+                    'count': len(notify),
+                    'content': list()
+                }
+                if data['count'] > 0:
+                    for notify_one in notify:
+                        data['content'].append(notify_one.to_dict())
+                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+            return HttpResponse(str(-1))
 
 def topics_api_v1(request):
     if request.method == 'GET':

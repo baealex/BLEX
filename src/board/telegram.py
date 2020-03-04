@@ -39,6 +39,5 @@ class TelegramBot:
         return json.loads(requests.get(req_url).text)
 
 if __name__ == '__main__':
-    # PRIVATE MODULE
-    import telegram_token
+    import telegram_token # PRIVATE MODULE
     bot = TelegramBot(telegram_token.BOT_TOKEN)
