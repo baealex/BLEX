@@ -491,6 +491,7 @@ def series_list(request, username, url):
     render_args = {
         'user': user,
         'series': series,
+        'white_nav': True,
     }
 
     if request.user == series.owner:

@@ -18,36 +18,29 @@
 {% endblock %}
 
 {% block content %}
-</div>
-</div>
 {% if series.posts.first.image %}
-<div class="back-image series-title-image" style="background-image: url({{ series.posts.first.image.url }});">
+<div id="series-image" class="back-image series-title-image" style=" background-image: url({{ series.posts.first.image.url }});">
 {% else %}
-<div class="back-image series-title-image" style="background-image: url({{ static_url }}/assets/images/default-post.png);">
+<div id="series-image" class="back-image series-title-image" style=" background-image: url({{ static_url }}/assets/images/default-post.png);">
 {% endif %}
-    <div class="mask">
-        <h3 class="serif font-weight-bold"><span class="post-series">@{{ user.username }}</span>'{{ series.name }}' 시리즈</h3>
+    <div class="fade-mask">
     </div>
-    <a href="{% url 'user_profile' username=user.username %}">
-        {% if user.profile.avatar %}
-        <div class="user-thumb back-image" style="background-image:url({{ user.profile.avatar.url }})"></div>
-        {% else %}
-        <div class="user-thumb back-image" style="background-image:url({{ static_url }}/assets/images/default-avatar.jpg)"></div>
-        {% endif %}
-    </a>
 </div>
-
-<div class="container series-list">
+<div class="series-list">
     <div class="col-lg-8 mx-auto">
+        <h2 class="serif font-weight-bold">
+            '{{ series.name }}' 시리즈
+        </h2>
+        <a class="post-series deep-dark serif font-weight-bold mb-3" href="{% url 'user_profile' username=user.username %}">written by {{ user.username }}</a>
         {% if series.owner == request.user %}
-        <div class="text-right">
+        <div class="mb-3">
             <a class="btn btn-dark" href="javascript:void(0)" data-toggle="modal" data-target="#eidtModal">수정</a>
             <a class="btn btn-dark" href="javascript:void(0)" onclick="series.remove({{ series.pk }})">삭제</a>
         </div>
         {% endif %}
         {% for post in series.posts.all %}
         <div class="mb-5">
-            <h5 class="card-title serif font-weight-bold"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title | truncatechars:50 }}</a></h5>
+            <h5 class="card-title serif font-weight-bold"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ forloop.counter }}. {{ post.title | truncatechars:50 }}</a></h5>
             <p><a class="shallow-dark noto" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.text_html | striptags | truncatewords:50 }}</a></p>
         </div>
         {% endfor %}
@@ -55,11 +48,11 @@
 </div>
 
 {% if series.owner == request.user %}
-<div class="modal fade" id="eidtModal" tabindex="-1" role="dialog" aria-labelledby="eidtModalLabel" aria-hidden="true">
+<div class="modal fade noto" id="eidtModal" tabindex="-1" role="dialog" aria-labelledby="eidtModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="eidtModalLabel">Series Update</h5>
+                <h5 class="modal-title" id="eidtModalLabel">시리즈 편집</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -82,7 +75,7 @@
 {% endblock %}
 
 {% block footer%}
-    {% include 'board/common/include/footer_reverse.html' %}
+    {% include 'board/common/include/footer.html' %}
 {% endblock %}
 
 {% block script %}
@@ -97,6 +90,15 @@
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
                 }
             }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var screenHeight = $(window).height();
+        $(window).scroll(function () {
+            var screenPosition = $(this).scrollTop();
+            $('#series-image').css('opacity', (screenHeight-screenPosition)/screenHeight);
         });
     });
 </script>

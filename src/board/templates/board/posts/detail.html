@@ -88,9 +88,6 @@
         <article class="article noto">
             {{ post.text_html | safe }}
         </article>
-        {% if this_series %}
-            {% include 'board/posts/include/series.html' %}
-        {% endif %}
         {% load tagging_tags %}
         {% tags_for_object post as tags %}
         <ul class="tag-list">
@@ -98,6 +95,9 @@
             <li><a href="{% url 'user_profile_topic' username=post.author tag=tag.name %}">{{ tag.name }}</a></li>
             {% endfor %}
         </ul>
+        {% if this_series %}
+            {% include 'board/posts/include/series.html' %}
+        {% endif %}
     </div>
     <div class="col-lg-2 mobile-disable">
         <div id="article-nav" class="sticky-top sticky-top-100"></div>

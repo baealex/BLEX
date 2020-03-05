@@ -1,22 +1,27 @@
-<div class="my-4 text-center">
-    <h5 class="serif bg-border-purple p-4"><a href="{{ this_series.get_absolute_url }}" class="text-decoration-none vivid-purple">'{{ this_series }}' 시리즈</a></h5>
+<div class="my-4 text-center noto">
+    <hr class="gradient-hr"/>
+    <h5 class="serif py-4">
+        <a href="{{ this_series.get_absolute_url }}" class="text-decoration-none deep-dark">
+            '{{ this_series }}' 시리즈
+        </a>
+    </h5>
     <div class="row justify-content-between">
         <div class="col-md-6">
         {% if prev_serise %}
-            <div class="col-md-12 bg-light rounded p-3 mt-3">
-                <a class="text-decoration-none deep-dark" href="{{ prev_serise.get_absolute_url }}?series={{ this_series.url }}">
+            <a class="text-decoration-none deep-dark" href="{{ prev_serise.get_absolute_url }}?series={{ this_series.url }}">
+                <div class="col-md-12 bg-light rounded p-3 mt-3 show-up">
                     <i class="fas fa-arrow-circle-left vivid-purple"></i><br>{{ prev_serise }}
-                </a>
-            </div>
+                </div>
+            </a>
         {% endif %}
         </div>
         <div class="col-md-6">
         {% if next_serise %}
-            <div class="col-md-12 bg-light rounded p-3 mt-3">
-                <a class="text-decoration-none deep-dark" href="{{ next_serise.get_absolute_url }}?series={{ this_series.url }}">
+            <a class="text-decoration-none deep-dark" href="{{ next_serise.get_absolute_url }}?series={{ this_series.url }}">
+                <div class="col-md-12 bg-light rounded p-3 mt-3 show-up">
                     <i class="fas fa-arrow-circle-right vivid-purple"></i><br>{{ next_serise }}
-                </a>
-            </div>
+                </div>
+            </a>
         {% endif %}
         </div>
     </div>
