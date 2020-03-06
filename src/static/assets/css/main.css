@@ -680,10 +680,10 @@ footer a:hover {
 }
 .share ul li a i {
     transition: transform 0.2s;
-    font-size: 24px;
+    font-size: 20px;
 }
 .share ul li a i:hover {
-    transform: scale(1.2);
+    transform: rotate(360deg);
 }
 .share, .share a {
     color:rgba(0,0,0,.33);
@@ -694,7 +694,7 @@ footer a:hover {
    }
 }
 #heart .fas {
-    color: #c00;
+    color: #000;
 }
 /* POSTS : DETAIL : COMMENT */
 #comment {
