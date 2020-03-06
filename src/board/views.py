@@ -697,7 +697,6 @@ def post_detail(request, username, url):
         'check_like' : post.likes.filter(id=request.user.id).exists(),
         'current_path': request.get_full_path(),
         'battery': get_exp(user),
-        'post_usernav_action': True,
         'grade': get_grade(user)
     }
 

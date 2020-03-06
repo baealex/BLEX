@@ -82,16 +82,4 @@
 <script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/js/thread.js?{{ static_version }}"></script>
-<script>
-  $(document).ready(function () {
-    var csrftoken = getCookie('csrftoken');
-    $.ajaxSetup({
-      beforeSend: function (xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-          xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-      }
-    });
-  });
-</script>
 {% endblock %}

@@ -115,18 +115,6 @@
 {% endblock %}
 
 {% block script %}
-<script type="text/javascript">
-$(document).ready(function() {
-  var csrftoken = getCookie('csrftoken');
-  $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-      }
-    }
-  });
-});
-</script>
 {% if tab == 'series' or tab == 'activity' %}
 <script src="{{ static_url }}/assets/library/InfiniteScroll.js?{{ static_version }}"></script>
 <script type="text/javascript">

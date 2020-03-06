@@ -354,6 +354,10 @@ footer a:hover {
     top: 100px !important;
     margin-bottom: 30px;
 }
+.sticky-top-200 {
+    top: 200px !important;
+    margin-bottom: 30px;
+}
 .sticky-margin-top-40 {
     margin-top:40px;
     margin-bottom:40px;
@@ -667,28 +671,22 @@ footer a:hover {
     margin-bottom:10px;
     font-size:0.95rem;
 }
+.share ul {
+    padding-left: 0;
+}
 .share ul li {
     display:inline-block;
-    margin-bottom:9px;
+    margin-bottom:15px;
 }
-.share ul {
-    padding-left:0;
-    margin-left:0;
+.share ul li a i {
+    transition: transform 0.2s;
+    font-size: 24px;
 }
-.share ul li i.fa {
-    border:1px solid #ddd;
-    width:30px;
-    height:30px;
-    line-height:30px;
-    text-align:center;
-    border-radius:50%;
-}
-.svgIcon {
-    vertical-align:middle;
+.share ul li a i:hover {
+    transform: scale(1.2);
 }
 .share, .share a {
-    color:rgba(0,0,0,.44);
-    fill:rgba(0,0,0,.44);
+    color:rgba(0,0,0,.33);
 }
 @media (max-width: 768px) {
     .share {

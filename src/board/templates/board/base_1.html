@@ -37,14 +37,11 @@
             <a class="navbar-brand" href="{{ site_url }}">
                 <img src="{{ static_url }}/assets/images/logor.png" width="35" height="35" alt="">
             </a>
-            {% block usernav %}{% endblock %}
     {% endif %}
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
-            {% block usernav_action %}{% endblock %}
-            {% if not post_usernav_action %}
                 <ul class="navbar-nav">
                 {% if request.user.is_active %}
                     {% url 'user_profile' username=request.user as my_profile %}
@@ -66,7 +63,6 @@
                     </li>
                 {% endif %}
                 </ul>
-            {% endif %}
             </div>
         </div>
     </nav>
@@ -83,12 +79,24 @@
         </div>
     </div>
     {% block footer %}{% endblock %}
+    <div id="notify-content"></div>
     <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/main.js?{{ static_version }}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/renderer.js?{{ static_version }}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/notify.js?{{ static_version }}"></script>
-    <div id="notify-content"></div>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var csrftoken = getCookie('csrftoken');
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    });
+    </script>
     {% block script %}{% endblock %}
     {% if request.user.is_active %}{% include 'board/common/include/notify.html' %}{% endif %}
 </body>

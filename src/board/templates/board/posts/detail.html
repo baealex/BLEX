@@ -21,6 +21,7 @@
 {% endblock %}
 
 {% block usernav %}
+<!--바꿔야 할 항목-->
 <ul class="navbar-nav">
     <li class="nav-item">
         <a class="nav-link" href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a>
@@ -29,6 +30,7 @@
 {% endblock %}
 
 {% block usernav_action %}
+<!--바꿔야 할 항목-->
 <ul class="navbar-nav">
     <li class="nav-item">
         <a id="heart" class="nav-link" href="javascript:void(0);" onclick="posts.like({{ post.pk }});">
@@ -73,7 +75,10 @@
 
 {% block content %}
 <div class="row">
-    <div class="ml-auto col-lg-8">
+    <div class="col-lg-2 px-4">
+        {% include 'board/posts/include/share_and_like.html' %}
+    </div>
+    <div class="col-lg-8">
         {% if not post.image %}
         <h1 class="post-headline">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
         <p class="post-date">
@@ -163,16 +168,4 @@
 {% if post.image %}
 <script type="text/javascript" src="{{ static_url }}/assets/js/navigation.js?{{ static_version }}"></script>
 {% endif %}
-<script>
-$(document).ready(function() {
-  var csrftoken = getCookie('csrftoken');
-  $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-      }
-    }
-  });
-});
-</script>
 {% endblock %}
