@@ -1,3 +1,10 @@
 User-agent: *
+Disallow: /*?page$
+Disallow: /*?page=
+Disallow: /*?series$
+Disallow: /*?series=
+Disallow: /search?value$
+Disallow: /search?value=
+Disallow: /d*admin/
 Allow: /
-Sitemap: https://blex.kr/sitemap.xml
+Sitemap: https://blex.me/sitemap.xml
