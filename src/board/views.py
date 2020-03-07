@@ -48,6 +48,10 @@ def get_posts(sort='all'):
         threads = Thread.objects.filter(notice=True).order_by('-created_date')
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
 
+def get_clean_tag(tag):
+    clean_tag = slugify(tag.replace(',', '-'), allow_unicode=True).split('-')
+    return ','.join(list(set(clean_tag)))
+
 def get_clean_all_tags(user=None):
     posts = Post.objects.filter(hide=False)
     thread = Thread.objects.filter(hide=False)
@@ -57,13 +61,10 @@ def get_clean_all_tags(user=None):
     else:
         tagslist = list(posts.filter(author=user).values_list('tag', flat=True).distinct()) + (
             list(thread.filter(author=user).values_list('tag', flat=True).distinct()))
-        
-    all_tags = []
-    for anothertags in tagslist:
-        for subtag in anothertags.split(','):
-            if not subtag.strip() == '':
-                all_tags.append(subtag.strip())
-    all_tags = list(set(all_tags))
+
+    all_tags = set()
+    for tags in tagslist:
+        all_tags.update([x for x in tags.split(',') if not x.strip() == ''])
 
     all_tags_dict = list()
     for tag in all_tags:
@@ -82,7 +83,7 @@ def get_user_topics(user):
     tags = cache.get(cache_key)
     if not tags:
         tags = sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
-        cache_time = 1000
+        cache_time = 120
         cache.set(cache_key, tags, cache_time)
     return tags
 
@@ -504,31 +505,6 @@ def series_list(request, username, url):
 
 
 
-# Comment
-def comment_like(request, cpk):
-    if not request.user.is_active:
-        return HttpResponse('error:NL')
-
-    comment = get_object_or_404(Comment, pk=cpk)
-    
-    if request.user == comment.author:
-        return HttpResponse('error:SU')
-
-    if request.method == 'POST':
-        user = User.objects.get(username=request.user)
-        if comment.likes.filter(id=user.id).exists():
-            comment.likes.remove(user)
-            comment.save()
-        else:
-            comment.likes.add(user)
-            comment.save()
-        
-        return HttpResponse(str(comment.total_likes()))
-    
-# ------------------------------------------------------------ Comment End
-
-
-
 # Others
 def search(request):
     value = request.GET.get('value', '')
@@ -619,7 +595,7 @@ def thread_create(request):
         if form.is_valid():
             thread = form.save(commit=False)
             thread.author = request.user
-            thread.tag = slugify(thread.tag.replace(',', '-'), allow_unicode=True).replace('-', ',')
+            thread.tag = get_clean_tag(thread.tag)
             thread.url = slugify(thread.title, allow_unicode=True)
             if thread.url == '':
                 thread.url = randstr(15)
@@ -641,7 +617,7 @@ def thread_edit(request, pk):
         form = ThreadForm(request.POST, request.FILES, instance=thread)
         if form.is_valid():
             thread = form.save(commit=False)
-            thread.tag = slugify(thread.tag.replace(',', '-'), allow_unicode=True).replace('-', ',')
+            thread.tag = get_clean_tag(thread.tag)
             thread.allow_write = thread_allow_write_state
             thread.save()
             return redirect('thread_detail', url=thread.url)
@@ -817,7 +793,7 @@ def post_write(request):
             post = form.save(commit=False)
             post.author = request.user
             post.text_html = parsedown(post.text_md)
-            post.tag = slugify(post.tag.replace(',', '-'), allow_unicode=True).replace('-', ',')
+            post.tag = get_clean_tag(post.tag)
             post.url = slugify(post.title, allow_unicode=True)
             if post.url == '':
                 post.url = randstr(15)
@@ -845,7 +821,7 @@ def post_edit(request, pk):
             post = form.save(commit=False)
             post.updated_date = timezone.now()
             post.text_html = parsedown(post.text_md)
-            post.tag = slugify(post.tag.replace(',', '-'), allow_unicode=True).replace('-', ',')
+            post.tag = get_clean_tag(post.tag)
             post.save()
             return redirect('post_detail', username=post.author, url=post.url)
     else:
@@ -892,18 +868,6 @@ def topics_api_v1(request):
 def posts_api_v1(request, pk):
     post = get_object_or_404(Post, pk=pk)
 
-    if request.method == 'GET':
-        if request.GET.get('get') == 'commentor':
-                comments = Comment.objects.filter(post=post).order_by('created_date').reverse()
-                m_list  = []
-                for comment in comments:
-                    m_list.append(comment.author.username)
-                m_list = list(set(m_list))
-                result = ''
-                for commentor in m_list:
-                    result += commentor + ','
-                return HttpResponse(result)
-    
     if request.method == 'PUT':
         put = QueryDict(request.body)
         if put.get('like'):
@@ -936,7 +900,7 @@ def posts_api_v1(request, pk):
             return JsonResponse({'hide': post.hide})
         if put.get('tag'):
             compere_user(request.user, post.author, give_404_if='different')
-            post.tag = slugify(put.get('tag').replace(',', '-'), allow_unicode=True).replace('-', ',')
+            post.tag = get_clean_tag(put.get('tag'))
             post.save()
             return JsonResponse({'tag': post.tag}, json_dumps_params = {'ensure_ascii': True})
     
@@ -973,10 +937,10 @@ def comment_api_v1(request, pk=None):
     
     if pk:
         comment = get_object_or_404(Comment, pk=pk)
-        if not request.user == comment.author:
-            return HttpResponse('error:DU')
         if request.method == 'GET':
             if request.GET.get('get') == 'form':
+                if not request.user == comment.author:
+                    return HttpResponse('error:DU')
                 form = CommentForm(instance=comment)
                 return render(request, 'board/posts/form/comment.html', {'form': form, 'comment': comment})
             else:
@@ -988,7 +952,22 @@ def comment_api_v1(request, pk=None):
         
         if request.method == 'PUT':
             put = QueryDict(request.body)
+            if put.get('like'):
+                if not request.user.is_active:
+                    return HttpResponse('error:NL')
+                if request.user == comment.author:
+                    return HttpResponse('error:SU')
+                user = User.objects.get(username=request.user)
+                if comment.likes.filter(id=user.id).exists():
+                    comment.likes.remove(user)
+                    comment.save()
+                else:
+                    comment.likes.add(user)
+                    comment.save()
+                return HttpResponse(str(comment.total_likes()))
             if put.get('text'):
+                if not request.user == comment.author:
+                    return HttpResponse('error:DU')
                 comment.text = put.get('text')
                 comment.edit = True
                 comment.save()
@@ -1001,6 +980,8 @@ def comment_api_v1(request, pk=None):
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         
         if request.method == 'DELETE':
+            if not request.user == comment.author:
+                return HttpResponse('error:DU')
             data = {
                 'pk': comment.pk
             }
@@ -1079,7 +1060,7 @@ def thread_api_v1(request, pk=None):
         if request.method == 'GET':
             if request.GET.get('get') == 'modal':
                 form = ThreadForm(instance=thread)
-                return render(request, 'board/thread/form/thread.html', {'form': form, 'edit': True, 'pk': pk})
+                return render(request, 'board/thread/form/thread.html', {'form': form, 'thread': thread})
         if request.method == 'PUT':
             put = QueryDict(request.body)
             if put.get('bookmark'):
@@ -1102,9 +1083,9 @@ def thread_api_v1(request, pk=None):
                 return JsonResponse({'hide': thread.hide})
             if put.get('tag'):
                 compere_user(request.user, thread.author, give_404_if='different')
-                thread.tag = slugify(put.get('tag').replace(',', '-'), allow_unicode=True).replace('-', ',')
+                thread.tag = get_clean_tag(put.get('tag'))
                 thread.save()
-                return JsonResponse({'tag': post.tag}, json_dumps_params = {'ensure_ascii': True})
+                return JsonResponse({'tag': thread.tag}, json_dumps_params = {'ensure_ascii': True})
         if request.method == 'DELETE':
             thread.delete()
             return HttpResponse('DONE')

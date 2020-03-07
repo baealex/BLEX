@@ -29,7 +29,8 @@
 							<p>
 								<div class="custom-file">
 									{{ form.image }}
-        							<label class="custom-file-label" for="id_image">{% if post.image %}{{ post.image.url }}{% else %}타이틀 이미지를 선택하세요.{% endif %}
+        							<label class="custom-file-label" for="id_image">
+										{% if post.image %}{{ post.image.url }}{% else %}타이틀 이미지를 선택하세요.{% endif %}
 									</label>
     							</div>
 							</p>
@@ -56,7 +57,7 @@
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-dark" data-dismiss="modal">취소</button>
-							<button onclick="onSubmit()" class="btn btn-dark">확인</button>
+							<button type="submit" onmouseover="preSubmit()" onmouseout="notSubmit()" class="btn btn-dark">확인</button>
 						</div>
 					</div>
 				</div>
@@ -80,7 +81,8 @@
 	</div>
     <script src="{% static 'library/jquery.js' %}?{{ static_version }}"></script>
     <script src="{% static 'library/bootstrap.js' %}?{{ static_version }}"></script>
-    <script src="{% static 'editormd/editormd.js' %}?{{ static_version }}"></script>
+	<script src="{% static 'editormd/editormd.js' %}?{{ static_version }}"></script>
+	<script src="{% static 'js/event.js' %}?{{ static_version }}"></script>
 	<script type="text/javascript">
 	if($(window).width() > 800) {
 		var testEditor;
@@ -101,22 +103,18 @@
 		});
 		$('#cancle').addClass('cancle-btn');
 	}
-	</script>
-	<script>
-    $('#id_image').on('change', function(){
-        var fileName = $(this).val();
-        $(this).next('.custom-file-label').html(fileName);
-	})
 	function captureReturnKey(e) {
 		if(e.keyCode==13) return false;
 	}
-	function onSubmit() {
-		checkUnload = false;
-    	$("#posts-form").submit();
+	isSubmit = false;
+	function preSubmit() {
+		isSubmit = true;
 	}
-	var checkUnload = true;
+	function notSubmit() {
+		isSubmit = false;
+	}
 	$(window).bind("beforeunload", function (e){
-		if(checkUnload) return "변경 사항이 적용되지 않습니다. 정말 종료합니까?";
+		if(!isSubmit) return "변경 사항이 적용되지 않습니다. 정말 종료합니까?";
 	});
 	</script>
 </body>

@@ -1,15 +1,14 @@
 <div>
-    <button class="btn btn-dark btn-block mb-2" onclick="showThreadModal()">
+    <button class="btn btn-dark btn-block mb-2" onclick="Thread.create()">
         새로운 스레드 생성
     </button>
     <ul class="list-group">
         {% for thread in elements %}
-        <li id="thread-{{ thread.pk }}" class="card p-3 mb-2">
+        <li id="setting-thread-{{ thread.pk }}" class="card p-3 mb-2">
             <p><a class="deep-dark" href="{{ thread.get_absolute_url }}">{{ thread.title }}</a></p>
             <ul class="setting-list-info">
-                <li><a class="element-lock" href="javascript:setting.thread.lock({{ thread.pk }})"><i id="lock-{{ thread.pk }}" class="fas fa-lock{% if not thread.hide %}-open{% endif %}"></i></a></li>
-                <li><a class="text-dark" href="{% url 'thread_edit' pk=thread.pk %}"><i class="far fa-edit"></i></a></li>
-                <li><a class="text-dark" href="javascript:setting.thread.remove({{ thread.pk }})"><i class="far fa-trash-alt"></i></a></li>
+                <li><a class="element-lock" href="javascript:Thread.lock({{ thread.pk }})"><i id="lock-{{ thread.pk }}" class="fas fa-lock{% if not thread.hide %}-open{% endif %}"></i></a></li>
+                <li><a class="text-dark" href="javascript:Thread.remove({{ thread.pk }})"><i class="far fa-trash-alt"></i></a></li>
                 <li>|</li>
                 <li><i class="far fa-eye"></i> <span class="ns">(Today : {{ thread.today }}, Yesterday : {{ thread.yesterday }}, Total : {{ thread.total|add:thread.today|add:thread.yesterday }})</span></li>
                 <li><i class="far fa-bookmark"></i> {{ thread.total_bookmark }}</li>
@@ -21,7 +20,7 @@
                         <div class="input-group-text">TAG</div>
                     </div>
                     <input type="text" name="tag" value="{{thread.tag}}" class="form-control" maxlength="255">
-                    <button type="button" class="btn btn-dark" onclick="setting.thread.changeTag({{ thread.pk }})">
+                    <button type="button" class="btn btn-dark" onclick="Thread.changeTag({{ thread.pk }})">
                         변경
                     </button>
                 </div>

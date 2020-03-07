@@ -55,7 +55,7 @@
             <li>
                 <img src="https://img.shields.io/badge/-{{ grade }}">
             </li>
-            <li onclick="userFollow('{{ user }}')">
+            <li onclick="User.follow('{{ user }}')">
                 <img class="follow-badge" src="https://img.shields.io/badge/subscriber-{% if user.profile.subscriber %}{{ user.profile.total_subscriber }}{% else %}0{% endif %}-red?style=social">
             </li>
         </ul>
@@ -124,10 +124,5 @@
     new InfiniteScroll(paginatePath, postWrapperId, lastPage);
 </script>
 {% endif %}
-{% if selected_tag or get_page %}
-<script>
-    moveSlide('wrapper');
-</script>
-{% endif %}
-<script src="{{ static_url }}/assets/js/user.js?{{ static_version }}"></script>
+{% if selected_tag or get_page %}<script>moveSlide('wrapper');</script>{% endif %}
 {% endblock %}

@@ -32,10 +32,6 @@ urlpatterns = [
     path('@<username>/series/<url>', views.series_list, name='series_list'),
     # ------------------------------------------------------------ Series End
 
-    # Comment
-    path('comment/<int:cpk>/like', views.comment_like, name='comment_like'),
-    # ------------------------------------------------------------ Comment End
-
     # Others
     path('search', views.search, name='search'),
     path('backup',views.content_backup,name='content_backup'),

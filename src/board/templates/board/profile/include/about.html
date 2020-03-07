@@ -11,7 +11,7 @@
             {% endif %}
         </article>
         {% if user == request.user %}
-        <button id="aboutButton" class="btn btn-dark btn-block mt-3 edit" onclick="editAbout('{{ request.user.username }}')">편집</button>
+        <button id="aboutButton" class="btn btn-dark btn-block mt-3 edit" onclick="User.editAbout('{{ request.user.username }}')">편집</button>
         {% endif %}
     </div>
 </div>

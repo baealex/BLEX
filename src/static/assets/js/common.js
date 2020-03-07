@@ -1,12 +1,12 @@
 function setCookie(cookie) {
   var willCookie = '';
-  if(cookie.name != undefined && cookie.value != undefined)
+  if (cookie.name != undefined && cookie.value != undefined)
     willCookie += cookie.name + '=' + cookie.value + ';';
-  if(cookie.expire != undefined)
+  if (cookie.expire != undefined)
     willCookie += 'Expires=' + cookie.expire + ';';
-  if(cookie.damain != undefined)
+  if (cookie.damain != undefined)
     willCookie += 'Domain=' + cookie.domain + ';';
-  if(cookie.path != undefined)
+  if (cookie.path != undefined)
     willCookie += 'Path=' + cookie.path + ';';
   document.cookie = willCookie;
 }
@@ -32,74 +32,31 @@ function csrfSafeMethod(method) {
   return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
-/* ANIMAION */
-
 function moveSlide(target, margin = 80) {
   $('html, body').animate({ scrollTop: $('#' + target).offset().top - margin }, 500);
 }
 
 function numberCounter(target_frame, target_number) {
-  this.count = 0; this.diff = 0;
+  this.count = 0;
+  this.diff = 0;
   this.target_count = parseInt(target_number);
   this.target_frame = document.getElementById(target_frame);
   this.timer = null;
   this.counter();
 };
 
-numberCounter.prototype.counter = function() {
+numberCounter.prototype.counter = function () {
   var self = this;
   this.diff = this.target_count - this.count;
-  
-  if(this.diff > 0) {
-      self.count += Math.ceil(this.diff / 5);
+
+  if (this.diff > 0) {
+    self.count += Math.ceil(this.diff / 5);
   }
   this.target_frame.innerHTML = this.count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  
-  if(this.count < this.target_count) {
-      this.timer = setTimeout(function() { self.counter(); }, 50);
+
+  if (this.count < this.target_count) {
+    this.timer = setTimeout(function () { self.counter(); }, 50);
   } else {
-      clearTimeout(this.timer);
+    clearTimeout(this.timer);
   }
 };
-
-/* RENDERING */
-
-function showThreadModal() {
-  if (!document.getElementById('createThread')) {
-    $.ajax({
-      url: "/api/v1/thread?get=modal",
-      type: "get",
-    }).done(function (data) {
-      $('body').append(data);
-      $('#createThread').modal('show')
-    });
-  }
-  else {
-    $('#createThread').modal('show')
-  }
-}
-
-/* REST CLIENT */
-
-function getTopics() {
-  $(document).ready(() => {
-    $.ajax({
-      url: '/api/v1/topics',
-      type: 'get',
-    }).done((data) => {
-      var result = '';
-      data.tags.forEach((element) => {
-        result += `<li><a href="/topic/${element.name}">${element.name}<span class="ns">(${element.count})</span></a></li>`
-      });
-      $('#tagList').html(result);
-    });
-  });
-}
-
-$('.gp').on('click', function(){
-  location.href='?page=' + $('.pn').val();
-})
-
-$('.pn').on('submit', function(){
-  location.href='?page=' + $('.pn').val();
-})

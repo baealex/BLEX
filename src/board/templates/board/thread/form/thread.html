@@ -1,4 +1,4 @@
-<form method="POST" action="{% if not edit %}{% url 'thread_create' %}{% else %}{% url 'thread_edit' pk=pk %}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
+<form method="POST" action="{% if not thread %}{% url 'thread_create' %}{% else %}{% url 'thread_edit' pk=thread.pk %}{% endif %}" enctype="multipart/form-data">{% csrf_token %}
     <div class="modal fade" id="createThread" tabindex="-1" role="dialog" aria-labelledby="createThread" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -9,7 +9,8 @@
                     <p>
                         <div class="custom-file">
                             {{ form.image }}
-                            <label class="custom-file-label" for="id_image">{% if post.image %}{{ post.image.url }}{% else %}스레드의 대표 이미지를 선택하세요.{% endif %}
+                            <label class="custom-file-label" for="id_image">
+                                {% if thread.image %}{{ thread.image.url }}{% else %}대표 이미지를 선택하세요.{% endif %}
                             </label>
                         </div>
                     </p>

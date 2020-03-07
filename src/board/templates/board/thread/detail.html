@@ -37,20 +37,20 @@
           {% endfor %}
       </ul>
       {% if thread.author == request.user %}
-      <a class="btn btn-dark" href="javascript:void(0)" onclick=thread.edit({{ thread.pk }})>수정</a>
-      <a class="btn btn-dark" href="javascript:void(0)" onclick=thread.remove({{ thread.pk }})>삭제</a>
+      <a class="btn btn-dark" href="javascript:void(0)" onclick=Thread.edit({{ thread.pk }})>수정</a>
+      <a class="btn btn-dark" href="javascript:void(0)" onclick=Thread.remove({{ thread.pk }})>삭제</a>
       {% endif %}
     </div>
   </div>
   {% if thread.allow_write or thread.author == request.user %}
     {% if request.user.is_active %}
     <form id='image-form' enctype='multipart/form-data'>
-      <input name="image" type="file" accept="image/*" onchange="imageUpload()" style="display: none;"/>
+      <input name="image" type="file" accept="image/*" style="display: none;"/>
     </form>
     <form id="story-form" method="thread">
       {% csrf_token %}
       {{ form.as_p }}
-      <button type="button" onclick="story.write({{ thread.pk }})" class="btn btn-dark">스토리 작성</button>
+      <button type="button" onclick="Story.write({{ thread.pk }})" class="btn btn-dark">스토리 작성</button>
       <button id="image-upload-button" type="button" class="btn btn-dark">이미지 업로드</button>
     </form>
     <hr>
@@ -81,5 +81,4 @@
 {% block script %}
 <script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
 <script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
-<script type="text/javascript" src="{{ static_url }}/assets/js/thread.js?{{ static_version }}"></script>
 {% endblock %}

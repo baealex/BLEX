@@ -238,7 +238,7 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         will_make_thumbnail = False
-        if not self.pk:
+        if not self.pk and self.image:
             will_make_thumbnail = True
         try:
             this = Post.objects.get(id=self.id)

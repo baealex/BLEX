@@ -82,9 +82,10 @@
     <div id="notify-content"></div>
     <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/main.js?{{ static_version }}"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/renderer.js?{{ static_version }}"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/notify.js?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/common.js?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/render.js?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/action.js?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/event.js?{{ static_version }}"></script>
     <script type="text/javascript">
     $(document).ready(function() {
         var csrftoken = getCookie('csrftoken');

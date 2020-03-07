@@ -1,4 +1,4 @@
-<div class="row post-top-meta" onmousedown="distoryLatelyPosition()">
+<div class="row post-top-meta">
     <a href="{% url 'user_profile' username=post.author.username%}">
         {% if post.author.profile.avatar %}
         <div class="back-image thumb author-thumb" style="background-image:url({{ post.author.profile.avatar.url }})"></div>
@@ -15,7 +15,7 @@
                 <li>
                     <img src="https://img.shields.io/badge/-{{ grade }}">
                 </li>
-                <li onclick="userFollow('{{ post.author }}')">
+                <li onclick="User.follow('{{ post.author }}')">
                     <img class="follow-badge" src="https://img.shields.io/badge/subscriber-{% if post.author.profile.subscriber %}{{ post.author.profile.total_subscriber }}{% else %}0{% endif %}-red?style=social">
                 </li>
             </ul>

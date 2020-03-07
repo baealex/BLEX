@@ -2,10 +2,10 @@
     <div class="share">
         <ul class="px-3">
             <li class="mx-4">
-                <a id="heart" href="javascript:void(0);" onclick="posts.like({{ post.pk }});">
+                <a id="heart" href="javascript:void(0);" onclick="Posts.like({{ post.pk }});">
                     <i class="{%if check_like %}fas{% else %}far{% endif %} fa-heart"></i>
                 </a>
-                <a id="like-count" class="mobile-disable text-decoration-none" href="javascript:void(0);" onclick="posts.like({{ post.pk }})">{{ post.total_likes }}<a>
+                <a id="like-count" class="mobile-disable text-decoration-none" href="javascript:void(0);" onclick="Posts.like({{ post.pk }})">{{ post.total_likes }}<a>
             </li>
             {% if not post.comment_block %}
             <li class="mx-4">
