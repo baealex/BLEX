@@ -1,22 +1,34 @@
-<div class="thread-card p-4">
-    <p class="serif"><strong>{{ story.title }}</strong></p>
-    <a href="{% url 'user_profile' username=story.author %}">
-        {% if story.author.profile.avatar %}
-        <div class="back-image thumb comment-thumb" style="background-image:url({{ story.author.profile.avatar.url }})"></div>
-        {% else %}
-        <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
+<div class="card story-card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    {% if story.author.profile.avatar %}
+                    <div class="back-image thumb comment-thumb" style="background-image:url({{ story.author.profile.avatar.url }})"></div>
+                    {% else %}
+                    <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="h6 noto story-title m-0">{{ story.title }}</div>
+                    <div class="h7 text-muted">@{{ story.author }}</div>
+                </div>
+            </div>
+            <div>
+                <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>{{ story.created_date|timesince }} 전 {% if story.updated_date|date:"YmdHi" > story.created_date|date:"YmdHi"%}(edited){% endif %}</div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="article">
+            {{ story.text_html | safe }}
+        </div>
+    </div>
+    <div class="card-footer">
+        <a class="card-link shallow-dark" href="#"><i class="fas fa-chevron-down"></i></a>
+        {% if story.author == request.user %}
+        <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.edit({{story.pk}})"><i class="far fa-edit"></i></a>
+        <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.remove({{story.pk}});"><i class="far fa-trash-alt"></i></a>
         {% endif %}
-    </a>
-    <a class="font-weight-bold deep-dark" href="{% url 'user_profile' username=story.author %}">@{{ story.author }}</a>
-    <br>
-    <small>{{ story.created_date|date:"Y-m-d H:i" }}{% if story.updated_date|date:"YmdHi" > story.created_date|date:"YmdHi"%}(Last Update: {{ story.updated_date|date:"Y-m-d H:i" }}){% endif %}</small>
-    <ul class="none-list">
-    {% if story.author == request.user %}
-        <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="Story.edit({{story.pk}})">수정</a></li>
-        <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="Story.remove({{story.pk}});">삭제</a></li>
-    {% endif %}
-    </ul>
-    <div class="article">
-        {{ story.text_html | safe }}
     </div>
 </div>

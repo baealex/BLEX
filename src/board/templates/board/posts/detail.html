@@ -108,38 +108,43 @@
         <div id="article-nav" class="sticky-top sticky-top-100"></div>
     </div>
 </div>
+</div>
+</div>
 
-<div id="comment" class="mt-5">
-    {% if post.block_comment %}
-    <div id="comment-close" class="comment-list">
-        <p>댓글이 닫혀 있습니다.</p>
-    </div>
-    {% else %}
-        {% for comment in post.comments.all %}
-            {% include 'board/posts/include/comment.html' %}
-        {% empty %}
-        <div id="comment-empty" class="comment-list">
-            <p>작성된 댓글이 없습니다!</p>
+<div class="mt-5 py-5 bg-light">
+    <div class="container">
+        <div class="col-lg-8 mx-auto px-0">
+            {% if post.block_comment %}
+            <div id="comment-close" class="comment-list">
+                댓글이 닫혀 있습니다.
+            </div>
+            {% else %}
+            <div id="comment">
+                {% for comment in post.comments.all %}
+                    {% include 'board/posts/include/comment.html' %}
+                {% empty %}
+                <div id="comment-empty" class="comment-list">
+                    작성된 댓글이 없습니다!
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if not post.block_comment %}
+            {% if request.user.is_active %}
+            <form id="comment-form" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="button" onclick="Comment.write({{ post.pk }})" class="btn btn-dark">댓글 작성</button>
+            </form>
+            {% else %}
+            {% csrf_token %}
+            <div class="alert alert-warning">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
+            {% endif %}
+        {% endif %}
         </div>
-        {% endfor %}
-    {% endif %}
+    </div>
 </div>
-
-{% if not post.block_comment %}
-    {% if request.user.is_active %}
-    <form id="comment-form" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="button" onclick="Comment.write({{ post.pk }})" class="btn btn-dark">댓글 작성</button>
-    </form>
-    {% else %}
-    {% csrf_token %}
-    <div class="alert alert-warning">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
-    {% endif %}
-{% endif %}
-</div>
-</div>
-<div class="rel-posts">
+<div class="rel-posts bg-theme">
     <div class="container pt-4 pb-2">
         <div class="header-title">
             <h4 class="serif">이 작성자가 게시한 다른 글</h4>
@@ -148,7 +153,7 @@
         {% for another_post in another_posts %}
             <div class="col-md-4">
                 <a href="{{ another_post.get_absolute_url }}"><div class="back-image rel-post-image" style="background-image: url({% if another_post.image %}{{ another_post.image.url }}{% else %}{{ static_url }}/assets/images/default-post.png{% endif %});"></div></a>
-                <h5 class="serif pt-3 pb-4 ns"><a class="deep-dark" href="{{ another_post.get_absolute_url }}">{{ another_post.title }}</a></h5>
+                <h5 class="serif pt-3 pb-4 ns"><a class="text-white" href="{{ another_post.get_absolute_url }}">{{ another_post.title }}</a></h5>
             </div>
         {% endfor %}
         </div>

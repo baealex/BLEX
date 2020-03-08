@@ -5,20 +5,32 @@ var Render = {
         else
             var date = `${element.created_date}(Last Update: ${element.updated_date})`;
         return `
-        <div id="story-${element.pk}" class="thread-card p-4">
-            <p class="serif"><strong>${element.title}</strong></p>
-            <a href="">
-                <div class="back-image thumb comment-thumb" style="background-image:url(${element.thumbnail})"></div>
-            </a>
-            <a class="font-weight-bold deep-dark" href="">@${element.author}</a>
-            <br>
-            <small>${date}</small>
-            <ul class="none-list">
-                <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="Story.edit(${element.pk})">수정</a></li>
-                <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="Story.remove(${element.pk});">삭제</a></li>
-            </ul>
-            <div class="article">
-                ${element.content}
+        <div class="card story-card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="back-image thumb comment-thumb" style="background-image:url(${element.thumbnail})"></div>
+                        </div>
+                        <div>
+                            <div class="h5 noto story-title m-0">${element.title}</div>
+                            <div class="h7 text-muted">@${element.author}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>0분 전</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="article">
+                    ${element.content}
+                </div>
+            </div>
+            <div class="card-footer">
+                <a class="card-link shallow-dark" href="#"><i class="fas fa-chevron-down"></i></a>
+                <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.edit(${element.pk})"><i class="far fa-edit"></i></a>
+                <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.remove(${element.pk});"><i class="far fa-trash-alt"></i></a>
             </div>
         </div>
         `

@@ -83,6 +83,10 @@ const Comment = (() => {
             autolink($(`#comment-${element.pk}`));
         },
         write: (fk) => {
+            if($('#id_text').val() == '') {
+                Notify.append('댓글의 내용을 작성해주세요!');
+                return;
+            }
             $.ajax({
                 url: `${url}?fk=${fk}`,
                 type: 'POST',
@@ -90,7 +94,7 @@ const Comment = (() => {
             }).done(function(data) {
                 if(data.state == 'true') {
                     $('#comment').append(`<div id='comment-${data.element.pk}'>${Render.comment(data.element)}</div>`);
-                    if($('#comment-empty')) {
+                    if(document.getElementById('comment-empty')) {
                         $('#comment-empty').remove();
                     }
                     $('#comment-form textarea').val('');
@@ -411,6 +415,9 @@ const Story = (() => {
                 type: 'POST',
                 data: $('#story-form').serialize(),
             }).done((data) => {
+                if(document.getElementById('story-empty')) {
+                    $('#story-empty').remove();
+                }
                 $('#story-form input').val('');
                 $('#story-form textarea').val('');
                 $('#story').prepend(`<div id='story-${data.element.pk}'>${Render.story(data.element)}</div>`);
@@ -422,6 +429,7 @@ const Story = (() => {
                 url: `${url}/${pk}?get=form`,
                 type: 'GET',
             }).done((data) => {
+                moveSlide('story-' + pk);
                 $('#story-' + pk).html(data);
             });
         },
@@ -448,6 +456,7 @@ const Story = (() => {
                 }).done((data) => {
                     if (data == 'DONE') {
                         $(`#story-${pk}`).remove();
+                        Notify.append('스토리가 삭제되었습니다.')
                     }
                 });
             }

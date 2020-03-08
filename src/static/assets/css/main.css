@@ -322,10 +322,8 @@
 	width: 100%;
 	height: 250px;
 }
-.rel-posts {
-	background-color:#fafafa;
-}
 .header-title {
+    color: #fff;
 	border-bottom: #ddd solid 1px;
 	margin-bottom: 10px;
 	padding-bottom: 5px;
@@ -340,7 +338,7 @@ footer a {
     color: #999;
 }
 footer a:hover {
-    color: #000;
+    color: #fff;
     text-decoration: none;
 }
 .mainheading {
@@ -353,14 +351,6 @@ footer a:hover {
 .sticky-top-100 {
     top: 100px !important;
     margin-bottom: 30px;
-}
-.sticky-top-200 {
-    top: 200px !important;
-    margin-bottom: 30px;
-}
-.sticky-margin-top-40 {
-    margin-top:40px;
-    margin-bottom:40px;
 }
 @media only screen and (min-width: 992px) {
     .sticky-margin-top-40 {
@@ -477,7 +467,6 @@ footer a:hover {
 /* ------------------------------ */
 /* POSTS : DETAIL : ARTICLE */
 .article {
-  margin-top: 30px;
   min-width: 100%;
   font-size: 1.028em;
   line-height: 1.865;
@@ -697,12 +686,10 @@ footer a:hover {
     color: #000;
 }
 /* POSTS : DETAIL : COMMENT */
-#comment {
-    margin-bottom: 25px;
-}
 .comment-list {
-    border: 1px solid #eee;
-    margin-bottom: 10px;
+    word-break: break-word;
+    background: #fff;
+    margin-bottom: 15px;
     padding: 20px;
 }
 /* ------------------------------ */
@@ -966,22 +953,20 @@ footer a:hover {
 }
 /* ------------------------------ */
 /* THREAD AND STORY */
-.thread-card {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    transition: 0.3s;
-    width: 100%;
-    border-radius: 5px;
-    margin-bottom: 15px;
+.h7 {
+    font-size: 0.8rem;
 }
-.thread-card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+.story-card {
+    margin-bottom: 1rem;
 }
-.thread-card img {
-    width: 100%;
-    border-radius: 5px 5px 0 0;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
+@media (max-width: 992px) {
+    .story-title {
+        display: inline-block;
+        width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 /* ------------------------------ */
 /* SETTING */

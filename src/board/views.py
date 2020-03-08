@@ -345,7 +345,7 @@ def setting_tab(request, tab):
         
         elif tab == 'thread':
             render_args['subtitle'] = 'Thread'
-            threads = Thread.objects.filter(author=user, allow_write=False).order_by('created_date').reverse()
+            threads = Thread.objects.filter(author=user).order_by('created_date').reverse()
 
             page = request.GET.get('page', 1)
             paginator = Paginator(threads, 8)
@@ -632,6 +632,12 @@ def thread_detail(request, url):
         'form': StoryForm(),
         'grade': get_grade(thread.author),
     }
+    stroy_all = Story.objects.filter(thread=thread)
+    page = request.GET.get('page', 1)
+    paginator = Paginator(stroy_all, 6)
+    page_check(page, paginator)
+    story_page = paginator.get_page(page)
+    render_args['story_page'] = story_page
 
     # View Count by cookie
     if not request.user == thread.author:
