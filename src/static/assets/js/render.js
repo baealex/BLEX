@@ -13,7 +13,7 @@ var Render = {
                             <div class="back-image thumb comment-thumb" style="background-image:url(${element.thumbnail})"></div>
                         </div>
                         <div>
-                            <div class="h5 noto story-title m-0">${element.title}</div>
+                            <div class="h6 noto story-title m-0">${element.title}</div>
                             <div class="h7 text-muted">@${element.author}</div>
                         </div>
                     </div>

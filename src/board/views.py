@@ -828,6 +828,10 @@ def post_edit(request, pk):
             post.updated_date = timezone.now()
             post.text_html = parsedown(post.text_md)
             post.tag = get_clean_tag(post.tag)
+            if post.hide == True:
+                for series in post.series.all():
+                    series.posts.remove(post)
+                    series.save()
             post.save()
             return redirect('post_detail', username=post.author, url=post.url)
     else:
@@ -902,6 +906,10 @@ def posts_api_v1(request, pk):
         if put.get('hide'):
             compere_user(request.user, post.author, give_404_if='different')
             post.hide = not post.hide
+            if post.hide == True:
+                for series in post.series.all():
+                    series.posts.remove(post)
+                    series.save()
             post.save()
             return JsonResponse({'hide': post.hide})
         if put.get('tag'):
