@@ -1,12 +1,13 @@
 {% extends "board/base.html" %}
 
-{% load socialaccount %}
-{% providers_media_js %}
-
-{% block title %}{{ site_title }} - Log in{% endblock %}
+{% block title %}{{ site_title }} - Login{% endblock %}
 
 {% block content %}
-    <div class="card p-3 col-lg-5 mx-auto">
+    <div class="p-3 col-lg-5 mx-auto s-shadow rounded">
+        <div class="text-center">
+            <div class="account-title">{{ site_description }}</div>
+            <div class="account-subtitle">— Log In —</div>
+        </div>
         {% if form.errors %}
         <div class="alert alert-danger" role="alert">아이디와 패스워드가 틀립니다. 다시 시도해 보세요.</div>
         {% endif %}
@@ -14,33 +15,8 @@
         {% csrf_token %}
             <p><input type="text" name="username" autofocus="" maxlength="254" required="" id="id_username" class="form-control" placeholder="아이디" autocomplete="off"></p>
             <p><input type="password" name="password" id="id_password" required="" class="form-control" placeholder="비밀번호"></p>
-            <p><a href="{% url 'signup' %}">아직 회원이 아니신가요?</a></p>
             <button type="submit" class="btn btn-dark btn-block">로그인</button>
         </form>
-        <style>
-            .social-login {
-                border-top: 1px solid #eee;
-                padding-top: 15px;
-                margin-top: 15px;
-            }
-        </style>
-        <div class="social-login">
-            <a style="color: rgb(57,35,36); text-decoration: none;" href="{% provider_login_url 'kakao' %}">
-                <div class="text-center pt-2 pb-2" style="background-color: rgba(255,232,0); border-radius: 5px;">
-                    <i class="fas fa-comment"></i> 카카오 로그인
-                </div>
-            </a>
-            <a style="color: rgb(255,255,255); text-decoration: none;" href="{% provider_login_url 'github' %}">
-                <div class="text-center mt-2 pt-2 pb-2" style="background-color: rgb(72, 31, 94); border-radius: 5px;">
-                    <i class="fab fa-github"></i> 깃허브 로그인
-                </div>
-            </a>
-            <a style="color: rgb(0, 132, 255); text-decoration: none;" href="{% provider_login_url 'google' %}">
-                <div class="text-center mt-2 pt-2 pb-2" style="background-color: rgb(245, 245, 245); border-radius: 5px;">
-                    <i class="fab fa-google"></i> 구글 로그인
-                </div>
-            </a>
-        </div>
     </div>
 {% endblock %}
 

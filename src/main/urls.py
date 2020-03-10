@@ -15,9 +15,9 @@ Including another URLconf
 """
 from django.urls import include, path
 from django.contrib import admin
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('djangomyadmin/', admin.site.urls),
     path('', include('board.urls')),
-    path('account/',include('allauth.urls')),
 ]

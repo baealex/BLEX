@@ -1,5 +1,5 @@
 <div {% if comment.author == request.user %}id="comment-{{ comment.pk }}"{% endif %}>
-    <div class="comment-list">
+    <div class="comment-list s-shadow">
         <a href="{% url 'user_profile' username=comment.author %}">
             {% if comment.author.profile.avatar %}
             <div class="back-image thumb comment-thumb" style="background-image:url({{ comment.author.profile.avatar.url }})"></div>

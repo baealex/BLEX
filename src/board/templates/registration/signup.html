@@ -3,7 +3,11 @@
 {% block title %}{{ site_title }} - Join us{% endblock %}
 
 {% block content %}
-<div class="card p-3 col-lg-5 mx-auto">
+<div class="p-3 col-lg-5 mx-auto s-shadow rounded">
+    <div class="text-center">
+        <div class="account-title">{{ site_description }}</div>
+        <div class="account-subtitle">— Join Us —</div>
+    </div>
     {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
     <form method="post">
         {% csrf_token %}
@@ -16,8 +20,7 @@
         <div class="alert alert-warning" role="alert">
             {{ form.email.help_text }}
         </div>
-        <p><a href="{% url 'login' %}">이미 회원이신가요?</a></p>
-        <button type="submit" class="btn btn-dark">회원가입</button>
+        <button type="submit" class="btn btn-dark btn-block">회원가입</button>
     </form>
 </div>
 {% endblock %}

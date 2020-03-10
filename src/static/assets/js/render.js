@@ -37,7 +37,7 @@ var Render = {
     },
     comment: (element) => {
         return `
-        <div class="comment-list">
+        <div class="comment-list s-shadow">
             <div class="back-image thumb comment-thumb" style="background-image:url(${element.thumbnail})"></div>
             <a class="font-weight-bold deep-dark">${element.author}</a>
             <br>

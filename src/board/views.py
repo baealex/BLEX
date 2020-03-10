@@ -49,7 +49,7 @@ def get_posts(sort='all'):
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
 
 def get_clean_tag(tag):
-    clean_tag = slugify(tag.replace(',', '-'), allow_unicode=True).split('-')
+    clean_tag = slugify(tag.replace(',', '-').replace('_', '-'), allow_unicode=True).split('-')
     return ','.join(list(set(clean_tag)))
 
 def get_clean_all_tags(user=None):
