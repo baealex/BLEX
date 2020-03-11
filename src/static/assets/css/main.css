@@ -1116,4 +1116,10 @@ footer a:hover {
 .alert-warning {
     border-left: 5px solid #ffc405;
 }
+.alert-success {
+    border-left: 5px solid #4fbb31;
+}
+.alert-danger {
+    border-left: 5px solid #ff5656;
+}
 /* ------------------------------ */
