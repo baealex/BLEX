@@ -28,10 +28,11 @@ class PostForm(forms.ModelForm):
 class ThreadForm(forms.ModelForm):
     class Meta:
         model = Thread
-        fields = ('image', 'title', 'tag', 'notice', 'hide', 'allow_write',)
+        fields = ('image', 'title', 'description', 'tag', 'notice', 'hide', 'allow_write',)
 
         widgets={
             'title':forms.TextInput(attrs={'placeholder':'스레드의 제목, 제목은 URL 주소가 됩니다.','class':'form-control'}),
+            'description': forms.Textarea(attrs={'placeholder':'설명을 작성하세요.', 'class': 'form-control', 'rows': 5}),
             'tag':forms.TextInput(attrs={'class':'form-control'}),
             'notice':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'hide':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
@@ -40,6 +41,7 @@ class ThreadForm(forms.ModelForm):
         }
         labels={
             'title':'',
+            'description': '',
             'image':'표지 이미지',
             'tag':'태그',
         }
@@ -167,13 +169,15 @@ class SeriesForm(forms.ModelForm):
 class SeriesUpdateForm(forms.ModelForm):
     class Meta:
         model = Series
-        fields = ('name', 'posts',)
+        fields = ('name', 'description', 'posts',)
 
         widgets={
             'name':forms.TextInput(attrs={'placeholder':'시리즈의 이름','class':'form-control'}),
+            'description': forms.Textarea(attrs={'placeholder':'설명을 작성하세요.', 'class': 'form-control', 'rows': 3}),
             'posts':forms.SelectMultiple(attrs={'class':'custom-select','size':'10'}),
         }
         labels={
             'name':'',
-            'posts':''
+            'description': '',
+            'posts':'',
         }

@@ -31,11 +31,21 @@
         <h2 class="serif font-weight-bold">
             '{{ series.name }}' 시리즈
         </h2>
-        <a class="post-series deep-dark serif font-weight-bold mb-3" href="{% url 'user_profile' username=user.username %}">written by {{ user.username }}</a>
+        <a class="post-series deep-dark serif font-weight-bold mb-3" href="{% url 'user_profile' username=user.username %}">Created by {{ user.username }}</a>
         {% if series.owner == request.user %}
         <div class="mb-3">
             <a class="btn btn-dark" href="javascript:void(0)" data-toggle="modal" data-target="#eidtModal">수정</a>
             <a class="btn btn-dark" href="javascript:void(0)" onclick="Series.remove({{ series.pk }})">삭제</a>
+        </div>
+        {% endif %}
+        {% if series.description %}
+        <div class="series-desc mb-4">
+            <blockquote class="noto">
+                {{ series.description }}
+            </blockquote>
+            <div class="author">
+                <img src="{{ user.profile.thumbnail }}" />
+            </div>
         </div>
         {% endif %}
         {% for post in series.posts.all %}

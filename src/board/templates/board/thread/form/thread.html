@@ -6,14 +6,13 @@
                     <div class="form-group">
                         {{ form.title }}
                     </div>
-                    <p>
-                        <div class="custom-file">
-                            {{ form.image }}
-                            <label class="custom-file-label" for="id_image">
-                                {% if thread.image %}{{ thread.image.url }}{% else %}대표 이미지를 선택하세요.{% endif %}
-                            </label>
-                        </div>
-                    </p>
+                    <div class="custom-file mb-2">
+                        {{ form.image }}
+                        <label class="custom-file-label" for="id_image">
+                            {% if thread.image %}{{ thread.image.url }}{% else %}대표 이미지를 선택하세요.{% endif %}
+                        </label>
+                    </div>
+                    {{ form.description }}
                     {% if user.is_superuser %}
                     <div class="custom-control custom-checkbox mt-3">
                         {{ form.notice }}

@@ -984,6 +984,47 @@ footer a:hover {
 .series-list p {
     word-break: break-all;
 }
+.series-desc {
+	position: relative;
+	width: 100%;
+}
+.series-desc blockquote {
+	position: relative;
+	margin: 0;
+    padding: 1em 1.5em;
+    line-height: 1.7;
+	border-radius: 0.3em;
+	background: #f8f8f8;
+	box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.3);
+}
+.series-desc blockquote::after {
+	position: absolute;
+	right: 0.8em;
+	bottom: -8px;
+	width: 0;
+	height: 0;
+	content: '';
+	border-width: 10px 10px 0 10px;
+	border-style: solid;
+	border-color: #f8f8f8 transparent transparent transparent;
+	filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.3));
+}
+.series-desc .author {
+	position: relative;
+	top: 15px;
+	right: 0;
+	width: 100%;
+	text-align: right;
+}
+.series-desc .author img {
+	display: inline-block;
+	width: 45px;
+	height: 45px;
+	border: 1px solid #3a3a3a;
+	border-radius: 50%;
+	object-fit: cover;
+	filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.3));
+}
 /* ------------------------------ */
 /* THREAD AND STORY */
 .h7 {
