@@ -10,6 +10,10 @@ class HistoryAdmin(admin.ModelAdmin):
 admin.site.register(Grade)
 admin.site.register(Thread)
 admin.site.register(Story)
+admin.site.register(TempPosts)
+admin.site.register(Search)
+admin.site.register(Analytics)
+admin.site.register(SeriesPosts)
 
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):

@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.timesince import timesince
-from tagging.fields import TagField
 
 from PIL import Image
 
@@ -44,12 +43,6 @@ def title_image_path(instance, filename):
     dt = datetime.datetime.now()
     return 'title/'+instance.author.username+'/'+str(dt.year)+'/'+str(dt.month)+'/'+str(dt.day)+'/'+str(dt.hour) + randstr(4)+'.'+filename.split('.')[-1]
 
-def get_user_thumbnail(user):
-    if user.profile.avatar:
-        return user.profile.avatar.url
-    else:
-        return 'https://static.blex.kr/assets/images/default-avatar.jpg'
-
 class History(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     post         = models.ForeignKey('board.Post', on_delete = models.CASCADE)
@@ -70,6 +63,7 @@ class Config(models.Model):
     agree_history  = models.BooleanField(default=False)
     telegram_token = models.CharField(max_length=8, blank=True)
     telegram_id    = models.CharField(max_length=15, blank=True)
+    password_qna   = models.TextField(blank=True)
 
     def __str__(self):
         return self.user.username
@@ -89,6 +83,12 @@ class Profile(models.Model):
     homepage   = models.CharField(max_length=100, blank=True)
     about_md   = models.TextField()
     about_html = models.TextField()
+
+    def thumbnail(self):
+        if self.avatar:
+            return self.avatar.url
+        else:
+            return 'https://static.blex.kr/assets/images/default-avatar.jpg'
 
     def __str__(self):
         return self.user.username
@@ -131,6 +131,7 @@ class Follow(models.Model):
 class Thread(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title             = models.CharField(max_length=50)
+    description       = models.TextField(blank=True)
     url               = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     image             = models.ImageField(blank=True, upload_to=title_image_path)
     trendy            = models.IntegerField(default=0)
@@ -142,14 +143,17 @@ class Thread(models.Model):
     allow_write       = models.BooleanField(default=False)
     created_date      = models.DateTimeField(default=timezone.now)
     real_created_date = models.DateTimeField(default=timezone.now)
-    tag               = TagField()
+    tag               = models.CharField(max_length=50)
     bookmark          = models.ManyToManyField(User, related_name='bookmark_thread', blank=True)
-
-    def total_bookmark(self):
-        return self.bookmark.count()
 
     def __str__(self):
         return self.title
+
+    def total_bookmark(self):
+        return self.bookmark.count()
+    
+    def tagging(self):
+        return [tag for tag in self.tag.split(',') if tag]
 
     def get_absolute_url(self):
         return reverse('thread_detail', args=[self.url])
@@ -185,13 +189,17 @@ class Story(models.Model):
     text_html    = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
-    disagree     = models.ManyToManyField(User, related_name='disagree_posts', blank=True)
+    agree        = models.ManyToManyField(User, related_name='agree_story', blank=True)
+    disagree     = models.ManyToManyField(User, related_name='disagree_story', blank=True)
 
     def __str__(self):
         return self.title
 
     def total_disagree(self):
         return self.disagree.count()
+    
+    def total_agree(self):
+        return self.agree.count()
 
     def to_dict(self):
         return {
@@ -199,11 +207,24 @@ class Story(models.Model):
             'title': self.title,
             'author': self.author.username,
             'content': self.text_html,
+            'agree': self.total_agree(),
             'disagree': self.total_disagree(),
-            'thumbnail': get_user_thumbnail(self.author),
+            'thumbnail': self.author.profile.thumbnail(),
             'created_date': self.created_date.strftime("%Y-%m-%d %H:%M"),
             'updated_date': self.updated_date.strftime("%Y-%m-%d %H:%M"),
         }
+
+class Search(models.Model):
+    count   = models.IntegerField
+    keyword = models.CharField(max_length=50)
+
+class TempPosts(models.Model):
+    author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title             = models.CharField(max_length=50)
+    token             = models.CharField(max_length=50)
+    text_md           = models.TextField(blank=True)
+    tag               = models.CharField(max_length=50)
+    created_date      = models.DateTimeField(default=timezone.now)
 
 class Post(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -220,7 +241,7 @@ class Post(models.Model):
     notice            = models.BooleanField(default=False)
     block_comment     = models.BooleanField(default=False)
     likes             = models.ManyToManyField(User, through='PostLikes', related_name='like_posts', blank=True)
-    tag               = TagField()
+    tag               = models.CharField(max_length=50)
     created_date      = models.DateTimeField(default=timezone.now)
     updated_date      = models.DateTimeField(default=timezone.now)
     
@@ -233,6 +254,9 @@ class Post(models.Model):
     def total_likes(self):
         return self.likes.count()
     
+    def tagging(self):
+        return [tag for tag in self.tag.split(',') if tag]
+
     def get_thumbnail(self):
         return str(self.image) + '_500.' + str(self.image).split('.')[-1]
 
@@ -252,6 +276,10 @@ class Post(models.Model):
             image = Image.open(self.image)
             image.thumbnail((500, 500), Image.ANTIALIAS)
             image.save('static/' + self.get_thumbnail(), quality=85)
+
+class Analytics(models.Model):
+    posts = models.ForeignKey(Post, on_delete=models.CASCADE)
+    date  = models.DateTimeField(default=timezone.now)
 
 class PostLikes(models.Model):
     class Meta:
@@ -286,7 +314,7 @@ class Comment(models.Model):
             'created_date': timesince(self.created_date),
             'content': linebreaks(escape(self.text)),
             'total_likes': self.total_likes(),
-            'thumbnail': get_user_thumbnail(self.author),
+            'thumbnail': self.author.profile.thumbnail(),
             'edited': 'edited' if self.edit == True else '',
         }
 
@@ -310,8 +338,9 @@ class Notify(models.Model):
 class Series(models.Model):
     owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name         = models.CharField(max_length=50, unique=True)
+    description  = models.TextField(blank=True)
     url          = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    posts        = models.ManyToManyField(Post, related_name='series', blank=True)
+    posts        = models.ManyToManyField(Post, through='SeriesPosts', related_name='series', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -319,3 +348,16 @@ class Series(models.Model):
     
     def get_absolute_url(self):
         return reverse('series_list', args=[self.owner, self.url])
+
+class SeriesPosts(models.Model):
+    class Meta:
+        db_table = 'board_series_posts'
+        auto_created = True
+        ordering = ['-priority']
+    
+    series   = models.ForeignKey(Series, on_delete=models.CASCADE)
+    posts    = models.ForeignKey(Post, on_delete=models.CASCADE)
+    priority = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.post.title

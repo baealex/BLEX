@@ -5,7 +5,6 @@ chardet==3.0.4
 defusedxml==0.6.0
 Django==2.2.10
 django-smtp-ssl==1.0
-django-tagging==0.4.6
 idna==2.8
 oauthlib==3.1.0
 Pillow==6.2.0

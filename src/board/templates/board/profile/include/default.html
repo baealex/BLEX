@@ -12,7 +12,6 @@
             {% endif %}
         </div>
         <div class="col-lg-8 mt-4">
-        {% load tagging_tags %}
         <div id="wrapper">
         {% for post in elements %}
             <div class="profile-post">
@@ -27,14 +26,11 @@
                     <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post.title | truncatechars:50 }}</a>
                 </h4>
                 <p class="noto"><a class="shallow-dark" href="{{ post.get_absolute_url }}">{% if post.text_html %}{{ post.text_html | striptags | truncatewords:50 }}{% else %}{{ post.story.first.text_html | striptags | truncatewords:50 }}{% endif %}</a></p>
-                {% tags_for_object post as tags %}
-                {% if tags %}
-                <ul class="tag-list">
-                    {% for tag in tags %}
-                    <li><a href="{% url 'user_profile_topic' username=user tag=tag.name %}">{{ tag.name }}</a></li>
+                <ul class="tag-list noto">
+                    {% for tag in post.tagging %}
+                    <li><a href="{% url 'user_profile_topic' username=post.author tag=tag %}">{{ tag }}</a></li>
                     {% endfor %}
                 </ul>
-                {% endif %}
             </div>
         {% empty %}
         <div class="bg-border-purple noto p-3 bg-light vivid-purple">
