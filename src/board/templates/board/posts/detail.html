@@ -3,7 +3,6 @@
 {% block title %}{{ post.title }} – {{ post.author }}{% endblock %}
 
 {% block seo %}
-{% if get_series %}<meta name="robots" content="noindex">{% endif %}
 <meta name="description" content="{{ post.text_html | striptags | truncatewords:50 }}">
 <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta property="og:type" content="blog">
