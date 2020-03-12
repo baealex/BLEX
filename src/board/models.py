@@ -340,7 +340,7 @@ class Series(models.Model):
     name         = models.CharField(max_length=50, unique=True)
     description  = models.TextField(blank=True)
     url          = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    posts        = models.ManyToManyField(Post, through='SeriesPosts', related_name='series', blank=True)
+    posts        = models.ManyToManyField(Post, related_name='series', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -348,16 +348,3 @@ class Series(models.Model):
     
     def get_absolute_url(self):
         return reverse('series_list', args=[self.owner, self.url])
-
-class SeriesPosts(models.Model):
-    class Meta:
-        db_table = 'board_series_posts'
-        auto_created = True
-        ordering = ['-priority']
-    
-    series   = models.ForeignKey(Series, on_delete=models.CASCADE)
-    posts    = models.ForeignKey(Post, on_delete=models.CASCADE)
-    priority = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.post.title
