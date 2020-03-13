@@ -31,8 +31,8 @@ class ThreadForm(forms.ModelForm):
         fields = ('image', 'title', 'description', 'tag', 'notice', 'hide', 'allow_write',)
 
         widgets={
-            'title':forms.TextInput(attrs={'placeholder':'스레드의 제목, 제목은 URL 주소가 됩니다.','class':'form-control'}),
-            'description': forms.Textarea(attrs={'placeholder':'설명을 작성하세요.', 'class': 'form-control', 'rows': 5}),
+            'title':forms.TextInput(attrs={'placeholder':'스레드의 제목을 작성하세요','class':'form-control'}),
+            'description': forms.Textarea(attrs={'placeholder':'이 스레드는 어떤 스레드인가요?', 'class': 'form-control', 'rows': 5}),
             'tag':forms.TextInput(attrs={'class':'form-control'}),
             'notice':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'hide':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
@@ -52,8 +52,8 @@ class StoryForm(forms.ModelForm):
         fields = ('title', 'text_md')
 
         widgets={
-            'title': forms.TextInput(attrs={'placeholder':'제목을 입력하세요.','class':'form-control'}),
-            'text_md': forms.Textarea(attrs={'placeholder':'마크다운으로 내용을 작성하세요.', 'class': 'form-control', 'rows': 7}),
+            'title': forms.TextInput(attrs={'placeholder':'스토리의 제목을 입력하세요.','class':'form-control'}),
+            'text_md': forms.Textarea(attrs={'placeholder':'마크다운으로 스토리를 작성할 수 있습니다.', 'class': 'form-control', 'rows': 7}),
         }
         labels={
             'title': '',

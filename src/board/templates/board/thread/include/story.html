@@ -15,7 +15,7 @@
                 </div>
             </div>
             <div>
-                <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>{{ story.created_date|timesince }} 전 {% if story.updated_date|date:"YmdHi" > story.created_date|date:"YmdHi"%}(edited){% endif %}</div>
+                <div class="text-muted h7 mb-2"> <i class="far fa-clock"></i> {{ story.created_date|timesince }} 전 {% if story.updated_date|date:"YmdHi" > story.created_date|date:"YmdHi"%}(edited){% endif %}</div>
             </div>
         </div>
     </div>
