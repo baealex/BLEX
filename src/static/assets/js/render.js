@@ -56,6 +56,53 @@ var Render = {
             </ul>
         </div>`
     },
+    analytics: {
+        element: (element, type) => {
+            let actionClass = '';
+            let elementSub = '';
+            if(type == 'posts') {
+                actionClass = 'Posts';
+                elementSub = `
+                    <li><i class="far fa-thumbs-up"></i> ${element.total_likes}</li>
+                    <li><i class="far fa-comment"></i> ${element.total_comment}</li>
+                    <li><i class="fas fa-chart-line"></i> ${element.trendy}</li>
+                `;
+            } else {
+                actionClass = 'Thread';
+                elementSub = `
+                    <li><i class="far fa-bookmark"></i> ${element.total_bookmark}</li>
+                    <li><i class="far fa-comment"></i> ${element.total_story}</li>
+                `;
+            }
+
+            let hideState = 'fa-lock-open';
+            if(element.hide) {
+                hideState = 'fa-lock';
+            }
+            return `
+            <li id="setting-${type}-${element.pk}" class="card p-3 mb-2">
+            <p><a class="deep-dark" href="javascript:void(0)" onclick="location.href='${element.url}'">${element.title}</p>
+            <ul class="setting-list-info">
+                <li><a class="element-lock" href="javascript:${actionClass}.lock(${element.pk})"><i id="lock-${element.pk}" class="fas ${hideState}"></i></a></li>
+                <li><a class="text-dark" href="javascript:${actionClass}.remove(${element.pk})"><i class="far fa-trash-alt"></i></a></li>
+                <li>|</li>
+                <li><i class="far fa-eye"></i> <span class="ns">(Today : ${element.today}, Yesterday : ${element.yesterday}, Total : ${element.today+element.yesterday+element.total})</span></li>
+                ${elementSub}
+            </ul>
+            <form>
+                <div class="input-group mt-2 mr-sm-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">TAG</div>
+                    </div>
+                    <input type="text" name="tag" value="${element.tag}" class="form-control" maxlength="255">
+                    <button type="button" class="btn btn-dark" onclick="${actionClass}.changeTag(${element.pk})">
+                        변경
+                    </button>
+                </div>
+            </form>
+        </li>
+        `}
+    },
     notify: {
         common: (element) => {
             return `

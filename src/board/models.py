@@ -161,6 +161,22 @@ class Thread(models.Model):
     def get_thumbnail(self):
         return str(self.image) + '_500.' + str(self.image).split('.')[-1]
 
+    def to_dict_for_analytics(self):
+        return {
+            'pk': self.pk,
+            'author': self.author.username,
+            'title': self.title,
+            'data': self.created_date,
+            'today': self.today,
+            'yesterday': self.yesterday,
+            'total': self.total,
+            'hide': self.hide,
+            'total_story': self.stories.count(),
+            'total_bookmark': self.total_bookmark(),
+            'tag': self.tag,
+            'url': self.get_absolute_url(),
+        }
+
     def save(self, *args, **kwargs):
         will_make_thumbnail = False
         if not self.pk and self.image:
@@ -259,6 +275,23 @@ class Post(models.Model):
 
     def get_thumbnail(self):
         return str(self.image) + '_500.' + str(self.image).split('.')[-1]
+    
+    def to_dict_for_analytics(self):
+        return {
+            'pk': self.pk,
+            'author': self.author.username,
+            'title': self.title,
+            'data': self.created_date,
+            'today': self.today,
+            'yesterday': self.yesterday,
+            'total': self.total,
+            'trendy': self.trendy,
+            'hide': self.hide,
+            'total_comment': self.comments.count(),
+            'total_likes': self.total_likes(),
+            'tag': self.tag,
+            'url': self.get_absolute_url(),
+        }
 
     def save(self, *args, **kwargs):
         will_make_thumbnail = False

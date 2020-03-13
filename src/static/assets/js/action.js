@@ -463,3 +463,42 @@ const Story = (() => {
         }
     }
 })();
+const Analytics = (() => {
+    let postsList = undefined;
+    let threadList = undefined;
+    let renderHTML = undefined;
+    let url = '/api/v1/users';
+    return {
+        get: (username, type) => {
+            $.ajax({
+                url: `${url}/${username}?get=${type}`,
+                type: 'GET',
+            }).done((data) => {
+                type == 'posts' ? postsList = data.posts : threadList = data.thread;
+                renderHTML = '';
+                for(let ele of type == 'posts' ? postsList : threadList) {
+                    renderHTML += Render.analytics.element(ele, type);
+                }
+                $('#analytics').html(renderHTML);
+            });
+        },
+        sort: (sort, type) => {
+            let sortHow = function(a, b) {
+                if(a[sort] == b[sort]) {
+                    return 0;
+                }
+                if(sort == 'title') {
+                    return a[sort] < b[sort] ? -1 : 1;
+                } else {
+                    return a[sort] > b[sort] ? -1 : 1;
+                }
+            }
+            renderHTML = '';
+            type == 'posts' ? postsList.sort(sortHow) : threadList.sort(sortHow);
+            for(let ele of type == 'posts' ? postsList : threadList) {
+                renderHTML += Render.analytics.element(ele, type);
+            }
+            $('#analytics').html(renderHTML);
+        },
+    }
+})();

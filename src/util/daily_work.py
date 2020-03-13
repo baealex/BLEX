@@ -92,5 +92,5 @@ for username in send_user_names:
         text += '\n'
     emoji = ['😀', '😁', '😙', '🤗', '😏', '😥', '🥱', '😪', '😗', '😆', '🥰']
     text += '오늘 하루도 고생하셨습니다 ' + emoji[random.randint(0, len(emoji))]
-    bot.send_message_async(send_user_lists[username]['id'], text)
+    bot.send_message(send_user_lists[username]['id'], text)
 print('ALL MESSAGE SEND!')

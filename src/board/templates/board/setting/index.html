@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-3 mb-4">
+    <div class="col-lg-2 mb-4">
         <ul class="nav serif text-right sticky-top sticky-top-100" style="display: block; border-right: 2px solid #8c00ff;">
             <li class="nav-item">
                 <a class="nav-link vivid-purple{% if tab == 'account'%} disabled{% endif %}" href="{% url 'setting_tab' tab='account' %}">계정</a>
@@ -23,7 +23,7 @@
             </li>
         </ul>
     </div>
-    <div class="col-lg-9">
+    <div class="col-lg-8">
         {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
         {% if message %}<div class="alert alert-success">{{ message }}</div>{% endif %}
         {% if tab == 'account' %}
@@ -46,6 +46,16 @@
         {% endif  %}
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    {% if tab == 'posts' %}
+    Analytics.get('{{ request.user.username }}', 'posts');
+    {% elif tab == 'thread' %}
+    Analytics.get('{{ request.user.username }}', 'thread');
+    {% endif %}
+</script>
 {% endblock %}
 
 {% block footer %}

@@ -2,33 +2,16 @@
     <button class="btn btn-dark btn-block mb-2" onclick="location.href='{% url 'post_write' %}'">
         새로운 포스트 작성
     </button>
-    <ul class="list-group">
-        {% for post in elements %}
-        <li id="setting-posts-{{ post.pk }}" class="card p-3 mb-2">
-            <p><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.title }}</a></p>
-            <ul class="setting-list-info">
-                <li><a class="element-lock" href="javascript:Posts.lock({{ post.pk }})"><i id="lock-{{ post.pk }}" class="fas fa-lock{% if not post.hide %}-open{% endif %}"></i></a></li>
-                <li><a class="text-dark" href="{% url 'post_edit' pk=post.pk %}"><i class="far fa-edit"></i></a></li>
-                <li><a class="text-dark" href="javascript:Posts.remove({{ post.pk }})"><i class="far fa-trash-alt"></i></a></li>
-                <li>|</li>
-                <li><i class="far fa-eye"></i> <span class="ns">(Today : {{ post.today }}, Yesterday : {{ post.yesterday }}, Total : {{ post.total|add:post.today|add:post.yesterday }})</span></li>
-                <li><i class="far fa-thumbs-up"></i> {{ post.total_likes }}</li>
-                <li><i class="far fa-comment"></i> {{ post.comments.count }}</li>
-                <li><i class="fas fa-chart-line"></i> {{ post.trendy }}</li>
-            </ul>
-            <form>
-                <div class="input-group mt-2 mr-sm-2">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">TAG</div>
-                    </div>
-                    <input type="text" name="tag" value="{{post.tag}}" class="form-control" maxlength="255">
-                    <button type="button" class="btn btn-dark" onclick="Posts.changeTag({{ post.pk }})">
-                        변경
-                    </button>
-                </div>
-            </form>
-        </li>
-        {% endfor %}
+    <ul class="tag-list">
+        <li><a href="javascript:Analytics.sort('data', 'posts')">날짜</a></li>
+        <li><a href="javascript:Analytics.sort('title', 'posts')">이름</a></li>
+        <li><a href="javascript:Analytics.sort('today', 'posts')">오늘 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('yesterday', 'posts')">어제 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('total', 'posts')">총 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('total_likes', 'posts')">추천</a></li>
+        <li><a href="javascript:Analytics.sort('total_comment', 'posts')">댓글</a></li>
+        <li><a href="javascript:Analytics.sort('trendy', 'posts')">경향</a></li>
     </ul>
-    {% include 'board/common/include/pagenation.html' %}
+    <ul id="analytics" class="list-group">
+    </ul>
 </div>

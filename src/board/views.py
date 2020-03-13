@@ -335,13 +335,6 @@ def setting_tab(request, tab):
         
         elif tab == 'posts':
             render_args['subtitle'] = 'Posts'
-            posts = Post.objects.filter(author=user).order_by('created_date').reverse()
-            
-            page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 8)
-            page_check(page, paginator)
-            elements = paginator.get_page(page)
-            render_args['elements'] = elements
         
         elif tab == 'thread':
             render_args['subtitle'] = 'Thread'
@@ -1007,6 +1000,12 @@ def users_api_v1(request, username):
     user = get_object_or_404(User, username=username)
 
     if request.method == 'GET':
+        if request.GET.get('get') == 'posts':
+            posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
+            return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params = {'ensure_ascii': True})
+        if request.GET.get('get') == 'thread':
+            threads = Thread.objects.filter(author=request.user).order_by('created_date').reverse()
+            return JsonResponse({'thread': [thread.to_dict_for_analytics() for thread in threads]}, json_dumps_params = {'ensure_ascii': True})
         if request.GET.get('get') == 'about-form':
             if hasattr(user, 'profile'):
                 form = AboutForm(instance=user.profile)
