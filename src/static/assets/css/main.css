@@ -314,17 +314,6 @@
     }
 }
 /* ------------------------------ */
-/* ACCOUNT */
-.account-title {
-    margin-top: 20px;
-    font-weight: bold;
-    font-size: 1.5rem;
-}
-.account-subtitle {
-    margin-bottom: 35px;
-    font-size: 1rem;
-    color: #555;
-}
 /* POSTS : DETAIL : COMMON */
 .bg-series {
     border-top: 1px solid #ddd;
@@ -1058,6 +1047,52 @@ footer a:hover {
     display: inline-block;
     margin: 5px;
 }
+/* ------------------------------ */
+/* LOGIN PAGE */
+.login-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    object-fit: cover;
+    filter: blur(1.5rem);
+}
+.login-cover {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+.login-title {
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+.login-desc {
+    color: #acacac;
+    margin-bottom: 15px;
+}
+.login-form {
+    color: #fff;
+    border: none;
+    font-size: 0.9em;
+    width: 100%;
+    border-radius: 3rem;
+    padding: 15px 20px;
+    background: #494949;
+}
+.login-form:focus {
+    outline: none;
+}
+.login-button {
+    color: #fff;
+    border: none;
+    font-size: 0.9em;
+    width: 100%;
+    border-radius: 3rem;
+    padding: 15px 0;
+    background: #000000;
+}
+/* ------------------------------ */
 /* DARK THEME MODE */
 .theme-dark {
     background-color: #333;

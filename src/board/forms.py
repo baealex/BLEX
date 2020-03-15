@@ -78,17 +78,17 @@ class CustomUserChangeForm(UserChangeForm):
         }
 
 class UserForm(forms.ModelForm):
-    password_check = forms.CharField(max_length=200, widget=forms.PasswordInput(attrs={'placeholder':'비밀번호 확인','class':'form-control'}), label='')
+    password_check = forms.CharField(max_length=200, widget=forms.PasswordInput(attrs={'placeholder':'비밀번호 확인','class':'login-form'}), label='')
     field_order=['username','password','password_check','first_name','email']
 
     class Meta:
         model = User
         fields = ['username','password','first_name','email']
         widgets = {
-            'username':forms.TextInput(attrs={'placeholder':'아이디(필명)','class':'form-control'}),
-            'password':forms.PasswordInput(attrs={'placeholder':'비밀번호','class':'form-control'}),
-            'first_name':forms.TextInput(attrs={'placeholder':'이름','class':'form-control'}),
-            'email':forms.TextInput(attrs={'placeholder':'이메일 주소','class':'form-control'}),
+            'username':forms.TextInput(attrs={'placeholder':'아이디(필명)','class':'login-form'}),
+            'password':forms.PasswordInput(attrs={'placeholder':'비밀번호','class':'login-form'}),
+            'first_name':forms.TextInput(attrs={'placeholder':'이름','class':'login-form', 'required':True}),
+            'email':forms.TextInput(attrs={'placeholder':'이메일 주소','class':'login-form', 'required':True, 'type':'email'}),
         }
         labels = {
             'username':'',

@@ -3,21 +3,22 @@
 {% block title %}{{ site_title }} - Login{% endblock %}
 
 {% block content %}
-    <div class="p-3 col-lg-5 mx-auto s-shadow rounded">
-        <div class="text-center">
-            <div class="account-title">{{ site_description }}</div>
-            <div class="account-subtitle">— Log In —</div>
-        </div>
-        {% if form.errors %}
-        <div class="alert alert-danger" role="alert">아이디와 패스워드가 틀립니다. 다시 시도해 보세요.</div>
-        {% endif %}
-        <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}">
-        {% csrf_token %}
-            <p><input type="text" name="username" autofocus="" maxlength="254" required="" id="id_username" class="form-control" placeholder="아이디" autocomplete="off"></p>
-            <p><input type="password" name="password" id="id_password" required="" class="form-control" placeholder="비밀번호"></p>
-            <button type="submit" class="btn btn-dark btn-block">로그인</button>
-        </form>
+<video class="login-video" autoplay loop muted src="{{ static_url }}/assets/images/login.mp4"></video>
+<div class="p-3 col-lg-5 col-md-8 mx-auto login-cover">
+    <div class="text-center">
+        <div class="login-title">Log In</div>
+        <div class="login-desc">{{ site_description }}</div>
     </div>
+    {% if form.errors %}
+    <div class="alert alert-danger noto" role="alert">아이디와 패스워드가 틀립니다. 다시 시도해 보세요.</div>
+    {% endif %}
+    <form method="post" action="{% url 'login' %}?next={{ request.GET.next }}">
+    {% csrf_token %}
+        <p><input type="text" name="username" autofocus="" maxlength="254" required="" id="id_username" class="login-form" placeholder="아이디" autocomplete="off"></p>
+        <p><input type="password" name="password" id="id_password" required="" class="login-form" placeholder="비밀번호"></p>
+        <button type="submit" class="login-button">로그인</button>
+    </form>
+</div>
 {% endblock %}
 
 {% block footer %}

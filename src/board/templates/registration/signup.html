@@ -3,24 +3,25 @@
 {% block title %}{{ site_title }} - Join us{% endblock %}
 
 {% block content %}
-<div class="p-3 col-lg-5 mx-auto s-shadow rounded">
+<video class="login-video" autoplay loop muted src="{{ static_url }}/assets/images/login.mp4"></video>
+<div class="p-3 col-lg-5 col-md-8 mx-auto login-cover">
     <div class="text-center">
-        <div class="account-title">{{ site_description }}</div>
-        <div class="account-subtitle">— Join Us —</div>
+        <div class="login-title">Join Us</div>
+        <div class="login-desc">{{ site_description }}</div>
     </div>
-    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+    {% if error %}<div class="alert alert-danger noto">{{ error }}</div>{% endif %}
     <form method="post">
         {% csrf_token %}
         <p>{{ form.username }}</p>
-        <div id="idCheck" role="alert"></div>
+        <div id="idCheck" class="noto" role="alert"></div>
         <p>{{ form.password }}</p>
         <p>{{ form.password_check }}</p>
         <p>{{ form.first_name }}</p>
         <p>{{ form.email }}</p>
-        <div class="alert alert-warning" role="alert">
+        <div class="alert alert-warning noto" role="alert">
             {{ form.email.help_text }}
         </div>
-        <button type="submit" class="btn btn-dark btn-block">회원가입</button>
+        <button type="submit" class="login-button">회원가입</button>
     </form>
 </div>
 {% endblock %}
