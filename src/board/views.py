@@ -624,6 +624,7 @@ def thread_detail(request, url):
         'white_nav': True,
         'form': StoryForm(),
         'grade': get_grade(thread.author),
+        'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
     }
     stroy_all = Story.objects.filter(thread=thread)
     page = request.GET.get('page', 1)
@@ -1068,9 +1069,9 @@ def thread_api_v1(request, pk=None):
                 return render(request, 'board/thread/form/thread.html', {'form': form})
     if pk:
         thread = get_object_or_404(Thread, pk=pk)
-        if not request.user == thread.author:
-            return HttpResponse('error:DU')
         if request.method == 'GET':
+            if not request.user == thread.author:
+                return HttpResponse('error:DU')
             if request.GET.get('get') == 'modal':
                 form = ThreadForm(instance=thread)
                 return render(request, 'board/thread/form/thread.html', {'form': form, 'thread': thread})
@@ -1079,16 +1080,16 @@ def thread_api_v1(request, pk=None):
             if put.get('bookmark'):
                 if not request.user.is_active:
                     return HttpResponse('error:NL')
-                if request.user == thread.author:
+                if not thread.allow_write and request.user == thread.author:
                     return HttpResponse('error:SU')
                 user = User.objects.get(username=request.user)
                 if thread.bookmark.filter(id=user.id).exists():
                     thread.bookmark.remove(user)
-                    post.save()
+                    thread.save()
                 else:
                     thread.bookmark.add(user)
-                    post.save()
-                return HttpResponse(str(post.total_likes()))
+                    thread.save()
+                return HttpResponse('DONE')
             if put.get('hide'):
                 compere_user(request.user, thread.author, give_404_if='different')
                 thread.hide = not thread.hide
@@ -1125,14 +1126,15 @@ def story_api_v1(request, pk=None):
 
                 send_notify_content = '\''+ thread.title +'\'스레드 에 \''+ story.author.username +'\'님이 새로운 스토리를 발행했습니다.'
                 for user in thread.bookmark.all():
-                    create_notify(user=user, url=thread.get_absolute_url(), infomation=send_notify_content)
+                    if not user == story.author:
+                        create_notify(user=user, url=thread.get_absolute_url(), infomation=send_notify_content)
                 
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
     if pk:
         story = get_object_or_404(Story, pk=pk)
-        if not request.user == story.author:
-            return HttpResponse('error:DU')
         if request.method == 'GET':
+            if not request.user == story.author:
+                return HttpResponse('error:DU')
             if request.GET.get('get') == 'form':
                 form = StoryForm(instance=story)
                 return render(request, 'board/thread/form/story.html', {'form': form, 'story': story})
@@ -1144,9 +1146,43 @@ def story_api_v1(request, pk=None):
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         if request.method == 'PUT':
             put = QueryDict(request.body)
+            if put.get('agree'):
+                if not request.user.is_active:
+                    return HttpResponse('error:NL')
+                if request.user == story.author:
+                    return HttpResponse('error:SU')
+                user = User.objects.get(username=request.user)
+                if story.agree.filter(id=user.id).exists():
+                    story.agree.remove(user)
+                    story.save()
+                else:
+                    if story.disagree.filter(id=user.id).exists():
+                        return HttpResponse('error:AD')
+                    story.agree.add(user)
+                    story.save()
+                return HttpResponse(str(story.total_agree()))
+            if put.get('disagree'):
+                if not request.user.is_active:
+                    return HttpResponse('error:NL')
+                if request.user == story.author:
+                    return HttpResponse('error:SU')
+                user = User.objects.get(username=request.user)
+                if story.disagree.filter(id=user.id).exists():
+                    story.disagree.remove(user)
+                    story.save()
+                else:
+                    if story.agree.filter(id=user.id).exists():
+                        return HttpResponse('error:AA')
+                    story.disagree.add(user)
+                    story.save()
+                return HttpResponse(str(story.total_disagree()))
             if put.get('title'):
+                if not request.user == story.author:
+                    return HttpResponse('error:DU')
                 story.title = put.get('title')
             if put.get('text_md'):
+                if not request.user == story.author:
+                    return HttpResponse('error:DU')
                 story.text_md = put.get('text_md')
                 story.text_html = parsedown(story.text_md)
             story.updated_date = timezone.now()

@@ -1016,6 +1016,11 @@ footer a:hover {
 }
 /* ------------------------------ */
 /* THREAD AND STORY */
+#thread-bookmark {
+    color: #414141;
+    font-size: 2em;
+    margin-bottom: 10px;
+}
 .h7 {
     font-size: 0.8rem;
 }

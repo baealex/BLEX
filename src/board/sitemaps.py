@@ -5,8 +5,8 @@ from itertools import chain
 from .models import Post, Thread, Series, Profile
 
 class StaticSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 0.5
+    changefreq = 'daily'
+    priority = 1.0
     
     def items(self):
         return ('', '/login', '/signup', '/trendy', '/newest')
@@ -24,6 +24,16 @@ class PostsSitemap(Sitemap):
     def lastmod(self, element):
         return element.updated_date
 
+class ThreadSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Thread.objects.filter(hide=False).order_by('pk')
+        
+    def lastmod(self, element):
+        return element.created_date
+
 class SeriesSitemap(Sitemap):
     changefreq = 'weekly'
     priority = 0.5
@@ -33,7 +43,7 @@ class SeriesSitemap(Sitemap):
 
 class UserSitemap(Sitemap):
     changefreq = 'weekly'
-    priority = 0.5
+    priority = 0.8
 
     def items(self):
         return Profile.objects.all().order_by('pk')
@@ -57,26 +67,6 @@ class UserAboutSitemap(Sitemap):
     
     def location(self, item):
         return reverse('user_profile_tab', args=[item.user, 'about'])
-
-class UserSeriesSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 0.5
-
-    def items(self):
-        return Profile.objects.all().order_by('pk')
-    
-    def location(self, item):
-        return reverse('user_profile_tab', args=[item.user, 'series'])
-
-class ThreadSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 0.5
-
-    def items(self):
-        return Thread.objects.filter(hide=False).order_by('pk')
-        
-    def lastmod(self, element):
-        return element.created_date
 
 sitemaps = {
     'static_sitemap': StaticSitemap,

@@ -8,10 +8,10 @@ const Posts = (() => {
                 data: {like: 'like'},
             }).done(function (data) {
                 if(data=='error:NL') {
-                    location.href = `/login?next=${location.pathname}`;
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
                 }
                 else if(data=='error:SU') {
-                    Notify.append('자신의 글은 추천할 수 없습니다.')
+                    Notify.append('자신의 글은 추천할 수 없습니다.');
                 }
                 else {
                     if($('#heart i').hasClass('fas')) {
@@ -132,7 +132,7 @@ const Comment = (() => {
                 data: {like: 'like'},
             }).done(function(data) {
                 if(data=='error:NL') {
-                    location.href='/login?next=' + location.pathname;
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
                 }
                 else if(data=='error:SU') {
                     Notify.append('자신의 댓글은 추천할 수 없습니다.')
@@ -260,7 +260,7 @@ const User = (() => {
                 data: {follow: 'follow'},
             }).done((data) => {
                 if(data=='error:NL') {
-                    location.href='/login?next=' + location.pathname;
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
                 }
                 else if(data=='error:SU') {
                     Notify.append('자신은 구독할 수 없습니다.');
@@ -395,6 +395,32 @@ const Thread = (() => {
                 $(`#setting-thread-${pk} form`).find('[name=tag]').val(data.tag);
             });
         },
+        bookmark: (pk) => {
+            $.ajax({
+                url: `${url}/${pk}`,
+                type: "PUT",
+                data: {bookmark: 'bookmark'}
+            }).done(function (data) {
+                if(data == 'error:NL') {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                }
+                else if(data == 'error:SU') {
+                    Notify.append('타인 참여가 불가능한 본인의 스레드는 북마크할 수 없습니다.');
+                }
+                else {
+                    if($(`#thread-bookmark i`).hasClass('far')) {
+                        $(`#thread-bookmark i`).removeClass('far');
+                        $(`#thread-bookmark i`).addClass('fas');
+                        Notify.append('스레드를 북마크합니다.');
+                    }
+                    else {
+                        $(`#thread-bookmark i`).removeClass('fas');
+                        $(`#thread-bookmark i`).addClass('far');
+                        Notify.append('스레드 북마크를 해제합니다.');
+                    }
+                }
+            });
+        },
     }
 })();
 const Story = (() => {
@@ -460,6 +486,46 @@ const Story = (() => {
                     }
                 });
             }
+        },
+        agree: function(pk) {
+            $.ajax({
+                url: `${url}/${pk}`,
+                type: 'PUT',
+                data: {agree: 'agree'},
+            }).done(function(data) {
+                if(data=='error:NL') {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                }
+                else if(data=='error:SU') {
+                    Notify.append('자신의 스토리는 찬성할 수 없습니다.');
+                }
+                else if(data=='error:AD') {
+                    Notify.append('이미 반대한 스토리입니다.');
+                }
+                else {
+                    $(`#story-${pk} .agree span`).text(data);
+                }
+            });
+        },
+        disagree: function(pk) {
+            $.ajax({
+                url: `${url}/${pk}`,
+                type: 'PUT',
+                data: {disagree: 'disagree'},
+            }).done(function(data) {
+                if(data=='error:NL') {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                }
+                else if(data=='error:SU') {
+                    Notify.append('자신의 스토리는 반대할 수 없습니다.')
+                }
+                else if(data=='error:AA') {
+                    Notify.append('이미 찬성한 스토리입니다.')
+                }
+                else {
+                    $(`#story-${pk} .disagree span`).text(data);
+                }
+            });
         }
     }
 })();

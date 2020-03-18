@@ -18,7 +18,7 @@ var Render = {
                         </div>
                     </div>
                     <div>
-                        <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>0분 전</div>
+                        <div class="text-muted h7 mb-2"><i class="far fa-clock"></i> 0분 전</div>
                     </div>
                 </div>
             </div>
@@ -28,7 +28,12 @@ var Render = {
                 </div>
             </div>
             <div class="card-footer">
-                <a class="card-link shallow-dark" href="#"><i class="fas fa-chevron-down"></i></a>
+                <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Story.agree(${element.pk})">
+                    <i class="far fa-thumbs-up"></i> <span>${element.agree}</span>
+                </a>
+                <a class="card-link shallow-dark disagree" href="javascript:void(0)" onclick="Story.disagree(${element.pk})">
+                    <i class="far fa-thumbs-up fa-rotate-180"></i> <span>${element.disagree}</span>
+                </a>
                 <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.edit(${element.pk})"><i class="far fa-edit"></i></a>
                 <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.remove(${element.pk});"><i class="far fa-trash-alt"></i></a>
             </div>
