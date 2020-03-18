@@ -23,7 +23,11 @@ const Posts = (() => {
                     }
                     $('#like-count').text(data);
                 }
-            })
+            }).fail(function(err) {
+                if(err.status == 403) {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                };
+            });
         },
         remove: (pk) => {
             if(confirm('정말 삭제하십니까?')){
@@ -140,6 +144,10 @@ const Comment = (() => {
                 else {
                     $(`#clc${pk}`).html(data);
                 }
+            }).fail(function(err) {
+                if(err.status == 403) {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                };
             });
         },
         update: (pk) => {
@@ -268,6 +276,10 @@ const User = (() => {
                 else {
                     $('.follow-badge').attr('src', `https://img.shields.io/badge/subscriber-${data}-red?style=social`)
                 }
+            }).fail(function(err) {
+                if(err.status == 403) {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                };
             });
         },
         editAbout: (username) => {
@@ -419,6 +431,10 @@ const Thread = (() => {
                         Notify.append('스레드 북마크를 해제합니다.');
                     }
                 }
+            }).fail(function(err) {
+                if(err.status == 403) {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                };
             });
         },
     }
@@ -505,6 +521,10 @@ const Story = (() => {
                 else {
                     $(`#story-${pk} .agree span`).text(data);
                 }
+            }).fail(function(err) {
+                if(err.status == 403) {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                };
             });
         },
         disagree: function(pk) {
@@ -525,6 +545,10 @@ const Story = (() => {
                 else {
                     $(`#story-${pk} .disagree span`).text(data);
                 }
+            }).fail(function(err) {
+                if(err.status == 403) {
+                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                };
             });
         }
     }
