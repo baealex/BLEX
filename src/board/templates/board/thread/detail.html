@@ -45,16 +45,16 @@
     <div class="card-header">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex justify-content-between align-items-center">
-          <div>
+          <a href="{% url 'user_profile' username=thread.author %}">
             {% if thread.author.profile.avatar %}
             <div class="back-image thumb comment-thumb" style="background-image:url({{ thread.author.profile.avatar.url }})"></div>
             {% else %}
             <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
             {% endif %}
-          </div>
+          </a>
           <div>
             <div class="h6 noto story-title m-0">{{ thread.title }}</div>
-            <div class="h7 text-muted">@{{ thread.author }}</div>
+            <div class="h7"><a href="{% url 'user_profile' username=thread.author %}" class="text-muted text-decoration-none">@{{ thread.author }}</a></div>
           </div>
         </div>
         <div>

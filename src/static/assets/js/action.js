@@ -177,7 +177,7 @@ const Series = (() => {
                 }).done((data) => {
                     if(data == 'done') {
                         alert('시리즈가 삭제되었습니다.')
-                        location.href='/';
+                        location.href = '/';
                     }
                 });
             }
@@ -185,13 +185,14 @@ const Series = (() => {
     }
 })();
 const Notify = (() => {
-    const url = '/api/v1/notify';
+    const url = '/api/v1/users';
     var counter = 0;
     return {
-        get: () => {
+        get: (username) => {
             $.ajax({
-                url: url,
-                type: 'get',
+                url: `${url}/${username}`,
+                type: 'GET',
+                data: {'get': 'notify'},
             }).done((data) => {
                 if (data.count > 0) {
                     data.content.forEach((element) => {
@@ -220,13 +221,29 @@ const Notify = (() => {
                 $(`#pretoast${pk}`).remove();
             }, 3000);
         },
-        read: (pk) => {
+        read: (username, pk) => {
             $.ajax({
-                url: url,
+                url: `${url}/${username}`,
                 type: 'GET',
-                data: {'id': pk},
+                data: {
+                    'get': 'notify',
+                    'id': pk,
+                },
             }).done((data) => {
                 $(`#toast${pk}`).remove();
+            });
+        },
+        go: (username, pk) => {
+            $.ajax({
+                url: `${url}/${username}`,
+                type: 'GET',
+                data: {
+                    'get': 'notify',
+                    'id': pk,
+                },
+            }).done((data) => {
+                alert(data);
+                location.href = data;
             });
         }
     }

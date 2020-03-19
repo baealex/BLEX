@@ -2,16 +2,16 @@
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
+                <a href="{% url 'user_profile' username=story.author %}">
                     {% if story.author.profile.avatar %}
                     <div class="back-image thumb comment-thumb" style="background-image:url({{ story.author.profile.avatar.url }})"></div>
                     {% else %}
                     <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
                     {% endif %}
-                </div>
+                </a>
                 <div>
                     <div class="h6 noto story-title m-0">{{ story.title }}</div>
-                    <div class="h7 text-muted">@{{ story.author }}</div>
+                    <div class="h7"><a href="{% url 'user_profile' username=story.author %}" class="text-muted text-decoration-none">@{{ story.author }}</a></div>
                 </div>
             </div>
             <div>

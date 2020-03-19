@@ -132,12 +132,12 @@ var Render = {
                     <img src="https://static.blex.me/assets/images/logo.png" class="rounded mr-2" width="20px">
                     <strong class="mr-auto">알림</strong>
                     <small class="text-muted">${element.created_date}전</small>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" onclick="Notify.read(${element.pk})">
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" onclick="Notify.read('${element.user}', ${element.pk})">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="toast-body">
-                    <a class="deep-dark" href="/api/v1/notify?id=${element.pk}">${element.infomation}</a>
+                    <a class="deep-dark" href="javascript:void(0)" onclick="Notify.go('${element.user}', ${element.pk})">${element.infomation}</a>
                 </div>
             </div>
             `

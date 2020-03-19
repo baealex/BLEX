@@ -58,7 +58,6 @@ urlpatterns = [
     # ------------------------------------------------------------ Article End
 
     # API V1
-    path('api/v1/notify', views.notify_api_v1, name='notify_api_v1'),
     path('api/v1/topics', views.topics_api_v1, name='topics_api_v1'),
     path('api/v1/posts/<int:pk>', views.posts_api_v1, name='posts_api_v1'),
     path('api/v1/comments', views.comment_api_v1, name='comment_api_v1'),

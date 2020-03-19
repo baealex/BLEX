@@ -44,7 +44,7 @@
                 {{ series.description }}
             </blockquote>
             <div class="author">
-                <img src="{{ user.profile.thumbnail }}" />
+                <a href="{% url 'user_profile' username=series.owner %}"><img src="{{ user.profile.thumbnail }}" /></a>
             </div>
         </div>
         {% endif %}

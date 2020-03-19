@@ -836,29 +836,6 @@ def post_edit(request, pk):
 
 
 # API V1
-def notify_api_v1(request):
-    if request.method == 'GET':
-        if request.GET.get('id'):
-            notify = get_object_or_404(Notify, pk=request.GET.get('id'))
-            if notify.is_read == False:
-                notify.is_read = True
-                notify.save()
-                return HttpResponseRedirect(notify.url)
-            else:
-                raise Http404
-        else:
-            if request.user.is_active:
-                notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
-                data = {
-                    'count': len(notify),
-                    'content': list()
-                }
-                if data['count'] > 0:
-                    for notify_one in notify:
-                        data['content'].append(notify_one.to_dict())
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-            return HttpResponse(str(-1))
-
 def topics_api_v1(request):
     if request.method == 'GET':
         cache_key = 'main_page_topics'
@@ -1001,6 +978,27 @@ def users_api_v1(request, username):
     user = get_object_or_404(User, username=username)
 
     if request.method == 'GET':
+        if request.GET.get('get') == 'notify':
+            if request.GET.get('id'):
+                notify = get_object_or_404(Notify, pk=request.GET.get('id'))
+                if notify.is_read == False:
+                    notify.is_read = True
+                    notify.save()
+                    return HttpResponse(notify.url)
+                else:
+                    raise Http404
+            else:
+                if request.user.is_active:
+                    notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
+                    data = {
+                        'count': len(notify),
+                        'content': list()
+                    }
+                    if data['count'] > 0:
+                        for notify_one in notify:
+                            data['content'].append(notify_one.to_dict())
+                    return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+                return HttpResponse(str(-1))
         if request.GET.get('get') == 'posts':
             posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
             return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params = {'ensure_ascii': True})
