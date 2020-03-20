@@ -8,7 +8,7 @@ const Posts = (() => {
                 data: {like: 'like'},
             }).done(function (data) {
                 if(data=='error:NL') {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 }
                 else if(data=='error:SU') {
                     Notify.append('자신의 글은 추천할 수 없습니다.');
@@ -25,7 +25,7 @@ const Posts = (() => {
                 }
             }).fail(function(err) {
                 if(err.status == 403) {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 };
             });
         },
@@ -136,7 +136,7 @@ const Comment = (() => {
                 data: {like: 'like'},
             }).done(function(data) {
                 if(data=='error:NL') {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 }
                 else if(data=='error:SU') {
                     Notify.append('자신의 댓글은 추천할 수 없습니다.')
@@ -146,7 +146,7 @@ const Comment = (() => {
                 }
             }).fail(function(err) {
                 if(err.status == 403) {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 };
             });
         },
@@ -242,7 +242,6 @@ const Notify = (() => {
                     'id': pk,
                 },
             }).done((data) => {
-                alert(data);
                 location.href = data;
             });
         }
@@ -285,17 +284,17 @@ const User = (() => {
                 data: {follow: 'follow'},
             }).done((data) => {
                 if(data=='error:NL') {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 }
                 else if(data=='error:SU') {
                     Notify.append('자신은 구독할 수 없습니다.');
                 }
                 else {
-                    $('.follow-badge').attr('src', `https://img.shields.io/badge/subscriber-${data}-red?style=social`)
+                    $('#user-follow').text(data);
                 }
             }).fail(function(err) {
                 if(err.status == 403) {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 };
             });
         },
@@ -431,7 +430,7 @@ const Thread = (() => {
                 data: {bookmark: 'bookmark'}
             }).done(function (data) {
                 if(data == 'error:NL') {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 }
                 else if(data == 'error:SU') {
                     Notify.append('타인 참여가 불가능한 본인의 스레드는 북마크할 수 없습니다.');
@@ -450,7 +449,7 @@ const Thread = (() => {
                 }
             }).fail(function(err) {
                 if(err.status == 403) {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 };
             });
         },
@@ -527,7 +526,7 @@ const Story = (() => {
                 data: {agree: 'agree'},
             }).done(function(data) {
                 if(data=='error:NL') {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 }
                 else if(data=='error:SU') {
                     Notify.append('자신의 스토리는 찬성할 수 없습니다.');
@@ -540,7 +539,7 @@ const Story = (() => {
                 }
             }).fail(function(err) {
                 if(err.status == 403) {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 };
             });
         },
@@ -551,7 +550,7 @@ const Story = (() => {
                 data: {disagree: 'disagree'},
             }).done(function(data) {
                 if(data=='error:NL') {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 }
                 else if(data=='error:SU') {
                     Notify.append('자신의 스토리는 반대할 수 없습니다.')
@@ -564,7 +563,7 @@ const Story = (() => {
                 }
             }).fail(function(err) {
                 if(err.status == 403) {
-                    Notify.append(`<a class="vivid-purple" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`);
+                    Notify.append(msg.login);
                 };
             });
         }

@@ -84,6 +84,9 @@
 }
 /* ------------------------------ */
 /* CLASS : USEFUL */
+.c-pointer {
+    cursor: pointer;
+}
 .h-150 {
     height: 150px;
 }

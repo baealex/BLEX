@@ -52,11 +52,9 @@
         <h5 class="serif">@{{ user.username }}</h5>
         {% if user.profile.homepage %}<a class="vivid-purple" href="https://{{ user.profile.homepage }}">https://{{ user.profile.homepage }}</a>{% endif %}
         <ul class="author-state">
-            <li>
-                <img src="https://img.shields.io/badge/-{{ grade }}">
-            </li>
-            <li onclick="User.follow('{{ user }}')">
-                <img class="follow-badge" src="https://img.shields.io/badge/subscriber-{% if user.profile.subscriber %}{{ user.profile.total_subscriber }}{% else %}0{% endif %}-red?style=social">
+            <li><i class="fas fa-battery-{{ battery }}"></i> {% if user.profile.exp %}{{ user.profile.exp }}{% else %}0{% endif %}%</li>
+            <li class="c-pointer" onclick="User.follow('{{ user.username }}')">
+                <i class="fas fa-users"></i> <span id="user-follow">{% if user.profile.subscriber %}{{ user.profile.total_subscriber }}{% else %}0{% endif %}</span>
             </li>
         </ul>
         <p class="user-profile-desc mt-5">
@@ -64,9 +62,9 @@
                 {{ user.profile.bio|linebreaksbr }}<br>
             {% endif%}
             {% if request.user.is_active %}
-            <a class="vivid-purple" href="mailto:{{ user.email }}">{{ user.email }}</a>
+            <a class="vivid-purple text-decoration-none" href="mailto:{{ user.email }}">{{ user.email }}</a>
             {% else %}
-            <a class="vivid-purple" href="{% url 'login' %}">Sign in to view email</a>
+            <a class="vivid-purple text-decoration-none" href="{% url 'login' %}">Sign in to view email</a>
             {% endif %}
         </p>
         <ul class="social-link">

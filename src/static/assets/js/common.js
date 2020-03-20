@@ -60,3 +60,7 @@ numberCounter.prototype.counter = function () {
     clearTimeout(this.timer);
   }
 };
+
+const msg = {
+  login: `<a class="shallow-dark" href="/login?next=${location.pathname}">로그인</a> 후 이용할 수 있습니다.`,
+}

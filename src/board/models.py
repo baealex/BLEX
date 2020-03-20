@@ -13,15 +13,6 @@ from django.utils.timesince import timesince
 
 from PIL import Image
 
-grade_mapping = {
-    'blogger'     : 'blogger-gray',
-    'contributor' : 'contributor-green',
-    'supporter'   : 'supporter-orange',
-    'sponsor'     : 'sponsor-ff69b4',
-    'partner'     : 'partner-blueviolet',
-    'master'      : 'master-purple'
-}
-
 def randstr(length):
     rstr = '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ'
     rstr_len = len(rstr) - 1

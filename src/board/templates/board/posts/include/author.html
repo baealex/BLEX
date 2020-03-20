@@ -7,23 +7,20 @@
         {% endif %}
     </a>
     <div class="author-info">
-        <h4><a href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a>{% if battery %}<span class="ns ml-2"><i class="fas fa-battery-{{ battery }}"></i> {% if post.author.profile.exp %}{{ post.author.profile.exp }}{% else %}0{% endif %}%{% endif %}</span></h4>
-            {% if post.author.profile.bio %}
-            <p class="author-description">{{ post.author.profile.bio }}</p>
-            {% endif%}
-            <ul class="author-state">
-                <li>
-                    <img src="https://img.shields.io/badge/-{{ grade }}">
-                </li>
-                <li onclick="User.follow('{{ post.author }}')">
-                    <img class="follow-badge" src="https://img.shields.io/badge/subscriber-{% if post.author.profile.subscriber %}{{ post.author.profile.total_subscriber }}{% else %}0{% endif %}-red?style=social">
-                </li>
-            </ul>
-            {% if request.user.is_active %}
-            <a class="author-email d-block" href="mailto:{{ post.author.email }}">{{ post.author.email }}</a>
-            {% else %}
-            <a class="author-email d-block" href="{% url 'login' %}">Sign in to view email</a>
-            {% endif %}
-        </p>
+        <h4><a class=" text-decoration-none" href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a></h4>
+        <ul class="author-state">
+            <li><i class="fas fa-battery-{{ battery }}"></i> {% if post.author.profile.exp %}{{ post.author.profile.exp }}{% else %}0{% endif %}%</li>
+            <li class="c-pointer" onclick="User.follow('{{ post.author.username }}')">
+                <i class="fas fa-users"></i> <span id="user-follow">{% if post.author.profile.subscriber %}{{ post.author.profile.total_subscriber }}{% else %}0{% endif %}</span>
+            </li>
+        </ul>
+        {% if post.author.profile.bio %}
+        <p class="author-description">{{ post.author.profile.bio }}</p>
+        {% endif%}
+        {% if request.user.is_active %}
+        <a class="author-email d-block text-decoration-none" href="mailto:{{ post.author.email }}">{{ post.author.email }}</a>
+        {% else %}
+        <a class="author-email d-block text-decoration-none" href="{% url 'login' %}">Sign in to view email</a>
+        {% endif %}
     </div>
 </div>

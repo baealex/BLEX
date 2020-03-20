@@ -132,10 +132,8 @@ def get_grade(user):
     select_grade = 'blogger'
     if hasattr(user, 'profile'):
         if user.profile.grade:
-            user_grade = str(user.profile.grade)
-            if user_grade in grade_mapping:
-                select_grade = user_grade
-    return grade_mapping[select_grade]
+            select_grade = str(user.profile.grade)
+    return select_grade
 
 def create_notify(user, url, infomation):
     new_notify = Notify(user=user, url=url, infomation=infomation)
@@ -370,6 +368,7 @@ def user_profile(request, username):
         'posts_count': len(posts),
         'grade':  get_grade(user),
         'tags': get_user_topics(user),
+        'battery': get_exp(user),
     }
     if request.user == user:
         render_args['write_btn'] = True
