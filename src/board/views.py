@@ -388,7 +388,8 @@ def user_profile_tab(request, username, tab):
         'tab': tab,
         'user': user,
         'white_nav' : True,
-        'grade': get_grade(user)
+        'grade': get_grade(user),
+        'battery': get_exp(user),
     }
     if request.user == user:
         render_args['write_btn'] = True
@@ -442,6 +443,7 @@ def user_profile_topic(request, username, tag):
         'white_nav' : True,
         'selected_tag': tag,
         'elements': elements,
+        'battery': get_exp(user),
         'grade': get_grade(user),
         'posts_count': total_posts,
         'tags': get_user_topics(user),
