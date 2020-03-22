@@ -18,7 +18,7 @@
                 {% if post.image %}
                 <a href="{{ post.get_absolute_url }}">
                     <picture>
-                        <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy"/>
+                        <img src="{{ static_url }}/{{ post.get_thumbnail }}" alt="{{ post.title }}" loading="lazy"/>
                     </picture>
                 </a>
                 {% endif %}

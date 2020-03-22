@@ -8,9 +8,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-src/static/title/
-src/static/avatar/
-src/static/image/
+src/static/images/
 migrations/
 
 # C extensions

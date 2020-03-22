@@ -28,7 +28,7 @@ if __name__ == '__main__':
     for data in chain(posts, thread, story):
         try:
             title_image_names[str(data.image).split('/')[-1]] = 0
-            title_image_names[str(data.image).split('/')[-1] + '_500.' + str(data.image).split('.')[-1]] = 0
+            title_image_names[str(data.get_thumbnail()).split('/')[-1]] = 0
         except:
             pass
         

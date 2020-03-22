@@ -145,6 +145,13 @@ def create_notify(user, url, infomation):
             bot.send_message_async(telegram_id, 'https://blex.kr' + url)
             bot.send_message_async(telegram_id, infomation)
 
+def make_path(upload_path, dir_list):
+    for dir_name in dir_list:
+        upload_path += ('/' + dir_name)
+        if not os.path.exists(upload_path):
+            os.makedirs(upload_path)
+    return upload_path
+
 # ------------------------------------------------------------ Method End
 
 
@@ -548,32 +555,29 @@ def image_upload(request):
                 return HttpResponse('허용된 확장자가 아닙니다.')
                 
             dt = datetime.datetime.now()
-            upload_path = 'static/image'
-            if not os.path.exists(upload_path):
-                os.makedirs(upload_path)
-            date_path = '/' + str(dt.year)
-            if not os.path.exists(upload_path + date_path):
-                os.makedirs(upload_path + date_path)
-            date_path += '/' + str(dt.month) 
-            if not os.path.exists(upload_path + date_path):
-                os.makedirs(upload_path + date_path)
-            date_path += '/' + str(dt.day)
-            if not os.path.exists(upload_path + date_path):
-                os.makedirs(upload_path + date_path)
+            upload_path = make_path(
+                'static/images/content',
+                [
+                    str(dt.year),
+                    str(dt.month),
+                    str(dt.day),
+                    str(request.user.username)
+                ]
+            )
 
-            file_name = randstr(20)
-            with open(upload_path + date_path + '/' + file_name +'.'+ ext, 'wb+') as destination:
+            file_name = str(dt.hour) + '_' + randstr(20)
+            with open(upload_path + '/' + file_name +'.'+ ext, 'wb+') as destination:
                 for chunk in image.chunks():
                     destination.write(chunk)
             
             if ext == 'gif':
                 try:
-                    os.system('ffmpeg -i '+ upload_path + date_path + '/' + file_name + '.gif' + ' -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart '+ upload_path + date_path + '/' + file_name +'.mp4')
-                    os.system('rm ' + upload_path + date_path + '/' + file_name + '.gif')
+                    os.system('ffmpeg -i '+ upload_path + '/' + file_name + '.gif' + ' -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart '+ upload_path + date_path + '/' + file_name +'.mp4')
+                    os.system('rm ' + upload_path + '/' + file_name + '.gif')
                     ext = 'mp4'
                 except:
                     return HttpResponse('이미지 업로드를 실패했습니다.')
-            return HttpResponse('https://static.blex.kr/image' + date_path + '/' + file_name +'.'+ ext)
+            return HttpResponse('https://static.blex.me' + upload_path.replace('static', '') + '/' + file_name +'.'+ ext)
         else:
             return HttpResponse('이미지 파일이 아닙니다.')
     else:
