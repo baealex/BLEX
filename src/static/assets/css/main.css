@@ -255,7 +255,7 @@
 /* ------------------------------ */
 /* HOME : COMMON */
 .card-title {
-    word-break: keep-all;
+    
 }
 .card-subtitle {
     text-transform: capitalize;
@@ -439,7 +439,6 @@ footer a:hover {
 /* POSTS : DETAIL : NONE TITLE IMAGE */
 .post-headline {
     font-family: 'Noto Serif KR', serif;
-    word-break: keep-all;
     font-weight: bold;
     font-size: 2rem;
 }
@@ -571,7 +570,6 @@ footer a:hover {
 .article table th {
 	border:1px solid #dfe2e5;
 	padding:6px 13px;
-	word-break: keep-all;
 }
 .article table tr {
 	background-color:#fff;
