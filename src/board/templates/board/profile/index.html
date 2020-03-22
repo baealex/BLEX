@@ -109,6 +109,7 @@
 {% endblock %}
 
 {% block footer%}
+    {% csrf_token %}
     {% include 'board/common/include/footer.html' %}
 {% endblock %}
 

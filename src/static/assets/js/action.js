@@ -23,10 +23,6 @@ const Posts = (() => {
                     }
                     $('#like-count').text(data);
                 }
-            }).fail(function(err) {
-                if(err.status == 403) {
-                    Notify.append(msg.login);
-                };
             });
         },
         remove: (pk) => {
@@ -144,10 +140,6 @@ const Comment = (() => {
                 else {
                     $(`#clc${pk}`).html(data);
                 }
-            }).fail(function(err) {
-                if(err.status == 403) {
-                    Notify.append(msg.login);
-                };
             });
         },
         update: (pk) => {
@@ -292,10 +284,6 @@ const User = (() => {
                 else {
                     $('#user-follow').text(data);
                 }
-            }).fail(function(err) {
-                if(err.status == 403) {
-                    Notify.append(msg.login);
-                };
             });
         },
         editAbout: (username) => {
@@ -447,10 +435,6 @@ const Thread = (() => {
                         Notify.append('스레드 북마크를 해제합니다.');
                     }
                 }
-            }).fail(function(err) {
-                if(err.status == 403) {
-                    Notify.append(msg.login);
-                };
             });
         },
     }
@@ -537,10 +521,6 @@ const Story = (() => {
                 else {
                     $(`#story-${pk} .agree span`).text(data);
                 }
-            }).fail(function(err) {
-                if(err.status == 403) {
-                    Notify.append(msg.login);
-                };
             });
         },
         disagree: function(pk) {
@@ -556,15 +536,11 @@ const Story = (() => {
                     Notify.append('자신의 스토리는 반대할 수 없습니다.')
                 }
                 else if(data=='error:AA') {
-                    Notify.append('이미 찬성한 스토리입니다.')
+                    Notify.append('이미 찬성한 스토리입니다.');
                 }
                 else {
                     $(`#story-${pk} .disagree span`).text(data);
                 }
-            }).fail(function(err) {
-                if(err.status == 403) {
-                    Notify.append(msg.login);
-                };
             });
         }
     }

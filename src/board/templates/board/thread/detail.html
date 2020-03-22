@@ -89,6 +89,7 @@
   </form>
     {% else %}
   <div class="bg-border-purple vivid-purple noto p-3">
+    {% csrf_token %}
     로그인 후 스토리를 작성할 수 있습니다.
   </div>
     {% endif %}
