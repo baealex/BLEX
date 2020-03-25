@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CONTENT_IMAGE_DIR = BASE_DIR + '/static/image'
-TITLE_IMAGE_DIR   = BASE_DIR + '/static/title'
+CONTENT_IMAGE_DIR = BASE_DIR + '/static/images/content'
+TITLE_IMAGE_DIR   = BASE_DIR + '/static/images/title'
 
 sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')

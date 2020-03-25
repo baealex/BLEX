@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /*?page=*
 Disallow: /*?series=*
+Disallow: /*?fbclid=*
 Disallow: /search?value=*
 Allow: /
 Sitemap: https://blex.me/sitemap.xml
