@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /*?page=*
+Disallow: /*?next=*
 Disallow: /*?series=*
 Disallow: /*?fbclid=*
 Disallow: /search?value=*
