@@ -91,7 +91,7 @@ var Render = {
                 <li><a class="element-lock" href="javascript:${actionClass}.lock(${element.pk})"><i id="lock-${element.pk}" class="fas ${hideState}"></i></a></li>
                 <li><a class="text-dark" href="javascript:${actionClass}.remove(${element.pk})"><i class="far fa-trash-alt"></i></a></li>
                 <li>|</li>
-                <li><i class="far fa-eye"></i> <span class="ns">(Today : ${element.today}, Yesterday : ${element.yesterday}, Total : ${element.today+element.yesterday+element.total})</span></li>
+                <li><i class="far fa-eye"></i> <span class="ns">(Today : ${element.today}, Yesterday : ${element.yesterday}, Total : ${element.total})</span></li>
                 ${elementSub}
             </ul>
             <form>

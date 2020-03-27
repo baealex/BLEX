@@ -1,8 +1,7 @@
-import threading
-import random
 import json
 import os
 
+from itertools import chain
 from django.db.models import Count, Q
 from django.core.cache import cache
 from django.core.mail import send_mail
@@ -15,146 +14,14 @@ from django.http import (
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.html import strip_tags
 from django.utils.text import slugify
 from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
-from itertools import chain
 
 from .models import *
 from .forms import *
 from . import telegram, telegram_token
-
-# Method
-def get_posts(sort='all'):
-    if sort == 'top':
-        return Post.objects.filter(notice=False, hide=False).annotate(like_count=Count('likes')).order_by('-like_count')
-    elif sort == 'trendy':
-        return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-trendy')
-    elif sort == 'newest':
-        posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
-        threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
-        return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
-    elif sort == 'oldest':
-        return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('created_date')
-    elif sort == 'week-top':
-        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
-        today          = timezone.make_aware(datetime.datetime.now())
-        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('-total')
-    elif sort == 'all':
-        return Post.objects.filter(hide=False).order_by('-created_date')
-    elif sort == 'notice':
-        posts = Post.objects.filter(notice=True).order_by('-created_date')
-        threads = Thread.objects.filter(notice=True).order_by('-created_date')
-        return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
-
-def get_clean_tag(tag):
-    clean_tag = slugify(tag.replace(',', '-').replace('_', '-'), allow_unicode=True).split('-')
-    return ','.join(list(set(clean_tag)))
-
-def get_clean_all_tags(user=None):
-    posts = Post.objects.filter(hide=False)
-    thread = Thread.objects.filter(hide=False)
-    if user == None:
-        tagslist = list(posts.values_list('tag', flat=True).distinct()) + (
-            list(thread.values_list('tag', flat=True).distinct()))
-    else:
-        tagslist = list(posts.filter(author=user).values_list('tag', flat=True).distinct()) + (
-            list(thread.filter(author=user).values_list('tag', flat=True).distinct()))
-
-    all_tags = set()
-    for tags in tagslist:
-        all_tags.update([x for x in tags.split(',') if not x.strip() == ''])
-
-    all_tags_dict = list()
-    for tag in all_tags:
-        tag_dict = { 'name': tag }
-        if user == None:
-            tag_dict['count'] = len(posts.filter(tag__iregex=r'\b%s\b' % tag)) + (
-                len(thread.filter(tag__iregex=r'\b%s\b' % tag)))
-        else:
-            tag_dict['count'] = len(posts.filter(author=user, tag__iregex=r'\b%s\b' % tag)) + (
-                len(thread.filter(author=user, tag__iregex=r'\b%s\b' % tag)))
-        all_tags_dict.append(tag_dict)
-    return all_tags_dict
-
-def get_user_topics(user):
-    cache_key = user.username + '_topics'
-    tags = cache.get(cache_key)
-    if not tags:
-        tags = sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
-        cache_time = 120
-        cache.set(cache_key, tags, cache_time)
-    return tags
-
-def compere_user(req, res, give_404_if='none'):
-    if give_404_if == 'same':
-        if req == res:
-            raise Http404
-    else:
-        if not req == res:
-            raise Http404
-
-def page_check(page, paginator):
-    try:
-        page = int(page)
-    except:
-        raise Http404()
-    if not page or int(page) > paginator.num_pages or int(page) < 1:
-        raise Http404()
-
-def add_exp(user, num):
-    if hasattr(user, 'profile'):
-        user.profile.exp += num
-        if user.profile.exp > 100:
-            user.profile.exp = 100
-        user.profile.save()
-    else:
-        new_profile = Profile(user=user, exp=num)
-        new_profile.save()
-
-def get_exp(user):
-    if hasattr(user, 'profile'):
-        if user.profile.exp >= 0 and user.profile.exp < 15:
-            return 'empty'
-        elif user.profile.exp >= 15 and user.profile.exp < 40:
-            return 'quarter'
-        elif user.profile.exp >= 40 and user.profile.exp < 65:
-            return 'half'
-        elif user.profile.exp >= 65 and user.profile.exp < 85:
-            return 'three-quarters'
-        elif user.profile.exp >= 85:
-            return 'full'
-    else:
-        return 'empty'
-
-def get_grade(user):
-    select_grade = 'blogger'
-    if hasattr(user, 'profile'):
-        if user.profile.grade:
-            select_grade = str(user.profile.grade)
-    return select_grade
-
-def create_notify(user, url, infomation):
-    new_notify = Notify(user=user, url=url, infomation=infomation)
-    new_notify.save()
-    if hasattr(user, 'config'):
-        telegram_id = user.config.telegram_id
-        if not telegram_id == '':
-            bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
-            bot.send_message_async(telegram_id, 'https://blex.kr' + url)
-            bot.send_message_async(telegram_id, infomation)
-
-def make_path(upload_path, dir_list):
-    for dir_name in dir_list:
-        upload_path += ('/' + dir_name)
-        if not os.path.exists(upload_path):
-            os.makedirs(upload_path)
-    return upload_path
-
-# ------------------------------------------------------------ Method End
-
-
+from . import views_fn as fn
 
 # Account
 def signup(request):
@@ -227,6 +94,7 @@ def user_active(request, token):
         message = '이메일이 인증되었습니다.'
     return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
 
+@login_required(login_url='/login')
 def signout(request):
     if request.method == 'POST':
         user = User.objects.get(username=request.user)
@@ -347,7 +215,7 @@ def setting_tab(request, tab):
 
             page = request.GET.get('page', 1)
             paginator = Paginator(threads, 8)
-            page_check(page, paginator)
+            fn.page_check(page, paginator)
             elements = paginator.get_page(page)
             render_args['elements'] = elements
 
@@ -365,7 +233,7 @@ def user_profile(request, username):
 
     page = request.GET.get('page', 1)
     paginator = Paginator(posts_and_thread, 6)
-    page_check(page, paginator)
+    fn.page_check(page, paginator)
     elements = paginator.get_page(page)
 
     render_args = {
@@ -373,9 +241,9 @@ def user_profile(request, username):
         'white_nav' : True,
         'elements': elements,
         'posts_count': len(posts),
-        'grade':  get_grade(user),
-        'tags': get_user_topics(user),
-        'battery': get_exp(user),
+        'grade':  fn.get_grade(user),
+        'tags': fn.get_user_topics(user),
+        'battery': fn.get_exp(user),
     }
     if request.user == user:
         render_args['write_btn'] = True
@@ -395,8 +263,8 @@ def user_profile_tab(request, username, tab):
         'tab': tab,
         'user': user,
         'white_nav' : True,
-        'grade': get_grade(user),
-        'battery': get_exp(user),
+        'grade': fn.get_grade(user),
+        'battery': fn.get_exp(user),
     }
     if request.user == user:
         render_args['write_btn'] = True
@@ -411,7 +279,7 @@ def user_profile_tab(request, username, tab):
         
         page = request.GET.get('page', 1)
         paginator = Paginator(series, 10)
-        page_check(page, paginator)
+        fn.page_check(page, paginator)
         elements = paginator.get_page(page)
         render_args['elements'] = elements
     if tab == 'activity':
@@ -425,7 +293,7 @@ def user_profile_tab(request, username, tab):
         
         page = request.GET.get('page', 1)
         paginator = Paginator(activity, 15)
-        page_check(page, paginator)
+        fn.page_check(page, paginator)
         elements = paginator.get_page(page)
         render_args['elements'] = elements
 
@@ -442,7 +310,7 @@ def user_profile_topic(request, username, tag):
     
     page = request.GET.get('page', 1)
     paginator = Paginator(posts_and_thread, 6)
-    page_check(page, paginator)
+    fn.page_check(page, paginator)
     elements = paginator.get_page(page)
     
     render_args = {
@@ -450,10 +318,10 @@ def user_profile_topic(request, username, tag):
         'white_nav' : True,
         'selected_tag': tag,
         'elements': elements,
-        'battery': get_exp(user),
-        'grade': get_grade(user),
+        'battery': fn.get_exp(user),
+        'grade': fn.get_grade(user),
         'posts_count': total_posts,
-        'tags': get_user_topics(user),
+        'tags': fn.get_user_topics(user),
     }
     return render(request, 'board/profile/index.html', render_args)
 # ------------------------------------------------------------ Profile End
@@ -538,7 +406,7 @@ def post_list_in_tag(request, tag):
         raise Http404()
     page = request.GET.get('page', 1)
     paginator = Paginator(posts, 15)
-    page_check(page, paginator)
+    fn.page_check(page, paginator)
     elements = paginator.get_page(page)
     return render(request, 'board/posts/list_tag.html',{ 'tag':tag, 'elements': elements, 'white_nav':True })
 
@@ -555,7 +423,7 @@ def image_upload(request):
                 return HttpResponse('허용된 확장자가 아닙니다.')
                 
             dt = datetime.datetime.now()
-            upload_path = make_path(
+            upload_path = fn.make_path(
                 'static/images/content',
                 [
                     str(dt.year),
@@ -593,7 +461,7 @@ def thread_create(request):
         if form.is_valid():
             thread = form.save(commit=False)
             thread.author = request.user
-            thread.tag = get_clean_tag(thread.tag)
+            thread.tag = fn.get_clean_tag(thread.tag)
             thread.url = slugify(thread.title, allow_unicode=True)
             if thread.url == '':
                 thread.url = randstr(15)
@@ -605,7 +473,7 @@ def thread_create(request):
                 except:
                     thread.url = slugify(thread.title+'-'+str(i), allow_unicode=True)
                     i += 1
-            add_exp(request.user, 10)
+            fn.add_exp(request.user, 10)
             return redirect('thread_detail', url=thread.url)
 
 def thread_edit(request, pk):
@@ -615,7 +483,7 @@ def thread_edit(request, pk):
         form = ThreadForm(request.POST, request.FILES, instance=thread)
         if form.is_valid():
             thread = form.save(commit=False)
-            thread.tag = get_clean_tag(thread.tag)
+            thread.tag = fn.get_clean_tag(thread.tag)
             thread.allow_write = thread_allow_write_state
             thread.save()
             return redirect('thread_detail', url=thread.url)
@@ -628,40 +496,38 @@ def thread_detail(request, url):
         'thread': thread,
         'white_nav': True,
         'form': StoryForm(),
-        'grade': get_grade(thread.author),
+        'grade': fn.get_grade(thread.author),
         'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
     }
     stroy_all = Story.objects.filter(thread=thread)
     page = request.GET.get('page', 1)
     paginator = Paginator(stroy_all, 6)
-    page_check(page, paginator)
+    fn.page_check(page, paginator)
     story_page = paginator.get_page(page)
     render_args['story_page'] = story_page
 
-    # View Count by cookie
+    # View Count by iptable
     if not request.user == thread.author:
-        response = render(request, 'board/thread/detail.html', render_args)
-        cookie_name = 'hit'
-        today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
-        expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
-        if request.COOKIES.get(cookie_name) is not None:
-            cookies = request.COOKIES.get(cookie_name)
-            cookies_list = cookies.split('|')
-            if 't' + str(thread.pk) not in cookies_list:
-                response.set_cookie(cookie_name, cookies + '|' + 't' + str(thread.pk), expires=expires)
-                thread.today += 1
-                thread.save()
-                return response
-        else:
-            response.set_cookie(cookie_name, 't' + str(thread.pk), expires=expires)
-            thread.today += 1
-            thread.save()
-            return response
+        today = timezone.make_aware(datetime.datetime.now())
+        thread_today = None
+        try:
+            thread_today = ThreadAnalytics.objects.get(date=today, thread=thread)
+        except:
+            thread_today = ThreadAnalytics(thread=thread)
+        
+        user_ip = fn.get_encrypt_ip(request)
+        if not user_ip in thread_today.iptable:
+            thread_today.count += 1
+            thread_today.iptable += user_ip + ';'
+        
+        if 'Referer' in request.headers:
+            if not request.headers['Host'] in request.headers['Referer']:
+                thread_today.referer += request.headers['Referer'] + ';'
+        thread_today.save()
     
     return render(request, 'board/thread/detail.html', render_args)
 
 # ------------------------------------------------------------ Thread End
-
 
 # Article
 def post_detail(request, username, url):
@@ -677,8 +543,8 @@ def post_detail(request, username, url):
         'another_posts' : another_posts,
         'check_like' : post.likes.filter(id=request.user.id).exists(),
         'current_path': request.get_full_path(),
-        'battery': get_exp(user),
-        'grade': get_grade(user)
+        'battery': fn.get_exp(user),
+        'grade': fn.get_grade(user)
     }
 
     # Select right series
@@ -711,25 +577,25 @@ def post_detail(request, username, url):
         except:
             pass
 
-    # View Count by cookie
+    # View Count by iptable
     if not request.user == post.author:
-        response = render(request, 'board/posts/detail.html', render_args)
-        cookie_name = 'hit'
-        today_end = datetime.datetime.replace(datetime.datetime.now(), hour=23, minute=59, second=0)
-        expires = datetime.datetime.strftime(today_end, "%a, %d-%b-%Y %H:%M:%S GMT")
-        if request.COOKIES.get(cookie_name) is not None:
-            cookies = request.COOKIES.get(cookie_name)
-            cookies_list = cookies.split('|')
-            if 'p' + str(post.pk) not in cookies_list:
-                response.set_cookie(cookie_name, cookies + '|' + 'p' + str(post.pk), expires=expires)
-                post.today += 1
-                post.save()
-                return response
-        else:
-            response.set_cookie(cookie_name, 'p' + str(post.pk), expires=expires)
-            post.today += 1
-            post.save()
-            return response
+        today = timezone.make_aware(datetime.datetime.now())
+        post_today = None
+        try:
+            post_today = PostAnalytics.objects.get(date=today, posts=post)
+        except:
+            post_today = PostAnalytics(posts=post)
+        
+        user_ip = fn.get_encrypt_ip(request)
+        if not user_ip in post_today.iptable:
+            post_today.count += 1
+            post_today.iptable += user_ip + ';'
+        
+        if 'Referer' in request.headers:
+            if not request.headers['Host'] in request.headers['Referer']:
+                if not request.headers['Referer'] in post_today.referer:
+                    post_today.referer += request.headers['Referer'] + ';'
+        post_today.save()
     
     return render(request, 'board/posts/detail.html', render_args)
 
@@ -744,7 +610,7 @@ def index(request):
 
             intro_info['user_count'] = User.objects.all().count()
             
-            topics = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
+            topics = sorted(fn.get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
             intro_info['top_topics'] = topics[:30]
             intro_info['topic_count'] = len(topics)
 
@@ -756,9 +622,11 @@ def index(request):
 
             intro_info['page_view_count'] = 0
             for post in posts:
-                intro_info['page_view_count'] += post.yesterday
+                # intro_info['page_view_count'] += post.yesterday
+                pass
             for thread in threads:
-                intro_info['page_view_count'] += thread.yesterday
+                # intro_info['page_view_count'] += thread.yesterday
+                pass
 
             cache.set('intro_info', intro_info, cache_time)
 
@@ -772,11 +640,11 @@ def post_sort_list(request, sort):
     available_sort = [ 'trendy', 'newest', 'oldest' ]
     if not sort in available_sort:
         raise Http404()
-    posts = get_posts(sort)
+    posts = fn.get_posts(sort)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(posts, 15)
-    page_check(page, paginator)
+    fn.page_check(page, paginator)
     render_args = {
         'sort' : sort,
         'elements' : paginator.get_page(page),
@@ -798,7 +666,7 @@ def post_write(request):
             post = form.save(commit=False)
             post.author = request.user
             post.text_html = parsedown(post.text_md)
-            post.tag = get_clean_tag(post.tag)
+            post.tag = fn.get_clean_tag(post.tag)
             post.url = slugify(post.title, allow_unicode=True)
             if post.url == '':
                 post.url = randstr(15)
@@ -810,7 +678,7 @@ def post_write(request):
                 except:
                     post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
                     i += 1
-            add_exp(request.user, 10)
+            fn.add_exp(request.user, 10)
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm()
@@ -826,7 +694,7 @@ def post_edit(request, pk):
             post = form.save(commit=False)
             post.updated_date = timezone.now()
             post.text_html = parsedown(post.text_md)
-            post.tag = get_clean_tag(post.tag)
+            post.tag = fn.get_clean_tag(post.tag)
             if post.hide == True:
                 for series in post.series.all():
                     series.posts.remove(post)
@@ -837,416 +705,3 @@ def post_edit(request, pk):
         form = PostForm(instance=post)
     return render(request, 'board/posts/write.html', {'form': form, 'post': post })
 # ------------------------------------------------------------ Article End
-
-
-
-# API V1
-def topics_api_v1(request):
-    if request.method == 'GET':
-        cache_key = 'main_page_topics'
-        tags = cache.get(cache_key)
-        if not tags:
-            tags = sorted(get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
-            cache_time = 3600
-            cache.set(cache_key, tags, cache_time)
-        return JsonResponse({'tags': tags}, json_dumps_params = {'ensure_ascii': True})
-
-def posts_api_v1(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-
-    if request.method == 'PUT':
-        put = QueryDict(request.body)
-        if put.get('like'):
-            if not request.user.is_active:
-                return HttpResponse('error:NL')
-            if request.user == post.author:
-                return HttpResponse('error:SU')
-            user = User.objects.get(username=request.user)
-            if post.likes.filter(id=user.id).exists():
-                post.likes.remove(user)
-                if post.trendy > 10 :
-                    post.trendy -= 10
-                else :
-                    post.trendy = 0
-                post.save()
-            else:
-                post.likes.add(user)
-                post.trendy += 10
-                post.save()
-                add_exp(request.user, 5)
-
-                send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
-                create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
-
-            return HttpResponse(str(post.total_likes()))
-        if put.get('hide'):
-            compere_user(request.user, post.author, give_404_if='different')
-            post.hide = not post.hide
-            if post.hide == True:
-                for series in post.series.all():
-                    series.posts.remove(post)
-                    series.save()
-            post.save()
-            return JsonResponse({'hide': post.hide})
-        if put.get('tag'):
-            compere_user(request.user, post.author, give_404_if='different')
-            post.tag = get_clean_tag(put.get('tag'))
-            post.save()
-            return JsonResponse({'tag': post.tag}, json_dumps_params = {'ensure_ascii': True})
-    
-    if request.method == 'DELETE':
-        compere_user(request.user, post.author, give_404_if='different')
-        post.delete()
-        return HttpResponse('DONE')
-    
-    raise Http404
-
-def comment_api_v1(request, pk=None):
-    if not pk:
-        if request.method == 'POST':
-            post = get_object_or_404(Post, pk=request.GET.get('fk'))
-            form = CommentForm(request.POST)
-            if form.is_valid():
-                comment = form.save(commit=False)
-                comment.author = request.user
-                comment.post = post
-                comment.save()
-                add_exp(request.user, 5)
-                
-                if not comment.author == post.author:
-                    send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
-                    create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
-                
-                data = {
-                    'state': 'true',
-                    'element': comment.to_dict()
-                }
-                data['element']['edited'] = ''
-                
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-    
-    if pk:
-        comment = get_object_or_404(Comment, pk=pk)
-        if request.method == 'GET':
-            if request.GET.get('get') == 'form':
-                if not request.user == comment.author:
-                    return HttpResponse('error:DU')
-                form = CommentForm(instance=comment)
-                return render(request, 'board/posts/form/comment.html', {'form': form, 'comment': comment})
-            else:
-                data = {
-                    'state': 'true',
-                    'element': comment.to_dict()
-                }
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-        
-        if request.method == 'PUT':
-            put = QueryDict(request.body)
-            if put.get('like'):
-                if not request.user.is_active:
-                    return HttpResponse('error:NL')
-                if request.user == comment.author:
-                    return HttpResponse('error:SU')
-                user = User.objects.get(username=request.user)
-                if comment.likes.filter(id=user.id).exists():
-                    comment.likes.remove(user)
-                    comment.save()
-                else:
-                    comment.likes.add(user)
-                    comment.save()
-                return HttpResponse(str(comment.total_likes()))
-            if put.get('text'):
-                if not request.user == comment.author:
-                    return HttpResponse('error:DU')
-                comment.text = put.get('text')
-                comment.edit = True
-                comment.save()
-                
-                data = {
-                    'state': 'true',
-                    'element': comment.to_dict()
-                }
-
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-        
-        if request.method == 'DELETE':
-            if not request.user == comment.author:
-                return HttpResponse('error:DU')
-            data = {
-                'pk': comment.pk
-            }
-            comment.delete()
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-        
-
-def users_api_v1(request, username):
-    user = get_object_or_404(User, username=username)
-
-    if request.method == 'GET':
-        if request.GET.get('get') == 'notify':
-            if request.GET.get('id'):
-                notify = get_object_or_404(Notify, pk=request.GET.get('id'))
-                if notify.is_read == False:
-                    notify.is_read = True
-                    notify.save()
-                    return HttpResponse(notify.url)
-                else:
-                    raise Http404
-            else:
-                if request.user.is_active:
-                    notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
-                    data = {
-                        'count': len(notify),
-                        'content': list()
-                    }
-                    if data['count'] > 0:
-                        for notify_one in notify:
-                            data['content'].append(notify_one.to_dict())
-                    return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-                return HttpResponse(str(-1))
-        if request.GET.get('get') == 'posts':
-            posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
-            return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params = {'ensure_ascii': True})
-        if request.GET.get('get') == 'thread':
-            threads = Thread.objects.filter(author=request.user).order_by('created_date').reverse()
-            return JsonResponse({'thread': [thread.to_dict_for_analytics() for thread in threads]}, json_dumps_params = {'ensure_ascii': True})
-        if request.GET.get('get') == 'about-form':
-            if hasattr(user, 'profile'):
-                form = AboutForm(instance=user.profile)
-                return render(request, 'board/profile/form/about.html', {'form': form})
-            else:
-                form = AboutForm()
-                return render(request, 'board/profile/form/about.html', {'form': form})
-
-    if request.method == 'PUT':
-        put = QueryDict(request.body)
-        if put.get('follow'):
-            if not request.user.is_active:
-                return HttpResponse('error:NL')
-            if request.user == user:
-                return HttpResponse('error:SU')
-            
-            follower = User.objects.get(username=request.user)
-            if hasattr(user, 'profile'):
-                if user.profile.subscriber.filter(id = follower.id).exists():
-                    user.profile.subscriber.remove(follower)
-                else:
-                    user.profile.subscriber.add(follower)
-            else:
-                profile = Profile(user=user)
-                profile.save()
-                profile.subscriber.add(follower)
-            return HttpResponse(str(user.profile.total_subscriber()))
-        
-        if put.get('tagging'):
-            post_pk = request.GET.get('on')
-            post = get_object_or_404(Post, pk=post_pk)
-            send_notify_content = '\''+ post.title +'\' 글에서 \''+ request.user.username +'\'님이 회원님을 태그했습니다.'
-            create_notify(user=user, url=post.get_absolute_url(), infomation=send_notify_content)
-            return HttpResponse(str(0))
-        
-        if put.get('about'):
-            if not request.user == user:
-                return HttpResponse('error:DU')
-            about_md = put.get('about_md')
-            about_html = parsedown(about_md)
-            if hasattr(user, 'profile'):
-                user.profile.about_md = about_md
-                user.profile.about_html = about_html
-                user.profile.save()
-            else:
-                profile = Profile(user=user)
-                profile.about_md = about_md
-                profile.about_html = about_html
-                profile.save()
-            
-            return HttpResponse(about_html)
-    
-    raise Http404
-
-def thread_api_v1(request, pk=None):
-    if not pk:
-        if request.method == 'GET':
-            if request.GET.get('get') == 'modal':
-                form = ThreadForm()
-                return render(request, 'board/thread/form/thread.html', {'form': form})
-    if pk:
-        thread = get_object_or_404(Thread, pk=pk)
-        if request.method == 'GET':
-            if not request.user == thread.author:
-                return HttpResponse('error:DU')
-            if request.GET.get('get') == 'modal':
-                form = ThreadForm(instance=thread)
-                return render(request, 'board/thread/form/thread.html', {'form': form, 'thread': thread})
-        if request.method == 'PUT':
-            put = QueryDict(request.body)
-            if put.get('bookmark'):
-                if not request.user.is_active:
-                    return HttpResponse('error:NL')
-                if not thread.allow_write and request.user == thread.author:
-                    return HttpResponse('error:SU')
-                user = User.objects.get(username=request.user)
-                if thread.bookmark.filter(id=user.id).exists():
-                    thread.bookmark.remove(user)
-                    thread.save()
-                else:
-                    thread.bookmark.add(user)
-                    thread.save()
-                return HttpResponse('DONE')
-            if put.get('hide'):
-                compere_user(request.user, thread.author, give_404_if='different')
-                thread.hide = not thread.hide
-                thread.save()
-                return JsonResponse({'hide': thread.hide})
-            if put.get('tag'):
-                compere_user(request.user, thread.author, give_404_if='different')
-                thread.tag = get_clean_tag(put.get('tag'))
-                thread.save()
-                return JsonResponse({'tag': thread.tag}, json_dumps_params = {'ensure_ascii': True})
-        if request.method == 'DELETE':
-            thread.delete()
-            return HttpResponse('DONE')
-    raise Http404()
-
-def story_api_v1(request, pk=None):
-    if not pk:
-        if request.method == 'POST':
-            thread = get_object_or_404(Thread, pk=request.GET.get('fk'))
-            form = StoryForm(request.POST)
-            if form.is_valid():
-                story = form.save(commit=False)
-                story.text_html = parsedown(story.text_md)
-                story.author = request.user
-                story.thread = thread
-                story.save()
-                thread.created_date = story.created_date
-                thread.save()
-                add_exp(request.user, 5)
-
-                data = {
-                    'element': story.to_dict(),
-                }
-
-                send_notify_content = '\''+ thread.title +'\'스레드 에 \''+ story.author.username +'\'님이 새로운 스토리를 발행했습니다.'
-                for user in thread.bookmark.all():
-                    if not user == story.author:
-                        create_notify(user=user, url=thread.get_absolute_url(), infomation=send_notify_content)
-                
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-    if pk:
-        story = get_object_or_404(Story, pk=pk)
-        if request.method == 'GET':
-            if not request.user == story.author:
-                return HttpResponse('error:DU')
-            if request.GET.get('get') == 'form':
-                form = StoryForm(instance=story)
-                return render(request, 'board/thread/form/story.html', {'form': form, 'story': story})
-            else:
-                data = {
-                    'state': 'true',
-                    'element': story.to_dict()
-                }
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-        if request.method == 'PUT':
-            put = QueryDict(request.body)
-            if put.get('agree'):
-                if not request.user.is_active:
-                    return HttpResponse('error:NL')
-                if request.user == story.author:
-                    return HttpResponse('error:SU')
-                user = User.objects.get(username=request.user)
-                if story.agree.filter(id=user.id).exists():
-                    story.agree.remove(user)
-                    story.save()
-                else:
-                    if story.disagree.filter(id=user.id).exists():
-                        return HttpResponse('error:AD')
-                    story.agree.add(user)
-                    story.save()
-                return HttpResponse(str(story.total_agree()))
-            if put.get('disagree'):
-                if not request.user.is_active:
-                    return HttpResponse('error:NL')
-                if request.user == story.author:
-                    return HttpResponse('error:SU')
-                user = User.objects.get(username=request.user)
-                if story.disagree.filter(id=user.id).exists():
-                    story.disagree.remove(user)
-                    story.save()
-                else:
-                    if story.agree.filter(id=user.id).exists():
-                        return HttpResponse('error:AA')
-                    story.disagree.add(user)
-                    story.save()
-                return HttpResponse(str(story.total_disagree()))
-            if put.get('title'):
-                if not request.user == story.author:
-                    return HttpResponse('error:DU')
-                story.title = put.get('title')
-            if put.get('text_md'):
-                if not request.user == story.author:
-                    return HttpResponse('error:DU')
-                story.text_md = put.get('text_md')
-                story.text_html = parsedown(story.text_md)
-            story.updated_date = timezone.now()
-            story.save()
-                
-            data = {
-                'state': 'true',
-                'element': story.to_dict()
-            }
-
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-        if request.method == 'DELETE':
-            story.delete()
-            return HttpResponse('DONE')
-
-@csrf_exempt
-def telegram_api_v1(request, parameter):
-    if parameter == 'webHook':
-        if request.method == 'POST':
-            bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
-            req = json.loads(request.body.decode("utf-8"))
-            req_token = req['message']['text']
-            req_userid = req['message']['from']['id']
-            check = None
-            try:
-                check = Config.objects.get(telegram_token=req_token)
-            except:
-                pass
-            if check:
-                check.telegram_token = ''
-                check.telegram_id = req_userid
-                check.save()
-                bot.send_message_async(req_userid, '정상적으로 연동되었습니다.')
-            else:
-                message = [
-                    '안녕하세요? BLEX_BOT 입니다!',
-                    'BLEX — BLOG EXPRESS ME!',
-                    '회원님의 알림을 이곳으로 보내드릴게요!',
-                    '오늘은 어떤게 업데이트 되었을까요?\n\nhttps://blex.kr/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
-                ]
-                bot.send_message_async(req_userid, message[random.randint(0, len(message))])
-            return HttpResponse('None')
-    if parameter == 'makeToken':
-        if request.method == 'POST':
-            if hasattr(request.user, 'config'):
-                config = request.user.config
-                config.telegram_token = randstr(8)
-                config.save()
-                return HttpResponse(request.user.config.telegram_token)
-            else:
-                config = Config(user=request.user)
-                config.telegram_token = randstr(8)
-                config.save()
-                return HttpResponse(config.telegram_token)
-    if parameter == 'unpair':
-        if request.method == 'POST':
-            config = request.user.config
-            if not config.telegram_id == '':
-                config.telegram_id = ''
-                config.save()
-                return HttpResponse('DONE')
-            else:
-                return HttpResponse('error:AU')
-# ------------------------------------------------------------ API V1 End

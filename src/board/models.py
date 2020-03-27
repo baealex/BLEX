@@ -3,6 +3,7 @@ import datetime
 import random
 
 from django.db import models
+from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.template.defaultfilters import linebreaks
@@ -130,10 +131,6 @@ class Thread(models.Model):
     description       = models.TextField(blank=True)
     url               = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     image             = models.ImageField(blank=True, upload_to=title_image_path)
-    trendy            = models.IntegerField(default=0)
-    today             = models.IntegerField(default=0)
-    yesterday         = models.IntegerField(default=0)
-    total             = models.IntegerField(default=0)
     hide              = models.BooleanField(default=False)
     notice            = models.BooleanField(default=False)
     allow_write       = models.BooleanField(default=False)
@@ -151,6 +148,40 @@ class Thread(models.Model):
     def tagging(self):
         return [tag for tag in self.tag.split(',') if tag]
 
+    def today(self):
+        count = 0
+        try:
+            today = timezone.make_aware(datetime.datetime.now())
+            count = ThreadAnalytics.objects.get(date=today, thread=self).count
+        except:
+            pass
+        return count
+    
+    def yesterday(self):
+        count = 0
+        try:
+            yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+            count = ThreadAnalytics.objects.get(date=yesterday, thread=self).count
+        except:
+            pass
+        return count
+
+    def total(self):
+        count = ThreadAnalytics.objects.filter(thread=self).aggregate(Sum('count'))
+        if count['count__sum']:
+            return count['count__sum']
+        else:
+            return 0
+        
+    def trendy(self):
+        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+        today          = timezone.make_aware(datetime.datetime.now())
+        count = ThreadAnalytics.objects.filter(date__range=[seven_days_ago, today], thread=self).aggregate(Sum('count'))
+        if count['count__sum']:
+            return count['count__sum']/10
+        else:
+            return 0
+
     def get_absolute_url(self):
         return reverse('thread_detail', args=[self.url])
 
@@ -162,10 +193,11 @@ class Thread(models.Model):
             'pk': self.pk,
             'author': self.author.username,
             'title': self.title,
-            'data': self.created_date,
-            'today': self.today,
-            'yesterday': self.yesterday,
-            'total': self.total,
+            'date': self.created_date,
+            'today': self.today(),
+            'yesterday': self.yesterday(),
+            'total': self.total(),
+            'trendy': self.trendy(),
             'hide': self.hide,
             'total_story': self.stories.count(),
             'total_bookmark': self.total_bookmark(),
@@ -187,6 +219,13 @@ class Thread(models.Model):
         super(Thread, self).save(*args, **kwargs)
         if will_make_thumbnail:
             make_thumbnail(self, size=750, save_as=True)
+
+class ThreadAnalytics(models.Model):
+    thread  = models.ForeignKey(Thread, on_delete=models.CASCADE)
+    date    = models.DateField(default=timezone.now)
+    count   = models.IntegerField(default=0)
+    referer = models.TextField()
+    iptable = models.TextField()
 
 class Story(models.Model):
     class Meta:
@@ -224,10 +263,6 @@ class Story(models.Model):
             'updated_date': self.updated_date.strftime("%Y-%m-%d %H:%M"),
         }
 
-class Search(models.Model):
-    count   = models.IntegerField
-    keyword = models.CharField(max_length=50)
-
 class TempPosts(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title             = models.CharField(max_length=50)
@@ -243,10 +278,6 @@ class Post(models.Model):
     image             = models.ImageField(blank=True, upload_to=title_image_path)
     text_md           = models.TextField(blank=True)
     text_html         = models.TextField()
-    trendy            = models.IntegerField(default=0)
-    today             = models.IntegerField(default=0)
-    yesterday         = models.IntegerField(default=0)
-    total             = models.IntegerField(default=0)
     hide              = models.BooleanField(default=False)
     notice            = models.BooleanField(default=False)
     block_comment     = models.BooleanField(default=False)
@@ -264,6 +295,40 @@ class Post(models.Model):
     def total_likes(self):
         return self.likes.count()
     
+    def today(self):
+        count = 0
+        try:
+            today = timezone.make_aware(datetime.datetime.now())
+            count = PostAnalytics.objects.get(date=today, posts=self).count
+        except:
+            pass
+        return count
+    
+    def yesterday(self):
+        count = 0
+        try:
+            yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+            count = PostAnalytics.objects.get(date=yesterday, posts=self).count
+        except:
+            pass
+        return count
+
+    def total(self):
+        count = PostAnalytics.objects.filter(posts=self).aggregate(Sum('count'))
+        if count['count__sum']:
+            return count['count__sum']
+        else:
+            return 0
+        
+    def trendy(self):
+        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+        today          = timezone.make_aware(datetime.datetime.now())
+        count = PostAnalytics.objects.filter(date__range=[seven_days_ago, today], posts=self).aggregate(Sum('count'))
+        if count['count__sum']:
+            return count['count__sum']/10
+        else:
+            return 0
+    
     def tagging(self):
         return [tag for tag in self.tag.split(',') if tag]
 
@@ -276,10 +341,10 @@ class Post(models.Model):
             'author': self.author.username,
             'title': self.title,
             'data': self.created_date,
-            'today': self.today,
-            'yesterday': self.yesterday,
-            'total': self.total,
-            'trendy': self.trendy,
+            'today': self.today(),
+            'yesterday': self.yesterday(),
+            'total': self.total(),
+            'trendy': self.trendy(),
             'hide': self.hide,
             'total_comment': self.comments.count(),
             'total_likes': self.total_likes(),
@@ -302,9 +367,12 @@ class Post(models.Model):
         if will_make_thumbnail:
             make_thumbnail(self, size=750, save_as=True)
 
-class Analytics(models.Model):
-    posts = models.ForeignKey(Post, on_delete=models.CASCADE)
-    date  = models.DateTimeField(default=timezone.now)
+class PostAnalytics(models.Model):
+    posts   = models.ForeignKey(Post, on_delete=models.CASCADE)
+    date    = models.DateField(default=timezone.now)
+    count   = models.IntegerField(default=0)
+    referer = models.TextField()
+    iptable = models.TextField()
 
 class PostLikes(models.Model):
     class Meta:

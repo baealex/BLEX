@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 from .sitemaps import sitemaps
 from .feeds import SitePostsFeed, UserPostsFeed
 from . import views
+from . import views_api_v1 as api_v1
 
 urlpatterns = [
     # Account
@@ -34,7 +35,7 @@ urlpatterns = [
 
     # Others
     path('search', views.search, name='search'),
-    path('backup',views.content_backup,name='content_backup'),
+    path('backup', views.content_backup,name='content_backup'),
     path('upload/image', views.image_upload, name='image_upload'),
     # Not in views
     path('rss', SitePostsFeed()),
@@ -50,23 +51,23 @@ urlpatterns = [
 
     # Article
     path('@<username>/<url>', views.post_detail, name='post_detail'),
-    path('',views.index, name='index'), 
-    path('write',views.post_write, name='post_write'),
-    path('<sort>',views.post_sort_list, name='post_sort_list'),
+    path('', views.index, name='index'), 
+    path('write', views.post_write, name='post_write'),
+    path('<sort>', views.post_sort_list, name='post_sort_list'),
     path('topic/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
     path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
     # ------------------------------------------------------------ Article End
 
     # API V1
-    path('api/v1/topics', views.topics_api_v1, name='topics_api_v1'),
-    path('api/v1/posts/<int:pk>', views.posts_api_v1, name='posts_api_v1'),
-    path('api/v1/comments', views.comment_api_v1, name='comment_api_v1'),
-    path('api/v1/comments/<int:pk>', views.comment_api_v1, name='comment_api_v1'),
-    path('api/v1/users/<username>', views.users_api_v1, name='users_api_v1'),
-    path('api/v1/thread', views.thread_api_v1, name='thread_api_v1'),
-    path('api/v1/thread/<int:pk>', views.thread_api_v1, name='thread_api_v1'),
-    path('api/v1/story', views.story_api_v1, name='story_api_v1'),
-    path('api/v1/story/<int:pk>', views.story_api_v1, name='story_api_v1'),
-    path('api/v1/telegram/<parameter>', views.telegram_api_v1, name='telegram_api_v1'),
+    path('api/v1/topics', api_v1.topics, name='topics_api_v1'),
+    path('api/v1/posts/<int:pk>', api_v1.posts, name='posts_api_v1'),
+    path('api/v1/comments', api_v1.comment, name='comment_api_v1'),
+    path('api/v1/comments/<int:pk>', api_v1.comment, name='comment_api_v1'),
+    path('api/v1/users/<username>', api_v1.users, name='users_api_v1'),
+    path('api/v1/thread', api_v1.thread, name='thread_api_v1'),
+    path('api/v1/thread/<int:pk>', api_v1.thread, name='thread_api_v1'),
+    path('api/v1/story', api_v1.story, name='story_api_v1'),
+    path('api/v1/story/<int:pk>', api_v1.story, name='story_api_v1'),
+    path('api/v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

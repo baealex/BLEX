@@ -11,8 +11,8 @@ admin.site.register(Grade)
 admin.site.register(Thread)
 admin.site.register(Story)
 admin.site.register(TempPosts)
-admin.site.register(Search)
-admin.site.register(Analytics)
+admin.site.register(PostAnalytics)
+admin.site.register(ThreadAnalytics)
 
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
@@ -20,7 +20,7 @@ class ConfigAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'title', 'trendy', 'today', 'yesterday', 'total', 'hide', 'created_date', 'updated_date']
+    list_display = ['id', 'author', 'title', 'trendy', 'hide', 'created_date', 'updated_date']
     list_display_links = ['id', 'title']
     list_filter = ['author']
     actions = ['make_open', 'make_hide']
