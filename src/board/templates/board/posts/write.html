@@ -1,14 +1,6 @@
-{% with static_version='version=1.0.0' %}
+{% extends 'board/source.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="theme-color" content="#000">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+{% block head %}
 	<link rel="stylesheet" href="{% static 'editormd/editormd.css' %}?{{ static_version }}"/>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}?{{ static_version }}">
@@ -18,8 +10,8 @@
 	<link rel="icon" href="{% static 'images/logo.png' %}?{{ static_version }}">
 	<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}?{{ static_version }}"/>
 	<title>Post Write</title>
-</head>
-<body>
+{% endblock %}
+{% block body %}
 	<div class="container-fluid">
 		<form id="posts-form" method="POST" action='' enctype="multipart/form-data" onkeydown="return captureReturnKey(event)">{% csrf_token %}
 			<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModal" aria-hidden="true">
@@ -117,6 +109,4 @@
 		if(!isSubmit) return "변경 사항이 적용되지 않습니다. 정말 종료합니까?";
 	});
 	</script>
-</body>
-</html>
-{% endwith %}
+{% endblock %}

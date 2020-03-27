@@ -8,39 +8,61 @@ class HistoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'post']
 
 admin.site.register(Grade)
-admin.site.register(Thread)
-admin.site.register(Story)
-admin.site.register(TempPosts)
-admin.site.register(PostAnalytics)
-admin.site.register(ThreadAnalytics)
+
+@admin.register(Thread)
+class ThreadAdmin(admin.ModelAdmin):
+    list_display = ['id', 'author', 'title', 'hide', 'real_created_date', 'created_date']
+    list_display_links = ['id', 'title']
+    list_filter = ['author']
+    list_per_page = 30
+
+@admin.register(ThreadAnalytics)
+class ThreadAnalyticsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'date', 'thread', 'count']
+    list_display_links = ['id', 'rhread']
+
+@admin.register(Story)
+class StoryAdmin(admin.ModelAdmin):
+    list_display = ['id', 'author', 'thread', 'created_date']
+    list_filter = ['author']
+    list_per_page = 30
 
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
     list_display = ['user', 'agree_email', 'agree_history']
+    actions = ['send_report']
 
+    def send_report(self, request, queryset):
+        pass
+        # updated_count = queryset.update(hide=True)
+        # self.message_user(request, str(updated_count) + '명에게 보고서 전송')
+    
+    send_report.short_description = '보고서 전송'
+
+@admin.register(TempPosts)
+class TempPostsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'author', 'title', 'token', 'created_date',]
+    list_display_links = ['id', 'title']
+    list_filter = ['author']
+    list_per_page = 30
+    
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'title', 'trendy', 'hide', 'created_date', 'updated_date']
+    list_display = ['id', 'author', 'title', 'hide', 'created_date', 'updated_date']
     list_display_links = ['id', 'title']
     list_filter = ['author']
     actions = ['make_open', 'make_hide']
     list_per_page = 30
 
-    def make_open(self, request, queryset):
-        updated_count = queryset.update(hide=False)
-        self.message_user(request, str(updated_count)+'건의 글을 공개로 변경')
-    
-    def make_hide(self, request, queryset):
-        updated_count = queryset.update(hide=True)
-        self.message_user(request, str(updated_count)+'건의 글을 공개로 변경')
-    
-    make_open.short_description = '지정 포스트를 공개'
-    make_hide.short_description = '지정 포스트를 숨김'
-
 @admin.register(PostLikes)
 class PostLikesAdmin(admin.ModelAdmin):
     list_display = ['user', 'post', 'created_date']
     list_filter = ['user']
+
+@admin.register(PostAnalytics)
+class PostAnalyticsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'date', 'posts', 'count']
+    list_display_links = ['id', 'posts']
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):

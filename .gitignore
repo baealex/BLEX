@@ -1,5 +1,4 @@
-src/board/templates/board/base.html
-src/board/templates/board/small/base.html
+src/board/templates/board/source.html
 src/board/telegram_token.py
 src/main/settings.py
 
