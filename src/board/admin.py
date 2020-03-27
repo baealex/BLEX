@@ -29,7 +29,7 @@ class StoryAdmin(admin.ModelAdmin):
 
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
-    list_display = ['user', 'agree_email', 'agree_history']
+    list_display = ['user', 'agree_email', 'agree_history', 'telegram_id', 'telegram_token', 'password_qna']
     actions = ['send_report']
 
     def send_report(self, request, queryset):
