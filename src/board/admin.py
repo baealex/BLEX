@@ -20,6 +20,8 @@ class ThreadAdmin(admin.ModelAdmin):
 class ThreadAnalyticsAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'thread', 'count']
     list_display_links = ['id', 'rhread']
+    list_filter = ['date']
+    list_per_page = 30
 
 @admin.register(Story)
 class StoryAdmin(admin.ModelAdmin):
@@ -63,6 +65,8 @@ class PostLikesAdmin(admin.ModelAdmin):
 class PostAnalyticsAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'posts', 'count']
     list_display_links = ['id', 'posts']
+    list_filter = ['date']
+    list_per_page = 30
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
