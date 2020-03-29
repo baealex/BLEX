@@ -686,7 +686,7 @@ def post_write(request):
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm()
-    return render(request, 'board/posts/write.html', { 'form': form })
+    return render(request, 'board/posts/write.html', { 'form': form, 'save': True })
 
 def post_edit(request, pk):
     post = get_object_or_404(Post, pk=pk)

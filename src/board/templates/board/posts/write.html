@@ -49,7 +49,7 @@
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn deep-dark" data-dismiss="modal">Cancle</button>
-							<button type="button" class="btn deep-dark" onclick="Save.sendState()">Save</button>
+							{% if save %}<button type="button" class="btn deep-dark" onclick="Save.sendState()">Save</button>{% endif %}
 							<button type="submit" onmouseover="preventExit.preSubmit()" onmouseout="preventExit.notSubmit()" class="btn btn-dark">Write</button>
 						</div>
 					</div>
