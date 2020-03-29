@@ -24,7 +24,7 @@ body { background: #1A1A17; }
     0% { right : 23px; }
     100% { right : 80px; }
 }
-.cancle-btn {
+.back-btn {
     right: 80px;
     animation: movebtn 0.5s 1;
 }

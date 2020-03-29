@@ -21,6 +21,17 @@
     -webkit-animation: fade-in 3s 1;
     -o-animation: fade-in 3s 1;
 }
+@keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px);} 100% {background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);}}
+@-moz-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px);} 100% {background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);}}
+@-webkit-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px);} 100% {background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);}}
+@-o-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px);} 100% {background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);}}
+.blurring
+{
+    animation: blurring .5s 1;
+    -moz-animation: blurring .5s 1;
+    -webkit-animation: blurring .5s 1;
+    -o-animation: blurring .5s 1;
+}
 @keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
 @-moz-keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
 @-webkit-keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
@@ -276,6 +287,43 @@
 .write-btn i {
     padding-top: 12px;
     font-size: 24px;
+}
+.full-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+}
+.center-list {
+    text-align: center;
+}
+.center-list ul {
+    margin-top: 50vh;
+    transform: translateY(-50%);
+    list-style: none;
+    padding-left: 0px;
+}
+.center-list li {
+    margin: 15px;
+}
+.center-list a {
+    color: #fff;
+}
+.center-list a:hover {
+    text-decoration: none;
+}
+.center-list a:hover::before,
+.center-list a:hover::after {
+    display: inline-block;
+    content: "";
+    border-top: 1px solid #fff;
+    width: 2rem;
+    margin: 0 1rem;
+    transform: translateY(-5px);
 }
 .sub-image-1, .sub-image-2, .sub-image-3 {
     height:200px;

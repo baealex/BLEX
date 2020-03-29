@@ -60,6 +60,7 @@ urlpatterns = [
     # API V1
     path('api/v1/topics', api_v1.topics, name='topics_api_v1'),
     path('api/v1/posts/<int:pk>', api_v1.posts, name='posts_api_v1'),
+    path('api/v1/posts/temp', api_v1.temp_posts, name='temp_posts_api_v1'),
     path('api/v1/comments', api_v1.comment, name='comment_api_v1'),
     path('api/v1/comments/<int:pk>', api_v1.comment, name='comment_api_v1'),
     path('api/v1/series/<int:pk>', api_v1.series, name='series_api_v1'),

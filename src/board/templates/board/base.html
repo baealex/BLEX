@@ -54,11 +54,10 @@
         </div>
     </nav>
     {% if write_btn == True %}
-    <a href="{% url 'post_write' %}">
-        <div class="write-btn">
-            <i class="fas fa-pencil-alt"></i>
-        </div>
-    </a>
+    <div id="write-btn" class="write-btn">
+        <i class="fas fa-pencil-alt"></i>
+    </div>
+    <div id="write-selector"></div>
     {% endif %}
     <div class="container">
         <div class="content">

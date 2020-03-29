@@ -49,7 +49,8 @@
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn deep-dark" data-dismiss="modal">Cancle</button>
-							<button type="submit" onmouseover="preSubmit()" onmouseout="notSubmit()" class="btn btn-dark">Write</button>
+							<button type="button" class="btn deep-dark" onclick="Save.sendState()">Save</button>
+							<button type="submit" onmouseover="preventExit.preSubmit()" onmouseout="preventExit.notSubmit()" class="btn btn-dark">Write</button>
 						</div>
 					</div>
 				</div>
@@ -61,7 +62,7 @@
 		</form>
 		</div>
 		<a onclick="history.back()">
-			<div id="cancle" class="write-btn">
+			<div id="back" class="write-btn">
 				<i class="fas fa-arrow-left"></i>
 			</div>
 		</a>
@@ -71,10 +72,13 @@
 			</div>
 		</a>
 	</div>
+	<div id="notify-content"></div>
     <script src="{% static 'library/jquery.js' %}?{{ static_version }}"></script>
     <script src="{% static 'library/bootstrap.js' %}?{{ static_version }}"></script>
 	<script src="{% static 'editormd/editormd.js' %}?{{ static_version }}"></script>
+	<script src="{% static 'js/common.js' %}?{{ static_version }}"></script>
 	<script src="{% static 'js/event.js' %}?{{ static_version }}"></script>
+	<script src="{% static 'js/write.js' %}?{{ static_version }}"></script>
 	<script type="text/javascript">
 	if($(window).width() > 800) {
 		var testEditor;
@@ -93,20 +97,7 @@
 				imageUpload    : true
 			});
 		});
-		$('#cancle').addClass('cancle-btn');
+		$('#back').addClass('back-btn');
 	}
-	function captureReturnKey(e) {
-		if(e.keyCode==13) return false;
-	}
-	isSubmit = false;
-	function preSubmit() {
-		isSubmit = true;
-	}
-	function notSubmit() {
-		isSubmit = false;
-	}
-	$(window).bind("beforeunload", function (e){
-		if(!isSubmit) return "변경 사항이 적용되지 않습니다. 정말 종료합니까?";
-	});
 	</script>
 {% endblock %}

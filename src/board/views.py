@@ -649,7 +649,22 @@ def post_sort_list(request, sort):
 def post_write(request):
     if not request.user.is_active:
         raise Http404
+    
+    get_token = request.GET.get('token')
+    if get_token:
+        try:
+            TempPosts.objects.get(token=get_token, author=request.user)
+        except:
+            raise Http404
+    
     if request.method == 'POST':
+        get_token = request.GET.get('token')
+        if get_token:
+            try:
+                TempPosts.objects.get(token=get_token, author=request.user).delete()
+            except:
+                pass
+                
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)

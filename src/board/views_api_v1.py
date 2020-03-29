@@ -76,6 +76,58 @@ def posts(request, pk):
     
     raise Http404
 
+def temp_posts(request):
+    if request.method == 'GET':
+        token = request.GET.get('token')
+        if token:
+            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
+            return JsonResponse(temp_posts.to_dict(), json_dumps_params = {'ensure_ascii': True})
+
+        if request.GET.get('get') == 'list':
+            temps = TempPosts.objects.filter(author=request.user)
+            data = {
+                'result': list()
+            }
+            for temp in temps:
+                data['result'].append({
+                    'token': temp.token,
+                    'title': temp.title,
+                    'date': timesince(temp.created_date)
+                })
+            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+
+    if request.method == 'POST':
+        temps = TempPosts.objects.filter(author=request.user).count()
+        if temps >= 5:
+            return HttpResponse('Error:EG')
+        
+        body = QueryDict(request.body)
+        token = randstr(25)
+        try:
+            while True:
+                TempPosts.objects.get(token=token, author=request.user)
+                new_token = randstr(25)
+        except:
+            pass
+        temp_posts = TempPosts(token=token, author=request.user)
+        temp_posts.title = body.get('title')
+        temp_posts.text_md = body.get('text_md')
+        temp_posts.tag = body.get('tag')
+        temp_posts.save()
+
+        return HttpResponse(token)
+    
+    if request.method == 'PUT':
+        body = QueryDict(request.body)
+        token = body.get('token')
+        temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
+        temp_posts.title = body.get('title')
+        temp_posts.text_md = body.get('text_md')
+        temp_posts.tag = body.get('tag')
+        temp_posts.save()
+
+        return HttpResponse('DONE')
+
 def comment(request, pk=None):
     if not pk:
         if request.method == 'POST':

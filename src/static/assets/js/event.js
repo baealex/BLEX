@@ -39,3 +39,28 @@ $('#image-form > input').on('change', function() {
     $('#image-form > input').val('');
     Notify.append('이미지를 업로드하는 중입니다.');
 });
+
+(function() {
+    var writeSeletor = '';
+    var writeRender = function() {
+        $('#write-selector').html(Render.write(writeSeletor.result));
+        $('.write-closer').on('click', function() {
+            $('#write-selector').html('');
+        });
+    }
+    $('#write-btn').on('click', function() {
+        if(writeSeletor == '') {
+            $.ajax({
+                url: '/api/v1/posts/temp',
+                type: 'GET',
+                data: { get: 'list'} ,
+            }).done(function (data) {
+                writeSeletor = data
+                writeRender();
+            });
+        }
+        else {
+            writeRender();
+        }
+    });
+})();
