@@ -29,7 +29,6 @@ urlpatterns = [
 
     # Series
     path('series/<int:spk>/update', views.series_update, name='series_update'),
-    path('series/<int:spk>/remove', views.series_remove, name='series_remove'),
     path('@<username>/series/<url>', views.series_list, name='series_list'),
     # ------------------------------------------------------------ Series End
 
@@ -63,6 +62,7 @@ urlpatterns = [
     path('api/v1/posts/<int:pk>', api_v1.posts, name='posts_api_v1'),
     path('api/v1/comments', api_v1.comment, name='comment_api_v1'),
     path('api/v1/comments/<int:pk>', api_v1.comment, name='comment_api_v1'),
+    path('api/v1/series/<int:pk>', api_v1.series, name='series_api_v1'),
     path('api/v1/users/<username>', api_v1.users, name='users_api_v1'),
     path('api/v1/thread', api_v1.thread, name='thread_api_v1'),
     path('api/v1/thread/<int:pk>', api_v1.thread, name='thread_api_v1'),

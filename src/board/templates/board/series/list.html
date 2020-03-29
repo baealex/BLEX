@@ -34,7 +34,7 @@
         <a class="post-series deep-dark serif font-weight-bold mb-3" href="{% url 'user_profile' username=user.username %}">Created by {{ user.username }}</a>
         {% if series.owner == request.user %}
         <div class="mb-3">
-            <a class="btn btn-dark" href="javascript:void(0)" data-toggle="modal" data-target="#eidtModal">수정</a>
+            <a class="btn btn-dark" href="javascript:void(0)" onclick="Series.edit({{ series.pk }})">수정</a>
             <a class="btn btn-dark" href="javascript:void(0)" onclick="Series.remove({{ series.pk }})">삭제</a>
         </div>
         {% endif %}
@@ -56,32 +56,6 @@
         {% endfor %}
     </div>
 </div>
-
-{% if series.owner == request.user %}
-<div class="modal fade noto" id="eidtModal" tabindex="-1" role="dialog" aria-labelledby="eidtModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="eidtModalLabel">시리즈 편집</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="{% url 'series_update' spk=series.pk %}" method="post">
-            <div class="modal-body">
-                {% csrf_token %}
-                {{ form.as_p }}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-dark" data-dismiss="modal">닫기</button>
-                <button type="submit" class="btn btn-dark">완료</button>
-            </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endif %}
-
 {% endblock %}
 
 {% block footer%}

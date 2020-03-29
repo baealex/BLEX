@@ -160,14 +160,29 @@ const Comment = (() => {
     }
 })();
 const Series = (() => {
+    const url = '/api/v1/series';
     return {
+        edit: (pk) => {
+            if (!document.getElementById('createSeries')) {
+                $.ajax({
+                    url: `${url}/${pk}?get=modal`,
+                    type: 'GET',
+                }).done(function (data) {
+                    $('body').append(data);
+                    $('#createSeries').modal('show');
+                });
+            }
+            else {
+                $('#createSeries').modal('show');
+            }
+        },
         remove: (pk) => {
             if(confirm('정말 삭제하십니까?')) {
                 $.ajax({
-                    url: `/series/${pk}/remove`,
-                    type: 'post',
+                    url: `${url}/${pk}`,
+                    type: 'DELETE',
                 }).done((data) => {
-                    if(data == 'done') {
+                    if(data == 'DONE') {
                         alert('시리즈가 삭제되었습니다.')
                         location.href = '/';
                     }

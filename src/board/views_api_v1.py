@@ -152,7 +152,25 @@ def comment(request, pk=None):
             }
             comment.delete()
             return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+
+def series(request, pk):
+    series = get_object_or_404(Series, pk=pk)
+
+    if request.method == 'GET':
+        if request.GET.get('get') == 'modal':
+            if not request.user == series.owner:
+                return HttpResponse('error:DU')
+            form = SeriesUpdateForm(instance=series)
+            form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
+            return render(request, 'board/series/form/series.html', {'form': form, 'series': series})
         
+    if request.method == 'DELETE':
+        if not request.user == series.owner:
+            return HttpResponse('error:DU')
+        series.delete()
+        return HttpResponse('DONE')
+    
+    raise Http404
 
 def users(request, username):
     user = get_object_or_404(User, username=username)

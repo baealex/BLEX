@@ -349,12 +349,6 @@ def series_update(request, spk):
             form.save_m2m()
             return HttpResponseRedirect(series.get_absolute_url())
 
-def series_remove(request, spk):
-    series = get_object_or_404(Series, pk=spk, owner=request.user)
-    if request.method == 'POST':
-        series.delete()
-        return HttpResponse('done')
-
 def series_list(request, username, url):
     user = get_object_or_404(User, username=username)
     series = get_object_or_404(Series, owner=user, url=url)
@@ -364,12 +358,7 @@ def series_list(request, username, url):
         'white_nav': True,
     }
 
-    if request.user == series.owner:
-        form = SeriesUpdateForm(instance=series)
-        form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
-        render_args['form'] = form
-
-    return render(request, 'board/posts/series.html', render_args)
+    return render(request, 'board/series/list.html', render_args)
 # ------------------------------------------------------------ Series End
 
 
