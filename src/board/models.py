@@ -140,7 +140,7 @@ class Thread(models.Model):
     bookmark          = models.ManyToManyField(User, related_name='bookmark_thread', blank=True)
 
     def __str__(self):
-        return self.title
+        return self.author.username + ' - ' +self.title
 
     def total_bookmark(self):
         return self.bookmark.count()
@@ -227,6 +227,9 @@ class ThreadAnalytics(models.Model):
     referer = models.TextField()
     iptable = models.TextField()
 
+    def __str__(self):
+        return self.thread.title
+
 class Story(models.Model):
     class Meta:
         ordering = ['-created_date']
@@ -279,6 +282,9 @@ class TempPosts(models.Model):
             'tag': self.tag,
             'created_date': timesince(self.created_date),
         }
+    
+    def __str__(self):
+        return self.title
 
 class Post(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -296,7 +302,7 @@ class Post(models.Model):
     updated_date      = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
-        return self.title
+        return self.author.username + ' - ' + self.title
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[self.author, self.url])
@@ -382,6 +388,9 @@ class PostAnalytics(models.Model):
     count   = models.IntegerField(default=0)
     referer = models.TextField()
     iptable = models.TextField()
+
+    def __str__(self):
+        return self.posts.title
 
 class PostLikes(models.Model):
     class Meta:

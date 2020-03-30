@@ -19,7 +19,7 @@ class ThreadAdmin(admin.ModelAdmin):
 @admin.register(ThreadAnalytics)
 class ThreadAnalyticsAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'thread', 'count']
-    list_display_links = ['id', 'rhread']
+    list_display_links = ['id', 'thread']
     list_filter = ['date']
     list_per_page = 30
 

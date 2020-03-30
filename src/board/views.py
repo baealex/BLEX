@@ -610,11 +610,11 @@ def index(request):
             intro_info['thread_count'] = len(threads)
 
             intro_info['page_view_count'] = 0
-            for post in posts:
-                # intro_info['page_view_count'] += post.yesterday
-                pass
-            for thread in threads:
-                # intro_info['page_view_count'] += thread.yesterday
+            try:
+                yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+                intro_info['page_view_count'] += PostAnalytics.objects.filter(date=yesterday).aggregate(Sum('count'))['count__sum']
+                intro_info['page_view_count'] += ThreadAnalytics.objects.filter(date=yesterday).aggregate(Sum('count'))['count__sum']
+            except:
                 pass
 
             cache.set('intro_info', intro_info, cache_time)

@@ -21,10 +21,10 @@
     -webkit-animation: fade-in 3s 1;
     -o-animation: fade-in 3s 1;
 }
-@keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px);} 100% {background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);}}
-@-moz-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px);} 100% {background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);}}
-@-webkit-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px);} 100% {background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);}}
-@-o-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px);} 100% {background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);}}
+@keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
+@-moz-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
+@-webkit-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
+@-o-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
 .blurring
 {
     animation: blurring .5s 1;

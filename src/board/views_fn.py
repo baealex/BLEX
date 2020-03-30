@@ -12,25 +12,16 @@ from django.core.cache import cache
 from .models import Post, Thread, Profile, Notify
 from . import telegram, telegram_token
 
-def get_posts(sort='all'):
-    if sort == 'top':
-        return Post.objects.filter(notice=False, hide=False).annotate(like_count=Count('likes')).order_by('-like_count')
-    elif sort == 'trendy':
-        posts = Post.objects.filter(notice=False, hide=False).order_by('-created_date')
-        return sorted(posts, key=lambda instance: instance.trendy(), reverse=True)
-    elif sort == 'newest':
+def get_posts(sort):
+    if sort == 'trendy':
+        posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-created_date')
+        threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-created_date')
+        return sorted(chain(posts, threads), key=lambda instance: instance.trendy(), reverse=True)
+    if sort == 'newest':
         posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
         threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
-    elif sort == 'oldest':
-        return Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('created_date')
-    elif sort == 'week-top':
-        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
-        today          = timezone.make_aware(datetime.datetime.now())
-        return Post.objects.filter(created_date__range=[seven_days_ago, today], notice=False, hide=False).order_by('-total')
-    elif sort == 'all':
-        return Post.objects.filter(hide=False).order_by('-created_date')
-    elif sort == 'notice':
+    if sort == 'notice':
         posts = Post.objects.filter(notice=True).order_by('-created_date')
         threads = Thread.objects.filter(notice=True).order_by('-created_date')
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
@@ -142,5 +133,5 @@ def create_notify(user, url, infomation):
         telegram_id = user.config.telegram_id
         if not telegram_id == '':
             bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
-            bot.send_message_async(telegram_id, 'https://blex.kr' + url)
+            bot.send_message_async(telegram_id, 'https://blex.me' + url)
             bot.send_message_async(telegram_id, infomation)
