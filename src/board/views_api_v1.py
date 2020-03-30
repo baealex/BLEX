@@ -228,6 +228,11 @@ def users(request, username):
     user = get_object_or_404(User, username=username)
 
     if request.method == 'GET':
+        if not request.user.is_active:
+            return HttpResponse('error:NL')
+        if not request.user == user:
+            return HttpResponse('error:DU')
+        
         if request.GET.get('get') == 'notify':
             if request.GET.get('id'):
                 notify = get_object_or_404(Notify, pk=request.GET.get('id'))
@@ -249,12 +254,29 @@ def users(request, username):
                             data['content'].append(notify_one.to_dict())
                     return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
                 return HttpResponse(str(-1))
-        if request.GET.get('get') == 'posts':
-            posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
-            return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params = {'ensure_ascii': True})
-        if request.GET.get('get') == 'thread':
-            threads = Thread.objects.filter(author=request.user).order_by('created_date').reverse()
-            return JsonResponse({'thread': [thread.to_dict_for_analytics() for thread in threads]}, json_dumps_params = {'ensure_ascii': True})
+        
+        if request.GET.get('get') == 'analytics-posts':
+            if request.GET.get('pk'):
+                pk = request.GET.get('pk')
+                seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+                today           = timezone.make_aware(datetime.datetime.now())
+                posts_analytics = PostAnalytics.objects.filter(posts__id=pk, date__range=[seven_days_ago, today]).order_by('-date')
+                return JsonResponse({'items': [item.to_dict() for item in posts_analytics]}, json_dumps_params = {'ensure_ascii': True})
+            else:
+                posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
+                return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params = {'ensure_ascii': True})
+        
+        if request.GET.get('get') == 'analytics-thread':
+            if request.GET.get('pk'):
+                pk = request.GET.get('pk')
+                seven_days_ago   = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+                today            = timezone.make_aware(datetime.datetime.now())
+                thread_analytics = ThreadAnalytics.objects.filter(thread__id=pk, date__range=[seven_days_ago, today]).order_by('-date')
+                return JsonResponse({'items': [item.to_dict() for item in thread_analytics]}, json_dumps_params = {'ensure_ascii': True})
+            else:
+                threads = Thread.objects.filter(author=request.user).order_by('created_date').reverse()
+                return JsonResponse({'thread': [thread.to_dict_for_analytics() for thread in threads]}, json_dumps_params = {'ensure_ascii': True})
+        
         if request.GET.get('get') == 'about-form':
             if hasattr(user, 'profile'):
                 form = AboutForm(instance=user.profile)

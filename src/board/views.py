@@ -507,11 +507,11 @@ def thread_detail(request, url):
         user_ip = fn.get_encrypt_ip(request)
         if not user_ip in thread_today.iptable:
             thread_today.count += 1
-            thread_today.iptable += user_ip + ';'
+            thread_today.iptable += user_ip + '|'
         
         if 'Referer' in request.headers:
             if not request.headers['Host'] in request.headers['Referer']:
-                thread_today.referer += request.headers['Referer'] + ';'
+                thread_today.referer += request.headers['Referer'] + '|'
         thread_today.save()
     
     return render(request, 'board/thread/detail.html', render_args)
@@ -578,12 +578,12 @@ def post_detail(request, username, url):
         user_ip = fn.get_encrypt_ip(request)
         if not user_ip in post_today.iptable:
             post_today.count += 1
-            post_today.iptable += user_ip + ';'
+            post_today.iptable += user_ip + '|'
         
         if 'Referer' in request.headers:
             if not request.headers['Host'] in request.headers['Referer']:
                 if not request.headers['Referer'] in post_today.referer:
-                    post_today.referer += request.headers['Referer'] + ';'
+                    post_today.referer += request.headers['Referer'] + '|'
         post_today.save()
     
     return render(request, 'board/posts/detail.html', render_args)

@@ -31,9 +31,9 @@ const Posts = (() => {
                     url: `${url}/${pk}`,
                     type: 'DELETE',
                 }).done(function (data) {
-                    if(document.getElementById(`setting-posts-${pk}`)) {
+                    if(document.getElementById(`setting-analytics-posts-${pk}`)) {
                         Notify.append('포스트가 삭제되었습니다.');
-                        $('#setting-posts-' + pk).remove();
+                        $('#setting-analytics-posts-' + pk).remove();
                     } else {
                         alert('포스트가 삭제되었습니다.')
                         location.href = '/';
@@ -59,17 +59,17 @@ const Posts = (() => {
             });
         },
         changeTag: (pk) => {
-            if($(`#setting-posts-${pk} form`).find('[name=tag]').val() == '') {
+            if($(`#setting-analytics-posts-${pk} form`).find('[name=tag]').val() == '') {
                 Notify.append('태그를 비워둔 상태로 변경할 수 없습니다.');
                 return;
             }
             $.ajax({
                 url: `/api/v1/posts/${pk}`,
                 type: "PUT",
-                data: $(`#setting-posts-${pk} form`).serialize(),
+                data: $(`#setting-analytics-posts-${pk} form`).serialize(),
             }).done((data) => {
                 Notify.append('태그가 변경되었습니다.');
-                $(`#setting-posts-${pk} form`).find('[name=tag]').val(data.tag);
+                $(`#setting-analytics-posts-${pk} form`).find('[name=tag]').val(data.tag);
             });
         },
     }
@@ -384,9 +384,9 @@ const Thread = (() => {
                     type: 'DELETE',
                 }).done((data) => {
                     if (data == 'DONE') {
-                        if(document.getElementById(`setting-thread-${pk}`)) {
+                        if(document.getElementById(`setting-analytics-thread-${pk}`)) {
                             Notify.append('스레드가 삭제되었습니다.');
-                            $('#setting-thread-' + pk).remove();
+                            $('#setting-analytics-thread-' + pk).remove();
                         } else {
                             alert('스레드가 삭제되었습니다.')
                             location.href = '/';
@@ -413,17 +413,17 @@ const Thread = (() => {
             });
         },
         changeTag: (pk) => {
-            if($(`#setting-thread-${pk} form`).find('[name=tag]').val() == '') {
+            if($(`#setting-analytics-thread-${pk} form`).find('[name=tag]').val() == '') {
                 Notify.append('태그를 비워둔 상태로 변경할 수 없습니다.');
                 return;
             }
             $.ajax({
                 url: `${url}/${pk}`,
                 type: "PUT",
-                data: $(`#setting-thread-${pk} form`).serialize(),
+                data: $(`#setting-analytics-thread-${pk} form`).serialize(),
             }).done(function (data) {
                 Notify.append('태그가 변경되었습니다.');
-                $(`#setting-thread-${pk} form`).find('[name=tag]').val(data.tag);
+                $(`#setting-analytics-thread-${pk} form`).find('[name=tag]').val(data.tag);
             });
         },
         bookmark: (pk) => {
@@ -571,13 +571,26 @@ const Analytics = (() => {
                 url: `${url}/${username}?get=${type}`,
                 type: 'GET',
             }).done((data) => {
-                type == 'posts' ? postsList = data.posts : threadList = data.thread;
+                type == 'analytics-posts' ? postsList = data.posts : threadList = data.thread;
                 renderHTML = '';
-                for(let ele of type == 'posts' ? postsList : threadList) {
+                for(let ele of type == 'analytics-posts' ? postsList : threadList) {
                     renderHTML += Render.analytics.element(ele, type);
                 }
                 $('#analytics').html(renderHTML);
             });
+        },
+        modal: (username, type, pk) => {
+            if(document.getElementById('Analytics' + pk)) {
+                $('#Analytics' + pk).modal('show');
+            } else {
+                $.ajax({
+                    url: `${url}/${username}?get=${type}&pk=${pk}`,
+                    type: 'GET',
+                }).done((data) => {
+                    $('body').append(Render.analytics.modal(data.items, pk));
+                    $('#Analytics' + pk).modal('show');
+                });
+            }
         },
         sort: (sort, type) => {
             let sortHow = function(a, b) {
@@ -591,8 +604,8 @@ const Analytics = (() => {
                 }
             }
             renderHTML = '';
-            type == 'posts' ? postsList.sort(sortHow) : threadList.sort(sortHow);
-            for(let ele of type == 'posts' ? postsList : threadList) {
+            type == 'analytics-posts' ? postsList.sort(sortHow) : threadList.sort(sortHow);
+            for(let ele of type == 'analytics-posts' ? postsList : threadList) {
                 renderHTML += Render.analytics.element(ele, type);
             }
             $('#analytics').html(renderHTML);

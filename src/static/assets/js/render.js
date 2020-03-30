@@ -82,12 +82,11 @@ var Render = {
         element: (element, type) => {
             let actionClass = '';
             let elementSub = '';
-            if(type == 'posts') {
+            if(type == 'analytics-posts') {
                 actionClass = 'Posts';
                 elementSub = `
                     <li><i class="far fa-thumbs-up"></i> ${element.total_likes}</li>
                     <li><i class="far fa-comment"></i> ${element.total_comment}</li>
-                    <li><i class="fas fa-chart-line"></i> ${element.trendy}</li>
                 `;
             } else {
                 actionClass = 'Thread';
@@ -102,28 +101,66 @@ var Render = {
                 hideState = 'fa-lock';
             }
             return `
-            <li id="setting-${type}-${element.pk}" class="card p-3 mb-2">
-            <p><a class="deep-dark" href="javascript:void(0)" onclick="location.href='${element.url}'">${element.title}</p>
+            <li id="setting-${type}-${element.pk}" class="blex-card p-3 mb-3">
+            <p class="noto"><a class="deep-dark" href="javascript:void(0)" onclick="location.href='${element.url}'">${element.title}</a></p>
             <ul class="setting-list-info">
                 <li><a class="element-lock" href="javascript:${actionClass}.lock(${element.pk})"><i id="lock-${element.pk}" class="fas ${hideState}"></i></a></li>
                 <li><a class="text-dark" href="javascript:${actionClass}.remove(${element.pk})"><i class="far fa-trash-alt"></i></a></li>
                 <li>|</li>
                 <li><i class="far fa-eye"></i> <span class="ns">(Today : ${element.today}, Yesterday : ${element.yesterday}, Total : ${element.total})</span></li>
+                <li><a class="shallow-dark" href="javascript:void(0)" onclick="Analytics.modal('${element.author}', '${type}', '${element.pk}');"><i class="fas fa-chart-line"></i> <span class="ns">More</li></a></li>
                 ${elementSub}
             </ul>
             <form>
                 <div class="input-group mt-2 mr-sm-2">
                     <div class="input-group-prepend">
-                        <div class="input-group-text">TAG</div>
+                        <div class="input-group-text">#</div>
                     </div>
                     <input type="text" name="tag" value="${element.tag}" class="form-control" maxlength="255">
                     <button type="button" class="btn btn-dark" onclick="${actionClass}.changeTag(${element.pk})">
-                        변경
+                        <i class="fas fa-sign-in-alt"></i>
                     </button>
                 </div>
             </form>
         </li>
-        `}
+        `},
+        modal: (elements, pk) => {
+            var content = '';
+            elements.map((item) => {
+                content += `<ul class="list-group mb-4">`
+                content += `<li class="list-group-item bg-dark text-white">${item.date}</li>`;
+                content += `<li class="list-group-item bg-light">조회수</li>`;
+                content += `<li class="list-group-item">${item.count}</li>`;
+                content += `<li class="list-group-item bg-light">유입경로</li>`;
+                if(item.referer.length > 1) {
+                    item.referer.map((refer) => {
+                        if(refer !== '') {
+                            content += `<li class="list-group-item">${refer}</li>`;
+                        }
+                    });
+                } else {
+                    content += `<li class="list-group-item">https://blex.me</li>`;
+                }
+                content += `</ul>`
+            });
+            return `
+            <div class="modal fade noto" id="Analytics${pk}" tabindex="-1" role="dialog" aria-labelledby="Analytics${pk}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title noto" id="Analytics${pk}Label">방문 분석</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            ${content}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `
+        }
     },
     notify: {
         common: (element) => {

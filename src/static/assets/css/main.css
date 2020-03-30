@@ -1101,6 +1101,21 @@ footer a:hover {
     display: inline-block;
     margin: 5px;
 }
+.blex-card {
+    box-shadow: 0 2px 6px 0 hsl(0, 0%, 0%, 0.1);
+    background: #fff;
+    width: 100%;
+    display: block;
+}
+.setting-body {
+    padding-top: 70px;
+    background: #f3f3f3;
+    min-height: 100vh;
+}
+.setting-user-thumb {
+    width: 100%;
+    height: 200px;
+}
 /* ------------------------------ */
 /* LOGIN PAGE */
 .login-video {
@@ -1251,5 +1266,8 @@ footer a:hover {
 }
 .alert-danger {
     border-left: 5px solid #ff5656;
+}
+.list-group-item {
+    word-break: break-all;
 }
 /* ------------------------------ */

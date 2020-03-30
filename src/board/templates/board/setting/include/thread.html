@@ -1,16 +1,15 @@
-<div>
-    <button class="btn btn-dark btn-block mb-2" onclick="Thread.create()">
-        새로운 스레드 생성
-    </button>
-    <ul class="tag-list">
-        <li><a href="javascript:Analytics.sort('data', 'thread')">날짜</a></li>
-        <li><a href="javascript:Analytics.sort('title', 'thread')">이름</a></li>
-        <li><a href="javascript:Analytics.sort('today', 'thread')">오늘 조회수</a></li>
-        <li><a href="javascript:Analytics.sort('yesterday', 'thread')">어제 조회수</a></li>
-        <li><a href="javascript:Analytics.sort('total', 'thread')">총 조회수</a></li>
-        <li><a href="javascript:Analytics.sort('total_bookmark', 'thread')">북마크</a></li>
-        <li><a href="javascript:Analytics.sort('total_story', 'thread')">스토리</a></li>
+    <ul class="tag-list mb-0">
+        <li><a href="javascript:Analytics.sort('data', 'analytics-thread')">날짜</a></li>
+        <li><a href="javascript:Analytics.sort('title', 'analytics-thread')">이름</a></li>
+        <li><a href="javascript:Analytics.sort('today', 'analytics-thread')">오늘 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('yesterday', 'analytics-thread')">어제 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('total', 'analytics-thread')">총 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('total_bookmark', 'analytics-thread')">북마크</a></li>
+        <li><a href="javascript:Analytics.sort('total_story', 'analytics-thread')">스토리</a></li>
     </ul>
-    <ul id="analytics" class="list-group">
-    </ul>
+</div>
+<ul id="analytics" class="list-group mt-3">
+</ul>
+<div class="write-btn" onclick="Thread.create()">
+    <i class="fas fa-stream"></i>
 </div>

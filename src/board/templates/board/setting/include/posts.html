@@ -1,17 +1,16 @@
-<div>
-    <button class="btn btn-dark btn-block mb-2" onclick="location.href='{% url 'post_write' %}'">
-        새로운 포스트 작성
-    </button>
-    <ul class="tag-list">
-        <li><a href="javascript:Analytics.sort('data', 'posts')">날짜</a></li>
-        <li><a href="javascript:Analytics.sort('title', 'posts')">이름</a></li>
-        <li><a href="javascript:Analytics.sort('today', 'posts')">오늘 조회수</a></li>
-        <li><a href="javascript:Analytics.sort('yesterday', 'posts')">어제 조회수</a></li>
-        <li><a href="javascript:Analytics.sort('total', 'posts')">총 조회수</a></li>
-        <li><a href="javascript:Analytics.sort('total_likes', 'posts')">추천</a></li>
-        <li><a href="javascript:Analytics.sort('total_comment', 'posts')">댓글</a></li>
-        <li><a href="javascript:Analytics.sort('trendy', 'posts')">경향</a></li>
-    </ul>
-    <ul id="analytics" class="list-group">
+    <ul class="tag-list mb-0">
+        <li><a href="javascript:Analytics.sort('data', 'analytics-posts')">날짜</a></li>
+        <li><a href="javascript:Analytics.sort('title', 'analytics-posts')">이름</a></li>
+        <li><a href="javascript:Analytics.sort('today', 'analytics-posts')">오늘 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('yesterday', 'analytics-posts')">어제 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('total', 'analytics-posts')">총 조회수</a></li>
+        <li><a href="javascript:Analytics.sort('total_likes', 'analytics-posts')">추천</a></li>
+        <li><a href="javascript:Analytics.sort('total_comment', 'analytics-posts')">댓글</a></li>
     </ul>
 </div>
+<ul id="analytics" class="list-group mt-3">
+</ul>
+<div id="write-btn" class="write-btn">
+    <i class="fas fa-pencil-alt"></i>
+</div>
+<div id="write-selector"></div>

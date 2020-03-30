@@ -197,7 +197,6 @@ class Thread(models.Model):
             'today': self.today(),
             'yesterday': self.yesterday(),
             'total': self.total(),
-            'trendy': self.trendy(),
             'hide': self.hide,
             'total_story': self.stories.count(),
             'total_bookmark': self.total_bookmark(),
@@ -226,6 +225,13 @@ class ThreadAnalytics(models.Model):
     count   = models.IntegerField(default=0)
     referer = models.TextField()
     iptable = models.TextField()
+
+    def to_dict(self):
+        return {
+            'date': self.date,
+            'count': self.count,
+            'referer': self.referer.split('|'),
+        }
 
     def __str__(self):
         return self.thread.title
@@ -359,7 +365,6 @@ class Post(models.Model):
             'today': self.today(),
             'yesterday': self.yesterday(),
             'total': self.total(),
-            'trendy': self.trendy(),
             'hide': self.hide,
             'total_comment': self.comments.count(),
             'total_likes': self.total_likes(),
@@ -388,6 +393,13 @@ class PostAnalytics(models.Model):
     count   = models.IntegerField(default=0)
     referer = models.TextField()
     iptable = models.TextField()
+
+    def to_dict(self):
+        return {
+            'date': self.date,
+            'count': self.count,
+            'referer': self.referer.split('|'),
+        }
 
     def __str__(self):
         return self.posts.title

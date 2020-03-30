@@ -1,63 +1,117 @@
-{% extends 'board/base.html' %}
+{% extends 'board/source.html' %}
 
-{% block title %}{% if subtitle %}Your {{ subtitle }}{% else %}Setting{% endif %}{% endblock %}
-
-{% block content %}
-<div class="row">
-    <div class="col-lg-3 mb-4">
-        <ul class="nav serif text-right sticky-top sticky-top-100" style="display: block; border-right: 2px solid #8c00ff;">
-            <li class="nav-item">
-                <a class="nav-link vivid-purple{% if tab == 'account'%} disabled{% endif %}" href="{% url 'setting_tab' tab='account' %}">계정</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link vivid-purple{% if tab == 'profile'%} disabled{% endif %}" href="{% url 'setting_tab' tab='profile' %}">프로필</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link vivid-purple{% if tab == 'series'%} disabled{% endif %}" href="{% url 'setting_tab' tab='series' %}">시리즈</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link vivid-purple{% if tab == 'posts'%} disabled{% endif %}" href="{% url 'setting_tab' tab='posts' %}">포스트</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link vivid-purple{% if tab == 'thread'%} disabled{% endif %}" href="{% url 'setting_tab' tab='thread' %}">스레드</a>
-            </li>
-        </ul>
-    </div>
-    <div class="col-lg-8">
-        {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-        {% if message %}<div class="alert alert-success">{{ message }}</div>{% endif %}
-        {% if tab == 'account' %}
-            {% include 'board/setting/include/account.html'%}
-        {% endif %}
-        {% if tab == 'profile' %}
-            {% include 'board/setting/include/profile.html'%}
-        {% endif %}
-        {% if tab == 'series' %}
-            {% include 'board/setting/include/series.html'%}
-        {% endif %}
-        {% if tab == 'posts' %}
-            {% include 'board/setting/include/posts.html'%}
-        {% endif %}
-        {% if tab == 'thread' %}
-            {% include 'board/setting/include/thread.html'%}
-        {% endif %}
-        {% if not subtitle %}
-            <img width="100%" src="{{ static_url }}/assets/images/default-post.png">
-        {% endif  %}
-    </div>
-</div>
+{% block head %}
+    {% load static %}
+    {% block seo %}{% endblock %}
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'library/prism.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?{{ static_version }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR">
+    <link rel="icon" href="{% static 'images/logo.png' %}">
+    <title>{% if subtitle %}Your {{ subtitle }}{% else %}Setting{% endif %}</title>
 {% endblock %}
 
-{% block script %}
-<script>
-    {% if tab == 'posts' %}
-    Analytics.get('{{ request.user.username }}', 'posts');
-    {% elif tab == 'thread' %}
-    Analytics.get('{{ request.user.username }}', 'thread');
-    {% endif %}
-</script>
-{% endblock %}
-
-{% block footer %}
+{% block body %}
+    <nav id="top-nav" class="navbar navbar-expand-sm navbar-light bg-rlight fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ site_url }}">
+                <img src="{{ static_url }}/assets/images/logo.png" width="35" height="35" alt="">
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+                <ul class="navbar-nav">
+                    {% url 'user_profile' username=request.user as my_profile %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ my_profile }}">{{ request.user.first_name }} <i class="fas fa-user"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'setting' %}">설정 <i class="fas fa-cogs"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">로그아웃 <i class="fas fa-sign-out-alt"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="setting-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 mt-4">
+                    <div class="back-image setting-user-thumb" style="background-image:url({{ request.user.profile.avatar.url }})"></div>
+                    <ul class="nav serif sticky-top-100 sticky-top blex-card">
+                        <li class="nav-item">
+                            <a class="nav-link vivid-purple{% if tab == 'account'%} disabled{% endif %}" href="{% url 'setting_tab' tab='account' %}"><i class="far fa-user"></i> 계정</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link vivid-purple{% if tab == 'profile'%} disabled{% endif %}" href="{% url 'setting_tab' tab='profile' %}"><i class="far fa-id-badge"></i> 프로필</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link vivid-purple{% if tab == 'series'%} disabled{% endif %}" href="{% url 'setting_tab' tab='series' %}"><i class="fas fa-book"></i> 시리즈</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link vivid-purple{% if tab == 'posts'%} disabled{% endif %}" href="{% url 'setting_tab' tab='posts' %}"><i class="fas fa-pencil-alt"></i> 포스트</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link vivid-purple{% if tab == 'thread'%} disabled{% endif %}" href="{% url 'setting_tab' tab='thread' %}"><i class="fas fa-stream"></i> 스레드</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-9 mt-4 mb-4">
+                    <div class="blex-card p-3">
+                        {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+                        {% if message %}<div class="alert alert-success">{{ message }}</div>{% endif %}
+                        {% if tab == 'account' %}
+                            {% include 'board/setting/include/account.html'%}
+                        {% endif %}
+                        {% if tab == 'profile' %}
+                            {% include 'board/setting/include/profile.html'%}
+                        {% endif %}
+                        {% if tab == 'series' %}
+                            {% include 'board/setting/include/series.html'%}
+                        {% endif %}
+                        {% if tab == 'posts' %}
+                            {% include 'board/setting/include/posts.html'%}
+                        {% endif %}
+                        {% if tab == 'thread' %}
+                            {% include 'board/setting/include/thread.html'%}
+                        {% endif %}
+                        {% if not subtitle %}
+                            <img width="100%" src="{{ static_url }}/assets/images/default-post.png">
+                        {% endif  %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     {% include 'board/common/include/footer.html' %}
+    <div id="notify-content"></div>
+    <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/common.js?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/render.js?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/action.js?{{ static_version }}"></script>
+    <script type="text/javascript" src="{{ static_url }}/assets/js/event.js?{{ static_version }}"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var csrftoken = getCookie('csrftoken');
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    });
+    </script>
+    <script>
+        {% if tab == 'posts' %}
+        Analytics.get('{{ request.user.username }}', 'analytics-posts');
+        {% elif tab == 'thread' %}
+        Analytics.get('{{ request.user.username }}', 'analytics-thread');
+        {% endif %}
+    </script>
 {% endblock %}
