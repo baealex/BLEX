@@ -42,7 +42,10 @@ class UserPostsFeed(Feed):
         return '/@' + obj.username
 
     def description(self, obj):
-        return obj.profile.bio
+        if hasattr(obj, 'profile') and obj.profile.bio:
+            return obj.profile.bio
+        else:
+            return obj.username + '\'s rss'
 
     def items(self, obj):
         return Post.objects.filter(author=obj, hide=False).order_by('-created_date')[:20]
