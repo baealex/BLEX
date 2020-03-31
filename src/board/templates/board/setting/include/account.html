@@ -17,9 +17,9 @@
     <button type="submit" class="btn btn-dark">정보 변경</button>
     <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#SignoutModal">회원 탈퇴</button>
     {% if request.user.config.telegram_id %}
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#TelegramModal"><i class="fab fa-telegram-plane"></i> 연동해제</button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#telegram-modal"><i class="fab fa-telegram-plane"></i> 연동해제</button>
     {% else %}
-    <button type="button" class="btn btn-primary" onclick="Telegram.pair()" data-toggle="modal" data-target="#TelegramModal"><i class="fab fa-telegram-plane"></i> 텔레그램 연동</button>
+    <button type="button" class="btn btn-primary" onclick="Telegram.pair()" data-toggle="modal" data-target="#telegram-modal"><i class="fab fa-telegram-plane"></i> 텔레그램 연동</button>
     {% endif %}
 </form>
 <div class="modal fade noto" id="SignoutModal" tabindex="-1" role="dialog" aria-labelledby="SignoutModalLabel" aria-hidden="true">
@@ -45,11 +45,11 @@
     </div>
 </div>
 {% if request.user.config.telegram_id %}
-<div class="modal fade noto" id="TelegramModal" tabindex="-1" role="dialog" aria-labelledby="TelegramModalLabel" aria-hidden="true">
+<div class="modal fade noto" id="telegram-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="TelegramModalLabel">텔레그램을 연동을 해지합니다.</h5>
+                <h5 class="modal-title" >텔레그램을 연동을 해지합니다.</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -65,11 +65,11 @@
     </div>
 </div>
 {% else %}
-<div class="modal fade noto" id="TelegramModal" tabindex="-1" role="dialog" aria-labelledby="TelegramModalLabel" aria-hidden="true">
+<div class="modal fade noto" id="telegram-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="TelegramModalLabel">텔레그램을 연동합니다.</h5>
+                <h5 class="modal-title">텔레그램을 연동합니다.</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

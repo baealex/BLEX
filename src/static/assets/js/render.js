@@ -82,7 +82,7 @@ var Render = {
         element: (element, type) => {
             let actionClass = '';
             let elementSub = '';
-            if(type == 'analytics-posts') {
+            if(type == 'posts_analytics') {
                 actionClass = 'Posts';
                 elementSub = `
                     <li><i class="far fa-thumbs-up"></i> ${element.total_likes}</li>
@@ -101,10 +101,10 @@ var Render = {
                 hideState = 'fa-lock';
             }
             return `
-            <li id="setting-${type}-${element.pk}" class="blex-card p-3 mb-3">
+            <li id="item-${element.pk}" class="blex-card p-3 mb-3">
             <p class="noto"><a class="deep-dark" href="javascript:void(0)" onclick="location.href='${element.url}'">${element.title}</a></p>
             <ul class="setting-list-info">
-                <li><a class="element-lock" href="javascript:${actionClass}.lock(${element.pk})"><i id="lock-${element.pk}" class="fas ${hideState}"></i></a></li>
+                <li><a class="element-lock" href="javascript:${actionClass}.lock(${element.pk})"><i class="fas ${hideState}"></i></a></li>
                 <li><a class="text-dark" href="javascript:${actionClass}.remove(${element.pk})"><i class="far fa-trash-alt"></i></a></li>
                 <li>|</li>
                 <li><i class="far fa-eye"></i> <span class="ns">(Today : ${element.today}, Yesterday : ${element.yesterday}, Total : ${element.total})</span></li>
@@ -125,35 +125,23 @@ var Render = {
         </li>
         `},
         modal: (elements, pk) => {
-            var content = '';
-            elements.map((item) => {
-                content += `<ul class="list-group mb-4">`
-                content += `<li class="list-group-item bg-dark text-white">${item.date}</li>`;
-                content += `<li class="list-group-item bg-light">조회수</li>`;
-                content += `<li class="list-group-item">${item.count}</li>`;
-                content += `<li class="list-group-item bg-light">유입경로</li>`;
-                if(item.referer.length > 1) {
-                    item.referer.map((refer) => {
-                        if(refer !== '') {
-                            content += `<li class="list-group-item">${refer}</li>`;
-                        }
-                    });
-                } else {
-                    content += `<li class="list-group-item">https://blex.me</li>`;
-                }
-                content += `</ul>`
+            var content = `<ul class="list-group list-group-flush">`;
+            elements.map(function(element) {
+                content += `<li class="list-group-item">${element.time} - ${element.from}</li>`
             });
+            content += `</ul>`
             return `
-            <div class="modal fade noto" id="Analytics${pk}" tabindex="-1" role="dialog" aria-labelledby="Analytics${pk}" aria-hidden="true">
+            <div class="modal fade noto" id="item-${pk}-detail" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title noto" id="Analytics${pk}Label">방문 분석</h5>
+                            <h5 class="modal-title noto">동향 분석</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
+                            <div id="chart-${pk}" style="width:100%; height:500px;"></div>
                             ${content}
                         </div>
                     </div>

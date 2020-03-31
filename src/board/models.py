@@ -226,13 +226,6 @@ class ThreadAnalytics(models.Model):
     referer = models.TextField()
     iptable = models.TextField()
 
-    def to_dict(self):
-        return {
-            'date': self.date,
-            'count': self.count,
-            'referer': self.referer.split('|'),
-        }
-
     def __str__(self):
         return self.thread.title
 
@@ -393,13 +386,6 @@ class PostAnalytics(models.Model):
     count   = models.IntegerField(default=0)
     referer = models.TextField()
     iptable = models.TextField()
-
-    def to_dict(self):
-        return {
-            'date': self.date,
-            'count': self.count,
-            'referer': self.referer.split('|'),
-        }
 
     def __str__(self):
         return self.posts.title

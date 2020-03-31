@@ -255,24 +255,58 @@ def users(request, username):
                     return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
                 return HttpResponse(str(-1))
         
-        if request.GET.get('get') == 'analytics-posts':
+        if request.GET.get('get') == 'posts_analytics':
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')
                 seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
                 today           = timezone.make_aware(datetime.datetime.now())
                 posts_analytics = PostAnalytics.objects.filter(posts__id=pk, date__range=[seven_days_ago, today]).order_by('-date')
-                return JsonResponse({'items': [item.to_dict() for item in posts_analytics]}, json_dumps_params = {'ensure_ascii': True})
+
+                data = {
+                    'items': [],
+                    'referers': [],
+                }
+                for item in posts_analytics:
+                    data['items'].append({
+                        'date': item.date,
+                        'count': item.count
+                    })
+                    for refer in item.referer.split('|'):
+                        if '^' in refer:
+                            data['referers'].append({
+                                'time': refer.split('^')[0],
+                                'from': refer.split('^')[1],
+                            })
+
+                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
             else:
                 posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
                 return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params = {'ensure_ascii': True})
         
-        if request.GET.get('get') == 'analytics-thread':
+        if request.GET.get('get') == 'thread_analytics':
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')
                 seven_days_ago   = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
                 today            = timezone.make_aware(datetime.datetime.now())
                 thread_analytics = ThreadAnalytics.objects.filter(thread__id=pk, date__range=[seven_days_ago, today]).order_by('-date')
-                return JsonResponse({'items': [item.to_dict() for item in thread_analytics]}, json_dumps_params = {'ensure_ascii': True})
+
+                data = {
+                    'items': [],
+                    'referers': [],
+                }
+                for item in thread_analytics:
+                    data['items'].append({
+                        'date': item.date,
+                        'count': item.count
+                    })
+                    for refer in item.referer.split('|'):
+                        if '^' in refer:
+                            data['referers'].append({
+                                'time': refer.split('^')[0],
+                                'from': refer.split('^')[1],
+                            })
+
+                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
             else:
                 threads = Thread.objects.filter(author=request.user).order_by('created_date').reverse()
                 return JsonResponse({'thread': [thread.to_dict_for_analytics() for thread in threads]}, json_dumps_params = {'ensure_ascii': True})
@@ -308,7 +342,7 @@ def users(request, username):
         if put.get('tagging'):
             post_pk = request.GET.get('on')
             post = get_object_or_404(Post, pk=post_pk)
-            send_notify_content = '\''+ post.title +'\' 글에서 \''+ request.user.username +'\'님이 회원님을 태그했습니다.'
+            send_notify_content = '\"'+ post.title +'\" 글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
             fn.create_notify(user=user, url=post.get_absolute_url(), infomation=send_notify_content)
             return HttpResponse(str(0))
         
@@ -394,7 +428,7 @@ def story(request, pk=None):
                     'element': story.to_dict(),
                 }
 
-                send_notify_content = '\''+ thread.title +'\'스레드 에 \''+ story.author.username +'\'님이 새로운 스토리를 발행했습니다.'
+                send_notify_content = '\"'+ thread.title +'\"스레드 에 @'+ story.author.username +'님이 새로운 스토리를 발행했습니다.'
                 for user in thread.bookmark.all():
                     if not user == story.author:
                         fn.create_notify(user=user, url=thread.get_absolute_url(), infomation=send_notify_content)

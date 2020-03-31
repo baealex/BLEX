@@ -31,9 +31,9 @@ const Posts = (() => {
                     url: `${url}/${pk}`,
                     type: 'DELETE',
                 }).done(function (data) {
-                    if(document.getElementById(`setting-analytics-posts-${pk}`)) {
+                    if(document.getElementById(`item-${pk}`)) {
                         Notify.append('포스트가 삭제되었습니다.');
-                        $('#setting-analytics-posts-' + pk).remove();
+                        $('#item-' + pk).remove();
                     } else {
                         alert('포스트가 삭제되었습니다.')
                         location.href = '/';
@@ -48,28 +48,28 @@ const Posts = (() => {
                 data: {hide: 'changed'}
             }).done((data) => {
                 if(data.hide) {
-                    $(`#lock-${pk}`).removeClass('fa-lock-open');
-                    $(`#lock-${pk}`).addClass('fa-lock');
+                    $(`#item-${pk} .element-lock i`).removeClass('fa-lock-open');
+                    $(`#item-${pk} .element-lock i`).addClass('fa-lock');
                     Notify.append('포스트가 숨겨집니다.');
                 } else {
-                    $(`#lock-${pk}`).removeClass('fa-lock');
-                    $(`#lock-${pk}`).addClass('fa-lock-open');
+                    $(`#item-${pk} .element-lock i`).removeClass('fa-lock');
+                    $(`#item-${pk} .element-lock i`).addClass('fa-lock-open');
                     Notify.append('포스트가 공개됩니다.');
                 }
             });
         },
         changeTag: (pk) => {
-            if($(`#setting-analytics-posts-${pk} form`).find('[name=tag]').val() == '') {
+            if($(`#item-${pk} form`).find('[name=tag]').val() == '') {
                 Notify.append('태그를 비워둔 상태로 변경할 수 없습니다.');
                 return;
             }
             $.ajax({
                 url: `/api/v1/posts/${pk}`,
                 type: "PUT",
-                data: $(`#setting-analytics-posts-${pk} form`).serialize(),
+                data: $(`#item-${pk} form`).serialize(),
             }).done((data) => {
                 Notify.append('태그가 변경되었습니다.');
-                $(`#setting-analytics-posts-${pk} form`).find('[name=tag]').val(data.tag);
+                $(`#item-${pk} form`).find('[name=tag]').val(data.tag);
             });
         },
     }
@@ -163,17 +163,17 @@ const Series = (() => {
     const url = '/api/v1/series';
     return {
         edit: (pk) => {
-            if (!document.getElementById('createSeries')) {
+            if (!document.getElementById('series-modal')) {
                 $.ajax({
                     url: `${url}/${pk}?get=modal`,
                     type: 'GET',
                 }).done(function (data) {
                     $('body').append(data);
-                    $('#createSeries').modal('show');
+                    $('#series-modal').modal('show');
                 });
             }
             else {
-                $('#createSeries').modal('show');
+                $('#series-modal').modal('show');
             }
         },
         remove: (pk) => {
@@ -275,7 +275,7 @@ const Telegram = (() => {
                 } else {
                     Notify.append('텔레그램과의 연동이 정상적으로 해제되었습니다.');
                 }
-                $('#TelegramModal').modal('hide');
+                $('#telegram-modal').modal('hide');
             });
         }
     }
@@ -350,31 +350,31 @@ const Thread = (() => {
     const url = '/api/v1/thread';
     return {
         create: () => {
-            if (!document.getElementById('createThread')) {
+            if (!document.getElementById('thread-modal')) {
                 $.ajax({
                     url: `${url}?get=modal`,
                     type: 'GET',
                 }).done(function (data) {
                     $('body').append(data);
-                    $('#createThread').modal('show')
+                    $('#thread-modal').modal('show')
                 });
             }
             else {
-                $('#createThread').modal('show')
+                $('#thread-modal').modal('show')
             }
         },
         edit: (pk) => {
-            if (!document.getElementById('createThread')) {
+            if (!document.getElementById('thread-modal')) {
                 $.ajax({
                     url: url + '/' + pk + '?get=modal',
                     type: 'GET',
                 }).done((data) => {
                     $('body').append(data);
-                    $('#createThread').modal('show');
+                    $('#thread-modal').modal('show');
                 });
             }
             else {
-                $('#createThread').modal('show');
+                $('#thread-modal').modal('show');
             }
         },
         remove: (pk) => {
@@ -384,9 +384,9 @@ const Thread = (() => {
                     type: 'DELETE',
                 }).done((data) => {
                     if (data == 'DONE') {
-                        if(document.getElementById(`setting-analytics-thread-${pk}`)) {
+                        if(document.getElementById(`item-${pk}`)) {
                             Notify.append('스레드가 삭제되었습니다.');
-                            $('#setting-analytics-thread-' + pk).remove();
+                            $('#item-' + pk).remove();
                         } else {
                             alert('스레드가 삭제되었습니다.')
                             location.href = '/';
@@ -402,28 +402,28 @@ const Thread = (() => {
                 data: {hide: 'changed'}
             }).done(function (data) {
                 if(data.hide) {
-                    $(`#lock-${pk}`).removeClass('fa-lock-open');
-                    $(`#lock-${pk}`).addClass('fa-lock');
+                    $(`#item-${pk} .element-lock i`).removeClass('fa-lock-open');
+                    $(`#item-${pk} .element-lock i`).addClass('fa-lock');
                     Notify.append('스레드가 숨겨집니다.');
                 } else {
-                    $(`#lock-${pk}`).removeClass('fa-lock');
-                    $(`#lock-${pk}`).addClass('fa-lock-open');
+                    $(`#item-${pk} .element-lock i`).removeClass('fa-lock');
+                    $(`#item-${pk} .element-lock i`).addClass('fa-lock-open');
                     Notify.append('스레드가 공개됩니다.');
                 }
             });
         },
         changeTag: (pk) => {
-            if($(`#setting-analytics-thread-${pk} form`).find('[name=tag]').val() == '') {
+            if($(`#item-${pk} form`).find('[name=tag]').val() == '') {
                 Notify.append('태그를 비워둔 상태로 변경할 수 없습니다.');
                 return;
             }
             $.ajax({
                 url: `${url}/${pk}`,
                 type: "PUT",
-                data: $(`#setting-analytics-thread-${pk} form`).serialize(),
+                data: $(`#item-${pk} form`).serialize(),
             }).done(function (data) {
                 Notify.append('태그가 변경되었습니다.');
-                $(`#setting-analytics-thread-${pk} form`).find('[name=tag]').val(data.tag);
+                $(`#item-${pk} form`).find('[name=tag]').val(data.tag);
             });
         },
         bookmark: (pk) => {
@@ -571,24 +571,73 @@ const Analytics = (() => {
                 url: `${url}/${username}?get=${type}`,
                 type: 'GET',
             }).done((data) => {
-                type == 'analytics-posts' ? postsList = data.posts : threadList = data.thread;
+                type == 'posts_analytics' ? postsList = data.posts : threadList = data.thread;
                 renderHTML = '';
-                for(let ele of type == 'analytics-posts' ? postsList : threadList) {
+                for(let ele of type == 'posts_analytics' ? postsList : threadList) {
                     renderHTML += Render.analytics.element(ele, type);
                 }
                 $('#analytics').html(renderHTML);
             });
         },
         modal: (username, type, pk) => {
-            if(document.getElementById('Analytics' + pk)) {
-                $('#Analytics' + pk).modal('show');
+            if(document.getElementById(`item-${pk}-detail`)) {
+                $(`#item-${pk}-detail`).modal('show');
             } else {
                 $.ajax({
                     url: `${url}/${username}?get=${type}&pk=${pk}`,
                     type: 'GET',
                 }).done((data) => {
-                    $('body').append(Render.analytics.modal(data.items, pk));
-                    $('#Analytics' + pk).modal('show');
+                    $('body').append(Render.analytics.modal(data.referers, pk));
+                    $(`#item-${pk}-detail`).modal('show');
+                    data.items.reverse();
+                    
+                    am4core.ready(function() {
+                        am4core.useTheme(am4themes_dataviz);
+                        am4core.useTheme(am4themes_animated);
+
+                        var chart = am4core.create("chart-" + pk, am4charts.XYChart);
+
+                        chart.data = data.items;
+                        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+                        
+                        var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+                        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                        
+                        var series = chart.series.push(new am4charts.LineSeries());
+                        series.dataFields.valueY = "count";
+                        series.dataFields.dateX = "date";
+                        series.tooltipText = "{count}"
+                        series.strokeWidth = 2;
+                        series.minBulletDistance = 15;
+                        
+                        series.tooltip.background.cornerRadius = 20;
+                        series.tooltip.background.strokeOpacity = 0;
+                        series.tooltip.pointerOrientation = "vertical";
+                        series.tooltip.label.minWidth = 40;
+                        series.tooltip.label.minHeight = 40;
+                        series.tooltip.label.textAlign = "middle";
+                        series.tooltip.label.textValign = "middle";
+                        
+                        var bullet = series.bullets.push(new am4charts.CircleBullet());
+                        bullet.circle.strokeWidth = 2;
+                        bullet.circle.radius = 4;
+                        bullet.circle.fill = am4core.color("#fff");
+                        
+                        var bullethover = bullet.states.create("hover");
+                        bullethover.properties.scale = 1.3;
+                        
+                        chart.cursor = new am4charts.XYCursor();
+                        chart.cursor.behavior = "panXY";
+                        chart.cursor.xAxis = dateAxis;
+                        chart.cursor.snapToSeries = series;
+                        
+                        chart.scrollbarX = new am4charts.XYChartScrollbar();
+                        chart.scrollbarX.series.push(series);
+                        chart.scrollbarX.parent = chart.bottomAxesContainer;
+                        
+                        dateAxis.start = 0.5;
+                        dateAxis.keepSelection = true;
+                    });
                 });
             }
         },
@@ -604,8 +653,8 @@ const Analytics = (() => {
                 }
             }
             renderHTML = '';
-            type == 'analytics-posts' ? postsList.sort(sortHow) : threadList.sort(sortHow);
-            for(let ele of type == 'analytics-posts' ? postsList : threadList) {
+            type == 'posts_analytics' ? postsList.sort(sortHow) : threadList.sort(sortHow);
+            for(let ele of type == 'posts_analytics' ? postsList : threadList) {
                 renderHTML += Render.analytics.element(ele, type);
             }
             $('#analytics').html(renderHTML);

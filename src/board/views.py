@@ -510,9 +510,8 @@ def thread_detail(request, url):
             thread_today.iptable += user_ip + '|'
         
         if 'Referer' in request.headers:
-            if not request.headers['Host'] in request.headers['Referer']:
-                thread_today.referer += request.headers['Referer'] + '|'
-        thread_today.save()
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+            thread_today.referer += now + '^' + request.headers['Referer'] + '|'
     
     return render(request, 'board/thread/detail.html', render_args)
 
@@ -581,9 +580,9 @@ def post_detail(request, username, url):
             post_today.iptable += user_ip + '|'
         
         if 'Referer' in request.headers:
-            if not request.headers['Host'] in request.headers['Referer']:
-                if not request.headers['Referer'] in post_today.referer:
-                    post_today.referer += request.headers['Referer'] + '|'
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+            post_today.referer += now + '^' + request.headers['Referer'] + '|'
+        
         post_today.save()
     
     return render(request, 'board/posts/detail.html', render_args)
