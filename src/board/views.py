@@ -429,7 +429,7 @@ def image_upload(request):
             
             if ext == 'gif':
                 try:
-                    os.system('ffmpeg -i '+ upload_path + '/' + file_name + '.gif' + ' -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart '+ upload_path + date_path + '/' + file_name +'.mp4')
+                    os.system('ffmpeg -i '+ upload_path + '/' + file_name + '.gif' + ' -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart '+ upload_path + '/' + file_name +'.mp4')
                     os.system('rm ' + upload_path + '/' + file_name + '.gif')
                     ext = 'mp4'
                 except:
@@ -509,9 +509,9 @@ def thread_detail(request, url):
             thread_today.count += 1
             thread_today.iptable += user_ip + '|'
         
-        if 'Referer' in request.headers:
-            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-            thread_today.referer += now + '^' + request.headers['Referer'] + '|'
+            if 'Referer' in request.headers:
+                now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+                thread_today.referer += now + '^' + request.headers['Referer'] + '|'
     
     return render(request, 'board/thread/detail.html', render_args)
 
@@ -579,9 +579,9 @@ def post_detail(request, username, url):
             post_today.count += 1
             post_today.iptable += user_ip + '|'
         
-        if 'Referer' in request.headers:
-            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-            post_today.referer += now + '^' + request.headers['Referer'] + '|'
+            if 'Referer' in request.headers:
+                now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+                post_today.referer += now + '^' + request.headers['Referer'] + '|'
         
         post_today.save()
     
