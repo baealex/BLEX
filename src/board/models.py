@@ -140,7 +140,7 @@ class Thread(models.Model):
     bookmark          = models.ManyToManyField(User, related_name='bookmark_thread', blank=True)
 
     def __str__(self):
-        return self.author.username + ' - ' +self.title
+        return self.title
 
     def total_bookmark(self):
         return self.bookmark.count()
@@ -301,7 +301,7 @@ class Post(models.Model):
     updated_date      = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
-        return self.author.username + ' - ' + self.title
+        return self.title
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[self.author, self.url])
