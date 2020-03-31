@@ -587,9 +587,11 @@ const Analytics = (() => {
                     url: `${url}/${username}?get=${type}&pk=${pk}`,
                     type: 'GET',
                 }).done((data) => {
+                    data.referers.reverse();
+                    data.items.reverse();
+                    
                     $('body').append(Render.analytics.modal(data.referers, pk));
                     $(`#item-${pk}-detail`).modal('show');
-                    data.items.reverse();
                     
                     am4core.ready(function() {
                         am4core.useTheme(am4themes_dataviz);
