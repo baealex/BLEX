@@ -27,8 +27,8 @@ def get_posts(sort):
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
 
 def get_clean_all_tags(user=None):
-    posts = Post.objects.filter(hide=False)
-    thread = Thread.objects.filter(hide=False)
+    posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)
+    thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False)
     if user == None:
         tagslist = list(posts.values_list('tag', flat=True).distinct()) + (
             list(thread.values_list('tag', flat=True).distinct()))
@@ -133,5 +133,7 @@ def create_notify(user, url, infomation):
         telegram_id = user.config.telegram_id
         if not telegram_id == '':
             bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
-            bot.send_message_async(telegram_id, 'https://blex.me' + url)
-            bot.send_message_async(telegram_id, infomation)
+            bot.send_messages_async(telegram_id, [
+                'https://blex.me' + url,
+                infomation
+            ])

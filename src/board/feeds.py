@@ -1,6 +1,7 @@
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from .models import Post
 
@@ -15,7 +16,7 @@ class SitePostsFeed(Feed):
     description = 'BLOG EXPRESS ME'
 
     def items(self):
-        return Post.objects.filter(hide=False).order_by('created_date').reverse()[:20]
+        return Post.objects.filter(created_date__lte=timezone.now(), hide=False).order_by('created_date').reverse()[:20]
 
     def item_title(self, item):
         return item.title
@@ -48,7 +49,7 @@ class UserPostsFeed(Feed):
             return obj.username + '\'s rss'
 
     def items(self, obj):
-        return Post.objects.filter(author=obj, hide=False).order_by('-created_date')[:20]
+        return Post.objects.filter(created_date__lte=timezone.now(), author=obj, hide=False).order_by('-created_date')[:20]
 
     def item_title(self, item):
         return item.title

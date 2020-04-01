@@ -13,7 +13,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 from .forms import *
-from . import telegram, telegram_token
+from .telegram import TelegramBot
+from . import telegram_token
 from . import views_fn as fn
 
 def topics(request):
@@ -25,6 +26,8 @@ def topics(request):
             cache_time = 3600
             cache.set(cache_key, tags, cache_time)
         return JsonResponse({'tags': tags}, json_dumps_params = {'ensure_ascii': True})
+
+    raise Http404
 
 def posts(request, pk):
     post = get_object_or_404(Post, pk=pk)
@@ -127,6 +130,8 @@ def temp_posts(request):
         temp_posts.save()
 
         return HttpResponse('DONE')
+    
+    raise Http404
 
 def comment(request, pk=None):
     if not pk:
@@ -204,6 +209,8 @@ def comment(request, pk=None):
             }
             comment.delete()
             return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+    
+    raise Http404
 
 def series(request, pk):
     series = get_object_or_404(Series, pk=pk)
@@ -213,7 +220,7 @@ def series(request, pk):
             if not request.user == series.owner:
                 return HttpResponse('error:DU')
             form = SeriesUpdateForm(instance=series)
-            form.fields['posts'].queryset = Post.objects.filter(author=request.user, hide=False)
+            form.fields['posts'].queryset = Post.objects.filter(created_date__lte=timezone.now(), author=request.user, hide=False)
             return render(request, 'board/series/form/series.html', {'form': form, 'series': series})
         
     if request.method == 'DELETE':
@@ -407,7 +414,8 @@ def thread(request, pk=None):
         if request.method == 'DELETE':
             thread.delete()
             return HttpResponse('DONE')
-    raise Http404()
+    
+    raise Http404
 
 def story(request, pk=None):
     if not pk:
@@ -501,12 +509,14 @@ def story(request, pk=None):
         if request.method == 'DELETE':
             story.delete()
             return HttpResponse('DONE')
+    
+    raise Http404
 
 @csrf_exempt
 def telegram(request, parameter):
     if parameter == 'webHook':
         if request.method == 'POST':
-            bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
+            bot = TelegramBot(telegram_token.BOT_TOKEN)
             req = json.loads(request.body.decode("utf-8"))
             req_token = req['message']['text']
             req_userid = req['message']['from']['id']
@@ -525,7 +535,7 @@ def telegram(request, parameter):
                     '안녕하세요? BLEX_BOT 입니다!',
                     'BLEX — BLOG EXPRESS ME!',
                     '회원님의 알림을 이곳으로 보내드릴게요!',
-                    '오늘은 어떤게 업데이트 되었을까요?\n\nhttps://blex.kr/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
+                    '오늘은 어떤게 업데이트 되었을까요?\n\nhttps://blex.me/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
                 ]
                 bot.send_message_async(req_userid, message[random.randint(0, len(message))])
             return HttpResponse('None')
@@ -550,3 +560,5 @@ def telegram(request, parameter):
                 return HttpResponse('DONE')
             else:
                 return HttpResponse('error:AU')
+    
+    raise Http404

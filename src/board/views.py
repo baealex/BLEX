@@ -227,8 +227,8 @@ def setting_tab(request, tab):
 # Profile
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=user, hide=False).order_by('created_date').reverse()
-    thread = Thread.objects.filter(author=user, hide=False).order_by('created_date').reverse()
+    posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('created_date').reverse()
+    thread = Thread.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('created_date').reverse()
     posts_and_thread = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
 
     page = request.GET.get('page', 1)
@@ -284,7 +284,7 @@ def user_profile_tab(request, username, tab):
         render_args['elements'] = elements
     if tab == 'activity':
         render_args['tab_show'] = '활동'
-        posts = Post.objects.filter(author=user, hide=False)
+        posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False)
         series = Series.objects.filter(owner=user)
         likeposts = PostLikes.objects.filter(user=user)
         comments = Comment.objects.filter(author=user, post__hide=False)
@@ -301,9 +301,9 @@ def user_profile_tab(request, username, tab):
 
 def user_profile_topic(request, username, tag):
     user = get_object_or_404(User, username=username)
-    total_posts = len(Post.objects.filter(author=user, hide=False))
-    posts = Post.objects.filter(author=user, hide=False, tag__iregex=r'\b%s\b' % tag)
-    thread = Thread.objects.filter(author=user, hide=False, tag__iregex=r'\b%s\b' % tag)
+    total_posts = len(Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False))
+    posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False, tag__iregex=r'\b%s\b' % tag)
+    thread = Thread.objects.filter(created_date__lte=timezone.now(), author=user, hide=False, tag__iregex=r'\b%s\b' % tag)
     posts_and_thread = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
     if len(posts_and_thread) == 0:
         raise Http404()
@@ -390,7 +390,7 @@ def content_backup(request):
     return render(request, 'board/posts/backup.html', {'contents':contents})
 
 def post_list_in_tag(request, tag):
-    posts = Post.objects.filter(hide=False, created_date__lte=timezone.now(), tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
+    posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
     if len(posts) == 0:
         raise Http404()
     page = request.GET.get('page', 1)
@@ -524,11 +524,9 @@ def post_detail(request, username, url):
     if post.hide == True and not post.author == request.user:
         raise Http404()
 
-    another_posts = Post.objects.filter(author=user, hide=False).exclude(pk=post.pk).order_by('?')[:3]
     render_args = {
         'post' : post,
         'form' : CommentForm(),
-        'another_posts' : another_posts,
         'check_like' : post.likes.filter(id=request.user.id).exists(),
         'current_path': request.get_full_path(),
         'battery': fn.get_exp(user),
