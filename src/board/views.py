@@ -523,9 +523,9 @@ def thread_detail(request, url):
             thread_today.count += 1
             thread_today.iptable += user_ip + '|'
         
-        if 'Referer' in request.headers:
-            now = datetime.datetime.now().strftime('%H:%M')
-            thread_today.referer += now + '^' + request.headers['Referer'] + '|'
+            if 'Referer' in request.headers:
+                now = datetime.datetime.now().strftime('%H:%M')
+                thread_today.referer += now + '^' + request.headers['Referer'] + '|'
 
         thread_today.save()
     
@@ -593,9 +593,9 @@ def post_detail(request, username, url):
             post_today.count += 1
             post_today.iptable += user_ip + '|'
         
-        if 'Referer' in request.headers:
-            now = datetime.datetime.now().strftime('%H:%M')
-            post_today.referer += now + '^' + request.headers['Referer'] + '|'
+            if 'Referer' in request.headers:
+                now = datetime.datetime.now().strftime('%H:%M')
+                post_today.referer += now + '^' + request.headers['Referer'] + '|'
         
         post_today.save()
     
