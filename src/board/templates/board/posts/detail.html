@@ -27,7 +27,7 @@
         <img src="{{ post.image.url }}" alt="{{ post.title }}">
         <div class="post-image-mask mask-off">
             <h1 class="post-headline fade-in">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
-            <p class="post-date fade-in">{{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}<span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
+            <p class="post-date fade-in">{{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}<span>(Edited: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
         </div>
     </picture>
 </div>
@@ -44,7 +44,7 @@
         <h1 class="post-headline">{% if this_series %}<span class="post-series">'{{ this_series }}' 시리즈</span>{% endif %}{{ post.title }}</h1>
         <p class="post-date">
             {{ post.created_date|date:"Y-m-d H:i" }}{% if post.updated_date|date:"YmdHi" > post.created_date|date:"YmdHi"%}
-            <span>(Last Update: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
+            <span>(Edited: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
         {% endif %}
         {% if post.author == request.user %}
         <a class="btn btn-dark" href="{% url 'post_edit' pk=post.pk %}">수정</a>

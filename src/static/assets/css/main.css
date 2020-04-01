@@ -500,16 +500,24 @@ footer a:hover {
 }
 /* ------------------------------ */
 /* POSTS : DETAIL : WITH TITLE IMAGE */
-.post-title-image .post-headline {
-    max-width: 550px;
+.post-title-image .post-headline,
+.post-title-image .post-date {
+    width: 95%;
+    text-align: center;
+    transform: translateX(-50%);
     position: absolute;
-    bottom: 120px;
-    left: 8%;
+    left: 50%;
+}
+.post-title-image .post-headline {
+    bottom: 48vh;
 }
 .post-title-image .post-date {
-    position: absolute;
-    bottom: 85px;
-    left: 8%;
+    bottom: 3vh;
+}
+@media (max-width: 768px) {
+    .post-title-image .post-date {
+        bottom: 10vh;
+    }
 }
 .post-title-image > img {
     width: 100%;
