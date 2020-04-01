@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from itertools import chain
 from django.db.models import Count, Q
@@ -30,50 +31,63 @@ def signup(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
-            filter_name = ['root', 'sudo', 'admin', 'administrator', 'manager', 'master', 'superuser', '관리자']
-            if form.cleaned_data['username'] in filter_name:
-                return render(request, 'registration/signup.html', { 'form': form, 'error': '사용할 수 없는 아이디입니다.' })
-            if not form.cleaned_data['password'] == form.cleaned_data['password_check']:
-                return render(request, 'registration/signup.html', { 'form': form, 'error': '입력한 비밀번호가 일치하지 않습니다.' })
-            else:
-                new_user = User.objects.create_user(
-                    form.cleaned_data['username'],
-                    form.cleaned_data['email'],
-                    form.cleaned_data['password']
-                )
-                new_user.first_name = form.cleaned_data['first_name']
-                new_user.last_name = randstr(35)
-                new_user.is_active = False
-                new_user.save()
+            username = form.cleaned_data['username']
 
-                send_mail(
-                    subject = '[ BLEX ] 이메일을 인증해 주세요!',
-                    message = 'https://blex.kr/active/' + new_user.last_name,
-                    from_email = 'im@baejino.com',
-                    recipient_list = [new_user.email],
-                    # html_message = render_to_string('email.html', {
-                    #     'username': new_user.first_name,
-                    #     'active_token': 'https://blex.kr/active/' + new_user.last_name,
-                    # })
-                )
-                return render(request, 'infomation/signup.html', { 'user': new_user })
+            filter_name = ['root', 'sudo', 'admin', 'administrator', 'manager', 'master', 'superuser']
+            if username in filter_name:
+                return render(request, 'registration/signup.html', { 'form': form, 'error': '사용할 수 없는 아이디입니다.' })
+            
+            regex = re.compile('[a-z0-9]*')
+            if not len(regex.match(username).group()) == len(username):
+                 return render(request, 'registration/signup.html', { 'form': form, 'error': '사용할 수 없는 아이디입니다.' })
+            
+            if not form.cleaned_data['password'] == form.cleaned_data['password_check']:
+                return render(request, 'registration/signup.html', { 'form': form, 'error': '비밀번호가 일치하지 않습니다.' })
+            
+            token = randstr(35)
+            has_token = User.objects.filter(last_name=token)
+            while len(has_token) > 0:
+                token = randstr(35)
+                has_token = User.objects.filter(last_name=token)
+
+            new_user = User.objects.create_user(
+                form.cleaned_data['username'],
+                form.cleaned_data['email'],
+                form.cleaned_data['password']
+            )
+            new_user.first_name = form.cleaned_data['first_name']
+            new_user.last_name = token
+            new_user.is_active = False
+            new_user.save()
+
+            send_mail(
+                subject = '[ BLEX ] 이메일을 인증해 주세요!',
+                message = 'https://blex.kr/active/' + token,
+                from_email = 'im@baejino.com',
+                recipient_list = [new_user.email],
+                # html_message = render_to_string('email.html', {
+                #     'username': new_user.first_name,
+                #     'active_token': 'https://blex.kr/active/' + token,
+                # })
+            )
+            return render(request, 'infomation/signup.html', { 'user': new_user })
     else:
         form = UserForm()
     return render(request, 'registration/signup.html',{ 'form': form })
 
 def id_check(request):
     if request.method == 'POST':
-        data = {
-            'name': request.POST['id']
-        }
-        user = User.objects.filter(username=request.POST['id'])
+        username = request.POST['id']
+        user = User.objects.filter(username=username)
         if len(user) > 0:
-            data['result'] = 'ERORR_OVERLAP'
+            return HttpResponse('ERROR:OL')
         else:
-            data['result'] = 'TRUE'
-        return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-    else:
-        raise Http404()
+            regex = re.compile('[a-z0-9]*')
+            if not len(regex.match(username).group()) == len(username):
+                return HttpResponse('ERROR:NM')
+            return HttpResponse('DONE')
+
+    raise Http404
 
 def user_active(request, token):
     user = get_object_or_404(User, last_name=token)

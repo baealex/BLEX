@@ -105,13 +105,13 @@ def temp_posts(request):
             return HttpResponse('Error:EG')
         
         body = QueryDict(request.body)
+
         token = randstr(25)
-        try:
-            while True:
-                TempPosts.objects.get(token=token, author=request.user)
-                new_token = randstr(25)
-        except:
-            pass
+        has_token = TempPosts.objects.filter(token=token, author=request.user)
+        while len(has_token) > 0:
+            token = randstr(35)
+            has_token = TempPosts.objects.filter(token=token, author=request.user)
+        
         temp_posts = TempPosts(token=token, author=request.user)
         temp_posts.title = body.get('title')
         temp_posts.text_md = body.get('text_md')
@@ -541,16 +541,23 @@ def telegram(request, parameter):
             return HttpResponse('None')
     if parameter == 'makeToken':
         if request.method == 'POST':
+
+            token = randstr(6)
+            has_token = Config.objects.filter(telegram_token=token)
+            while len(has_token) > 0:
+                token = randstr(6)
+                has_token = Config.objects.filter(telegram_token=token)
+
             if hasattr(request.user, 'config'):
                 config = request.user.config
-                config.telegram_token = randstr(8)
+                config.telegram_token = token
                 config.save()
-                return HttpResponse(request.user.config.telegram_token)
+                return HttpResponse(token)
             else:
                 config = Config(user=request.user)
-                config.telegram_token = randstr(8)
+                config.telegram_token = token
                 config.save()
-                return HttpResponse(config.telegram_token)
+                return HttpResponse(token)
     if parameter == 'unpair':
         if request.method == 'POST':
             config = request.user.config
