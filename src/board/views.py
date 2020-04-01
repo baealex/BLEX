@@ -526,6 +526,8 @@ def thread_detail(request, url):
         if 'Referer' in request.headers:
             now = datetime.datetime.now().strftime('%H:%M')
             thread_today.referer += now + '^' + request.headers['Referer'] + '|'
+
+        thread_today.save()
     
     return render(request, 'board/thread/detail.html', render_args)
 
