@@ -278,10 +278,10 @@ def users(request, username):
                         'date': item.date,
                         'count': item.count
                     })
-                    for refer in item.referer.split('|'):
+                    for refer in reversed(item.referer.split('|')):
                         if '^' in refer:
                             data['referers'].append({
-                                'time': refer.split('^')[0],
+                                'time': str(item.date) + ' ' + refer.split('^')[0],
                                 'from': refer.split('^')[1],
                             })
 
@@ -306,10 +306,10 @@ def users(request, username):
                         'date': item.date,
                         'count': item.count
                     })
-                    for refer in item.referer.split('|'):
+                    for refer in reversed(item.referer.split('|')):
                         if '^' in refer:
                             data['referers'].append({
-                                'time': refer.split('^')[0],
+                                'time': str(item.date) + ' ' + refer.split('^')[0],
                                 'from': refer.split('^')[1],
                             })
 
