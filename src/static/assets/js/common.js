@@ -81,7 +81,7 @@ const msg = {
 function makeChart(data, id) {
   am4core.ready(function() {
     am4core.useTheme(am4themes_dataviz);
-    am4core.useTheme(am4themes_animated);
+    // am4core.useTheme(am4themes_animated);
 
     var chart = am4core.create(id, am4charts.XYChart);
 

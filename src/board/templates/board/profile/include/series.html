@@ -1,21 +1,13 @@
 <div id="wrapper">
-{% for mseries in elements %}
-    {% if mseries.posts.first %}
-    <div>
-        {% if mseries.posts.first.image %}
-        <div class="post-list" style="background-image: url({{ mseries.posts.first.image.url }})">
-        {% else %}
-        <div class="post-list" style="background-image: url({{ static_url }}/assets/images/default-post.png)">
-        {% endif %}
-            <a href="{{ mseries.get_absolute_url }}" class="post-title">
-                <div class="post-mask">
-                    <h3 class="serif">'{{ mseries }}' 시리즈</h3>
-                    <span class="date">{{ mseries.created_date | date:'' }}</span>
-                </div>
-            </a>
-        </div>
+{% for series in elements %}
+    <div class="post-list" style="background-image: url({{ series.thumbnail }})">
+        <a href="{{ series.get_absolute_url }}" class="post-title">
+            <div class="post-mask">
+                <h3 class="serif">'{{ series }}' 시리즈</h3>
+                <span class="date">{{ series.created_date | date:'' }}</span>
+            </div>
+        </a>
     </div>
-    {% endif %}
 {% empty %}
     <div class="container mt-3">
         <div class="mx-auto col-lg-9 noto bg-border-purple p-3 bg-light vivid-purple">

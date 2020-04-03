@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.timesince import timesince
+from django.conf import settings
 
 from PIL import Image
 
@@ -24,7 +25,7 @@ def randstr(length):
 
 def parsedown(text):
     data = {'md': text.encode('utf-8')}
-    res = requests.post('http://baealex.dothome.co.kr/api/parsedown/get.php', data=data)
+    res = requests.post(settings.API_URL + '/api/parsedown/get.php', data=data)
     return res.text
 
 def avatar_path(instance, filename):
@@ -87,7 +88,7 @@ class Profile(models.Model):
         if self.avatar:
             return self.avatar.url
         else:
-            return 'https://static.blex.kr/assets/images/default-avatar.jpg'
+            return settings.STATIC_URL + '/images/default-avatar.jpg'
 
     def __str__(self):
         return self.user.username
@@ -141,6 +142,12 @@ class Thread(models.Model):
 
     def __str__(self):
         return self.title
+
+    def thumbnail(self):
+        if self.image:
+            return self.image.url
+        else:
+            return settings.STATIC_URL + '/images/default-post.png' if not self.image else self.image.url
 
     def total_bookmark(self):
         return self.bookmark.count()
@@ -303,6 +310,12 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+    def thumbnail(self):
+        if self.image:
+            return self.image.url
+        else:
+            return settings.STATIC_URL + '/images/default-post.png'
+
     def get_absolute_url(self):
         return reverse('post_detail', args=[self.author, self.url])
 
@@ -413,6 +426,12 @@ class Comment(models.Model):
     def __str__(self):
         return self.text
     
+    def thumbnail(self):
+        if self.image:
+            return self.image.url
+        else:
+            return settings.STATIC_URL + '/images/default-post.png'
+    
     def total_likes(self):
         return self.likes.count()
     
@@ -455,6 +474,12 @@ class Series(models.Model):
 
     def __str__(self):
         return self.name
+
+    def thumbnail(self):
+        if self.posts.first():
+            return self.posts.first().thumbnail()
+        else:
+            return settings.STATIC_URL + '/images/default-post.png'
     
     def get_absolute_url(self):
         return reverse('series_list', args=[self.owner, self.url])

@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.db.models import Count, Q
 from django.utils.text import slugify
 from django.core.cache import cache
+from django.conf import settings
 
 from .models import Post, Thread, Profile, Notify
 from . import telegram, telegram_token
@@ -134,6 +135,6 @@ def create_notify(user, url, infomation):
         if not telegram_id == '':
             bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
             bot.send_messages_async(telegram_id, [
-                'https://blex.me' + url,
+                settings.SITE_URL + url,
                 infomation
             ])

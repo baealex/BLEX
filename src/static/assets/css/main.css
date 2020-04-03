@@ -522,7 +522,7 @@ footer a:hover {
 .post-title-image > img {
     width: 100%;
     height: 100vh;
-    min-height: 50vh;
+    min-height: 100vh;
     object-fit: cover;
 }
 .post-image-mask {

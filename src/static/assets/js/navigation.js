@@ -1,8 +1,8 @@
-$(document).ready(function () {
+const createNav = function(height) {
     /* CREATE ARTICLE NAVIGATION */
     var navcounter = 0;
     var isCreateNav = false;
-    var items = $.makeArray($('.article h1,.article h2,.article h3,.article h4,.article h5,.article h6').map(function () {
+    $.makeArray($('.article h1,.article h2,.article h3,.article h4,.article h5,.article h6').map(function () {
         navcounter += 1;
         isCreateNav = true;
         var makeTag = document.createElement('a');
@@ -22,18 +22,20 @@ $(document).ready(function () {
         return $(this).attr('id', 'headline' + navcounter );
     }));
 
-    var screenHeight = $(window).height();
+    var screenHeight = height == 'full' ? $(window).height() : 100;
     $(window).scroll(function () {
         screenPosition = $(this).scrollTop();
 
-        if (screenPosition < screenHeight) {
-            $('#top-nav').css("position", "absolute");
-            $('#top-nav').css("background", "rgba(0, 0, 0, 0)");
-            $("#top-nav").removeClass("slide-bottom");
-        } else {
-            $('#top-nav').css("position", "fixed");
-            $('#top-nav').css("background", "rgba(0, 0, 0, .98)");
-            $("#top-nav").addClass("slide-bottom");
+        if(height == 'full') {
+            if (screenPosition < screenHeight) {
+                $('#top-nav').css("position", "absolute");
+                $('#top-nav').css("background", "rgba(0, 0, 0, 0)");
+                $("#top-nav").removeClass("slide-bottom");
+            } else {
+                $('#top-nav').css("position", "fixed");
+                $('#top-nav').css("background", "rgba(0, 0, 0, .98)");
+                $("#top-nav").addClass("slide-bottom");
+            }
         }
         if (isCreateNav) {
             var btween = screenPosition - (screenHeight - 100);
@@ -53,4 +55,4 @@ $(document).ready(function () {
             }
         }
     });
-});
+};

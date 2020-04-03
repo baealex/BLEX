@@ -41,11 +41,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 mt-4">
-                    {% if request.user.profile.avatar %}
-                    <div class="back-image setting-user-thumb" style="background-image:url({{ request.user.profile.avatar.url }})"></div>
-                    {% else %}
-                    <div class="back-image setting-user-thumb" style="background-image:url({{ static_url }}/assets/images/default-avatar.jpg)"></div>
-                    {% endif %}
+                    <div class="back-image setting-user-thumb" style="background-image:url({{ request.user.profile.thumbnail }})"></div>
                     <ul class="nav serif sticky-top-100 sticky-top blex-card">
                         <li class="nav-item">
                             <a class="nav-link vivid-purple{% if tab == 'account'%} disabled{% endif %}" href="{% url 'setting_tab' tab='account' %}"><i class="far fa-user"></i> 계정</a>

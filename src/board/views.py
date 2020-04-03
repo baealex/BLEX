@@ -18,6 +18,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 from .models import *
 from .forms import *
@@ -62,12 +63,12 @@ def signup(request):
 
             send_mail(
                 subject = '[ BLEX ] 이메일을 인증해 주세요!',
-                message = 'https://blex.kr/active/' + token,
+                message = settings.SITE_URL + '/active/' + token,
                 from_email = 'im@baejino.com',
                 recipient_list = [new_user.email],
                 # html_message = render_to_string('email.html', {
                 #     'username': new_user.first_name,
-                #     'active_token': 'https://blex.kr/active/' + token,
+                #     'active_token': settings.SITE_URL + '/active/' + token,
                 # })
             )
             return render(request, 'infomation/signup.html', { 'user': new_user })
@@ -289,7 +290,7 @@ def user_profile_tab(request, username, tab):
     
     if tab == 'series':
         render_args['tab_show'] = '시리즈'
-        series = Series.objects.filter(owner=user).order_by('name')
+        series = Series.objects.annotate(count_posts=Count('posts')).filter(owner=user, count_posts__gt=0).order_by('name')
         
         page = request.GET.get('page', 1)
         paginator = Paginator(series, 10)

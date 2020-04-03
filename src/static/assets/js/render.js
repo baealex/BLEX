@@ -127,7 +127,7 @@ var Render = {
         modal: (elements, pk) => {
             var content = `<ul class="list-group list-group-flush">`;
             elements.map(function(element) {
-                content += `<li class="list-group-item">${element.time} - ${element.from}</li>`
+                content += `<li class="list-group-item">${element.time} - ${decodeURI(element.from)}</li>`
             });
             content += `</ul>`
             return `

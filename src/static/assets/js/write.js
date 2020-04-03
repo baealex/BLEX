@@ -108,6 +108,7 @@ const Save = (function() {
                 } else {
                     if(token) {
                         Notify.append('임시 저장이 완료되었습니다.');
+                        $('#detailModal').modal('hide');
                         isWait = true;
                         setTimeout(function() {
                             isWait = false;

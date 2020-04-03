@@ -9,10 +9,8 @@
     <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
     <meta property="og:type" content="blog">
     <meta name="twitter:card" content="summary">
-    {% if user.profile.avatar %}
-    <meta property="og:image" content="{{ user.profile.avatar.url }}">
-    <meta property="twitter:image" content="{{ user.profile.avatar.url }}">
-    {% endif %}
+    <meta property="og:image" content="{{ user.profile.thumbnail }}">
+    <meta property="twitter:image" content="{{ user.profile.thumbnail }}">
     {% if not selected_tag %}
     <meta property="og:title" content="{{ user.username }} ({{ user.first_name }}){% if tab %} — {{ tab_show }}{% endif %}"/>
     <meta property="twitter:title" content="{{ user.username }} ({{ user.first_name }}){% if tab %} — {{ tab_show }}{% endif %}"/>
@@ -39,15 +37,9 @@
 {% block content %}
 <div class="col-md-12 padding-remove">
     <div class="user-profile">
-        {% if user.profile.avatar %}
         <picture>
-            <img class="user-avatar blur-off" src="{{ user.profile.avatar.url }}" alt="{{ user.username }}"/>
+            <img class="user-avatar blur-off" src="{{ user.profile.thumbnail }}" alt="{{ user.username }}"/>
         </picture>
-        {% else %}
-        <picture>
-            <img class="user-avatar blur-off" src="{{ static_url }}/assets/images/default-avatar.jpg" alt="{{ user.username }}"/>
-        </picture>
-        {% endif %}
         <h4 class="serif username">{{ user.first_name }}</h4>
         <h5 class="serif">@{{ user.username }}</h5>
         {% if user.profile.homepage %}<a class="vivid-purple" href="https://{{ user.profile.homepage }}">https://{{ user.profile.homepage }}</a>{% endif %}

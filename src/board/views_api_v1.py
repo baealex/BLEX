@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 from .models import *
 from .forms import *
@@ -535,7 +536,7 @@ def telegram(request, parameter):
                     '안녕하세요? BLEX_BOT 입니다!',
                     'BLEX — BLOG EXPRESS ME!',
                     '회원님의 알림을 이곳으로 보내드릴게요!',
-                    '오늘은 어떤게 업데이트 되었을까요?\n\nhttps://blex.me/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
+                    '오늘은 어떤게 업데이트 되었을까요?\n\n' + settings.SITE_URL + '/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
                 ]
                 bot.send_message_async(req_userid, message[random.randint(0, len(message))])
             return HttpResponse('None')

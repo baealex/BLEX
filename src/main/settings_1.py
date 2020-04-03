@@ -131,6 +131,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+SITE_URL = 'https://example.com'
+
+API_URL = 'https://api.example.com'
+
 STATIC_URL = 'https://static.example.com/assets/'
 STAITC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
 

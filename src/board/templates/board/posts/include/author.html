@@ -1,10 +1,6 @@
 <div class="row post-top-meta">
     <a href="{% url 'user_profile' username=post.author.username%}">
-        {% if post.author.profile.avatar %}
-        <div class="back-image thumb author-thumb" style="background-image:url({{ post.author.profile.avatar.url }})"></div>
-        {% else %}
-        <div class="back-image thumb author-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
-        {% endif %}
+        <div class="back-image thumb author-thumb" style="background-image:url({{ post.author.profile.thumbnail }})"></div>
     </a>
     <div class="author-info">
         <h4><a class=" text-decoration-none" href="{% url 'user_profile' username=post.author.username%}">{{ post.author.username }}</a></h4>
