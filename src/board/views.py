@@ -477,7 +477,7 @@ def thread_create(request):
                 except:
                     thread.url = slugify(thread.title+'-'+str(i), allow_unicode=True)
                     i += 1
-            fn.add_exp(request.user, 10)
+            fn.add_exp(request.user, 2)
             return redirect('thread_detail', url=thread.url)
 
 def thread_edit(request, pk):
@@ -696,7 +696,7 @@ def post_write(request):
                 except:
                     post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
                     i += 1
-            fn.add_exp(request.user, 10)
+            fn.add_exp(request.user, 2)
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm()

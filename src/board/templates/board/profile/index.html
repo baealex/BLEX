@@ -43,12 +43,6 @@
         <h4 class="serif username">{{ user.first_name }}</h4>
         <h5 class="serif">@{{ user.username }}</h5>
         {% if user.profile.homepage %}<a class="vivid-purple" href="https://{{ user.profile.homepage }}">https://{{ user.profile.homepage }}</a>{% endif %}
-        <ul class="author-state">
-            <li><i class="fas fa-battery-{{ battery }}"></i> {% if user.profile.exp %}{{ user.profile.exp }}{% else %}0{% endif %}%</li>
-            <li class="c-pointer" onclick="User.follow('{{ user.username }}')">
-                <i class="fas fa-users"></i> <span id="user-follow">{% if user.profile.subscriber %}{{ user.profile.total_subscriber }}{% else %}0{% endif %}</span>
-            </li>
-        </ul>
         <p class="user-profile-desc mt-5">
             {% if user.profile.bio %}
                 {{ user.profile.bio|linebreaksbr }}<br>

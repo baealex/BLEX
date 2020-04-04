@@ -2,6 +2,18 @@
 @font-face { font-family: 'GmarketSansMedium'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff'); font-weight: normal; font-style: normal; }
 @font-face { font-family: 'GmarketSansLight'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff'); font-weight: normal; font-style: normal; }
 
+@keyframes blink {0% {opacity: 0;} 20% {opacity: 1;} 80% {opacity: 1;} 100% {opacity: 0;}}
+@-moz-keyframes blink {0% {opacity: 0;} 20% {opacity: 1;} 80% {opacity: 1;} 100% {opacity: 0;}}
+@-webkit-keyframes blink {0% {opacity: 0;} 20% {opacity: 1;} 80% {opacity: 1;} 100% {opacity: 0;}}
+@-o-keyframes blink {0% {opacity: 0;} 20% {opacity: 1;} 80% {opacity: 1;} 100% {opacity: 0;}}
+.blink
+{
+    animation: blink 6s infinite;
+    -moz-animation: blink 6s infinite;
+    -webkit-animation: blink 6s infinite;
+    -o-animation: blink 6s infinite;
+}
+
 .g-sans-b {
     font-family: 'GmarketSansBold';
 }
@@ -12,7 +24,7 @@
     font-family: 'GmarketSansLight';
 }
 .intro {
-    padding-top: 11vh;
+    padding-top: 8vh;
 }
 .main-title {
     font-size: 4.5em;

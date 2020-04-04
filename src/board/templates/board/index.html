@@ -8,10 +8,10 @@
 
 {% block content %}
 <div class="intro">
-    <h1 class="text-center g-sans-b main-title">나를 표현하는 블로그</h1>
+    <h1 id="title" class="text-center g-sans-b main-title">BL<span class="gray-dark">OG</span> EX<span class="gray-dark">PRESS</span> ME</h1>
     <div class="row justify-content-sm-center mt-5">
         <div class="col-sm-2 mt-4">
-            <h5 class="text-center g-sans-m">블렉스 사용자</h5>
+            <h5 class="text-center g-sans-m">블렉스 유저님</h5>
             <h6 id="user-counter" class="text-center g-sans-l counter">{{ intro_info.user_count }}</h5>
         </div>
         <div class="col-sm-2 mt-4">
@@ -19,7 +19,7 @@
             <h6 id="view-counter" class="text-center g-sans-l counter">{{ intro_info.page_view_count }}</h5>
         </div>
     </div>
-    <div class="row justify-content-sm-center">
+    <div class="row justify-content-sm-center mt-lg-5">
         <div class="col-sm-2 mt-4">
             <h5 class="text-center g-sans-m">작성된 포스트</h5>
             <h6 id="posts-counter" class="text-center g-sans-l counter">{{ intro_info.posts_count }}</h5>
@@ -29,24 +29,23 @@
             <h6 id="thread-counter" class="text-center g-sans-l counter">{{ intro_info.thread_count }}</h5>
         </div>
         <div class="col-sm-2 mt-4">
-            <h5 class="text-center g-sans-m">연결된 태그들</h5>
+            <h5 class="text-center g-sans-m">언급되는 주제</h5>
             <h6 id="topic-counter" class="text-center g-sans-l counter">{{ intro_info.topic_count }}</h5>
         </div>
     </div>
-    <div class="text-center">
-        <a href="/signup">
-            <button class="get-start g-sans-m mt-5 mb-3">지금 시작하기</button>
-        </a>
-    </div>
-    <div class="text-center mt-2">
-        <a class="noto vivid-purple text-decoration-none" href="/@baealex/series/%EB%B8%94%EB%A0%89%EC%8A%A4-%EC%9D%B4%EC%95%BC%EA%B8%B0">'블렉스 이야기' 시리즈</a>
-    </div>
-    <h5 class="text-center g-sans-m mt-5">인기있는 태그들</h5>
-    <ul class="text-center intro-topics">
+    <ul class="text-center intro-topics mt-5">
     {% for tag in intro_info.top_topics %}
         <li><a class="deep-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></li>
     {% endfor %}
     </ul>
+    <div class="text-center mt-5">
+        <a class="noto vivid-purple text-decoration-none" href="/@baealex/series/%EB%B8%94%EB%A0%89%EC%8A%A4-%EC%9D%B4%EC%95%BC%EA%B8%B0">블렉스는 성장하는 서비스입니다.</a>
+    </div>
+    <div class="text-center">
+        <a href="/signup">
+            <button class="get-start g-sans-m mt-4 mb-3">지금 시작하기</button>
+        </a>
+    </div>
 </div>
 {% endblock %}
 
@@ -55,11 +54,50 @@
 {% endblock %}
 
 {% block script %}
+
 <script>
-    new numberCounter("user-counter", {{ intro_info.user_count }});
-    new numberCounter("view-counter", {{ intro_info.page_view_count }});
-    new numberCounter("posts-counter", {{ intro_info.posts_count }});
-    new numberCounter("thread-counter", {{ intro_info.thread_count }});
-    new numberCounter("topic-counter", {{ intro_info.topic_count }});
+    $(document).ready(function() {
+        $('#title').addClass('blink');
+        var html = [
+            '나를 표현하는 블로그',
+            'BL<span class="gray-dark">OG</span> EX<span class="gray-dark">PRESS</span> ME'
+        ]
+        var index = 0;
+        setInterval(function() {
+            $('#title').html(html[index++]);
+            if(index > html.length - 1) index = 0;    
+        }, 6000);
+
+        function numberCounter(target_frame, target_number) {
+            this.count = 0;
+            this.diff = 0;
+            this.target_count = parseInt(target_number);
+            this.target_frame = document.getElementById(target_frame);
+            this.timer = null;
+            this.counter();
+        };
+
+        numberCounter.prototype.counter = function () {
+            var self = this;
+            this.diff = this.target_count - this.count;
+
+            if (this.diff > 0) {
+                self.count += Math.ceil(this.diff / 5);
+            }
+            this.target_frame.innerHTML = this.count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+            if (this.count < this.target_count) {
+                this.timer = setTimeout(function () { self.counter(); }, 50);
+            } else {
+                clearTimeout(this.timer);
+            }
+        };
+
+        new numberCounter("user-counter", {{ intro_info.user_count }});
+        new numberCounter("view-counter", {{ intro_info.page_view_count }});
+        new numberCounter("posts-counter", {{ intro_info.posts_count }});
+        new numberCounter("thread-counter", {{ intro_info.thread_count }});
+        new numberCounter("topic-counter", {{ intro_info.topic_count }});
+    });
 </script>
 {% endblock %}

@@ -52,7 +52,7 @@ def posts(request, pk):
                 post.likes.add(user)
                 post.trendy += 10
                 post.save()
-                fn.add_exp(request.user, 5)
+                fn.add_exp(request.user, 1)
 
                 send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
                 fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
@@ -144,7 +144,7 @@ def comment(request, pk=None):
                 comment.author = request.user
                 comment.post = post
                 comment.save()
-                fn.add_exp(request.user, 5)
+                fn.add_exp(request.user, 1)
                 
                 if not comment.author == post.author:
                     send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
@@ -431,7 +431,7 @@ def story(request, pk=None):
                 story.save()
                 thread.created_date = story.created_date
                 thread.save()
-                fn.add_exp(request.user, 5)
+                fn.add_exp(request.user, 1)
 
                 data = {
                     'element': story.to_dict(),

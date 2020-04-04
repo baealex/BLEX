@@ -75,6 +75,10 @@
     color: #0000008a;
     text-decoration: none;
 }
+.gray-dark, .gray-dark:hover {
+    color: #a0a0a08a;
+    text-decoration: none;
+}
 /* ------------------------------ */
 /* CLASS : BACKGROUND COLOR */
 .color-dark {

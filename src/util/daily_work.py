@@ -25,7 +25,7 @@ profiles = Profile.objects.all()
 
 for data in profiles:
     if data.exp > 0:
-        data.exp -= 5
+        data.exp -= 1
         data.save()
 print('ALL PROFILES DONE!')
 
