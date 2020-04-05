@@ -3,6 +3,7 @@ from django.urls import reverse
 from itertools import chain
 
 from .models import Post, Thread, Series, Profile
+from .views_fn import get_clean_all_tags
 
 class StaticSitemap(Sitemap):
     changefreq = 'daily'
@@ -68,14 +69,41 @@ class UserAboutSitemap(Sitemap):
     def location(self, item):
         return reverse('user_profile_tab', args=[item.user, 'about'])
 
+class TopicSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return tuple(get_clean_all_tags(count=False))
+    
+    def location(self, item):
+        return reverse('post_list_in_tag', args=[item])
+
+class UserTopicSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        profiles = Profile.objects.all().order_by('pk')
+        tags = list()
+        for profile in profiles:
+            for tag in get_clean_all_tags(user=profile.user, count=False):
+                tags.append({'user': profile.user.username, 'topic': tag})
+        return tags
+    
+    def location(self, item):
+        return reverse('user_profile_topic', args=[item['user'], item['topic']])
+
 sitemaps = {
     'static_sitemap': StaticSitemap,
     
+    'topic_sitemap': TopicSitemap,
     'posts_sitemap': PostsSitemap,
     'thread_sitemap': ThreadSitemap,
     'series_sitemap': SeriesSitemap,
 
     'user_sitemap': UserSitemap,
+    'user_topic_sitemap': UserTopicSitemap,
     'user_about_sitemap': UserAboutSitemap,
     'user_series_sitemap': UserSeriesSitemap,
 }

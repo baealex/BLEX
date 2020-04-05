@@ -27,7 +27,7 @@ def get_posts(sort):
         threads = Thread.objects.filter(notice=True).order_by('-created_date')
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
 
-def get_clean_all_tags(user=None):
+def get_clean_all_tags(user=None, count=True):
     posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)
     thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False)
     if user == None:
@@ -41,17 +41,19 @@ def get_clean_all_tags(user=None):
     for tags in tagslist:
         all_tags.update([x for x in tags.split(',') if not x.strip() == ''])
 
-    all_tags_dict = list()
-    for tag in all_tags:
-        tag_dict = { 'name': tag }
-        if user == None:
-            tag_dict['count'] = len(posts.filter(tag__iregex=r'\b%s\b' % tag)) + (
-                len(thread.filter(tag__iregex=r'\b%s\b' % tag)))
-        else:
-            tag_dict['count'] = len(posts.filter(author=user, tag__iregex=r'\b%s\b' % tag)) + (
-                len(thread.filter(author=user, tag__iregex=r'\b%s\b' % tag)))
-        all_tags_dict.append(tag_dict)
-    return all_tags_dict
+    if count:
+        all_tags_dict = list()
+        for tag in all_tags:
+            tag_dict = { 'name': tag }
+            if user == None:
+                tag_dict['count'] = len(posts.filter(tag__iregex=r'\b%s\b' % tag)) + (
+                    len(thread.filter(tag__iregex=r'\b%s\b' % tag)))
+            else:
+                tag_dict['count'] = len(posts.filter(author=user, tag__iregex=r'\b%s\b' % tag)) + (
+                    len(thread.filter(author=user, tag__iregex=r'\b%s\b' % tag)))
+            all_tags_dict.append(tag_dict)
+        return all_tags_dict
+    return all_tags
 
 def get_clean_tag(tag):
     clean_tag = slugify(tag.replace(',', '-').replace('_', '-'), allow_unicode=True).split('-')
