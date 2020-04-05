@@ -14,16 +14,16 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-from board.models import Post, Thread, Story
-
-posts = Post.objects.all()
-thread = Thread.objects.all()
-story = Story.objects.all()
+from board.models import Post, Thread, Story, TempPosts, parsedown
 
 if __name__ == '__main__':
     content_image_names = dict()
     content_video_names = dict()
     title_image_names = dict()
+
+    posts = Post.objects.all()
+    thread = Thread.objects.all()
+    story = Story.objects.all()
     
     for data in chain(posts, thread, story):
         try:
@@ -43,6 +43,16 @@ if __name__ == '__main__':
         except:
             pass
     
+    temps = TempPosts.objects.all()
+    for temp in temps:
+        soup = BeautifulSoup(parsedown(temp.text_md), 'html.parser')
+        images = soup.select('img')
+        for image in images:
+            content_image_names[image.get('src').split('/')[-1]] = 0
+        videos = soup.select('source')
+        for video in videos:
+            content_video_names[video.get('src').split('/')[-1]] = 0
+
     for(path, dir, files) in os.walk(TITLE_IMAGE_DIR):
         for filename in files:
             if not filename in title_image_names:

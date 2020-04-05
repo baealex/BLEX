@@ -22,7 +22,7 @@ from django.conf import settings
 
 from .models import *
 from .forms import *
-from . import telegram, telegram_token
+from . import telegram
 from . import views_fn as fn
 
 # Account
@@ -119,8 +119,8 @@ def signout(request):
 def opinion(request):
     if request.method == 'POST':
         req = QueryDict(request.body)
-        bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
-        bot.send_message_async(telegram_token.ADMIN_ID, 'Opinion : ' + req['opinion'])
+        bot = telegram.TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+        bot.send_message_async(settings.TELEGRAM_ADMIN_ID, 'Opinion : ' + req['opinion'])
         return render(request, 'infomation/thanks.html')
 
 @login_required(login_url='/login')

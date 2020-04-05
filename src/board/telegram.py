@@ -52,7 +52,3 @@ class TelegramBot:
     def delete_webhook(self):
         req_url = self.url + '/deleteWebhook'
         return json.loads(requests.get(req_url).text)
-
-if __name__ == '__main__':
-    import telegram_token # PRIVATE MODULE
-    bot = TelegramBot(telegram_token.BOT_TOKEN)

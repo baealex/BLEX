@@ -11,7 +11,7 @@ from django.core.cache import cache
 from django.conf import settings
 
 from .models import Post, Thread, Profile, Notify
-from . import telegram, telegram_token
+from . import telegram
 
 def get_posts(sort):
     if sort == 'trendy':
@@ -135,7 +135,7 @@ def create_notify(user, url, infomation):
     if hasattr(user, 'config'):
         telegram_id = user.config.telegram_id
         if not telegram_id == '':
-            bot = telegram.TelegramBot(telegram_token.BOT_TOKEN)
+            bot = telegram.TelegramBot(settings.TELEGRAM_BOT_TOKEN)
             bot.send_messages_async(telegram_id, [
                 settings.SITE_URL + url,
                 infomation

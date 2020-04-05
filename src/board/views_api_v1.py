@@ -15,7 +15,6 @@ from django.conf import settings
 from .models import *
 from .forms import *
 from .telegram import TelegramBot
-from . import telegram_token
 from . import views_fn as fn
 
 def topics(request):
@@ -47,7 +46,7 @@ def posts(request, pk):
                 post.likes.add(user)
                 fn.add_exp(request.user, 1)
 
-                send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
+                send_notify_content = '\"'+ post.title +'\" 글을 \"' + user.username + '\"님께서 추천했습니다.'
                 fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
 
             return HttpResponse(str(post.total_likes()))
@@ -140,7 +139,7 @@ def comment(request, pk=None):
                 fn.add_exp(request.user, 1)
                 
                 if not comment.author == post.author:
-                    send_notify_content = '\''+ post.title +'\'에 \''+ comment.author.username +'\'님의 새로운 댓글 : ' + comment.text
+                    send_notify_content = '\"'+ post.title +'\"에 \"'+ comment.author.username +'\"님의 새로운 댓글 > ' + comment.text
                     fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
                 
                 data = {
@@ -510,7 +509,7 @@ def story(request, pk=None):
 def telegram(request, parameter):
     if parameter == 'webHook':
         if request.method == 'POST':
-            bot = TelegramBot(telegram_token.BOT_TOKEN)
+            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
             req = json.loads(request.body.decode("utf-8"))
             req_token = req['message']['text']
             req_userid = req['message']['from']['id']
