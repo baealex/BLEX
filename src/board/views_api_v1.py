@@ -43,15 +43,8 @@ def posts(request, pk):
             user = User.objects.get(username=request.user)
             if post.likes.filter(id=user.id).exists():
                 post.likes.remove(user)
-                if post.trendy > 10 :
-                    post.trendy -= 10
-                else :
-                    post.trendy = 0
-                post.save()
             else:
                 post.likes.add(user)
-                post.trendy += 10
-                post.save()
                 fn.add_exp(request.user, 1)
 
                 send_notify_content = '\''+ post.title +'\' 글을 \'' + user.username + '\'님께서 추천했습니다.'
