@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import requests
 
 from itertools import chain
 from django.db.models import Count, Q
@@ -8,7 +9,7 @@ from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.serializers.json import DjangoJSONEncoder
-from django.contrib.auth import update_session_auth_hash, login
+from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.http import (
     HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, Http404, QueryDict)
@@ -26,6 +27,35 @@ from . import telegram
 from . import views_fn as fn
 
 # Account
+def login(request):
+    if request.user.is_active:
+        auth.logout(request)
+    
+    if request.method == 'POST':
+        data = {
+            'response': request.POST.get('g-recaptcha'),
+            'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY
+        }
+
+        response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+
+        if response.json().get('success'):
+            username = request.POST.get('username', '')
+            password = request.POST.get('password', '')
+
+            user = auth.authenticate(username=username, password=password)
+
+            if user is not None:
+                if user.is_active:
+                    auth.login(request, user)
+                    if request.GET.get('next'):
+                        return redirect(request.GET.get('next'))    
+                    return redirect(settings.LOGIN_REDIRECT_URL)
+            return render(request, 'registration/login.html', {'error': '아이디와 패스워드가 틀립니다.'})
+        else:
+            return render(request, 'registration/login.html', {'error': '사용자 검증에 실패했습니다.'})
+    return render(request, 'registration/login.html')
+
 def signup(request):
     if request.user.is_active:
         return redirect('post_sort_list', sort='trendy')
@@ -114,7 +144,9 @@ def signout(request):
     if request.method == 'POST':
         user = User.objects.get(username=request.user)
         user.delete()
+        auth.logout(request)
         return render(request, 'infomation/signout.html', { 'user': user })
+    raise Http404
 
 def opinion(request):
     if request.method == 'POST':
@@ -122,6 +154,7 @@ def opinion(request):
         bot = telegram.TelegramBot(settings.TELEGRAM_BOT_TOKEN)
         bot.send_message_async(settings.TELEGRAM_ADMIN_ID, 'Opinion : ' + req['opinion'])
         return render(request, 'infomation/thanks.html')
+    raise Http404
 
 @login_required(login_url='/login')
 def setting(request):

@@ -10,7 +10,7 @@ from . import views_api_v1 as api_v1
 
 urlpatterns = [
     # Account
-    path('login', auth_views.LoginView.as_view(), name='login'),
+    path('login', views.login, name='login'),
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
     path('signup', views.signup, name='signup'),
     path('signup/help/id', views.id_check, name='id_check'),
