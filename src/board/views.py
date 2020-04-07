@@ -1,12 +1,12 @@
 import json
 import os
 import re
-import requests
 
 from itertools import chain
 from django.db.models import Count, Q
 from django.core.cache import cache
 from django.core.mail import send_mail
+from django.core.files import File
 from django.core.paginator import Paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib import auth
@@ -27,19 +27,98 @@ from . import telegram
 from . import views_fn as fn
 
 # Account
+def social_login(request, social):
+    if request.user.is_active:
+        auth.logout(request)
+    
+    if social == 'github':
+        if request.GET.get('code'):
+            state = fn.auth_github(request.GET.get('code'))
+            if state['status']:
+                node_id = state['user'].get('node_id')
+                try:
+                    user = User.objects.get(last_name='github:' + str(node_id))
+                    auth.login(request, user)
+                    return redirect(settings.LOGIN_REDIRECT_URL)
+                except:
+                    pass
+                    
+                counter = 0
+                username = state['user'].get('login')
+                has_name = User.objects.filter(username=username)
+                while len(has_name) > 0:
+                    has_name = User.objects.filter(username=username + str(counter))
+                    counter += 1
+                
+                new_user = User(username=username + str('' if counter == 0 else counter))
+                new_user.first_name = state['user'].get('name')
+                new_user.last_name = 'github:' + str(node_id)
+                new_user.email = state['user'].get('email')
+                new_user.save()
+
+                profile = Profile(user=new_user)
+                avatar = fn.get_image(state['user'].get('avatar_url'))
+                if avatar:
+                    profile.avatar.save(name='png', content=File(avatar))
+                profile.homepage = state['user'].get('blog').split('//')[-1]
+                profile.github = state['user'].get('login')
+                profile.save()
+
+                config = Config(user=new_user)
+                config.save()
+
+                auth.login(request, new_user)
+                return redirect(settings.LOGIN_REDIRECT_URL)
+            else:
+                return render(request, 'registration/login.html', {'error': '요청중 에러가 발생했습니다.'})
+    
+    if social == 'google':
+        if request.GET.get('code'):
+            state = fn.auth_google(request.GET.get('code'))
+            if state['status']:
+                node_id = state['user'].get('id')
+                try:
+                    user = User.objects.get(last_name='google:' + str(node_id))
+                    auth.login(request, user)
+                    return redirect(settings.LOGIN_REDIRECT_URL)
+                except:
+                    pass
+                    
+                counter = 0
+                username = state['user'].get('email').split('@')[0]
+                has_name = User.objects.filter(username=username)
+                while len(has_name) > 0:
+                    has_name = User.objects.filter(username=username + str(counter))
+                    counter += 1
+                
+                new_user = User(username=username + str('' if counter == 0 else counter))
+                new_user.first_name = state['user'].get('name')
+                new_user.last_name = 'google:' + str(node_id)
+                new_user.email = state['user'].get('email')
+                new_user.save()
+
+                profile = Profile(user=new_user)
+                avatar = fn.get_image(state['user'].get('picture'))
+                if avatar:
+                    profile.avatar.save(name='png', content=File(avatar))
+                profile.save()
+
+                config = Config(user=new_user)
+                config.save()
+
+                auth.login(request, new_user)
+                return redirect(settings.LOGIN_REDIRECT_URL)
+            else:
+                return render(request, 'registration/login.html', {'error': '요청중 에러가 발생했습니다.'})
+    
+    raise Http404
+
 def login(request):
     if request.user.is_active:
         auth.logout(request)
     
     if request.method == 'POST':
-        data = {
-            'response': request.POST.get('g-recaptcha'),
-            'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY
-        }
-
-        response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-
-        if response.json().get('success'):
+        if fn.auth_captcha(request.POST.get('g-recaptcha')):
             username = request.POST.get('username', '')
             password = request.POST.get('password', '')
 
@@ -49,7 +128,7 @@ def login(request):
                 if user.is_active:
                     auth.login(request, user)
                     if request.GET.get('next'):
-                        return redirect(request.GET.get('next'))    
+                        return redirect(request.GET.get('next'))
                     return redirect(settings.LOGIN_REDIRECT_URL)
             return render(request, 'registration/login.html', {'error': '아이디와 패스워드가 틀립니다.'})
         else:
@@ -87,7 +166,7 @@ def signup(request):
                 form.cleaned_data['password']
             )
             new_user.first_name = form.cleaned_data['first_name']
-            new_user.last_name = token
+            new_user.last_name = 'email:' + token
             new_user.is_active = False
             new_user.save()
 
@@ -121,7 +200,7 @@ def id_check(request):
     raise Http404
 
 def user_active(request, token):
-    user = get_object_or_404(User, last_name=token)
+    user = get_object_or_404(User, last_name='email:' + token)
     if user.date_joined < timezone.now() - datetime.timedelta(days=7):
         user.delete()
         message = '만료된 링크입니다. 다시 가입을 신청하세요.'

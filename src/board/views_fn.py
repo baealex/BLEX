@@ -1,6 +1,8 @@
+import io
 import os
 import base64
 import hashlib
+import requests
 
 from itertools import chain
 from django.http import Http404
@@ -95,6 +97,72 @@ def get_user_topics(user):
         cache_time = 120
         cache.set(cache_key, tags, cache_time)
     return tags
+
+def get_image(url):
+    image = requests.get(url, stream=True)
+    if not image.status_code == 200:
+        return None
+    binary_image = image.content
+    temp_image = io.BytesIO()
+    temp_image.write(binary_image)
+    temp_image.seek(0)
+    return temp_image
+
+def auth_google(code):
+    data = {
+        'code': code,
+        'client_id': settings.GOOGLE_OAUTH_CLIENT_ID,
+        'client_secret': settings.GOOGLE_OAUTH_CLIENT_SECRET,
+        'redirect_uri': settings.SITE_URL + '/login/callback/google',
+        'grant_type': 'authorization_code',
+    }
+    response = requests.post(
+        'https://accounts.google.com/o/oauth2/token', data=data
+    )
+    if response.status_code == 200:
+        params = {
+            'access_token': response.json().get('access_token')
+        }
+        response = requests.get(
+            'https://www.googleapis.com/oauth2/v1/userinfo', params=params
+        )
+        try:
+            return {'status': True, 'user': response.json()}
+        except:
+            pass
+    return {'status': False}
+
+def auth_github(code):
+    data = {
+        'code': code,
+        'client_id': settings.GITHUB_OAUTH_CLIENT_ID,
+        'client_secret': settings.GITHUB_OAUTH_CLIENT_SECRET
+    }
+    headers = {'Accept': 'application/json'}
+    response = requests.post(
+        'https://github.com/login/oauth/access_token', headers=headers, data=data
+    )
+    if response.status_code == 200:
+        access_token = response.json().get('access_token')
+        headers = {'Authorization': 'token ' + str(access_token)}
+        response = requests.get(
+            'https://api.github.com/user', headers=headers
+        )
+        try:
+            return {'status': True, 'user': response.json()}
+        except:
+            pass
+    return {'status': False}
+
+def auth_captcha(response):
+    data = {
+        'response': response,
+        'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY
+    }
+    response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+    if response.json().get('success'):
+        return True
+    return False
 
 def add_exp(user, num):
     if hasattr(user, 'profile'):

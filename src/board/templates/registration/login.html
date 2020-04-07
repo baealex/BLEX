@@ -19,6 +19,12 @@
         <input type="hidden" id="g-recaptcha" name="g-recaptcha">
         <button type="submit" class="login-button">로그인</button>
     </form>
+    <button type="button" class="mt-2 login-button" style="background-color: rgb(72, 31, 94);" onclick="githubLogin()">
+        <i class="fab fa-github"></i> 깃허브 로그인
+    </button>
+    <button type="button" class="mt-2 login-button" style="background-color: rgb(46, 119, 255);" onclick="googleLogin()">
+        <i class="fab fa-google"></i> 구글 로그인
+    </button>
 </div>
 {% endblock %}
 
@@ -28,4 +34,24 @@
 
 {% block script %}
     {% include 'board/common/include/grecaptcha.html' %}
+    <script>
+        function googleLogin() {
+            var url = '';
+            url += 'https://accounts.google.com/o/oauth2/auth';
+            url += '?client_id=230716131865-ann8gcfd9b3oq3d6funkkb5r8k1d9d3o.apps.googleusercontent.com';
+            url += '&redirect_uri={{ site_url }}/login/callback/google';
+            url += '&response_type=code';
+            url += '&scope=openid profile email'
+            url += '&approval_prompt=force'
+            url += '&access_type=offline'
+            location.href = url;
+        }
+        function githubLogin() {
+            var url = '';
+            url += 'https://github.com/login/oauth/authorize';
+            url += '?client_id=c5b001b86e3e77f2af1f';
+            url += '&redirect_uri={{ site_url }}/login/callback/github';
+            location.href = url;
+        }
+    </script>
 {% endblock %}
