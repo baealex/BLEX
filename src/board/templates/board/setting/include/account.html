@@ -29,74 +29,74 @@
             <button type="button" class="btn btn-primary" onclick="Telegram.pair()" data-toggle="modal" data-target="#telegram-modal"><i class="fab fa-telegram-plane"></i> 텔레그램 연동</button>
             {% endif %}
         </form>
-        <div class="modal fade noto" id="SignoutModal" tabindex="-1" role="dialog" aria-labelledby="SignoutModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="SignoutModalLabel">정말 탈퇴 하시겠습니까?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        회원님의 정보와 작성한 게시물은 전체 삭제되며 이 작업은 되돌릴 수 없습니다!
-                    </div>
-                    <div class="modal-footer">
-                        <form method="POST" action="{% url 'signout' %}">
-                            {% csrf_token %}
-                            <button type="button" class="btn deep-dark" data-dismiss="modal">Cancle</button>
-                            <button type="submit" class="btn btn-dark">Sign out</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% if request.user.config.telegram_id %}
-        <div class="modal fade noto" id="telegram-modal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" >텔레그램을 연동을 해지합니다.</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        텔레그램에서 더이상 회원님의 알림과 보고서를 받아볼 수 없습니다. 정말 연동을 해지할까요?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn deep-dark" data-dismiss="modal">Cancle</button>
-                        <button type="button" class="btn btn-dark" onclick="Telegram.unpair()">Unpair</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="modal fade noto" id="telegram-modal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">텔레그램을 연동합니다.</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        텔레그램과 연동하면 어떤 효과가 있나요?
-                        <ul>
-                            <li>회원님의 알림을 텔레그램으로 푸시받을 수 있습니다.</li>
-                            <li>회원님에게 일간 보고서를 전달해 드립니다.</li>
-                        </ul>
-                        어떻게 연동하나요?
-                        <ul>
-                            <li>텔레그램을 실행하시고 <a href="http://t.me/blex_bot" class="vivid-purple">@blex_bot</a>을 추가해주세요!</li>
-                            <li>봇에게 <strong id="telegram-token"></strong>라고 말해주세요!</li>
-                        </ul>
-                        해당 토큰은 회원님을 위해 생성된 일회성 토큰이며 연동을 완료시거나 오늘이 지나면 파기됩니다.
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
+<div class="modal fade noto" id="SignoutModal" tabindex="-1" role="dialog" aria-labelledby="SignoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="SignoutModalLabel">정말 탈퇴 하시겠습니까?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                회원님의 정보와 작성한 게시물은 전체 삭제되며 이 작업은 되돌릴 수 없습니다!
+            </div>
+            <div class="modal-footer">
+                <form method="POST" action="{% url 'signout' %}">
+                    {% csrf_token %}
+                    <button type="button" class="btn deep-dark" data-dismiss="modal">Cancle</button>
+                    <button type="submit" class="btn btn-dark">Sign out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% if request.user.config.telegram_id %}
+<div class="modal fade noto" id="telegram-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >텔레그램을 연동을 해지합니다.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                텔레그램에서 더이상 회원님의 알림과 보고서를 받아볼 수 없습니다. 정말 연동을 해지할까요?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn deep-dark" data-dismiss="modal">Cancle</button>
+                <button type="button" class="btn btn-dark" onclick="Telegram.unpair()">Unpair</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="modal fade noto" id="telegram-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">텔레그램을 연동합니다.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                텔레그램과 연동하면 어떤 효과가 있나요?
+                <ul>
+                    <li>회원님의 알림을 텔레그램으로 푸시받을 수 있습니다.</li>
+                    <li>회원님에게 일간 보고서를 전달해 드립니다.</li>
+                </ul>
+                어떻게 연동하나요?
+                <ul>
+                    <li>텔레그램을 실행하시고 <a href="http://t.me/blex_bot" class="vivid-purple">@blex_bot</a>을 추가해주세요!</li>
+                    <li>봇에게 <strong id="telegram-token"></strong>라고 말해주세요!</li>
+                </ul>
+                해당 토큰은 회원님을 위해 생성된 일회성 토큰이며 연동을 완료시거나 오늘이 지나면 파기됩니다.
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
