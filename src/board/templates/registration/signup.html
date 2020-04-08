@@ -12,7 +12,7 @@
     {% if error %}<div class="alert alert-danger noto">{{ error }}</div>{% endif %}
     <form method="post">
         {% csrf_token %}
-        <p>{{ form.username }}</p>
+        <p id="signup">{{ form.username }}</p>
         <div id="idCheck" class="noto" role="alert"></div>
         <p>{{ form.password }}</p>
         <p>{{ form.password_check }}</p>
@@ -28,33 +28,4 @@
 
 {% block footer %}
     {% include 'board/common/include/footer.html' %}
-{% endblock %}
-
-{% block script %}
-<script>
-    $('#id_username').focusout(function(){
-        if($('#id_username').val() != '') {
-            $.ajax({
-                url: '{% url 'id_check' %}',
-                type: 'POST',
-                data: { 'id': $('#id_username').val() },
-            }).done(function(data) {
-                $('#idCheck').addClass('alert');
-                if(data == 'ERROR:OL') {
-                    $('#idCheck').removeClass('alert-success');
-                    $('#idCheck').addClass('alert-danger');
-                    $('#idCheck').text('이미 사용중인 필명입니다!');
-                } else if(data == 'ERROR:NM') {
-                    $('#idCheck').removeClass('alert-success');
-                    $('#idCheck').addClass('alert-danger');
-                    $('#idCheck').text('소문자와 숫자로만 구성할 수 있습니다!');
-                } else {
-                    $('#idCheck').removeClass('alert-danger');
-                    $('#idCheck').addClass('alert-success');
-                    $('#idCheck').text('https://' + window.location.hostname + '/@' + $('#id_username').val());
-                }
-            });
-        }
-    });
-</script>
 {% endblock %}

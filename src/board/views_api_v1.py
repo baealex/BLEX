@@ -258,7 +258,7 @@ def users(request, username):
         if request.GET.get('get') == 'posts_analytics':
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')
-                seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+                seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
                 today           = timezone.make_aware(datetime.datetime.now())
                 posts_analytics = PostAnalytics.objects.filter(posts__id=pk, date__range=[seven_days_ago, today]).order_by('-date')
 
@@ -286,7 +286,7 @@ def users(request, username):
         if request.GET.get('get') == 'thread_analytics':
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')
-                seven_days_ago   = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+                seven_days_ago   = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
                 today            = timezone.make_aware(datetime.datetime.now())
                 thread_analytics = ThreadAnalytics.objects.filter(thread__id=pk, date__range=[seven_days_ago, today]).order_by('-date')
 

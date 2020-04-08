@@ -12,22 +12,45 @@ from django.utils.text import slugify
 from django.core.cache import cache
 from django.conf import settings
 
-from .models import Post, Thread, Profile, Notify
+from .models import *
 from . import telegram
 
-def get_posts(sort):
+def get_posts(sort, user=None):
     if sort == 'trendy':
-        posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-created_date')
-        threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False).order_by('-created_date')
+        posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+        threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+        if user:
+            posts = posts.filter(author=user)
+            threads = threads.filter(author=user)
+        posts = posts.order_by()
         return sorted(chain(posts, threads), key=lambda instance: instance.trendy(), reverse=True)
     if sort == 'newest':
         posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
         threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+        if user:
+            posts = posts.filter(author=user)
+            threads = threads.filter(author=user)
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
     if sort == 'notice':
-        posts = Post.objects.filter(notice=True).order_by('-created_date')
-        threads = Thread.objects.filter(notice=True).order_by('-created_date')
+        posts = Post.objects.filter(notice=True)
+        threads = Thread.objects.filter(notice=True)
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
+
+def get_view_count(user, date=None):
+    posts = PostAnalytics.objects.filter(posts__author=user)
+    threads = ThreadAnalytics.objects.filter(thread__author=user)
+    if date:
+        posts = posts.filter(date=date)
+        threads = threads.filter(date=date)
+    posts = posts.aggregate(Sum('count'))
+    threads = threads.aggregate(Sum('count'))
+
+    count = 0
+    if posts['count__sum']:
+        count += posts['count__sum']
+    if threads['count__sum']:
+        count += threads['count__sum']
+    return count
 
 def get_clean_all_tags(user=None, count=True):
     posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)

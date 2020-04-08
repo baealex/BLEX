@@ -239,9 +239,19 @@ def opinion(request):
 def setting(request):
     render_args = { 
         'tab': '',
+        'white_nav' : True,
         'page_setting': True,
-        'white_nav' : True
     }
+    
+    today_date = timezone.make_aware(datetime.datetime.now())
+    render_args['today'] = fn.get_view_count(request.user, today_date)
+    yesterday_date = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+    render_args['yesterday'] = fn.get_view_count(request.user, yesterday_date)
+    render_args['total'] = fn.get_view_count(request.user)
+    
+    render_args['newest'] = fn.get_posts('newest', request.user)[:8]
+    render_args['trendy'] = fn.get_posts('trendy', request.user)[:8]
+
     return render(request, 'board/setting/index.html', render_args)
 
 @login_required(login_url='/login')
@@ -250,10 +260,10 @@ def setting_tab(request, tab):
         raise Http404()
     else:
         user = request.user
-        render_args = { 
-            'tab':tab,
-            'page_setting':True,
-            'white_nav' : True,
+        render_args = {
+            'tab': tab,
+            'white_nav': True,
+            'page_setting': True,
         }
         if tab == 'account':
             render_args['subtitle'] = 'Account'
@@ -309,7 +319,7 @@ def setting_tab(request, tab):
             render_args['p_form'] = p_form
         
         elif tab == 'series':
-            render_args['subtitle'] = 'Activity'
+            render_args['subtitle'] = 'Series'
             series = Series.objects.filter(owner=user).order_by('name')
             if request.method == 'POST':
                 s_form = SeriesForm(request.POST)
@@ -457,8 +467,10 @@ def user_profile_topic(request, username, tag):
 
 # Series
 def series_update(request, spk):
-    series = get_object_or_404(Series, pk=spk, owner=request.user)
     if request.method == 'POST':
+        if not request.user.is_active:
+            raise Http404
+        series = get_object_or_404(Series, pk=spk, owner=request.user)
         form = SeriesUpdateForm(request.POST, instance=series)
         if form.is_valid():
             series = form.save(commit=False)
@@ -501,7 +513,7 @@ def search(request):
 
 def content_backup(request):
     if not request.user.is_active:
-        return redirect('index')
+        raise Http404
     user = request.user
     posts = Post.objects.filter(author=user).order_by('created_date')
     contents = []
@@ -518,17 +530,21 @@ def content_backup(request):
 
 def post_list_in_tag(request, tag):
     posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
-    if len(posts) == 0:
+    thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
+    elements = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
+    if len(elements) == 0:
         raise Http404()
     page = request.GET.get('page', 1)
-    paginator = Paginator(posts, 15)
+    paginator = Paginator(elements, 15)
     fn.page_check(page, paginator)
     elements = paginator.get_page(page)
-    return render(request, 'board/posts/list_tag.html',{ 'tag':tag, 'elements': elements, 'white_nav':True })
+    return render(request, 'board/posts/list_tag.html',{'tag': tag, 'elements': elements, 'white_nav': True})
 
 @csrf_exempt
 def image_upload(request):
     if request.method == 'POST':
+        if not request.user.is_active:
+            raise Http404
         if request.FILES['image']:
             allowed_ext = ['jpg', 'jpeg', 'png', 'gif']
             
@@ -564,8 +580,7 @@ def image_upload(request):
             return HttpResponse('https://static.blex.me' + upload_path.replace('static', '') + '/' + file_name +'.'+ ext)
         else:
             return HttpResponse('이미지 파일이 아닙니다.')
-    else:
-        raise Http404
+    raise Http404
 # ------------------------------------------------------------ Others End
 
 
@@ -573,6 +588,8 @@ def image_upload(request):
 # Thread
 def thread_create(request):
     if request.method == 'POST':
+        if not request.user.is_active:
+            raise Http404
         form = ThreadForm(request.POST, request.FILES)
         if form.is_valid():
             thread = form.save(commit=False)
@@ -591,10 +608,13 @@ def thread_create(request):
                     i += 1
             fn.add_exp(request.user, 2)
             return redirect('thread_detail', url=thread.url)
+    raise Http404
 
 def thread_edit(request, pk):
-    thread = get_object_or_404(Thread, pk=pk)
     if request.method == 'POST':
+        if not request.user.is_active:
+            raise Http404
+        thread = get_object_or_404(Thread, pk=pk)
         thread_allow_write_state = thread.allow_write
         form = ThreadForm(request.POST, request.FILES, instance=thread)
         if form.is_valid():
@@ -603,6 +623,7 @@ def thread_edit(request, pk):
             thread.allow_write = thread_allow_write_state
             thread.save()
             return redirect('thread_detail', url=thread.url)
+    raise Http404
 
 def thread_detail(request, url):
     thread = get_object_or_404(Thread, url=url)
@@ -754,7 +775,7 @@ def index(request):
 def post_sort_list(request, sort):
     available_sort = [ 'trendy', 'newest', 'oldest' ]
     if not sort in available_sort:
-        raise Http404()
+        raise Http404
     posts = fn.get_posts(sort)
 
     page = request.GET.get('page', 1)
@@ -771,7 +792,6 @@ def post_sort_list(request, sort):
 
     return render(request, 'board/posts/list_sort.html', render_args)
 
-@login_required(login_url='/login')
 def post_write(request):
     if not request.user.is_active:
         raise Http404
@@ -815,9 +835,13 @@ def post_write(request):
     return render(request, 'board/posts/write.html', { 'form': form, 'save': True })
 
 def post_edit(request, pk):
+    if not request.user.is_active:
+        raise Http404
+    
     post = get_object_or_404(Post, pk=pk)
     if not post.author == request.user:
         raise Http404
+    
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():

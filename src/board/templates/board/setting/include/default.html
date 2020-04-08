@@ -1,0 +1,70 @@
+<div class="row">
+    <div class="col-md-4 mb-md-0 mb-4" data-aos="fade-down">
+        <div class="blex-card">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-white">
+                    <b>Today</b>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ today }}     
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-4 mb-md-0 mb-4" data-aos="fade-down">
+        <div class="blex-card">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-white">
+                    <b>Yesterday</b>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ yesterday }}     
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-4" data-aos="fade-down">
+        <div class="blex-card">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-white">
+                    <b>Total</b>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ total }}     
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 mt-4">
+        <div class="blex-card" data-aos="fade-left">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-white">
+                    <b>Newest</b>
+                </li>
+                {% for post in newest %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post }}</a>
+                    <small class="c-pointer" onclick="Analytics.modal('{{ post.author }}', '{% if post.text_md %}posts_analytics{% else %}thread_analytics{% endif %}', '{{ post.pk }}');"><i class="fas fa-chart-line"></i></small>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-12 mt-4">
+        <div class="blex-card" data-aos="fade-left">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-white">
+                    <b>Trendy</b>
+                </li>
+                {% for post in trendy %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post }}</a>
+                    <small class="c-pointer" onclick="Analytics.modal('{{ post.author }}', '{% if post.text_md %}posts_analytics{% else %}thread_analytics{% endif %}', '{{ post.pk }}');"><i class="fas fa-chart-line"></i></small>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>

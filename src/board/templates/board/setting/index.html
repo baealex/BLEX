@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'library/prism.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}?{{ static_version }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="icon" href="{% static 'images/logo.png' %}">
     <title>{% if subtitle %}Your {{ subtitle }}{% else %}Setting{% endif %}</title>
 {% endblock %}
@@ -40,7 +41,7 @@
     <div class="setting-body">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 mt-4">
+                <div class="col-lg-3 mt-4" {% if not tab %}data-aos="fade-right"{% endif %}>
                     <div class="back-image setting-user-thumb" style="background-image:url({{ request.user.profile.thumbnail }})"></div>
                     <ul class="nav serif sticky-top-100 sticky-top blex-card">
                         <li class="nav-item">
@@ -61,28 +62,26 @@
                     </ul>
                 </div>
                 <div class="col-lg-9 mt-lg-4 mb-4">
-                    <div class="blex-card p-3">
-                        {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-                        {% if message %}<div class="alert alert-success">{{ message }}</div>{% endif %}
-                        {% if tab == 'account' %}
-                            {% include 'board/setting/include/account.html'%}
-                        {% endif %}
-                        {% if tab == 'profile' %}
-                            {% include 'board/setting/include/profile.html'%}
-                        {% endif %}
-                        {% if tab == 'series' %}
-                            {% include 'board/setting/include/series.html'%}
-                        {% endif %}
-                        {% if tab == 'posts' %}
-                            {% include 'board/setting/include/posts.html'%}
-                        {% endif %}
-                        {% if tab == 'thread' %}
-                            {% include 'board/setting/include/thread.html'%}
-                        {% endif %}
-                        {% if not subtitle %}
-                            <img width="100%" src="{{ static_url }}/assets/images/default-post.png">
-                        {% endif  %}
-                    </div>
+                    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+                    {% if message %}<div class="alert alert-success">{{ message }}</div>{% endif %}
+                    {% if not tab %}
+                        {% include 'board/setting/include/default.html'%}
+                    {% endif %}
+                    {% if tab == 'account' %}
+                        {% include 'board/setting/include/account.html'%}
+                    {% endif %}
+                    {% if tab == 'profile' %}
+                        {% include 'board/setting/include/profile.html'%}
+                    {% endif %}
+                    {% if tab == 'series' %}
+                        {% include 'board/setting/include/series.html'%}
+                    {% endif %}
+                    {% if tab == 'posts' %}
+                        {% include 'board/setting/include/posts.html'%}
+                    {% endif %}
+                    {% if tab == 'thread' %}
+                        {% include 'board/setting/include/thread.html'%}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -95,6 +94,7 @@
     <script src="https://www.amcharts.com/lib/4/charts.js"></script>
     <script src="https://www.amcharts.com/lib/4/themes/dataviz.js"></script>
     <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/common.js?{{ static_version }}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/render.js?{{ static_version }}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/action.js?{{ static_version }}"></script>
@@ -109,6 +109,7 @@
                 }
             }
         });
+        AOS.init();
     });
     </script>
     <script>
