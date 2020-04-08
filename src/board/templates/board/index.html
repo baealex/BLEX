@@ -33,18 +33,24 @@
             <h6 id="topic-counter" class="text-center g-sans-l counter">{{ intro_info.topic_count }}</h5>
         </div>
     </div>
-    <ul class="text-center intro-topics mt-5">
-    {% for tag in intro_info.top_topics %}
-        <li><a class="deep-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></li>
-    {% endfor %}
-    </ul>
+    <div class="col-lg-10 mx-auto">
+        <ul class="text-center intro-topics mt-5">
+        {% for tag in intro_info.top_topics %}
+            <li><a class="deep-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
     <div class="text-center mt-5">
         <a class="noto vivid-purple text-decoration-none" href="/@baealex/series/%EB%B8%94%EB%A0%89%EC%8A%A4-%EC%9D%B4%EC%95%BC%EA%B8%B0">블렉스는 성장하는 서비스입니다.</a>
     </div>
     <div class="text-center">
         <a href="{% url 'login' %}">
-            <button class="get-start g-sans-m mt-4 mb-3">지금 시작하기</button>
+            <button class="get-start g-sans-m mt-4 mb-3">함께 성장하기</button>
         </a>
+    </div>
+    <div class="text-center mt-3">
+        <a class="github-button" href="https://github.com/baealex/BLEX" data-icon="octicon-star" data-show-count="true" aria-label="Star baealex/BLEX on GitHub">Star</a>
+        <a class="github-button" href="https://github.com/baealex/BLEX/issues" data-icon="octicon-issue-opened" data-show-count="true" aria-label="Issue baealex/BLEX on GitHub">Issue</a>
     </div>
 </div>
 {% endblock %}
@@ -54,20 +60,9 @@
 {% endblock %}
 
 {% block script %}
-
+<script async defer src="https://buttons.github.io/buttons.js"></script>
 <script>
     $(document).ready(function() {
-        $('#title').addClass('blink');
-        var html = [
-            '나를 표현하는 블로그',
-            'BL<span class="gray-dark">OG</span> EX<span class="gray-dark">PRESS</span> ME'
-        ]
-        var index = 0;
-        setInterval(function() {
-            $('#title').html(html[index++]);
-            if(index > html.length - 1) index = 0;    
-        }, 6000);
-
         function numberCounter(target_frame, target_number) {
             this.count = 0;
             this.diff = 0;
