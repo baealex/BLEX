@@ -92,7 +92,7 @@
                             }
                             
                             if (ext === "mp4") {
-                                cm.replaceSelection("<video autoplay muted loop><source src=\"" + url + "\" type=\"video/mp4\" /></video>");
+                                cm.replaceSelection("@gif[" + url + "]");
                                 cm.setCursor(cursor.line, cursor.ch + 2);
                             }
                             else {

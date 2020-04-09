@@ -25,7 +25,7 @@ def randstr(length):
 
 def parsedown(text):
     data = {'md': text.encode('utf-8')}
-    res = requests.post(settings.API_URL + '/api/parsedown/get.php', data=data)
+    res = requests.post(settings.API_URL + '/api/safe-parsedown/get.php', data=data)
     return res.text
 
 def avatar_path(instance, filename):

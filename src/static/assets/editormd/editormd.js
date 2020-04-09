@@ -165,7 +165,7 @@
         tocDropdown          : false,
         tocContainer         : "",
         tocStartLevel        : 1,              // Said from H1 to create ToC
-        htmlDecode           : true,           // Open the HTML tag identification 
+        htmlDecode           : false,           // Open the HTML tag identification 
         pageBreak            : true,           // Enable parse page break [========]
         atLink               : false,          // for @link
         emailLink            : false,          // for email address auto link
@@ -173,7 +173,7 @@
         emoji                : true,           // :emoji: , Support Github emoji, Twitter Emoji (Twemoji);
                                                // Support FontAwesome icon emoji :fa-xxx: > Using fontAwesome icon web fonts;
                                                // Support Editor.md logo icon emoji :editormd-logo: :editormd-logo-1x: > 1~8x;
-        tex                  : false,          // TeX(LaTeX), based on KaTeX
+        tex                  : true,           // TeX(LaTeX), based on KaTeX
         flowChart            : false,          // flowChart.js only support IE9+
         sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
         previewCodeHighlight : true,
