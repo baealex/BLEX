@@ -38,29 +38,31 @@ def social_login(request, social):
                 node_id = state['user'].get('node_id')
                 try:
                     user = User.objects.get(last_name='github:' + str(node_id))
-                    auth.login(request, user)
-                    return redirect(settings.LOGIN_REDIRECT_URL)
+                    if user.is_active:
+                        auth.login(request, user)
+                        return redirect(settings.LOGIN_REDIRECT_URL)
+                    else:
+                        return render(request, 'registration/username.html', {'token': 'github:' + str(node_id)})
                 except:
                     pass
                     
-                counter = 0
-                username = state['user'].get('login')
+                username = randstr(10)
                 has_name = User.objects.filter(username=username)
                 while len(has_name) > 0:
-                    has_name = User.objects.filter(username=username + str(counter))
-                    counter += 1
+                    has_name = User.objects.filter(username=username)
+                    username = randstr(10)
                 
-                new_user = User(username=username + str('' if counter == 0 else counter))
+                new_user = User(username=username)
                 new_user.first_name = state['user'].get('name')
                 new_user.last_name = 'github:' + str(node_id)
                 new_user.email = state['user'].get('email')
+                new_user.is_active = False
                 new_user.save()
 
                 profile = Profile(user=new_user)
                 avatar = fn.get_image(state['user'].get('avatar_url'))
                 if avatar:
                     profile.avatar.save(name='png', content=File(avatar))
-                profile.homepage = state['user'].get('blog').split('//')[-1]
                 profile.github = state['user'].get('login')
                 profile.save()
 
@@ -68,7 +70,7 @@ def social_login(request, social):
                 config.save()
 
                 auth.login(request, new_user)
-                return redirect(settings.LOGIN_REDIRECT_URL)
+                return render(request, 'registration/username.html', {'token': 'github:' + str(node_id)})
             else:
                 return render(request, 'registration/login.html', {'error': '요청중 에러가 발생했습니다.'})
     
@@ -79,22 +81,25 @@ def social_login(request, social):
                 node_id = state['user'].get('id')
                 try:
                     user = User.objects.get(last_name='google:' + str(node_id))
-                    auth.login(request, user)
-                    return redirect(settings.LOGIN_REDIRECT_URL)
+                    if user.is_active:
+                        auth.login(request, user)
+                        return redirect(settings.LOGIN_REDIRECT_URL)
+                    else:
+                        return render(request, 'registration/username.html', {'token': 'google:' + str(node_id)})
                 except:
                     pass
-                    
-                counter = 0
-                username = state['user'].get('email').split('@')[0]
+                
+                username = randstr(10)
                 has_name = User.objects.filter(username=username)
                 while len(has_name) > 0:
-                    has_name = User.objects.filter(username=username + str(counter))
-                    counter += 1
+                    has_name = User.objects.filter(username=username)
+                    username = randstr(10)
                 
-                new_user = User(username=username + str('' if counter == 0 else counter))
+                new_user = User(username=username)
                 new_user.first_name = state['user'].get('name')
                 new_user.last_name = 'google:' + str(node_id)
                 new_user.email = state['user'].get('email')
+                new_user.is_active = False
                 new_user.save()
 
                 profile = Profile(user=new_user)
@@ -105,9 +110,7 @@ def social_login(request, social):
 
                 config = Config(user=new_user)
                 config.save()
-
-                auth.login(request, new_user)
-                return redirect(settings.LOGIN_REDIRECT_URL)
+                return render(request, 'registration/username.html', {'token': 'google:' + str(node_id)})
             else:
                 return render(request, 'registration/login.html', {'error': '요청중 에러가 발생했습니다.'})
     
@@ -135,6 +138,35 @@ def login(request):
             return render(request, 'registration/login.html', {'error': '사용자 검증에 실패했습니다.'})
     return render(request, 'registration/login.html')
 
+def set_username(request):
+    if request.method == 'POST':
+        if fn.auth_captcha(request.POST.get('g-recaptcha')):
+            token = request.POST.get('token', '')
+            username = request.POST.get('username', '')
+
+            if not token:
+                return redirect('login')
+
+            filter_name = ['root', 'sudo', 'admin', 'administrator', 'manager', 'master', 'superuser']
+            if not username or username in filter_name:
+                return render(request, 'registration/username.html', {'token': token, 'error': '사용할 수 없는 아이디입니다.'})
+            
+            regex = re.compile('[a-z0-9]*')
+            if not len(regex.match(username).group()) == len(username):
+                return render(request, 'registration/username.html', {'token': token, 'error': '사용할 수 없는 아이디입니다.'})
+
+            user = get_object_or_404(User, last_name=token)
+            user.username = username
+            user.is_active = True
+            user.save()
+
+            auth.login(request, user)
+            return redirect(settings.LOGIN_REDIRECT_URL)
+        else:
+            return render(request, 'registration/username.html', {'token': token, 'error': '사용자 검증에 실패했습니다.'})
+    
+    raise Http404
+
 def signup(request):
     if request.user.is_active:
         return redirect('post_sort_list', sort='trendy')
@@ -145,14 +177,14 @@ def signup(request):
 
             filter_name = ['root', 'sudo', 'admin', 'administrator', 'manager', 'master', 'superuser']
             if username in filter_name:
-                return render(request, 'registration/signup.html', { 'form': form, 'error': '사용할 수 없는 아이디입니다.' })
+                return render(request, 'registration/signup.html', {'form': form, 'error': '사용할 수 없는 아이디입니다.' })
             
             regex = re.compile('[a-z0-9]*')
             if not len(regex.match(username).group()) == len(username):
-                 return render(request, 'registration/signup.html', { 'form': form, 'error': '사용할 수 없는 아이디입니다.' })
+                 return render(request, 'registration/signup.html', {'form': form, 'error': '사용할 수 없는 아이디입니다.' })
             
             if not form.cleaned_data['password'] == form.cleaned_data['password_check']:
-                return render(request, 'registration/signup.html', { 'form': form, 'error': '비밀번호가 일치하지 않습니다.' })
+                return render(request, 'registration/signup.html', {'form': form, 'error': '비밀번호가 일치하지 않습니다.' })
             
             token = randstr(35)
             has_token = User.objects.filter(last_name=token)

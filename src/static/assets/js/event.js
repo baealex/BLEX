@@ -40,6 +40,51 @@ $('#image-form > input').on('change', function() {
     Notify.append('이미지를 업로드하는 중입니다.');
 });
 
+$('#idButton').on('click', function() {
+    if($('#id_username').val() != '') {
+        $.ajax({
+            url: '/signup/help/id',
+            type: 'POST',
+            data: { 'id': $('#id_username').val() },
+        }).done(function(data) {
+            $('#idCheck').addClass('alert');
+            if(data == 'ERROR:OL') {
+                $('#idCheck').removeClass('alert-success');
+                $('#idCheck').addClass('alert-danger');
+                $('#idCheck').text('이미 사용중인 필명입니다!');
+                if(document.getElementById('idButton')) {
+                    var idButton = $('#idButton');
+                    idButton.text('아이디 확인');
+                    idButton.prop('type', 'button');
+                }
+            } else if(data == 'ERROR:NM') {
+                $('#idCheck').removeClass('alert-success');
+                $('#idCheck').addClass('alert-danger');
+                $('#idCheck').text('소문자와 숫자로만 구성할 수 있습니다!');
+                if(document.getElementById('idButton')) {
+                    var idButton = $('#idButton');
+                    idButton.text('아이디 확인');
+                    idButton.prop('type', 'button');
+                }
+            } else {
+                $('#idCheck').removeClass('alert-danger');
+                $('#idCheck').addClass('alert-success');
+                $('#idCheck').text(window.location.protocol + '//' + window.location.hostname + '/@' + $('#id_username').val());
+                if(document.getElementById('idButton')) {
+                    var idButton = $('#idButton');
+                    idButton.text('아이디 사용');
+                    idButton.prop('type', 'submit');
+                    $('#id_username').on('propertychange change keyup paste input', function() {
+                        var idButton = $('#idButton');
+                        idButton.text('아이디 확인');
+                        idButton.prop('type', 'button');
+                    });
+                }
+            }
+        });
+    }
+});
+
 $('#signup input').on('focusout', function(){
     if($('#id_username').val() != '') {
         $.ajax({
@@ -60,6 +105,11 @@ $('#signup input').on('focusout', function(){
                 $('#idCheck').removeClass('alert-danger');
                 $('#idCheck').addClass('alert-success');
                 $('#idCheck').text(window.location.protocol + '//' + window.location.hostname + '/@' + $('#id_username').val());
+                if(document.getElementById('idButton')) {
+                    var idButton = $('#idButton');
+                    idButton.text('완료');
+                    idButton.prop('type', 'submit');
+                }
             }
         });
     }

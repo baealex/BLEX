@@ -12,6 +12,7 @@ urlpatterns = [
     # Account
     path('login', views.login, name='login'),
     path('login/callback/<social>', views.social_login, name='social_login'),
+    path('login/social/username/set', views.set_username, name='set_username'),
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
     path('signup', views.signup, name='signup'),
     path('signup/help/id', views.id_check, name='id_check'),

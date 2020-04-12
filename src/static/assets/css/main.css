@@ -587,10 +587,8 @@ footer a:hover {
 .article pre {
   background: #2d2d2d;
   overflow-x: auto;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
   font-family: monospace;
+  padding: 1em;
 }
 .article .rouge-gutter {
   border-right: 1px solid #888;
