@@ -24,9 +24,6 @@
 
 {% block content %}
 <div class="col-lg-12 px-0">
-    {% if thread.image %}
-    <img style="width: 100%;" src="{{ thread.image.url }}" alt="{{ thread.title }}">
-    {% endif %}
     <div class="text-center mt-5 {% if not thread.image %}pt-5{% endif %}">
         <a id="thread-bookmark" href="javascript:void(0)" onclick="Thread.bookmark({{ thread.pk }})">
             <i class="{% if check_bookmark %}fas{% else %}far{% endif %} fa-bookmark"></i>
@@ -40,7 +37,7 @@
     </div>
 </div>
 <div class="col-lg-8 mx-auto mt-5 px-0">
-  {% if thread.description %}
+  {% if thread.description or thread.image %}
   <div id="story-pin" class="card story-card noto">
     <div class="card-header">
       <div class="d-flex justify-content-between align-items-center">
@@ -64,7 +61,12 @@
     </div>
     <div class="card-body">
       <div class="article">
-        {{ thread.description|linebreaks }}
+        {% if thread.image %}
+          <img {% if thread.description %}style="margin-bottom:20px"{% endif %} src="{{ thread.image.url }}" alt="{{ thread.title }}">
+        {% endif %}
+        {% if thread.description %}
+          {{ thread.description|linebreaks }}
+        {% endif %}
       </div>
     </div>
   </div>
