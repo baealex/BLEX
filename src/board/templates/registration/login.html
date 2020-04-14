@@ -19,17 +19,13 @@
         <input type="hidden" id="g-recaptcha" name="g-recaptcha">
         <button type="submit" class="login-button">로그인</button>
     </form>
-    <button id="github-login" type="button" class="mt-2 login-button" style="background-color: rgb(72, 31, 94);">
-        <i class="fab fa-github"></i> 깃허브 로그인
-    </button>
     <button id="google-login" type="button" class="mt-2 login-button" style="background-color: rgb(46, 119, 255);">
         <i class="fab fa-google"></i> 구글 로그인
     </button>
+    <button id="github-login" type="button" class="mt-2 login-button" style="background-color: rgb(72, 31, 94);">
+        <i class="fab fa-github"></i> 깃허브 로그인
+    </button>
 </div>
-{% endblock %}
-
-{% block footer %}
-    {% include 'board/common/include/footer.html' %}
 {% endblock %}
 
 {% block script %}

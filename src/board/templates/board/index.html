@@ -35,6 +35,8 @@
     </div>
     <div class="col-lg-10 mx-auto">
         <ul class="text-center intro-topics mt-5">
+            <li><a class="deep-dark" href="/trendy">trendy</a></li>
+            <li><a class="deep-dark" href="/newest">newest</a></li>
         {% for tag in intro_info.top_topics %}
             <li><a class="deep-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }}</a></li>
         {% endfor %}
@@ -44,7 +46,7 @@
         <a class="noto vivid-purple text-decoration-none" href="/@baealex/series/%EB%B8%94%EB%A0%89%EC%8A%A4-%EC%9D%B4%EC%95%BC%EA%B8%B0">블렉스는 성장하는 서비스입니다.</a>
     </div>
     <div class="text-center">
-        <a href="{% url 'login' %}">
+        <a href="{% url 'signup' %}">
             <button class="get-start g-sans-m mt-4 mb-3">함께 성장하기</button>
         </a>
     </div>
@@ -56,7 +58,7 @@
 {% endblock %}
 
 {% block footer%}
-{% include 'board/common/include/footer.html' %}
+{% include 'board/common/include/footer_extension.html' %}
 {% endblock %}
 
 {% block script %}

@@ -25,8 +25,11 @@ def randstr(length):
 
 def parsedown(text):
     data = {'md': text.encode('utf-8')}
-    res = requests.post(settings.API_URL + '/api/safe-parsedown/get.php', data=data)
-    return res.text
+    res = requests.post(settings.API_URL + '/api/parsedown/get.php', data=data)
+    if res.status_code == 200:
+        return res.text
+    else:
+        return 'Temporary error'
 
 def avatar_path(instance, filename):
     dt = datetime.datetime.now()

@@ -13,13 +13,13 @@
 {% block body %}
     {% block image-title %}{% endblock %}
     {% if white_nav %}
-    <nav id="top-nav" class="navbar navbar-expand-sm navbar-light bg-rlight fixed-top">
+    <nav id="top-nav" class="navbar navbar-expand-md navbar-light bg-rlight fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ site_url }}">
                 <img src="{{ static_url }}/assets/images/logo.png" width="35" height="35" alt="">
             </a>
     {% else %}
-    <nav id="top-nav" class="navbar navbar-expand-sm navbar-dark bg-theme fixed-top">
+    <nav id="{% if not never_chage %}top-nav{% else %}p-top-nav{% endif %}" class="navbar navbar-expand-md navbar-dark bg-rdark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ site_url }}">
                 <img src="{{ static_url }}/assets/images/logor.png" width="35" height="35" alt="">
@@ -28,8 +28,15 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
-                <ul class="navbar-nav">
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <ul class="navbar-nav mt-3 mt-sm-0">
+                    <li class="nav-item">
+                        <form method="GET" action="/search">
+                            <input autocomplete="off" type="text" class="form-control text-small launch-modal-search" name="value" value="" placeholder="Serach">
+                        </form>
+                    </li>
+                </ul>
+                <ul class="ml-auto navbar-nav">
                 {% if request.user.is_active %}
                     {% url 'user_profile' username=request.user as my_profile %}
                     <li class="nav-item {% if request.get_full_path == my_profile %}active{% endif %}">

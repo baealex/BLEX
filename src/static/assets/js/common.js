@@ -4,6 +4,11 @@ function setCookie(cookie) {
     willCookie += cookie.name + '=' + cookie.value + ';';
   if (cookie.expire != undefined)
     willCookie += 'Expires=' + cookie.expire + ';';
+  if (cookie.expireDay != undefined) {
+    var date = new Date();
+    date.setTime(date.getTime() + (cookie.expireDay * 24 * 60 * 60 * 1000));
+    willCookie += 'Expires=' + date.toGMTString() + ';';
+  }
   if (cookie.damain != undefined)
     willCookie += 'Domain=' + cookie.domain + ';';
   if (cookie.path != undefined)
@@ -39,6 +44,38 @@ function getParameter(param) {
     }
   }
 };
+
+function night() {
+  if($('#night i').hasClass('fa-moon')) {
+    $('body').addClass('dark');
+    setCookie({
+      name: 'nightmode',
+      value: 'true',
+      path: '/',
+      expireDay: 365,
+    });
+    $('#night').html('<i class="fas fa-sun"></i>');
+    $('#top-nav').removeClass('bg-rlight');
+    $('#top-nav').removeClass('navbar-light');
+    $('#top-nav').addClass('bg-rdark');
+    $('#top-nav').addClass('navbar-dark');
+    $('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logor.png');
+  } else {
+    $('body').removeClass('dark');
+    setCookie({
+      name: 'nightmode',
+      value: '',
+      path: '/',
+      expireDay: -1,
+    });
+    $('#night').html('<i class="fas fa-moon"></i>');
+    $('#top-nav').removeClass('bg-rdark');
+    $('#top-nav').removeClass('navbar-dark');
+    $('#top-nav').addClass('bg-rlight');
+    $('#top-nav').addClass('navbar-light');
+    $('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logo.png');
+  }
+}
 
 function csrfSafeMethod(method) {
   // these HTTP methods do not require CSRF protection

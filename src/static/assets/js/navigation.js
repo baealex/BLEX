@@ -28,13 +28,13 @@ const createNav = function(height) {
 
         if(height == 'full') {
             if (screenPosition < screenHeight) {
-                $('#top-nav').css("position", "absolute");
-                $('#top-nav').css("background", "rgba(0, 0, 0, 0)");
-                $("#top-nav").removeClass("slide-bottom");
+                $('#p-top-nav').css("position", "absolute");
+                $('#p-top-nav').css("background", "rgba(0, 0, 0, 0)");
+                $("#p-top-nav").removeClass("slide-bottom");
             } else {
-                $('#top-nav').css("position", "fixed");
-                $('#top-nav').css("background", "rgba(0, 0, 0, .98)");
-                $("#top-nav").addClass("slide-bottom");
+                $('#p-top-nav').css("position", "fixed");
+                $('#p-top-nav').css("background", "rgba(0, 0, 0, .98)");
+                $("#p-top-nav").addClass("slide-bottom");
             }
         }
         if (isCreateNav) {

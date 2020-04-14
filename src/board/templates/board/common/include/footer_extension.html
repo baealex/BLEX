@@ -1,0 +1,35 @@
+<footer class="page-footer font-small pt-4 border-top">
+    <div class="container text-center text-md-left">
+        <div class="row">
+            <div class="col-md-4 mt-md-0 mt-3">
+                <h5 class="text-uppercase"><a class="deep-dark" href="/signup">Express Yourself</a></h5>
+                <p class="ns noto">
+                    <a class="shallow-dark" href="/signup">
+                        블로그를 통해서 자신을 표현하세요. 포스트에 자신의 지식을 기록하고 스레드에 자신의 경험을 나열하세요. 작성된 포스트와 스레드는 여러분 그 자체가 됩니다.
+                    </a>
+                </p>
+            </div>
+            <div class="col-md-4 mt-md-0 mt-3">
+                <h5 class="text-uppercase"><a class="deep-dark" href="/thread/opnion">Suggest Opinion</a></h5>
+                <p class="ns noto">
+                    <a class="shallow-dark" href="/thread/opnion">
+                        블로그를 운영하다가 불편한 점이 있으십니까? 블렉스의 개발자는 무엇보다 유저님의 의견을 존중합니다. 무엇이든 의견을 제안하고 서비스에 반영해보세요.
+                    </a>
+                </p>
+            </div>
+            <div class="col-md-4 mt-md-0 mt-3">
+                <h5 class="text-uppercase"><a class="deep-dark" href="/@baealex/policy">Explore Policies</a></h5>
+                <p class="ns noto">
+                    <a class="shallow-dark" href="/@baealex/policy">
+                        서비스를 원활하게 제공받기 위해 알아야 할 수칙, 유저님의 정보가 서비스에서 어떻게 보관되고 있는지 블렉스의 정책을 살펴볼 수 있습니다.
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright text-center">
+        <div class="container border-top py-3 mt-3">
+            Copyright 2020 {% if not night_changer %}&copy;{% else %}<span id="night" class="c-pointer" onclick="night()">{% if not night_mode %}<i class="fas fa-moon"></i>{% else %}<i class="fas fa-sun"></i>{% endif %}</span>{% endif %} <a href="https://im.baejino.com">BaeJino</a>.
+        </div>
+    </div>
+</footer>

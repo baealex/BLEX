@@ -52,3 +52,6 @@
     border-radius: 30px;
     text-transform: uppercase;
 }
+body.dark .intro-topics > li {
+    background: #000;
+}

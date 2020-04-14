@@ -89,9 +89,19 @@
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
     background: rgba(255, 255, 255, .98);
 }
-.bg-theme {
+.bg-rdark {
     background: rgba(0, 0, 0, .98);
     border: none;
+}
+.bg-rlight .form-control {
+    border: none;
+    background: #eee;
+    color: #000;
+}
+.bg-rdark .form-control {
+    border: none;
+    background: #333;
+    color: #fff;
 }
 .bg-border-purple {
     border-radius: 5px;
@@ -217,6 +227,7 @@
     float: right;
 }
 .ps .pn {
+    background: none;
     border: 1px solid #8e44ad;
     border-radius: 5px;
     padding: 2px;
@@ -269,9 +280,6 @@
 }
 /* ------------------------------ */
 /* HOME : COMMON */
-.card-title {
-    
-}
 .card-subtitle {
     text-transform: capitalize;
 }
@@ -408,6 +416,10 @@ footer a {
     color: #999;
 }
 footer a:hover {
+    color: #000;
+    text-decoration: none;
+}
+footer.bg-rdark a:hover {
     color: #fff;
     text-decoration: none;
 }
@@ -779,6 +791,7 @@ footer a:hover {
     width: 250px;
     height: 250px;
     border-radius: 100%;
+    background: #fff;
     border: 1px solid #ccc;
     margin: 15px;
     object-fit: cover
@@ -883,7 +896,7 @@ footer a:hover {
 }
 .profile-activity li {
     list-style: none;
-    border: 1px solid #eee;
+    border: 3px solid #eee;
     margin: 10px;
     padding: 20px;
     overflow: hidden;
@@ -1173,81 +1186,177 @@ footer a:hover {
 }
 /* ------------------------------ */
 /* DARK THEME MODE */
-.theme-dark {
-    background-color: #333;
-    color: #eee;
+body.dark {
+    background-color: #292929;
+    color: #d6d6d6;
 }
-.theme-dark .share, .theme-dark .share a {
-    color: #ccc;
-    fill: #ccc;
-}
-.theme-dark .rel-posts {
-    background-color: #222;
-}
-.theme-dark .article a {
-    color: #fff;
-    box-shadow: inset 0 -3px 0 #eef;
-}
-.theme-dark .article a:hover{
+body.dark .toast-body {
     color: #000;
-    box-shadow: inset 0 -1em 0 #fff;
 }
-.theme-dark .author-info a {
-    color: #fff;
+body.dark .share,
+body.dark .share a {
+    color: #aaa;
+    fill: #aaa;
 }
-.theme-dark a.deep-dark {
-    color: #fff !important;
+body.dark .vivid-purple,
+body.dark .article a {
+    color: #c99cff;
 }
-.theme-dark a.shallow-dark {
-    color: #ccc !important;
+body.dark .article a:hover{
+    color: #797979;
 }
-.theme-dark .article code {
+body.dark .author-info a {
+    color: #dadada;
+}
+body.dark .deep-dark {
+    color: #e0e0e0 !important;
+}
+body.dark .shallow-dark {
+    color: #a7a7a7 !important;
+}
+body.dark .article code {
     color: #fff;
     background-color: #000;
 }
-.theme-dark .form-control:focus {
+body.dark .article blockquote {
+    border-left: 3px solid #a5a5a5;
+}
+body.dark form .form-control:focus {
+    color: #ccc;
+    background-color: #1d1d1d;
+}
+body.dark form .form-control {
+    color: #ccc;
+    background-color: #1d1d1d;
+    border: none;
+}
+body.dark #heart .fas {
     color: #fff;
-    background-color: #000;
 }
-.theme-dark .form-control {
-    background-color: #000;
-}
-.theme-dark .form-control::placeholder {
+body.dark .form-control::placeholder {
     color: #ccc;
 }
-.theme-dark #article-nav:hover a.nav-now {
+body.dark #article-nav:hover a.nav-now {
     color: #fff !important;
 }
-.theme-dark #article-nav:hover a {
+body.dark #article-nav:hover a {
     color: #777;
 }
-.theme-dark #article-nav:hover a:hover {
+body.dark #article-nav:hover a:hover {
     color: #ccc;
 }
-.theme-dark .title-1::before,
-.theme-dark .title-2::before,
-.theme-dark .title-3::before {
+body.dark .title-1::before,
+body.dark .title-2::before,
+body.dark .title-3::before {
     border-top: 2.5px solid #777;
 }
-.theme-dark .nav-now.title-1::before,
-.theme-dark .nav-now.title-2::before,
-.theme-dark .nav-now.title-3::before {
+body.dark .nav-now.title-1::before,
+body.dark .nav-now.title-2::before,
+body.dark .nav-now.title-3::before {
     border-color: #ccc;
 }
-.theme-dark .tag-list li {
-    background-color:#555;
+body.dark .tag-list li {
+    background-color:#3b3b3b;
 }
-.theme-dark .tag-list a {
-    color: #aaa;
+body.dark .tag-list a {
+    color: rgb(202, 202, 202);
 }
-.theme-dark .tag-list a:hover {
+body.dark .tag-list a:hover {
     color: #fff;
     text-decoration: none;
 }
-.theme-dark .tag-list a:before {
+body.dark .tag-list a:before {
     content: '#';
     color: #fff;
     font-weight: bold;
+}
+body.dark .user-avatar {
+    background: #000;
+    border: 1px solid #333;
+}
+body.dark .bg-comment {
+    border-top: 1px solid #333;
+}
+body.dark .comment-list {
+    background-color: #1d1d1d;
+}
+body.dark .user-profile-desc::before,
+body.dark .user-profile-desc::after {
+    border-top: 3px solid #c99cff;
+}
+body.dark .profile-tags li a {
+    color: #727272;
+}
+body.dark .profile-tags li a.active {
+    color: #cccccc;
+}
+body.dark .pl,
+body.dark .gp,
+body.dark .pn {
+    color: #c7c7c7;
+}
+body.dark .pgnav .active{
+    border: 2px solid #03c0e4;
+}
+body.dark .ps .pn{
+    border: 1px solid #03c0e4;
+}
+body.dark .profile-post{
+    border-bottom: 2px solid #aaa;
+}
+body.dark .alert-dark {
+    color: #c4c4c4;
+    background-color: #3f3f3f;
+    border-color: #414141;
+}
+body.dark .bg-light, body.dark .btn-dark {
+    background-color: #3f3f3f !important;
+}
+body.dark .foot-deco-active {
+    border-bottom: 2px solid #fff;
+}
+body.dark .list-image {
+    border: 1px solid #555;
+}
+body.dark .post-list > a {
+    color: #fff;
+}
+body.dark .post-list {
+    border-bottom: 1px solid #555;
+}
+body.dark .post-mask {
+    background-color: rgba(50, 50, 50, 1);
+}
+body.dark .post-mask:hover {
+    background-color: rgba(50, 50, 50, 0.3);
+}
+body.dark .profile-activity li {
+    border: 3px solid #555;
+}
+body.dark .series-desc blockquote {
+    background: #1e1e1e;
+}
+body.dark .series-desc blockquote::after {
+    border-color: #1e1e1e transparent transparent transparent;
+}
+body.dark .fade-mask {
+    background: linear-gradient(to bottom, rgba(0,0,0,0), #292929);
+}
+body.dark #thread-bookmark {
+    color: #cccccc;
+}
+body.dark .card {
+    border: none;
+}
+body.dark .card-header,
+body.dark .card-footer {
+    background: #1d1d1d;
+}
+body.dark .card-body {
+    background: #000000;
+}
+body.dark footer a:hover {
+    color: #fff;
 }
 /* ------------------------------ */
 /* OVERWRITE BOOTSTRAP */
@@ -1279,5 +1388,11 @@ footer a:hover {
 }
 .list-group-item {
     word-break: break-all;
+}
+.custom-file-label {
+    overflow: hidden;
+}
+.form-control:focus {
+    box-shadow: none;
 }
 /* ------------------------------ */

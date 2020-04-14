@@ -25,15 +25,5 @@
 {% endblock %}
 
 {% block footer%}
-    {% include 'board/common/include/footer.html' %}
-{% endblock %}
-
-{% block script %}
-<script src="{{ static_url }}/assets/library/InfiniteScroll.js?{{ static_version }}"></script>
-<script type="text/javascript">
-var postWrapperId = 'card-wrapper';
-var paginatePath = '/topic/{{ tag }}?page=';
-var lastPage = {{ pageposts.paginator.num_pages }};
-new InfiniteScroll(paginatePath, postWrapperId, lastPage);
-</script>
+    {% include 'board/common/include/footer_extension.html' %}
 {% endblock %}

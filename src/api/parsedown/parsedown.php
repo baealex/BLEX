@@ -1357,8 +1357,9 @@ class Parsedown
             'element' => array(
                 'name' => 'img',
                 'attributes' => array(
-                    'src' => $Link['element']['attributes']['href'],
+                    'class' => 'lazy',
                     'alt' => $Link['element']['handler']['argument'],
+                    'data-src' => $Link['element']['attributes']['href'],
                 ),
                 'autobreak' => true,
             ),

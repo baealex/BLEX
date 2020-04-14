@@ -131,6 +131,17 @@ def get_image(url):
     temp_image.seek(0)
     return temp_image
 
+def night_mode(request):
+    update_dict = {
+        'night_changer': True,
+    }
+    if request.COOKIES.get('nightmode') is not None:
+        update_dict['night_mode'] = True
+    else:
+        update_dict['night_mode'] = False
+    update_dict['white_nav'] = not update_dict['night_mode']
+    return update_dict
+
 def auth_google(code):
     data = {
         'code': code,

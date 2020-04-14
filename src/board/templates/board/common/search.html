@@ -15,11 +15,6 @@
 {% endblock %}
 
 {% block content %}
-<style>.post-list { border-top: none; }</style>
-<form action="search">
-    <input id="search-box" autocomplete="off" name="value" type="text" placeholder="검색어를 입력하세요.">
-</form>
-
 <div class="gcse-searchresults-only"></div>
 {% endblock %}
 
@@ -28,12 +23,5 @@
 {% endblock %}
 
 {% block script %}
-<script>
-    {% if not value %}
-    $('#search-box').focus();
-    {% else %}
-    $('#search-box').val('{{ value }}')
-    {% endif %}
-</script>
 <script async src="https://cse.google.com/cse.js?cx=partner-pub-1254068519466911:9532536280"></script>
 {% endblock %}

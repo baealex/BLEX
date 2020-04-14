@@ -401,13 +401,12 @@ def user_profile(request, username):
     posts_and_thread = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(posts_and_thread, 6)
+    paginator = Paginator(posts_and_thread, 10)
     fn.page_check(page, paginator)
     elements = paginator.get_page(page)
 
     render_args = {
         'user': user,
-        'white_nav' : True,
         'elements': elements,
         'posts_count': len(posts),
         'grade':  fn.get_grade(user),
@@ -422,6 +421,7 @@ def user_profile(request, username):
     except:
         pass
 
+    render_args.update(fn.night_mode(request))
     return render(request, 'board/profile/index.html', render_args)
 
 def user_profile_tab(request, username, tab):
@@ -431,7 +431,6 @@ def user_profile_tab(request, username, tab):
     render_args = {
         'tab': tab,
         'user': user,
-        'white_nav' : True,
         'grade': fn.get_grade(user),
         'battery': fn.get_exp(user),
     }
@@ -451,6 +450,7 @@ def user_profile_tab(request, username, tab):
         fn.page_check(page, paginator)
         elements = paginator.get_page(page)
         render_args['elements'] = elements
+
     if tab == 'activity':
         render_args['tab_show'] = '활동'
         posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False)
@@ -466,6 +466,7 @@ def user_profile_tab(request, username, tab):
         elements = paginator.get_page(page)
         render_args['elements'] = elements
 
+    render_args.update(fn.night_mode(request))
     return render(request, 'board/profile/index.html', render_args)
 
 def user_profile_topic(request, username, tag):
@@ -484,7 +485,6 @@ def user_profile_topic(request, username, tag):
     
     render_args = {
         'user': user,
-        'white_nav' : True,
         'selected_tag': tag,
         'elements': elements,
         'battery': fn.get_exp(user),
@@ -492,6 +492,7 @@ def user_profile_topic(request, username, tag):
         'posts_count': total_posts,
         'tags': fn.get_user_topics(user),
     }
+    render_args.update(fn.night_mode(request))
     return render(request, 'board/profile/index.html', render_args)
 # ------------------------------------------------------------ Profile End
 
@@ -526,9 +527,8 @@ def series_list(request, username, url):
     render_args = {
         'user': user,
         'series': series,
-        'white_nav': True,
     }
-
+    render_args.update(fn.night_mode(request))
     return render(request, 'board/series/list.html', render_args)
 # ------------------------------------------------------------ Series End
 
@@ -559,18 +559,6 @@ def content_backup(request):
             'content': post.text_md
         })
     return render(request, 'board/posts/backup.html', {'contents':contents})
-
-def post_list_in_tag(request, tag):
-    posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
-    thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
-    elements = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
-    if len(elements) == 0:
-        raise Http404()
-    page = request.GET.get('page', 1)
-    paginator = Paginator(elements, 15)
-    fn.page_check(page, paginator)
-    elements = paginator.get_page(page)
-    return render(request, 'board/posts/list_tag.html',{'tag': tag, 'elements': elements, 'white_nav': True})
 
 @csrf_exempt
 def image_upload(request):
@@ -670,7 +658,7 @@ def thread_detail(request, url):
     }
     stroy_all = Story.objects.filter(thread=thread)
     page = request.GET.get('page', 1)
-    paginator = Paginator(stroy_all, 6)
+    paginator = Paginator(stroy_all, 25)
     fn.page_check(page, paginator)
     story_page = paginator.get_page(page)
     render_args['story_page'] = story_page
@@ -695,6 +683,7 @@ def thread_detail(request, url):
 
         thread_today.save()
     
+    render_args.update(fn.night_mode(request))
     return render(request, 'board/thread/detail.html', render_args)
 
 # ------------------------------------------------------------ Thread End
@@ -765,6 +754,9 @@ def post_detail(request, username, url):
         
         post_today.save()
     
+    render_args.update(fn.night_mode(request))
+    render_args['white_nav'] = False
+    render_args['never_chage'] = True
     return render(request, 'board/posts/detail.html', render_args)
 
 def index(request):
@@ -799,30 +791,49 @@ def index(request):
             cache.set('intro_info', intro_info, cache_time)
 
         render_args = {
-            'white_nav': True,
             'intro_info': intro_info,
         }
+
+        render_args.update(fn.night_mode(request))
         return render(request, 'board/index.html', render_args)
 
 def post_sort_list(request, sort):
-    available_sort = [ 'trendy', 'newest', 'oldest' ]
+    available_sort = ['trendy', 'newest']
     if not sort in available_sort:
         raise Http404
     posts = fn.get_posts(sort)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(posts, 15)
+    paginator = Paginator(posts, 21)
     fn.page_check(page, paginator)
     render_args = {
         'sort' : sort,
         'elements' : paginator.get_page(page),
-        'white_nav' : True
     }
 
     if request.user.is_active:
         render_args['write_btn'] = True
 
+    render_args.update(fn.night_mode(request))
     return render(request, 'board/posts/list_sort.html', render_args)
+
+def post_list_in_tag(request, tag):
+    posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
+    thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
+    elements = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
+    if len(elements) == 0:
+        raise Http404()
+    page = request.GET.get('page', 1)
+    paginator = Paginator(elements, 21)
+    fn.page_check(page, paginator)
+    elements = paginator.get_page(page)
+
+    render_args = {
+        'tag': tag,
+        'elements': elements,
+    }
+    render_args.update(fn.night_mode(request))
+    return render(request, 'board/posts/list_tag.html', render_args)
 
 def post_write(request):
     if not request.user.is_active:
@@ -835,14 +846,7 @@ def post_write(request):
         except:
             raise Http404
     
-    if request.method == 'POST':
-        get_token = request.GET.get('token')
-        if get_token:
-            try:
-                TempPosts.objects.get(token=get_token, author=request.user).delete()
-            except:
-                pass
-                
+    if request.method == 'POST':        
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
@@ -861,6 +865,13 @@ def post_write(request):
                     post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
                     i += 1
             fn.add_exp(request.user, 2)
+
+            get_token = request.GET.get('token')
+            if get_token:
+                try:
+                    TempPosts.objects.get(token=get_token, author=request.user).delete()
+                except:
+                    pass
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm()

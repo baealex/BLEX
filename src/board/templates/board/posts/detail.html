@@ -9,19 +9,21 @@
 <meta property="og:title" content="{{ post.title | truncatewords:20 }}">
 <meta property="og:description" content="{{ post.text_html | striptags | truncatewords:50 }}">
 <meta property="og:site_name" content="{{ site_title }}">
-{% if post.image %}<meta property="og:image" content="{{ post.image.url }}">{% endif %}
+{% if post.image %}<meta property="og:image" content="{{ post.image.url }}">
+{% else %}<meta property="og:image" content="{{ static_url }}/assets/images/default-post.png">{% endif %}
 <meta property="og:locale" content="ko_KR">
 <meta property="article:author" content="{{ post.author }}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ post.title | truncatewords:20 }}">
 <meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta name="twitter:description" content="{{ post.text_html | striptags | truncatewords:50 }}">
-{% if post.image %}<meta name="twitter:image" content="{{ post.image.url }}">{% endif %}
+{% if post.image %}<meta name="twitter:image" content="{{ post.image.url }}">
+{% else %}<meta property="twitter:image" content="{{ static_url }}/assets/images/default-post.png">{% endif %}
 {% endblock %}
 
 {% block image-title%}
 {% if post.image %}
-<style>.content {margin-top: 20px;} #top-nav {background: rgba(0, 0, 0, 0); position: absolute;}</style>
+<style>.content {margin-top: 20px;} #p-top-nav {background: rgba(0, 0, 0, 0); position: absolute;}</style>
 <div>
     <picture class="post-title-image">
         <img src="{{ post.image.url }}" alt="{{ post.title }}">

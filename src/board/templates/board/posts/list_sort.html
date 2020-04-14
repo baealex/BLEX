@@ -15,10 +15,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="search-box serif" onclick="location.href='/search';">
-    검색어를 입력하세요.
-</div>
-
 {% include 'board/posts/include/sort_nav.html' %}
 
 <div id="card-wrapper" class="row">
@@ -31,5 +27,5 @@
 {% endblock %}
 
 {% block footer%}
-    {% include 'board/common/include/footer.html' %}
+    {% include 'board/common/include/footer_extension.html' %}
 {% endblock %}
