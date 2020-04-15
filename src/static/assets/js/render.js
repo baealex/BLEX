@@ -101,7 +101,7 @@ var Render = {
                 hideState = 'fa-lock';
             }
             return `
-            <li id="item-${element.pk}" class="blex-card p-3 mb-3" data-aos="fade-left">
+            <li id="item-${element.pk}" class="blex-card p-3 mb-3" data-aos="zoom-in">
             <p class="noto"><a class="deep-dark" href="javascript:void(0)" onclick="location.href='${element.url}'">${element.title}</a></p>
             <ul class="setting-list-info">
                 <li><a class="element-lock" href="javascript:${actionClass}.lock(${element.pk})"><i class="fas ${hideState}"></i></a></li>

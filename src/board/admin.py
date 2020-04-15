@@ -53,8 +53,16 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ['id', 'author', 'title', 'hide', 'created_date', 'updated_date']
     list_display_links = ['id', 'title']
     list_filter = ['author']
-    actions = ['make_open', 'make_hide']
     list_per_page = 30
+    actions = ['update_md']
+
+    def update_md(self, request, queryset):
+        for data in queryset:
+            data.text_html = parsedown(data.text_md)
+            data.save()
+        self.message_user(request, str(len(queryset)) + '개의 포스트 업데이트')
+
+    update_md.short_description = '마크다운 업데이트'
 
 @admin.register(PostLikes)
 class PostLikesAdmin(admin.ModelAdmin):
