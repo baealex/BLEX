@@ -477,7 +477,7 @@ const Story = (() => {
                 }
                 $('#story-form input').val('');
                 $('#story-form textarea').val('');
-                $('#story').prepend(`<div id='story-${data.element.pk}'>${Render.story(data.element)}</div>`);
+                $('#thread').prepend(`<div id='story-${data.element.pk}'>${Render.story(data.element)}</div>`);
             });
         },
         edit: (pk) => {

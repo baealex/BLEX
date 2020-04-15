@@ -1244,14 +1244,11 @@ body.dark .article code {
 body.dark .article blockquote {
     border-left: 3px solid #a5a5a5;
 }
+body.dark form .form-control,
 body.dark form .form-control:focus {
-    color: #ccc;
-    background-color: #1d1d1d;
-}
-body.dark form .form-control {
-    color: #ccc;
-    background-color: #1d1d1d;
     border: none;
+    color: #ccc;
+    background-color: #1d1d1d;
 }
 body.dark #heart .fas {
     color: #fff;

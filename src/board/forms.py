@@ -53,7 +53,7 @@ class StoryForm(forms.ModelForm):
 
         widgets={
             'title': forms.TextInput(attrs={'placeholder':'스토리의 제목을 입력하세요.','class':'form-control'}),
-            'text_md': forms.Textarea(attrs={'placeholder':'마크다운으로 스토리를 작성할 수 있습니다.', 'class': 'form-control', 'rows': 7}),
+            'text_md': forms.Textarea(attrs={'placeholder':'마크다운으로 스토리를 작성할 수 있습니다.', 'class': 'form-control', 'rows': 15}),
         }
         labels={
             'title': '',
