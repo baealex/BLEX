@@ -23,21 +23,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-lg-12 px-0">
-    <div class="text-center mt-5 {% if not thread.image %}pt-5{% endif %}">
-        <a id="thread-bookmark" href="javascript:void(0)" onclick="Thread.bookmark({{ thread.pk }})">
-            <i class="{% if check_bookmark %}fas{% else %}far{% endif %} fa-bookmark"></i>
-        </a>
-        <h1 class="post-headline">{{ thread.title }}</h1>
-        <p class="post-date">{{ thread.created_date | timesince }}전{% if thread.stories.first %} 새로운 스토리가 추가됨{% else %} 생성됨{% endif %}</p>
-        {% if thread.author == request.user %}
-        <a class="btn btn-dark" href="javascript:void(0)" onclick=Thread.edit({{ thread.pk }})>수정</a>
-        <a class="btn btn-dark" href="javascript:void(0)" onclick=Thread.remove({{ thread.pk }})>삭제</a>
-        {% endif %}
-    </div>
-</div>
+<style>#top-nav {position: absolute;}</style>
 <div class="col-lg-8 mx-auto mt-5 px-0">
-  {% if thread.description or thread.image %}
   <div id="story-pin" class="card story-card noto">
     <div class="card-header">
       <div class="d-flex justify-content-between align-items-center">
@@ -50,7 +37,7 @@
             {% endif %}
           </a>
           <div>
-            <div class="h6 noto story-title m-0">{{ thread.title }}</div>
+            <div class="h6 noto story-title m-0 c-pointer" data-hash="">{{ thread.title }}</div>
             <div class="h7"><a href="{% url 'user_profile' username=thread.author %}" class="text-muted text-decoration-none">@{{ thread.author }}</a></div>
           </div>
         </div>
@@ -67,10 +54,19 @@
         {% if thread.description %}
           {{ thread.description|linebreaks }}
         {% endif %}
+        <p class="post-date">{{ thread.created_date | timesince }}전{% if thread.stories.first %} 새로운 스토리가 추가됨{% else %} 생성됨{% endif %}</p>
       </div>
     </div>
+    <div class="card-footer">
+        <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Thread.bookmark({{thread.pk}})">
+            <i id="bookmark" class="{% if check_bookmark %}fas{% else %}far{% endif %} fa-bookmark"></i>{% if not thread.author == request.user %} 새로운 스토리 알림으로 받기{% endif %}
+        </a>
+        {% if thread.author == request.user %}
+        <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.edit({{thread.pk}})"><i class="far fa-edit"></i></a>
+        <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.remove({{thread.pk}});"><i class="far fa-trash-alt"></i></a>
+        {% endif %}
+    </div>
   </div>
-  {% endif %}
 {% if thread.allow_write or thread.author == request.user %}
   {% if request.user.is_active %}
   <form id='image-form' enctype='multipart/form-data'>
@@ -100,9 +96,9 @@
     참여할 수 없는 스레드입니다.
   </div>
   {% endif %}
-  <article id="story" class="noto mt-3">
-    {% for story in story_page %}
-    <div id="story-{{ story.pk }}">
+  <article class="noto mt-3">
+    {% for story in stories %}
+    <div id="{{ story.created_date|date:"U" }}">
       {% include 'board/thread/include/story.html' %}
     </div>
     {% empty %}
@@ -123,12 +119,5 @@
 <script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
 <script>
   autolink($('#story-pin'));
-</script>
-<script src="{{ static_url }}/assets/library/InfiniteScroll.js?{{ static_version }}"></script>
-<script type="text/javascript">
-  var postWrapperId = 'story';
-  var paginatePath = '{{ request.get_full_path }}?page=';
-  var lastPage = {{ story_page.paginator.num_pages }};
-  new InfiniteScroll(paginatePath, postWrapperId, lastPage);
 </script>
 {% endblock %}

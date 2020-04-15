@@ -1194,8 +1194,13 @@ body.dark {
     background-color: #292929;
     color: #d6d6d6;
 }
+body.dark .toast-header {
+    background: #1d1d1d;
+    color: #fff;
+}
 body.dark .toast-body {
-    color: #000;
+    background: #000;
+    color: #dbdbdb;
 }
 body.dark .share,
 body.dark .share a {

@@ -656,12 +656,8 @@ def thread_detail(request, url):
         'grade': fn.get_grade(thread.author),
         'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
     }
-    stroy_all = Story.objects.filter(thread=thread)
-    page = request.GET.get('page', 1)
-    paginator = Paginator(stroy_all, 25)
-    fn.page_check(page, paginator)
-    story_page = paginator.get_page(page)
-    render_args['story_page'] = story_page
+    stories = Story.objects.filter(thread=thread)
+    render_args['stories'] = stories
 
     # View Count by iptable
     if not request.user == thread.author:

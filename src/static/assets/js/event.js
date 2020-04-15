@@ -135,6 +135,11 @@ $('#google-login').on('click', function() {
     location.href = url;
 });
 
+$('.story-title').on('click', function() {
+    var hash = '#' + $(this).data('hash')
+    copyToClipboard(getPath() + hash, '스토리 링크가 복사되었습니다.');
+});
+
 (function() {
     var writeSeletor = '';
     var writeRender = function() {

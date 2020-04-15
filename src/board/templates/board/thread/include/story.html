@@ -10,7 +10,7 @@
                     {% endif %}
                 </a>
                 <div>
-                    <div class="h6 noto story-title m-0">{{ story.title }}</div>
+                    <div class="h6 noto story-title m-0 c-pointer" data-hash="{{ story.created_date|date:"U" }}">{{ story.title }}</div>
                     <div class="h7"><a href="{% url 'user_profile' username=story.author %}" class="text-muted text-decoration-none">@{{ story.author }}</a></div>
                 </div>
             </div>

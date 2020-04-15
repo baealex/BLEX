@@ -439,14 +439,14 @@ const Thread = (() => {
                     Notify.append('타인 참여가 불가능한 본인의 스레드는 북마크할 수 없습니다.');
                 }
                 else {
-                    if($(`#thread-bookmark i`).hasClass('far')) {
-                        $(`#thread-bookmark i`).removeClass('far');
-                        $(`#thread-bookmark i`).addClass('fas');
+                    if($(`#bookmark`).hasClass('far')) {
+                        $(`#bookmark`).removeClass('far');
+                        $(`#bookmark`).addClass('fas');
                         Notify.append('스레드를 북마크합니다.');
                     }
                     else {
-                        $(`#thread-bookmark i`).removeClass('fas');
-                        $(`#thread-bookmark i`).addClass('far');
+                        $(`#bookmark`).removeClass('fas');
+                        $(`#bookmark`).addClass('far');
                         Notify.append('스레드 북마크를 해제합니다.');
                     }
                 }
