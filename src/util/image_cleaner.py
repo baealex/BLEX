@@ -37,9 +37,13 @@ if __name__ == '__main__':
             images = soup.select('img')
             for image in images:
                 content_image_names[image.get('src').split('/')[-1]] = 0
+                content_image_names[image.get('data-src').split('/')[-1]] = 0
+            posters = soup.select('video')
+            for poster in posters:
+                content_video_names[poster.get('poster').split('/')[-1]] = 0
             videos = soup.select('source')
             for video in videos:
-                content_video_names[video.get('src').split('/')[-1]] = 0
+                content_video_names[video.get('data-src').split('/')[-1]] = 0
         except:
             pass
     

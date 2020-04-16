@@ -33,16 +33,17 @@ def parsedown(text):
 
 def avatar_path(instance, filename):
     dt = datetime.datetime.now()
-    return 'images/avatar/u/' + instance.user.username + '/' + randstr(4) + '.' + filename.split('.')[-1]
+    return 'images/avatar/u/' + instance.user.username + '/' + randstr(4) + '.jpg'
 
 def title_image_path(instance, filename):
     dt = datetime.datetime.now()
-    return 'images/title/' + '/' + str(dt.year) + '/' + str(dt.month) + '/' + str(dt.day) + '/' + instance.author.username + '/' + str(dt.hour) + '_' + randstr(8) + '.' + filename.split('.')[-1]
+    return 'images/title/' + '/' + str(dt.year) + '/' + str(dt.month) + '/' + str(dt.day) + '/' + instance.author.username + '/' + str(dt.hour) + '_' + randstr(8) + '.jpg'
 
 def make_thumbnail(this, size, save_as=False, quality=100):
     if hasattr(this, 'avatar'):
         this.image = this.avatar
     image = Image.open(this.image)
+    image = image.convert('RGB')
     image.thumbnail((size, size), Image.ANTIALIAS)
     image.save('static/' + (str(this.image) if not save_as else this.get_thumbnail()), quality=quality)
 
@@ -227,7 +228,8 @@ class Thread(models.Model):
             pass
         super(Thread, self).save(*args, **kwargs)
         if will_make_thumbnail:
-            make_thumbnail(self, size=750, save_as=True)
+            make_thumbnail(self, size=750, save_as=True, quality=85)
+            make_thumbnail(self, size=1920, quality=85)
 
 class ThreadAnalytics(models.Model):
     thread  = models.ForeignKey(Thread, on_delete=models.CASCADE)
@@ -394,7 +396,8 @@ class Post(models.Model):
             pass
         super(Post, self).save(*args, **kwargs)
         if will_make_thumbnail:
-            make_thumbnail(self, size=750, save_as=True)
+            make_thumbnail(self, size=750, save_as=True, quality=85)
+            make_thumbnail(self, size=1920, quality=85)
 
 class PostAnalytics(models.Model):
     posts   = models.ForeignKey(Post, on_delete=models.CASCADE)

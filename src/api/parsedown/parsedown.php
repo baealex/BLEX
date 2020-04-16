@@ -1360,6 +1360,7 @@ class Parsedown
                     'class' => 'lazy',
                     'alt' => $Link['element']['handler']['argument'],
                     'data-src' => $Link['element']['attributes']['href'],
+                    'src' => ($Link['element']['attributes']['href'].'.preview.jpg'),
                 ),
                 'autobreak' => true,
             ),

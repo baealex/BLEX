@@ -2,6 +2,7 @@ import json
 import os
 import re
 
+from PIL import Image, ImageFilter
 from itertools import chain
 from django.db.models import Count, Q
 from django.core.cache import cache
@@ -586,18 +587,40 @@ def image_upload(request):
             )
 
             file_name = str(dt.hour) + '_' + randstr(20)
-            with open(upload_path + '/' + file_name +'.'+ ext, 'wb+') as destination:
+            with open(upload_path + '/' + file_name + '.' + ext, 'wb+') as destination:
                 for chunk in image.chunks():
                     destination.write(chunk)
             
             if ext == 'gif':
                 try:
+                    image_path = upload_path + '/' + file_name
+                    convert_image = Image.open(image_path + '.' + ext).convert('RGB')
+                    preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
+                    preview_image.save(image_path + '.mp4.preview.jpg', quality=50)
+
                     os.system('ffmpeg -i '+ upload_path + '/' + file_name + '.gif' + ' -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart '+ upload_path + '/' + file_name +'.mp4')
                     os.system('rm ' + upload_path + '/' + file_name + '.gif')
                     ext = 'mp4'
                 except:
                     return HttpResponse('이미지 업로드를 실패했습니다.')
-            return HttpResponse('https://static.blex.me' + upload_path.replace('static', '') + '/' + file_name +'.'+ ext)
+            if ext == 'png':
+                try:
+                    image_path = upload_path + '/' + file_name
+                    convert_image = Image.open(image_path + '.' + ext).convert('RGB')
+                    convert_image.save(image_path + '.jpg')
+                    os.system('rm ' + image_path + '.png')
+                    ext = 'jpg'
+                except:
+                    return HttpResponse('이미지 업로드를 실패했습니다.')
+            if ext == 'jpg':
+                image_path = upload_path + '/' + file_name + '.' + ext
+                resize_image = Image.open(image_path)
+                resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
+                resize_image.save(image_path)
+
+                preview_image = resize_image.filter(ImageFilter.GaussianBlur(50))
+                preview_image.save(image_path + '.preview.jpg', quality=50)
+            return HttpResponse(settings.MEDIA_URL + upload_path.replace('static/', '') + '/' + file_name + '.' + ext)
         else:
             return HttpResponse('이미지 파일이 아닙니다.')
     raise Http404

@@ -171,6 +171,11 @@
                         }).done(function(data) {
                             $('#data-url').val(data);
                             loading(false);
+                        }).fail(function(data) {
+                            if(data.status == 413) {
+                                $('#data-url').val('용량이 너무 큽니다!');
+                                loading(false);
+                            }
                         });
 
                         return false;
