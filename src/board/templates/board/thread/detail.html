@@ -99,13 +99,9 @@
   <article id="thread" class="noto mt-3">
     {% for story in stories %}
     <div id="{{ story.created_date|date:"U" }}">
-      {% if request.user == story.author %}
       <div id="story-{{ story.pk }}">
         {% include 'board/thread/include/story.html' %}
       </div>
-      {% else %}
-      {% include 'board/thread/include/story.html' %}
-      {% endif %}
     </div>
     {% empty %}
     <div id="story-empty" class="bg-border-purple vivid-purple noto p-3">
