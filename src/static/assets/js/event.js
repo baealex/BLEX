@@ -32,7 +32,11 @@ $('#image-form > input').on('change', function() {
         cache: false,
         processData: false,
     }).done(function (data) {
-        $('#story-form textarea').val($('#story-form textarea').val() + `![](${data})\n`);
+        if(data.includes('.mp4')) {
+            $('#story-form textarea').val($('#story-form textarea').val() + `@gif[${data}]\n`);    
+        } else {
+            $('#story-form textarea').val($('#story-form textarea').val() + `![](${data})\n`);
+        }
     }).fail(function () {
         Notify.append('이미지 업로드에 실패했습니다.');
     });
@@ -139,6 +143,27 @@ $('.story-title').on('click', function() {
     var hash = '#' + $(this).data('hash')
     copyToClipboard(getPath() + hash);
     Notify.append('링크가 복사되었습니다.');
+});
+
+$('.thread-reverse').on('click', function() {
+    var reverse = $(this).data('reverse');
+    if(reverse) {
+        $('#thread').addClass('reverse');
+    } else {
+        $('#thread').removeClass('reverse');
+    }
+    $('.selection .thread-reverse').each(function(index, item) {
+        $(item).removeClass('active');
+    });
+    $(this).addClass('active');
+});
+
+$('.story-on').on('click', function() {
+    if($('#story-form .card-body').hasClass('hide')) {
+        $('#story-form .card-body').removeClass('hide');
+    } else {
+        $('#story-form .card-body').addClass('hide');
+    }
 });
 
 (function() {

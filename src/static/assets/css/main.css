@@ -1104,6 +1104,26 @@ footer.bg-rdark a:hover {
 .story-card {
     margin-bottom: 1rem;
 }
+.hide {
+    display: none;
+}
+.selection {
+    color: #aaa;
+}
+.selection li {
+    transition: all 0.1s;
+    margin: 5px;
+}
+.selection .active {
+    color: #424242;
+}
+#thread {
+    display: flex;
+    flex-direction: column;
+}
+.reverse {
+    flex-direction: column-reverse !important;
+}
 @media (max-width: 992px) {
     .story-title {
         display: inline-block;
@@ -1366,6 +1386,9 @@ body.dark .fade-mask {
 body.dark #thread-bookmark {
     color: #cccccc;
 }
+body.dark #thread .article pre {
+    background: #272727;
+}
 body.dark .card {
     border: none;
 }
@@ -1377,6 +1400,33 @@ body.dark .card-body {
     background: #000000;
 }
 body.dark footer a:hover {
+    color: #fff;
+}
+body.dark .selection .active {
+    color: #fff;
+}
+body.dark .modal-content {
+    border: none;
+}
+body.dark .modal-body,
+body.dark .modal-footer {
+    background: #2e2e2e;
+}
+body.dark .modal-footer {
+    background: #242424;
+}
+body.dark .custom-file-label {
+    color: #ccc;
+    border: 1px solid #1d1d1d;
+    background-color: #1d1d1d;
+}
+body.dark .custom-file-label::after,
+body.dark .input-group-text {
+    background-color: rgb(65, 65, 65);
+    border: 0;
+    color: #ccc;
+}
+body.dark .btn {
     color: #fff;
 }
 /* ------------------------------ */
@@ -1395,6 +1445,8 @@ body.dark footer a:hover {
 }
 .modal-footer {
     background: hsl(0, 0%, 97%);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     border-top: none;
     border-radius: none;
 }

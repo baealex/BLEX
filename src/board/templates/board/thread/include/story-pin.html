@@ -1,0 +1,43 @@
+<div id="story-pin" class="card story-card noto">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex justify-content-between align-items-center">
+        <a href="{% url 'user_profile' username=thread.author %}">
+          {% if thread.author.profile.avatar %}
+          <div class="back-image thumb comment-thumb" style="background-image:url({{ thread.author.profile.avatar.url }})"></div>
+          {% else %}
+          <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
+          {% endif %}
+        </a>
+        <div>
+          <div class="h6 noto story-title m-0 c-pointer" data-hash="">{{ thread.title }}</div>
+          <div class="h7"><a href="{% url 'user_profile' username=thread.author %}" class="text-muted text-decoration-none">@{{ thread.author }}</a></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-muted h7 mb-2"> <i class="fas fa-thumbtack"></i> 고정됨</div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="article">
+      {% if thread.image %}
+        <img {% if thread.description %}style="margin-bottom:20px"{% endif %} src="{{ thread.image.url }}" alt="{{ thread.title }}">
+      {% endif %}
+      {% if thread.description %}
+        {{ thread.description|linebreaks }}
+      {% else %}
+        스레드 설명이 없습니다.
+      {% endif %}
+    </div>
+  </div>
+  <div class="card-footer">
+      <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Thread.bookmark({{thread.pk}})">
+          <i id="bookmark" class="{% if check_bookmark %}fas{% else %}far{% endif %} fa-bookmark"></i>{% if not thread.author == request.user %} 새로운 스토리 알림으로 받기{% endif %}
+      </a>
+      {% if thread.author == request.user %}
+      <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.edit({{thread.pk}})"><i class="far fa-edit"></i></a>
+      <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.remove({{thread.pk}});"><i class="far fa-trash-alt"></i></a>
+      {% endif %}
+  </div>
+</div>

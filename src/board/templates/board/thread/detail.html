@@ -25,49 +25,9 @@
 {% block content %}
 <style>#top-nav {position: absolute;}</style>
 <div class="col-lg-8 mx-auto mt-5 px-0">
-  <div id="story-pin" class="card story-card noto">
-    <div class="card-header">
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="d-flex justify-content-between align-items-center">
-          <a href="{% url 'user_profile' username=thread.author %}">
-            {% if thread.author.profile.avatar %}
-            <div class="back-image thumb comment-thumb" style="background-image:url({{ thread.author.profile.avatar.url }})"></div>
-            {% else %}
-            <div class="back-image thumb comment-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
-            {% endif %}
-          </a>
-          <div>
-            <div class="h6 noto story-title m-0 c-pointer" data-hash="">{{ thread.title }}</div>
-            <div class="h7"><a href="{% url 'user_profile' username=thread.author %}" class="text-muted text-decoration-none">@{{ thread.author }}</a></div>
-          </div>
-        </div>
-        <div>
-          <div class="text-muted h7 mb-2"> <i class="fas fa-thumbtack"></i> 고정됨</div>
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="article">
-        {% if thread.image %}
-          <img {% if thread.description %}style="margin-bottom:20px"{% endif %} src="{{ thread.image.url }}" alt="{{ thread.title }}">
-        {% endif %}
-        {% if thread.description %}
-          {{ thread.description|linebreaks }}
-        {% endif %}
-        <p class="post-date">{{ thread.created_date | timesince }}전{% if thread.stories.first %} 새로운 스토리가 추가됨{% else %} 생성됨{% endif %}</p>
-      </div>
-    </div>
-    <div class="card-footer">
-        <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Thread.bookmark({{thread.pk}})">
-            <i id="bookmark" class="{% if check_bookmark %}fas{% else %}far{% endif %} fa-bookmark"></i>{% if not thread.author == request.user %} 새로운 스토리 알림으로 받기{% endif %}
-        </a>
-        {% if thread.author == request.user %}
-        <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.edit({{thread.pk}})"><i class="far fa-edit"></i></a>
-        <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.remove({{thread.pk}});"><i class="far fa-trash-alt"></i></a>
-        {% endif %}
-    </div>
-  </div>
-{% if thread.allow_write or thread.author == request.user %}
+  {% include 'board/thread/include/story-pin.html' %}
+
+  {% if thread.allow_write or thread.author == request.user %}
   {% if request.user.is_active %}
   <form id='image-form' enctype='multipart/form-data'>
     <input name="image" type="file" accept="image/*" style="display: none;" />
@@ -75,9 +35,9 @@
   <form id="story-form" method="thread">
     <div class="card story-card">
       <div class="card-header noto">
-        새로운 스토리 작성
+        <a class="shallow-dark c-pointer story-on">새로운 스토리 작성</a>
       </div>
-      <div class="card-body">
+      <div class="card-body hide">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="button" onclick="Story.write({{ thread.pk }})" class="btn btn-dark">스토리 작성</button>
@@ -93,9 +53,16 @@
     {% endif %}
   {% else %}
   <div class="bg-border-purple vivid-purple noto p-3">
+    {% csrf_token %}
     참여할 수 없는 스레드입니다.
   </div>
   {% endif %}
+  <div class="mt-3">
+    <ul class="none-list serif selection mt-3">
+      <li data-reverse='false' class="c-pointer thread-reverse active">최신순</li>
+      <li data-reverse='true' class="c-pointer thread-reverse">과거순</li>
+    </ul>
+  </div>
   <article id="thread" class="noto mt-3">
     {% for story in stories %}
     <div id="{{ story.created_date|date:"U" }}">
