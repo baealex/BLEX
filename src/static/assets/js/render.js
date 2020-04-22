@@ -22,7 +22,7 @@ var Render = {
         else
             var date = `${element.created_date}(Last Update: ${element.updated_date})`;
         return `
-        <div class="card story-card">
+        <div class="card story-card blex-card">
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex justify-content-between align-items-center">

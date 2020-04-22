@@ -1,9 +1,10 @@
+from itertools import chain
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from .models import Post
+from .models import Post, Story
 
 class CorrectMimeTypeFeed(Rss201rev2Feed):
     content_type = 'application/xml'
@@ -16,7 +17,9 @@ class SitePostsFeed(Feed):
     description = 'BLOG EXPRESS ME'
 
     def items(self):
-        return Post.objects.filter(created_date__lte=timezone.now(), hide=False).order_by('created_date').reverse()[:20]
+        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)
+        stories = Story.objects.filter(created_date__lte=timezone.now(), thread__hide=False)
+        return sorted(chain(posts, stories), key=lambda instance: instance.created_date, reverse=True)[:20]
 
     def item_title(self, item):
         return item.title
@@ -49,7 +52,9 @@ class UserPostsFeed(Feed):
             return obj.username + '\'s rss'
 
     def items(self, obj):
-        return Post.objects.filter(created_date__lte=timezone.now(), author=obj, hide=False).order_by('-created_date')[:20]
+        posts = Post.objects.filter(created_date__lte=timezone.now(), author=obj, hide=False)
+        stories = Story.objects.filter(created_date__lte=timezone.now(), author=obj, thread__hide=False)
+        return sorted(chain(posts, stories), key=lambda instance: instance.created_date, reverse=True)[:20]
 
     def item_title(self, item):
         return item.title

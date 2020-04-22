@@ -1,0 +1,44 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ story.title }} – {{ thread.title }}{% endblock %}
+
+{% block seo %}
+<meta name="description" content="{{ story.text_html | striptags | truncatewords:50 }}">
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="{{ story.title | truncatewords:20 }}">
+<meta property="og:description" content="{{ story.text_html | striptags | truncatewords:50 }}">
+<meta property="og:site_name" content="{{ site_title }}">
+{% if thread.image %}
+<meta property="og:image" content="{{ thread.image.url }}">{% endif %}
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="{{ story.author.username }}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ story.title | truncatewords:20 }}">
+<meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta name="twitter:description" content="{{ story.text_html | striptags | truncatewords:50 }}">
+{% if thread.image %}
+<meta name="twitter:image" content="{{ thread.image.url }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="col-lg-8 mx-auto mt-5 px-0">
+  {% include 'board/thread/include/thread-pin.html' %}
+  {% csrf_token %}
+  <article class="noto mt-3">
+    {% include 'board/thread/include/story.html' %}
+  </article>
+</div>
+{% endblock %}
+
+{% block footer%}
+{% include 'board/common/include/footer.html' %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
+<script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
+<script>
+  autolink($('#story-pin'));
+</script>
+{% endblock %}

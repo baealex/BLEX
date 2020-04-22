@@ -1,6 +1,7 @@
 import requests
 import datetime
 import random
+import time
 
 from django.db import models
 from django.db.models import Sum
@@ -276,6 +277,14 @@ class Story(models.Model):
             'created_date': self.created_date.strftime("%Y-%m-%d %H:%M"),
             'updated_date': self.updated_date.strftime("%Y-%m-%d %H:%M"),
         }
+    
+    def timestamp(self):
+        timestamp = str(self.created_date.timestamp()).replace('.', '')
+        timestamp = timestamp + '0' * (16 - len(timestamp))
+        return timestamp
+
+    def get_absolute_url(self):
+        return reverse('story_detail', args=[self.thread.url, self.thread.author.username, self.timestamp()])
 
 class TempPosts(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -320,6 +329,11 @@ class Post(models.Model):
             return self.image.url
         else:
             return settings.STATIC_URL + '/images/default-post.png'
+
+    def timestamp(self):
+        timestamp = str(self.created_date.timestamp()).replace('.', '')
+        timestamp = timestamp + '0' * (16 - len(timestamp))
+        return timestamp
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[self.author, self.url])

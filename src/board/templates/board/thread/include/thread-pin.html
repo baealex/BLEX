@@ -1,4 +1,4 @@
-<div id="story-pin" class="card story-card noto">
+<div id="story-pin" class="card story-card noto blex-card">
   <div class="card-header">
     <div class="d-flex justify-content-between align-items-center">
       <div class="d-flex justify-content-between align-items-center">
@@ -10,7 +10,9 @@
           {% endif %}
         </a>
         <div>
-          <div class="h6 noto story-title m-0 c-pointer" data-hash="">{{ thread.title }}</div>
+          <div class="h6 noto story-title m-0 c-pointer">
+            <a class="deep-dark" href="{{ thread.get_absolute_url }}">{{ thread.title }}</a>
+          </div>
           <div class="h7"><a href="{% url 'user_profile' username=thread.author %}" class="text-muted text-decoration-none">@{{ thread.author }}</a></div>
         </div>
       </div>
@@ -19,6 +21,7 @@
       </div>
     </div>
   </div>
+  {% if not thread_mini %}
   <div class="card-body">
     <div class="article">
       {% if thread.image %}
@@ -31,6 +34,7 @@
       {% endif %}
     </div>
   </div>
+  {% endif %}
   <div class="card-footer">
       <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Thread.bookmark({{thread.pk}})">
           <i id="bookmark" class="{% if check_bookmark %}fas{% else %}far{% endif %} fa-bookmark"></i>{% if not thread.author == request.user %} 새로운 스토리 알림으로 받기{% endif %}

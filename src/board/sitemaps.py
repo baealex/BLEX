@@ -2,7 +2,7 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from itertools import chain
 
-from .models import Post, Thread, Series, Profile
+from .models import Post, Thread, Series, Profile, Story
 from .views_fn import get_clean_all_tags
 
 class StaticSitemap(Sitemap):
@@ -34,6 +34,16 @@ class ThreadSitemap(Sitemap):
         
     def lastmod(self, element):
         return element.created_date
+
+class StorySitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Story.objects.all().order_by('pk')
+    
+    def lastmod(self, element):
+        return element.updated_date
 
 class SeriesSitemap(Sitemap):
     changefreq = 'weekly'
@@ -99,6 +109,7 @@ sitemaps = {
     
     'topic_sitemap': TopicSitemap,
     'posts_sitemap': PostsSitemap,
+    'story_sitemap': StorySitemap,
     'thread_sitemap': ThreadSitemap,
     'series_sitemap': SeriesSitemap,
 

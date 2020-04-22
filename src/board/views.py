@@ -674,13 +674,20 @@ def thread_detail(request, url):
         raise Http404()
     render_args = {
         'thread': thread,
-        'white_nav': True,
         'form': StoryForm(),
         'grade': fn.get_grade(thread.author),
         'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
     }
+    
     stories = Story.objects.filter(thread=thread)
-    render_args['stories'] = stories
+    page = request.GET.get('page', 1)
+    paginator = Paginator(stories, 5)
+    fn.page_check(page, paginator)
+    elements = paginator.get_page(page)
+    render_args['elements'] = elements
+
+    if int(page) > 1:
+        render_args['thread_mini'] = True
 
     # View Count by iptable
     if not request.user == thread.author:
@@ -704,6 +711,29 @@ def thread_detail(request, url):
     
     render_args.update(fn.night_mode(request))
     return render(request, 'board/thread/detail.html', render_args)
+
+def story_detail(request, url, username, timestamp):
+    thread = get_object_or_404(Thread, url=url)
+    if thread.hide == True and not thread.author == request.user:
+        raise Http404()
+    
+    render_args = {
+        'thread': thread,
+        'form': StoryForm(),
+        'grade': fn.get_grade(thread.author),
+        'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
+    }
+
+    render_args['thread_mini'] = True
+    render_args['story_detail'] = True
+
+    user = get_object_or_404(User, username=username)
+    date = timezone.make_aware(datetime.datetime.fromtimestamp(float(timestamp)/1000000))
+    story = get_object_or_404(Story, author=user, created_date=date)
+    render_args['story'] = story
+
+    render_args.update(fn.night_mode(request))
+    return render(request, 'board/thread/story.html', render_args)
 
 # ------------------------------------------------------------ Thread End
 
@@ -735,7 +765,7 @@ def post_detail(request, username, url):
         this_number = 0
         this_series = None
         for i in range(len(series)):
-            if series[i].posts.first()== post:
+            if series[i].posts.first() == post:
                 this_series = series[i]
         if not this_series:
             this_series = series[0]
@@ -896,11 +926,12 @@ def post_write(request):
         form = PostForm()
     return render(request, 'board/posts/write.html', { 'form': form, 'save': True })
 
-def post_edit(request, pk):
+def post_edit(request, timestamp):
     if not request.user.is_active:
         raise Http404
     
-    post = get_object_or_404(Post, pk=pk)
+    date = timezone.make_aware(datetime.datetime.fromtimestamp(float(timestamp)/1000000))
+    post = get_object_or_404(Post, author=request.user, created_date=date)
     if not post.author == request.user:
         raise Http404
     

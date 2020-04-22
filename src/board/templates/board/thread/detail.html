@@ -23,17 +23,16 @@
 {% endblock %}
 
 {% block content %}
-<style>#top-nav {position: absolute;}</style>
 <div class="col-lg-8 mx-auto mt-5 px-0">
-  {% include 'board/thread/include/story-pin.html' %}
-
+  {% include 'board/thread/include/thread-pin.html' %}
+{% if not thread_mini %}
   {% if thread.allow_write or thread.author == request.user %}
-  {% if request.user.is_active %}
+    {% if request.user.is_active %}
   <form id='image-form' enctype='multipart/form-data'>
     <input name="image" type="file" accept="image/*" style="display: none;" />
   </form>
   <form id="story-form" method="thread">
-    <div class="card story-card">
+    <div class="card story-card blex-card">
       <div class="card-header noto">
         <a class="shallow-dark c-pointer story-on">새로운 스토리 작성</a>
       </div>
@@ -57,18 +56,11 @@
     참여할 수 없는 스레드입니다.
   </div>
   {% endif %}
-  <div class="mt-3">
-    <ul class="none-list serif selection mt-3">
-      <li data-reverse='false' class="c-pointer thread-reverse active">최신순</li>
-      <li data-reverse='true' class="c-pointer thread-reverse">과거순</li>
-    </ul>
-  </div>
+{% endif %}
   <article id="thread" class="noto mt-3">
-    {% for story in stories %}
-    <div id="{{ story.created_date|date:"U" }}">
-      <div id="story-{{ story.pk }}">
-        {% include 'board/thread/include/story.html' %}
-      </div>
+    {% for story in elements %}
+    <div id="story-{{ story.pk }}">
+      {% include 'board/thread/include/story.html' %}
     </div>
     {% empty %}
     <div id="story-empty" class="bg-border-purple vivid-purple noto p-3">
@@ -76,6 +68,9 @@
     </div>
     {% endfor %}
   </article>
+  {% if not story_detail %}
+  {% include 'board/common/include/pagenation.html' %}
+  {% endif %}
 </div>
 {% endblock %}
 

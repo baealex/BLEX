@@ -139,12 +139,6 @@ $('#google-login').on('click', function() {
     location.href = url;
 });
 
-$('.story-title').on('click', function() {
-    var hash = '#' + $(this).data('hash')
-    copyToClipboard(getPath() + hash);
-    Notify.append('링크가 복사되었습니다.');
-});
-
 $('.thread-reverse').on('click', function() {
     var reverse = $(this).data('reverse');
     if(reverse) {

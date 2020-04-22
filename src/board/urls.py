@@ -47,6 +47,7 @@ urlpatterns = [
 
     # Thread
     path('thread/<url>', views.thread_detail, name='thread_detail'),
+    path('thread/<url>/@<username>/<timestamp>', views.story_detail, name='story_detail'),
     path('create', views.thread_create, name='thread_create'),
     path('thread/<int:pk>/edit', views.thread_edit, name='thread_edit'),
 
@@ -56,7 +57,7 @@ urlpatterns = [
     path('write', views.post_write, name='post_write'),
     path('<sort>', views.post_sort_list, name='post_sort_list'),
     path('topic/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
-    path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
+    path('edit/<timestamp>', views.post_edit, name='post_edit'),
     # ------------------------------------------------------------ Article End
 
     # API V1

@@ -49,7 +49,7 @@
             <span>(Edited: {{ post.updated_date|date:"Y-m-d H:i" }})<span>{% endif %}</p>
         {% endif %}
         {% if post.author == request.user %}
-        <a class="btn btn-dark" href="{% url 'post_edit' pk=post.pk %}">수정</a>
+        <a class="btn btn-dark" href="{% url 'post_edit' timestamp=post.timestamp %}">수정</a>
         <a class="btn btn-dark" href="javascript:void(0)" onclick=Posts.remove({{ post.pk }})>삭제</a>
         {% endif %}
         {% include 'board/posts/include/author.html' %}
