@@ -681,7 +681,7 @@ def thread_detail(request, url):
     
     stories = Story.objects.filter(thread=thread)
     page = request.GET.get('page', 1)
-    paginator = Paginator(stories, 5)
+    paginator = Paginator(stories, 1)
     fn.page_check(page, paginator)
     elements = paginator.get_page(page)
     render_args['elements'] = elements
