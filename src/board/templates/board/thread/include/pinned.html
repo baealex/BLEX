@@ -11,7 +11,7 @@
         </a>
         <div>
           <div class="h6 noto story-title m-0 c-pointer">
-            <a class="deep-dark" href="{{ thread.get_absolute_url }}">{{ thread.title }}</a>
+            {{ thread.title }}
           </div>
           <div class="h7"><a href="{% url 'user_profile' username=thread.author %}" class="text-muted text-decoration-none">@{{ thread.author }}</a></div>
         </div>
@@ -32,7 +32,16 @@
       {% else %}
         스레드 설명이 없습니다.
       {% endif %}
+      <p>※ 타인 참여 {% if thread.write_allow %}가능{% else %}불가{% endif %}</p>
+      {% if thread.write_allow or request.user == thread.author %}
+
+      {% endif %}
     </div>
+    <ul class="tag-list noto">
+        {% for tag in thread.tagging %}
+        <li><a href="{% url 'post_list_in_tag' tag=tag %}">{{ tag }}</a></li>
+        {% endfor %}
+    </ul>
   </div>
   {% endif %}
   <div class="card-footer">
@@ -45,3 +54,11 @@
       {% endif %}
   </div>
 </div>
+
+{% if thread.write_allow or request.user == thread.author %}
+<div class="card story-card noto blex-card">
+    <div class="card-header c-pointer text-center" onclick="Story.create({{ thread.pk }})">
+      새로운 스토리 작성
+    </div>
+</div>
+{% endif %}

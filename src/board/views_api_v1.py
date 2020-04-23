@@ -412,12 +412,18 @@ def thread(request, pk=None):
 
 def story(request, pk=None):
     if not pk:
+        if request.method == 'GET':
+            if request.GET.get('get') == 'modal':
+                thread_fk = request.GET.get('fk')
+                form = StoryForm()
+                return render(request, 'board/thread/form/story.html', {'form': form, 'thread_fk': thread_fk})
         if request.method == 'POST':
             thread = get_object_or_404(Thread, pk=request.GET.get('fk'))
             form = StoryForm(request.POST)
             if form.is_valid():
                 story = form.save(commit=False)
                 story.text_html = parsedown(story.text_md)
+                story.created_date = timezone.now()
                 story.author = request.user
                 story.thread = thread
                 story.save()
@@ -426,13 +432,13 @@ def story(request, pk=None):
                 fn.add_exp(request.user, 1)
 
                 data = {
-                    'element': story.to_dict(),
+                    'redirect': story.get_absolute_url(),
                 }
 
                 send_notify_content = '\"'+ thread.title +'\"스레드 에 @'+ story.author.username +'님이 새로운 스토리를 발행했습니다.'
                 for user in thread.bookmark.all():
                     if not user == story.author:
-                        fn.create_notify(user=user, url=thread.get_absolute_url(), infomation=send_notify_content)
+                        fn.create_notify(user=user, url=story.get_absolute_url(), infomation=send_notify_content)
                 
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
     if pk:
@@ -440,7 +446,7 @@ def story(request, pk=None):
         if request.method == 'GET':
             if not request.user == story.author:
                 return HttpResponse('error:DU')
-            if request.GET.get('get') == 'form':
+            if request.GET.get('get') == 'modal':
                 form = StoryForm(instance=story)
                 return render(request, 'board/thread/form/story.html', {'form': form, 'story': story})
             else:
@@ -500,8 +506,9 @@ def story(request, pk=None):
 
             return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
         if request.method == 'DELETE':
+            redirect = story.thread.get_absolute_url()
             story.delete()
-            return HttpResponse('DONE')
+            return HttpResponse(redirect)
     
     raise Http404
 

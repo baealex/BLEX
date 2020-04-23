@@ -23,54 +23,42 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-lg-8 mx-auto mt-5 px-0">
-  {% include 'board/thread/include/thread-pin.html' %}
-{% if not thread_mini %}
-  {% if thread.allow_write or thread.author == request.user %}
-    {% if request.user.is_active %}
-  <form id='image-form' enctype='multipart/form-data'>
-    <input name="image" type="file" accept="image/*" style="display: none;" />
-  </form>
-  <form id="story-form" method="thread">
-    <div class="card story-card blex-card">
-      <div class="card-header noto">
-        <a class="shallow-dark c-pointer story-on">새로운 스토리 작성</a>
-      </div>
-      <div class="card-body hide">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="button" onclick="Story.write({{ thread.pk }})" class="btn btn-dark">스토리 작성</button>
-        <button id="image-upload-button" type="button" class="btn btn-dark">이미지 업로드</button>
-      </div>
-    </div>
-  </form>
-    {% else %}
-  <div class="bg-border-purple vivid-purple noto p-3">
-    {% csrf_token %}
-    로그인 후 스토리를 작성할 수 있습니다.
-  </div>
+<style>
+#top-nav { display: none; }
+</style>
+<div class="thread-sidebar">
+  <a class="story-read c-pointer" data-href="{{ thread.get_absolute_url }}">
+    {% if thread.image %}
+    <img src="{{ thread.image.url }}" alt="{{ thread.title }}">
     {% endif %}
+    <h1 class="title serif">{{ thread.title }}</h1>
+  </a>
+  <ul class="noto">
+  {% for story in thread.stories.all %}
+    <li class="story-read {% if request.get_full_path == story.get_absolute_url %}active{% endif %}" data-href="{{ story.get_absolute_url }}">{{ story.title }}</li>
+  {% empty %}
+  {% if thread.write_allow or request.user == thread.author %}
+    <li onclick="Story.create({{ thread.pk }})">새로운 스토리 작성</li>
   {% else %}
-  <div class="bg-border-purple vivid-purple noto p-3">
-    {% csrf_token %}
-    참여할 수 없는 스레드입니다.
-  </div>
+    <li>작성된 스토리 없음</li>
   {% endif %}
-{% endif %}
-  <article id="thread" class="noto mt-3">
-    {% for story in elements %}
-    <div id="story-{{ story.pk }}">
-      {% include 'board/thread/include/story.html' %}
-    </div>
-    {% empty %}
-    <div id="story-empty" class="bg-border-purple vivid-purple noto p-3">
-      작성된 스토리가 없습니다.
-    </div>
-    {% endfor %}
-  </article>
+  {% endfor %}
+  </ul>
+</div>
+<div class="top-menu closer">
+  <i class="fas fa-chevron-left"></i>
+</div>
+<div class="top-menu home">
+  <i class="fas fa-home"></i>
+</div>
+<div class="layout col-lg-8 px-0 noto mx-auto">
+  <div id="content">
   {% if not story_detail %}
-  {% include 'board/common/include/pagenation.html' %}
+    {% include 'board/thread/include/pinned.html' %}
+  {% else %}
+    {% include 'board/thread/include/story.html' %}
   {% endif %}
+  </div>
 </div>
 {% endblock %}
 
@@ -83,5 +71,10 @@
 <script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
 <script>
   autolink($('#story-pin'));
+  if($(window).width() < 1500) {
+    $('.closer').html('<i class="fas fa-chevron-right"></i>');
+    $('.closer').addClass('closed');
+    $('.thread-sidebar').addClass('closed');
+  }
 </script>
 {% endblock %}

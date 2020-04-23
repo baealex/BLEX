@@ -1133,6 +1133,74 @@ footer.bg-rdark a:hover {
         text-overflow: ellipsis;
     }
 }
+.thread-sidebar, .top-menu {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  margin-left: 0px;
+  transition: margin-left 0.5s;
+}
+.thread-sidebar {
+  left: 0;
+  width: 320px;
+  height: 100vh;
+  padding: 0 15px;
+  overflow-y: scroll;
+  background-color: #f5f5f5;
+}
+.thread-sidebar img {
+  width: 100%;
+  margin-top: 15px;
+}
+.thread-sidebar .title {
+  margin: 15px 0;
+  font-size: 1.35em;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ccc;
+}
+.thread-sidebar ul {
+  padding-left: 0;
+  list-style: none;
+}
+.thread-sidebar li {
+  margin: 18px 0;
+  cursor: pointer;
+  color: #777777;
+  text-decoration: none;
+}
+.thread-sidebar li:hover {
+  color: #8c00ff;
+}
+.thread-sidebar li.active {
+  color: #8c00ff;
+}
+.top-menu {
+  top: 10px;
+  color: #ccc;
+  margin-left: 0;
+  cursor: pointer;
+  padding: 0 0.5em;
+  font-size: 1.75em;
+  border-radius: 5px;
+  background-color: #fff;
+  border: 1px solid #a1a1a1;
+}
+.top-menu:hover {
+  color: #777;
+}
+.top-menu.closer {
+  left: calc(320px + 15px);
+}
+.top-menu.home {
+  position: absolute;
+  right: 15px;
+}
+.top-menu.home.closed {
+  display: none;
+}
+.closed {
+  margin-left: -320px;
+}
 /* ------------------------------ */
 /* SETTING */
 .element-lock .fa-lock {
@@ -1347,8 +1415,8 @@ body.dark .profile-post{
 }
 body.dark .alert-dark {
     color: #c4c4c4;
-    background-color: #3f3f3f;
     border-color: #414141;
+    background-color: #3f3f3f;
 }
 body.dark .bg-light, body.dark .btn-dark {
     background-color: #3f3f3f !important;
@@ -1428,6 +1496,20 @@ body.dark .input-group-text {
 }
 body.dark .btn {
     color: #fff;
+}
+body.dark .top-menu,
+body.dark .thread-sidebar {
+  background-color: #000;
+}
+body.dark .thread-sidebar .title {
+  border-bottom: 1px solid #505050;
+}
+body.dark .thread-sidebar li {
+  color: #bdbdbd;
+}
+body.dark .thread-sidebar li:hover,
+body.dark .thread-sidebar li.active {
+  color: #03c0e4;
 }
 /* ------------------------------ */
 /* OVERWRITE BOOTSTRAP */

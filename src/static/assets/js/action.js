@@ -456,8 +456,53 @@ const Thread = (() => {
 })();
 const Story = (() => {
     const url = '/api/v1/story';
-    let tempResource = '';
+    const imageActive = function() {
+        $('#image-upload-button').on('click', function(e) {
+            e.preventDefault();
+            $('#image-form > input').click();
+        });
+        
+        $('#image-form > input').on('change', function() {
+            var imageForm = document.getElementById('image-form');
+            var formData = new FormData(imageForm);
+            $.ajax({
+                url: '/upload/image',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                cache: false,
+                processData: false,
+            }).done(function (data) {
+                if(data.includes('.mp4')) {
+                    $('#id_text_md').val($('#id_text_md').val() + `@gif[${data}]\n`);    
+                } else {
+                    $('#id_text_md').val($('#id_text_md').val() + `![](${data})\n`);
+                }
+            }).fail(function () {
+                Notify.append('이미지 업로드에 실패했습니다.');
+            });
+            $('#image-form > input').val('');
+            Notify.append('이미지를 업로드하는 중입니다.');
+        });
+    }
+    let aleadyCreate = false;
+    let aleadyEdit = false;
     return {
+        create: (fk) => {
+            if(aleadyCreate) {
+                $('#story-modal').modal('show');
+            } else {
+                $.ajax({
+                    url: `${url}?get=modal&fk=${fk}`,
+                    type: 'GET',
+                }).done((data) => {
+                    $('body').append(data);
+                    $('#story-modal').modal('show');
+                    imageActive();
+                    aleadyCreate = true;
+                });
+            }
+        },
         write: (fk) => {
             if($('#id_title').val() == '') {
                 Notify.append('스토리의 제목을 입력하세요.');
@@ -470,38 +515,38 @@ const Story = (() => {
             $.ajax({
                 url: `${url}?fk=${fk}`,
                 type: 'POST',
-                data: $('#story-form').serialize(),
+                data: $('#story-modal #story-form').serialize(),
             }).done((data) => {
-                if(document.getElementById('story-empty')) {
-                    $('#story-empty').remove();
-                }
-                $('#story-form input').val('');
-                $('#story-form textarea').val('');
-                $('#thread').prepend(`<div id='story-${data.element.pk}'>${Render.story(data.element)}</div>`);
+                location.replace(data.redirect);
             });
         },
         edit: (pk) => {
-            tempResource = $('#story-' + pk).html();
-            $.ajax({
-                url: `${url}/${pk}?get=form`,
-                type: 'GET',
-            }).done((data) => {
-                moveSlide('story-' + pk);
-                $('#story-' + pk).html(data);
-            });
-        },
-        editCancle: (pk) => {
-            $(`#story-${pk}`).html(tempResource);
-            tempResource = '';
+            if(aleadyEdit) {
+                $('#story-' + pk + '-modal').modal('show');
+            } else {
+                $.ajax({
+                    url: `${url}/${pk}?get=modal`,
+                    type: 'GET',
+                }).done((data) => {
+                    $('body').append(data);
+                    $('#story-' + pk + '-modal').modal('show');
+                    imageActive();
+                    aleadyEdit = true;
+                });
+            }
         },
         update: (pk) => {
             $.ajax({
                 type: 'PUT',
                 url: `${url}/${pk}`,
-                data: $(`#story-${pk}-form`).serialize(),
+                data: $('#story-' + pk + '-modal #story-form').serialize(),
             }).done((data) => {
                 if (data.state == 'true') {
-                    $(`#story-${pk}`).html(Render.story(data.element));
+                    $('#content').html(Render.story(data.element));
+                    $('#content img,#content source').each(function(index, item) {
+                        $(item).attr('src', $(item).data('src'));
+                    });
+                    $('#story-' + pk + '-modal').modal('hide');
                 }
             });
         },
@@ -511,10 +556,7 @@ const Story = (() => {
                     url: `${url}/${pk}`,
                     type: 'DELETE',
                 }).done((data) => {
-                    if (data == 'DONE') {
-                        $(`#story-${pk}`).remove();
-                        Notify.append('스토리가 삭제되었습니다.')
-                    }
+                    location.replace(data);
                 });
             }
         },

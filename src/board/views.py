@@ -679,15 +679,21 @@ def thread_detail(request, url):
         'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
     }
     
-    stories = Story.objects.filter(thread=thread)
-    page = request.GET.get('page', 1)
-    paginator = Paginator(stories, 1)
-    fn.page_check(page, paginator)
-    elements = paginator.get_page(page)
-    render_args['elements'] = elements
+    render_args.update(fn.night_mode(request))
+    return render(request, 'board/thread/detail.html', render_args)
 
-    if int(page) > 1:
-        render_args['thread_mini'] = True
+def story_detail(request, url, username, timestamp):
+    thread = get_object_or_404(Thread, url=url)
+    if thread.hide == True and not thread.author == request.user:
+        raise Http404()
+    
+    render_args = {
+        'thread': thread,
+        'form': StoryForm(),
+        'grade': fn.get_grade(thread.author),
+        'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
+    }
+    render_args['story_detail'] = True
 
     # View Count by iptable
     if not request.user == thread.author:
@@ -708,24 +714,6 @@ def thread_detail(request, url):
                 thread_today.referer += now + '^' + request.headers['Referer'] + '|'
 
         thread_today.save()
-    
-    render_args.update(fn.night_mode(request))
-    return render(request, 'board/thread/detail.html', render_args)
-
-def story_detail(request, url, username, timestamp):
-    thread = get_object_or_404(Thread, url=url)
-    if thread.hide == True and not thread.author == request.user:
-        raise Http404()
-    
-    render_args = {
-        'thread': thread,
-        'form': StoryForm(),
-        'grade': fn.get_grade(thread.author),
-        'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
-    }
-
-    render_args['thread_mini'] = True
-    render_args['story_detail'] = True
 
     user = get_object_or_404(User, username=username)
     date = timezone.make_aware(datetime.datetime.fromtimestamp(float(timestamp)/1000000))
@@ -733,7 +721,7 @@ def story_detail(request, url, username, timestamp):
     render_args['story'] = story
 
     render_args.update(fn.night_mode(request))
-    return render(request, 'board/thread/story.html', render_args)
+    return render(request, 'board/thread/detail.html', render_args)
 
 # ------------------------------------------------------------ Thread End
 

@@ -284,7 +284,7 @@ class Story(models.Model):
         return timestamp
 
     def get_absolute_url(self):
-        return reverse('story_detail', args=[self.thread.url, self.thread.author.username, self.timestamp()])
+        return reverse('story_detail', args=[self.thread.url, self.author.username, self.timestamp()])
 
 class TempPosts(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)

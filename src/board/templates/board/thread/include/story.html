@@ -11,7 +11,7 @@
                 </a>
                 <div>
                     <div class="h6 noto story-title m-0 c-pointer">
-                        <a class="deep-dark" href="{{ story.get_absolute_url }}">{{ story.title }}</a>
+                        {{ story.title }}
                     </div>
                     <div class="h7"><a href="{% url 'user_profile' username=story.author %}" class="text-muted text-decoration-none">@{{ story.author }}</a></div>
                 </div>
@@ -25,8 +25,12 @@
         <div class="article">
             {{ story.text_html | safe }}
         </div>
+        <ul class="tag-list noto">
+            {% for tag in thread.tagging %}
+            <li><a href="{% url 'post_list_in_tag' tag=tag %}">{{ tag }}</a></li>
+            {% endfor %}
+        </ul>
     </div>
-    {% if not story_detail %}
     <div class="card-footer">
         <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Story.agree({{story.pk}})">
             <i class="far fa-thumbs-up"></i> <span>{{ story.total_agree }}</span>
@@ -39,5 +43,4 @@
         <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.remove({{story.pk}});"><i class="far fa-trash-alt"></i></a>
         {% endif %}
     </div>
-    {% endif %}
 </div>

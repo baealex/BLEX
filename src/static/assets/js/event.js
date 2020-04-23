@@ -16,34 +16,6 @@ $('.pn').on('submit', function() {
     location.href='?page=' + $('.pn').val();
 });
 
-$('#image-upload-button').on('click', function(e) {
-    e.preventDefault();
-    $('#image-form > input').click();
-});
-
-$('#image-form > input').on('change', function() {
-    var imageForm = document.getElementById('image-form');
-    var formData = new FormData(imageForm);
-    $.ajax({
-        url: '/upload/image',
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        cache: false,
-        processData: false,
-    }).done(function (data) {
-        if(data.includes('.mp4')) {
-            $('#story-form textarea').val($('#story-form textarea').val() + `@gif[${data}]\n`);    
-        } else {
-            $('#story-form textarea').val($('#story-form textarea').val() + `![](${data})\n`);
-        }
-    }).fail(function () {
-        Notify.append('이미지 업로드에 실패했습니다.');
-    });
-    $('#image-form > input').val('');
-    Notify.append('이미지를 업로드하는 중입니다.');
-});
-
 $('#idButton').on('click', function() {
     if($('#id_username').val() != '') {
         $.ajax({
@@ -137,6 +109,48 @@ $('#google-login').on('click', function() {
     url += '&approval_prompt=force'
     url += '&access_type=offline'
     location.href = url;
+});
+
+$('.story-read').on('click', function() {
+    var href = $(this).data('href');
+    $('#content').load(href + ' #content', function() {
+        $('#content img,#content source').each(function(index, item) {
+            $(item).attr('src', $(item).data('src'));
+        });
+    });
+    history.pushState({}, href, href);
+    $('.story-read').each(function(index, item) {
+        $(item).removeClass('active');
+    })
+    $(this).addClass('active');
+    if($(window).width() < 1500) {
+        $('.closer').html('<i class="fas fa-chevron-right"></i>');
+        $('.closer').addClass('closed');
+        $('.thread-sidebar').addClass('closed');
+    }
+});
+
+$('.closer').on('click', function() {
+    if($('.closer').hasClass('closed')) {
+        $('.closer').html('<i class="fas fa-chevron-left"></i>');
+        $('.closer').removeClass('closed');
+        $('.thread-sidebar').removeClass('closed');
+    } else {
+        $('.closer').html('<i class="fas fa-chevron-right"></i>');
+        $('.closer').addClass('closed');
+        $('.thread-sidebar').addClass('closed');
+    }
+    if($(window).width() < 460) {
+        if($('.home').hasClass('closed')) {
+            $('.home').removeClass('closed');
+        } else {
+            $('.home').addClass('closed');
+        }
+    }
+});
+
+$('.home').on('click', function() {
+    location.href = '/';
 });
 
 $('.thread-reverse').on('click', function() {
