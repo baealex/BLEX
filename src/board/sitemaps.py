@@ -40,7 +40,7 @@ class StorySitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return Story.objects.all().order_by('pk')
+        return Story.objects.filter(thread__hide=False).order_by('pk')
     
     def lastmod(self, element):
         return element.updated_date
