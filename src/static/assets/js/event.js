@@ -127,6 +127,7 @@ $('.story-read').on('click', function() {
         $('.closer').html('<i class="fas fa-chevron-right"></i>');
         $('.closer').addClass('closed');
         $('.thread-sidebar').addClass('closed');
+        $('.home').removeClass('closed');
     }
 });
 
@@ -164,14 +165,6 @@ $('.thread-reverse').on('click', function() {
         $(item).removeClass('active');
     });
     $(this).addClass('active');
-});
-
-$('.story-on').on('click', function() {
-    if($('#story-form .card-body').hasClass('hide')) {
-        $('#story-form .card-body').removeClass('hide');
-    } else {
-        $('#story-form .card-body').addClass('hide');
-    }
 });
 
 (function() {

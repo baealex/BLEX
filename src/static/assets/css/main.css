@@ -1142,7 +1142,7 @@ footer.bg-rdark a:hover {
 }
 .thread-sidebar {
   left: 0;
-  width: 320px;
+  width: 300px;
   height: 100vh;
   padding: 0 15px;
   overflow-y: scroll;
@@ -1189,7 +1189,7 @@ footer.bg-rdark a:hover {
   color: #777;
 }
 .top-menu.closer {
-  left: calc(320px + 15px);
+  left: calc(300px + 15px);
 }
 .top-menu.home {
   position: absolute;
@@ -1199,7 +1199,7 @@ footer.bg-rdark a:hover {
   display: none;
 }
 .closed {
-  margin-left: -320px;
+  margin-left: -300px;
 }
 /* ------------------------------ */
 /* SETTING */

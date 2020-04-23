@@ -67,6 +67,7 @@
   {% else %}
     {% include 'board/thread/include/story.html' %}
   {% endif %}
+  {% csrf_token %}
   </div>
 </div>
 {% endblock %}

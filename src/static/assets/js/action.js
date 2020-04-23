@@ -542,11 +542,7 @@ const Story = (() => {
                 data: $('#story-' + pk + '-modal #story-form').serialize(),
             }).done((data) => {
                 if (data.state == 'true') {
-                    $('#content').html(Render.story(data.element));
-                    $('#content img,#content source').each(function(index, item) {
-                        $(item).attr('src', $(item).data('src'));
-                    });
-                    $('#story-' + pk + '-modal').modal('hide');
+                    location.reload();
                 }
             });
         },
@@ -576,7 +572,7 @@ const Story = (() => {
                     Notify.append('이미 반대한 스토리입니다.');
                 }
                 else {
-                    $(`#story-${pk} .agree span`).text(data);
+                    $(`.agree span`).text(data);
                 }
             });
         },
@@ -596,7 +592,7 @@ const Story = (() => {
                     Notify.append('이미 찬성한 스토리입니다.');
                 }
                 else {
-                    $(`#story-${pk} .disagree span`).text(data);
+                    $(`.disagree span`).text(data);
                 }
             });
         }
