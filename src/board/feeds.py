@@ -52,9 +52,9 @@ class UserPostsFeed(Feed):
             return obj.username + '\'s rss'
 
     def items(self, obj):
-        posts = Post.objects.filter(created_date__lte=timezone.now(), author=obj, hide=False)
-        stories = Story.objects.filter(created_date__lte=timezone.now(), author=obj, thread__hide=False)
-        return sorted(chain(posts, stories), key=lambda instance: instance.created_date, reverse=True)[:20]
+        posts = Post.objects.filter(created_date__lte=timezone.now(), author=obj, hide=False).order_by('-created_date')[:20]
+        # stories = Story.objects.filter(created_date__lte=timezone.now(), author=obj, thread__hide=False)
+        return posts
 
     def item_title(self, item):
         return item.title
