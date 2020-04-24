@@ -32,10 +32,6 @@
       {% else %}
         스레드 설명이 없습니다.
       {% endif %}
-      <p>※ 타인 참여 {% if thread.write_allow %}가능{% else %}불가{% endif %}</p>
-      {% if thread.write_allow or request.user == thread.author %}
-
-      {% endif %}
     </div>
     <ul class="tag-list noto">
         {% for tag in thread.tagging %}
@@ -55,10 +51,22 @@
   </div>
 </div>
 
-{% if thread.write_allow or request.user == thread.author %}
-<div class="card story-card noto blex-card">
+{% if thread.allow_write or thread.author == request.user %}
+  {% if request.user.is_active %}
+  <div class="card story-card noto blex-card">
     <div class="card-header c-pointer text-center" onclick="Story.create({{ thread.pk }})">
       새로운 스토리 작성
     </div>
-</div>
+  </div>
+  {% else %}
+  <div class="bg-border-purple vivid-purple noto p-3">
+    {% csrf_token %}
+    로그인 후 스토리를 작성할 수 있습니다.
+  </div>
+  {% endif %}
+{% else %}
+  <div class="bg-border-purple vivid-purple noto p-3">
+    {% csrf_token %}
+    참여할 수 없는 스레드입니다.
+  </div>
 {% endif %}
