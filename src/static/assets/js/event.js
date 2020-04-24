@@ -113,7 +113,7 @@ $('#google-login').on('click', function() {
 
 $('.story-read').on('click', function() {
     var href = $(this).data('href');
-    $('#content').load(href + ' #content', function() {
+    $('#thread').load(href + ' #content', function() {
         $('#content img,#content source').each(function(index, item) {
             $(item).attr('src', $(item).data('src'));
         });
@@ -123,12 +123,13 @@ $('.story-read').on('click', function() {
         $(item).removeClass('active');
     })
     $(this).addClass('active');
-    if($(window).width() < 1500) {
+    if($(window).width() < 1400) {
         $('.closer').html('<i class="fas fa-chevron-right"></i>');
         $('.closer').addClass('closed');
         $('.thread-sidebar').addClass('closed');
         $('.home').removeClass('closed');
     }
+    window.scrollTo({top: 0});
 });
 
 $('.closer').on('click', function() {

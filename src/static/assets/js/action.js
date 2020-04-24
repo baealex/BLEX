@@ -485,23 +485,19 @@ const Story = (() => {
             Notify.append('이미지를 업로드하는 중입니다.');
         });
     }
-    let aleadyCreate = false;
-    let aleadyEdit = false;
     return {
         create: (fk) => {
-            if(aleadyCreate) {
-                $('#story-modal').modal('show');
-            } else {
-                $.ajax({
-                    url: `${url}?get=modal&fk=${fk}`,
-                    type: 'GET',
-                }).done((data) => {
-                    $('body').append(data);
-                    $('#story-modal').modal('show');
-                    imageActive();
-                    aleadyCreate = true;
-                });
+            if(document.getElementById('story-modal')) {
+                $('#story-modal').remove();
             }
+            $.ajax({
+                url: `${url}?get=modal&fk=${fk}`,
+                type: 'GET',
+            }).done((data) => {
+                $('body').append(data);
+                $('#story-modal').modal('show');
+                imageActive();
+            });
         },
         write: (fk) => {
             if($('#id_title').val() == '') {
@@ -521,25 +517,23 @@ const Story = (() => {
             });
         },
         edit: (pk) => {
-            if(aleadyEdit) {
-                $('#story-' + pk + '-modal').modal('show');
-            } else {
-                $.ajax({
-                    url: `${url}/${pk}?get=modal`,
-                    type: 'GET',
-                }).done((data) => {
-                    $('body').append(data);
-                    $('#story-' + pk + '-modal').modal('show');
-                    imageActive();
-                    aleadyEdit = true;
-                });
+            if(document.getElementById('story-modal')) {
+                $('#story-modal').remove();
             }
+            $.ajax({
+                url: `${url}/${pk}?get=modal`,
+                type: 'GET',
+            }).done((data) => {
+                $('body').append(data);
+                $('#story-modal').modal('show');
+                imageActive();
+            });
         },
         update: (pk) => {
             $.ajax({
                 type: 'PUT',
                 url: `${url}/${pk}`,
-                data: $('#story-' + pk + '-modal #story-form').serialize(),
+                data: $('#story-modal #story-form').serialize(),
             }).done((data) => {
                 if (data.state == 'true') {
                     location.reload();
