@@ -1169,7 +1169,7 @@ footer.bg-rdark a:hover {
   text-decoration: none;
 }
 .thread-sidebar li:hover {
-  color: #8c00ff;
+  color: #c99cff;
 }
 .thread-sidebar li.active {
   color: #8c00ff;
@@ -1298,7 +1298,7 @@ body.dark .share a {
 }
 body.dark .vivid-purple,
 body.dark .article a {
-    color: #c99cff;
+    color: #03c0e4;
 }
 body.dark .article a:hover{
     color: #797979;
@@ -1391,7 +1391,7 @@ body.dark .comment-list {
 }
 body.dark .user-profile-desc::before,
 body.dark .user-profile-desc::after {
-    border-top: 3px solid #c99cff;
+    border-top: 3px solid #03c0e4;
 }
 body.dark .profile-tags li a {
     color: #727272;
@@ -1499,17 +1499,19 @@ body.dark .btn {
 }
 body.dark .top-menu,
 body.dark .thread-sidebar {
-  background-color: #000;
+    background-color: #000;
 }
 body.dark .thread-sidebar .title {
-  border-bottom: 1px solid #505050;
+    border-bottom: 1px solid #505050;
 }
 body.dark .thread-sidebar li {
-  color: #bdbdbd;
+    color: #bdbdbd;
 }
-body.dark .thread-sidebar li:hover,
+body.dark .thread-sidebar li:hover {
+    color: #328899;
+}
 body.dark .thread-sidebar li.active {
-  color: #03c0e4;
+    color: #03c0e4;
 }
 /* ------------------------------ */
 /* OVERWRITE BOOTSTRAP */
