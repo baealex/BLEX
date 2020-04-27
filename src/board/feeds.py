@@ -53,8 +53,8 @@ class UserPostsFeed(Feed):
 
     def items(self, obj):
         posts = Post.objects.filter(created_date__lte=timezone.now(), author=obj, hide=False).order_by('-created_date')[:20]
-        # stories = Story.objects.filter(created_date__lte=timezone.now(), author=obj, thread__hide=False)
-        return posts
+        stories = Story.objects.filter(created_date__lte=timezone.now(), author=obj, thread__hide=False).order_by('-created_date')[:20]
+        return sorted(chain(posts, stories), key=lambda instance: instance.created_date, reverse=True)[:20]
 
     def item_title(self, item):
         return item.title
