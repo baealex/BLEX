@@ -113,15 +113,11 @@ $('#google-login').on('click', function() {
 
 $('.story-read').on('click', function() {
     var href = $(this).data('href');
-    $('#thread').load(href + ' #content', function() {
-        $('#content img,#content source').each(function(index, item) {
-            $(item).attr('src', $(item).data('src'));
-        });
-    });
+    changing('content', href);
     history.pushState({}, href, href);
     $('.story-read').each(function(index, item) {
         $(item).removeClass('active');
-    })
+    });
     $(this).addClass('active');
     if($(window).width() < 1400) {
         $('.closer').html('<i class="fas fa-chevron-right"></i>');
@@ -129,7 +125,10 @@ $('.story-read').on('click', function() {
         $('.thread-sidebar').addClass('closed');
         $('.home').removeClass('closed');
     }
-    window.scrollTo({top: 0});
+});
+
+$(window).on('popstate', function(event) {
+    window.location = document.location.href;
 });
 
 $('.closer').on('click', function() {
@@ -194,51 +193,6 @@ $('.thread-reverse').on('click', function() {
 })();
 
 document.addEventListener("DOMContentLoaded", function() {
-    var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
-  
-    if ("IntersectionObserver" in window) {
-        let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    let lazyImage = entry.target;
-                    lazyImage.src = lazyImage.dataset.src;
-                    lazyImage.classList.remove("lazy");
-                    lazyImageObserver.unobserve(lazyImage);
-                }
-            });
-        });
-  
-        lazyImages.forEach(function(lazyImage) {
-            lazyImageObserver.observe(lazyImage);
-        });
-    } else {
-        // Possibly fall back to a more compatible method here
-    }
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-    var lazyVideos = [].slice.call(document.querySelectorAll("video.lazy"));
-  
-    if ("IntersectionObserver" in window) {
-        var lazyVideoObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(function(video) {
-                if (video.isIntersecting) {
-                    for (var source in video.target.children) {
-                        var videoSource = video.target.children[source];
-                        if (typeof videoSource.tagName === "string" && videoSource.tagName === "SOURCE") {
-                            videoSource.src = videoSource.dataset.src;
-                        }
-                    }
-  
-                    video.target.load();
-                    video.target.classList.remove("lazy");
-                    lazyVideoObserver.unobserve(video.target);
-                }
-            });
-        });
-  
-        lazyVideos.forEach(function(lazyVideo) {
-            lazyVideoObserver.observe(lazyVideo);
-        });
-    }
+    lazyLoadImage();
+    lazyLoadVideo(); 
 });
