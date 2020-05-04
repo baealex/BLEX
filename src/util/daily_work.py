@@ -1,6 +1,7 @@
 import os
 import sys
 import django
+import datetime
 
 from itertools import chain
 
@@ -10,34 +11,27 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-from board.models import Config
+from django.db.models import F
+from django.utils import timezone
 
-send_user_names = tuple()
-send_user_lists = dict()
+from board.models import Config, Profile, PostAnalytics, ThreadAnalytics
+
 for config in Config.objects.all():
     if not config.telegram_token == '':
         config.telegram_token = ''
         config.save()
 print('ALL CONFIGS DONE!')
 
-from board.models import Profile
-profiles = Profile.objects.all()
-
-for data in profiles:
-    if data.exp > 0:
-        data.exp -= 1
-        data.save()
+profiles = Profile.objects.filter(exp__gt=0)
+for profile in profiles:
+    profile.exp = F('exp') - 1
+    profile.save()
 print('ALL PROFILES DONE!')
 
-from board.models import PostAnalytics, ThreadAnalytics
-
-datas = PostAnalytics.objects.all()
-for data in datas:
-    data.iptable = ''
-    data.save()
-
-datas = ThreadAnalytics.objects.all()
-for data in datas:
+yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+posts = PostAnalytics.objects.filter(date=yesterday)
+threads = ThreadAnalytics.objects.filter(date=yesterday)
+for data in chain(posts, threads):
     data.iptable = ''
     data.save()
 print('ALL ANALITICS DONE!')
