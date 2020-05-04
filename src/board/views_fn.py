@@ -55,27 +55,27 @@ def get_view_count(user, date=None):
 def get_clean_all_tags(user=None, count=True):
     posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)
     thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False)
-    if user == None:
-        tagslist = list(posts.values_list('tag', flat=True).distinct()) + (
-            list(thread.values_list('tag', flat=True).distinct()))
-    else:
-        tagslist = list(posts.filter(author=user).values_list('tag', flat=True).distinct()) + (
-            list(thread.filter(author=user).values_list('tag', flat=True).distinct()))
-
+    if user:
+        posts = posts.filter(author=user)
+        thread = thread.filter(author=user)
+    
+    tagslist = list(posts.values_list('tag', flat=True)) + (
+        list(thread.values_list('tag', flat=True)))
+    
     all_tags = set()
-    for tags in tagslist:
+    for tags in set(tagslist):
         all_tags.update([x for x in tags.split(',') if not x.strip() == ''])
 
     if count:
         all_tags_dict = list()
         for tag in all_tags:
-            tag_dict = { 'name': tag }
-            if user == None:
-                tag_dict['count'] = len(posts.filter(tag__iregex=r'\b%s\b' % tag)) + (
-                    len(thread.filter(tag__iregex=r'\b%s\b' % tag)))
-            else:
-                tag_dict['count'] = len(posts.filter(author=user, tag__iregex=r'\b%s\b' % tag)) + (
-                    len(thread.filter(author=user, tag__iregex=r'\b%s\b' % tag)))
+            tag_dict = {
+                'name': tag,
+                'count': 0
+            }
+            for tags in tagslist:
+                if tag in tags:
+                    tag_dict['count'] += 1
             all_tags_dict.append(tag_dict)
         return all_tags_dict
     return all_tags
