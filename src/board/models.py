@@ -186,13 +186,14 @@ class Thread(models.Model):
             return 0
         
     def trendy(self):
-        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
         today          = timezone.make_aware(datetime.datetime.now())
-        count = ThreadAnalytics.objects.filter(date__range=[seven_days_ago, today], thread=self).aggregate(Sum('count'))
-        if count['count__sum']:
-            return count['count__sum']/10
-        else:
-            return 0
+        counts = ThreadAnalytics.objects.filter(date__range=[seven_days_ago, today], thread=self).values_list('date', 'count')
+        trendy = 0
+        for count in counts:
+            rate = -(1/7) * ((today.date()-count[0]).days) + 2
+            trendy += count[1] * rate
+        return trendy
 
     def get_absolute_url(self):
         return reverse('thread_detail', args=[self.url])
@@ -367,13 +368,14 @@ class Post(models.Model):
             return 0
         
     def trendy(self):
-        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
         today          = timezone.make_aware(datetime.datetime.now())
-        count = PostAnalytics.objects.filter(date__range=[seven_days_ago, today], posts=self).aggregate(Sum('count'))
-        if count['count__sum']:
-            return count['count__sum']/10
-        else:
-            return 0
+        counts = PostAnalytics.objects.filter(date__range=[seven_days_ago, today], posts=self).values_list('date', 'count')
+        trendy = 0
+        for count in counts:
+            rate = -(1/7) * ((today.date()-count[0]).days) + 2
+            trendy += count[1] * rate
+        return trendy
     
     def tagging(self):
         return [tag for tag in self.tag.split(',') if tag]
