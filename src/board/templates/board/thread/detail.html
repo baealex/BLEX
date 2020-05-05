@@ -33,7 +33,7 @@
 
 {% block content %}
 <style>
-#top-nav { display: none; }
+#top-nav { display: none; } body { transition: padding-left 0.5s; padding-left: 300px; } #content { overflow-x: hidden; padding: 0 15px; }
 </style>
 <div class="thread-sidebar">
   <a class="story-read c-pointer" data-href="{{ thread.get_absolute_url }}">
@@ -81,10 +81,11 @@
 <script type="text/javascript" src="{{ static_url }}/assets/library/autolink.js"></script>
 <script>
   autolink($('#story-pin'));
-  if($(window).width() < 1500) {
+  if($(window).width() < 700) {
     $('.closer').html('<i class="fas fa-chevron-right"></i>');
     $('.closer').addClass('closed');
     $('.thread-sidebar').addClass('closed');
+    $('body').css('padding-left', '0px');
   }
 </script>
 {% endblock %}

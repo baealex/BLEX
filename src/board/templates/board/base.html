@@ -32,11 +32,11 @@
                 <ul class="navbar-nav mt-3 mt-sm-0">
                     <li class="nav-item">
                         <form method="GET" action="/search">
-                            <input autocomplete="off" type="text" class="form-control text-small launch-modal-search" name="value" value="" placeholder="Serach">
+                            <input autocomplete="off" type="text" class="form-control text-small search" name="value" value="" placeholder="Serach">
                         </form>
                     </li>
                 </ul>
-                <ul class="ml-auto navbar-nav">
+                <ul class="ml-auto navbar-nav noto">
                 {% if request.user.is_active %}
                     {% url 'user_profile' username=request.user as my_profile %}
                     <li class="nav-item {% if request.get_full_path == my_profile %}active{% endif %}">
@@ -60,13 +60,13 @@
             </div>
         </div>
     </nav>
-    {% if write_btn == True %}
+    {% if write_btn %}
     <div id="write-btn" class="write-btn">
         <i class="fas fa-pencil-alt"></i>
     </div>
     <div id="write-selector"></div>
     {% endif %}
-    <div class="container">
+    <div class="container{% if layout_fluid %}-fluid{% endif %}">
         <div class="content">
         {% block content %}{% endblock %}
         </div>

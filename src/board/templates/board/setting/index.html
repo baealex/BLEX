@@ -23,13 +23,13 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav noto">
                     {% url 'user_profile' username=request.user as my_profile %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ my_profile }}">{{ request.user.first_name }} <i class="fas fa-user"></i></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'setting' %}">설정 <i class="fas fa-cogs"></i></a>
+                        <a class="nav-link active" href="{% url 'setting' %}">설정 <i class="fas fa-cogs"></i></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">로그아웃 <i class="fas fa-sign-out-alt"></i></a>

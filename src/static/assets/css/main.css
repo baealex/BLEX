@@ -49,7 +49,7 @@
     font-family: 'Noto Serif KR', serif;
 }
 .noto {
-    font-family: 'Noto Sans KR', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
 }
 /* ------------------------------ */
 /* CLASS : FONTS SIZE */
@@ -998,32 +998,8 @@ footer.bg-rdark a:hover {
 }
 /* ------------------------------ */
 /* HOME : SEARCH */
-#search-box {
-    border: 1px solid #dedede;
-    padding: 15px;
-    border-radius: 15px;
-    width: 100%;
-    cursor: pointer;
-    transition: all ease 0.5s 0s;
-    -webkit-transition: all ease 0.5s 0s;
-}
-#search-box::placeholder {
-    color: #ccc;
-    font-family: 'Noto Serif KR' , serif;
-}
-#search-box:focus {
-    font-size: 20px;
-    padding: 30px;
-    border-radius: 15px;
-    margin-top: 30vh;
-    outline: none;
-}
-.search-box {
-    border: 1px solid #dedede;
-    padding: 15px;
-    border-radius: 15px;
-    color: #ccc;
-    cursor: pointer;
+.search {
+    border-radius: 5rem;
 }
 /* ------------------------------ */
 /* SERIES : LAYOUT */
@@ -1560,5 +1536,8 @@ body.dark .thread-sidebar li.active {
 }
 .form-control:focus {
     box-shadow: none;
+}
+.navbar-brand img {
+    border-radius: 100%;
 }
 /* ------------------------------ */
