@@ -92,16 +92,11 @@
             {% endif %}
             {% if not post.block_comment %}
             {% if request.user.is_active %}
-            <form id="comment-form" class="mb-3" method="post">
+            <form id="comment-form" class="mb-3">
                 {% csrf_token %}
                 {{ form }}
                 <button type="button" onclick="Comment.write({{ post.pk }})" class="btn btn-dark btn-block noto">댓글 작성</button>
             </form>
-            {% if not post.author == request.user %}
-            <div class="noto alert alert-dark s-shadow">
-                @{{ post.author.username }}님이 @{{ request.user.username }}님의 댓글을 확인할 확률은 {% if post.author.profile.exp %}{{ post.author.profile.exp }}{% else %}0{% endif %}% 입니다.
-            </div>
-            {% endif %}
             {% else %}
             {% csrf_token %}
             <div class="noto alert alert-warning s-shadow">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
