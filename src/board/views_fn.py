@@ -74,7 +74,7 @@ def get_clean_all_tags(user=None, count=True):
                 'count': 0
             }
             for tags in tagslist:
-                if tag in tags:
+                if tag + ',' in tags + ',':
                     tag_dict['count'] += 1
             all_tags_dict.append(tag_dict)
         return all_tags_dict
