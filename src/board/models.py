@@ -45,7 +45,8 @@ def make_thumbnail(this, size, save_as=False, quality=100):
         this.image = this.avatar
     image = Image.open(this.image)
     if not save_as:
-        image = image.convert('RGB')
+        image.thumbnail((1920, 1920), Image.ANTIALIAS)
+        image.save('static/' + str(this.image), quality=quality)
     image.thumbnail((size, size), Image.ANTIALIAS)
     image.save('static/' + (str(this.image) if not save_as else this.get_thumbnail()), quality=quality)
 
@@ -200,7 +201,7 @@ class Thread(models.Model):
         return reverse('thread_detail', args=[self.url])
 
     def get_thumbnail(self):
-        return str(self.image) + '.minify.jpg'
+        return str(self.image) + '.minify.' + str(self.image).split('.')[-1]
 
     def to_dict_for_analytics(self):
         return {
@@ -382,7 +383,7 @@ class Post(models.Model):
         return [tag for tag in self.tag.split(',') if tag]
 
     def get_thumbnail(self):
-        return str(self.image) + '.minify.jpg'
+        return str(self.image) + '.minify.' + str(self.image).split('.')[-1]
     
     def to_dict_for_analytics(self):
         return {
