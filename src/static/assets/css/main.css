@@ -1171,11 +1171,22 @@ footer.bg-rdark a:hover {
   position: absolute;
   right: 15px;
 }
-.top-menu.home.closed {
-  display: none;
-}
-.closed {
+div.closed {
   margin-left: -300px;
+}
+@media only screen and (min-width: 700px) {
+    .thread-body {
+        padding-left: 300px;
+        transition: padding-left .5s;
+    }
+    .thread-body.closed {
+        padding-left: 0px;
+    }
+}
+@media only screen and (max-width: 480px) {
+    .top-menu.home.closed {
+        display: none;
+    }
 }
 /* ------------------------------ */
 /* SETTING */

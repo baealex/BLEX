@@ -1,21 +1,4 @@
 var Render = {
-    write: (elements) => {
-        var list = '';
-        elements.map(function(element) {
-            list += `<li><a href="/write?token=${element.token}">${element.title} (${element.date} 전)</a></li>`;
-        });
-        return `
-        <div class="full-mask blurring write-closer">
-            <div class="center-list">
-                <ul class="serif">
-                    ${list}
-                    <li><a href="/write">새 글 쓰기</a></li>
-                    <li><a class="write-closer" href="javascript:void(0);">닫기</a></li>
-                </ul>
-            </div>
-        </div>
-        `
-    },
     comment: (element) => {
         return `
         <div class="comment-list s-shadow">

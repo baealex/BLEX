@@ -28,16 +28,6 @@
     {% endfor %}
 </ul>
 
-<div class="mb-3">
-  <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Thread.bookmark({{thread.pk}})">
-      <i id="bookmark" class="{% if check_bookmark %}fas{% else %}far{% endif %} fa-bookmark"></i>{% if not thread.author == request.user %} 새로운 스토리 알림으로 받기{% endif %}
-  </a>
-  {% if thread.author == request.user %}
-  <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.edit({{thread.pk}})"><i class="far fa-edit"></i></a>
-  <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.remove({{thread.pk}});"><i class="far fa-trash-alt"></i></a>
-  {% endif %}
-</div>
-
 {% if thread.allow_write or thread.author == request.user %}
   {% if request.user.is_active %}
   <div class="bg-border-purple vivid-purple noto p-3">
@@ -57,3 +47,13 @@
     참여할 수 없는 스레드입니다.
   </div>
 {% endif %}
+
+<div class="mt-5 text-center">
+    <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Thread.bookmark({{thread.pk}})">
+        <i id="bookmark" class="{% if check_bookmark %}fas{% else %}far{% endif %} fa-bookmark"></i>{% if not thread.author == request.user %} 새로운 스토리 알림으로 받기{% endif %}
+    </a>
+    {% if thread.author == request.user %}
+    <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.edit({{thread.pk}})"><i class="far fa-edit"></i></a>
+    <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Thread.remove({{thread.pk}});"><i class="far fa-trash-alt"></i></a>
+    {% endif %}
+  </div>

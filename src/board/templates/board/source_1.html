@@ -15,11 +15,7 @@
     {% block head %}
     {% endblock %}
 </head>
-{% if night_mode %}
-<body class="dark">
-{% else %}
-<body>
-{% endif %}
+<body class="{% if night_mode %}dark {% endif %}{% block body-class %}{% endblock %}">
     {% block body %}
     {% endblock %}
 </body>

@@ -111,91 +111,116 @@ $('#google-login').on('click', function() {
     location.href = url;
 });
 
-$('.story-read').on('click', function() {
-    var href = $(this).data('href');
-    changing('content', href);
-    history.pushState({}, href, href);
-    $('.story-read').each(function(index, item) {
-        $(item).removeClass('active');
-    });
-    $(this).addClass('active');
-    if($(window).width() < 700) {
+var threadEvent = function() {
+    var className = ['.closer', '.thread-sidebar', 'body'];
+
+    function isClosed() {
+        return $('.closer').hasClass('closed');
+    }
+
+    function sidebarClose() {
         $('.closer').html('<i class="fas fa-chevron-right"></i>');
-        $('.closer').addClass('closed');
-        $('.thread-sidebar').addClass('closed');
         $('.home').removeClass('closed');
-        $('body').css('padding-left', '0px');
-    }
-});
-
-$(window).on('popstate', function(event) {
-    window.location = document.location.href;
-});
-
-$('.closer').on('click', function() {
-    if($('.closer').hasClass('closed')) {
-        $('.closer').html('<i class="fas fa-chevron-left"></i>');
-        $('.closer').removeClass('closed');
-        $('.thread-sidebar').removeClass('closed');
-        $('body').css('padding-left', '300px');
-    } else {
-        $('.closer').html('<i class="fas fa-chevron-right"></i>');
-        $('.closer').addClass('closed');
-        $('.thread-sidebar').addClass('closed');
-        $('body').css('padding-left', '0px');
-    }
-    if($(window).width() < 460) {
-        if($('.home').hasClass('closed')) {
-            $('.home').removeClass('closed');
-        } else {
-            $('.home').addClass('closed');
+        for(var i=0; i<className.length; i++) {
+            $(className[i]).addClass('closed');
         }
     }
-});
 
-$('.home').on('click', function() {
-    location.href = '/';
-});
-
-$('.thread-reverse').on('click', function() {
-    var reverse = $(this).data('reverse');
-    if(reverse) {
-        $('#thread').addClass('reverse');
-    } else {
-        $('#thread').removeClass('reverse');
+    function sidebarOpen() {
+        $('.closer').html('<i class="fas fa-chevron-left"></i>');
+        $('.home').addClass('closed');
+        for(var i=0; i<className.length; i++) {
+            $(className[i]).removeClass('closed');
+        }
     }
-    $('.selection .thread-reverse').each(function(index, item) {
-        $(item).removeClass('active');
-    });
-    $(this).addClass('active');
-});
 
-(function() {
-    var writeSeletor = '';
-    var writeRender = function() {
-        $('#write-selector').html(Render.write(writeSeletor.result));
+    $('.story-read').on('click', function() {
+        var href = $(this).data('href');
+        changing('content', href);
+        history.pushState({}, href, href);
+        $('.story-read').each(function(index, item) {
+            $(item).removeClass('active');
+        });
+        $(this).addClass('active');
+
+        if($(window).width() < 700) {
+            sidebarClose();
+        }
+    });
+    
+    $(window).on('popstate', function(event) {
+        window.location = document.location.href;
+    });
+    
+    $('.closer').on('click', function() {
+        if(isClosed()) {
+            sidebarOpen();
+        } else {
+            sidebarClose();
+        }
+    });
+    
+    $('.home').on('click', function() {
+        location.href = '/';
+    });
+
+    $(document).ready(function() {
+        autolink($('#content'));
+        if($(window).width() < 700) {
+            sidebarClose();
+        }
+    });
+};
+
+var writeEvent = function() {
+    var state = '';
+    var component = function(elements) {
+        var list = '';
+        elements.forEach(function(element) {
+            list += `<li><a href="/write?token=${element.token}">${element.title} (${element.date} 전)</a></li>`;
+        });
+        return `
+        <div class="full-mask blurring write-closer">
+            <div class="center-list">
+                <ul class="serif">
+                    ${list}
+                    <li><a href="/write">새 글 쓰기</a></li>
+                    <li><a class="write-closer" href="javascript:void(0);">닫기</a></li>
+                </ul>
+            </div>
+        </div>`;
+    }
+    var render = function(state) {
+        $('#write-selector').html(component(state.result));
         $('.write-closer').on('click', function() {
             $('#write-selector').html('');
         });
     }
     $('#write-btn').on('click', function() {
-        if(writeSeletor == '') {
+        if(state == '') {
             $.ajax({
                 url: '/api/v1/posts/temp',
                 type: 'GET',
                 data: { get: 'list'} ,
             }).done(function (data) {
-                writeSeletor = data
-                writeRender();
+                this.state = data;
+                render(this.state);
             });
-        }
-        else {
-            writeRender();
+        } else {
+            render(this.state);
         }
     });
-})();
+};
 
-document.addEventListener("DOMContentLoaded", function() {
-    lazyLoadImage();
-    lazyLoadVideo(); 
-});
+(function() {
+    document.addEventListener("DOMContentLoaded", function() {
+        lazyLoadImage();
+        lazyLoadVideo(); 
+    });
+    if(document.getElementById('write-btn')) {
+        writeEvent();
+    }
+    if(document.getElementById('thread-detail')) {
+        threadEvent();
+    }
+})();
