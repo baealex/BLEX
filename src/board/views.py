@@ -203,16 +203,17 @@ def signup(request):
             new_user.is_active = False
             new_user.save()
 
-            send_mail(
-                subject = '[ BLEX ] 이메일을 인증해 주세요!',
-                message = settings.SITE_URL + '/active/' + token,
-                from_email = 'im@baejino.com',
-                recipient_list = [new_user.email],
-                # html_message = render_to_string('email.html', {
-                #     'username': new_user.first_name,
-                #     'active_token': settings.SITE_URL + '/active/' + token,
-                # })
-            )
+            if not settings.DEBUG:
+                send_mail(
+                    subject = '[ BLEX ] 이메일을 인증해 주세요!',
+                    message = settings.SITE_URL + '/active/' + token,
+                    from_email = 'im@baejino.com',
+                    recipient_list = [new_user.email],
+                    # html_message = render_to_string('email.html', {
+                    #     'username': new_user.first_name,
+                    #     'active_token': settings.SITE_URL + '/active/' + token,
+                    # })
+                )
             return render(request, 'infomation/signup.html', { 'user': new_user })
     else:
         form = UserForm()
@@ -236,7 +237,7 @@ def user_active(request, token):
     user = get_object_or_404(User, last_name='email:' + token)
     if user.date_joined < timezone.now() - datetime.timedelta(days=7):
         user.delete()
-        message = '만료된 링크입니다. 다시 가입을 신청하세요.'
+        message = '만료된 링크입니다. 다시 가입하세요.'
     else:
         user.is_active = True
         user.last_name = ''
@@ -249,6 +250,10 @@ def user_active(request, token):
         config.save()
 
         message = '이메일이 인증되었습니다.'
+
+        fn.create_notify(user=user, url='/@baealex/series/블렉스-이야기', infomation=user.first_name + (
+            '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 이야기\'시리즈를 살펴보시는 것을 추천드립니다 :)'))
+
     return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
 
 @login_required(login_url='/login')
@@ -269,22 +274,32 @@ def opinion(request):
     raise Http404
 
 @login_required(login_url='/login')
+def notify_redirect(request, pk):
+    notify = get_object_or_404(Notify, pk=pk, is_read=False)
+    notify.is_read = True
+    notify.save()
+    return redirect(notify.url)
+
+@login_required(login_url='/login')
 def setting(request):
     render_args = { 
         'tab': '',
         'white_nav' : True,
         'page_setting': True,
     }
-    
-    today_date = timezone.make_aware(datetime.datetime.now())
-    render_args['today'] = fn.get_view_count(request.user, today_date)
-    yesterday_date = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
-    render_args['yesterday'] = fn.get_view_count(request.user, yesterday_date)
-    render_args['total'] = fn.get_view_count(request.user)
-    
-    render_args['newest'] = fn.get_posts('newest', request.user)[:8]
-    render_args['trendy'] = fn.get_posts('trendy', request.user)[:8]
+    notifies = Notify.objects.filter(user=request.user).order_by('created_date').reverse()
 
+    page = request.GET.get('page', 1)
+    paginator = Paginator(notifies, 15)
+    fn.page_check(page, paginator)
+    elements = paginator.get_page(page)
+    render_args['elements'] = elements
+
+    counter = 0
+    for notify in notifies:
+        if not notify.is_read:
+            counter += 1
+    render_args['not_read_count'] = counter
     return render(request, 'board/setting/index.html', render_args)
 
 @login_required(login_url='/login')
@@ -603,23 +618,19 @@ def image_upload(request):
                     ext = 'mp4'
                 except:
                     return HttpResponse('이미지 업로드를 실패했습니다.')
-            if ext == 'png':
+            if ext == 'jpg' or ext == 'png':
                 try:
-                    image_path = upload_path + '/' + file_name
-                    convert_image = Image.open(image_path + '.' + ext).convert('RGB')
-                    convert_image.save(image_path + '.jpg')
-                    os.system('rm ' + image_path + '.png')
-                    ext = 'jpg'
+                    image_path = upload_path + '/' + file_name + '.' + ext
+                    resize_image = Image.open(image_path)
+                    resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
+                    resize_image.save(image_path)
+
+                    if ext == 'png':
+                        resize_image = resize_image.convert('RGB')
+                    preview_image = resize_image.filter(ImageFilter.GaussianBlur(50))
+                    preview_image.save(image_path + '.preview.jpg', quality=50)
                 except:
                     return HttpResponse('이미지 업로드를 실패했습니다.')
-            if ext == 'jpg':
-                image_path = upload_path + '/' + file_name + '.' + ext
-                resize_image = Image.open(image_path)
-                resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
-                resize_image.save(image_path)
-
-                preview_image = resize_image.filter(ImageFilter.GaussianBlur(50))
-                preview_image.save(image_path + '.preview.jpg', quality=50)
             return HttpResponse(settings.MEDIA_URL + upload_path.replace('static/', '') + '/' + file_name + '.' + ext)
         else:
             return HttpResponse('이미지 파일이 아닙니다.')

@@ -1,70 +1,69 @@
-<div class="row">
-    <div class="col-md-4 mb-md-0 mb-4" data-aos="fade-down">
-        <div class="blex-card">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item bg-dark text-white">
-                    <b>Today</b>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ today }}     
-                </li>
-            </ul>
-        </div>
+<div class="blex-card" data-aos="fade-down">
+    {% if not request.user.config.telegram_id %}
+    <div class="p-3 btn-primary c-pointer" onclick="Telegram.pair()" data-toggle="modal" data-target="#telegram-modal">
+        <i class="fab fa-telegram-plane"></i> 텔레그램에서 실시간으로 알림을 받아보세요!
     </div>
-    <div class="col-md-4 mb-md-0 mb-4" data-aos="fade-down">
-        <div class="blex-card">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item bg-dark text-white">
-                    <b>Yesterday</b>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ yesterday }}     
-                </li>
-            </ul>
-        </div>
+    {% else %}
+    <div class="p-3 btn-primary c-pointer" data-toggle="modal" data-target="#telegram-modal">
+        <i class="fab fa-telegram-plane"></i> 텔레그램과 연동을 해제할까요?
     </div>
-    <div class="col-md-4" data-aos="fade-down">
-        <div class="blex-card">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item bg-dark text-white">
-                    <b>Total</b>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ total }}     
-                </li>
-            </ul>
+    {% endif %}
+    <div class="p-3">
+        읽지 않은 알림 : {{ not_read_count }}개
+    </div>
+</div>
+<div id="wrapper" class="noto mt-3">
+    {% for notify in elements %}
+    <div class="blex-card p-3 mb-3" data-aos="zoom-in">
+        <a class="{% if notify.is_read %}shallow-dark{% else %}deep-dark{% endif %}" href="{% if notify.is_read %}{{ notify.url }}{% else %}{% url "notify_redirect" pk=notify.pk %}{% endif %}">{{ notify }}</a>
+        <div class="shallow-dark mt-3 ns">{{ notify.created_date | timesince }}전</div>
+    </div>
+    {% endfor %}
+</div>
+{% if request.user.config.telegram_id %}
+<div class="modal fade noto" id="telegram-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >텔레그램과 연동을 해제합니다.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                텔레그램에서 더이상 회원님의 알림을 받아볼 수 없습니다. 정말 연동을 해제합니까?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn deep-dark" data-dismiss="modal">Cancle</button>
+                <button type="button" class="btn btn-dark" onclick="Telegram.unpair()">Unpair</button>
+            </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12 mt-4">
-        <div class="blex-card" data-aos="zoom-in">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item bg-dark text-white">
-                    <b>Newest</b>
-                </li>
-                {% for post in newest %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post }}</a>
-                    <small class="c-pointer" onclick="Analytics.modal('{{ post.author }}', '{% if post.text_md %}posts_analytics{% else %}thread_analytics{% endif %}', '{{ post.pk }}');"><i class="fas fa-chart-line"></i></small>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    <div class="col-md-12 mt-4">
-        <div class="blex-card" data-aos="zoom-in">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item bg-dark text-white">
-                    <b>Trendy</b>
-                </li>
-                {% for post in trendy %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post }}</a>
-                    <small class="c-pointer" onclick="Analytics.modal('{{ post.author }}', '{% if post.text_md %}posts_analytics{% else %}thread_analytics{% endif %}', '{{ post.pk }}');"><i class="fas fa-chart-line"></i></small>
-                </li>
-                {% endfor %}
-            </ul>
+{% else %}
+<div class="modal fade noto" id="telegram-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">텔레그램과 연동합니다.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                텔레그램과 연동하면 어떤 효과가 있나요?
+                <ul>
+                    <li>실시간으로 회원님의 알림을 전달해 드립니다.</li>
+                    <li>오늘 하루를 마무리하는 일간 보고서를 전달해 드립니다.</li>
+                </ul>
+                어떻게 연동하나요?
+                <ul>
+                    <li>텔레그램을 실행하시고 <a href="http://t.me/blex_bot" class="vivid-purple">@blex_bot</a>을 추가해주세요!</li>
+                    <li>봇에게 <strong id="telegram-token"></strong>라고 말해주세요!</li>
+                </ul>
+                해당 토큰은 회원님을 위해 생성된 일회성 토큰이며 연동을 완료되거나 오늘이 지나면 파기됩니다.
+            </div>
         </div>
     </div>
 </div>
+{% endif %}

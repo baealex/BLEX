@@ -270,12 +270,7 @@ const Telegram = (() => {
                 url: url + '/unpair',
                 type: 'POST',
             }).done((data) => {
-                if(data == 'error:AU') {
-                    Notify.append('텔레그램과의 연동이 이미 해제되었습니다.');
-                } else {
-                    Notify.append('텔레그램과의 연동이 정상적으로 해제되었습니다.');
-                }
-                $('#telegram-modal').modal('hide');
+                location.reload();
             });
         }
     }

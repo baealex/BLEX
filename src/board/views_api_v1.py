@@ -46,7 +46,7 @@ def posts(request, pk):
                 post.likes.add(user)
                 fn.add_exp(request.user, 1)
 
-                send_notify_content = '\"'+ post.title +'\" 글을 \"' + user.username + '\"님께서 추천했습니다.'
+                send_notify_content = '\''+ post.title +'\'글을 @' + user.username + '님이 추천했습니다.'
                 fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
 
             return HttpResponse(str(post.total_likes()))
@@ -139,7 +139,7 @@ def comment(request, pk=None):
                 fn.add_exp(request.user, 1)
                 
                 if not comment.author == post.author:
-                    send_notify_content = '\"'+ post.title +'\"에 \"'+ comment.author.username +'\"님의 새로운 댓글 > ' + comment.text
+                    send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다. \"' + comment.text + '\"'
                     fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
                 
                 data = {
@@ -179,6 +179,8 @@ def comment(request, pk=None):
                 else:
                     comment.likes.add(user)
                     comment.save()
+                    send_notify_content = '\''+ comment.post.title +'\'글에 작성한 회원님의 댓글을 누군가 추천했습니다.'
+                    fn.create_notify(user=comment.author, url=comment.post.get_absolute_url(), infomation=send_notify_content)
                 return HttpResponse(str(comment.total_likes()))
             if put.get('text'):
                 if not request.user == comment.author:
@@ -232,28 +234,6 @@ def users(request, username):
             return HttpResponse('error:NL')
         if not request.user == user:
             return HttpResponse('error:DU')
-        
-        if request.GET.get('get') == 'notify':
-            if request.GET.get('id'):
-                notify = get_object_or_404(Notify, pk=request.GET.get('id'))
-                if notify.is_read == False:
-                    notify.is_read = True
-                    notify.save()
-                    return HttpResponse(notify.url)
-                else:
-                    raise Http404
-            else:
-                if request.user.is_active:
-                    notify = Notify.objects.filter(user=request.user, is_read=False).order_by('created_date').reverse()
-                    data = {
-                        'count': len(notify),
-                        'content': list()
-                    }
-                    if data['count'] > 0:
-                        for notify_one in notify:
-                            data['content'].append(notify_one.to_dict())
-                    return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-                return HttpResponse(str(-1))
         
         if request.GET.get('get') == 'posts_analytics':
             if request.GET.get('pk'):
@@ -342,7 +322,7 @@ def users(request, username):
         if put.get('tagging'):
             post_pk = request.GET.get('on')
             post = get_object_or_404(Post, pk=post_pk)
-            send_notify_content = '\"'+ post.title +'\" 글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
+            send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
             fn.create_notify(user=user, url=post.get_absolute_url(), infomation=send_notify_content)
             return HttpResponse(str(0))
         
@@ -393,6 +373,8 @@ def thread(request, pk=None):
                 else:
                     thread.bookmark.add(user)
                     thread.save()
+                    send_notify_content = '\''+ thread.title +'\'스레드를 @' + user.username + '님이 구독했습니다.'
+                    fn.create_notify(user=thread.author, url=thread.get_absolute_url(), infomation=send_notify_content)
                 return HttpResponse('DONE')
             if put.get('hide'):
                 fn.compere_user(request.user, thread.author, give_404_if='different')
@@ -435,7 +417,7 @@ def story(request, pk=None):
                     'redirect': story.get_absolute_url(),
                 }
 
-                send_notify_content = '\"'+ thread.title +'\"스레드 에 @'+ story.author.username +'님이 새로운 스토리를 발행했습니다.'
+                send_notify_content = '\''+ thread.title +'\'스레드에 @'+ story.author.username +'님이 새로운 스토리를 발행했습니다.'
                 for user in thread.bookmark.all():
                     if not user == story.author:
                         fn.create_notify(user=user, url=story.get_absolute_url(), infomation=send_notify_content)
@@ -471,6 +453,8 @@ def story(request, pk=None):
                         return HttpResponse('error:AD')
                     story.agree.add(user)
                     story.save()
+                    send_notify_content = '\''+ story.title +'\'스토리를 누군가 추천했습니다.'
+                    fn.create_notify(user=story.author, url=story.get_absolute_url(), infomation=send_notify_content)
                 return HttpResponse(str(story.total_agree()))
             if put.get('disagree'):
                 if not request.user.is_active:

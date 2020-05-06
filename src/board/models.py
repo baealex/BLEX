@@ -34,17 +34,18 @@ def parsedown(text):
 
 def avatar_path(instance, filename):
     dt = datetime.datetime.now()
-    return 'images/avatar/u/' + instance.user.username + '/' + randstr(4) + '.jpg'
+    return 'images/avatar/u/' + instance.user.username + '/' + randstr(4) + '.' + filename.split('.')[-1]
 
 def title_image_path(instance, filename):
     dt = datetime.datetime.now()
-    return 'images/title/' + '/' + str(dt.year) + '/' + str(dt.month) + '/' + str(dt.day) + '/' + instance.author.username + '/' + str(dt.hour) + '_' + randstr(8) + '.jpg'
+    return 'images/title/' + '/' + str(dt.year) + '/' + str(dt.month) + '/' + str(dt.day) + '/' + instance.author.username + '/' + str(dt.hour) + '_' + randstr(8) + '.' + filename.split('.')[-1]
 
 def make_thumbnail(this, size, save_as=False, quality=100):
     if hasattr(this, 'avatar'):
         this.image = this.avatar
     image = Image.open(this.image)
-    image = image.convert('RGB')
+    if not save_as:
+        image = image.convert('RGB')
     image.thumbnail((size, size), Image.ANTIALIAS)
     image.save('static/' + (str(this.image) if not save_as else this.get_thumbnail()), quality=quality)
 
@@ -199,7 +200,7 @@ class Thread(models.Model):
         return reverse('thread_detail', args=[self.url])
 
     def get_thumbnail(self):
-        return str(self.image) + '.minify.' + str(self.image).split('.')[-1]
+        return str(self.image) + '.minify.jpg'
 
     def to_dict_for_analytics(self):
         return {
@@ -381,7 +382,7 @@ class Post(models.Model):
         return [tag for tag in self.tag.split(',') if tag]
 
     def get_thumbnail(self):
-        return str(self.image) + '.minify.' + str(self.image).split('.')[-1]
+        return str(self.image) + '.minify.jpg'
     
     def to_dict_for_analytics(self):
         return {

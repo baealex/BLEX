@@ -45,6 +45,9 @@
                     <div class="back-image setting-user-thumb" style="background-image:url({{ request.user.profile.thumbnail }})"></div>
                     <ul class="nav serif sticky-top-100 sticky-top blex-card">
                         <li class="nav-item">
+                            <a class="nav-link vivid-purple{% if not tab %} disabled{% endif %}" href="{% url 'setting' %}"><i class="far fa-envelope"></i> 알림</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link vivid-purple{% if tab == 'account'%} disabled{% endif %}" href="{% url 'setting_tab' tab='account' %}"><i class="far fa-user"></i> 계정</a>
                         </li>
                         <li class="nav-item">
@@ -110,13 +113,20 @@
             }
         });
         AOS.init();
-    });
-    </script>
-    <script>
         {% if tab == 'posts' %}
         Analytics.get('{{ request.user.username }}', 'posts_analytics');
         {% elif tab == 'thread' %}
         Analytics.get('{{ request.user.username }}', 'thread_analytics');
         {% endif %}
+    });
     </script>
+    {% if not tab %}
+    <script src="{{ static_url }}/assets/library/InfiniteScroll.js?{{ static_version }}"></script>
+    <script type="text/javascript">
+        var postWrapperId = 'wrapper';
+        var paginatePath = '{{ request.get_full_path }}?page=';
+        var lastPage = {{ elements.paginator.num_pages }};
+        new InfiniteScroll(paginatePath, postWrapperId, lastPage);
+    </script>
+    {% endif %}
 {% endblock %}

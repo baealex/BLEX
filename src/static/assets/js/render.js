@@ -16,47 +16,6 @@ var Render = {
         </div>
         `
     },
-    story: (element) => {
-        if (element.created_date == element.updated_date)
-            var date = element.created_date;
-        else
-            var date = `${element.created_date}(Last Update: ${element.updated_date})`;
-        return `
-        <div class="card story-card blex-card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="back-image thumb comment-thumb" style="background-image:url(${element.thumbnail})"></div>
-                        </div>
-                        <div>
-                            <div class="h6 noto story-title m-0">${element.title}</div>
-                            <div class="h7 text-muted">@${element.author}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-muted h7 mb-2"><i class="far fa-clock"></i> 0분 전</div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="article">
-                    ${element.content}
-                </div>
-            </div>
-            <div class="card-footer">
-                <a class="card-link shallow-dark agree" href="javascript:void(0)" onclick="Story.agree(${element.pk})">
-                    <i class="far fa-thumbs-up"></i> <span>${element.agree}</span>
-                </a>
-                <a class="card-link shallow-dark disagree" href="javascript:void(0)" onclick="Story.disagree(${element.pk})">
-                    <i class="far fa-thumbs-up fa-rotate-180"></i> <span>${element.disagree}</span>
-                </a>
-                <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.edit(${element.pk})"><i class="far fa-edit"></i></a>
-                <a class="card-link shallow-dark" href="javascript:void(0)" onclick="Story.remove(${element.pk});"><i class="far fa-trash-alt"></i></a>
-            </div>
-        </div>
-        `
-    },
     comment: (element) => {
         return `
         <div class="comment-list s-shadow">
@@ -163,23 +122,6 @@ var Render = {
                 </div>
                 <div class="toast-body">
                     ${element.info}
-                </div>
-            </div>
-            `
-        },
-        reguler: (element) => {
-            return `
-            <div id="toast${element.pk}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <img src="https://static.blex.me/assets/images/logo.png" class="rounded mr-2" width="20px">
-                    <strong class="mr-auto">알림</strong>
-                    <small class="text-muted">${element.created_date}전</small>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" onclick="Notify.read('${element.user}', ${element.pk})">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="toast-body">
-                    <a class="deep-dark" href="javascript:void(0)" onclick="Notify.go('${element.user}', ${element.pk})">${element.infomation}</a>
                 </div>
             </div>
             `
