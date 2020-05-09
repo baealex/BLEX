@@ -49,6 +49,8 @@ if __name__ == '__main__':
             for video in videos:
                 if video.get('src'):
                     content_video_names[video.get('src').split('/')[-1]] = 0
+                if video.get('data-src'):
+                    content_video_names[video.get('data-src').split('/')[-1]] = 0
         except:
             pass
     
@@ -73,6 +75,8 @@ if __name__ == '__main__':
         for video in videos:
             if video.get('src'):
                 content_video_names[video.get('src').split('/')[-1]] = 0
+            if video.get('data-src'):
+                content_video_names[video.get('data-src').split('/')[-1]] = 0
 
     today = datetime.datetime.now()
     today_path = str(today.year) + '/' + str(today.month) + '/' + str(today.day)
