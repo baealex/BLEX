@@ -6,60 +6,13 @@
     <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'library/prism.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}?{{ static_version }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR|Black+Han+Sans">
     <link rel="icon" href="{% static 'images/logo.png' %}">
     <title>{% block title %}{% endblock %}</title>
 {% endblock %}
 {% block body %}
     {% block image-title %}{% endblock %}
-    {% if white_nav %}
-    <nav id="top-nav" class="navbar navbar-expand-md navbar-light bg-rlight fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ site_url }}">
-                <img src="{{ static_url }}/assets/images/logo.png" width="35" height="35" alt="">
-            </a>
-    {% else %}
-    <nav id="{% if not never_chage %}top-nav{% else %}p-top-nav{% endif %}" class="navbar navbar-expand-md navbar-dark bg-rdark fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ site_url }}">
-                <img src="{{ static_url }}/assets/images/logor.png" width="35" height="35" alt="">
-            </a>
-    {% endif %}
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <ul class="navbar-nav mt-3 mt-sm-0">
-                    <li class="nav-item">
-                        <form method="GET" action="/search">
-                            <input autocomplete="off" type="text" class="form-control text-small search" name="value" value="" placeholder="Serach">
-                        </form>
-                    </li>
-                </ul>
-                <ul class="ml-auto navbar-nav noto">
-                {% if request.user.is_active %}
-                    {% url 'user_profile' username=request.user as my_profile %}
-                    <li class="nav-item {% if request.get_full_path == my_profile %}active{% endif %}">
-                        <a class="nav-link" href="{{ my_profile }}">{{ request.user.first_name }} <i class="fas fa-user"></i></a>
-                    </li>
-                    <li class="nav-item {% if page_setting %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'setting' %}">설정 <i class="fas fa-cogs"></i></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">로그아웃 <i class="fas fa-sign-out-alt"></i></a>
-                    </li>
-                {% else %}
-                    <li class="nav-item {% if request.get_full_path == '/login' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'login' %}">로그인 <i class="fas fa-sign-in-alt"></i></a>
-                    </li>
-                    <li class="nav-item {% if request.get_full_path == '/signup' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'signup' %}">회원가입 <i class="fas fa-users"></i></a>
-                    </li>
-                {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% include 'board/common/include/topnav.html' %}
     {% if write_btn %}
     <div id="write-btn" class="write-btn">
         <i class="fas fa-pencil-alt"></i>

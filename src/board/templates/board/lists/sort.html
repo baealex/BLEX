@@ -1,0 +1,41 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ site_title }} – {{ site_description }}{% endblock %}
+
+{% block seo %}
+<meta name="description" content="{{ sort }}로 정렬된 {{ site_title }}의 컨텐츠를 만나보세요!">
+<meta property="og:site_name" content="{{ site_title }}">
+<meta property="og:title" content="{{ site_title }} – {{ sort }}">
+<meta property="og:description" content="{{ sort }}로 정렬된 {{ site_title }}의 컨텐츠를 만나보세요!">
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+<meta name = "twitter : card" content="summary"> 
+<meta name = "twitter : title" content="{{ sort }}"> 
+<meta name = "twitter : description" content="{{ sort }}로 정렬된 {{ site_title }}의 컨텐츠를 만나보세요!"> 
+{% endblock %}
+
+{% block content %}
+{% include 'board/lists/include/sort-nav.html' %}
+
+<div class="row">
+    {% if sort == 'thread' %}
+    {% for thread in elements %}
+        {% include 'board/lists/include/thread/card.html' %}
+    {% endfor %}
+    {% elif sort == 'tags' %}
+    {% for tag in elements %}
+        {% include 'board/lists/include/tags/card.html' %}
+    {% endfor %}
+    {% else %}
+    {% for post in elements %}
+        {% include 'board/lists/include/posts/card.html' %}
+    {% endfor %}
+    {% endif %}
+</div>
+{% include 'board/common/include/pagenation.html' %}
+
+{% endblock %}
+
+{% block footer%}
+    {% include 'board/common/include/footer.html' %}
+{% endblock %}

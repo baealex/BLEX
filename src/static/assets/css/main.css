@@ -1,3 +1,7 @@
+@font-face { font-family: 'GmarketSansBold'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff'); font-weight: normal; font-style: normal; }
+@font-face { font-family: 'GmarketSansMedium'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff'); font-weight: normal; font-style: normal; }
+@font-face { font-family: 'GmarketSansLight'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff'); font-weight: normal; font-style: normal; }
+
 /* CLASS : ANIMATION */
 @keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
 @-moz-keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
@@ -50,6 +54,15 @@
 }
 .noto {
     font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
+}
+.g-sans-b {
+    font-family: 'GmarketSansBold';
+}
+.g-sans-m {
+    font-family: 'GmarketSansMedium';
+}
+.g-sans-l {
+    font-family: 'GmarketSansLight';
 }
 /* ------------------------------ */
 /* CLASS : FONTS SIZE */
@@ -149,10 +162,7 @@
     word-break:break-all;
     margin-bottom: 40px;
 }
-@media only screen and (min-width: 992px) {
-    .content {
-        margin-top: 105px;
-    }
+@media only screen and (min-width: 991px) {
     .mobile-disable {
         display: block;
     }
@@ -187,22 +197,15 @@
     color: #8c00ff;
     font-weight: bold;
 }
-.tag-back {
-    text-align: center;
-    height: 15vh;
-}
-.tag-title {
-    padding-top: 5vh;
-    color: #000;
-}
-.tag-title::before {
-    color: #8c00ff;
+.tag-card .title::before {
     content: '#';
+    color: #b181da;
+    font-weight: bold;
 }
 /* ------------------------------ */
 /* CLASS : PAGENATION */
 
-@media only screen and (max-width: 992px) {
+@media only screen and (max-width: 991px) {
     .pgnav {
         text-align: center;
     }
@@ -281,6 +284,9 @@
 }
 /* ------------------------------ */
 /* HOME : COMMON */
+.content {
+    margin-top: 105px;
+}
 .card-subtitle {
     text-transform: capitalize;
 }
@@ -344,18 +350,21 @@
 .notice-hr {
 	border-bottom: 1px solid #eee;
 }
-.foot-deco {
-    border-bottom: 1px solid #ccc; padding-bottom: 10px;
+.sort-nav {
+    border-bottom: 1px solid #ccc;
 }
-.foot-deco-active {
+.sort-nav li.active {
     border-bottom: 2px solid #000; padding-bottom: 6px;
 }
-.foot-deco a {
+.sort-nav li a {
     color: #ccc;
     font-size: 16px;
     margin-left:15px;
     margin-right:15px;
     text-decoration: none;
+}
+.sort-nav li.active a {
+    color: #000;
 }
 .list-image {
     width: 100%;
@@ -369,7 +378,7 @@
     border: 1px solid #ccc;
     object-fit: cover;
 }
-@media only screen and (max-width: 992px) {
+@media only screen and (max-width: 991px) {
     .list-image {
         width: 150px;
         height: 150px;
@@ -437,7 +446,7 @@ footer.bg-rdark a:hover {
     top: 100px !important;
     margin-bottom: 30px;
 }
-@media only screen and (min-width: 992px) {
+@media only screen and (min-width: 991px) {
     .sticky-margin-top-40 {
         margin-top:150px;
         margin-bottom:90px;
@@ -927,11 +936,11 @@ footer.bg-rdark a:hover {
     margin: 5px;
 }
 .profile-tags li a {
-    color: #8c00ff;
+    color: #b1b1b1;
     text-decoration: none;
 }
 .profile-tags li a.active {
-    color: #777;
+    color: #000000;
 }
 @media only screen and (max-width: 991px) {
 	.profile-tags {
@@ -1100,7 +1109,7 @@ footer.bg-rdark a:hover {
 .reverse {
     flex-direction: column-reverse !important;
 }
-@media (max-width: 992px) {
+@media (max-width: 991px) {
     .story-title {
         display: inline-block;
         width: 150px;
@@ -1551,4 +1560,3 @@ body.dark .thread-sidebar li.active {
 .navbar-brand img {
     border-radius: 100%;
 }
-/* ------------------------------ */

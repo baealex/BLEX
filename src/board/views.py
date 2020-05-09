@@ -275,10 +275,13 @@ def opinion(request):
 
 @login_required(login_url='/login')
 def notify_redirect(request, pk):
-    notify = get_object_or_404(Notify, pk=pk, is_read=False)
-    notify.is_read = True
-    notify.save()
-    return redirect(notify.url)
+    notify = get_object_or_404(Notify, pk=pk)
+    if not notify.is_read:
+        notify.is_read = True
+        notify.save()
+        return redirect(notify.url)
+    else:
+        return redirect('setting')
 
 @login_required(login_url='/login')
 def setting(request):
@@ -807,63 +810,39 @@ def post_detail(request, username, url):
     render_args['never_chage'] = True
     return render(request, 'board/posts/detail.html', render_args)
 
-def index(request):
-    if request.user.is_active:
-        return redirect('post_sort_list', sort='trendy')
-    else:
-        intro_info = cache.get('intro_info')
-        if not intro_info:
-            cache_time = 60 * 60 * 24
-            intro_info = dict()
-
-            intro_info['user_count'] = User.objects.all().count()
-            
-            topics = sorted(fn.get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
-            intro_info['top_topics'] = topics[:30]
-            intro_info['topic_count'] = len(topics)
-
-            posts = Post.objects.all()
-            intro_info['posts_count'] = len(posts)
-
-            threads = Thread.objects.all()
-            intro_info['thread_count'] = len(threads)
-
-            intro_info['page_view_count'] = 0
-            try:
-                yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
-                intro_info['page_view_count'] += PostAnalytics.objects.filter(date=yesterday).aggregate(Sum('count'))['count__sum']
-                intro_info['page_view_count'] += ThreadAnalytics.objects.filter(date=yesterday).aggregate(Sum('count'))['count__sum']
-            except:
-                pass
-
-            cache.set('intro_info', intro_info, cache_time)
-
-        render_args = {
-            'intro_info': intro_info,
-        }
-
-        render_args.update(fn.night_mode(request))
-        return render(request, 'board/index.html', render_args)
-
-def post_sort_list(request, sort):
-    available_sort = ['trendy', 'newest']
-    if not sort in available_sort:
-        raise Http404
-    posts = fn.get_posts(sort)
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(posts, 21)
-    fn.page_check(page, paginator)
-    render_args = {
-        'sort' : sort,
-        'elements' : paginator.get_page(page),
-    }
-
+def post_sort_list(request, sort=None):
+    render_args = dict()
+    
     if request.user.is_active:
         render_args['write_btn'] = True
+    
+    if sort == 'tags':
+        tags = cache.get('tags')
+        if not tags:
+            cache_time = 60 * 60 * 24
+            tags = sorted(fn.get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
+            cache.set('tags', tags, cache_time)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(tags, 120)
+        fn.page_check(page, paginator)
+        render_args['elements'] = paginator.get_page(page)
 
+    else:
+        if not sort:
+            sort = 'trendy'
+        available_sort = ['trendy', 'newest']
+        if not sort in available_sort:
+            raise Http404
+        posts = fn.get_posts(sort)
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(posts, 21)
+        fn.page_check(page, paginator)
+        render_args['elements'] = paginator.get_page(page)
+
+    render_args['sort'] = sort
     render_args.update(fn.night_mode(request))
-    return render(request, 'board/posts/list_sort.html', render_args)
+    return render(request, 'board/lists/sort.html', render_args)
 
 def post_list_in_tag(request, tag):
     posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
@@ -881,7 +860,7 @@ def post_list_in_tag(request, tag):
         'elements': elements,
     }
     render_args.update(fn.night_mode(request))
-    return render(request, 'board/posts/list_tag.html', render_args)
+    return render(request, 'board/lists/topic.html', render_args)
 
 def post_write(request):
     if not request.user.is_active:

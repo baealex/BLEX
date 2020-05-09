@@ -3,22 +3,22 @@
 {% block title %}{{ site_title }} - {{ tag }}{% endblock %}
 
 {% block seo %}
-<meta name="description" content="{{ site_title }}에서 '{{ tag }}' 주제로 작성된 글들을 만나보세요!">
+<meta name="description" content="{{ site_title }}에서 '{{ tag }}' 주제로 작성된 컨텐츠를 만나보세요!">
 <meta property="og:site_name" content="{{ site_title }}">
 <meta property="og:title" content="{{ site_title }} - {{ tag }}">
-<meta property="og:description" content="{{ site_title }}에서 '{{ tag }}' 주제로 작성된 글들을 만나보세요!">
+<meta property="og:description" content="{{ site_title }}에서 '{{ tag }}' 주제로 작성된 컨텐츠를 만나보세요!">
 <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta property="og:type" content="blog">
 <meta name = "twitter : card" content="summary">
 <meta name = "twitter : title" content="{{ site_title }} - {{ tag }}">
-<meta name = "twitter : description" content="{{ site_title }}에서 '{{ tag }}' 주제로 작성된 글들을 만나보세요!">
+<meta name = "twitter : description" content="{{ site_title }}에서 '{{ tag }}' 주제로 작성된 컨텐츠를 만나보세요!">
 {% endblock %}
 
 {% block content %}
-<h4 class="mt-5 serif foot-deco"><span class="foot-deco-active">{{ tag }}</span></h4>
-<div id="card-wrapper" class="row">
+<div class="h4 g-sans-b">{{ tag }} —</div>
+<div class="row">
     {% for post in elements %}
-        {% include 'board/posts/shape/card.html' %}
+        {% include 'board/lists/include/posts/card.html' %}
     {% endfor %}
 </div>
 {% include 'board/common/include/pagenation.html' %}
