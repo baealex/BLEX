@@ -1,3 +1,5 @@
+{% load math %}
+
 <div id="user-posts" class="container">
     <div class="row">
         <div class="profile-tags col-lg-3">
@@ -26,6 +28,7 @@
                     <a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post.title | truncatechars:50 }}</a>
                 </h4>
                 <p class="noto"><a class="shallow-dark" href="{{ post.get_absolute_url }}">{% if post.text_html %}{{ post.text_html | striptags | truncatewords:50 }}{% else %}{{ post.description | striptags | truncatewords:50 }}{% endif %}</a></p>
+                <p class="vs serif">{{ post.created_date | date:"" }} · <span class="shallow-dark">{% if post.text_md %}{{ post.text_md | length | div:1000 }} min read{% else %}{{ post.stories.all | length }} stories{% endif %}</span></p>
                 <ul class="tag-list noto">
                     {% for tag in post.tagging %}
                     <li><a href="{% url 'user_profile_topic' username=post.author tag=tag %}">{{ tag }}</a></li>
