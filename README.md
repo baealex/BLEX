@@ -27,12 +27,12 @@
 
 ## Features
 
-- [x] **Can be written in Markdown**
-- [x] **Can also use HTML**
+- [x] **Can be written in Markdown** Powerd by [Parsedown](https://github.com/erusev/parsedown)
+- [x] **Can also support HTML** (Only br, center)
 - [x] **Can receive notifications by Telegram**
-- [x] **The report is coming up at midnight through a Telegram**
 - [x] **Developer respects user comments**
 - [x] **All in all, it's pretty**
+- [x] **Start with a Google or GitHub account**
 
 ## Developer Notes
 
