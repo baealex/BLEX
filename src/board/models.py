@@ -4,7 +4,7 @@ import random
 import time
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.template.defaultfilters import linebreaks
@@ -51,12 +51,12 @@ def make_thumbnail(this, size, save_as=False, quality=100):
     image.save('static/' + (str(this.image) if not save_as else this.get_thumbnail()), quality=quality)
 
 class History(models.Model):
-    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    post         = models.ForeignKey('board.Post', on_delete = models.CASCADE)
-    created_date = models.DateTimeField(default=timezone.now)
+    key      = models.CharField(max_length=128, unique=True)
+    agent    = models.CharField(max_length=200)
+    category = models.CharField(max_length=10)
 
     def __str__(self):
-        return self.user.username
+        return self.key
 
 class Grade(models.Model):
     name = models.CharField(max_length=30, unique=True)
@@ -166,7 +166,7 @@ class Thread(models.Model):
         count = 0
         try:
             today = timezone.make_aware(datetime.datetime.now())
-            count = ThreadAnalytics.objects.get(date=today, thread=self).count
+            count = ThreadAnalytics.objects.get(date=today, thread=self).table.count()
         except:
             pass
         return count
@@ -175,22 +175,22 @@ class Thread(models.Model):
         count = 0
         try:
             yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
-            count = ThreadAnalytics.objects.get(date=yesterday, thread=self).count
+            count = ThreadAnalytics.objects.get(date=yesterday, thread=self).table.count()
         except:
             pass
         return count
 
     def total(self):
-        count = ThreadAnalytics.objects.filter(thread=self).aggregate(Sum('count'))
-        if count['count__sum']:
-            return count['count__sum']
+        count = ThreadAnalytics.objects.filter(thread=self).aggregate(Sum('table'))
+        if count['table__sum']:
+            return count['table__sum']
         else:
             return 0
         
     def trendy(self):
         seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
         today          = timezone.make_aware(datetime.datetime.now())
-        counts = ThreadAnalytics.objects.filter(date__range=[seven_days_ago, today], thread=self).values_list('date', 'count')
+        counts = ThreadAnalytics.objects.filter(date__range=[seven_days_ago, today], thread=self).values_list('date', Count('table'))
         trendy = 0
         for count in counts:
             rate = -(1/7) * ((today.date()-count[0]).days) + 2
@@ -238,9 +238,8 @@ class Thread(models.Model):
 class ThreadAnalytics(models.Model):
     thread  = models.ForeignKey(Thread, on_delete=models.CASCADE)
     date    = models.DateField(default=timezone.now)
-    count   = models.IntegerField(default=0)
     referer = models.TextField()
-    iptable = models.TextField()
+    table   = models.ManyToManyField(History, related_name='story_viewer', blank=True)
 
     def __str__(self):
         return self.thread.title
@@ -348,7 +347,7 @@ class Post(models.Model):
         count = 0
         try:
             today = timezone.make_aware(datetime.datetime.now())
-            count = PostAnalytics.objects.get(date=today, posts=self).count
+            count = PostAnalytics.objects.get(date=today, posts=self).table.count()
         except:
             pass
         return count
@@ -357,22 +356,22 @@ class Post(models.Model):
         count = 0
         try:
             yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
-            count = PostAnalytics.objects.get(date=yesterday, posts=self).count
+            count = PostAnalytics.objects.get(date=yesterday, posts=self).table.count()
         except:
             pass
         return count
 
     def total(self):
-        count = PostAnalytics.objects.filter(posts=self).aggregate(Sum('count'))
-        if count['count__sum']:
-            return count['count__sum']
+        count = PostAnalytics.objects.filter(posts=self).aggregate(Sum('table'))
+        if count['table__sum']:
+            return count['table__sum']
         else:
             return 0
         
     def trendy(self):
         seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
         today          = timezone.make_aware(datetime.datetime.now())
-        counts = PostAnalytics.objects.filter(date__range=[seven_days_ago, today], posts=self).values_list('date', 'count')
+        counts = PostAnalytics.objects.filter(date__range=[seven_days_ago, today], posts=self).values_list('date', Count('table'))
         trendy = 0
         for count in counts:
             rate = -(1/7) * ((today.date()-count[0]).days) + 2
@@ -420,9 +419,8 @@ class Post(models.Model):
 class PostAnalytics(models.Model):
     posts   = models.ForeignKey(Post, on_delete=models.CASCADE)
     date    = models.DateField(default=timezone.now)
-    count   = models.IntegerField(default=0)
     referer = models.TextField()
-    iptable = models.TextField()
+    table   = models.ManyToManyField(History, related_name='thread_viewer', blank=True)
 
     def __str__(self):
         return self.posts.title
@@ -431,6 +429,7 @@ class PostLikes(models.Model):
     class Meta:
         db_table = 'board_post_likes'
         auto_created = True
+    
     post         = models.ForeignKey(Post, on_delete=models.CASCADE)
     user         = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)

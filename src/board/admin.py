@@ -5,7 +5,9 @@ from.models import *
 # Register your models here.
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'post']
+    list_display = ['key', 'agent', 'category']
+    list_filter = ['category']
+    list_per_page = 30
 
 admin.site.register(Grade)
 
@@ -18,7 +20,7 @@ class ThreadAdmin(admin.ModelAdmin):
 
 @admin.register(ThreadAnalytics)
 class ThreadAnalyticsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'thread', 'count']
+    list_display = ['id', 'date', 'thread']
     list_display_links = ['id', 'thread']
     list_filter = ['date']
     list_per_page = 30
@@ -71,7 +73,7 @@ class PostLikesAdmin(admin.ModelAdmin):
 
 @admin.register(PostAnalytics)
 class PostAnalyticsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'posts', 'count']
+    list_display = ['id', 'date', 'posts']
     list_display_links = ['id', 'posts']
     list_filter = ['date']
     list_per_page = 30

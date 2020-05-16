@@ -249,7 +249,7 @@ def users(request, username):
                 for item in posts_analytics:
                     data['items'].append({
                         'date': item.date,
-                        'count': item.count
+                        'count': item.table.count()
                     })
                     for refer in reversed(item.referer.split('|')):
                         if '^' in refer:
@@ -277,7 +277,7 @@ def users(request, username):
                 for item in thread_analytics:
                     data['items'].append({
                         'date': item.date,
-                        'count': item.count
+                        'count': item.table.count()
                     })
                     for refer in reversed(item.referer.split('|')):
                         if '^' in refer:

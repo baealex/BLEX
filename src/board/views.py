@@ -686,6 +686,9 @@ def thread_detail(request, url):
     thread = get_object_or_404(Thread, url=url)
     if thread.hide == True and not thread.author == request.user:
         raise Http404()
+
+    fn.view_count(type='thread', element=thread, request=request)
+
     render_args = {
         'thread': thread,
         'form': StoryForm(),
@@ -709,25 +712,7 @@ def story_detail(request, url, username, timestamp):
     }
     render_args['story_detail'] = True
 
-    # View Count by iptable
-    if not request.user == thread.author:
-        today = timezone.make_aware(datetime.datetime.now())
-        thread_today = None
-        try:
-            thread_today = ThreadAnalytics.objects.get(date=today, thread=thread)
-        except:
-            thread_today = ThreadAnalytics(thread=thread)
-        
-        user_ip = fn.get_encrypt_ip(request)
-        if not user_ip in thread_today.iptable:
-            thread_today.count += 1
-            thread_today.iptable += user_ip + '|'
-        
-            if 'Referer' in request.headers:
-                now = datetime.datetime.now().strftime('%H:%M')
-                thread_today.referer += now + '^' + request.headers['Referer'] + '|'
-
-        thread_today.save()
+    fn.view_count(type='thread', element=thread, request=request)
 
     user = get_object_or_404(User, username=username)
     date = timezone.make_aware(datetime.datetime.fromtimestamp(float(timestamp)/1000000))
@@ -785,25 +770,7 @@ def post_detail(request, username, url):
         except:
             pass
 
-    # View Count by iptable
-    if not request.user == post.author:
-        today = timezone.make_aware(datetime.datetime.now())
-        post_today = None
-        try:
-            post_today = PostAnalytics.objects.get(date=today, posts=post)
-        except:
-            post_today = PostAnalytics(posts=post)
-        
-        user_ip = fn.get_encrypt_ip(request)
-        if not user_ip in post_today.iptable:
-            post_today.count += 1
-            post_today.iptable += user_ip + '|'
-        
-            if 'Referer' in request.headers:
-                now = datetime.datetime.now().strftime('%H:%M')
-                post_today.referer += now + '^' + request.headers['Referer'] + '|'
-        
-        post_today.save()
+    fn.view_count(type='posts', element=post, request=request)
     
     render_args.update(fn.night_mode(request))
     render_args['white_nav'] = False

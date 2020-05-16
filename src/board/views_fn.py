@@ -15,15 +15,56 @@ from django.conf import settings
 from .models import *
 from . import telegram
 
+def view_count(type, element, request):
+    if element.author == request.user:
+        return
+    
+    history = None
+    try:
+        history = History.objects.get(key=get_encrypt_ip(request))
+    except:
+        history = History(key=get_encrypt_ip(request))
+        history.agent = request.META['HTTP_USER_AGENT'][:200]
+        history.save()
+        history.refresh_from_db()
+    
+    if not 'bot' in history.category:
+        today = timezone.make_aware(datetime.datetime.now())
+        today_analytics = None
+        try:
+            if type == 'posts':
+                today_analytics = PostAnalytics.objects.get(date=today, posts=element)
+            elif type == 'thread':
+                today_analytics = ThreadAnalytics.objects.get(date=today, thread=element)
+        except:
+            if type == 'posts':
+                today_analytics = PostAnalytics(posts=element)
+            elif type == 'thread':
+                today_analytics = ThreadAnalytics(thread=element)
+            today_analytics.save()
+            today_analytics.refresh_from_db()
+        
+        if not today_analytics.table.filter(id=history.id).exists():
+            today_analytics.table.add(history)
+            if 'Referer' in request.headers:
+                now = datetime.datetime.now().strftime('%H:%M')
+                today_analytics.referer += now + '^' + request.headers['Referer'] + '|'
+            today_analytics.save()
+
 def get_posts(sort, user=None):
     if sort == 'trendy':
-        posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
-        threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
-        if user:
-            posts = posts.filter(author=user)
-            threads = threads.filter(author=user)
-        posts = posts.order_by()
-        return sorted(chain(posts, threads), key=lambda instance: instance.trendy(), reverse=True)
+        cache_key = 'sort_' + sort
+        elements = cache.get(cache_key)
+        if not elements:
+            cache_time = 7200
+            posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+            threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+            if user:
+                posts = posts.filter(author=user)
+                threads = threads.filter(author=user)
+            elements = sorted(chain(posts, threads), key=lambda instance: instance.trendy(), reverse=True)
+            cache.set(cache_key, elements, cache_time)
+        return elements
     if sort == 'newest':
         posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
         threads = Thread.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
