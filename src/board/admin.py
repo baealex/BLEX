@@ -5,9 +5,10 @@ from.models import *
 # Register your models here.
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
-    list_display = ['key', 'agent', 'category']
+    list_display = ['id', 'agent', 'category']
+    list_editable = ['category']
     list_filter = ['category']
-    list_per_page = 30
+    list_per_page = 100
 
 admin.site.register(Grade)
 
