@@ -181,9 +181,9 @@ class Thread(models.Model):
         return count
 
     def total(self):
-        count = ThreadAnalytics.objects.filter(thread=self).aggregate(Sum('table'))
-        if count['table__sum']:
-            return count['table__sum']
+        count = ThreadAnalytics.objects.annotate(table_count=Count('table')).filter(thread=self).aggregate(Sum('table_count'))
+        if count['table_count__sum']:
+            return count['table_count__sum']
         else:
             return 0
         
@@ -362,9 +362,9 @@ class Post(models.Model):
         return count
 
     def total(self):
-        count = PostAnalytics.objects.filter(posts=self).aggregate(Sum('table'))
-        if count['table__sum']:
-            return count['table__sum']
+        count = PostAnalytics.objects.annotate(table_count=Count('table')).filter(posts=self).aggregate(Sum('table_count'))
+        if count['table_count__sum']:
+            return count['table_count__sum']
         else:
             return 0
         
