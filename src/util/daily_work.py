@@ -27,11 +27,3 @@ for profile in profiles:
     profile.exp = F('exp') - 1
     profile.save()
 print('ALL PROFILES DONE!')
-
-yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
-posts = PostAnalytics.objects.filter(date=yesterday)
-threads = ThreadAnalytics.objects.filter(date=yesterday)
-for data in chain(posts, threads):
-    data.iptable = ''
-    data.save()
-print('ALL ANALITICS DONE!')

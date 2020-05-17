@@ -24,7 +24,10 @@ def view_count(type, element, request):
         history = History.objects.get(key=get_encrypt_ip(request))
     except:
         history = History(key=get_encrypt_ip(request))
-        history.agent = request.META['HTTP_USER_AGENT'][:200]
+        user_agent = request.META['HTTP_USER_AGENT'][:200]
+        history.agent = user_agent
+        if 'bot' in user_agent.lower():
+            history.category = 'temp-bot'
         history.save()
         history.refresh_from_db()
     
