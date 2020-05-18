@@ -48,7 +48,7 @@ urlpatterns = [
 
     # Thread
     path('thread/<url>', views.thread_detail, name='thread_detail'),
-    path('thread/<url>/@<username>/<timestamp>', views.story_detail, name='story_detail'),
+    path('thread/<url>/@<username>/<story>', views.story_detail, name='story_detail'),
     path('create', views.thread_create, name='thread_create'),
     path('thread/<int:pk>/edit', views.thread_edit, name='thread_edit'),
 

@@ -699,7 +699,7 @@ def thread_detail(request, url):
     render_args.update(fn.night_mode(request))
     return render(request, 'board/thread/detail.html', render_args)
 
-def story_detail(request, url, username, timestamp):
+def story_detail(request, url, username, story):
     thread = get_object_or_404(Thread, url=url)
     if thread.hide == True and not thread.author == request.user:
         raise Http404()
@@ -715,8 +715,7 @@ def story_detail(request, url, username, timestamp):
     fn.view_count(type='thread', element=thread, request=request)
 
     user = get_object_or_404(User, username=username)
-    date = timezone.make_aware(datetime.datetime.fromtimestamp(float(timestamp)/1000000))
-    story = get_object_or_404(Story, author=user, created_date=date)
+    story = get_object_or_404(Story, author=user, url=story)
     render_args['story'] = story
 
     render_args.update(fn.night_mode(request))

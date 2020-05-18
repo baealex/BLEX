@@ -8,6 +8,7 @@ from django.http import HttpResponse, JsonResponse, Http404, QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -408,7 +409,17 @@ def story(request, pk=None):
                 story.created_date = timezone.now()
                 story.author = request.user
                 story.thread = thread
-                story.save()
+                story.url = slugify(story.title, allow_unicode=True)
+                if story.url == '':
+                    story.url = randstr(15)
+                i = 1
+                while True:
+                    try:
+                        story.save()
+                        break
+                    except:
+                        story.url = slugify(story.title+'-'+str(i), allow_unicode=True)
+                        i += 1
                 thread.created_date = story.created_date
                 thread.save()
                 fn.add_exp(request.user, 1)

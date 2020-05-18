@@ -251,6 +251,7 @@ class Story(models.Model):
     thread       = models.ForeignKey('board.Thread', related_name='stories', on_delete = models.CASCADE)
     author       = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title        = models.CharField(max_length=50)
+    url          = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     text_md      = models.TextField()
     text_html    = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
@@ -279,14 +280,9 @@ class Story(models.Model):
             'created_date': self.created_date.strftime("%Y-%m-%d %H:%M"),
             'updated_date': self.updated_date.strftime("%Y-%m-%d %H:%M"),
         }
-    
-    def timestamp(self):
-        timestamp = str(self.created_date.timestamp()).replace('.', '')
-        timestamp = timestamp + '0' * (16 - len(timestamp))
-        return timestamp
 
     def get_absolute_url(self):
-        return reverse('story_detail', args=[self.thread.url, self.author.username, self.timestamp()])
+        return reverse('story_detail', args=[self.thread.url, self.author.username, self.url])
 
 class TempPosts(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
