@@ -69,6 +69,16 @@ class UserSeriesSitemap(Sitemap):
     def location(self, item):
         return reverse('user_profile_tab', args=[item.user, 'series'])
 
+class UserContentsSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return Profile.objects.all().order_by('pk')
+    
+    def location(self, item):
+        return reverse('user_profile_tab', args=[item.user, 'blog'])
+
 class UserAboutSitemap(Sitemap):
     changefreq = 'weekly'
     priority = 0.5
@@ -117,4 +127,5 @@ sitemaps = {
     'user_topic_sitemap': UserTopicSitemap,
     'user_about_sitemap': UserAboutSitemap,
     'user_series_sitemap': UserSeriesSitemap,
+    'user_contents_sitemap': UserContentsSitemap,
 }

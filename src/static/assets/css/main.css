@@ -317,6 +317,10 @@
     background-color: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
 }
+.full-mask.light {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(0px);
+}
 .center-list {
     text-align: center;
 }
@@ -366,7 +370,8 @@
 .sort-nav li.active a {
     color: #000;
 }
-.list-image {
+.list-image,
+.feature-image {
     width: 100%;
     height: 250px;
     min-width: 100%;
@@ -377,6 +382,10 @@
     background: #fff;
     border: 1px solid #ccc;
     object-fit: cover;
+}
+.feature-image {
+    height: 150px;
+    min-height: 150px;
 }
 @media only screen and (max-width: 991px) {
     .list-image {
@@ -890,7 +899,7 @@ footer.bg-rdark a:hover {
 .profile-tab {
     width: 100%;
     height: 100px;
-    background-image: url()
+    background-image: url(https://static.blex.me/assets/images/default-post.png)
 }
 .profile-tab ul {
     padding: 0;
@@ -968,6 +977,17 @@ footer.bg-rdark a:hover {
 }
 .profile-post p {
     word-break:break-all;
+}
+#heatmap {
+    position: relative;
+    min-height: 200px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+#heatmap > div {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 .top-post-slide {
     height:300px;

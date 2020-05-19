@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'library/prism.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}?{{ static_version }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR|Black+Han+Sans">
+    <link rel="stylesheet" href="https://rawcdn.githack.com/nzbin/three-dots/c592f34f85813ce75b9bc984b1bafcea3cb39b37/dist/three-dots.min.css">
     <link rel="icon" href="{% static 'images/logo.png' %}">
     <title>{% block title %}{% endblock %}</title>
 {% endblock %}
@@ -24,6 +25,7 @@
         {% block content %}{% endblock %}
         </div>
     </div>
+    <div id="loading"></div>
     {% block footer %}{% endblock %}
     <div id="notify-content"></div>
     <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>

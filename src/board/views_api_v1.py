@@ -1,5 +1,6 @@
 import random
 import json
+import time
 
 from itertools import chain
 from django.db.models import Count, Q
@@ -231,11 +232,29 @@ def users(request, username):
     user = get_object_or_404(User, username=username)
 
     if request.method == 'GET':
+        if request.GET.get('get') == 'activity':
+            standard_date = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=30*12))
+            
+            posts = Post.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, hide=False)
+            series = Series.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), owner=user)
+            comments = Comment.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, post__hide=False)
+            story = Story.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, thread__hide=False)
+            activity = chain(posts, series, comments, story)
+
+            data = dict()
+            for element in activity:
+                key = timestamp(element.created_date, kind='grass')[:10]
+                if key in data:
+                    data[key] += 1
+                else:
+                    data[key] = 1
+            return JsonResponse({'data': data}, json_dumps_params = {'ensure_ascii': True})
+
         if not request.user.is_active:
             return HttpResponse('error:NL')
         if not request.user == user:
             return HttpResponse('error:DU')
-        
+            
         if request.GET.get('get') == 'posts_analytics':
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')

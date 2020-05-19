@@ -5,11 +5,11 @@
 {% block seo %}
     {% if get_page %}<meta name="robots" content="noindex">{% endif %}
     <meta property="og:site_name" content="{{ site_title }}">
-    <meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
     <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
     <meta property="og:type" content="blog">
-    <meta name="twitter:card" content="summary">
     <meta property="og:image" content="{{ user.profile.thumbnail }}">
+    <meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
+    <meta name="twitter:card" content="summary">
     <meta property="twitter:image" content="{{ user.profile.thumbnail }}">
     {% if not selected_tag %}
     <meta property="og:title" content="{{ user.username }} ({{ user.first_name }}){% if tab %} — {{ tab_show }}{% endif %}"/>
@@ -43,17 +43,7 @@
         <h4 class="serif username">{{ user.first_name }}</h4>
         <h5 class="serif">@{{ user.username }}</h5>
         {% if user.profile.homepage %}<a class="vivid-purple" href="https://{{ user.profile.homepage }}">https://{{ user.profile.homepage }}</a>{% endif %}
-        <p class="user-profile-desc mt-5">
-            {% if user.profile.bio %}
-                {{ user.profile.bio|linebreaksbr }}<br>
-            {% endif%}
-            {% if request.user.is_active %}
-            <a class="vivid-purple text-decoration-none" href="mailto:{{ user.email }}">{{ user.email }}</a>
-            {% else %}
-            <a class="vivid-purple text-decoration-none" href="{% url 'login' %}">Sign in to view email</a>
-            {% endif %}
-        </p>
-        <ul class="social-link">
+        <ul class="social-link mt-3">
             <li><a class="vivid-purple" href="{% url 'user_rss_feed' username=user %}"><i class="fas fa-rss-square"></i></a></li>
             {% if user.profile.github %}<li><a class="vivid-purple" href="https://github.com/{{ user.profile.github }}"><i class="fab fa-github-square"></i></a></li>{% endif %}
             {% if user.profile.twitter %}<li><a class="vivid-purple" href="https://twitter.com/{{ user.profile.twitter }}"><i class="fab fa-twitter-square"></i></a></li>{% endif %}
@@ -65,32 +55,33 @@
 </div>
 </div>
 </div>
-<div class="profile-tab back-image" style="background-image:url({{ static_url }}/assets/images/default-post.png)">
+<div class="profile-tab back-image">
     <div class="thick-mask">
-        <ul class="g-sans-m">
-            <li><a href="{% url 'user_profile' username=user %}">포스트</a></li>
-            <li><a href="{% url 'user_profile_tab' username=user tab='series' %}">시리즈</a></li>
-            <li><a href="{% url 'user_profile_tab' username=user tab='activity' %}">활동</a></li>
-            <li><a href="{% url 'user_profile_tab' username=user tab='about' %}">소개</a></li>
+        <ul class="serif">
+            <li><a href="{% url 'user_profile' username=user %}">Overview</a></li>
+            <li><a href="{% url 'user_profile_tab' username=user tab='blog' %}">Blog</a></li>
+            <li><a href="{% url 'user_profile_tab' username=user tab='series' %}">Sereis</a></li>
+            <li><a href="{% url 'user_profile_tab' username=user tab='about' %}">About</a></li>
         </ul>
     </div>
 </div>
+<div id="content">
+    {% if not tab %}
+        {% include 'board/profile/include/default.html'%}
+    {% endif %}
 
-{% if not tab %}
-    {% include 'board/profile/include/default.html'%}
-{% endif %}
+    {% if tab == 'blog' %}
+        {% include 'board/profile/include/blog.html' %}
+    {% endif %}
 
-{% if tab == 'series' %}
-    {% include 'board/profile/include/series.html'%}
-{% endif %}
+    {% if tab == 'series' %}
+        {% include 'board/profile/include/series.html'%}
+    {% endif %}
 
-{% if tab == 'activity' %}
-    {% include 'board/profile/include/activity.html'%}
-{% endif %}
-
-{% if tab == 'about' %}
-    {% include 'board/profile/include/about.html'%}
-{% endif %}
+    {% if tab == 'about' %}
+        {% include 'board/profile/include/about.html' %}
+    {% endif %}
+</div>
 
 {% endblock %}
 
@@ -100,14 +91,10 @@
 {% endblock %}
 
 {% block script %}
-{% if tab == 'series' or tab == 'activity' %}
-<script src="{{ static_url }}/assets/library/InfiniteScroll.js?{{ static_version }}"></script>
+{% if not tab %}
+<script src="https://unpkg.com/frappe-charts@1.1.0"></script>
 <script type="text/javascript">
-    var postWrapperId = 'wrapper';
-    var paginatePath = '{{ request.get_full_path }}?page=';
-    var lastPage = {{ elements.paginator.num_pages }};
-    new InfiniteScroll(paginatePath, postWrapperId, lastPage);
+    User.activity('{{ user.username }}');
 </script>
 {% endif %}
-{% if selected_tag or get_page %}<script>moveSlide('wrapper');</script>{% endif %}
 {% endblock %}

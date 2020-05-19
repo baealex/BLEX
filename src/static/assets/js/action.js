@@ -279,6 +279,28 @@ const User = (() => {
     const url = '/api/v1/users';
     let sendList = [];
     return {
+        activity: (username) =>{
+            $.ajax({
+                url: `${url}/${username}`,
+                type: 'GET',
+                data: {get: 'activity'},
+            }).done((data) => {
+                let count = 0;
+                for(let key in data.data) {
+                    count += Number(data.data[key]);
+                }
+                new frappe.Chart("#heatmap", {
+                    type: 'heatmap',
+                    title: count + ' activity in the last year',
+                    data: {
+                        dataPoints: data.data,
+                    },
+                    width: 800,
+                    countLabel: 'Activity',
+                    discreteDomains: 0,
+                });
+            });
+        },
         follow: (username) => {
             $.ajax({
                 url: `${url}/${username}`,
@@ -503,6 +525,7 @@ const Story = (() => {
                 Notify.append('스토리의 내용을 입력하세요.');
                 return;
             }
+            loading(true);
             $.ajax({
                 url: `${url}?fk=${fk}`,
                 type: 'POST',
@@ -525,6 +548,7 @@ const Story = (() => {
             });
         },
         update: (pk) => {
+            loading(true);
             $.ajax({
                 type: 'PUT',
                 url: `${url}/${pk}`,

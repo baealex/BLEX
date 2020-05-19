@@ -50,6 +50,15 @@ def make_thumbnail(this, size, save_as=False, quality=100):
     image.thumbnail((size, size), Image.ANTIALIAS)
     image.save('static/' + (str(this.image) if not save_as else this.get_thumbnail()), quality=quality)
 
+def timestamp(date, kind=''):
+    if kind == 'grass':
+        date = date + datetime.timedelta(hours=9)
+        date = date.replace(hour=12, minute=0, second=0)
+
+    timestamp = str(date.timestamp()).replace('.', '')
+    timestamp = timestamp + '0' * (16 - len(timestamp))
+    return timestamp
+
 class History(models.Model):
     key      = models.CharField(max_length=128, unique=True)
     agent    = models.CharField(max_length=200)
@@ -329,9 +338,7 @@ class Post(models.Model):
             return settings.STATIC_URL + '/images/default-post.png'
 
     def timestamp(self):
-        timestamp = str(self.created_date.timestamp()).replace('.', '')
-        timestamp = timestamp + '0' * (16 - len(timestamp))
-        return timestamp
+        return timestamp(self.created_date)
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[self.author, self.url])

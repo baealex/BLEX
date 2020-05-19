@@ -57,6 +57,8 @@ def view_count(type, element, request):
 def get_posts(sort, user=None):
     if sort == 'trendy':
         cache_key = 'sort_' + sort
+        if user:
+            cache_key += '_' + user.username
         elements = cache.get(cache_key)
         if not elements:
             cache_time = 7200
@@ -81,19 +83,19 @@ def get_posts(sort, user=None):
         return sorted(chain(posts, threads), key=lambda instance: instance.created_date, reverse=True)
 
 def get_view_count(user, date=None):
-    posts = PostAnalytics.objects.filter(posts__author=user)
-    threads = ThreadAnalytics.objects.filter(thread__author=user)
+    posts = PostAnalytics.objects.annotate(table_count=Count('table')).filter(posts__author=user)
+    threads = ThreadAnalytics.objects.annotate(table_count=Count('table')).filter(thread__author=user)
     if date:
         posts = posts.filter(date=date)
         threads = threads.filter(date=date)
-    posts = posts.aggregate(Sum('count'))
-    threads = threads.aggregate(Sum('count'))
+    posts = posts.aggregate(Sum('table_count'))
+    threads = threads.aggregate(Sum('table_count'))
 
     count = 0
-    if posts['count__sum']:
-        count += posts['count__sum']
-    if threads['count__sum']:
-        count += threads['count__sum']
+    if posts['table_count__sum']:
+        count += posts['table_count__sum']
+    if threads['table_count__sum']:
+        count += threads['table_count__sum']
     return count
 
 def get_clean_all_tags(user=None, count=True):

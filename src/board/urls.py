@@ -26,8 +26,8 @@ urlpatterns = [
 
     # Profile
     path('@<username>', views.user_profile, name='user_profile'),
-    path('@<username>/profile/<tab>', views.user_profile_tab, name='user_profile_tab'),
-    path('@<username>/topic/<tag>', views.user_profile_topic, name='user_profile_topic'),
+    path('@<username>/<tab>/', views.user_profile_tab, name='user_profile_tab'),
+    path('@<username>/blog/<tag>', views.user_profile_topic, name='user_profile_topic'),
     # ------------------------------------------------------------ Profile End
 
     # Series

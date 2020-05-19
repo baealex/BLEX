@@ -45,6 +45,12 @@ function getParameter(param) {
   }
 };
 
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
 function copyToClipboard(val) {
   var t = document.createElement("textarea");
   document.body.appendChild(t);
@@ -147,6 +153,27 @@ function csrfSafeMethod(method) {
 
 function moveSlide(target, margin = 80) {
   $('html, body').animate({ scrollTop: $('#' + target).offset().top - margin }, 500);
+}
+
+function loading(isStart) {
+  if(isStart) {
+    var number = getRandomInt(0, 3);
+    var squre = '';
+    switch(number) {
+      case 0:
+        squre = 'dot-revolution';
+        break;
+      case 1:
+        squre = 'dot-pulse';
+        break;
+      case 2:
+        squre = 'dot-bricks';
+        break;
+    }
+    $('#loading').html(`<div class="full-mask light"><div style="margin: 48vh auto;" class="${squre}"></div></div>`);
+  }
+  else
+    $('#loading').html('');
 }
 
 function changing(id, href) {
