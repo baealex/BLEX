@@ -474,14 +474,15 @@ const Thread = (() => {
 const Story = (() => {
     const url = '/api/v1/story';
     const imageActive = function() {
-        $('#image-upload-button').on('click', function(e) {
-            e.preventDefault();
-            $('#image-form > input').click();
-        });
-        
-        $('#image-form > input').on('change', function() {
-            var imageForm = document.getElementById('image-form');
-            var formData = new FormData(imageForm);
+        const uploadImage = function(formData) {
+            var cursorPos = $('#id_text_md').prop('selectionStart');
+            var text = $('#id_text_md').val();
+            var textBefore = text.substring(0,  cursorPos);
+            var textAfter  = text.substring(cursorPos, text.length);
+
+            $('#id_text_md').val(textBefore + '[Image Upload...]()' + textAfter);
+            text = $('#id_text_md').val();
+
             $.ajax({
                 url: '/upload/image',
                 type: 'POST',
@@ -490,16 +491,46 @@ const Story = (() => {
                 cache: false,
                 processData: false,
             }).done(function (data) {
+                let result = '';
                 if(data.includes('.mp4')) {
-                    $('#id_text_md').val($('#id_text_md').val() + `@gif[${data}]\n`);    
+                    result = `@gif[${data}]`;
                 } else {
-                    $('#id_text_md').val($('#id_text_md').val() + `![](${data})\n`);
+                    result = `![](${data})`;
                 }
+                $('#id_text_md').val(text.replace('[Image Upload...]()', result));
             }).fail(function () {
                 Notify.append('이미지 업로드에 실패했습니다.');
             });
+        };
+
+        $('#image-upload-button').on('click', function(e) {
+            e.preventDefault();
+            $('#image-form > input').click();
+        });
+
+        $('#id_text_md').on("drop", async function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer = e.originalEvent.dataTransfer;
+            var files = e.target.files || e.dataTransfer.files;
+            if(files.length > 1) {
+                Notify.append('하나씩 업로드 할 수 있습니다.');
+                return;
+            }
+            if(!files[0].type.match(/image.*/)) {
+                Notify.append('이미지 파일이 아닙니다.');
+                return;
+            }
+            var formData = new FormData();
+            formData.append('image', files[0]);
+            await uploadImage(formData);
+        });
+        
+        $('#image-form > input').on('change', async function() {
+            var imageForm = document.getElementById('image-form');
+            var formData = new FormData(imageForm);
+            await uploadImage(formData);
             $('#image-form > input').val('');
-            Notify.append('이미지를 업로드하는 중입니다.');
         });
     }
     return {

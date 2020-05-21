@@ -62,7 +62,7 @@
 <div class="top-menu home">
   <i class="fas fa-home"></i>
 </div>
-<div class="col-lg-8 px-0 noto mx-auto">
+<div id="thread-detail" class="col-lg-8 px-0 noto mx-auto">
   <div id="content">
   {% if not story_detail %}
     {% include 'board/thread/include/pinned.html' %}
@@ -72,7 +72,6 @@
   {% csrf_token %}
   </div>
 </div>
-<blex id="thread-detail"/>
 {% endblock %}
 
 {% block footer%}
