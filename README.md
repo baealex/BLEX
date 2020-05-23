@@ -17,13 +17,22 @@
 
 ***"Do you happen to know any unique and pretty blogs?"*** Yes, I know. [Right here!](https://blex.me) BLEX is an open blog service that anyone can use freely. If you have any questions or suggestions, please contact im@baejino.com. (Oh! It's written in English but provided in Republic of Korea.)
 
-![로그인 페이지](https://user-images.githubusercontent.com/35596687/76858153-3021df80-689a-11ea-8b4a-2084a91242bf.png)
+![Mockup](https://user-images.githubusercontent.com/35596687/82721917-eec80900-9cfc-11ea-8780-3d9cf4d9c0b8.jpg)
 
-![목록 페이지](https://user-images.githubusercontent.com/35596687/76858150-2ef0b280-689a-11ea-9bbc-26e2504e2ff8.png)
+![Login](https://user-images.githubusercontent.com/35596687/82722015-b7a62780-9cfd-11ea-90cc-766cf4ac7751.png)
 
-![글쓰기 페이지](https://user-images.githubusercontent.com/35596687/76858154-30ba7600-689a-11ea-9d4c-cb905e5ae85f.png)
+![Blog](https://user-images.githubusercontent.com/35596687/82722005-a8bf7500-9cfd-11ea-8db5-04a616382a30.png)
 
-![시리즈 페이지](https://user-images.githubusercontent.com/35596687/76858158-31530c80-689a-11ea-822b-46b87d81656d.png)
+![Write](https://user-images.githubusercontent.com/35596687/82722111-9b56ba80-9cfe-11ea-8087-8fa0968b1c83.png)
+
+![Series](https://user-images.githubusercontent.com/35596687/82722002-a826de80-9cfd-11ea-9a7c-85c26a733468.png)
+
+![Posts](https://user-images.githubusercontent.com/35596687/82722003-a8bf7500-9cfd-11ea-8b8d-a9a2282e5961.png)
+
+![Thread](https://user-images.githubusercontent.com/35596687/82722001-a826de80-9cfd-11ea-8710-346a766fa664.png)
+
+![Overview](https://user-images.githubusercontent.com/35596687/82722006-a9580b80-9cfd-11ea-9e19-4d8f269b2d8a.png)
+
 
 ## Features
 
