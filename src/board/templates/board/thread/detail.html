@@ -1,6 +1,6 @@
 {% extends 'board/base.html' %}
 
-{% block title %}{% if story_detail %}{{ story.title }} – {% endif %}{{ thread.title }}{% endblock %}
+{% block title %}{% if story_detail %}{{ story.title }}{% else %}{{ thread.title }}{% endif %}{% if story_detail %} — {{ story.author }}{% endif %}{% endblock %}
 
 {% block seo %}
 {% if story_detail %}
