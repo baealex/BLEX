@@ -29,6 +29,7 @@
 <meta name="twitter:description" content="{{ thread.description | striptags | truncatewords:50 }}">{% endif %}
 {% if thread.image %}
 <meta name="twitter:image" content="{{ thread.image.url }}">{% endif %}
+{% if thread.hide %}<meta name="referrer" content="no-referrer" />{% endif %}
 {% endblock %}
 
 {% block body-class %}thread-body{% endblock %}

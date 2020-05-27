@@ -19,6 +19,7 @@
 <meta name="twitter:description" content="{{ post.text_html | striptags | truncatewords:50 }}">
 {% if post.image %}<meta name="twitter:image" content="{{ post.image.url }}">
 {% else %}<meta property="twitter:image" content="{{ static_url }}/assets/images/default-post.png">{% endif %}
+{% if post.hide %}<meta name="referrer" content="no-referrer" />{% endif %}
 {% endblock %}
 
 {% block image-title%}

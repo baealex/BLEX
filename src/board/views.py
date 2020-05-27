@@ -694,7 +694,7 @@ def thread_edit(request, pk):
 def thread_detail(request, url):
     thread = get_object_or_404(Thread, url=url)
     if thread.hide == True and not thread.author == request.user:
-        raise Http404()
+        return redirect('login')
 
     fn.view_count(type='thread', element=thread, request=request)
 
@@ -737,7 +737,7 @@ def post_detail(request, username, url):
     user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, author=user, url=url)
     if post.hide == True and not post.author == request.user:
-        raise Http404()
+        return redirect('login')
 
     render_args = {
         'post' : post,
