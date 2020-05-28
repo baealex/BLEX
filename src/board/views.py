@@ -694,7 +694,7 @@ def thread_edit(request, pk):
 def thread_detail(request, url):
     thread = get_object_or_404(Thread, url=url)
     if thread.hide == True and not thread.author == request.user:
-        return redirect('login')
+        return redirect('/login' + '?next=' + str(thread.get_absolute_url()))
 
     fn.view_count(type='thread', element=thread, request=request)
 
@@ -710,8 +710,10 @@ def thread_detail(request, url):
 
 def story_detail(request, url, username, story):
     thread = get_object_or_404(Thread, url=url)
+    user = get_object_or_404(User, username=username)
+    story = get_object_or_404(Story, author=user, url=story)
     if thread.hide == True and not thread.author == request.user:
-        raise Http404()
+        return redirect('/login' + '?next=' + str(story.get_absolute_url()))
     
     render_args = {
         'thread': thread,
@@ -722,9 +724,6 @@ def story_detail(request, url, username, story):
     render_args['story_detail'] = True
 
     fn.view_count(type='thread', element=thread, request=request)
-
-    user = get_object_or_404(User, username=username)
-    story = get_object_or_404(Story, author=user, url=story)
     render_args['story'] = story
 
     render_args.update(fn.night_mode(request))
@@ -737,7 +736,7 @@ def post_detail(request, username, url):
     user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, author=user, url=url)
     if post.hide == True and not post.author == request.user:
-        return redirect('login')
+        return redirect('/login' + '?next=' + str(post.get_absolute_url()))
 
     render_args = {
         'post' : post,
