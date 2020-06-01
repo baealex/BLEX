@@ -20,13 +20,21 @@ def view_count(type, element, request):
         return
     
     history = None
+    user_agent = request.META['HTTP_USER_AGENT'][:200]
     try:
         history = History.objects.get(key=get_encrypt_ip(request))
+        if not history.agent == user_agent:
+            history.agent = user_agent
+            if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
+                history.category = 'temp-bot'
+            else:
+                history.category = ''
+            history.save()
+            history.refresh_from_db()
     except:
         history = History(key=get_encrypt_ip(request))
-        user_agent = request.META['HTTP_USER_AGENT'][:200]
         history.agent = user_agent
-        if 'bot' in user_agent.lower():
+        if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
             history.category = 'temp-bot'
         history.save()
         history.refresh_from_db()
