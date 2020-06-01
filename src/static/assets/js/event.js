@@ -165,7 +165,6 @@ var threadEvent = function() {
     });
 
     $(document).ready(function() {
-        autolink($('#content'));
         if($(window).width() < 700) {
             sidebarClose();
         }

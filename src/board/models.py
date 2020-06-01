@@ -158,6 +158,9 @@ class Thread(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def parsedown(self):
+        return parsedown(self.description)
 
     def thumbnail(self):
         if self.image:
@@ -457,6 +460,9 @@ class Comment(models.Model):
             return self.image.url
         else:
             return settings.STATIC_URL + '/images/default-post.png'
+    
+    def parsedown(self):
+        return parsedown(self.text)
     
     def total_likes(self):
         return self.likes.count()

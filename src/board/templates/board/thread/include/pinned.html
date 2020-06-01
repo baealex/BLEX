@@ -17,7 +17,7 @@
       <img {% if thread.description %}style="margin-bottom:20px"{% endif %} src="{{ thread.image.url }}" alt="{{ thread.title }}">
     {% endif %}
     {% if thread.description %}
-      {{ thread.description|linebreaks }}
+      {{ thread.parsedown | safe }}
     {% else %}
       스레드 설명이 없습니다.
     {% endif %}
