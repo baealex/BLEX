@@ -28,7 +28,8 @@ def view_count(type, element, request):
             if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
                 history.category = 'temp-bot'
             else:
-                history.category = ''
+                if not history.category == '' and not '(u)' in history.category:
+                    history.category += '(u)'
             history.save()
             history.refresh_from_db()
     except:
