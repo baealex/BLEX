@@ -1,10 +1,28 @@
 {% load math %}
 
 <div class="container mt-3">
-    <div class="shallow-dark text-center mt-5 ns">
-        Today : {{ today }} / Yesterday : {{ yesterday }} / Total : {{ total }}
-    </div>
     <div class="col-lg-8 mx-auto p-0">
+        <div class="shallow-dark text-center mt-5 ns">
+            Today : {{ today }} / Yesterday : {{ yesterday }} / Total : {{ total }}
+        </div>
+        <div id="heatmap" class="mt-5"></div>
+        {% if most and best %}
+        <div class="mt-5 noto">
+            @{{ user }}님은 주로
+            <ul class="tag-list none-list">
+                {% for tag in most %}
+                <li><a href="{% url 'user_profile_topic' username=user tag=tag.name %}">{{ tag.name }}</a></li>
+                {% endfor %}
+            </ul>
+            주제로 포스트를 작성하고 있으며
+            <ul class="tag-list none-list">
+                {% for tag in best %}
+                <li><a href="{% url 'user_profile_topic' username=user tag=tag.name %}">{{ tag.name }}</a></li>
+                {% endfor %}
+            </ul>
+            주제로 작성된 포스트가 인기가 많습니다.
+        </div>
+        {% endif %}
         <div class="h5 serif font-weight-bold mt-5">Featured Contents</div>
         <div class="row mt-1">
             {% for element in elements %}
@@ -30,7 +48,6 @@
             {% endfor %}
         </div>
         <div class="h5 serif font-weight-bold mt-5">Recent Activity</div>
-        <div id="heatmap" class="mt-4"></div>
         <ul class="p-0 noto profile-activity mt-4">
             {% for active in activity %}
             <li>
@@ -40,7 +57,6 @@
                 {% elif active.text %}
                 <i class="fas fa-comment"></i>
                 <a class="shallow-dark" href="{{ active.post.get_absolute_url }}">'{{ active.post }}'</a> 포스트에 댓글을 남겼습니다.
-                <blockquote>{{ active.text }}</blockquote>
                 {% elif active.owner and active.name %}
                 <i class="fas fa-bookmark"></i>
                 <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.name }}'</a> 시리즈를 생성하였습니다.

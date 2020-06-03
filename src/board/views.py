@@ -425,18 +425,18 @@ def external(request):
 # Profile
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
-    elements = fn.get_posts('trendy', user)[:6]
+    elements = fn.get_posts('trendy', user)[:10]
 
     render_args = {
         'user': user,
-        'elements': elements,
+        'elements': elements[:6],
     }
 
     posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False)
     series = Series.objects.filter(owner=user)
     comments = Comment.objects.filter(author=user, post__hide=False)
     story = Story.objects.filter(author=user, thread__hide=False)
-    activity = sorted(chain(posts, series, comments, story), key=lambda instance: instance.created_date, reverse=True)[:5]
+    activity = sorted(chain(posts, series, comments, story), key=lambda instance: instance.created_date, reverse=True)[:8]
     render_args['activity'] = activity
 
     today_date = timezone.make_aware(datetime.datetime.now())
@@ -449,6 +449,27 @@ def user_profile(request, username):
 
     total = fn.get_view_count(user)
     render_args['total'] = total
+
+    best = []
+    tags = []
+    for element in elements:
+        tags += element.tag.split(',')
+
+    for name in set(tags):
+        if name == '':
+            continue
+        tag_dict = {
+            'name': name,
+            'count': 0,
+        }
+        for tag in tags:
+            if name == tag:
+                tag_dict['count'] += 1
+        best.append(tag_dict)
+    best = sorted(best, key=lambda instance: instance['count'], reverse=True)
+
+    render_args['best'] = best[:3]
+    render_args['most'] = fn.get_user_topics(user)[:3]
 
     if request.user == user:
         render_args['write_btn'] = True

@@ -951,7 +951,7 @@ footer.bg-rdark a:hover {
 .profile-activity li {
     list-style: none;
     border: 3px solid #eee;
-    margin: 10px;
+    margin: 10px 0;
     padding: 20px;
     overflow: hidden;
     word-wrap: break-word;
