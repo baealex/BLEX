@@ -20,11 +20,11 @@ def view_count(type, element, request):
         return
     
     history = None
-    user_agent = request.META['HTTP_USER_AGENT'][:200]
+    user_agent = request.META['HTTP_USER_AGENT']
     try:
         history = History.objects.get(key=get_encrypt_ip(request))
-        if not history.agent == user_agent:
-            history.agent = user_agent
+        if not history.agent == user_agent[:200]:
+            history.agent = user_agent[:200]
             if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
                 history.category = 'temp-bot'
             else:
@@ -34,7 +34,7 @@ def view_count(type, element, request):
             history.refresh_from_db()
     except:
         history = History(key=get_encrypt_ip(request))
-        history.agent = user_agent
+        history.agent = user_agent[:200]
         if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
             history.category = 'temp-bot'
         history.save()
@@ -61,6 +61,9 @@ def view_count(type, element, request):
             if 'Referer' in request.headers:
                 now = datetime.datetime.now().strftime('%H:%M')
                 today_analytics.referer += now + '^' + request.headers['Referer'] + '|'
+            elif 'kakaotalk' in user_agent.lower():
+                now = datetime.datetime.now().strftime('%H:%M')
+                today_analytics.referer += now + '^' + 'app://com.kakaocorp.talk' + '|'
             today_analytics.save()
 
 def get_posts(sort, user=None):
