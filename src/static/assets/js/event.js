@@ -168,6 +168,7 @@ var threadEvent = function() {
         if($(window).width() < 700) {
             sidebarClose();
         }
+        safeExternal('#content a');
     });
 };
 

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if level == 'hide' or debug %}
+    <meta name="referrer" content="no-referrer">
+    {% elif level == 'origin' %}
+    <meta name="referrer" content="strict-origin">
+    {% else %}
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    {% endif %}
+    <title>BLOG EXPRESS ME</title>
+    <link rel="icon" href="{% static 'images/logo.png' %}">
+</head>
+<body>
+    <script>
+        function getParam(name) {
+            var params = location.search.substr(location.search.indexOf("?") + 1);
+            var sval = "";
+            params = params.split("&");
+            for (var i = 0; i < params.length; i++) {
+                temp = params[i].split("=");
+                if ([temp[0]] == name) { sval = temp[1]; }
+            }
+            return sval;
+        }
+        location.replace(decodeURIComponent(getParam('url')));
+    </script>
+</body>
+</html>

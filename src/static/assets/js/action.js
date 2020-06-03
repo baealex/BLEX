@@ -80,7 +80,7 @@ const Comment = (() => {
     return {
         reload: (element) => {
             $(`#comment-${element.pk}`).html(Render.comment(element));
-            autolink($(`#comment-${element.pk}`));
+            safeExternal('#comment a');
         },
         write: (fk) => {
             if($('#id_text').val() == '') {
@@ -98,7 +98,7 @@ const Comment = (() => {
                         $('#comment-empty').remove();
                     }
                     $('#comment-form textarea').val('');
-                    autolink($(`#comment-${data.element.pk}`));
+                    safeExternal('#comment a');
                     User.sendTag(fk);
                 }
             });

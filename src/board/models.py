@@ -472,7 +472,7 @@ class Comment(models.Model):
             'pk': self.pk,
             'author': self.author.username,
             'created_date': timesince(self.created_date),
-            'content': linebreaks(escape(self.text)),
+            'content': self.parsedown(),
             'total_likes': self.total_likes(),
             'thumbnail': self.author.profile.thumbnail(),
             'edited': 'edited' if self.edit == True else '',

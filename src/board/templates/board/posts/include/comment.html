@@ -20,7 +20,7 @@
             {% endif %}
         {% endif %}
         </ul>
-        <div class="mt-3 noto">{{ comment.text|linebreaks }}</div>
+        <div class="mt-3 noto">{{ comment.parsedown | safe }}</div>
         <ul class="none-list">
             <li>
                 <a class="shallow-dark" href="javascript:void(0);" onclick="Comment.like({{ comment.pk }})">

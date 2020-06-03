@@ -20,6 +20,7 @@ urlpatterns = [
     path('signout', views.signout, name='signout'),
     path('opinion', views.opinion, name='opinion'),
     path('setting', views.setting, name='setting'),
+    path('external', views.external, name='external'),
     path('setting/<tab>', views.setting_tab, name='setting_tab'),
     path('notify:<pk>', views.notify_redirect, name='notify_redirect'),
     # ------------------------------------------------------------ Account End

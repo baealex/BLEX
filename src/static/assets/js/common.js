@@ -45,6 +45,22 @@ function getParameter(param) {
   }
 };
 
+function safeExternal(query, level='origin') {
+  var anchorTags = document.querySelectorAll(query);
+  anchorTags.forEach(function(anchorTag) {
+    anchorTag.addEventListener('click', function(e) {
+      if(!this.href.includes('javascript')) {
+        event.preventDefault();
+        if(this.href.includes('' + location.host)) {
+          location.href = this.href;
+        } else {
+          location.href = '/external?url=' + encodeURIComponent(this.href) + '&level=' + level;
+        }
+      }
+    });
+  });
+}
+
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -186,6 +202,7 @@ function changing(id, href) {
     window.scrollTo({top: 0});
     lazyLoadImage();
     lazyLoadVideo();
+    safeExternal('#' + id + ' a');
   });
 }
 

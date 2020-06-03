@@ -411,6 +411,16 @@ def setting_tab(request, tab):
 # ------------------------------------------------------------ Account End
 
 
+def external(request):
+    if 'Referer' in request.headers:
+        if settings.SITE_URL in request.headers['Referer']:
+            level = request.GET.get('level')
+            return render(request, 'board/external.html', {
+                'level': level,
+                'debug': settings.DEBUG,
+            })
+    return redirect('/')
+
 
 # Profile
 def user_profile(request, username):

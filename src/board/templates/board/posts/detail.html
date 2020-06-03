@@ -118,7 +118,8 @@
 <script>
     $(document).ready(function () {
         createNav({% if post.image %}'full'{% else %}'empty'{% endif %});
-        autolink($('#comment'));
+        safeExternal('.article a');
+        safeExternal('#comment a');
     });
 </script>
 {% endblock %}
