@@ -141,7 +141,7 @@ def comment(request, pk=None):
                 fn.add_exp(request.user, 1)
                 
                 if not comment.author == post.author:
-                    send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다. \"' + comment.text + '\"'
+                    send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다.'
                     fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
                 
                 data = {
