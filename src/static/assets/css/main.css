@@ -409,6 +409,37 @@
 .s-shadow {
     box-shadow: 0 2px 6px 0 hsl(0, 0%, 0%, 0.1);
 }
+.comment-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
+}
+.comment-content h1,
+.comment-content h2,
+.comment-content h3,
+.comment-content h4,
+.comment-content h5,
+.comment-content h6 {
+    font-size: 1.2em;
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 600;
+}
+.comment-content a {
+    color: #a7a7a7;
+}
+.comment-content a:hover {
+    text-decoration: none;
+}
+.comment-content blockquote {
+    border-left: 4px solid #9c56d4;
+    background: #f8f8f8;
+    padding: 10px;
+}
+.comment-content blockquote p {
+    margin-bottom: 0;
+}
+.comment-content img,
+.comment-content video {
+    max-width: 100%;
+}
 #comment-form .form-control {
     box-shadow: 0 2px 6px 0 hsl(0, 0%, 0%, 0.1);
     border: 0;

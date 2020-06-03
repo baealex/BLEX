@@ -10,7 +10,7 @@ var Render = {
                 <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="Comment.edit(${element.pk})">수정</a></li>
                 <li><a class="vs shallow-dark" href="javascript:void(0)" onclick="Comment.remove(${element.pk});">삭제</a></li>
             </ul>
-            <div class="mt-3 noto">${element.content}</div>
+            <div class="mt-4 comment-content">${element.content}</div>
             <ul class="none-list">
                 <li>
                     <a class="shallow-dark" href="javascript:void(0);" onclick="Comment.like(${element.pk})">
