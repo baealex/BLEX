@@ -22,7 +22,7 @@ $(window).bind("beforeunload", function (e){
 });
 
 $(document).ready(function() {
-    var csrftoken = getCookie('csrftoken');
+    var csrftoken = cookie.get('csrftoken');
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
