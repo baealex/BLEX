@@ -214,8 +214,8 @@ var writeEvent = function() {
 
 (function() {
     document.addEventListener("DOMContentLoaded", function() {
-        lazyLoadImage();
-        lazyLoadVideo(); 
+        lazy.image();
+        lazy.video(); 
     });
     if(document.getElementById('write-btn')) {
         writeEvent();

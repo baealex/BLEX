@@ -64,7 +64,7 @@ const Notify = (function() {
 
 const Save = (function() {
     const url = '/api/v1/posts/temp';
-    const token = getParameter('token');
+    const token = urlib.getParameter('token');
     var isWait = false;
 
     if(token) {

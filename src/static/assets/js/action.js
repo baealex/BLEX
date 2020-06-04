@@ -1,7 +1,13 @@
-const Posts = (() => {
-    const url = '/api/v1/posts';
+var Posts = (function() {
+    var url = '/api/v1/posts';
+    var isWait = false;
+
     return {
-        like: (pk) => {
+        like: function(pk) {
+            if(isWait) {
+                Notify.append('잠시 후 다시 사용할 수 있습니다.');
+                return;
+            }
             $.ajax({
                 url: `${url}/${pk}`,
                 type: 'PUT',
@@ -14,18 +20,23 @@ const Posts = (() => {
                     Notify.append('자신의 글은 추천할 수 없습니다.');
                 }
                 else {
-                    if($('#heart i').hasClass('fas')) {
-                        $('#heart i').removeClass('fas');
-                        $('#heart i').addClass('far');
+                    isWait = true;
+                    setTimeout(function() {
+                        isWait = false;
+                    }, 1000 * 60);
+                    var heart = new item('#heart i');
+                    if(heart.hasClass('fas')) {
+                        heart.removeClass('fas');
+                        heart.addClass('far');
                     } else {
-                        $('#heart i').removeClass('far');
-                        $('#heart i').addClass('fas');
+                        heart.removeClass('far');
+                        heart.addClass('fas');
                     }
-                    $('#like-count').text(data);
+                    new item('#like-count').text(data);
                 }
             });
         },
-        remove: (pk) => {
+        remove: function(pk) {
             if(confirm('정말 삭제하십니까?')){
                 $.ajax({
                     url: `${url}/${pk}`,
@@ -33,7 +44,7 @@ const Posts = (() => {
                 }).done(function (data) {
                     if(document.getElementById(`item-${pk}`)) {
                         Notify.append('포스트가 삭제되었습니다.');
-                        $('#item-' + pk).remove();
+                        new item('#item-' + pk).remove();
                     } else {
                         alert('포스트가 삭제되었습니다.')
                         location.href = '/';
@@ -41,24 +52,25 @@ const Posts = (() => {
                 });
             }
         },
-        lock: (pk) => {
+        lock: function(pk) {
             $.ajax({
                 url: `/api/v1/posts/${pk}`,
                 type: "PUT",
                 data: {hide: 'changed'}
-            }).done((data) => {
+            }).done(function(data) {
+                var lock = new item(`#item-${pk} .element-lock i`);
                 if(data.hide) {
-                    $(`#item-${pk} .element-lock i`).removeClass('fa-lock-open');
-                    $(`#item-${pk} .element-lock i`).addClass('fa-lock');
+                    lock.removeClass('fa-lock-open');
+                    lock.addClass('fa-lock');
                     Notify.append('포스트가 숨겨집니다.');
                 } else {
-                    $(`#item-${pk} .element-lock i`).removeClass('fa-lock');
-                    $(`#item-${pk} .element-lock i`).addClass('fa-lock-open');
+                    lock.removeClass('fa-lock');
+                    lock.addClass('fa-lock-open');
                     Notify.append('포스트가 공개됩니다.');
                 }
             });
         },
-        changeTag: (pk) => {
+        changeTag: function(pk) {
             if($(`#item-${pk} form`).find('[name=tag]').val() == '') {
                 Notify.append('태그를 비워둔 상태로 변경할 수 없습니다.');
                 return;
@@ -67,22 +79,24 @@ const Posts = (() => {
                 url: `/api/v1/posts/${pk}`,
                 type: "PUT",
                 data: $(`#item-${pk} form`).serialize(),
-            }).done((data) => {
+            }).done(function(data) {
                 Notify.append('태그가 변경되었습니다.');
                 $(`#item-${pk} form`).find('[name=tag]').val(data.tag);
             });
         },
     }
 })();
-const Comment = (() => {
-    const url = '/api/v1/comments';
-    let tempResource = '';
+var Comment = (function() {
+    var url = '/api/v1/comments';
+    var tempResource = '';
+    var isWait = false;
+
     return {
-        reload: (element) => {
-            $(`#comment-${element.pk}`).html(Render.comment(element));
+        reload: function(element) {
+            new item(`#comment-${element.pk}`).html(Render.comment(element));
             safeExternal('#comment a');
         },
-        write: (fk) => {
+        write: function(fk) {
             if($('#id_text').val() == '') {
                 Notify.append('댓글의 내용을 작성해주세요!');
                 return;
@@ -93,11 +107,11 @@ const Comment = (() => {
                 data: $('#comment-form').serialize(),
             }).done(function(data) {
                 if(data.state == 'true') {
-                    $('#comment').append(`<div id='comment-${data.element.pk}'>${Render.comment(data.element)}</div>`);
+                    new item('#comment').append(`<div id='comment-${data.element.pk}'>${Render.comment(data.element)}</div>`);
                     if(document.getElementById('comment-empty')) {
-                        $('#comment-empty').remove();
+                        new item('#comment-empty').remove();
                     }
-                    $('#comment-form textarea').val('');
+                    new item('#comment-form textarea').val('');
                     safeExternal('#comment a');
                     User.sendTag(fk);
                 }
@@ -109,7 +123,7 @@ const Comment = (() => {
                     url: `${url}/${pk}`,
                     type: 'DELETE',
                 }).done(function(data) {
-                    $(`#comment-${data.pk}`).remove();
+                    new item(`#comment-${data.pk}`).remove();
                     Notify.append('댓글이 삭제되었습니다.');
                 });
             } else {
@@ -122,10 +136,14 @@ const Comment = (() => {
                 type: 'GET',
             }).done(function(data) {
                 tempResource = $(`#comment-${pk}`).html();
-                $(`#comment-${pk}`).html(data);
+                new item(`#comment-${pk}`).html(data);
             });
         },
         like: function(pk) {
+            if(isWait) {
+                Notify.append('잠시 후 다시 사용할 수 있습니다.');
+                return;
+            }
             $.ajax({
                 url: `${url}/${pk}`,
                 type: 'PUT',
@@ -138,31 +156,35 @@ const Comment = (() => {
                     Notify.append('자신의 댓글은 추천할 수 없습니다.')
                 }
                 else {
+                    isWait = true;
+                    setTimeout(function() {
+                        isWait = false;
+                    }, 1000 * 60);
                     $(`#clc${pk}`).html(data);
                 }
             });
         },
-        update: (pk) => {
+        update: function(pk) {
             $.ajax({
                 url: `${url}/${pk}`,
                 type: 'PUT',
                 data: $(`#comment-${pk}-form`).serialize(),
-            }).done((data) => {
+            }).done(function(data) {
                 if(data.state == 'true') {
                     Comment.reload(data.element);
                 }
             });
         },
-        editCancle: (pk) => {
-            $(`#comment-${pk}`).html(tempResource);
+        editCancle: function(pk) {
+            new item(`#comment-${pk}`).html(tempResource);
             tempResource = '';
         }
     }
 })();
-const Series = (() => {
-    const url = '/api/v1/series';
+var Series = (function() {
+    var url = '/api/v1/series';
     return {
-        edit: (pk) => {
+        edit: function(pk) {
             if (!document.getElementById('series-modal')) {
                 $.ajax({
                     url: `${url}/${pk}?get=modal`,
@@ -176,12 +198,12 @@ const Series = (() => {
                 $('#series-modal').modal('show');
             }
         },
-        remove: (pk) => {
+        remove: function(pk) {
             if(confirm('정말 삭제하십니까?')) {
                 $.ajax({
                     url: `${url}/${pk}`,
                     type: 'DELETE',
-                }).done((data) => {
+                }).done(function(data) {
                     if(data == 'DONE') {
                         alert('시리즈가 삭제되었습니다.')
                         location.href = '/';
@@ -191,19 +213,19 @@ const Series = (() => {
         }
     }
 })();
-const Notify = (() => {
-    const url = '/api/v1/users';
+var Notify = (function() {
+    var url = '/api/v1/users';
     var counter = 0;
     return {
-        get: (username) => {
+        get: function(username) {
             $.ajax({
                 url: `${url}/${username}`,
                 type: 'GET',
                 data: {'get': 'notify'},
-            }).done((data) => {
+            }).done(function(data) {
                 if (data.count > 0) {
-                    data.content.forEach((element) => {
-                        $('#notify-content').append(Render.notify.reguler(element));
+                    data.content.forEach(function(element) {
+                        new item('#notify-content').append(Render.notify.reguler(element));
                     });
                     $('.toast').toast({
                         'autohide': false
@@ -212,7 +234,7 @@ const Notify = (() => {
                 }
             });
         },
-        append: (info) => {
+        append: function(info) {
             var pk = counter++;
             $('#notify-content').append(
                 Render.notify.common({
@@ -221,14 +243,14 @@ const Notify = (() => {
                 })
             );
             $('.toast').toast({
-                'delay': 3000,
+                'delay': 4000,
             });
             $('.toast').toast('show');
-            setTimeout(() => {
-                $(`#pretoast${pk}`).remove();
-            }, 3000);
+            setTimeout(function() {
+                new item(`#pretoast${pk}`).remove();
+            }, 4000);
         },
-        read: (username, pk) => {
+        read: function(username, pk) {
             $.ajax({
                 url: `${url}/${username}`,
                 type: 'GET',
@@ -236,11 +258,11 @@ const Notify = (() => {
                     'get': 'notify',
                     'id': pk,
                 },
-            }).done((data) => {
-                $(`#toast${pk}`).remove();
+            }).done(function(data) {
+                new item(`#toast${pk}`).remove();
             });
         },
-        go: (username, pk) => {
+        go: function(username, pk) {
             $.ajax({
                 url: `${url}/${username}`,
                 type: 'GET',
@@ -248,45 +270,45 @@ const Notify = (() => {
                     'get': 'notify',
                     'id': pk,
                 },
-            }).done((data) => {
+            }).done(function(data) {
                 location.href = data;
             });
         }
     }
 })();
-const Telegram = (() => {
-    const url = '/api/v1/telegram';
+var Telegram = (function() {
+    var url = '/api/v1/telegram';
     return {
-        pair: () => {
+        pair: function() {
             $.ajax({
                 url: url + '/makeToken',
                 type: 'POST',
-            }).done((data) => {
-                $(`#telegram-token`).text(data);
+            }).done(function(data) {
+                new item(`#telegram-token`).text(data);
             });
         },
-        unpair: () => {
+        unpair: function() {
             $.ajax({
                 url: url + '/unpair',
                 type: 'POST',
-            }).done((data) => {
+            }).done(function(data) {
                 location.reload();
             });
         }
     }
 })();
-const User = (() => {
-    const url = '/api/v1/users';
-    let sendList = [];
+var User = (function() {
+    var url = '/api/v1/users';
+    var sendList = [];
     return {
-        activity: (username) =>{
+        activity: function(username) {
             $.ajax({
                 url: `${url}/${username}`,
                 type: 'GET',
                 data: {get: 'activity'},
-            }).done((data) => {
-                let count = 0;
-                for(let key in data.data) {
+            }).done(function(data) {
+                var count = 0;
+                for(var key in data.data) {
                     count += Number(data.data[key]);
                 }
                 new frappe.Chart("#heatmap", {
@@ -301,12 +323,12 @@ const User = (() => {
                 });
             });
         },
-        follow: (username) => {
+        follow: function(username) {
             $.ajax({
                 url: `${url}/${username}`,
                 type: 'PUT',
                 data: {follow: 'follow'},
-            }).done((data) => {
+            }).done(function(data) {
                 if(data=='error:NL') {
                     Notify.append(msg.login);
                 }
@@ -314,20 +336,21 @@ const User = (() => {
                     Notify.append('자신은 구독할 수 없습니다.');
                 }
                 else {
-                    $('#user-follow').text(data);
+                    new item('#user-follow').text(data);
                 }
             });
         },
-        editAbout: (username) => {
+        editAbout: function(username) {
             if($('#aboutButton').hasClass('edit')) {
                 $.ajax({
                     method: 'GET',
                     url: `/api/v1/users/${username}?get=about-form`,
                 }).done(function (data) {
-                    $('#about').html(data);
-                    $('#aboutButton').text('완료');
-                    $('#aboutButton').addClass('submit');
-                    $('#aboutButton').removeClass('edit');
+                    new item('#about').html(data);
+                    var btn = new item('#aboutButton');
+                    btn.text('완료');
+                    btn.addClass('submit');
+                    btn.removeClass('edit');
                 });
             } else {
                 $.ajax({
@@ -335,14 +358,15 @@ const User = (() => {
                     url: `/api/v1/users/${username}`,
                     data: $('form').serialize()
                 }).done(function (data) {
-                    $('#about').html(data);
-                    $('#aboutButton').text('편집');
-                    $('#aboutButton').addClass('edit');
-                    $('#aboutButton').removeClass('submit');
+                    new item('#about').html(data);
+                    var btn = new item('#aboutButton');
+                    btn.text('편집');
+                    btn.addClass('edit');
+                    btn.removeClass('submit');
                 });
             }
         },
-        appendTag: (username) => {
+        appendTag: function(username) {
             var textValue = $('#id_text').val();
             if(textValue.indexOf(username) == -1) {
                 $('#id_text').val(textValue + (`@${username} `)).focus();
@@ -351,7 +375,7 @@ const User = (() => {
                 }
             }
         },
-        sendTag: (pk) => {
+        sendTag: function(pk) {
             for(username of sendList) {
                 $.ajax({
                     url: `${url}/${username}?on=${pk}`,
@@ -363,10 +387,12 @@ const User = (() => {
         }
     }
 })();
-const Thread = (() => {
-    const url = '/api/v1/thread';
+var Thread = (function() {
+    var url = '/api/v1/thread';
+    var isWait = false;
+
     return {
-        create: () => {
+        create: function() {
             if (!document.getElementById('thread-modal')) {
                 $.ajax({
                     url: `${url}?get=modal`,
@@ -380,12 +406,12 @@ const Thread = (() => {
                 $('#thread-modal').modal('show')
             }
         },
-        edit: (pk) => {
+        edit: function(pk) {
             if (!document.getElementById('thread-modal')) {
                 $.ajax({
                     url: url + '/' + pk + '?get=modal',
                     type: 'GET',
-                }).done((data) => {
+                }).done(function(data) {
                     $('body').append(data);
                     $('#thread-modal').modal('show');
                 });
@@ -394,42 +420,43 @@ const Thread = (() => {
                 $('#thread-modal').modal('show');
             }
         },
-        remove: (pk) => {
+        remove: function(pk) {
             if (confirm('정말 스레드를 삭제합니까?')) {
                 $.ajax({
                     url: `${url}/${pk}`,
                     type: 'DELETE',
-                }).done((data) => {
+                }).done(function(data) {
                     if (data == 'DONE') {
                         if(document.getElementById(`item-${pk}`)) {
                             Notify.append('스레드가 삭제되었습니다.');
-                            $('#item-' + pk).remove();
+                            new item('#item-' + pk).remove();
                         } else {
-                            alert('스레드가 삭제되었습니다.')
+                            alert('스레드가 삭제되었습니다.');
                             location.href = '/';
                         }
                     }
                 });
             }
         },
-        lock: (pk) => {
+        lock: function(pk) {
             $.ajax({
                 url: `${url}/${pk}`,
                 type: "PUT",
                 data: {hide: 'changed'}
             }).done(function (data) {
+                var lock = new item(`#item-${pk} .element-lock i`);
                 if(data.hide) {
-                    $(`#item-${pk} .element-lock i`).removeClass('fa-lock-open');
-                    $(`#item-${pk} .element-lock i`).addClass('fa-lock');
+                    lock.removeClass('fa-lock-open');
+                    lock.addClass('fa-lock');
                     Notify.append('스레드가 숨겨집니다.');
                 } else {
-                    $(`#item-${pk} .element-lock i`).removeClass('fa-lock');
-                    $(`#item-${pk} .element-lock i`).addClass('fa-lock-open');
+                    lock.removeClass('fa-lock');
+                    lock.addClass('fa-lock-open');
                     Notify.append('스레드가 공개됩니다.');
                 }
             });
         },
-        changeTag: (pk) => {
+        changeTag: function(pk) {
             if($(`#item-${pk} form`).find('[name=tag]').val() == '') {
                 Notify.append('태그를 비워둔 상태로 변경할 수 없습니다.');
                 return;
@@ -443,7 +470,11 @@ const Thread = (() => {
                 $(`#item-${pk} form`).find('[name=tag]').val(data.tag);
             });
         },
-        bookmark: (pk) => {
+        bookmark: function(pk) {
+            if(isWait) {
+                Notify.append('잠시 후 다시 사용할 수 있습니다.');
+                return;
+            }
             $.ajax({
                 url: `${url}/${pk}`,
                 type: "PUT",
@@ -456,25 +487,34 @@ const Thread = (() => {
                     Notify.append('타인 참여가 불가능한 본인의 스레드는 북마크할 수 없습니다.');
                 }
                 else {
-                    if($(`#bookmark`).hasClass('far')) {
-                        $(`#bookmark`).removeClass('far');
-                        $(`#bookmark`).addClass('fas');
+                    if(new item(`#bookmark`).hasClass('far')) {
+                        new item(`#bookmark`).removeClass('far');
+                        new item(`#bookmark`).addClass('fas');
                         Notify.append('스레드를 북마크합니다.');
                     }
                     else {
-                        $(`#bookmark`).removeClass('fas');
-                        $(`#bookmark`).addClass('far');
+                        new item(`#bookmark`).removeClass('fas');
+                        new item(`#bookmark`).addClass('far');
                         Notify.append('스레드 북마크를 해제합니다.');
                     }
+                    isWait = true;
+                    setTimeout(function() {
+                        isWait = false;
+                    }, 1000 * 60);
                 }
             });
         },
     }
 })();
-const Story = (() => {
-    const url = '/api/v1/story';
-    const imageActive = function() {
-        const uploadImage = function(formData) {
+var Story = (function() {
+    var url = '/api/v1/story';
+    var isWait = {
+        agree: false,
+        disagree: false,
+    }
+
+    var imageActive = function() {
+        var uploadImage = function(formData) {
             var cursorPos = $('#id_text_md').prop('selectionStart');
             var text = $('#id_text_md').val();
             var textBefore = text.substring(0,  cursorPos);
@@ -491,7 +531,7 @@ const Story = (() => {
                 cache: false,
                 processData: false,
             }).done(function (data) {
-                let result = '';
+                var result = '';
                 if(data.includes('.mp4')) {
                     result = `@gif[${data}]`;
                 } else {
@@ -534,20 +574,20 @@ const Story = (() => {
         });
     }
     return {
-        create: (fk) => {
+        create: function(fk) {
             if(document.getElementById('story-modal')) {
                 $('#story-modal').remove();
             }
             $.ajax({
                 url: `${url}?get=modal&fk=${fk}`,
                 type: 'GET',
-            }).done((data) => {
+            }).done(function(data) {
                 $('body').append(data);
                 $('#story-modal').modal('show');
                 imageActive();
             });
         },
-        write: (fk) => {
+        write: function(fk) {
             if($('#id_title').val() == '') {
                 Notify.append('스토리의 제목을 입력하세요.');
                 return;
@@ -561,46 +601,50 @@ const Story = (() => {
                 url: `${url}?fk=${fk}`,
                 type: 'POST',
                 data: $('#story-modal #story-form').serialize(),
-            }).done((data) => {
+            }).done(function(data) {
                 location.replace(data.redirect);
             });
         },
-        edit: (pk) => {
+        edit: function(pk) {
             if(document.getElementById('story-modal')) {
-                $('#story-modal').remove();
+                new item('#story-modal').remove();
             }
             $.ajax({
                 url: `${url}/${pk}?get=modal`,
                 type: 'GET',
-            }).done((data) => {
+            }).done(function(data) {
                 $('body').append(data);
                 $('#story-modal').modal('show');
                 imageActive();
             });
         },
-        update: (pk) => {
+        update: function(pk) {
             loading(true);
             $.ajax({
                 type: 'PUT',
                 url: `${url}/${pk}`,
                 data: $('#story-modal #story-form').serialize(),
-            }).done((data) => {
+            }).done(function(data) {
                 if (data.state == 'true') {
                     location.reload();
                 }
             });
         },
-        remove: (pk) => {
+        remove: function(pk) {
             if (confirm('정말 스토리를 삭제합니까?')) {
                 $.ajax({
                     url: `${url}/${pk}`,
                     type: 'DELETE',
-                }).done((data) => {
+                }).done(function(data) {
                     location.replace(data);
                 });
             }
         },
         agree: function(pk) {
+            if(isWait.agree) {
+                Notify.append('잠시 후 다시 사용할 수 있습니다.');
+                return;
+            }
             $.ajax({
                 url: `${url}/${pk}`,
                 type: 'PUT',
@@ -616,11 +660,19 @@ const Story = (() => {
                     Notify.append('이미 반대한 스토리입니다.');
                 }
                 else {
-                    $(`.agree span`).text(data);
+                    new item(`.agree span`).text(data);
+                    isWait.agree = true;
+                    setTimeout(function() {
+                        isWait.agree = false;
+                    }, 1000 * 60);
                 }
             });
         },
         disagree: function(pk) {
+            if(isWait.disagree) {
+                Notify.append('잠시 후 다시 사용할 수 있습니다.');
+                return;
+            }
             $.ajax({
                 url: `${url}/${pk}`,
                 type: 'PUT',
@@ -637,49 +689,54 @@ const Story = (() => {
                 }
                 else {
                     $(`.disagree span`).text(data);
+                    isWait.disagree = true;
+                    setTimeout(function() {
+                        isWait.disagree = false;
+                    }, 1000 * 60);
                 }
             });
         }
     }
 })();
-const Analytics = (() => {
-    let postsList = undefined;
-    let threadList = undefined;
-    let renderHTML = undefined;
-    let url = '/api/v1/users';
+var Analytics = (function() {
+    var postsList = undefined;
+    var threadList = undefined;
+    var renderHTML = undefined;
+    var url = '/api/v1/users';
     return {
-        get: (username, type) => {
+        get: function(username, type) {
             $.ajax({
                 url: `${url}/${username}?get=${type}`,
                 type: 'GET',
-            }).done((data) => {
+            }).done(function(data) {
                 type == 'posts_analytics' ? postsList = data.posts : threadList = data.thread;
                 renderHTML = '';
-                for(let ele of type == 'posts_analytics' ? postsList : threadList) {
+                for(var ele of type == 'posts_analytics' ? postsList : threadList) {
                     renderHTML += Render.analytics.element(ele, type);
                 }
-                $('#analytics').html(renderHTML);
+                new item('#analytics').html(renderHTML);
             });
         },
-        modal: (username, type, pk) => {
+        modal: function(username, type, pk) {
             if(document.getElementById(`item-${pk}-detail`)) {
                 $(`#item-${pk}-detail`).modal('show');
             } else {
                 $.ajax({
                     url: `${url}/${username}?get=${type}&pk=${pk}`,
                     type: 'GET',
-                }).done((data) => {
+                }).done(function(data) {
                     data.items.reverse();
                     
                     $('body').append(Render.analytics.modal(data.referers, pk));
                     $(`#item-${pk}-detail`).modal('show');
                     
                     makeChart(data.items, 'chart-' + pk);
+                    safeExternal(`#item-${pk}-detail a`);
                 });
             }
         },
-        sort: (sort, type) => {
-            let sortHow = function(a, b) {
+        sort: function(sort, type) {
+            var sortHow = function(a, b) {
                 if(a[sort] == b[sort]) {
                     return 0;
                 }
@@ -691,10 +748,10 @@ const Analytics = (() => {
             }
             renderHTML = '';
             type == 'posts_analytics' ? postsList.sort(sortHow) : threadList.sort(sortHow);
-            for(let ele of type == 'posts_analytics' ? postsList : threadList) {
+            for(var ele of type == 'posts_analytics' ? postsList : threadList) {
                 renderHTML += Render.analytics.element(ele, type);
             }
-            $('#analytics').html(renderHTML);
+            new item('#analytics').html(renderHTML);
         },
     }
 })();

@@ -36,7 +36,7 @@
     <script type="text/javascript" src="{{ static_url }}/assets/js/event.js?{{ static_version }}"></script>
     <script type="text/javascript">
     $(document).ready(function() {
-        var csrftoken = getCookie('csrftoken');
+        var csrftoken = cookie.get('csrftoken');
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
                 if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
