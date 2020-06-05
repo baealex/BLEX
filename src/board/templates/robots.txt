@@ -1,4 +1,5 @@
 User-agent: *
+Disallow: /external
 Disallow: /*?page=*
 Disallow: /*?next=*
 Disallow: /*?series=*
