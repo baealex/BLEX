@@ -24,7 +24,7 @@ var Posts = (function() {
                     setTimeout(function() {
                         isWait = false;
                     }, 1000 * 60);
-                    var heart = new item('#heart i');
+                    var heart = new Item('#heart i');
                     if(heart.hasClass('fas')) {
                         heart.removeClass('fas');
                         heart.addClass('far');
@@ -32,7 +32,7 @@ var Posts = (function() {
                         heart.removeClass('far');
                         heart.addClass('fas');
                     }
-                    new item('#like-count').text(data);
+                    new Item('#like-count').text(data);
                 }
             });
         },
@@ -44,7 +44,7 @@ var Posts = (function() {
                 }).done(function (data) {
                     if(document.getElementById(`item-${pk}`)) {
                         Notify.append('포스트가 삭제되었습니다.');
-                        new item('#item-' + pk).remove();
+                        new Item('#item-' + pk).remove();
                     } else {
                         alert('포스트가 삭제되었습니다.')
                         location.href = '/';
@@ -58,7 +58,7 @@ var Posts = (function() {
                 type: "PUT",
                 data: {hide: 'changed'}
             }).done(function(data) {
-                var lock = new item(`#item-${pk} .element-lock i`);
+                var lock = new Item(`#item-${pk} .element-lock i`);
                 if(data.hide) {
                     lock.removeClass('fa-lock-open');
                     lock.addClass('fa-lock');
@@ -93,7 +93,7 @@ var Comment = (function() {
 
     return {
         reload: function(element) {
-            new item(`#comment-${element.pk}`).html(Render.comment(element));
+            new Item(`#comment-${element.pk}`).html(Render.comment(element));
             safeExternal('#comment a');
         },
         write: function(fk) {
@@ -107,11 +107,11 @@ var Comment = (function() {
                 data: $('#comment-form').serialize(),
             }).done(function(data) {
                 if(data.state == 'true') {
-                    new item('#comment').append(`<div id='comment-${data.element.pk}'>${Render.comment(data.element)}</div>`);
+                    new Item('#comment').append(`<div id='comment-${data.element.pk}'>${Render.comment(data.element)}</div>`);
                     if(document.getElementById('comment-empty')) {
-                        new item('#comment-empty').remove();
+                        new Item('#comment-empty').remove();
                     }
-                    new item('#comment-form textarea').val('');
+                    new Item('#comment-form textarea').val('');
                     safeExternal('#comment a');
                     User.sendTag(fk);
                 }
@@ -123,7 +123,7 @@ var Comment = (function() {
                     url: `${url}/${pk}`,
                     type: 'DELETE',
                 }).done(function(data) {
-                    new item(`#comment-${data.pk}`).remove();
+                    new Item(`#comment-${data.pk}`).remove();
                     Notify.append('댓글이 삭제되었습니다.');
                 });
             } else {
@@ -136,7 +136,7 @@ var Comment = (function() {
                 type: 'GET',
             }).done(function(data) {
                 tempResource = $(`#comment-${pk}`).html();
-                new item(`#comment-${pk}`).html(data);
+                new Item(`#comment-${pk}`).html(data);
             });
         },
         like: function(pk) {
@@ -176,7 +176,7 @@ var Comment = (function() {
             });
         },
         editCancle: function(pk) {
-            new item(`#comment-${pk}`).html(tempResource);
+            new Item(`#comment-${pk}`).html(tempResource);
             tempResource = '';
         }
     }
@@ -225,7 +225,7 @@ var Notify = (function() {
             }).done(function(data) {
                 if (data.count > 0) {
                     data.content.forEach(function(element) {
-                        new item('#notify-content').append(Render.notify.reguler(element));
+                        new Item('#notify-content').append(Render.notify.reguler(element));
                     });
                     $('.toast').toast({
                         'autohide': false
@@ -247,7 +247,7 @@ var Notify = (function() {
             });
             $('.toast').toast('show');
             setTimeout(function() {
-                new item(`#pretoast${pk}`).remove();
+                new Item(`#pretoast${pk}`).remove();
             }, 4000);
         },
         read: function(username, pk) {
@@ -259,7 +259,7 @@ var Notify = (function() {
                     'id': pk,
                 },
             }).done(function(data) {
-                new item(`#toast${pk}`).remove();
+                new Item(`#toast${pk}`).remove();
             });
         },
         go: function(username, pk) {
@@ -284,7 +284,7 @@ var Telegram = (function() {
                 url: url + '/makeToken',
                 type: 'POST',
             }).done(function(data) {
-                new item(`#telegram-token`).text(data);
+                new Item(`#telegram-token`).text(data);
             });
         },
         unpair: function() {
@@ -336,7 +336,7 @@ var User = (function() {
                     Notify.append('자신은 구독할 수 없습니다.');
                 }
                 else {
-                    new item('#user-follow').text(data);
+                    new Item('#user-follow').text(data);
                 }
             });
         },
@@ -346,8 +346,8 @@ var User = (function() {
                     method: 'GET',
                     url: `/api/v1/users/${username}?get=about-form`,
                 }).done(function (data) {
-                    new item('#about').html(data);
-                    var btn = new item('#aboutButton');
+                    new Item('#about').html(data);
+                    var btn = new Item('#aboutButton');
                     btn.text('완료');
                     btn.addClass('submit');
                     btn.removeClass('edit');
@@ -358,8 +358,8 @@ var User = (function() {
                     url: `/api/v1/users/${username}`,
                     data: $('form').serialize()
                 }).done(function (data) {
-                    new item('#about').html(data);
-                    var btn = new item('#aboutButton');
+                    new Item('#about').html(data);
+                    var btn = new Item('#aboutButton');
                     btn.text('편집');
                     btn.addClass('edit');
                     btn.removeClass('submit');
@@ -429,7 +429,7 @@ var Thread = (function() {
                     if (data == 'DONE') {
                         if(document.getElementById(`item-${pk}`)) {
                             Notify.append('스레드가 삭제되었습니다.');
-                            new item('#item-' + pk).remove();
+                            new Item('#item-' + pk).remove();
                         } else {
                             alert('스레드가 삭제되었습니다.');
                             location.href = '/';
@@ -444,7 +444,7 @@ var Thread = (function() {
                 type: "PUT",
                 data: {hide: 'changed'}
             }).done(function (data) {
-                var lock = new item(`#item-${pk} .element-lock i`);
+                var lock = new Item(`#item-${pk} .element-lock i`);
                 if(data.hide) {
                     lock.removeClass('fa-lock-open');
                     lock.addClass('fa-lock');
@@ -487,14 +487,14 @@ var Thread = (function() {
                     Notify.append('타인 참여가 불가능한 본인의 스레드는 북마크할 수 없습니다.');
                 }
                 else {
-                    if(new item(`#bookmark`).hasClass('far')) {
-                        new item(`#bookmark`).removeClass('far');
-                        new item(`#bookmark`).addClass('fas');
+                    if(new Item(`#bookmark`).hasClass('far')) {
+                        new Item(`#bookmark`).removeClass('far');
+                        new Item(`#bookmark`).addClass('fas');
                         Notify.append('스레드를 북마크합니다.');
                     }
                     else {
-                        new item(`#bookmark`).removeClass('fas');
-                        new item(`#bookmark`).addClass('far');
+                        new Item(`#bookmark`).removeClass('fas');
+                        new Item(`#bookmark`).addClass('far');
                         Notify.append('스레드 북마크를 해제합니다.');
                     }
                     isWait = true;
@@ -607,7 +607,7 @@ var Story = (function() {
         },
         edit: function(pk) {
             if(document.getElementById('story-modal')) {
-                new item('#story-modal').remove();
+                new Item('#story-modal').remove();
             }
             $.ajax({
                 url: `${url}/${pk}?get=modal`,
@@ -660,7 +660,7 @@ var Story = (function() {
                     Notify.append('이미 반대한 스토리입니다.');
                 }
                 else {
-                    new item(`.agree span`).text(data);
+                    new Item(`.agree span`).text(data);
                     isWait.agree = true;
                     setTimeout(function() {
                         isWait.agree = false;
@@ -714,7 +714,7 @@ var Analytics = (function() {
                 for(var ele of type == 'posts_analytics' ? postsList : threadList) {
                     renderHTML += Render.analytics.element(ele, type);
                 }
-                new item('#analytics').html(renderHTML);
+                new Item('#analytics').html(renderHTML);
             });
         },
         modal: function(username, type, pk) {
@@ -751,7 +751,7 @@ var Analytics = (function() {
             for(var ele of type == 'posts_analytics' ? postsList : threadList) {
                 renderHTML += Render.analytics.element(ele, type);
             }
-            new item('#analytics').html(renderHTML);
+            new Item('#analytics').html(renderHTML);
         },
     }
 })();

@@ -8,7 +8,11 @@ __pycache__/
 *$py.class
 
 src/static/images/
+src/static/assets/js/*.js
+src/static/assets/css/*.css
 migrations/
+
+node_modules/
 
 # C extensions
 *.so
