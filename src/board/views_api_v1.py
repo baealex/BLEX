@@ -530,21 +530,23 @@ def story(request, pk=None):
 def telegram(request, parameter):
     if parameter == 'webHook':
         if request.method == 'POST':
+            print(request.body.decode("utf-8"))
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
             req = json.loads(request.body.decode("utf-8"))
-            req_token = req['message']['text']
             req_userid = req['message']['from']['id']
-            check = None
             try:
-                check = Config.objects.get(telegram_token=req_token)
+                req_token = req['message']['text']
+                check = None
+                try:
+                    check = Config.objects.get(telegram_token=req_token)
+                except:
+                    pass
+                if check:
+                    check.telegram_token = ''
+                    check.telegram_id = req_userid
+                    check.save()
+                    bot.send_message_async(req_userid, '정상적으로 연동되었습니다.')
             except:
-                pass
-            if check:
-                check.telegram_token = ''
-                check.telegram_id = req_userid
-                check.save()
-                bot.send_message_async(req_userid, '정상적으로 연동되었습니다.')
-            else:
                 message = [
                     '안녕하세요? BLEX_BOT 입니다!',
                     'BLEX — BLOG EXPRESS ME!',
