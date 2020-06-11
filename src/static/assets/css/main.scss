@@ -849,9 +849,12 @@ footer {
             text-decoration: none;
         }
 
-        &::selection,
+        &::selection {
+            background: rgba(0, 0, 0, 0);   
+        }
+        
         &::-moz-selection {
-            background: rgba(0, 0, 0, 0);    
+            background: rgba(0, 0, 0, 0);
         }
     }
 }
