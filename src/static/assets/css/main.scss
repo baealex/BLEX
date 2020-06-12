@@ -1122,11 +1122,6 @@ footer {
     100% {margin-left:0;}
 }
 /* ------------------------------ */
-/* HOME : SEARCH */
-.search {
-    border-radius: 5rem;
-}
-/* ------------------------------ */
 /* SERIES : LAYOUT */
 .series-title-image {
     position: absolute;
@@ -1681,7 +1676,4 @@ body.dark .thread-sidebar li.active {
 }
 .form-control:focus {
     box-shadow: none;
-}
-.navbar-brand img {
-    border-radius: 100%;
 }
