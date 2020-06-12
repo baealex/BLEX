@@ -532,28 +532,19 @@ def telegram(request, parameter):
         if request.method == 'POST':
             print(request.body.decode("utf-8"))
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            req = json.loads(request.body.decode("utf-8"))
-            req_userid = req['message']['from']['id']
             try:
+                req = json.loads(request.body.decode("utf-8"))
+                req_userid = req['message']['from']['id']
                 req_token = req['message']['text']
-                check = None
-                try:
-                    check = Config.objects.get(telegram_token=req_token)
-                except:
-                    pass
+                check = Config.objects.get(telegram_token=req_token)
                 if check:
                     check.telegram_token = ''
                     check.telegram_id = req_userid
                     check.save()
                     bot.send_message_async(req_userid, '정상적으로 연동되었습니다.')
             except:
-                message = [
-                    '안녕하세요? BLEX_BOT 입니다!',
-                    'BLEX — BLOG EXPRESS ME!',
-                    '회원님의 알림을 이곳으로 보내드릴게요!',
-                    '오늘은 어떤게 업데이트 되었을까요?\n\n' + settings.SITE_URL + '/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
-                ]
-                bot.send_message_async(req_userid, message[random.randint(0, len(message))])
+                message = '오늘은 어떤게 업데이트 되었을까요?\n\n' + settings.SITE_URL + '/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
+                bot.send_message_async(req_userid, message)
             return HttpResponse('None')
     if parameter == 'makeToken':
         if request.method == 'POST':
