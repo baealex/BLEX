@@ -9,8 +9,8 @@ class PostForm(forms.ModelForm):
         fields = ('image', 'title', 'text_md', 'tag', 'notice', 'hide', 'block_comment',)
 
         widgets={
-            'title':forms.TextInput(attrs={'placeholder':'제목을 입력하세요. 제목은 URL 주소가 됩니다.','class':'blex-title-input'}),
-            'text_md':forms.Textarea(attrs={'placeholder':'부적절한 컨텐츠는 삭제될 수 있습니다.','class':'blex-content-input'}),
+            'title':forms.TextInput(attrs={'placeholder':'제목을 입력하세요. 제목은 URL 주소가 됩니다.','class':'article-w-title'}),
+            'text_md':forms.Textarea(attrs={'placeholder':'부적절한 컨텐츠는 삭제될 수 있습니다.','class':'article-w-content'}),
             'tag':forms.TextInput(attrs={'class':'form-control'}),
             'notice':forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'hide':forms.CheckboxInput(attrs={'class':'custom-control-input'}),

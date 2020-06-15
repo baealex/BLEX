@@ -47,6 +47,10 @@
     -webkit-animation: mask-off 7s 1;
     -o-animation: mask-off 7s 1;
 }
+@keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
+@-moz-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
+@-webkit-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
+@-o-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
 /* ------------------------------ */
 /* CLASS : FONTS */
 .serif {
@@ -299,6 +303,42 @@
     top: 70px;
     right: 5px;
     z-index: 9999;
+}
+/* ------------------------------ */
+/* ARTICLE : WRITE */
+.article-w-title {
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    background: #1A1A17;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+
+    &::placeholder {
+        color: #ccc;
+    }
+
+    &:focus {
+        outline: 0;
+    }
+}
+.article-w-content {
+    border: 0;
+    background: #1A1A17;
+    color: #fff;
+    width: 100%;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 5px;
+    height: 80vh;
+}
+.editormd {
+    margin-bottom: 3px;
+}
+.back-btn {
+    right: 80px;
+    animation: movebtn 0.5s 1;
 }
 /* ------------------------------ */
 /* HOME : COMMON */
@@ -704,12 +744,12 @@ footer {
         overflow-x: auto;
         font-family: monospace;
         padding: 1em;
+        font-size: 1em;
+        line-height: 1.5;
 
         code {
             color: #fff !important;
-            background-color: initial !important;
-            border-radius: initial;
-            padding: initial;
+            background-color: rgba(0, 0, 0, 0);
         }
 
         a {
@@ -1676,4 +1716,7 @@ body.dark .thread-sidebar li.active {
 }
 .form-control:focus {
     box-shadow: none;
+}
+.navbar-brand img{
+    border-radius: .25rem;
 }

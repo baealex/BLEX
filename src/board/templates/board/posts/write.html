@@ -1,15 +1,17 @@
 {% extends 'board/source.html' %}
 {% load static %}
 {% block head %}
-	<link rel="stylesheet" href="{% static 'editormd/editormd.css' %}?{{ static_version }}"/>
+	<link rel="stylesheet" href="{% static 'editormd/editormd.css' %}?{{ static_version }}">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'library/bootstrap.css' %}?{{ static_version }}">
 	<link rel="stylesheet" href="{% static 'css/main.css' %}?{{ static_version }}">
-	<link rel="stylesheet" href="{% static 'css/write.css' %}?{{ static_version }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR">
 	<link rel="icon" href="{% static 'images/logo.png' %}?{{ static_version }}">
-	<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}?{{ static_version }}"/>
+	<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}?{{ static_version }}">
 	<title>Post Write</title>
+	<style>
+		body { background: #1A1A17; }
+	</style>
 {% endblock %}
 {% block body %}
 	<div class="container-fluid">
