@@ -57,6 +57,10 @@ class Item {
         return this.el.getAttribute(a);
     }
 
+    href(): string {
+        return this.attr('href');
+    }
+
     direct(): HTMLInputElement {
         return this.el;
     }
@@ -90,8 +94,9 @@ class Items {
 /* Common Function */
 
 function safeExternal(query: string, level: string = 'origin'): void {
-    new Items(query).on('click', () => {
-        if (!this.href.includes('javascript')) {
+    new Items(query).on('click', function(this: any) {
+        if (!this.getAttribute('href').includes('javascript')) {
+            this.href = this.getAttribute('href');
             event.preventDefault();
             if (this.href.includes('' + location.host)) {
                 location.href = this.href;
