@@ -6,10 +6,8 @@ defusedxml==0.6.0
 Django==2.2.13
 django-smtp-ssl==1.0
 idna==2.8
-oauthlib==3.1.0
-Pillow==6.2.0
+Pillow==6.2.1
 pkg-resources==0.0.0
-python3-openid==3.1.0
 pytz==2019.3
 requests==2.22.0
 requests-oauthlib==1.2.0
