@@ -1,9 +1,8 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'board/source.html' %}
+{% block head %}
+    {% load static %}
+    <link rel="icon" href="{% static 'images/logo.png' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}?{{ static_version }}">
     {% if level == 'hide' or debug %}
     <meta name="referrer" content="no-referrer">
     {% elif level == 'origin' %}
@@ -11,10 +10,9 @@
     {% else %}
     <meta name="referrer" content="no-referrer-when-downgrade">
     {% endif %}
-    <title>BLOG EXPRESS ME</title>
-    <link rel="icon" href="{% static 'images/logo.png' %}">
-</head>
-<body>
+    <title>BLEX — LINK</title>
+{% endblock %}
+{% block body %}
     <script>
         function getParam(name) {
             var params = location.search.substr(location.search.indexOf("?") + 1);
@@ -28,5 +26,4 @@
         }
         location.replace(decodeURIComponent(getParam('url')));
     </script>
-</body>
-</html>
+{% endblock %}

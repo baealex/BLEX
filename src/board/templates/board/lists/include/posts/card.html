@@ -13,12 +13,12 @@
         {% endif %}
     </a>
     <h5 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post.title | truncatechars:50 }}</a></h5>
-    <a href="{% url 'user_profile' username=post.author %}">
+    <a href="{% url 'user_profile' username=post.author.username %}">
         {% if post.author.profile.avatar %}
         <div class="back-image thumb list-thumb" style="background-image:url({{ post.author.profile.avatar.url }})"></div>
         {% else %}
         <div class="back-image thumb list-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
         {% endif %}
     </a>
-    <p class="vs serif"><a class="deep-dark" href="{% url 'user_profile' username=post.author %}">{{ post.author }}</a>님이 작성함<br>{{ post.created_date | date:"" }} · <span class="shallow-dark">{% if post.text_md %}{{ post.text_md | length | div:1000 }} min read{% else %}{{ post.stories.all | length }} stories{% endif %}</span></p>
+    <p class="vs serif"><a class="deep-dark" href="{% url 'user_profile' username=post.author.username %}">{{ post.author }}</a>님이 작성함<br>{{ post.created_date | date:"" }} · <span class="shallow-dark">{% if post.text_md %}{{ post.text_md | length | div:1000 }} min read{% else %}{{ post.stories.all | length }} stories{% endif %}</span></p>
 </div>

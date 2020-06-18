@@ -235,26 +235,28 @@ def id_check(request):
 
 def user_active(request, token):
     user = get_object_or_404(User, last_name='email:' + token)
-    if user.date_joined < timezone.now() - datetime.timedelta(days=7):
-        user.delete()
-        message = '만료된 링크입니다. 다시 가입하세요.'
-    else:
-        user.is_active = True
-        user.last_name = ''
-        user.save()
+    if request.method == 'POST':
+        if user.date_joined < timezone.now() - datetime.timedelta(days=7):
+            user.delete()
+            message = '만료된 링크입니다. 다시 가입하세요.'
+        else:
+            user.is_active = True
+            user.last_name = ''
+            user.save()
 
-        profile = Profile(user=user)
-        profile.save()
+            profile = Profile(user=user)
+            profile.save()
 
-        config = Config(user=user)
-        config.save()
+            config = Config(user=user)
+            config.save()
 
-        message = '이메일이 인증되었습니다.'
+            message = '인증이 완료되었습니다.'
 
-        fn.create_notify(user=user, url='/@baealex/series/블렉스-이야기', infomation=user.first_name + (
-            '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 이야기\'시리즈를 살펴보시는 것을 추천드립니다 :)'))
+            fn.create_notify(user=user, url='/@baealex/series/블렉스-이야기', infomation=user.first_name + (
+                '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 이야기\'시리즈를 살펴보시는 것을 추천드립니다 :)'))
 
-    return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
+        return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
+    return render(request, 'board/active.html', {'user': user})
 
 @login_required(login_url='/login')
 def signout(request):
