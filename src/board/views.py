@@ -252,8 +252,8 @@ def user_active(request, token):
 
             message = '인증이 완료되었습니다.'
 
-            fn.create_notify(user=user, url='/@baealex/series/블렉스-이야기', infomation=user.first_name + (
-                '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 이야기\'시리즈를 살펴보시는 것을 추천드립니다 :)'))
+            fn.create_notify(user=user, url='/notion', infomation=user.first_name + (
+                '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
 
         return HttpResponse('<script>alert(\'' + message + '\');location.href = \'/login\';</script>')
     return render(request, 'board/active.html', {'user': user})
