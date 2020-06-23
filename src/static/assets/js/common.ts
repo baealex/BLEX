@@ -20,7 +20,7 @@ class Item {
     }
 
     val(v?: string): string {
-        if(v) {
+        if(v !== undefined) {
             this.el.value = v;
         }
         return this.el.value;
@@ -51,7 +51,7 @@ class Item {
     }
 
     attr(a: string, v?: string): string {
-        if(v) {
+        if(v !== undefined) {
             this.el.setAttribute(a, v);
         }
         return this.el.getAttribute(a);
@@ -91,10 +91,18 @@ class Items {
     }
 }
 
+function _$(q) {
+    return new Item(q);
+}
+
+function _$$(q) {
+    return new Items(q);
+}
+
 /* Common Function */
 
 function safeExternal(query: string, level: string = 'origin'): void {
-    new Items(query).on('click', function(this: any) {
+    _$$(query).on('click', function(this: any) {
         if (!this.getAttribute('href').includes('javascript')) {
             this.href = this.getAttribute('href');
             event.preventDefault();
@@ -123,32 +131,32 @@ function copyToClipboard(val: string): void {
 }
 
 function night(): void {
-    if (new Item('#night i').hasClass('fa-moon')) {
-        new Item('body').addClass('dark');
+    if (_$('#night i').hasClass('fa-moon')) {
+        _$('body').addClass('dark');
         cookie.set('nightmode', 'true', {
             path: '/',
             expire: 365,
         });
-        new Item('#night').html('<i class="fas fa-sun"></i>');
-        let topNav: Item = new Item('#top-nav');
+        _$('#night').html('<i class="fas fa-sun"></i>');
+        let topNav: Item = _$('#top-nav');
         topNav.removeClass('bg-rlight');
         topNav.removeClass('navbar-light');
         topNav.addClass('bg-rdark');
         topNav.addClass('navbar-dark');
-        new Item('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logor.png');
+        _$('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logor.png');
     } else {
-        new Item('body').removeClass('dark');
+        _$('body').removeClass('dark');
         cookie.set('nightmode', '', {
             path: '/',
             expire: -1,
         });
-        new Item('#night').html('<i class="fas fa-moon"></i>');
-        let topNav: Item = new Item('#top-nav');
+        _$('#night').html('<i class="fas fa-moon"></i>');
+        let topNav: Item = _$('#top-nav');
         topNav.removeClass('bg-rdark');
         topNav.removeClass('navbar-dark');
         topNav.addClass('bg-rlight');
         topNav.addClass('navbar-light');
-        new Item('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logo.png');
+        _$('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logo.png');
     }
 }
 
@@ -158,7 +166,7 @@ function csrfSafeMethod(method: string): boolean {
 
 function moveSlide(id: string, space = 80): void {
     window.scrollTo({
-        top: window.pageYOffset + new Item(`#${id}`).direct().getBoundingClientRect().top - space,
+        top: window.pageYOffset + _$(`#${id}`).direct().getBoundingClientRect().top - space,
         behavior: 'smooth'
     });
 }
@@ -178,10 +186,10 @@ function loading(isStart): void {
                 squre = 'dot-bricks';
                 break;
         }
-        new Item('#loading').html(`<div class="full-mask light"><div style="margin: 48vh auto;" class="${squre}"></div></div>`);
+        _$('#loading').html(`<div class="full-mask light"><div style="margin: 48vh auto;" class="${squre}"></div></div>`);
     }
     else
-        new Item('#loading').html('');
+        _$('#loading').html('');
 }
 
 function changing(id: string, href: string): void {
@@ -189,7 +197,7 @@ function changing(id: string, href: string): void {
         url: href,
         type: 'GET',
     }).done(function (data) {
-        $('#' + id).html($(data).find('#' + id).html());
+        $(`#${id}`).html($(data).find(`#${id}`).html());
         document.title = $(data).filter('title').text();
         window.scrollTo({ top: 0 });
         lazy.image();
