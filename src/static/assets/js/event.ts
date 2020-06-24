@@ -132,16 +132,14 @@ var threadEvent = function() {
     }
 
     function sidebarClose() {
-        $('.closer').html('<i class="fas fa-chevron-right"></i>');
-        $('.home').removeClass('closed');
+        $('.closer').html('<i class="fas fa-chevron-left"></i>');
         for(var i=0; i<className.length; i++) {
             $(className[i]).addClass('closed');
         }
     }
 
     function sidebarOpen() {
-        $('.closer').html('<i class="fas fa-chevron-left"></i>');
-        $('.home').addClass('closed');
+        $('.closer').html('<i class="fas fa-chevron-right"></i>');
         for(var i=0; i<className.length; i++) {
             $(className[i]).removeClass('closed');
         }
@@ -171,10 +169,6 @@ var threadEvent = function() {
         } else {
             sidebarClose();
         }
-    });
-    
-    $('.home').on('click', function() {
-        location.href = '/';
     });
 
     $(document).ready(function() {
@@ -233,7 +227,7 @@ var writeEvent = function() {
     if(_$('#write-btn').exist()) {
         writeEvent();
     }
-    if(_$('thread-detail').exist()) {
+    if(_$('#thread-detail').exist()) {
         threadEvent();
     }
 

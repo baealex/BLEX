@@ -34,43 +34,37 @@
 {% block body-class %}thread-body{% endblock %}
 
 {% block content %}
-<style>
-.menu { display: none; }
-</style>
 <div class="thread-sidebar">
-  <a class="story-read c-pointer" data-href="{{ thread.get_absolute_url }}">
-    {% if thread.image %}
-    <img src="{{ thread.image.url }}" alt="{{ thread.title }}">
+    <a class="story-read c-pointer" data-href="{{ thread.get_absolute_url }}">
+        {% if thread.image %}
+        <img src="{{ thread.image.url }}" alt="{{ thread.title }}">
+        {% endif %}
+        <h1 class="title serif">{{ thread.title }}</h1>
+    </a>
+    <ul class="noto">
+    {% for story in thread.stories.all %}
+        <li class="story-read {% if request.get_full_path == story.get_absolute_url %}active{% endif %}" data-href="{{ story.get_absolute_url }}">{{ forloop.revcounter }}. {{ story.title }}</li>
+    {% empty %}
+    {% if thread.write_allow or request.user == thread.author %}
+        <li onclick="Story.create({{ thread.pk }})">새로운 스토리 작성</li>
+    {% else %}
+        <li>작성된 스토리 없음</li>
     {% endif %}
-    <h1 class="title serif">{{ thread.title }}</h1>
-  </a>
-  <ul class="noto">
-  {% for story in thread.stories.all %}
-    <li class="story-read {% if request.get_full_path == story.get_absolute_url %}active{% endif %}" data-href="{{ story.get_absolute_url }}">{{ forloop.revcounter }}. {{ story.title }}</li>
-  {% empty %}
-  {% if thread.write_allow or request.user == thread.author %}
-    <li onclick="Story.create({{ thread.pk }})">새로운 스토리 작성</li>
-  {% else %}
-    <li>작성된 스토리 없음</li>
-  {% endif %}
-  {% endfor %}
-  </ul>
+    {% endfor %}
+    </ul>
 </div>
 <div class="top-menu closer">
-  <i class="fas fa-chevron-left"></i>
-</div>
-<div class="top-menu home">
-  <i class="fas fa-home"></i>
+      <i class="fas fa-chevron-right"></i>
 </div>
 <div id="thread-detail" class="col-lg-8 px-0 noto mx-auto">
-  <div id="content">
-  {% if not story_detail %}
-    {% include 'board/thread/include/pinned.html' %}
-  {% else %}
-    {% include 'board/thread/include/story.html' %}
-  {% endif %}
-  {% csrf_token %}
-  </div>
+    <div id="content">
+    {% if not story_detail %}
+        {% include 'board/thread/include/pinned.html' %}
+    {% else %}
+        {% include 'board/thread/include/story.html' %}
+    {% endif %}
+    {% csrf_token %}
+    </div>
 </div>
 {% endblock %}
 

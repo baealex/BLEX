@@ -3,13 +3,9 @@
 <div class="col-lg-4 mt-4">
     <a href="{{ post.get_absolute_url }}">
         {% if post.image %}
-        <picture>
-            <img class="list-image lazy show-up" data-src="{{ static_url }}/{{ post.get_thumbnail }}" alt="{{ post.title }}"/>
-        </picture>
+        <div class="show-up fill-image list-image" style="background-image: url('{{ static_url }}/{{ post.get_thumbnail }}');"></div>
         {% else %}
-        <picture>
-            <img class="list-image lazy show-up" data-src="{{ static_url }}/assets/images/default-post.png" alt="{{ post.title }}"/>
-        </picture>
+        <div class="show-up fill-image list-image" style="background-image: url('{{ static_url }}/assets/images/default-post.png');"></div>
         {% endif %}
     </a>
     <h5 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post.title | truncatechars:50 }}</a></h5>

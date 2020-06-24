@@ -175,7 +175,7 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     display: block;
 }
 .content {
-    margin-top: 80px;
+    margin-top: 45px;
     word-break:break-all;
     margin-bottom: 40px;
 }
@@ -424,6 +424,11 @@ $gray-dark:rgba(160, 160, 160, 0.541);
 .sort-nav li.active a {
     color: #000;
 }
+.fill-image {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
 .list-image,
 .feature-image {
     width: 100%;
@@ -432,10 +437,6 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     min-height: 250px;
     float: initial;
     margin-left: 0;
-    color: #fff;
-    background: #fff;
-    border: 1px solid #ccc;
-    object-fit: cover;
 }
 .feature-image {
     height: 150px;
@@ -1267,42 +1268,47 @@ footer {
 }
 .top-menu {
     position: fixed;
-    z-index: 1000;
-    transition: margin-left 0.5s;
-    top: 10px;
+    z-index: 997;
+    transition: margin-right 0.5s;
+    top: 15px;
     color: #ccc;
     margin-left: 0;
     cursor: pointer;
     padding: 0 0.5em;
     font-size: 1.5em;
-    background-color: #fff;
-    border: 1px solid #ccc;
 
     &.hover {
         color: #777;
     }
 
     &.closer {
-        left: calc(300px + 15px);
+        right: calc(300px + 15px);
     }
 
-    &.home {
-        position: absolute;
-        right: 15px;
+    &.closed {
+        margin-right: -300px;
     }
 }
 .thread-sidebar {
     position: fixed;
     top: 0;
-    z-index: 1000;
-    margin-left: 0px;
-    transition: margin-left 0.5s;
-    left: 0;
+    z-index: 996;
+    margin-right: 0px;
+    transition: margin-right 0.5s;
+    right: 0;
     width: 300px;
     height: 100vh;
     padding: 0 15px;
     overflow-y: scroll;
-    background-color: #fafafa;
+    background-color: #f8f8f8;
+
+    &::-webkit-scrollbar {
+        width: 3px;        
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #aaa;
+    }
 
     img {
         width: 100%;
@@ -1335,22 +1341,18 @@ footer {
             }
         }
     }
-}
-div.closed {
-  margin-left: -300px;
+
+    &.closed {
+        margin-right: -300px;
+    }
 }
 @media only screen and (min-width: 700px) {
     .thread-body {
-        padding-left: 300px;
-        transition: padding-left .5s;
+        padding-right: 300px;
+        transition: padding-right .5s;
     }
     .thread-body.closed {
-        padding-left: 0px;
-    }
-}
-@media only screen and (max-width: 480px) {
-    .top-menu.home.closed {
-        display: none;
+        padding-right: 0px;
     }
 }
 /* ------------------------------ */
