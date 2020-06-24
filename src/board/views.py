@@ -447,27 +447,6 @@ def user_profile(request, username):
     total = fn.get_view_count(user)
     render_args['total'] = total
 
-    best = []
-    tags = []
-    for element in elements:
-        tags += element.tag.split(',')
-
-    for name in set(tags):
-        if name == '':
-            continue
-        tag_dict = {
-            'name': name,
-            'count': 0,
-        }
-        for tag in tags:
-            if name == tag:
-                tag_dict['count'] += 1
-        best.append(tag_dict)
-    best = sorted(best, key=lambda instance: instance['count'], reverse=True)
-
-    render_args['best'] = best[:3]
-    render_args['most'] = fn.get_user_topics(user)[:3]
-
     if request.user == user:
         render_args['write_btn'] = True
 
