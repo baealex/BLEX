@@ -23,7 +23,14 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
-                <ul class="navbar-nav noto">
+                <ul class="navbar-nav mt-3 mt-sm-0">
+                    <li class="nav-item">
+                        <form method="GET" action="/search">
+                            <input autocomplete="off" type="text" class="form-control text-small search" name="value" value="" placeholder="Serach">
+                        </form>
+                    </li>
+                </ul>
+                <ul class="ml-auto navbar-nav noto">
                     {% url 'user_profile' username=request.user as my_profile %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ my_profile }}">{{ request.user.first_name }} <i class="fas fa-user"></i></a>

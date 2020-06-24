@@ -1,6 +1,14 @@
-@font-face { font-family: 'GmarketSansBold'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff'); font-weight: normal; font-style: normal; }
-@font-face { font-family: 'GmarketSansMedium'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff'); font-weight: normal; font-style: normal; }
-@font-face { font-family: 'GmarketSansLight'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff'); font-weight: normal; font-style: normal; }
+/* VARIABLE */
+
+$serif: 'Noto Serif KR', serif;
+$gothic: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
+
+$vivid-purple: #8c00ff;
+$smooth-purple: #b181da;
+
+$deep-dark: rgba(0, 0, 0, 0.839);
+$shallow-dark: rgba(0, 0, 0, 0.541);
+$gray-dark:rgba(160, 160, 160, 0.541);
 
 /* CLASS : ANIMATION */
 @keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
@@ -54,19 +62,10 @@
 /* ------------------------------ */
 /* CLASS : FONTS */
 .serif {
-    font-family: 'Noto Serif KR', serif;
+    font-family: $serif;
 }
 .noto {
-    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
-}
-.g-sans-b {
-    font-family: 'GmarketSansBold';
-}
-.g-sans-m {
-    font-family: 'GmarketSansMedium';
-}
-.g-sans-l {
-    font-family: 'GmarketSansLight';
+    font-family: $gothic;
 }
 /* ------------------------------ */
 /* CLASS : FONTS SIZE */
@@ -79,34 +78,34 @@
 /* ------------------------------ */
 /* CLASS : FONTS COLOR */
 .vivid-purple {
-    color: #8c00ff;
+    color: $vivid-purple;
 
     &:hover {
-        color: #8c00ff;
+        color: $vivid-purple;
         text-decoration: none;    
     }
 }
 .deep-dark {
-    color: rgba(0, 0, 0, 0.839);
+    color: $deep-dark;
 
     &:hover {
-        color: rgba(0, 0, 0, 0.839);
+        color: $deep-dark;
         text-decoration: none;    
     }
 }
 .shallow-dark {
-    color: rgba(0, 0, 0, 0.541);
+    color: $shallow-dark;
 
     &:hover {
-        color: rgba(0, 0, 0, 0.541);
+        color: $shallow-dark;
         text-decoration: none;
     }
 }
 .gray-dark {
-    color: rgba(160, 160, 160, 0.541);
+    color: $gray-dark;
 
     &:hover {
-        color: rgba(160, 160, 160, 0.541);
+        color: $gray-dark;
         text-decoration: none;
     }
 }
@@ -136,7 +135,7 @@
 }
 .bg-border-purple {
     border-radius: 5px;
-    border: 1px solid #8c00ff;
+    border: 1px solid $vivid-purple;
 }
 /* ------------------------------ */
 /* CLASS : USEFUL */
@@ -207,7 +206,7 @@
     a {
         &::before {
             content: '#';
-            color: #8c00ff;
+            color: $vivid-purple;
             font-weight: bold;
         }
 
@@ -221,7 +220,7 @@
 }
 .tag-card .title::before {
     content: '#';
-    color: #b181da;
+    color: $smooth-purple;
     font-weight: bold;
 }
 /* ------------------------------ */
@@ -245,7 +244,7 @@
     color: #3a3a3a;
 }
 .pl:hover {
-    color: #8c00ff;
+    color: $vivid-purple;
     text-decoration: none;
 }
 .ps {
@@ -342,9 +341,6 @@
 }
 /* ------------------------------ */
 /* HOME : COMMON */
-.content {
-    margin-top: 105px;
-}
 .card-subtitle {
     text-transform: capitalize;
 }
@@ -420,7 +416,7 @@
 }
 .sort-nav li a {
     color: #ccc;
-    font-size: 16px;
+    font-size: 18px;
     margin-left:15px;
     margin-right:15px;
     text-decoration: none;
@@ -469,11 +465,11 @@
 }
 
 .comment-content {
-    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
+    font-family: $gothic;
 
     h1, h2, h3, h4, h5, h6 {
         font-size: 1.2em;
-        font-family: 'Noto Serif KR', serif;
+        font-family: $serif;
         font-weight: 600;    
     }
     
@@ -626,7 +622,7 @@ footer {
 /* ------------------------------ */
 /* POSTS : DETAIL : NONE TITLE IMAGE */
 .post-headline {
-    font-family: 'Noto Serif KR', serif;
+    font-family: $serif;
     font-weight: bold;
     font-size: 2rem;
 }
@@ -697,7 +693,7 @@ footer {
         font-size: 1.6rem;
         margin: 1em 0 1em;
         font-weight: bold;
-        font-family: 'Noto Serif KR', serif;      
+        font-family: $serif;
     }
 
     h1, h2 {
@@ -724,10 +720,10 @@ footer {
     }
 
     a {
-        color: #8c00ff;
+        color: $vivid-purple;
 
         &:hover {
-            color: #b181da;
+            color: $smooth-purple;
             text-decoration: none;
         }
     }
@@ -981,7 +977,7 @@ footer {
     display: block;
     position: relative;
     margin: 10px auto;
-    border-top: 3px solid #8c00ff;
+    border-top: 3px solid $vivid-purple;
     width: 30px;
 }
 .user-profile-desc::after {
@@ -989,7 +985,7 @@ footer {
     display: block;
     position: relative;
     margin: 10px auto;
-    border-top: 3px solid #8c00ff;
+    border-top: 3px solid $vivid-purple;
     width: 30px;
 }
 .user-profile-desc {
@@ -1335,7 +1331,7 @@ footer {
             }
 
             &.active {
-                color: #8c00ff;
+                color: $vivid-purple;
             }
         }
     }
@@ -1432,6 +1428,117 @@ div.closed {
     border-radius: 3rem;
     padding: 15px 0;
     background: #000000;
+}
+/* ------------------------------ */
+.menu {
+    left: 15px;
+    top: 15px;
+    position: fixed;
+    z-index: 9999;
+    width: 35px;
+    height: 35px;
+    border-radius: 3px;
+    background-position: center;
+    background-size: cover;
+    transition: opacity 0.2s;
+
+    &.on {
+        background-image: url('https://static.blex.me/assets/images/logor.png');    
+    }
+
+    &.off {
+        background-image: url('https://static.blex.me/assets/images/logo.png');
+    }
+
+    &:hover {
+        opacity: 1 !important;
+    }
+
+    /*
+    @media only screen and (max-width: 991px) {
+        position: absolute;
+    }
+    */
+}
+
+.side-menu {
+    background-color: #000;
+    position: fixed;
+    z-index: 1000;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    max-width: 280px;
+    top: 15px;
+    left: 15px;
+    width: 35px;
+    height: 35px;
+    transition: all 0.2s;
+
+    .bottom {
+        position: absolute;
+    }
+
+    &.off {
+        top: 15px;
+        left: 15px;
+        width: 0px;
+        height: 0px;
+
+        * {
+            display: none;
+        }
+    }
+
+    &.on {
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        padding: 65px 15px;
+    }
+
+    .search {
+        padding: 12px 0;
+        font-size: 16px;
+        width: 100%;
+        border: none;
+        background: none;
+        border-bottom: 1px solid #888;
+        color: #fff;
+        margin-bottom: 30px;
+
+        &::placeholder {
+            color: #888;
+        }
+
+        &:focus {
+            border-bottom: 1px solid #fff;
+            outline: none;
+        }
+    }
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #666;
+
+        a {
+            color: #eee;
+            font-size: 16px;
+            line-height: 2;
+
+            &:hover {
+                color: $smooth-purple;
+                text-decoration: none;
+            }
+        }
+    }
+}
+.side-menu a {
+    color: #000;
 }
 /* ------------------------------ */
 /* DARK THEME MODE */
@@ -1673,8 +1780,8 @@ body.dark .thread-sidebar li.active {
 /* OVERWRITE BOOTSTRAP */
 .custom-control-input:checked~.custom-control-label::before {
     color: #fff;
-    border-color: #8c00ff;
-    background-color: #8c00ff;
+    border-color: $vivid-purple;
+    background-color: $vivid-purple;
 }
 .jumbotron {
     background: none;
@@ -1719,4 +1826,7 @@ body.dark .thread-sidebar li.active {
 }
 .navbar-brand img{
     border-radius: .25rem;
+}
+.sticky-top {
+    z-index: 1;
 }

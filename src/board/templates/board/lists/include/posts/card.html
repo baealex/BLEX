@@ -4,11 +4,11 @@
     <a href="{{ post.get_absolute_url }}">
         {% if post.image %}
         <picture>
-            <img class="list-image lazy" data-src="{{ static_url }}/{{ post.get_thumbnail }}" alt="{{ post.title }}"/>
+            <img class="list-image lazy show-up" data-src="{{ static_url }}/{{ post.get_thumbnail }}" alt="{{ post.title }}"/>
         </picture>
         {% else %}
         <picture>
-            <img class="list-image" src="{{ static_url }}/assets/images/default-post.png"/>
+            <img class="list-image lazy show-up" data-src="{{ static_url }}/assets/images/default-post.png" alt="{{ post.title }}"/>
         </picture>
         {% endif %}
     </a>

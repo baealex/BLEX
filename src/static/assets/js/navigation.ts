@@ -22,23 +22,12 @@ const createNav = function(height) {
         return $(this).attr('id', 'headline' + navcounter );
     }));
 
-    var screenHeight = height == 'full' ? $(window).height() : 100;
-    $(window).scroll(function () {
-        screenPosition = $(this).scrollTop();
+    let screenHeight = height == 'full' ? $(window).height() : 80;
+    $(window).scroll(() => {
+        let screenPosition = $(this).scrollTop();
 
-        if(height == 'full') {
-            if (screenPosition < screenHeight) {
-                $('#p-top-nav').css("position", "absolute");
-                $('#p-top-nav').css("background", "rgba(0, 0, 0, 0)");
-                $("#p-top-nav").removeClass("slide-bottom");
-            } else {
-                $('#p-top-nav').css("position", "fixed");
-                $('#p-top-nav').css("background", "rgba(0, 0, 0, .98)");
-                $("#p-top-nav").addClass("slide-bottom");
-            }
-        }
         if (isCreateNav) {
-            var btween = screenPosition - (screenHeight - 100);
+            var btween = screenPosition - (screenHeight);
             for(let i=1; i<navcounter; i++) {
                 if(btween > $(`#headline${i}`).position().top && btween < $(`#headline${i+1}`).position().top) {
                     $(`#nav${i}`).addClass('nav-now');

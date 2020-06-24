@@ -15,20 +15,15 @@
 {% block body %}
     {% block image-title %}{% endblock %}
     {% include 'board/common/include/topnav.html' %}
-    {% if write_btn %}
-    <div id="write-btn" class="write-btn">
-        <i class="fas fa-pencil-alt"></i>
-    </div>
-    <div id="write-selector"></div>
-    {% endif %}
     <div class="container{% if layout_fluid %}-fluid{% endif %}">
         <div class="content">
         {% block content %}{% endblock %}
         </div>
     </div>
     <div id="loading"></div>
-    {% block footer %}{% endblock %}
+    <div id="write-selector"></div>
     <div id="notify-content"></div>
+    {% block footer %}{% endblock %}
     <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/common.js?{{ static_version }}"></script>

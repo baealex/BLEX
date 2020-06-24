@@ -37,6 +37,11 @@ class Item {
     removeClass(c: string): void {
         this.el.classList.remove(c);
     }
+    
+    swapClass(c1: string, c2: string): void {
+        this.el.classList.remove(c1);
+        this.el.classList.add(c2);
+    }
 
     remove(): void {
         this.el.remove();
@@ -164,7 +169,7 @@ function csrfSafeMethod(method: string): boolean {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
-function moveSlide(id: string, space = 80): void {
+function moveSlide(id: string, space = 15): void {
     window.scrollTo({
         top: window.pageYOffset + _$(`#${id}`).direct().getBoundingClientRect().top - space,
         behavior: 'smooth'

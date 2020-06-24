@@ -1,3 +1,16 @@
+_$('.menu').on('click', () => {
+    let menu = _$('.menu').direct();
+    menu.style.opacity = '1';
+
+    if(_$('.menu').hasClass('off')) {
+        _$('.menu').swapClass('off', 'on');
+        _$('.side-menu').swapClass('off', 'on');
+    } else {
+        _$('.menu').swapClass('on', 'off');
+        _$('.side-menu').swapClass('on', 'off');
+    }
+});
+
 $('#id_avatar').on('change',function() {
     var fileName = $(this).val();
     $(this).next('.custom-file-label').html(fileName);
@@ -217,10 +230,24 @@ var writeEvent = function() {
         lazy.image();
         lazy.video(); 
     });
-    if(document.getElementById('write-btn')) {
+    if(_$('#write-btn').exist()) {
         writeEvent();
     }
-    if(document.getElementById('thread-detail')) {
+    if(_$('thread-detail').exist()) {
         threadEvent();
     }
+
+    let preScreenPosition = 0;
+    let menu = _$('.menu').direct();
+    $(window).scroll(() => {
+        if(_$('.menu').hasClass('off')) {
+            let screenPosition = $(this).scrollTop();
+            if(preScreenPosition > screenPosition) {
+                menu.style.opacity = '1';
+            } else {
+                menu.style.opacity = '0';
+            }
+            preScreenPosition = screenPosition;
+        }
+    });
 })();
