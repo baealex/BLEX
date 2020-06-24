@@ -335,10 +335,6 @@ $gray-dark:rgba(160, 160, 160, 0.541);
 .editormd {
     margin-bottom: 3px;
 }
-.back-btn {
-    right: 80px;
-    animation: movebtn 0.5s 1;
-}
 /* ------------------------------ */
 /* HOME : COMMON */
 .card-subtitle {
@@ -360,6 +356,10 @@ $gray-dark:rgba(160, 160, 160, 0.541);
 .write-btn i {
     padding-top: 12px;
     font-size: 24px;
+}
+.back-btn {
+    right: 80px;
+    animation: movebtn 0.5s 1;
 }
 .full-mask {
     position: fixed;
@@ -1376,7 +1376,7 @@ div.closed {
     display: block;
 }
 .setting-body {
-    padding-top: 70px;
+    padding-top: 15px;
     background: #f3f3f3;
     min-height: 100vh;
 }

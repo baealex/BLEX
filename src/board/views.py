@@ -292,13 +292,8 @@ def setting(request):
         'white_nav' : True,
         'page_setting': True,
     }
-    notifies = Notify.objects.filter(user=request.user).order_by('created_date').reverse()
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(notifies, 15)
-    fn.page_check(page, paginator)
-    elements = paginator.get_page(page)
-    render_args['elements'] = elements
+    notifies = Notify.objects.filter(user=request.user).order_by('-created_date')
+    render_args['elements'] = notifies[:15]
 
     counter = 0
     for notify in notifies:

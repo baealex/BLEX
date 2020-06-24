@@ -5,7 +5,7 @@
         </li>
         {% for name in series %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a class="deep-dark" href="{{ name.get_absolute_url }}">{{ name }}</a>
+            <a class="deep-dark noto" href="{{ name.get_absolute_url }}">{{ name }}</a>
             <small>{{ name.posts.count }} <i class="fas fa-book-open"></i></small>
         </li>
         {% endfor %}

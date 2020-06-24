@@ -14,37 +14,7 @@
 {% endblock %}
 
 {% block body %}
-    <nav id="top-nav" class="navbar navbar-expand-sm navbar-light bg-rlight fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ site_url }}">
-                <img src="{{ static_url }}/assets/images/logo.png" width="35" height="35" alt="">
-            </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
-                <ul class="navbar-nav mt-3 mt-sm-0">
-                    <li class="nav-item">
-                        <form method="GET" action="/search">
-                            <input autocomplete="off" type="text" class="form-control text-small search" name="value" value="" placeholder="Serach">
-                        </form>
-                    </li>
-                </ul>
-                <ul class="ml-auto navbar-nav noto">
-                    {% url 'user_profile' username=request.user as my_profile %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ my_profile }}">{{ request.user.first_name }} <i class="fas fa-user"></i></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'setting' %}">설정 <i class="fas fa-cogs"></i></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">로그아웃 <i class="fas fa-sign-out-alt"></i></a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% include 'board/common/include/topnav.html' %}
     <div class="setting-body">
         <div class="container">
             <div class="row">
@@ -52,22 +22,22 @@
                     <div class="back-image setting-user-thumb" style="background-image:url({{ request.user.profile.thumbnail }})"></div>
                     <ul class="nav serif sticky-top-100 sticky-top blex-card">
                         <li class="nav-item">
-                            <a class="nav-link vivid-purple{% if not tab %} disabled{% endif %}" href="{% url 'setting' %}"><i class="far fa-envelope"></i> 알림</a>
+                            <a class="nav-link gray-dark{% if not tab %} disabled{% endif %}" href="{% url 'setting' %}"><i class="far fa-envelope"></i> 알림</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link vivid-purple{% if tab == 'account'%} disabled{% endif %}" href="{% url 'setting_tab' tab='account' %}"><i class="far fa-user"></i> 계정</a>
+                            <a class="nav-link gray-dark{% if tab == 'account'%} disabled{% endif %}" href="{% url 'setting_tab' tab='account' %}"><i class="far fa-user"></i> 계정</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link vivid-purple{% if tab == 'profile'%} disabled{% endif %}" href="{% url 'setting_tab' tab='profile' %}"><i class="far fa-id-badge"></i> 프로필</a>
+                            <a class="nav-link gray-dark{% if tab == 'profile'%} disabled{% endif %}" href="{% url 'setting_tab' tab='profile' %}"><i class="far fa-id-badge"></i> 프로필</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link vivid-purple{% if tab == 'series'%} disabled{% endif %}" href="{% url 'setting_tab' tab='series' %}"><i class="fas fa-book"></i> 시리즈</a>
+                            <a class="nav-link gray-dark{% if tab == 'series'%} disabled{% endif %}" href="{% url 'setting_tab' tab='series' %}"><i class="fas fa-book"></i> 시리즈</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link vivid-purple{% if tab == 'posts'%} disabled{% endif %}" href="{% url 'setting_tab' tab='posts' %}"><i class="fas fa-pencil-alt"></i> 포스트</a>
+                            <a class="nav-link gray-dark{% if tab == 'posts'%} disabled{% endif %}" href="{% url 'setting_tab' tab='posts' %}"><i class="fas fa-pencil-alt"></i> 포스트</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link vivid-purple{% if tab == 'thread'%} disabled{% endif %}" href="{% url 'setting_tab' tab='thread' %}"><i class="fas fa-stream"></i> 스레드</a>
+                            <a class="nav-link gray-dark{% if tab == 'thread'%} disabled{% endif %}" href="{% url 'setting_tab' tab='thread' %}"><i class="fas fa-stream"></i> 스레드</a>
                         </li>
                     </ul>
                 </div>
@@ -97,6 +67,7 @@
         </div>
     </div>
     {% include 'board/common/include/footer.html' %}
+    <div id="write-selector"></div>
     <div id="notify-content"></div>
     <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
@@ -127,13 +98,4 @@
         {% endif %}
     });
     </script>
-    {% if not tab %}
-    <script src="{{ static_url }}/assets/library/InfiniteScroll.js?{{ static_version }}"></script>
-    <script type="text/javascript">
-        var postWrapperId = 'wrapper';
-        var paginatePath = '{{ request.get_full_path }}?page=';
-        var lastPage = {{ elements.paginator.num_pages }};
-        new InfiniteScroll(paginatePath, postWrapperId, lastPage);
-    </script>
-    {% endif %}
 {% endblock %}
