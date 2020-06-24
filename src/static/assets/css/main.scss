@@ -1376,7 +1376,7 @@ div.closed {
     display: block;
 }
 .setting-body {
-    padding-top: 15px;
+    padding-top: 45px;
     background: #f3f3f3;
     min-height: 100vh;
 }
@@ -1434,7 +1434,7 @@ div.closed {
     left: 15px;
     top: 15px;
     position: fixed;
-    z-index: 9999;
+    z-index: 999;
     width: 35px;
     height: 35px;
     border-radius: 3px;
@@ -1464,7 +1464,7 @@ div.closed {
 .side-menu {
     background-color: #000;
     position: fixed;
-    z-index: 1000;
+    z-index: 998;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
