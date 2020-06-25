@@ -138,6 +138,8 @@ var threadEvent = function() {
             $(className[i]).addClass('closed');
         }
         menu.style.display = 'none';
+        _$('.menu').swapClass('on', 'off');
+        _$('.side-menu').swapClass('on', 'off');
     }
 
     function sidebarOpen() {
