@@ -9,6 +9,7 @@ from django.http import Http404
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.utils.text import slugify
+from django.utils.html import strip_tags
 from django.core.cache import cache
 from django.conf import settings
 
@@ -110,7 +111,7 @@ def get_view_count(user, date=None):
         count += threads['table_count__sum']
     return count
 
-def get_clean_all_tags(user=None, count=True):
+def get_clean_all_tags(user=None, count=True, desc=False):
     posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)
     thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False)
     if user:
@@ -135,7 +136,26 @@ def get_clean_all_tags(user=None, count=True):
                 if ',' + tag + ',' in ',' + tags + ',':
                     tag_dict['count'] += 1
             all_tags_dict.append(tag_dict)
+        
+        if not desc:
+            return all_tags_dict
+    
+    if desc:
+        descriptions = dict()
+        stories = Story.objects.filter(thread__url='desc')
+        for story in stories:
+            descriptions[story.url] = {
+                'desc': strip_tags(story.text_html)[:50],
+                'link': story.get_absolute_url()
+            }
+
+        for i in range(len(all_tags_dict)):
+            if all_tags_dict[i]['name'] in descriptions:
+                all_tags_dict[i]['desc'] = descriptions[all_tags_dict[i]['name']]['desc']
+                all_tags_dict[i]['desc_link'] = descriptions[all_tags_dict[i]['name']]['link']
+            
         return all_tags_dict
+
     return all_tags
 
 def get_clean_tag(tag):

@@ -801,7 +801,7 @@ def post_sort_list(request, sort=None):
         tags = cache.get('tags')
         if not tags:
             cache_time = 60 * 60 * 24
-            tags = sorted(fn.get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
+            tags = sorted(fn.get_clean_all_tags(desc=True), key=lambda instance:instance['count'], reverse=True)
             cache.set('tags', tags, cache_time)
         page = request.GET.get('page', 1)
         paginator = Paginator(tags, 120)
