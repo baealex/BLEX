@@ -126,23 +126,26 @@ $('#google-login').on('click', function() {
 
 var threadEvent = function() {
     var className = ['.closer', '.thread-sidebar', 'body'];
+    let menu = _$('.menu').direct();
 
     function isClosed() {
         return $('.closer').hasClass('closed');
     }
 
     function sidebarClose() {
-        $('.closer').html('<i class="fas fa-chevron-left"></i>');
+        $('.closer').html('<i class="fas fa-chevron-right"></i>');
         for(var i=0; i<className.length; i++) {
             $(className[i]).addClass('closed');
         }
+        menu.style.display = 'none';
     }
 
     function sidebarOpen() {
-        $('.closer').html('<i class="fas fa-chevron-right"></i>');
+        $('.closer').html('<i class="fas fa-chevron-left"></i>');
         for(var i=0; i<className.length; i++) {
             $(className[i]).removeClass('closed');
         }
+        menu.style.display = 'block';
     }
 
     $('.story-read').on('click', function() {
@@ -229,19 +232,19 @@ var writeEvent = function() {
     }
     if(_$('#thread-detail').exist()) {
         threadEvent();
-    }
-
-    let preScreenPosition = 0;
-    let menu = _$('.menu').direct();
-    $(window).scroll(() => {
-        if(_$('.menu').hasClass('off')) {
-            let screenPosition = $(this).scrollTop();
-            if(preScreenPosition > screenPosition) {
-                menu.style.opacity = '1';
-            } else {
-                menu.style.opacity = '0';
+    } else {
+        let preScreenPosition = 0;
+        let menu = _$('.menu').direct();
+        $(window).scroll(() => {
+            if(_$('.menu').hasClass('off')) {
+                let screenPosition = $(this).scrollTop();
+                if(preScreenPosition > screenPosition) {
+                    menu.style.opacity = '1';
+                } else {
+                    menu.style.opacity = '0';
+                }
+                preScreenPosition = screenPosition;
             }
-            preScreenPosition = screenPosition;
-        }
-    });
+        });
+    }
 })();

@@ -1254,6 +1254,9 @@ footer {
     display: flex;
     flex-direction: column;
 }
+#thread-detail {
+    margin-top: 100px;
+}
 .reverse {
     flex-direction: column-reverse !important;
 }
@@ -1269,36 +1272,38 @@ footer {
 .top-menu {
     position: fixed;
     z-index: 997;
-    transition: margin-right 0.5s;
+    transition: margin-left 0.5s;
     top: 15px;
     color: #ccc;
+    border: 1px solid #ccc;
     margin-left: 0;
     cursor: pointer;
     padding: 0 0.5em;
-    font-size: 1.5em;
+    font-size: 1.45em;
+    background-color: #fff;
 
     &.hover {
         color: #777;
     }
 
     &.closer {
-        right: calc(300px + 15px);
+        left: calc(300px + 15px);
     }
 
     &.closed {
-        margin-right: -300px;
+        margin-left: -300px;
     }
 }
 .thread-sidebar {
     position: fixed;
     top: 0;
     z-index: 996;
-    margin-right: 0px;
-    transition: margin-right 0.5s;
-    right: 0;
+    margin-left: 0px;
+    transition: margin-left 0.5s;
+    left: 0;
     width: 300px;
     height: 100vh;
-    padding: 0 15px;
+    padding: 55px 15px 0px 15px;
     overflow-y: scroll;
     background-color: #f8f8f8;
 
@@ -1343,16 +1348,16 @@ footer {
     }
 
     &.closed {
-        margin-right: -300px;
+        margin-left: -300px;
     }
 }
 @media only screen and (min-width: 700px) {
     .thread-body {
-        padding-right: 300px;
-        transition: padding-right .5s;
+        padding-left: 300px;
+        transition: padding-left .5s;
     }
     .thread-body.closed {
-        padding-right: 0px;
+        padding-left: 0px;
     }
 }
 /* ------------------------------ */
