@@ -5,7 +5,8 @@
   "main": "transpiler.js",
   "dependencies": {
     "node-sass": "^4.14.1",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.5",
+    "uglify-js": "^3.10.0"
   },
   "devDependencies": {},
   "scripts": {

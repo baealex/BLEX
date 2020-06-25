@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ts = require('typescript');
+const uglify = require("uglify-js");
 const sass = require('node-sass');
 
 function walk(dir) {
@@ -20,7 +21,8 @@ function walk(dir) {
                                     module: ts.ModuleKind.CommonJS
                                 }
                             });
-                            fs.writeFile(filePath.slice(0, -2) + 'js', result.outputText, (err) => {
+                            const minifyResult = uglify.minify(result.outputText)
+                            fs.writeFile(filePath.slice(0, -2) + 'js', minifyResult.code, (err) => {
                                 err && console.log(err);
                             });
                         });
