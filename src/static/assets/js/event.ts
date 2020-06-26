@@ -1,21 +1,3 @@
-select('.menu').on('click', () => {
-    let menuImage = select('.menu img').direct();
-    menuImage.style.opacity = '1';
-    let sideMenu = select('.side-menu').direct();
-
-    if(select('.menu').hasClass('off')) {
-        menuImage.src = 'https://static.blex.me/assets/images/logor.png';
-        select('.menu').swapClass('off', 'on');
-        select('.side-menu').swapClass('off', 'on');
-        sideMenu.style.borderRadius = '0';
-    } else {
-        menuImage.src = 'https://static.blex.me/assets/images/logo.png';
-        select('.menu').swapClass('on', 'off');
-        select('.side-menu').swapClass('on', 'off');
-        sideMenu.removeAttribute('style');
-    }
-});
-
 $('#id_avatar').on('change',function() {
     var fileName = $(this).val();
     $(this).next('.custom-file-label').html(fileName);
@@ -232,6 +214,27 @@ var writeEvent = function() {
         lazy.image();
         lazy.video(); 
     });
+
+    if(select('.menu').exist()) {
+        select('.menu').on('click', () => {
+            let menuImage = select('.menu img').direct();
+            menuImage.style.opacity = '1';
+            let sideMenu = select('.side-menu').direct();
+        
+            if(select('.menu').hasClass('off')) {
+                menuImage.src = 'https://static.blex.me/assets/images/logor.png';
+                select('.menu').swapClass('off', 'on');
+                select('.side-menu').swapClass('off', 'on');
+                sideMenu.style.borderRadius = '0';
+            } else {
+                menuImage.src = 'https://static.blex.me/assets/images/logo.png';
+                select('.menu').swapClass('on', 'off');
+                select('.side-menu').swapClass('on', 'off');
+                sideMenu.removeAttribute('style');
+            }
+        });
+    }
+
     if(select('#write-btn').exist()) {
         writeEvent();
     }

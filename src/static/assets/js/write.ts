@@ -57,14 +57,14 @@ const Save = (function() {
     var isWait = false;
 
     if(token) {
-        axios({
+        $.ajax({
             url: url,
-            method: 'GET',
-            params: {token: token},
-        }).then(response => {
-            $('#id_title').val(response.data.title);
-            $('#id_text_md').text(response.data.text_md);
-            $('#id_tag').val(response.data.tag);
+            type: 'GET',
+            data: {token: token},
+        }).then(data => {
+            $('#id_title').val(data.title);
+            $('#id_text_md').text(data.text_md);
+            $('#id_tag').val(data.tag);
         });
     }
     
