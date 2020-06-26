@@ -1,40 +1,44 @@
-<nav class="menu off"></nav>
+<nav class="menu off">
+    <img src="{{ static_url }}//assets/images/logo.png">
+</nav>
 
 <div class="side-menu off serif">
-    <form method="GET" action="/search">
-        <input autocomplete="off" type="text" class="search" name="value" value="" placeholder="Serach">
-    </form>
-    <ul>
-        <a href="{% url 'post_sort_list' %}"><li>인기 포스트</li></a>
-        <a href="{% url 'post_sort_list' sort='newest' %}"><li>최신 포스트</li></a>
-        <a href="{% url 'post_sort_list' sort='tags' %}"><li>태그 클라우드</li></a>
-    </ul>
-    {% if request.user.is_active %}
-    <ul>
-        <a href="{% url 'user_profile' username=request.user %}">
-            <li><i class="fas fa-user"></i> {{ request.user.first_name }}</li>
-        </a>
-        <a href="javascript:void(0)">
-            <li id="write-btn"><i class="fas fa-pencil-alt"></i> 포스트 작성</li>
-        </a>
-        <a href="javascript:void(0)" onclick="Thread.create()">
-            <i class="fas fa-stream"></i> 스레드 생성
-        </a>
-        <a href="{% url 'setting' %}">
-            <li><i class="fas fa-cogs"></i> 설정</li>
-        </a>
-        <a href="{% url 'logout' %}">
-            <li><i class="fas fa-sign-out-alt"></i> 로그아웃</li>
-        </a>
-    </ul>
-    {% else %}
-    <ul>
-        <a href="{% url 'login' %}">
-            <li><i class="fas fa-sign-in-alt"></i> 로그인</li>
-        </a>
-        <a href="{% url 'signup' %}">
-            <li><i class="fas fa-sign-in-alt"></i> 회원가입</li>
-        </a>
-    </ul>
-    {% endif %}
+    <div class="inner">
+        <form method="GET" action="/search">
+            <input autocomplete="off" type="text" class="search" name="value" value="" placeholder="Serach">
+        </form>
+        <ul>
+            <a href="{% url 'post_sort_list' %}"><li>인기 포스트</li></a>
+            <a href="{% url 'post_sort_list' sort='newest' %}"><li>최신 포스트</li></a>
+            <a href="{% url 'post_sort_list' sort='tags' %}"><li>태그 클라우드</li></a>
+        </ul>
+        {% if request.user.is_active %}
+        <ul>
+            <a href="{% url 'user_profile' username=request.user %}">
+                <li><i class="fas fa-user"></i> {{ request.user.first_name }}</li>
+            </a>
+            <a href="javascript:void(0)">
+                <li id="write-btn"><i class="fas fa-pencil-alt"></i> 포스트 작성</li>
+            </a>
+            <a href="javascript:void(0)" onclick="Thread.create()">
+                <i class="fas fa-stream"></i> 스레드 생성
+            </a>
+            <a href="{% url 'setting' %}">
+                <li><i class="fas fa-cogs"></i> 설정</li>
+            </a>
+            <a href="{% url 'logout' %}">
+                <li><i class="fas fa-sign-out-alt"></i> 로그아웃</li>
+            </a>
+        </ul>
+        {% else %}
+        <ul>
+            <a href="{% url 'login' %}">
+                <li><i class="fas fa-sign-in-alt"></i> 로그인</li>
+            </a>
+            <a href="{% url 'signup' %}">
+                <li><i class="fas fa-sign-in-alt"></i> 회원가입</li>
+            </a>
+        </ul>
+        {% endif %}
+    </div>
 </div>

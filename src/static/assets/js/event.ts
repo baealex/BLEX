@@ -1,13 +1,19 @@
-_$('.menu').on('click', () => {
-    let menu = _$('.menu').direct();
-    menu.style.opacity = '1';
+select('.menu').on('click', () => {
+    let menuImage = select('.menu img').direct();
+    menuImage.style.opacity = '1';
+    let sideMenu = select('.side-menu').direct();
+    let sideMenuInner = select('.side-menu .inner').direct();
 
-    if(_$('.menu').hasClass('off')) {
-        _$('.menu').swapClass('off', 'on');
-        _$('.side-menu').swapClass('off', 'on');
+    if(select('.menu').hasClass('off')) {
+        menuImage.src = 'https://static.blex.me/assets/images/logor.png';
+        select('.menu').swapClass('off', 'on');
+        select('.side-menu').swapClass('off', 'on');
+        sideMenu.style.borderRadius = '0';
     } else {
-        _$('.menu').swapClass('on', 'off');
-        _$('.side-menu').swapClass('on', 'off');
+        menuImage.src = 'https://static.blex.me/assets/images/logo.png';
+        select('.menu').swapClass('on', 'off');
+        select('.side-menu').swapClass('on', 'off');
+        sideMenu.removeAttribute('style');
     }
 });
 
@@ -126,7 +132,7 @@ $('#google-login').on('click', function() {
 
 var threadEvent = function() {
     var className = ['.closer', '.thread-sidebar', 'body'];
-    let menu = _$('.menu').direct();
+    let menu = select('.menu').direct();
 
     function isClosed() {
         return $('.closer').hasClass('closed');
@@ -138,8 +144,8 @@ var threadEvent = function() {
             $(className[i]).addClass('closed');
         }
         menu.style.display = 'none';
-        _$('.menu').swapClass('on', 'off');
-        _$('.side-menu').swapClass('on', 'off');
+        select('.menu').swapClass('on', 'off');
+        select('.side-menu').swapClass('on', 'off');
     }
 
     function sidebarOpen() {
@@ -229,21 +235,21 @@ var writeEvent = function() {
         lazy.image();
         lazy.video(); 
     });
-    if(_$('#write-btn').exist()) {
+    if(select('#write-btn').exist()) {
         writeEvent();
     }
-    if(_$('#thread-detail').exist()) {
+    if(select('#thread-detail').exist()) {
         threadEvent();
     } else {
         let preScreenPosition = 0;
-        let menu = _$('.menu').direct();
-        $(window).scroll(() => {
-            if(_$('.menu').hasClass('off')) {
-                let screenPosition = $(this).scrollTop();
+        let menuImage = select('.menu img').direct();
+        window.addEventListener('scroll', () => {
+            if(select('.menu').hasClass('off')) {
+                let screenPosition = window.pageYOffset;
                 if(preScreenPosition > screenPosition) {
-                    menu.style.opacity = '1';
+                    menuImage.style.opacity = '1';
                 } else {
-                    menu.style.opacity = '0';
+                    menuImage.style.opacity = '0.1';
                 }
                 preScreenPosition = screenPosition;
             }
