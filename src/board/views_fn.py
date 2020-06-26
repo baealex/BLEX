@@ -145,14 +145,12 @@ def get_clean_all_tags(user=None, count=True, desc=False):
         stories = Story.objects.filter(thread__url='desc')
         for story in stories:
             descriptions[story.url] = {
-                'desc': strip_tags(story.text_html)[:50],
-                'link': story.get_absolute_url()
+                'desc': strip_tags(story.text_html)[:80],
             }
 
         for i in range(len(all_tags_dict)):
             if all_tags_dict[i]['name'] in descriptions:
                 all_tags_dict[i]['desc'] = descriptions[all_tags_dict[i]['name']]['desc']
-                all_tags_dict[i]['desc_link'] = descriptions[all_tags_dict[i]['name']]['link']
             
         return all_tags_dict
 

@@ -75,12 +75,12 @@
 		</a>
 	</div>
 	<div id="notify-content"></div>
-    <script src="{% static 'library/jquery.js' %}?{{ static_version }}"></script>
-    <script src="{% static 'library/bootstrap.js' %}?{{ static_version }}"></script>
-	<script src="{% static 'editormd/editormd.js' %}?{{ static_version }}"></script>
-	<script src="{% static 'js/common.js' %}?{{ static_version }}"></script>
-	<script src="{% static 'js/event.js' %}?{{ static_version }}"></script>
-	<script src="{% static 'js/write.js' %}?{{ static_version }}"></script>
+    <script type="text/javascript" src="{% static 'library/jquery.js' %}?{{ static_version }}"></script>
+    <script type="text/javascript" src="{% static 'library/bootstrap.js' %}?{{ static_version }}"></script>
+	<script type="text/javascript" src="{% static 'editormd/editormd.js' %}?{{ static_version }}"></script>
+	<script type="text/javascript" src="{% static 'js/common.js' %}?{{ static_version }}"></script>
+	<script type="text/javascript" src="{% static 'js/event.js' %}?{{ static_version }}"></script>
+	<script type="text/javascript" src="{% static 'js/write.js' %}?{{ static_version }}"></script>
 	<script type="text/javascript">
 	if($(window).width() > 800) {
 		var testEditor;
@@ -99,7 +99,7 @@
 				imageUpload    : true
 			});
 		});
-		$('#back').addClass('back-btn');
+		select('#back').addClass('back-btn');
 	}
 	</script>
 {% endblock %}

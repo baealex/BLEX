@@ -808,7 +808,7 @@ def post_sort_list(request, sort=None):
             tags = sorted(fn.get_clean_all_tags(desc=True), key=lambda instance:instance['count'], reverse=True)
             cache.set('tags', tags, cache_time)
         page = request.GET.get('page', 1)
-        paginator = Paginator(tags, 120)
+        paginator = Paginator(tags, 80)
         fn.page_check(page, paginator)
         render_args['elements'] = paginator.get_page(page)
 
@@ -844,6 +844,14 @@ def post_list_in_tag(request, tag):
         'tag': tag,
         'elements': elements,
     }
+
+    description = None
+    try:
+        description = Story.objects.get(thread__url='desc', url=tag)
+        render_args['description'] = description
+    except:
+        pass
+
     render_args.update(fn.night_mode(request))
     return render(request, 'board/lists/topic.html', render_args)
 

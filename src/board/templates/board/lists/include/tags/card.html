@@ -1,6 +1,12 @@
-<div class="col-6 col-md-4 col-lg-3 mt-5">
+<div class="col-12 col-md-6 col-lg-4 mt-5">
     <div class="tag-card">
-        <div class="serif title"><a class="shallow-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }} ({{ tag.count }})</a></div>
-        <div class="noto ns"><a class="gray-dark" href="{{ tag.desc_link }}">{{ tag.desc }}</a></div>
+        <div class="serif title">
+            <a class="shallow-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.name }} ({{ tag.count }})</a>
+        </div>
+        {% if tag.desc %}
+        <div class="noto ns">
+            <a class="gray-dark" href="{% url 'post_list_in_tag' tag=tag.name %}">{{ tag.desc }}{% if tag.desc|length == 80 %}...{% endif %}</a>
+        </div>
+        {% endif %}
     </div>
 </div>

@@ -1550,6 +1550,26 @@ footer {
 .side-menu a {
     color: #000;
 }
+.description {
+    border-left: 4px solid #9c56d4;
+    background: #f8f8f8;
+    padding: 10px;
+    font-size: 1.023em;
+    line-height: 1.75;
+
+    a {
+        color: #555;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+
+    .author {
+        color: $vivid-purple;
+        font-family: $serif;
+    }
+}
 /* ------------------------------ */
 /* DARK THEME MODE */
 body.dark {
