@@ -38,9 +38,9 @@ class Item {
         this.el.classList.remove(c);
     }
     
-    swapClass(c1: string, c2: string): void {
-        this.el.classList.remove(c1);
-        this.el.classList.add(c2);
+    swapClass(rm: string, add: string): void {
+        this.el.classList.remove(rm);
+        this.el.classList.add(add);
     }
 
     remove(): void {
@@ -96,18 +96,18 @@ class Items {
     }
 }
 
-function _$(q) {
+function select(q) {
     return new Item(q);
 }
 
-function _$$(q) {
+function selects(q) {
     return new Items(q);
 }
 
 /* Common Function */
 
 function safeExternal(query: string, level: string = 'origin'): void {
-    _$$(query).on('click', function(this: any) {
+    selects(query).on('click', function(this: any) {
         if (!this.getAttribute('href').includes('javascript')) {
             this.href = this.getAttribute('href');
             event.preventDefault();
@@ -136,32 +136,28 @@ function copyToClipboard(val: string): void {
 }
 
 function night(): void {
-    if (_$('#night i').hasClass('fa-moon')) {
-        _$('body').addClass('dark');
+    if (select('#night i').hasClass('fa-moon')) {
+        select('body').addClass('dark');
         cookie.set('nightmode', 'true', {
             path: '/',
             expire: 365,
         });
-        _$('#night').html('<i class="fas fa-sun"></i>');
-        let topNav: Item = _$('#top-nav');
-        topNav.removeClass('bg-rlight');
-        topNav.removeClass('navbar-light');
-        topNav.addClass('bg-rdark');
-        topNav.addClass('navbar-dark');
-        _$('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logor.png');
+        select('#night').html('<i class="fas fa-sun"></i>');
+        let topNav: Item = select('#top-nav');
+        topNav.swapClass('bg-rlight', 'bg-rdark');
+        topNav.swapClass('navbar-light', 'navbar-dark');
+        select('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logor.png');
     } else {
-        _$('body').removeClass('dark');
+        select('body').removeClass('dark');
         cookie.set('nightmode', '', {
             path: '/',
             expire: -1,
         });
-        _$('#night').html('<i class="fas fa-moon"></i>');
-        let topNav: Item = _$('#top-nav');
-        topNav.removeClass('bg-rdark');
-        topNav.removeClass('navbar-dark');
-        topNav.addClass('bg-rlight');
-        topNav.addClass('navbar-light');
-        _$('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logo.png');
+        select('#night').html('<i class="fas fa-moon"></i>');
+        let topNav: Item = select('#top-nav');
+        topNav.swapClass('bg-rdark', 'bg-rlight');
+        topNav.swapClass('navbar-dark', 'navbar-light');
+        select('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logo.png');
     }
 }
 
@@ -171,7 +167,7 @@ function csrfSafeMethod(method: string): boolean {
 
 function moveSlide(id: string, space = 15): void {
     window.scrollTo({
-        top: window.pageYOffset + _$(`#${id}`).direct().getBoundingClientRect().top - space,
+        top: window.pageYOffset + select(`#${id}`).direct().getBoundingClientRect().top - space,
         behavior: 'smooth'
     });
 }
@@ -191,10 +187,10 @@ function loading(isStart): void {
                 squre = 'dot-bricks';
                 break;
         }
-        _$('#loading').html(`<div class="full-mask light"><div style="margin: 48vh auto;" class="${squre}"></div></div>`);
+        select('#loading').html(`<div class="full-mask light"><div style="margin: 48vh auto;" class="${squre}"></div></div>`);
     }
     else
-        _$('#loading').html('');
+        select('#loading').html('');
 }
 
 function changing(id: string, href: string): void {

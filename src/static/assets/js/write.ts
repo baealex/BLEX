@@ -21,17 +21,6 @@ $(window).bind("beforeunload", function (e){
     if(!preventExit.getSubmit()) return "변경 사항이 적용되지 않습니다. 정말 종료합니까?";
 });
 
-$(document).ready(function() {
-    var csrftoken = cookie.get('csrftoken');
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-});
-
 const Notify = (function() {
     var counter = 0;
     return {
@@ -68,14 +57,14 @@ const Save = (function() {
     var isWait = false;
 
     if(token) {
-        $.ajax({
+        axios({
             url: url,
-            data: {token: token},
-            type: 'GET',
-        }).done(function(data) {
-            $('#id_title').val(data.title);
-            $('#id_text_md').text(data.text_md);
-            $('#id_tag').val(data.tag);
+            method: 'GET',
+            params: {token: token},
+        }).then(response => {
+            $('#id_title').val(response.data.title);
+            $('#id_text_md').text(response.data.text_md);
+            $('#id_tag').val(response.data.tag);
         });
     }
     
@@ -98,12 +87,12 @@ const Save = (function() {
 
             if(token) { data.token = token; }
 
-            $.ajax({
+            axios({
                 url: url,
-                type: token ? 'PUT' : 'POST',
-                data: data,
-            }).done(function(data) {
-                if(data == 'Error:EG') {
+                method: token ? 'PUT' : 'POST',
+                data: serialize(data),
+            }).done(response => {
+                if(response.data == 'Error:EG') {
                     Notify.append('임시 저장은 5개까지 가능합니다.');
                 } else {
                     if(token) {

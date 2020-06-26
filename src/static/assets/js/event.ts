@@ -2,7 +2,6 @@ select('.menu').on('click', () => {
     let menuImage = select('.menu img').direct();
     menuImage.style.opacity = '1';
     let sideMenu = select('.side-menu').direct();
-    let sideMenuInner = select('.side-menu .inner').direct();
 
     if(select('.menu').hasClass('off')) {
         menuImage.src = 'https://static.blex.me/assets/images/logor.png';
@@ -81,26 +80,23 @@ $('#idButton').on('click', function() {
 });
 
 $('#signup input').on('focusout', function(){
-    if($('#id_username').val() != '') {
+    if(select('#id_username').val() != '') {
         $.ajax({
             url: '/signup/help/id',
             type: 'POST',
-            data: { 'id': $('#id_username').val() },
-        }).done(function(data) {
-            $('#idCheck').addClass('alert');
+            data: {id: select('#id_username').val()},
+        }).done(data => {
+            select('#idCheck').addClass('alert');
             if(data == 'ERROR:OL') {
-                $('#idCheck').removeClass('alert-success');
-                $('#idCheck').addClass('alert-danger');
-                $('#idCheck').text('이미 사용중인 필명입니다!');
+                select('#idCheck').swapClass('alert-success', 'alert-danger');
+                select('#idCheck').text('이미 사용중인 필명입니다!');
             } else if(data == 'ERROR:NM') {
-                $('#idCheck').removeClass('alert-success');
-                $('#idCheck').addClass('alert-danger');
-                $('#idCheck').text('소문자와 숫자로만 구성할 수 있습니다!');
+                select('#idCheck').swapClass('alert-success', 'alert-danger');
+                select('#idCheck').text('소문자와 숫자로만 구성할 수 있습니다!');
             } else {
-                $('#idCheck').removeClass('alert-danger');
-                $('#idCheck').addClass('alert-success');
-                $('#idCheck').text(window.location.protocol + '//' + window.location.hostname + '/@' + $('#id_username').val());
-                if(document.getElementById('idButton')) {
+                select('#idCheck').swapClass('alert-danger', 'alert-success');
+                select('#idCheck').text(window.location.protocol + '//' + window.location.hostname + '/@' + select('#id_username').val());
+                if(select('#idButton').exist()) {
                     var idButton = $('#idButton');
                     idButton.text('완료');
                     idButton.prop('type', 'submit');
@@ -146,6 +142,7 @@ var threadEvent = function() {
         menu.style.display = 'none';
         select('.menu').swapClass('on', 'off');
         select('.side-menu').swapClass('on', 'off');
+        select('.menu img').direct().src = 'https://static.blex.me/assets/images/logo.png';
     }
 
     function sidebarOpen() {
