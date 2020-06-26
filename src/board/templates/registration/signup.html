@@ -21,6 +21,7 @@
         <div class="alert alert-warning noto" role="alert">
             {{ form.email.help_text }}
         </div>
+        <input type="hidden" id="g-recaptcha" name="g-recaptcha">
         <button type="submit" class="login-button">회원가입</button>
     </form>
     <button id="google-login" type="button" class="mt-2 login-button" style="background-color: rgb(46, 119, 255);">
@@ -30,4 +31,8 @@
         <i class="fab fa-github"></i> 깃허브로 시작하기
     </button>
 </div>
+{% endblock %}
+
+{% block script %}
+    {% include 'board/common/include/grecaptcha.html' %}
 {% endblock %}

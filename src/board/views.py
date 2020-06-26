@@ -119,7 +119,7 @@ def social_login(request, social):
 
 def login(request):
     if request.user.is_active:
-        auth.logout(request)
+        return redirect('post_sort_list')
     
     if request.method == 'POST':
         if fn.auth_captcha(request.POST.get('g-recaptcha')):
@@ -170,58 +170,62 @@ def set_username(request):
 
 def signup(request):
     if request.user.is_active:
-        return redirect('post_sort_list', sort='trendy')
+        return redirect('post_sort_list')
+    
     if request.method == 'POST':
-        form = UserForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
+        if fn.auth_captcha(request.POST.get('g-recaptcha')):
+            form = UserForm(request.POST)
+            if form.is_valid():
+                username = form.cleaned_data['username']
 
-            filter_name = ['root', 'sudo', 'admin', 'administrator', 'manager', 'master', 'superuser']
-            if username in filter_name:
-                return render(request, 'registration/signup.html', {'form': form, 'error': '사용할 수 없는 아이디입니다.' })
-            
-            regex = re.compile('[a-z0-9]*')
-            if not len(regex.match(username).group()) == len(username):
-                 return render(request, 'registration/signup.html', {'form': form, 'error': '사용할 수 없는 아이디입니다.' })
-            
-            if not form.cleaned_data['password'] == form.cleaned_data['password_check']:
-                return render(request, 'registration/signup.html', {'form': form, 'error': '비밀번호가 일치하지 않습니다.' })
-            
-            token = randstr(35)
-            has_token = User.objects.filter(last_name=token)
-            while len(has_token) > 0:
+                filter_name = ['root', 'sudo', 'admin', 'administrator', 'manager', 'master', 'superuser']
+                if username in filter_name:
+                    return render(request, 'registration/signup.html', {'form': form, 'error': '사용할 수 없는 아이디입니다.' })
+                
+                regex = re.compile('[a-z0-9]*')
+                if not len(regex.match(username).group()) == len(username):
+                    return render(request, 'registration/signup.html', {'form': form, 'error': '사용할 수 없는 아이디입니다.' })
+                
+                if not form.cleaned_data['password'] == form.cleaned_data['password_check']:
+                    return render(request, 'registration/signup.html', {'form': form, 'error': '비밀번호가 일치하지 않습니다.' })
+                
                 token = randstr(35)
                 has_token = User.objects.filter(last_name=token)
+                while len(has_token) > 0:
+                    token = randstr(35)
+                    has_token = User.objects.filter(last_name=token)
 
-            new_user = User.objects.create_user(
-                form.cleaned_data['username'],
-                form.cleaned_data['email'],
-                form.cleaned_data['password']
-            )
-            new_user.first_name = form.cleaned_data['first_name']
-            new_user.last_name = 'email:' + token
-            new_user.is_active = False
-            new_user.save()
-
-            if not settings.DEBUG:
-                send_mail(
-                    subject = '[ BLEX ] 이메일을 인증해 주세요!',
-                    message = settings.SITE_URL + '/active/' + token,
-                    from_email = 'im@baejino.com',
-                    recipient_list = [new_user.email],
-                    # html_message = render_to_string('email.html', {
-                    #     'username': new_user.first_name,
-                    #     'active_token': settings.SITE_URL + '/active/' + token,
-                    # })
+                new_user = User.objects.create_user(
+                    form.cleaned_data['username'],
+                    form.cleaned_data['email'],
+                    form.cleaned_data['password']
                 )
-            return render(request, 'infomation/signup.html', { 'user': new_user })
+                new_user.first_name = form.cleaned_data['first_name']
+                new_user.last_name = 'email:' + token
+                new_user.is_active = False
+                new_user.save()
+
+                if not settings.DEBUG:
+                    send_mail(
+                        subject = '[ BLEX ] 이메일을 인증해 주세요!',
+                        message = settings.SITE_URL + '/active/' + token,
+                        from_email = 'im@baejino.com',
+                        recipient_list = [new_user.email],
+                        # html_message = render_to_string('email.html', {
+                        #     'username': new_user.first_name,
+                        #     'active_token': settings.SITE_URL + '/active/' + token,
+                        # })
+                    )
+                return render(request, 'infomation/signup.html', { 'user': new_user })
+        else:
+            return render(request, 'registration/signup.html', {'form': form, 'error': '사용자 검증이 실패했습니다.' })
     else:
         form = UserForm()
     return render(request, 'registration/signup.html',{ 'form': form })
 
 def id_check(request):
     if request.method == 'POST':
-        username = request.POST['id']
+        username = request.POST.get('id')
         user = User.objects.filter(username=username)
         if len(user) > 0:
             return HttpResponse('ERROR:OL')
