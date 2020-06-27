@@ -87,12 +87,12 @@ const Save = (function() {
 
             if(token) { data.token = token; }
 
-            axios({
+            $.ajax({
                 url: url,
-                method: token ? 'PUT' : 'POST',
-                data: serialize(data),
-            }).done(response => {
-                if(response.data == 'Error:EG') {
+                type: token ? 'PUT' : 'POST',
+                data: data,
+            }).done((data) => {
+                if(data == 'Error:EG') {
                     Notify.append('임시 저장은 5개까지 가능합니다.');
                 } else {
                     if(token) {

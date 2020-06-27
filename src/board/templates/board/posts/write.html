@@ -82,6 +82,19 @@
 	<script type="text/javascript" src="{% static 'js/event.js' %}?{{ static_version }}"></script>
 	<script type="text/javascript" src="{% static 'js/write.js' %}?{{ static_version }}"></script>
 	<script type="text/javascript">
+	$(document).ready(function() {
+        var csrftoken = cookie.get('csrftoken');
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    });
+    </script>
+	</script>
+	<script type="text/javascript">
 	if($(window).width() > 800) {
 		var testEditor;
 		$(function() {
