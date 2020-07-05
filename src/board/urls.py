@@ -60,6 +60,7 @@ urlpatterns = [
     path('', views.post_sort_list, name='post_sort_list'),
     path('<sort>', views.post_sort_list, name='post_sort_list'),
     path('tag/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
+    path('topic/<tag>', views.post_list_in_tag_redirect, name='post_list_in_tag_redirect'),
     path('edit/<timestamp>', views.post_edit, name='post_edit'),
     # ------------------------------------------------------------ Article End
 
