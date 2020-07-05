@@ -1,0 +1,29 @@
+<div class="container mt-3">
+    <div class="col-lg-9 mx-auto p-0">
+        {% if page == 1 %}<div id="heatmap" class="mt-5"></div>{% endif %}
+        <ul class="p-0 noto profile-activity mt-5">
+            {% for active in elements %}
+            <li>
+                {% if active.url and active.likes %}
+                <i class="fas fa-edit"></i>
+                <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.title }}'</a> 포스트를 작성하였습니다.
+                {% elif active.text %}
+                <i class="fas fa-comment"></i>
+                <a class="shallow-dark" href="{{ active.post.get_absolute_url }}">'{{ active.post }}'</a> 포스트에 댓글을 남겼습니다.
+                {% elif active.owner and active.name %}
+                <i class="fas fa-bookmark"></i>
+                <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.name }}'</a> 시리즈를 생성하였습니다.
+                {% elif active.thread %}
+                <i class="fas fa-server"></i>
+                <a class="shallow-dark" href="{{ active.thread.get_absolute_url }}">'{{ active.thread.title }}'</a> 스레드에 <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.title }}'</a> 스토리를 담았습니다.
+                {% endif %}
+            </li>
+            {% empty %}
+            <div class="mt-3 bg-border-purple p-3 bg-light vivid-purple">
+                아직 아무런 활동이 없습니다.
+            </div>
+            {% endfor %}
+        </ul>
+        {% include 'board/common/include/pagenation.html' %}
+    </div>
+</div>

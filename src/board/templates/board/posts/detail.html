@@ -58,7 +58,7 @@
         </article>
         <ul class="tag-list noto">
             {% for tag in post.tagging %}
-            <li><a href="{% url 'user_profile_topic' username=post.author tag=tag %}">{{ tag }}</a></li>
+            <li><a href="{% url 'user_profile_tag' username=post.author tag=tag %}">{{ tag }}</a></li>
             {% endfor %}
         </ul>
         {% if this_series %}

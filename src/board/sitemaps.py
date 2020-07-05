@@ -54,40 +54,23 @@ class SeriesSitemap(Sitemap):
 
 class UserSitemap(Sitemap):
     changefreq = 'weekly'
-    priority = 0.8
-
-    def items(self):
-        return Profile.objects.all().order_by('pk')
-
-class UserSeriesSitemap(Sitemap):
-    changefreq = 'weekly'
     priority = 0.5
 
     def items(self):
-        return Profile.objects.all().order_by('pk')
+        users = Profile.objects.all().order_by('pk')
+        user_site = []
+        for user in users:
+            user_site += [
+                reverse('user_profile', args=[user]),
+                reverse('user_profile_tab', args=[user, 'series']),
+                reverse('user_profile_tab', args=[user, 'thread']),
+                reverse('user_profile_tab', args=[user, 'activity']),
+                reverse('user_profile_tab', args=[user, 'about']),
+            ]
+        return user_site
     
     def location(self, item):
-        return reverse('user_profile_tab', args=[item.user, 'series'])
-
-class UserContentsSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 0.5
-
-    def items(self):
-        return Profile.objects.all().order_by('pk')
-    
-    def location(self, item):
-        return reverse('user_profile_tab', args=[item.user, 'blog'])
-
-class UserAboutSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 0.5
-
-    def items(self):
-        return Profile.objects.all().order_by('pk')
-    
-    def location(self, item):
-        return reverse('user_profile_tab', args=[item.user, 'about'])
+        return str(item)
 
 class TopicSitemap(Sitemap):
     changefreq = 'weekly'
@@ -112,20 +95,15 @@ class UserTopicSitemap(Sitemap):
         return tags
     
     def location(self, item):
-        return reverse('user_profile_topic', args=[item['user'], item['topic']])
+        return reverse('user_profile_tag', args=[item['user'], item['topic']])
 
 sitemaps = {
     'static_sitemap': StaticSitemap,
-    
     'topic_sitemap': TopicSitemap,
     'posts_sitemap': PostsSitemap,
     'story_sitemap': StorySitemap,
     'thread_sitemap': ThreadSitemap,
     'series_sitemap': SeriesSitemap,
-
     'user_sitemap': UserSitemap,
     'user_topic_sitemap': UserTopicSitemap,
-    'user_about_sitemap': UserAboutSitemap,
-    'user_series_sitemap': UserSeriesSitemap,
-    'user_contents_sitemap': UserContentsSitemap,
 }

@@ -1,12 +1,14 @@
-{% load math %}
+{% load util %}
 
 <div class="col-lg-4 mt-4">
     <a href="{{ post.get_absolute_url }}">
+        <picture>
         {% if post.image %}
-        <div class="show-up fill-image list-image" style="background-image: url('{{ static_url }}/{{ post.get_thumbnail }}');"></div>
+            <img class="list-image show-up lazy" data-src="{{ static_url }}/{{ post.get_thumbnail }}" alt="{{ post.title }}"/>
         {% else %}
-        <div class="show-up fill-image list-image" style="background-image: url('{{ static_url }}/assets/images/default-post.png');"></div>
+            <img class="list-image show-up" src="{{ static_url }}/assets/images/default-post.png" alt="{{ post.title }}"/>
         {% endif %}
+        </picture>
     </a>
     <h5 class="card-title serif font-weight-bold mt-3"><a class="deep-dark" href="{{ post.get_absolute_url }}">{{ post.title | truncatechars:50 }}</a></h5>
     <a href="{% url 'user_profile' username=post.author.username %}">
@@ -16,5 +18,5 @@
         <div class="back-image thumb list-thumb" style="background-image:url({{static_url}}/assets/images/default-avatar.jpg)"></div>
         {% endif %}
     </a>
-    <p class="vs serif"><a class="deep-dark" href="{% url 'user_profile' username=post.author.username %}">{{ post.author }}</a>님이 작성함<br>{{ post.created_date | date:"" }} · <span class="shallow-dark">{% if post.text_md %}{{ post.text_md | length | div:1000 }} min read{% else %}{{ post.stories.all | length }} stories{% endif %}</span></p>
+    <p class="vs serif"><a class="deep-dark" href="{% url 'user_profile' username=post.author.username %}">{{ post.author }}</a>님이 작성함<br>{{ post.created_date | date:"" }} · <span class="shallow-dark">{% if post.text_md %}{{ post.text_html | read_time }} min read{% else %}{{ post.stories.all | length }} stories{% endif %}</span></p>
 </div>

@@ -424,77 +424,75 @@ def external(request):
 
 
 # Profile
-def user_profile(request, username):
+def user_profile(request, username, tag=None):
     user = get_object_or_404(User, username=username)
-    elements = fn.get_posts('trendy', user)[:10]
-
     render_args = {
         'user': user,
-        'elements': elements[:6],
     }
 
-    posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False)
-    series = Series.objects.filter(owner=user)
-    comments = Comment.objects.filter(author=user, post__hide=False)
-    story = Story.objects.filter(author=user, thread__hide=False)
-    activity = sorted(chain(posts, series, comments, story), key=lambda instance: instance.created_date, reverse=True)[:8]
-    render_args['activity'] = activity
+    render_args['tags'] = fn.get_user_topics(user=user, include='posts')
+    posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('-created_date')
+    render_args['posts_count'] = len(posts)
+    
+    if tag:
+        posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False, tag__iregex=r'\b%s\b' % tag).order_by('-created_date')
+        if len(posts) == 0:
+            raise Http404()
+        render_args['selected_tag'] = tag
 
-    today_date = timezone.make_aware(datetime.datetime.now())
-    today = fn.get_view_count(user, today_date)
-    render_args['today'] = today
+    page = request.GET.get('page', 1)
+    paginator = Paginator(posts, 10)
+    fn.page_check(page, paginator)
+    elements = paginator.get_page(page)
+    render_args['elements'] = elements
 
-    yesterday_date = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
-    yesterday = fn.get_view_count(user, yesterday_date)
-    render_args['yesterday'] = yesterday
-
-    total = fn.get_view_count(user)
-    render_args['total'] = total
-
-    if request.user == user:
-        render_args['write_btn'] = True
+    try:
+        render_args['get_page'] = request.GET.get('page')
+    except:
+        pass
 
     render_args.update(fn.night_mode(request))
     return render(request, 'board/profile/index.html', render_args)
 
 def user_profile_tab(request, username, tab):
-    if not tab in ['blog', 'series', 'about']:
+    if not tab in ['series', 'thread', 'activity', 'about']:
         raise Http404
     user = get_object_or_404(User, username=username)
     render_args = {
         'tab': tab,
         'user': user,
-        'grade': fn.get_grade(user),
-        'battery': fn.get_exp(user),
     }
-    if request.user == user:
-        render_args['write_btn'] = True
     
-    if tab == 'blog':
-        render_args['tab_show'] = 'Blog'
-        render_args['tags'] = fn.get_user_topics(user)
-        posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('created_date').reverse()
-        thread = Thread.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('created_date').reverse()
-        posts_and_thread = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
-        render_args['posts_count'] = len(posts_and_thread)
-
+    if tab == 'activity':
+        render_args['tab_show'] = 'Activity'
+        posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False)
+        series = Series.objects.filter(owner=user)
+        comments = Comment.objects.filter(author=user, post__hide=False)
+        story = Story.objects.filter(author=user, thread__hide=False)
+        activity = sorted(chain(posts, series, comments, story), key=lambda instance: instance.created_date, reverse=True)
         page = request.GET.get('page', 1)
-        paginator = Paginator(posts_and_thread, 10)
+        paginator = Paginator(activity, 10)
+        fn.page_check(page, paginator)
+        elements = paginator.get_page(page)
+        render_args['page'] = page
+        render_args['elements'] = elements
+    
+    if tab == 'series':
+        render_args['tab_show'] = 'Series'
+        series = Series.objects.annotate(count_posts=Count('posts')).filter(owner=user, count_posts__gt=0).order_by('-created_date')
+        page = request.GET.get('page', 1)
+        paginator = Paginator(series, 10)
         fn.page_check(page, paginator)
         elements = paginator.get_page(page)
         render_args['elements'] = elements
 
-        try:
-            render_args['get_page'] = request.GET.get('page')
-        except:
-            pass
-    
-    if tab == 'series':
-        render_args['tab_show'] = 'Series'
-        series = Series.objects.annotate(count_posts=Count('posts')).filter(owner=user, count_posts__gt=0).order_by('name')
-        
+    if tab == 'thread':
+        render_args['tab_show'] = 'Thread'
+        thread = Thread.objects.filter(created_date__lte=timezone.now(), stories__author=user).distinct().order_by('-created_date')
+        if not request.user == user:
+            thread = thread.filter(hide=False)
         page = request.GET.get('page', 1)
-        paginator = Paginator(series, 10)
+        paginator = Paginator(thread, 3 * 6)
         fn.page_check(page, paginator)
         elements = paginator.get_page(page)
         render_args['elements'] = elements
@@ -502,35 +500,6 @@ def user_profile_tab(request, username, tab):
     if tab == 'about':
         render_args['tab_show'] = 'About'
 
-    render_args.update(fn.night_mode(request))
-    return render(request, 'board/profile/index.html', render_args)
-
-def user_profile_topic(request, username, tag):
-    user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False, tag__iregex=r'\b%s\b' % tag)
-    thread = Thread.objects.filter(created_date__lte=timezone.now(), author=user, hide=False, tag__iregex=r'\b%s\b' % tag)
-    posts_and_thread = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
-    if len(posts_and_thread) == 0:
-        raise Http404()
-    
-    page = request.GET.get('page', 1)
-    paginator = Paginator(posts_and_thread, 6)
-    fn.page_check(page, paginator)
-    elements = paginator.get_page(page)
-
-    all_posts = len(Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('created_date').reverse())
-    all_thread = len(Thread.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('created_date').reverse())
-    
-    render_args = {
-        'user': user,
-        'tab': 'blog',
-        'selected_tag': tag,
-        'elements': elements,
-        'battery': fn.get_exp(user),
-        'grade': fn.get_grade(user),
-        'tags': fn.get_user_topics(user),
-        'posts_count': all_posts + all_thread,
-    }
     render_args.update(fn.night_mode(request))
     return render(request, 'board/profile/index.html', render_args)
 # ------------------------------------------------------------ Profile End
@@ -797,9 +766,9 @@ def post_detail(request, username, url):
 
 def post_sort_list(request, sort=None):
     render_args = dict()
-    
-    if request.user.is_active:
-        render_args['write_btn'] = True
+
+    if sort == 'trendy':
+        return redirect('post_sort_list')
     
     if sort == 'tags':
         tags = cache.get('tags')
@@ -808,7 +777,7 @@ def post_sort_list(request, sort=None):
             tags = sorted(fn.get_clean_all_tags(desc=True), key=lambda instance:instance['count'], reverse=True)
             cache.set('tags', tags, cache_time)
         page = request.GET.get('page', 1)
-        paginator = Paginator(tags, 80)
+        paginator = Paginator(tags, (3 * 2) * 15)
         fn.page_check(page, paginator)
         render_args['elements'] = paginator.get_page(page)
 

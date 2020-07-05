@@ -1,4 +1,5 @@
-<div id="wrapper">
+{% if elements %}
+<div class="fc-bt">
 {% for series in elements %}
     <div class="post-list" style="background-image: url({{ series.thumbnail }})">
         <a href="{{ series.get_absolute_url }}" class="post-title">
@@ -8,11 +9,17 @@
             </div>
         </a>
     </div>
-{% empty %}
-    <div class="container mt-3">
-        <div class="mx-auto col-lg-9 noto bg-border-purple p-3 bg-light vivid-purple">
-            아직 생성된 시리즈가 없습니다.
-        </div>
-    </div>
+</div>
 {% endfor %}
+{% else %}
+<div class="container mt-3">
+    <div class="mx-auto col-lg-9 noto bg-border-purple p-3 bg-light vivid-purple">
+        아직 생성된 시리즈가 없습니다.
+    </div>
+</div>
+{% endif %}
+<div class="container">
+    <div class="col-lg-9 mx-auto p-0">
+        {% include 'board/common/include/pagenation.html' %}
+    </div>
 </div>

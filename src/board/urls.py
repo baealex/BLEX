@@ -28,7 +28,7 @@ urlpatterns = [
     # Profile
     path('@<username>', views.user_profile, name='user_profile'),
     path('@<username>/<tab>/', views.user_profile_tab, name='user_profile_tab'),
-    path('@<username>/blog/<tag>', views.user_profile_topic, name='user_profile_topic'),
+    path('@<username>/tag/<tag>', views.user_profile, name='user_profile_tag'),
     # ------------------------------------------------------------ Profile End
 
     # Series
@@ -58,7 +58,7 @@ urlpatterns = [
     path('write', views.post_write, name='post_write'),
     path('', views.post_sort_list, name='post_sort_list'),
     path('<sort>', views.post_sort_list, name='post_sort_list'),
-    path('topic/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
+    path('tag/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
     path('edit/<timestamp>', views.post_edit, name='post_edit'),
     # ------------------------------------------------------------ Article End
 

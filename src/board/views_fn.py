@@ -111,15 +111,18 @@ def get_view_count(user, date=None):
         count += threads['table_count__sum']
     return count
 
-def get_clean_all_tags(user=None, count=True, desc=False):
+def get_clean_all_tags(user=None, count=True, desc=False, include='posts,thread'):
     posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)
     thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False)
     if user:
         posts = posts.filter(author=user)
         thread = thread.filter(author=user)
     
-    tagslist = list(posts.values_list('tag', flat=True)) + (
-        list(thread.values_list('tag', flat=True)))
+    tagslist = []
+    if 'posts' in include:
+        tagslist += list(posts.values_list('tag', flat=True))
+    if 'thread' in include:
+        tagslist += list(thread.values_list('tag', flat=True))
     
     all_tags = set()
     for tags in set(tagslist):
@@ -156,6 +159,15 @@ def get_clean_all_tags(user=None, count=True, desc=False):
 
     return all_tags
 
+def get_user_topics(user, include='posts,thread'):
+    cache_key = user.username + '_' + include +'_topics'
+    tags = cache.get(cache_key)
+    if not tags:
+        tags = sorted(get_clean_all_tags(user=user, include=include), key=lambda instance:instance['count'], reverse=True)
+        cache_time = 600
+        cache.set(cache_key, tags, cache_time)
+    return tags
+
 def get_clean_tag(tag):
     clean_tag = slugify(tag.replace(',', '-').replace('_', '-'), allow_unicode=True).split('-')
     return ','.join(list(set(clean_tag)))
@@ -187,15 +199,6 @@ def get_grade(user):
         if user.profile.grade:
             select_grade = str(user.profile.grade)
     return select_grade
-
-def get_user_topics(user):
-    cache_key = user.username + '_topics'
-    tags = cache.get(cache_key)
-    if not tags:
-        tags = sorted(get_clean_all_tags(user), key=lambda instance:instance['count'], reverse=True)
-        cache_time = 120
-        cache.set(cache_key, tags, cache_time)
-    return tags
 
 def get_image(url):
     image = requests.get(url, stream=True)
