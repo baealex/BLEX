@@ -7,7 +7,7 @@
                 <li><a {% if not selected_tag %}class="active"{% endif %} href="{% url 'user_profile' username=user %}">전체<span class="ns">({{ posts_count }})</span></a></li>
                 {% if tags %}
                     {% for tag in tags %}
-                <li><a {% if selected_tag == tag.name %}class="active"{% endif %} href="{% url 'user_profile_tag' username=user tag=tag.name %}">{{ tag.name }}<span class="ns">({{ tag.count }})</span></a></li>
+                <li><a {% if selected_tag == tag.name %}class="active"{% endif %} href="{% url 'user_profile_posts' username=user tag=tag.name %}">{{ tag.name }}<span class="ns">({{ tag.count }})</span></a></li>
                     {% endfor %}
                 {% endif %}
             </ul>
@@ -29,7 +29,7 @@
                 <p class="vs serif">{{ post.created_date | date:"" }} · <span class="shallow-dark">{{ post.text_html | read_time }} min read</span></p>
                 <ul class="tag-list noto">
                     {% for tag in post.tagging %}
-                    <li><a href="{% url 'user_profile_tag' username=post.author tag=tag %}">{{ tag }}</a></li>
+                    <li><a href="{% url 'user_profile_posts' username=post.author tag=tag %}">{{ tag }}</a></li>
                     {% endfor %}
                 </ul>
             </div>

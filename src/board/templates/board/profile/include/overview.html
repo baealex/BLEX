@@ -1,0 +1,66 @@
+{% load util %}
+
+<div class="container mt-3">
+    <div class="col-lg-8 mx-auto p-0">
+        <div id="heatmap" class="mt-5"></div>
+        <div class="shallow-dark text-center mt-5 pb-3 ns">
+            Today : {{ today }} / Yesterday : {{ yesterday }} / Total : {{ total }}
+        </div>
+        <div class="h5 serif font-weight-bold mt-5">Featured Contents</div>
+        {% if elements %}
+        <div class="row mt-1">
+            {% for element in elements %}
+            <div class="col-md-4 mt-3">
+                <div class="blex-card noto">
+                    <a class="deep-dark" href="{{ element.get_absolute_url }}">
+                        {% if element.image %}
+                        <picture>
+                            <img class="feature-image" src="{{ static_url }}/{{ element.get_thumbnail }}" alt="{{ post.title }}"/>
+                        </picture>
+                        {% else %}
+                        <picture>
+                            <img class="feature-image" src="{{ static_url }}/assets/images/default-post.png"/>
+                        </picture>
+                        {% endif %}
+                        <div class="p-3">
+                            {{ element.title }}
+                            <div class="vs serif mt-2">{{ element.created_date | date:"" }} · <span class="shallow-dark">{% if element.text_html %}{{ element.text_html | read_time }} min read{% else %}{{ element.stories.all | length }} stories{% endif %}</span></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="mt-3 bg-border-purple noto p-3 bg-light vivid-purple">
+            아직 작성된 포스트가 없습니다.
+        </div>
+        {% endif %}
+        <div class="h5 serif font-weight-bold mt-5">Recent Activity</div>
+        {% if activity %}
+        <ul class="p-0 noto profile-activity mt-4">
+            {% for active in activity %}
+            <li>
+                {% if active.url and active.likes %}
+                <i class="fas fa-edit"></i>
+                <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.title }}'</a> 포스트를 작성하였습니다.
+                {% elif active.text %}
+                <i class="fas fa-comment"></i>
+                <a class="shallow-dark" href="{{ active.post.get_absolute_url }}">'{{ active.post }}'</a> 포스트에 댓글을 남겼습니다.
+                {% elif active.owner and active.name %}
+                <i class="fas fa-bookmark"></i>
+                <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.name }}'</a> 시리즈를 생성하였습니다.
+                {% elif active.thread %}
+                <i class="fas fa-server"></i>
+                <a class="shallow-dark" href="{{ active.thread.get_absolute_url }}">'{{ active.thread.title }}'</a> 스레드에 <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.title }}'</a> 스토리를 담았습니다.
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="mt-3 bg-border-purple noto p-3 bg-light vivid-purple">
+            아직 아무런 활동이 없습니다.
+        </div>
+        {% endif %}
+    </div>
+</div>

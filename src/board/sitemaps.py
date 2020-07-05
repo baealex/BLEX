@@ -64,8 +64,8 @@ class UserSitemap(Sitemap):
                 reverse('user_profile', args=[user]),
                 reverse('user_profile_tab', args=[user, 'series']),
                 reverse('user_profile_tab', args=[user, 'thread']),
-                reverse('user_profile_tab', args=[user, 'activity']),
                 reverse('user_profile_tab', args=[user, 'about']),
+                reverse('user_profile_posts', args=[user]),
             ]
         return user_site
     
@@ -95,7 +95,7 @@ class UserTopicSitemap(Sitemap):
         return tags
     
     def location(self, item):
-        return reverse('user_profile_tag', args=[item['user'], item['topic']])
+        return reverse('user_profile_posts', args=[item['user'], item['topic']])
 
 sitemaps = {
     'static_sitemap': StaticSitemap,

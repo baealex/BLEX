@@ -56,18 +56,20 @@
 </div>
 </div>
 
-<div class="profile-tab">
-    <ul class="serif">
-        <li{% if not tab %} class="active"{% endif %}><a href="{% url 'user_profile' username=user %}">포스트</a></li>
-        <li{% if tab == 'series' %} class="active"{% endif %}><a href="{% url 'user_profile_tab' username=user tab='series' %}">시리즈</a></li>
-        <li{% if tab == 'thread' %} class="active"{% endif %}><a href="{% url 'user_profile_tab' username=user tab='thread' %}">스레드</a></li>
-        <li{% if tab == 'activity' %} class="active"{% endif %}><a href="{% url 'user_profile_tab' username=user tab='activity' %}">활동</a></li>
-        <li{% if tab == 'about' %} class="active"{% endif %}><a href="{% url 'user_profile_tab' username=user tab='about' %}">소개</a></li>
-    </ul>
+<div class="profile-tab back-image">
+    <div class="mask">
+        <ul class="serif">
+            <li{% if not tab %} class="active"{% endif %}><a href="{% url 'user_profile' username=user %}">개요</a></li>
+            <li{% if tab == 'posts' %} class="active"{% endif %}><a href="{% url 'user_profile_posts' username=user %}">포스트</a></li>
+            <li{% if tab == 'series' %} class="active"{% endif %}><a href="{% url 'user_profile_tab' username=user tab='series' %}">시리즈</a></li>
+            <li{% if tab == 'thread' %} class="active"{% endif %}><a href="{% url 'user_profile_tab' username=user tab='thread' %}">스레드</a></li>
+            <li{% if tab == 'about' %} class="active"{% endif %}><a href="{% url 'user_profile_tab' username=user tab='about' %}">소개</a></li>
+        </ul>
+    </div>
 </div>
 <div id="content">
     {% if not tab %}
-        {% include 'board/profile/include/default.html'%}
+        {% include 'board/profile/include/overview.html' %}
     {% endif %}
 
     {% if tab == 'series' %}
@@ -78,8 +80,8 @@
         {% include 'board/profile/include/thread.html'%}
     {% endif %}
 
-    {% if tab == 'activity' %}
-        {% include 'board/profile/include/activity.html' %}
+    {% if tab == 'posts' %}
+        {% include 'board/profile/include/posts.html'%}
     {% endif %}
 
     {% if tab == 'about' %}
@@ -95,7 +97,7 @@
 {% endblock %}
 
 {% block script %}
-{% if tab == 'activity' %}
+{% if not tab %}
 <script src="https://unpkg.com/frappe-charts@1.1.0"></script>
 <script type="text/javascript">
     User.activity('{{ user.username }}');

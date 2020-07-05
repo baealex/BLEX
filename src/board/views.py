@@ -426,10 +426,11 @@ def external(request):
 
 
 # Profile
-def user_profile(request, username, tag=None):
+def user_profile_posts(request, username, tag=None):
     user = get_object_or_404(User, username=username)
     render_args = {
         'user': user,
+        'tab': 'posts',
     }
 
     render_args['tags'] = fn.get_user_topics(user=user, include='posts')
@@ -456,8 +457,8 @@ def user_profile(request, username, tag=None):
     render_args.update(fn.night_mode(request))
     return render(request, 'board/profile/index.html', render_args)
 
-def user_profile_tab(request, username, tab):
-    if not tab in ['series', 'thread', 'activity', 'about']:
+def user_profile_tab(request, username, tab=None):
+    if not tab in [None, 'posts', 'series', 'thread', 'about']:
         raise Http404
     user = get_object_or_404(User, username=username)
     render_args = {
@@ -465,19 +466,27 @@ def user_profile_tab(request, username, tab):
         'user': user,
     }
     
-    if tab == 'activity':
-        render_args['tab_show'] = 'Activity'
+    if tab == None:
+        user_profile_posts(request, user)
         posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False)
         series = Series.objects.filter(owner=user)
         comments = Comment.objects.filter(author=user, post__hide=False)
         story = Story.objects.filter(author=user, thread__hide=False)
-        activity = sorted(chain(posts, series, comments, story), key=lambda instance: instance.created_date, reverse=True)
-        page = request.GET.get('page', 1)
-        paginator = Paginator(activity, 10)
-        fn.page_check(page, paginator)
-        elements = paginator.get_page(page)
-        render_args['page'] = page
-        render_args['elements'] = elements
+        activity = sorted(chain(posts, series, comments, story), key=lambda instance: instance.created_date, reverse=True)[:8]
+        render_args['activity'] = activity
+
+        today_date = timezone.make_aware(datetime.datetime.now())
+        today = fn.get_view_count(user, today_date)
+        render_args['today'] = today
+
+        yesterday_date = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+        yesterday = fn.get_view_count(user, yesterday_date)
+        render_args['yesterday'] = yesterday
+
+        total = fn.get_view_count(user)
+        render_args['total'] = total
+
+        render_args['elements'] = fn.get_posts('trendy', user)[:6]
     
     if tab == 'series':
         render_args['tab_show'] = 'Series'
@@ -901,4 +910,4 @@ def user_profile_tag_redirect(request, username, tag):
     return redirect('user_profile_tag', username=username, tag=tag)
 
 def post_list_in_tag_redirect(request, tag):
-    return redirect('post_list_in_tag', tag=tag)
+    return redirect('user_profile_posts', tag=tag)

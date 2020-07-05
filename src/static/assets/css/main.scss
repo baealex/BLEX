@@ -1183,15 +1183,6 @@ footer {
 .social-link i {
     font-size: 25px;
 }
-.fc-bt {
-    &:first-child {
-        border-top: 1px solid #eee;
-
-        body.dark & {
-            border-top: 1px solid #555;
-        }
-    }
-}
 .post-list {
     background-image: url(https://static.blex.kr/assets/images/post-default.jpg);
     background-size: cover, cover;
@@ -1220,15 +1211,23 @@ footer {
     color: #fff;
 }
 .profile-tab {
-    @media only screen and (max-width: 991px) {
-        overflow-x: auto;
-        overflow-y: hidden;
+    width: 100%;
+    height: 100px;
+    background-image: url(https://static.blex.me/assets/images/default-post.png);
+
+    .mask {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .78);
+
+        @media only screen and (max-width: 991px) {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
     }
 
     ul {
-        padding: 0;
-        padding-top: 15px;
-        margin-bottom: 15px;
+        padding: 15px 0;
         list-style: none;
         text-align: center;
         white-space: nowrap;
@@ -1240,21 +1239,13 @@ footer {
             cursor: pointer;
 
             a {
-                color: $shallow-dark;
+                color: #aaa;
                 text-decoration: none;
-
-                body.dark & {
-                    color: #aaa;
-                }
             }
 
             &.active a {
-                color: $vivid-purple;
+                color: #fff;
                 text-decoration: none;
-
-                body.dark & {
-                    color: $vivid-purple-complementary;
-                }
             }
         }
     }

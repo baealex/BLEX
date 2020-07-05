@@ -26,9 +26,10 @@ urlpatterns = [
     # ------------------------------------------------------------ Account End
 
     # Profile
-    path('@<username>', views.user_profile, name='user_profile'),
+    path('@<username>', views.user_profile_tab, name='user_profile'),
+    path('@<username>/posts/', views.user_profile_posts, name='user_profile_posts'),
+    path('@<username>/posts/<tag>', views.user_profile_posts, name='user_profile_posts'),
     path('@<username>/<tab>/', views.user_profile_tab, name='user_profile_tab'),
-    path('@<username>/tag/<tag>', views.user_profile, name='user_profile_tag'),
     path('@<username>/blog/<tag>', views.user_profile_tag_redirect, name='user_profile_tag_redirect'),
     # ------------------------------------------------------------ Profile End
 
