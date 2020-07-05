@@ -456,6 +456,10 @@ def user_profile(request, username, tag=None):
     render_args.update(fn.night_mode(request))
     return render(request, 'board/profile/index.html', render_args)
 
+###### TEMP REDIRECT ######
+def user_profile_tag_redirect(request, username, tag):
+    return redirect('user_profile_tag', username=username, tag=tag)
+
 def user_profile_tab(request, username, tab):
     if not tab in ['series', 'thread', 'activity', 'about']:
         raise Http404
