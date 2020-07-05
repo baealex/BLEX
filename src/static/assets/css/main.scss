@@ -1787,12 +1787,16 @@ footer {
         justify-content: space-evenly;
         
         li {
+            color: #aaa;
+
             a { 
                 color: #aaa;
                 transition: all 0.5s;
-            }
-            a:hover {
-                color: #fff;
+
+                &:hover {
+                    color: #fff;
+                    text-decoration: none;
+                }
             }
         }
     }
