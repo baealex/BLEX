@@ -1,16 +1,25 @@
-/* VARIABLE */
-
+// 변수 정의
 $serif: 'Noto Serif KR', serif;
 $gothic: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
 
 $vivid-purple: #8c00ff;
 $smooth-purple: #b181da;
 
+$vivid-purple-complementary: #03c0e4;
+$smooth-purple-complementary: #328899;
+
 $deep-dark: rgba(0, 0, 0, 0.839);
 $shallow-dark: rgba(0, 0, 0, 0.541);
 $gray-dark:rgba(160, 160, 160, 0.541);
 
-/* CLASS : ANIMATION */
+$dark-mode-body-bg: #292929;
+
+
+
+// 애니메이션 키프레임 및 클래스 정의
+/*
+    아래로 슬라이딩
+*/
 @keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
 @-moz-keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
 @-webkit-keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
@@ -22,6 +31,10 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     -webkit-animation: slide-bottom .5s 1;
     -o-animation: slide-bottom .5s 1;
 }
+
+/*
+    페이드인
+*/
 @keyframes fade-in {0% {opacity: 0;} 100% {opacity: 1;}}
 @-moz-keyframes fade-in {0% {opacity: 0;} 100% {opacity: 1;}}
 @-webkit-keyframes fade-in {0% {opacity: 0;} 100% {opacity: 1;}}
@@ -33,6 +46,10 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     -webkit-animation: fade-in 3s 1;
     -o-animation: fade-in 3s 1;
 }
+
+/*
+    블러처리
+*/
 @keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
 @-moz-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
 @-webkit-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
@@ -44,6 +61,10 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     -webkit-animation: blurring .5s 1;
     -o-animation: blurring .5s 1;
 }
+
+/*
+    마스크 옅어짐 처리
+*/
 @keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
 @-moz-keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
 @-webkit-keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
@@ -55,50 +76,84 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     -webkit-animation: mask-off 7s 1;
     -o-animation: mask-off 7s 1;
 }
+
+/*
+    글쓰기에서 뒤로가기 버튼에 사용중
+*/
 @keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
 @-moz-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
 @-webkit-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
 @-o-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
-/* ------------------------------ */
-/* CLASS : FONTS */
+
+
+
+// 폰트 클래스 정의
 .serif {
     font-family: $serif;
 }
 .noto {
     font-family: $gothic;
 }
-/* ------------------------------ */
-/* CLASS : FONTS SIZE */
+
+
+
+// 폰트 사이즈 클래스 정의
 .ns {
 	font-size:14px;
 }
 .vs {
 	font-size:10px;
 }
-/* ------------------------------ */
-/* CLASS : FONTS COLOR */
+
+
+
+// 폰트 색상 클래스 정의
 .vivid-purple {
     color: $vivid-purple;
 
+    body.dark & {
+        color: $vivid-purple-complementary;
+    }
+
     &:hover {
         color: $vivid-purple;
-        text-decoration: none;    
+        text-decoration: none;
+
+        body.dark & {
+            color: $vivid-purple-complementary;
+        }
     }
 }
 .deep-dark {
     color: $deep-dark;
 
+    body.dark & {
+        color: #e0e0e0;
+    }
+
     &:hover {
         color: $deep-dark;
-        text-decoration: none;    
+        text-decoration: none;
+        
+        body.dark & {
+            color: #e0e0e0;
+        }
     }
 }
 .shallow-dark {
     color: $shallow-dark;
 
+    body.dark & {
+        color: #a7a7a7;
+    }
+
     &:hover {
         color: $shallow-dark;
         text-decoration: none;
+
+        body.dark & {
+            color: #a7a7a7;
+        }
     }
 }
 .gray-dark {
@@ -109,8 +164,14 @@ $gray-dark:rgba(160, 160, 160, 0.541);
         text-decoration: none;
     }
 }
-/* ------------------------------ */
-/* CLASS : BACKGROUND COLOR */
+
+
+
+// 배경 색상 클래스 정의
+body.dark {
+    background-color: $dark-mode-body-bg;
+    color: #d6d6d6;
+}
 .color-dark {
     background: rgba(0,0,0,.84);
     color: #fff;
@@ -136,9 +197,15 @@ $gray-dark:rgba(160, 160, 160, 0.541);
 .bg-border-purple {
     border-radius: 5px;
     border: 1px solid $vivid-purple;
+    
+    body.dark & {
+        border: 1px solid $vivid-purple-complementary;
+    }
 }
-/* ------------------------------ */
-/* CLASS : USEFUL */
+
+
+
+// 유용한 클래스 정의
 .c-pointer {
     cursor: pointer;
 }
@@ -177,7 +244,7 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     margin-bottom: 40px;
 
     @media only screen and (max-width: 991px) {
-        margin-top: 45px;
+        margin-top: 60px;
     }    
 }
 @media only screen and (min-width: 991px) {
@@ -188,8 +255,10 @@ $gray-dark:rgba(160, 160, 160, 0.541);
         display: none;
     }
 }
-/* ------------------------------ */
-/* CLASS : TAG */
+
+
+
+// 태그 목록 디자인
 .tag-list {
     list-style: none;
     padding-left: 0;
@@ -202,6 +271,10 @@ $gray-dark:rgba(160, 160, 160, 0.541);
         margin: 2px;
         line-height: 2.35;
         white-space: nowrap;
+
+        body.dark & {
+            background-color:#3b3b3b;
+        }
     }
 
     a {
@@ -209,77 +282,134 @@ $gray-dark:rgba(160, 160, 160, 0.541);
             content: '#';
             color: $vivid-purple;
             font-weight: bold;
+
+            body.dark & {
+                color: $vivid-purple-complementary;
+            }
         }
 
         color: #777;
 
+        body.dark & {
+            color: #ccc;
+        }
+
         &:hover {
             color: #000;
-            text-decoration: none;        
+            text-decoration: none;
+
+            body.dark & {
+                color: #fff;
+            }
         }
     }
 }
+
+
+
+// 태그 클라우드 디자인
 .tag-card .title::before {
     content: '#';
     color: $smooth-purple;
     font-weight: bold;
-}
-/* ------------------------------ */
-/* CLASS : PAGENATION */
 
-@media only screen and (max-width: 991px) {
-    .pgnav {
-        text-align: center;
+    body.dark & {
+        color: $smooth-purple-complementary;
     }
 }
+
+
+
+// 페이지네이션 디자인
 .pgnav {
-    margin-top: 30px;
+    margin: 30px 0;
+
+    @media only screen and (max-width: 991px) {
+        text-align: center;
+    }
+
+    .pi {
+        text-align: center;
+        line-height: 1.6em;
+        width: 1.8em;
+        font-size: 1.025em;
+    }
+
+    .pl, .gp {
+        color: #3a3a3a;
+
+        body.dark & {
+            color: #c7c7c7;
+        }
+
+        &:hover {
+            color: $vivid-purple;
+            text-decoration: none;
+
+            body.dark & {
+                color: $vivid-purple-complementary
+            }
+        }
+    }
+
+    .ps {
+        float: right;
+
+        .pn {
+            background: none;
+            border: 1px solid #8e44ad;
+            border-radius: 5px;
+            padding: 2px;
+            width: 50px;
+
+            body.dark & {
+                border: 1px solid $vivid-purple-complementary;
+            }
+        }
+
+        .gp {
+            border: none;
+            background: none;
+        }
+
+        *:focus {
+            outline: none;
+        }
+    }
+
+    .active {
+        border: 2px solid #9b59b6;
+        text-align: center;
+        color: #fff;
+        border-radius: 100%;
+
+        body.dark & {
+            border: 2px solid $vivid-purple-complementary;
+        }
+    }
+
+    .disabled {
+        .pl {
+            color: #cfcfcf;
+            
+            body.dark & {
+                color: #555;
+            }
+        }
+    }
 }
-.pi {
-    text-align: center;
-    line-height: 1.6em;
-    width: 1.8em;
-    font-size: 1.025em;
-}
-.pl {
-    color: #3a3a3a;
-}
-.pl:hover {
-    color: $vivid-purple;
-    text-decoration: none;
-}
-.ps {
-    float: right;
-}
-.ps .pn {
-    background: none;
-    border: 1px solid #8e44ad;
-    border-radius: 5px;
-    padding: 2px;
-    width: 50px;
-}
-.ps .gp {
-    border: none;
-    background: none;
-}
-.ps *:focus {
-    outline: none;
-}
-.pgnav .active {
-    border: 2px solid #9b59b6;
-    text-align: center;
-    color: #fff;
-    border-radius: 100%;
-}
-.pgnav .disabled .pl {
-    color: #cfcfcf;
-}
-/* ------------------------------ */
-/* USER : THUMBNAIL */
+
+
+
+// 각종 섬네일 클랴스 정의
 .thumb {
     float: left;
     border-radius: 100%;
     background: #fff;
+
+    body.dark {
+        background: $dark-mode-body-bg;
+    }
 }
 .list-thumb {
     width: 30px;
@@ -296,16 +426,20 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     height: 50px;
     margin-right: 15px;
 }
-/* ------------------------------ */
-/* NOTIFY : CONTENT */
+
+
+
+// 알림
 #notify-content {
     position: fixed;
     top: 70px;
     right: 5px;
     z-index: 9999;
 }
-/* ------------------------------ */
-/* ARTICLE : WRITE */
+
+
+
+// 글쓰기
 .article-w-title {
     width: 100%;
     padding: 12px;
@@ -336,6 +470,9 @@ $gray-dark:rgba(160, 160, 160, 0.541);
 .editormd {
     margin-bottom: 3px;
 }
+
+
+
 /* ------------------------------ */
 /* HOME : COMMON */
 .card-subtitle {
@@ -376,6 +513,10 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(0px);
 }
+
+
+
+// 글쓰기 목록
 .center-list {
     text-align: center;
 }
@@ -403,40 +544,17 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     margin: 0 1rem;
     transform: translateY(-5px);
 }
-.sub-image-1, .sub-image-2, .sub-image-3 {
-    height:200px;
-}
-.notice-hr {
-	border-bottom: 1px solid #eee;
-}
-.sort-nav {
-    border-bottom: 1px solid #ccc;
-}
-.sort-nav li.active {
-    border-bottom: 2px solid #000; padding-bottom: 6px;
-}
-.sort-nav li a {
-    color: #ccc;
-    font-size: 18px;
-    margin-left:15px;
-    margin-right:15px;
-    text-decoration: none;
-}
-.sort-nav li.active a {
-    color: #000;
-}
-.fill-image {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-.list-image, .feature-image {
+
+
+
+// 포스트 목록(메인 페이지) 디자인
+.list-image,
+.feature-image {
     object-fit: cover;
     width: 100%;
     height: 250px;
     float: initial;
     margin-left: 0;
-    border: 1px solid #fafafa;
 }
 .feature-image {
     height: 150px;
@@ -453,6 +571,9 @@ $gray-dark:rgba(160, 160, 160, 0.541);
         height: 200px;
     }
 }
+
+
+
 /* ------------------------------ */
 /* POSTS : DETAIL : COMMON */
 .bg-series {
@@ -461,6 +582,10 @@ $gray-dark:rgba(160, 160, 160, 0.541);
 .bg-comment {
     border-top: 1px solid #ddd;
     background-color: rgba(0,0,0,0.05);
+
+    body.dark & {
+        border-top: 1px solid #333;
+    }
 }
 .s-shadow {
     box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
@@ -488,6 +613,11 @@ $gray-dark:rgba(160, 160, 160, 0.541);
         background: #f8f8f8;
         padding: 10px;
 
+        body.dark & {
+            border-left: 4px solid $smooth-purple-complementary;
+            background: $dark-mode-body-bg;
+        }
+
         p {
             margin-bottom: 0;
         }
@@ -510,17 +640,6 @@ $gray-dark:rgba(160, 160, 160, 0.541);
     }
 }
 
-.rel-post-image {
-	width: 100%;
-	height: 250px;
-}
-.header-title {
-    color: #fff;
-	border-bottom: #ddd solid 1px;
-	margin-bottom: 10px;
-	padding-bottom: 5px;
-}
-
 footer { 
     color: #ccc;
     
@@ -530,6 +649,10 @@ footer {
         &:hover {
             color: #000;
             text-decoration: none;
+
+            body.dark & {
+                color: #fff;
+            }
         }
     }
 
@@ -545,45 +668,57 @@ footer {
         }
     }
 }
+
 .mainheading {
     margin-top: 100px;
 }
+
 .sticky-top-200 {
     top: 200px !important;
     margin-bottom: 30px;
 }
+
 .sticky-top-100 {
     top: 100px !important;
     margin-bottom: 30px;
 }
+
 @media only screen and (min-width: 991px) {
     .sticky-margin-top-40 {
         margin-top:150px;
         margin-bottom:90px;
     }
 }
+
 .author-info a {
     color:#000;
 }
+
 .author-info a:hover {
     color:#444;
 }
+
 .author-info p {
     margin-bottom:0px;
 }
+
 .author-description {
     color: #aaa;
 }
+
 .author-state {
     padding: 0;
     margin: 5px 0;
 }
+
 .follow-badge {
     cursor: pointer;
 }
+
 .author-state li {
     display: inline-block;
 }
+
 .btn.follow {
     border-color:#333;
     color:#333;
@@ -591,20 +726,19 @@ footer {
     border-radius:50px;
     font-size:0.75rem;
     display:inline-block;
-}  
+}
+
 .post-top-meta .btn.follow {
     margin-left:5px;
     margin-top:-5px;
 }
-.fill-full {
-    width: 100%;
-    height: 100%;
-}
+
 .back-image {
 	background-position:center center;
 	background-repeat:no-repeat;
 	background-size:cover;
 }
+
 .gradient-hr {
     border: 0; 
     height: 1px; 
@@ -613,14 +747,22 @@ footer {
     background-image: -ms-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
     background-image: -o-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0); 
 }
+
+
+
+// 위로 떠오르는 애니메이션
 .show-up {
     transition: all 0.3s;
     box-shadow: rgba(0,0,0,0.03) 0 5px 16px 1px;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: rgba(0,0,0,0.1) 0 10px 16px 1px;
+    }
 }
-.show-up:hover {
-    transform: translateY(-5px);
-    box-shadow: rgba(0,0,0,0.1) 0 10px 16px 1px;
-}
+
+
+
 /* ------------------------------ */
 /* POSTS : DETAIL : NONE TITLE IMAGE */
 .post-headline {
@@ -724,9 +866,17 @@ footer {
     a {
         color: $vivid-purple;
 
+        body.dark & {
+            color: $vivid-purple-complementary;
+        }
+
         &:hover {
             color: $smooth-purple;
             text-decoration: none;
+
+            body.dark & {
+                color: $smooth-purple-complementary;
+            }
         }
     }
 
@@ -734,7 +884,12 @@ footer {
         color: #000;
         background-color: #eee;
         border-radius: 5px;
-        padding: 2px;      
+        padding: 2px;
+
+        body.dark & {
+            color: #fff;
+            background-color: #000;
+        }
     }
 
     pre {
@@ -744,6 +899,10 @@ footer {
         padding: 1em;
         font-size: 1em;
         line-height: 1.5;
+
+        body.dark & {
+            background: #000;
+        }
 
         code {
             color: #fff !important;
@@ -771,6 +930,10 @@ footer {
         padding-left: 20px;
         border-left: 3px solid #000;
         color: #aaa;
+
+        body.dark & {
+            border-left: 3px solid #ccc;
+        }
     }
 
     table {
@@ -786,14 +949,26 @@ footer {
             word-break: keep-all;
             border: 1px solid #dfe2e5;
             padding: 6px 13px;
+
+            body.dark & {
+                border: 1px solid #555;
+            }
         }
 
         tr {
             background-color: #fff;
             border-top: 1px solid #c6cbd1;
+
+            body.dark & {
+                background-color: #222;
+            }
     
             &:nth-child(2n) {
                 background-color: #f6f8fa;
+
+                body.dark & {
+                    background-color: #111;
+                }
             }
         }
     }
@@ -815,6 +990,10 @@ footer {
         transform: translateY(-100%);
         position: relative;
         border-top: 2.5px solid #ccc;
+
+        body.dark & {
+            border-top: 2.5px solid #777;
+        }
     }
 
     .title-1::before {
@@ -833,6 +1012,10 @@ footer {
     .nav-now.title-2::before,
     .nav-now.title-3::before {
         border-color: #000;
+
+        body.dark & {
+            border-color: #fff;
+        }
     }
 
     &:hover {
@@ -867,10 +1050,18 @@ footer {
         a {
             color: #ccc;
             cursor: pointer;
+
+            body.dark & {
+                color: #777;
+            }
         }
 
         a.nav-now {
             color: #000 !important;
+
+            body.dark & {
+                color: #fff !important;
+            }
         }
     }
 
@@ -918,7 +1109,11 @@ footer {
             margin-bottom:15px;
 
             a {
-                color:rgba(0,0,0,.33);
+                color: rgba(0,0,0,.33);
+
+                body.dark & {
+                    color: #aaa;
+                }
 
                 i {
                     transition: transform 0.2s;
@@ -941,6 +1136,10 @@ footer {
     background: #fff;
     margin-bottom: 15px;
     padding: 20px;
+
+    body.dark & {
+        background: #1d1d1d;
+    }
 }
 /* ------------------------------ */
 /* PROFILE : LAYOUT */
@@ -974,25 +1173,6 @@ footer {
     font-weight: bold;
     font-size: 24px;
 }
-.user-profile-desc::before {
-    content: '';
-    display: block;
-    position: relative;
-    margin: 10px auto;
-    border-top: 3px solid $vivid-purple;
-    width: 30px;
-}
-.user-profile-desc::after {
-    content: '';
-    display: block;
-    position: relative;
-    margin: 10px auto;
-    border-top: 3px solid $vivid-purple;
-    width: 30px;
-}
-.user-profile-desc {
-    line-height: 1.75;
-}
 .social-link {
     list-style: none;
     padding-inline-start: 0px;
@@ -1006,6 +1186,10 @@ footer {
 .fc-bt {
     &:first-child {
         border-top: 1px solid #eee;
+
+        body.dark & {
+            border-top: 1px solid #555;
+        }
     }
 }
 .post-list {
@@ -1058,11 +1242,19 @@ footer {
             a {
                 color: $shallow-dark;
                 text-decoration: none;
+
+                body.dark & {
+                    color: #aaa;
+                }
             }
 
             &.active a {
                 color: $vivid-purple;
                 text-decoration: none;
+
+                body.dark & {
+                    color: $vivid-purple-complementary;
+                }
             }
         }
     }
@@ -1080,39 +1272,52 @@ footer {
     padding: 10px;
     border-left: 3px solid #ccc;
 }
-.profile-tags ul {
-    list-style: none;
-    padding-left: 0;
-}
-.profile-tags h5 {
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ddd;
-}
-.profile-tags li {
-    margin: 5px;
-}
-.profile-tags li {
-    margin: 5px;
-}
-.profile-tags li a {
-    color: #b1b1b1;
-    text-decoration: none;
-}
-.profile-tags li a.active {
-    color: #000000;
-}
-@media only screen and (max-width: 991px) {
-	.profile-tags {
+.profile-tags {
+    @media only screen and (max-width: 991px) {
         overflow-x: scroll;
     }
-    .profile-tags ul {
-        white-space: nowrap;
-    }
-    .profile-tags ul > h5 {
-        display: none;
-    }
-    .profile-tags li {
-        display: inline-block;
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+
+        @media only screen and (max-width: 991px) {
+            white-space: nowrap;
+        }
+
+        h5 {
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+
+            @media only screen and (max-width: 991px) {
+                display: none;
+            }
+        }
+
+        li {
+            margin: 5px;
+
+            @media only screen and (max-width: 991px) {
+                display: inline-block;
+            }
+        }
+
+        a {
+            color: #b1b1b1;
+            text-decoration: none;
+
+            body.dark & {
+                color: #727272;
+            }
+
+            &.active {
+                color: #000000;
+
+                body.dark & {
+                    color: #eee;
+                }
+            }
+        }
     }
 }
 .profile-post {
@@ -1398,11 +1603,20 @@ footer {
     background: #fff;
     width: 100%;
     display: block;
+
+    body.dark & {
+        box-shadow: none;
+        background-color: $dark-mode-body-bg;
+    }
 }
 .setting-body {
     padding-top: 45px;
     background: #f3f3f3;
     min-height: 100vh;
+
+    body.dark & {
+        background-color: #333;
+    }
 }
 .setting-user-thumb {
     width: 100%;
@@ -1543,6 +1757,9 @@ footer {
     ul {
         list-style: none;
         padding-left: 0;
+    }
+
+    ul.menu-item {
         padding-bottom: 15px;
         margin-bottom: 15px;
         border-bottom: 1px solid #666;
@@ -1555,6 +1772,27 @@ footer {
             &:hover {
                 color: $smooth-purple;
                 text-decoration: none;
+
+                body.dark & {
+                    color: $smooth-purple-complementary;
+                }
+            }
+        }
+    }
+    
+    ul.menu-footer-item {
+        padding-top: 15px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        
+        li {
+            a { 
+                color: #aaa;
+                transition: all 0.5s;
+            }
+            a:hover {
+                color: #fff;
             }
         }
     }
@@ -1584,65 +1822,8 @@ footer {
 }
 /* ------------------------------ */
 /* DARK THEME MODE */
-body.dark {
-    background-color: #292929;
-    color: #d6d6d6;
-}
-body.dark .toast-header {
-    background: #1d1d1d;
-    color: #fff;
-}
-body.dark .toast-body {
-    background: #000;
-    color: #dbdbdb;
-}
-body.dark .share,
-body.dark .share a {
-    color: #aaa;
-    fill: #aaa;
-}
-body.dark .vivid-purple,
-body.dark .article a {
-    color: #03c0e4;
-}
-body.dark .article a:hover{
-    color: #797979;
-}
-body.dark .article pre {
-    background: #000;
-}
-body.dark .article table td,
-body.dark .article table th {
-    border: 1px solid #555;
-}
-body.dark .article table thead tr,
-body.dark .article table tr:nth-child(2n) {
-    background-color: #000;
-}
-body.dark .article table tr {
-    background-color: #292929;
-}
 body.dark .author-info a {
     color: #dadada;
-}
-body.dark .deep-dark {
-    color: #e0e0e0 !important;
-}
-body.dark .shallow-dark {
-    color: #a7a7a7 !important;
-}
-body.dark .article code {
-    color: #fff;
-    background-color: #000;
-}
-body.dark .article blockquote {
-    border-left: 3px solid #a5a5a5;
-}
-body.dark form .form-control,
-body.dark form .form-control:focus {
-    border: none;
-    color: #ccc;
-    background-color: #1d1d1d;
 }
 body.dark #heart .fas {
     color: #fff;
@@ -1650,70 +1831,9 @@ body.dark #heart .fas {
 body.dark .form-control::placeholder {
     color: #ccc;
 }
-body.dark #article-nav:hover a.nav-now {
-    color: #fff !important;
-}
-body.dark #article-nav:hover a {
-    color: #777;
-}
-body.dark #article-nav:hover a:hover {
-    color: #ccc;
-}
-body.dark .title-1::before,
-body.dark .title-2::before,
-body.dark .title-3::before {
-    border-top: 2.5px solid #777;
-}
-body.dark .nav-now.title-1::before,
-body.dark .nav-now.title-2::before,
-body.dark .nav-now.title-3::before {
-    border-color: #ccc;
-}
-body.dark .tag-list li {
-    background-color:#3b3b3b;
-}
-body.dark .tag-list a {
-    color: rgb(202, 202, 202);
-}
-body.dark .tag-list a:hover {
-    color: #fff;
-    text-decoration: none;
-}
-body.dark .tag-list a:before {
-    content: '#';
-    color: #fff;
-    font-weight: bold;
-}
 body.dark .user-avatar {
     background: #000;
     border: 1px solid #333;
-}
-body.dark .bg-comment {
-    border-top: 1px solid #333;
-}
-body.dark .comment-list {
-    background-color: #1d1d1d;
-}
-body.dark .user-profile-desc::before,
-body.dark .user-profile-desc::after {
-    border-top: 3px solid #03c0e4;
-}
-body.dark .profile-tags li a {
-    color: #727272;
-}
-body.dark .profile-tags li a.active {
-    color: #cccccc;
-}
-body.dark .pl,
-body.dark .gp,
-body.dark .pn {
-    color: #c7c7c7;
-}
-body.dark .pgnav .active{
-    border: 2px solid #03c0e4;
-}
-body.dark .ps .pn{
-    border: 1px solid #03c0e4;
 }
 body.dark .profile-post{
     border-bottom: 2px solid #aaa;
@@ -1739,7 +1859,7 @@ body.dark .post-list {
     border-bottom: 1px solid #555;
 }
 body.dark .post-mask {
-    background-color: rgba(50, 50, 50, 1);
+    background-color: $dark-mode-body-bg;
 }
 body.dark .post-mask:hover {
     background-color: rgba(50, 50, 50, 0.3);
@@ -1772,39 +1892,15 @@ body.dark .card-footer {
 body.dark .card-body {
     background: #000000;
 }
-body.dark footer a:hover {
-    color: #fff;
-}
 body.dark .selection .active {
     color: #fff;
-}
-body.dark .modal-content {
-    border: none;
-}
-body.dark .modal-body,
-body.dark .modal-footer {
-    background: #2e2e2e;
-}
-body.dark .modal-footer {
-    background: #242424;
-}
-body.dark .custom-file-label {
-    color: #ccc;
-    border: 1px solid #1d1d1d;
-    background-color: #1d1d1d;
-}
-body.dark .custom-file-label::after,
-body.dark .input-group-text {
-    background-color: rgb(65, 65, 65);
-    border: 0;
-    color: #ccc;
 }
 body.dark .btn {
     color: #fff;
 }
 body.dark .top-menu,
 body.dark .thread-sidebar {
-    background-color: #000;
+    background-color: #333;
 }
 body.dark .thread-sidebar .title {
     border-bottom: 1px solid #505050;
@@ -1813,10 +1909,10 @@ body.dark .thread-sidebar li {
     color: #bdbdbd;
 }
 body.dark .thread-sidebar li:hover {
-    color: #328899;
+    color: $smooth-purple-complementary;
 }
 body.dark .thread-sidebar li.active {
-    color: #03c0e4;
+    color: $vivid-purple-complementary;
 }
 /* ------------------------------ */
 /* OVERWRITE BOOTSTRAP */
@@ -1827,6 +1923,10 @@ body.dark .thread-sidebar li.active {
 }
 .jumbotron {
     background: none;
+}
+.modal-header {
+    border-radius: 0;
+    border: none;
 }
 .modal-content {
     border-radius: 0;
@@ -1871,4 +1971,77 @@ body.dark .thread-sidebar li.active {
 }
 .sticky-top {
     z-index: 1;
+}
+body.dark {
+    .toast-header {
+        background: #1d1d1d;
+        color: #fff;
+    }
+
+    .toast-body {
+        background: #000;
+        color: #dbdbdb;
+    }
+
+    .custom-control-input:checked~.custom-control-label::before {
+        color: #fff;
+        border-color: $vivid-purple-complementary;
+        background-color: $vivid-purple-complementary;
+    }
+
+    .modal-content {
+        border: none;
+    }
+
+    .modal-body {
+        background: #2e2e2e;
+    }
+
+    .modal-footer {
+        background: #242424;
+    }
+
+    .modal-header {
+        background: #2e2e2e;
+    
+        .close {
+            color: #fff;
+    
+            &:hover {
+                color: #fff;
+            }
+        }
+    }
+
+    .custom-file-label {
+        color: #ccc;
+        border: 1px solid #1d1d1d;
+        background-color: #1d1d1d;
+    }
+
+    .custom-file-label::after,
+    .input-group-text {
+        background-color: rgb(65, 65, 65);
+        border: 0;
+        color: #ccc;
+    }
+
+    .list-group-item {
+        background-color: #262626;
+    }
+
+    .nav-link.disabled {
+        color: #ccc;
+    }
+    form .form-control,
+    form .form-control:focus {
+        border: none;
+        color: #ccc;
+        background-color: #1d1d1d;
+    }
+    .custom-select {
+        background-color: #1d1d1d;
+        color: #ccc;
+        border: none;
+    }
 }

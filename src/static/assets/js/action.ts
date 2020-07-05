@@ -307,11 +307,11 @@ var User = (function() {
                 type: 'GET',
                 data: {get: 'activity'},
             }).done(function(data) {
-                var count = 0;
-                for(var key in data.data) {
+                let count = 0;
+                for(let key in data.data) {
                     count += Number(data.data[key]);
                 }
-                new frappe.Chart("#heatmap", {
+                let option = {
                     type: 'heatmap',
                     title: count + ' activity in the last year',
                     data: {
@@ -320,7 +320,11 @@ var User = (function() {
                     width: 800,
                     countLabel: 'Activity',
                     discreteDomains: 0,
-                });
+                }
+                if(select('body').hasClass('dark')) {
+                    option['colors'] = ['#333', '#666', '#999', '#ccc', '#fff'];
+                }
+                new frappe.Chart("#heatmap", option);
             });
         },
         follow: function(username) {

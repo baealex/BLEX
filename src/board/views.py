@@ -304,6 +304,7 @@ def setting(request):
         if not notify.is_read:
             counter += 1
     render_args['not_read_count'] = counter
+    render_args.update(fn.night_mode(request))
     return render(request, 'board/setting/index.html', render_args)
 
 @login_required(login_url='/login')
@@ -408,6 +409,7 @@ def setting_tab(request, tab):
             elements = paginator.get_page(page)
             render_args['elements'] = elements
 
+        render_args.update(fn.night_mode(request))
         return render(request, 'board/setting/index.html', render_args)
 # ------------------------------------------------------------ Account End
 
@@ -549,6 +551,7 @@ def search(request):
         'white_nav' : True,
         'value' : value,
     }
+    render_args.update(fn.night_mode(request))
     return render(request, 'board/common/search.html', render_args)
 
 def content_backup(request):

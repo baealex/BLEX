@@ -47,7 +47,7 @@ var Render = {
             <p class="noto"><a class="deep-dark" href="javascript:void(0)" onclick="location.href='${element.url}'">${element.title}</a></p>
             <ul class="setting-list-info">
                 <li><a class="element-lock" href="javascript:${actionClass}.lock(${element.pk})"><i class="fas ${hideState}"></i></a></li>
-                <li><a class="text-dark" href="javascript:${actionClass}.remove(${element.pk})"><i class="far fa-trash-alt"></i></a></li>
+                <li><a class="deep-dark" href="javascript:${actionClass}.remove(${element.pk})"><i class="far fa-trash-alt"></i></a></li>
                 <li>|</li>
                 <li><i class="far fa-eye"></i> <span class="ns">(Today : ${element.today}, Yesterday : ${element.yesterday}, Total : ${element.total})</span></li>
                 <li><a class="shallow-dark" href="javascript:void(0)" onclick="Analytics.modal('${element.author}', '${type}', '${element.pk}');"><i class="fas fa-chart-line"></i> <span class="ns">More</li></a></li>

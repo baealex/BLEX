@@ -143,10 +143,6 @@ function night(): void {
             expire: 365,
         });
         select('#night').html('<i class="fas fa-sun"></i>');
-        let topNav: Item = select('#top-nav');
-        topNav.swapClass('bg-rlight', 'bg-rdark');
-        topNav.swapClass('navbar-light', 'navbar-dark');
-        select('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logor.png');
     } else {
         select('body').removeClass('dark');
         cookie.set('nightmode', '', {
@@ -154,10 +150,6 @@ function night(): void {
             expire: -1,
         });
         select('#night').html('<i class="fas fa-moon"></i>');
-        let topNav: Item = select('#top-nav');
-        topNav.swapClass('bg-rdark', 'bg-rlight');
-        topNav.swapClass('navbar-dark', 'navbar-light');
-        select('#top-nav img').attr('src', 'https://static.blex.me/assets/images/logo.png');
     }
 }
 
