@@ -907,7 +907,7 @@ def post_edit(request, timestamp):
 
 ###### TEMP REDIRECT ######
 def user_profile_tag_redirect(request, username, tag):
-    return redirect('user_profile_tag', username=username, tag=tag)
+    return redirect('user_profile_posts', username=username, tag=tag)
 
 def post_list_in_tag_redirect(request, tag):
-    return redirect('user_profile_posts', tag=tag)
+    return redirect('post_list_in_tag', tag=tag)
