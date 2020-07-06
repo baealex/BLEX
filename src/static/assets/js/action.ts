@@ -322,7 +322,7 @@ var User = (function() {
                     discreteDomains: 0,
                 }
                 if(select('body').hasClass('dark')) {
-                    option['colors'] = ['#333', '#666', '#999', '#ccc', '#fff'];
+                    option['colors'] = ['#14120f', '#391b74', '#843690', '#dc65c4', '#e69ed8'];
                 }
                 new frappe.Chart("#heatmap", option);
             });
@@ -733,8 +733,58 @@ var Analytics = (function() {
                     
                     $('body').append(Render.analytics.modal(data.referers, pk));
                     $(`#item-${pk}-detail`).modal('show');
-                    
-                    makeChart(data.items, 'chart-' + pk);
+
+                    am4core.ready(function () {
+                        if(select('body').hasClass('dark')) {
+                            am4core.useTheme(am4themes_dark);
+                        } else {
+                            am4core.useTheme(am4themes_dataviz);
+                        }
+                
+                        var chart = am4core.create(`chart-${pk}`, am4charts.XYChart);
+                
+                        chart.data = data.items;
+                        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+                
+                        var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+                        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                
+                        var series = chart.series.push(new am4charts.LineSeries());
+                        series.dataFields.valueY = "count";
+                        series.dataFields.dateX = "date";
+                        series.tooltipText = "{count}"
+                        series.strokeWidth = 2;
+                        series.minBulletDistance = 15;
+                
+                        series.tooltip.background.cornerRadius = 20;
+                        series.tooltip.background.strokeOpacity = 0;
+                        series.tooltip.pointerOrientation = "vertical";
+                        series.tooltip.label.minWidth = 40;
+                        series.tooltip.label.minHeight = 40;
+                        series.tooltip.label.textAlign = "middle";
+                        series.tooltip.label.textValign = "middle";
+                
+                        var bullet = series.bullets.push(new am4charts.CircleBullet());
+                        bullet.circle.strokeWidth = 2;
+                        bullet.circle.radius = 4;
+                        bullet.circle.fill = am4core.color("#fff");
+                
+                        var bullethover = bullet.states.create("hover");
+                        bullethover.properties.scale = 1.3;
+                
+                        chart.cursor = new am4charts.XYCursor();
+                        chart.cursor.behavior = "panXY";
+                        chart.cursor.xAxis = dateAxis;
+                        chart.cursor.snapToSeries = series;
+                
+                        chart.scrollbarX = new am4charts.XYChartScrollbar();
+                        chart.scrollbarX.series.push(series);
+                        chart.scrollbarX.parent = chart.bottomAxesContainer;
+                
+                        dateAxis.start = 0.5;
+                        dateAxis.keepSelection = true;
+                    });
+
                     safeExternal(`#item-${pk}-detail a`);
                 });
             }
