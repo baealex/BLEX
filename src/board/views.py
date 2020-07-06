@@ -431,6 +431,8 @@ def user_profile_posts(request, username, tag=None):
     render_args = {
         'user': user,
         'tab': 'posts',
+        'layout_fluid': True,
+        'tab_show': 'Posts',
     }
 
     render_args['tags'] = fn.get_user_topics(user=user, include='posts')
@@ -464,6 +466,7 @@ def user_profile_tab(request, username, tab=None):
     render_args = {
         'tab': tab,
         'user': user,
+        'layout_fluid': True,
     }
     
     if tab == None:

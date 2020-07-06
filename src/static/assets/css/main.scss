@@ -1233,19 +1233,14 @@ footer {
         white-space: nowrap;
 
         li {
+            color: #aaa;
             display: inline-block;
             font-size: 1.2em;
             margin: 20px;
             cursor: pointer;
 
-            a {
-                color: #aaa;
-                text-decoration: none;
-            }
-
-            &.active a {
+            &.active {
                 color: #fff;
-                text-decoration: none;
             }
         }
     }

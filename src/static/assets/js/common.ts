@@ -185,18 +185,47 @@ function loading(isStart): void {
         select('#loading').html('');
 }
 
-function changing(id: string, href: string): void {
-    $.ajax({
-        url: href,
-        type: 'GET',
-    }).done(function (data) {
-        $(`#${id}`).html($(data).find(`#${id}`).html());
-        document.title = $(data).filter('title').text();
-        window.scrollTo({ top: 0 });
+let cacheContent = {
+    isReady: true,
+};
+function changing(id: string, href: string, option?: {moveTop?: boolean, callback?: Function}): void {
+    function swap(title: string, content: string) {
+        document.title = title;
+        $(`#${id}`).html(content);
         lazy.image();
         lazy.video();
         safeExternal('#' + id + ' a');
-    });
+        option && option.moveTop && window.scrollTo({ top: 0 });
+        option && option.callback && option.callback();
+    }
+
+    const prevKey = document.location.pathname;
+    cacheContent[prevKey] = {
+        'title': document.title,
+        'content': $(`#${id}`).html(),
+    }
+
+    const key = href;
+    if(cacheContent[key] !== undefined) {
+        swap(
+            cacheContent[key].title,
+            cacheContent[key].content
+        );
+    } else {
+        if(cacheContent.isReady) {
+            $.ajax({
+                url: href,
+                type: 'GET',
+            }).done((data) => {
+                swap(
+                    $(data).filter('title').text(),
+                    $(data).find(`#${id}`).html()
+                );
+                cacheContent.isReady = true;
+            });
+            cacheContent.isReady = false;
+        }
+    }
 }
 
 function getParameter(param: string): string {

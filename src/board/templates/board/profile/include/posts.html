@@ -4,7 +4,7 @@
         <div class="profile-tags col-lg-3">
             <ul class="mt-4 noto">
                 <h5>카테고리</h5>
-                <li><a {% if not selected_tag %}class="active"{% endif %} href="{% url 'user_profile' username=user %}">전체<span class="ns">({{ posts_count }})</span></a></li>
+                <li><a {% if not selected_tag %}class="active"{% endif %} href="{% url 'user_profile_posts' username=user %}">전체<span class="ns">({{ posts_count }})</span></a></li>
                 {% if tags %}
                     {% for tag in tags %}
                 <li><a {% if selected_tag == tag.name %}class="active"{% endif %} href="{% url 'user_profile_posts' username=user tag=tag.name %}">{{ tag.name }}<span class="ns">({{ tag.count }})</span></a></li>

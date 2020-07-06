@@ -96,6 +96,33 @@ $('#github-login').on('click', function() {
     location.href = url;
 });
 
+if(select('.profile-tab').exist()) {
+    let runOnce = true;
+    $('.profile-tab li').on('click', function() {
+        let href = $(this).data('href');
+        let option = {
+            callback: undefined,
+        };
+        if(runOnce && $(this).text() === '개요') {
+            option.callback = function() {
+                let username = href.split('/@')[1];
+                User.activity(username);
+            }
+            runOnce = false;
+        }
+        changing('content', href, option);
+        history.pushState({}, href, href);
+        $('.profile-tab li').each(function(index, item) {
+            $(item).removeClass('active');
+        });
+        $(this).addClass('active');
+    });
+
+    $(window).on('popstate', function(event) {
+        window.location = document.location.href;
+    });
+}
+
 $('#google-login').on('click', function() {
     var url = '';
     url += 'https://accounts.google.com/o/oauth2/auth';
@@ -137,7 +164,10 @@ var threadEvent = function() {
 
     $('.story-read').on('click', function() {
         var href = $(this).data('href');
-        changing('content', href);
+        let option = {
+            moveTop: true,
+        };
+        changing('content', href, option);
         history.pushState({}, href, href);
         $('.story-read').each(function(index, item) {
             $(item).removeClass('active');
