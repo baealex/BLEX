@@ -4,6 +4,7 @@ $gothic: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
 
 $vivid-purple: #8c00ff;
 $smooth-purple: #b181da;
+$live-purple: #9c56d4;
 
 $vivid-purple-complementary: #03c0e4;
 $smooth-purple-complementary: #328899;
@@ -1330,6 +1331,81 @@ footer {
     left: 50%;
     transform: translateX(-50%);
 }
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    @media (max-width: 1200px) and (min-width: 760px) {
+        grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 760px){
+        grid-template-columns: 1fr;
+    }
+    .box {
+        position: relative;
+        width: 100%;
+        height: 40vh;
+        color: #fff;
+        overflow: hidden;
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            opacity: .5;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.2s ease;
+        }
+
+        .text {
+            cursor: pointer;
+            position: absolute;
+            width: 100%;
+            top: calc(50% - 20px);
+            z-index: 10;
+        }
+
+        .title, .subtitle {
+            color: #fff;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            font-size: 0.8em;
+        }
+
+        &:hover {
+            &::after {
+                opacity: 0;
+            }
+
+            img {
+                transform: scale(1.5);
+            }
+
+            .text {
+                opacity: 0;
+            }
+        }
+    }
+}
 .top-post-slide {
     height:300px;
     overflow:hidden;
@@ -1477,7 +1553,7 @@ footer {
         text-overflow: ellipsis;
     }
 }
-.top-menu {
+.thread-menu {
     position: fixed;
     z-index: 997;
     transition: margin-left 0.5s;
@@ -1489,6 +1565,10 @@ footer {
     padding: 0 0.5em;
     font-size: 1.45em;
     background-color: #fff;
+
+    body.dark & {
+        background-color: #222;
+    }
 
     &.hover {
         color: #777;
@@ -1515,12 +1595,20 @@ footer {
     overflow-y: scroll;
     background-color: #f8f8f8;
 
+    body.dark & {
+        background-color: #222;
+    }
+
     &::-webkit-scrollbar {
         width: 3px;        
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: #aaa;
+        background-color: #ccc;
+
+        body.dark & {
+            background-color: #333;
+        }
     }
 
     img {
@@ -1533,6 +1621,10 @@ footer {
         font-size: 1.35em;
         padding-bottom: 15px;
         border-bottom: 1px solid #ccc;
+
+        body.dark & {
+            border-bottom: 1px solid #505050;
+        }
     }
 
     ul {
@@ -1545,12 +1637,24 @@ footer {
             color: #777777;
             text-decoration: none;
 
+            body.dark & {
+                color: #bdbdbd;
+            }
+
             &:hover {
                 color: #c99cff;
+
+                body.dark & {
+                    color: $smooth-purple-complementary;
+                }
             }
 
             &.active {
                 color: $vivid-purple;
+
+                body.dark & {
+                    color: $vivid-purple-complementary;
+                }
             }
         }
     }
@@ -1791,14 +1895,23 @@ footer {
     color: #000;
 }
 .description {
-    border-left: 4px solid #9c56d4;
+    border-left: 4px solid $live-purple;
     background: #f8f8f8;
     padding: 10px;
     font-size: 1.023em;
     line-height: 1.75;
 
+    body.dark & {
+        border-left: 4px solid $vivid-purple-complementary;
+        background: #000;
+    }
+
     a {
         color: #555;
+
+        body.dark & {
+            color: #ccc;
+        }
 
         &:hover {
             text-decoration: none;
@@ -1838,9 +1951,6 @@ body.dark .bg-light, body.dark .btn-dark {
 }
 body.dark .foot-deco-active {
     border-bottom: 2px solid #fff;
-}
-body.dark .list-image {
-    border: 1px solid #555;
 }
 body.dark .post-list > a {
     color: #fff;
@@ -1887,22 +1997,6 @@ body.dark .selection .active {
 }
 body.dark .btn {
     color: #fff;
-}
-body.dark .top-menu,
-body.dark .thread-sidebar {
-    background-color: #333;
-}
-body.dark .thread-sidebar .title {
-    border-bottom: 1px solid #505050;
-}
-body.dark .thread-sidebar li {
-    color: #bdbdbd;
-}
-body.dark .thread-sidebar li:hover {
-    color: $smooth-purple-complementary;
-}
-body.dark .thread-sidebar li.active {
-    color: $vivid-purple-complementary;
 }
 /* ------------------------------ */
 /* OVERWRITE BOOTSTRAP */

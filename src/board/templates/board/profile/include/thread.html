@@ -1,30 +1,27 @@
+{% if elements %}
+<div class="grid">
+    {% for element in elements %}
+    <div class="box" {% if element.hide %}style="opacity: 0.35"{%endif%} onclick="location.href='{{ element.get_absolute_url }}'">
+        {% if element.image %}
+        <img class="lazy" data-src="{{ static_url }}/{{ element.get_thumbnail }}" alt="{{ thread.title }}"/>
+        {% else %}
+        <img src="{{ static_url }}/assets/images/default-post.png" alt="{{ thread.title }}"/>
+        {% endif %}
+        <div class="text serif">
+            <div class="title">
+                {{ element.title }}
+            </div>
+            <div class="subtitle">
+                {{ element.created_date | date:"" }} · {{ element.stories.all | length }} stories
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 <div class="container mt-3">
     <div class="col-lg-9 mx-auto p-0">
-        {% if elements %}
-        <div class="row">
-            {% for element in elements %}
-            <div class="col-md-4 mt-3" {% if element.hide %}style="opacity: 0.25"{%endif%}>
-                <div class="blex-card noto">
-                    <a class="deep-dark" href="{{ element.get_absolute_url }}">
-                        {% if element.image %}
-                        <picture>
-                            <img class="feature-image" src="{{ static_url }}/{{ element.get_thumbnail }}" alt="{{ post.title }}"/>
-                        </picture>
-                        {% else %}
-                        <picture>
-                            <img class="feature-image" src="{{ static_url }}/assets/images/default-post.png"/>
-                        </picture>
-                        {% endif %}
-                        <div class="p-3">
-                            {{ element.title }}
-                            <div class="vs serif mt-2">{{ element.created_date | date:"" }} · <span class="shallow-dark">{{ element.stories.all | length }} stories</span></div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
+        {% if not elements %}
         <div class="bg-border-purple noto p-3 bg-light vivid-purple">
             아직 생성된 스레드가 없습니다.
         </div>
