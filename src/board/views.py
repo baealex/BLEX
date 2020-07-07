@@ -5,6 +5,7 @@ import re
 from PIL import Image, ImageFilter
 from itertools import chain
 from django.db.models import Count, Q
+from django.db.models.functions import Lower
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.files import File
@@ -563,6 +564,17 @@ def search(request):
         'white_nav' : True,
         'value' : value,
     }
+    
+    posts = Post.objects.annotate(low_title=Lower('title')).filter(Q(low_title__icontains=value.lower()) | Q(tag__icontains=value.lower())).filter(hide=False)
+    story = Story.objects.annotate(low_title=Lower('title')).filter(Q(low_title__icontains=value.lower()) | Q(thread__tag__icontains=value.lower())).filter(thread__hide=False)
+
+    elements = sorted(chain(posts, story), key=lambda instance: instance.created_date, reverse=True)
+    page = request.GET.get('page', 1)
+    paginator = Paginator(elements, 15)
+    fn.page_check(page, paginator)
+    elements = paginator.get_page(page)
+    render_args['elements'] = elements
+
     render_args.update(fn.night_mode(request))
     return render(request, 'board/common/search.html', render_args)
 
