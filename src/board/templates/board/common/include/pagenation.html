@@ -3,12 +3,12 @@
     <ul class="pg none-list">
     {% if elements.has_previous %}
         <li class="pi">    
-            <a class="pl" href="{% if not elements.previous_page_number == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ elements.previous_page_number }}{% else %}{{ request.META.PATH_INFO }}{% endif %}">
+            <a class="pl" href="{% if not elements.previous_page_number == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ elements.previous_page_number }}{% else %}{{ request.META.PATH_INFO }}{% if value %}?value={{value}}{% endif %}{% endif %}">
                 <i class="fas fa-arrow-left"></i>
             </a>
         </li>
         <li class="pi">
-            <a class="pl pl" href="{{ request.META.PATH_INFO }}">
+            <a class="pl pl" href="{{ request.META.PATH_INFO }}{% if value %}?value={{value}}{% endif %}">
                 <i class="fa fa-angle-double-left" aria-hidden="true"></i>
             </a>
         </li>
@@ -27,37 +27,37 @@
     {% for num in elements.paginator.page_range %}
         {% if elements.number == num %}
         <li class="pi active">    
-            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% endif %}">
+            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% if value %}?value={{value}}{% endif %}{% endif %}">
                 {{ num }}
             </a>
         </li>
         {% elif elements.number == 1 and num < elements.number|add:'5' %}
         <li class="pi">    
-            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% endif %}">
+            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% if value %}?value={{value}}{% endif %}{% endif %}">
                 {{ num }}
             </a>
         </li>
         {% elif elements.number == 2 and num < elements.number|add:'4' %}
         <li class="pi">    
-            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% endif %}">
+            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% if value %}?value={{value}}{% endif %}{% endif %}">
                 {{ num }}
             </a>
         </li>
         {% elif num > elements.number|add:'-3' and num < elements.number|add:'3' %}
         <li class="pi">    
-            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% endif %}">
+            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% if value %}?value={{value}}{% endif %}{% endif %}">
                 {{ num }}
             </a>
         </li>
         {% elif elements.number == elements.paginator.num_pages|add:'-1' and num > elements.number|add:'-4' %}
         <li class="pi">    
-            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% endif %}">
+            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% if value %}?value={{value}}{% endif %}{% endif %}">
                 {{ num }}
             </a>
         </li>
         {% elif elements.number == elements.paginator.num_pages and num > elements.number|add:'-5' %}
         <li class="pi">    
-            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% endif %}">
+            <a class="pl" href="{% if not num == 1 %}?{% if value %}value={{value}}&{% endif %}page={{ num }}{% else %}{{ request.META.PATH_INFO }}{% if value %}?value={{value}}{% endif %}{% endif %}">
                 {{ num }}
             </a>
         </li>

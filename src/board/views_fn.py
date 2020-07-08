@@ -16,6 +16,47 @@ from django.conf import settings
 from .models import *
 from . import telegram
 
+def search_google(value, page):
+    req_uri = 'https://www.googleapis.com/customsearch/v1/siterestrict'
+    req_uri += '?key=' + settings.GOOGLE_SEARCH_API_KEY
+    req_uri += '&cx=' + settings.GOOGLE_SEARCH_ID
+    req_uri += '&q=' + str(value)
+    page = int(page)
+    if page > 1:
+        req_uri += '&start=' + str(page*10 + 1)
+    
+    response = requests.get(req_uri)
+    if 'error' in response.json():
+        return { 'code': 429 }
+    items = response.json().get('items')
+    queries = response.json().get('queries')
+
+    result = {
+        'items': list(),
+    }
+    if not 'totalResults' in queries['request'][0]:
+        return { 'code': 404, 'total': 0 }
+    result['total'] = queries['request'][0]['totalResults']
+    result['number'] = page
+    result['paginator'] = dict()
+    result['paginator']['num_pages'] = int(int(queries['request'][0]['totalResults']) / 10)
+    result['paginator']['page_range'] = range(1, result['paginator']['num_pages'])
+
+    if 'nextPage' in queries:
+        result['has_next'] = True
+        result['next_page_number'] = page + 1
+    if 'previousPage' in queries:
+        result['has_previous'] = True
+        result['previous_page_number'] = page - 1
+
+    for item in items:
+        result['items'].append({
+            'title': item['title'],
+            'description': item['snippet'],
+            'link': item['link'],
+        })
+    return result
+
 def view_count(type, element, request):
     if element.author == request.user:
         return

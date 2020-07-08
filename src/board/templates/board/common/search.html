@@ -9,9 +9,9 @@
 <meta property="og:description" content="나를 표현하는 블로그, {{ site_title }}에서 컨텐츠를 검색하세요!">
 <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta property="og:type" content="blog">
-<meta name = "twitter : card" content="summary"> 
-<meta name = "twitter : title" content="{{ site_title }}"> 
-<meta name = "twitter : description" content="나를 표현하는 블로그, {{ site_title }}에서 컨텐츠를 검색하세요!"> 
+<meta name="twitter:card" content="summary"> 
+<meta name="twitter:title" content="{{ site_title }}"> 
+<meta name="twitter:description" content="나를 표현하는 블로그, {{ site_title }}에서 컨텐츠를 검색하세요!"> 
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,6 @@
     <p>
         <a class="shallow-dark" href="{{ element.get_absolute_url }}">{{ element.text_html | striptags | truncatewords:50 }}</a>
     </p>
-    
 </div>
 {% empty %}
 <h5 class="card-title serif font-weight-bold mt-5">
