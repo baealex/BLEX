@@ -357,9 +357,9 @@ class Series(models.Model):
         return self.name
 
     def thumbnail(self):
-        posts = Post.objects.filter(series=self)[0]
+        posts = Post.objects.filter(series=self)
         if posts:
-            return posts.thumbnail()
+            return posts[0].thumbnail()
         else:
             return settings.STATIC_URL + '/images/default-post.png'
     
