@@ -1,0 +1,91 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{% if story_detail %}{{ story.title }}{% else %}{{ thread.title }}{% endif %}{% if story_detail %} — {{ story.author }}{% endif %}{% endblock %}
+
+{% block seo %}
+{% if story_detail %}
+<meta name="description" content="{{ story.text_html | striptags | truncatewords:50 }}">{% else %}
+<meta name="description" content="{{ thread.description | striptags | truncatewords:50 }}">{% endif %}
+<meta property="og:site_name" content="{{ site_title }}">
+<meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
+<meta property="og:type" content="blog">
+{% if story_detail %}
+<meta property="og:title" content="{{ story.title | truncatewords:20 }}">{% else %}
+<meta property="og:title" content="{{ thread.title | truncatewords:20 }}">{% endif %}
+{% if story_detail %}
+<meta property="og:description" content="{{ story.text_html | striptags | truncatewords:50 }}">{% else %}
+<meta property="og:description" content="{{ thread.description | striptags | truncatewords:50 }}">{% endif %}
+{% if thread.image %}
+<meta property="og:image" content="{{ thread.image.url }}">{% endif %}
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="{% if thread.allow_write %}{{ site_title }}{% else %}{{ thread.author.username }}{% endif %}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
+{% if story_detail %}
+<meta name="twitter:title" content="{{ story.title | truncatewords:20 }}">{% else %}
+<meta name="twitter:title" content="{{ thread.title | truncatewords:20 }}">{% endif %}
+{% if story_detail %}
+<meta name="twitter:description" content="{{ story.text_html | striptags | truncatewords:50 }}">{% else %}
+<meta name="twitter:description" content="{{ thread.description | striptags | truncatewords:50 }}">{% endif %}
+{% if thread.image %}
+<meta name="twitter:image" content="{{ thread.image.url }}">{% endif %}
+{% endblock %}
+
+{% block body-class %}thread-body{% endblock %}
+
+{% block content %}
+<div class="thread-sidebar">
+    <a class="deep-dark" href="{{ series.get_absolute_url }}">
+        <h1 class="title serif">{{ series.name }}</h1>
+    </a>
+    <ul class="noto">
+    {% for post in series.posts.all %}
+        <li class="story-read {% if request.get_full_path == post.get_absolute_url %}active{% endif %}" data-href="{{ post.get_absolute_url }}">{{ forloop.revcounter }}. {{ post.title }}</li>
+    {% endfor %}
+    </ul>
+</div>
+<div class="thread-menu closer">
+      <i class="fas fa-chevron-left"></i>
+</div>
+<div id="thread-detail" class="col-lg-8 px-0 noto mx-auto">
+    <div id="content">
+        <h1 class="serif font-weight-bold">{{ series.name }}</h1>
+
+        <div class="row post-top-meta">
+            <a href="{% url 'user_profile' username=series.owner.username%}">
+                <div class="back-image thumb comment-thumb" style="background-image:url({{ series.owner.profile.thumbnail }})"></div>
+            </a>
+            <div class="author-info">
+                <h6><a class="text-decoration-none" href="{% url 'user_profile' username=series.owner.username %}">@{{ series.owner.username }}</a></h6>
+                {% if series.owner.profile.bio %}
+                <p class="author-description">{{ series.owner.profile.bio }}</p>
+                {% endif%}
+            </div>
+        </div>
+        {% if series.owner == request.user %}
+        <div class="mb-3">
+            <a class="btn btn-dark" href="javascript:void(0)" onclick="Series.edit({{ series.pk }})">수정</a>
+            <a class="btn btn-dark" href="javascript:void(0)" onclick="Series.remove({{ series.pk }})">삭제</a>
+        </div>
+        {% endif %}
+        {% if series.text_md %}
+        <div class="series-desc mb-4">
+            <blockquote class="noto">
+                {{ series.text_md }}
+            </blockquote>
+            <div class="author">
+                <a href="{% url 'user_profile' username=series.owner %}"><img src="{{ user.profile.thumbnail }}" /></a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block footer%}
+{% include 'board/common/include/footer.html' %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ static_url }}/assets/library/prism.js"></script>
+{% endblock %}

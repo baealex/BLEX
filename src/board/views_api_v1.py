@@ -221,8 +221,6 @@ def series(request, pk):
                 return HttpResponse('error:DU')
             form = SeriesUpdateForm(instance=series)
             posts = Post.objects.filter(created_date__lte=timezone.now(), author=request.user)
-            if not series.hide:
-                posts = posts.filter(hide=False)
             form.fields['posts'].queryset = posts
             return render(request, 'board/series/form/series.html', {'form': form, 'series': series})
         

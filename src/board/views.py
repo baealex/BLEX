@@ -405,7 +405,7 @@ def setting_tab(request, tab):
 
             posts = Post.objects.filter(author=request.user)
             if value == 'date':
-                posts = posts.order_by('created_date')
+                posts = posts.order_by('-created_date')
             elif value == 'title':
                 posts = posts.order_by('title')
             elif value == 'today':
@@ -568,6 +568,9 @@ def series_list(request, username, url):
     }
 
     render_args.update(fn.night_mode(request))
+    
+    if series.layout == 'book':
+        return render(request, 'board/series/book.html', render_args)
     return render(request, 'board/series/list.html', render_args)
 
 # ------------------------------------------------------------ Series End

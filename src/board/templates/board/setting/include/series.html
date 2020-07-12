@@ -3,10 +3,14 @@
         <li class="list-group-item bg-dark text-white">
             <b>Series</b>
         </li>
-        {% for name in series %}
+        {% for item in series %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a class="deep-dark noto" href="{{ name.get_absolute_url }}">{{ name }}</a>
-            <small>{{ name.posts.count }} <i class="fas fa-book-open"></i></small>
+            <span><a class="deep-dark noto" href="{{ item.get_absolute_url }}">{% if item.layout == 'book' %}(스레드){% endif %} {{ item.name }}</a></span>
+            <small>
+                {{ item.posts.count }} <i class="fas fa-book-open"></i>
+                <a class="deep-dark pl-2" href="javascript:void(0)" onclick="Series.edit({{ item.pk }})"><i class="far fa-edit"></i></a>
+                <a class="deep-dark pl-2" href="javascript:void(0)" onclick="Series.remove({{ item.pk }})"><i class="far fa-trash-alt"></i></a>
+            </small>
         </li>
         {% endfor %}
     </ul>
