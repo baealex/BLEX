@@ -422,7 +422,7 @@ def setting_tab(request, tab):
                 posts = posts.filter(hide=True)
 
             page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 20)
+            paginator = Paginator(posts, 15)
             fn.page_check(page, paginator)
             elements = paginator.get_page(page)
             render_args['elements'] = elements

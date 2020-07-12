@@ -260,7 +260,7 @@ def users(request, username):
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')
                 seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
-                posts_analytics = PostAnalytics.objects.filter(posts__id=pk, date__gt=seven_days_ago).order_by('-date')
+                posts_analytics = PostAnalytics.objects.filter(posts__id=pk, created_date__gt=seven_days_ago).order_by('-created_date')
 
                 data = {
                     'items': [],
@@ -268,7 +268,7 @@ def users(request, username):
                 }
                 for item in posts_analytics:
                     data['items'].append({
-                        'date': item.date,
+                        'date': item.created_date,
                         'count': item.table.count()
                     })
                     referers = Referer.objects.filter(posts=item, created_date__gt=seven_days_ago).order_by('-created_date')
