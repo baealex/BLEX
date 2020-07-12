@@ -48,7 +48,7 @@ def posts(request, pk):
                 post.likes.add(user)
                 fn.add_exp(request.user, 1)
 
-                send_notify_content = '\''+ post.title +'\'글을 @' + user.username + '님이 추천했습니다.'
+                send_notify_content = '\''+ post.title +'\'글을 누군가 추천했습니다.'
                 fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
 
             return HttpResponse(str(post.total_likes()))
@@ -220,8 +220,6 @@ def series(request, pk):
             if not request.user == series.owner:
                 return HttpResponse('error:DU')
             form = SeriesUpdateForm(instance=series)
-            posts = Post.objects.filter(created_date__lte=timezone.now(), author=request.user)
-            form.fields['posts'].queryset = posts
             return render(request, 'board/series/form/series.html', {'form': form, 'series': series})
         
     if request.method == 'DELETE':

@@ -25,7 +25,7 @@
         <h1 class="title serif">{{ series.name }}</h1>
     </a>
     <ul class="noto">
-    {% for post in series.posts.all %}
+    {% for post in series_posts %}
         <li class="story-read {% if request.get_full_path == post.get_absolute_url %}active{% endif %}" data-href="{{ post.get_absolute_url }}">{{ forloop.revcounter }}. {{ post.title }}</li>
     {% endfor %}
     </ul>

@@ -163,19 +163,20 @@ class TempPosts(models.Model):
         return self.title
 
 class Post(models.Model):
-    author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title             = models.CharField(max_length=50)
-    url               = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    image             = models.ImageField(blank=True, upload_to=title_image_path)
-    text_md           = models.TextField(blank=True)
-    text_html         = models.TextField()
-    hide              = models.BooleanField(default=False)
-    notice            = models.BooleanField(default=False)
-    block_comment     = models.BooleanField(default=False)
-    likes             = models.ManyToManyField(User, through='PostLikes', related_name='like_posts', blank=True)
-    tag               = models.CharField(max_length=50)
-    created_date      = models.DateTimeField(default=timezone.now)
-    updated_date      = models.DateTimeField(default=timezone.now)
+    author        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title         = models.CharField(max_length=50)
+    url           = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    image         = models.ImageField(blank=True, upload_to=title_image_path)
+    text_md       = models.TextField(blank=True)
+    text_html     = models.TextField()
+    series        = models.ForeignKey('board.Series', on_delete=models.SET_NULL, null=True)
+    hide          = models.BooleanField(default=False)
+    notice        = models.BooleanField(default=False)
+    block_comment = models.BooleanField(default=False)
+    likes         = models.ManyToManyField(User, through='PostLikes', related_name='like_posts', blank=True)
+    tag           = models.CharField(max_length=50)
+    created_date  = models.DateTimeField(default=timezone.now)
+    updated_date  = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
         return self.title
@@ -343,22 +344,22 @@ class Notify(models.Model):
         }
 
 class Series(models.Model):
-    owner            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    name             = models.CharField(max_length=50, unique=True)
-    text_md          = models.TextField(blank=True)
-    text_html        = models.TextField(blank=True)
-    hide             = models.BooleanField(default=False)
-    url              = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    posts            = models.ManyToManyField(Post, related_name='series', blank=True)
-    layout           = models.CharField(max_length=5, default='list')
-    created_date     = models.DateTimeField(default=timezone.now)
+    owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    name         = models.CharField(max_length=50, unique=True)
+    text_md      = models.TextField(blank=True)
+    text_html    = models.TextField(blank=True)
+    hide         = models.BooleanField(default=False)
+    url          = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    layout       = models.CharField(max_length=5, default='list')
+    created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
 
     def thumbnail(self):
-        if self.posts.first():
-            return self.posts.first().thumbnail()
+        posts = Post.objects.filter(series=self)[0]
+        if posts:
+            return posts.thumbnail()
         else:
             return settings.STATIC_URL + '/images/default-post.png'
     

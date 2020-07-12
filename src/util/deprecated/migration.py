@@ -5,7 +5,7 @@ import datetime
 
 from itertools import chain
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
@@ -118,10 +118,20 @@ def referer_to_referers():
         items.referer = 'DONE!'
         items.save()
 
+def change_series_m2m_to_m2o():
+    seriess = Series.objects.all()
+    for series in seriess:
+        for posts in series.posts.all():
+            print(posts)
+            posts.series = series
+            posts.save()
+            series.posts.remove(posts)
+
 if __name__ == '__main__':
-    migrate_story_to_post()
-    migrate_thread_to_series()
-    remove_all_story()
-    remove_all_thread()
-    referer_to_referers()
+    # migrate_story_to_post()
+    # migrate_thread_to_series()
+    # remove_all_story()
+    # remove_all_thread()
+    # referer_to_referers()
+    # change_series_m2m_to_m2o()
     print('Done')

@@ -6,33 +6,36 @@ from .models import *
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('image', 'title', 'text_md', 'tag', 'notice', 'hide', 'block_comment',)
+        fields = ('image', 'title', 'text_md', 'tag', 'notice', 'hide', 'block_comment', 'series',)
 
         widgets={
-            'title':forms.TextInput(attrs={
+            'title': forms.TextInput(attrs={
                 'placeholder': '제목을 입력하세요. 제목은 URL 주소가 됩니다.',
                 'class': 'article-w-title'
             }),
-            'text_md':forms.Textarea(attrs={
+            'text_md': forms.Textarea(attrs={
                 'placeholder': '부적절한 컨텐츠는 삭제될 수 있습니다.',
                 'class': 'article-w-content'
             }),
-            'tag':forms.TextInput(attrs={
+            'tag': forms.TextInput(attrs={
                 'class': 'form-control'
             }),
-            'notice':forms.CheckboxInput(attrs={
+            'notice': forms.CheckboxInput(attrs={
                 'class': 'custom-control-input'
             }),
-            'hide':forms.CheckboxInput(attrs={
+            'hide': forms.CheckboxInput(attrs={
                 'class': 'custom-control-input'
             }),
-            'block_comment':forms.CheckboxInput(attrs={
+            'block_comment': forms.CheckboxInput(attrs={
                 'class': 'custom-control-input'
             }),
-            'image':forms.FileInput(attrs={
+            'image': forms.FileInput(attrs={
                 'style': 'display: none;',
                 'class': 'form-control',
                 'required': False
+            }),
+            'series': forms.Select(attrs={
+                'class': 'form-control'
             }),
         }
 
@@ -84,6 +87,7 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('username', 'password', 'first_name', 'email',)
+        
         widgets = {
             'username': forms.TextInput(attrs={
                 'placeholder': '아이디(필명)',
@@ -228,7 +232,7 @@ class SeriesForm(forms.ModelForm):
 class SeriesUpdateForm(forms.ModelForm):
     class Meta:
         model = Series
-        fields = ('name', 'text_md', 'posts', 'hide')
+        fields = ('name', 'text_md', 'hide')
 
         widgets={
             'name':forms.TextInput(attrs={
@@ -240,10 +244,6 @@ class SeriesUpdateForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 5
             }),
-            'posts':forms.SelectMultiple(attrs={
-                'class': 'custom-select',
-                'size': '10'
-            }),
             'hide':forms.CheckboxInput(attrs={
                 'class': 'custom-control-input'
             }),
@@ -252,5 +252,4 @@ class SeriesUpdateForm(forms.ModelForm):
         labels={
             'name':'',
             'text_md': '',
-            'posts':'',
         }

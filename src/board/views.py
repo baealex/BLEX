@@ -510,7 +510,7 @@ def user_profile_tab(request, username, tab=None):
     
     if tab == 'series':
         render_args['tab_show'] = 'Series'
-        series = Series.objects.annotate(count_posts=Count('posts')).filter(owner=user, count_posts__gt=0, hide=False).order_by('-created_date')
+        series = Series.objects.filter(owner=user, hide=False).order_by('-created_date')
         page = request.GET.get('page', 1)
         paginator = Paginator(series, 10)
         fn.page_check(page, paginator)
@@ -558,6 +558,7 @@ def series_update(request, spk):
 def series_list(request, username, url):
     user = get_object_or_404(User, username=username)
     series = get_object_or_404(Series, owner=user, url=url)
+    series_posts = Post.objects.filter(series=series).order_by('created_date')
 
     if series.hide == True and not series.owner == request.user:
         return redirect('/login' + '?next=' + str(series.get_absolute_url()))
@@ -565,11 +566,14 @@ def series_list(request, username, url):
     render_args = {
         'user': user,
         'series': series,
+        'series_posts': series_posts,
     }
 
     render_args.update(fn.night_mode(request))
     
     if series.layout == 'book':
+        series_posts = series_posts.order_by('-created_date')
+        render_args['series_posts'] = series_posts
         return render(request, 'board/series/book.html', render_args)
     return render(request, 'board/series/list.html', render_args)
 
@@ -693,40 +697,30 @@ def post_detail(request, username, url):
     fn.view_count(type='posts', element=post, request=request)
     render_args.update(fn.night_mode(request))
 
-    # Select right series
-    get_series = request.GET.get('series')
-    series = None
-    if get_series:
-        render_args['get_series'] = True
-        series = Series.objects.filter(url=get_series, owner=user, posts=post.id)
-    else:
-        series = Series.objects.filter(owner=user, posts=post.id)
+    if post.series and (not post.series.hide or request.user == post.series.owner):
+        render_args['this_series'] = post.series
 
-    if series:
-        render_args['series'] = series[0]
-        if series[0].layout == 'book':
-            return render(request, 'board/posts/book.html', render_args)    
+        series_posts = Post.objects.filter(series=post.series).order_by('created_date')
+        render_args['series_posts'] = series_posts
 
-        this_number = 0
-        this_series = None
-        for i in range(len(series)):
-            if series[i].posts.first() == post:
-                this_series = series[i]
-        if not this_series:
-            this_series = series[0]
-        render_args['this_series'] = this_series
-        for series_post in this_series.posts.all():
-            if str(post.title) == str(series_post):
-                break
-            this_number += 1
-        try:
-            render_args['next_serise'] = this_series.posts.all()[this_number + 1]
-        except:
-            pass
-        try:
-            render_args['prev_serise'] = this_series.posts.all()[this_number - 1]
-        except:
-            pass
+        if post.series.layout == 'book':
+            series_posts = series_posts.order_by('-created_date')
+            render_args['series_posts'] = series_posts
+            return render(request, 'board/posts/book.html', render_args)
+        else:
+            index = 0
+            for posts in series_posts:
+                if posts == post:
+                    break
+                index += 1
+            try:
+                render_args['next_serise'] = series_posts[index + 1]
+            except:
+                pass
+            try:
+                render_args['prev_serise'] = series_posts[index - 1]
+            except:
+                pass
         
     return render(request, 'board/posts/detail.html', render_args)
 
@@ -829,6 +823,7 @@ def post_write(request):
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm()
+        form.fields['series'].queryset = Series.objects.filter(owner=request.user)
     return render(request, 'board/posts/write.html', { 'form': form, 'save': True })
 
 def post_edit(request, timestamp):
@@ -847,15 +842,11 @@ def post_edit(request, timestamp):
             post.updated_date = timezone.now()
             post.text_html = parsedown(post.text_md)
             post.tag = fn.get_clean_tag(post.tag)
-            if post.hide:
-                for series in post.series.all():
-                    if not series.hide:
-                        series.posts.remove(post)
-                        series.save()
             post.save()
             return redirect('post_detail', username=post.author, url=post.url)
     else:
         form = PostForm(instance=post)
+        form.fields['series'].queryset = Series.objects.filter(owner=request.user)
     return render(request, 'board/posts/write.html', {'form': form, 'post': post })
 # ------------------------------------------------------------ Article End
 
