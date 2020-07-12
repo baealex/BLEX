@@ -1,34 +1,24 @@
 {% extends 'board/base.html' %}
 
-{% block title %}{% if story_detail %}{{ story.title }}{% else %}{{ thread.title }}{% endif %}{% if story_detail %} — {{ story.author }}{% endif %}{% endblock %}
+{% block title %}{{ post.title }} — {{ post.author }}{% endblock %}
 
 {% block seo %}
-{% if story_detail %}
-<meta name="description" content="{{ story.text_html | striptags | truncatewords:50 }}">{% else %}
-<meta name="description" content="{{ thread.description | striptags | truncatewords:50 }}">{% endif %}
+<meta name="description" content="{{ post.text_html | striptags | truncatewords:50 }}">
 <meta property="og:site_name" content="{{ site_title }}">
 <meta property="og:url" content="{{ site_url }}{{ request.get_full_path }}">
 <meta property="og:type" content="blog">
-{% if story_detail %}
-<meta property="og:title" content="{{ story.title | truncatewords:20 }}">{% else %}
-<meta property="og:title" content="{{ thread.title | truncatewords:20 }}">{% endif %}
-{% if story_detail %}
-<meta property="og:description" content="{{ story.text_html | striptags | truncatewords:50 }}">{% else %}
-<meta property="og:description" content="{{ thread.description | striptags | truncatewords:50 }}">{% endif %}
-{% if thread.image %}
-<meta property="og:image" content="{{ thread.image.url }}">{% endif %}
+<meta property="og:title" content="{{ post.title | truncatewords:20 }}">
+<meta property="og:description" content="{{ post.text_html | striptags | truncatewords:50 }}">
+{% if post.image %}
+<meta property="og:image" content="{{ post.image.url }}">{% endif %}
 <meta property="og:locale" content="ko_KR">
-<meta property="article:author" content="{% if thread.allow_write %}{{ site_title }}{% else %}{{ thread.author.username }}{% endif %}">
+<meta property="article:author" content="{{ post.author.username }}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:url" content="{{ site_url }}{{ request.get_full_path }}">
-{% if story_detail %}
-<meta name="twitter:title" content="{{ story.title | truncatewords:20 }}">{% else %}
-<meta name="twitter:title" content="{{ thread.title | truncatewords:20 }}">{% endif %}
-{% if story_detail %}
-<meta name="twitter:description" content="{{ story.text_html | striptags | truncatewords:50 }}">{% else %}
-<meta name="twitter:description" content="{{ thread.description | striptags | truncatewords:50 }}">{% endif %}
-{% if thread.image %}
-<meta name="twitter:image" content="{{ thread.image.url }}">{% endif %}
+<meta name="twitter:title" content="{{ POST.title | truncatewords:20 }}">
+<meta name="twitter:description" content="{{ post.hext_html | striptags | truncatewords:50 }}">
+{% if post.image %}
+<meta name="twitter:image" content="{{ post.image.url }}">{% endif %}
 {% endblock %}
 
 {% block body-class %}thread-body{% endblock %}
