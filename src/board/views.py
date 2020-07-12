@@ -310,7 +310,7 @@ def setting(request):
 
 @login_required(login_url='/login')
 def setting_tab(request, tab):
-    if not tab in [ '', 'account', 'profile', 'series', 'posts', 'thread' ]:
+    if not tab in [ '', 'account', 'profile', 'series', 'posts' ]:
         raise Http404()
     else:
         user = request.user
@@ -398,14 +398,31 @@ def setting_tab(request, tab):
             render_args['series'] = series
         
         elif tab == 'posts':
+            value = request.GET.get('value', 'date')
+
             render_args['subtitle'] = 'Posts'
-        
-        elif tab == 'thread':
-            render_args['subtitle'] = 'Thread'
-            threads = Thread.objects.filter(author=user).order_by('created_date').reverse()
+            render_args['value'] = value
+
+            posts = Post.objects.filter(author=request.user)
+            if value == 'date':
+                posts = posts.order_by('created_date')
+            elif value == 'title':
+                posts = posts.order_by('title')
+            elif value == 'today':
+                posts = sorted(posts, key=lambda instance: instance.today(), reverse=True)
+            elif value == 'yesterday':
+                posts = sorted(posts, key=lambda instance: instance.yesterday(), reverse=True)
+            elif value == 'total':
+                posts = sorted(posts, key=lambda instance: instance.total(), reverse=True)
+            elif value == 'like':
+                posts = posts.annotate(total_like=Count('likes')).order_by('-total_like')
+            elif value == 'comment':
+                posts = posts.annotate(total_comment=Count('comments')).order_by('-total_comment')
+            elif value == 'hide':
+                posts = posts.filter(hide=True)
 
             page = request.GET.get('page', 1)
-            paginator = Paginator(threads, 8)
+            paginator = Paginator(posts, 20)
             fn.page_check(page, paginator)
             elements = paginator.get_page(page)
             render_args['elements'] = elements
@@ -461,7 +478,7 @@ def user_profile_posts(request, username, tag=None):
     return render(request, 'board/profile/index.html', render_args)
 
 def user_profile_tab(request, username, tab=None):
-    if not tab in [None, 'posts', 'series', 'thread', 'about']:
+    if not tab in [None, 'posts', 'series', 'about']:
         raise Http404
     user = get_object_or_404(User, username=username)
     render_args = {
@@ -473,10 +490,9 @@ def user_profile_tab(request, username, tab=None):
     if tab == None:
         user_profile_posts(request, user)
         posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False)
-        series = Series.objects.filter(owner=user)
+        series = Series.objects.filter(owner=user, hide=False)
         comments = Comment.objects.filter(author=user, post__hide=False)
-        story = Story.objects.filter(author=user, thread__hide=False)
-        activity = sorted(chain(posts, series, comments, story), key=lambda instance: instance.created_date, reverse=True)[:8]
+        activity = sorted(chain(posts, series, comments), key=lambda instance: instance.created_date, reverse=True)[:8]
         render_args['activity'] = activity
 
         today_date = timezone.make_aware(datetime.datetime.now())
@@ -501,17 +517,6 @@ def user_profile_tab(request, username, tab=None):
         elements = paginator.get_page(page)
         render_args['elements'] = elements
 
-    if tab == 'thread':
-        render_args['tab_show'] = 'Thread'
-        thread = Thread.objects.filter(created_date__lte=timezone.now(), stories__author=user).distinct().order_by('-created_date')
-        if not request.user == user:
-            thread = thread.filter(hide=False)
-        page = request.GET.get('page', 1)
-        paginator = Paginator(thread, 3 * 6)
-        fn.page_check(page, paginator)
-        elements = paginator.get_page(page)
-        render_args['elements'] = elements
-
     if tab == 'about':
         render_args['tab_show'] = 'About'
 
@@ -530,6 +535,12 @@ def series_update(request, spk):
         form = SeriesUpdateForm(request.POST, instance=series)
         if form.is_valid():
             series = form.save(commit=False)
+            series.text_html = parsedown(series.text_md)
+            thread_style = request.POST.get('thread_style', 'off')
+            if thread_style == 'on':
+                series.layout = 'book'
+            else:
+                series.layout = 'list'
             series.url = slugify(series.name, allow_unicode=True)
             if series.url == '':
                 series.url = randstr(15)
@@ -547,12 +558,18 @@ def series_update(request, spk):
 def series_list(request, username, url):
     user = get_object_or_404(User, username=username)
     series = get_object_or_404(Series, owner=user, url=url)
+
+    if series.hide == True and not series.owner == request.user:
+        return redirect('/login' + '?next=' + str(series.get_absolute_url()))
+
     render_args = {
         'user': user,
         'series': series,
     }
+
     render_args.update(fn.night_mode(request))
     return render(request, 'board/series/list.html', render_args)
+
 # ------------------------------------------------------------ Series End
 
 
@@ -566,9 +583,7 @@ def search(request):
     }
     
     posts = Post.objects.annotate(low_title=Lower('title')).filter(Q(low_title__icontains=value.lower()) | Q(tag__icontains=value.lower())).filter(hide=False)
-    story = Story.objects.annotate(low_title=Lower('title')).filter(Q(low_title__icontains=value.lower()) | Q(thread__tag__icontains=value.lower())).filter(thread__hide=False)
-
-    elements = sorted(chain(posts, story), key=lambda instance: instance.created_date, reverse=True)
+    elements = posts
     page = request.GET.get('page', 1)
     paginator = Paginator(elements, 15)
     fn.page_check(page, paginator)
@@ -658,86 +673,6 @@ def image_upload(request):
 
 
 
-# Thread
-def thread_create(request):
-    if request.method == 'POST':
-        if not request.user.is_active:
-            raise Http404
-        form = ThreadForm(request.POST, request.FILES)
-        if form.is_valid():
-            thread = form.save(commit=False)
-            thread.author = request.user
-            thread.tag = fn.get_clean_tag(thread.tag)
-            thread.url = slugify(thread.title, allow_unicode=True)
-            if thread.url == '':
-                thread.url = randstr(15)
-            i = 1
-            while True:
-                try:
-                    thread.save()
-                    break
-                except:
-                    thread.url = slugify(thread.title+'-'+str(i), allow_unicode=True)
-                    i += 1
-            fn.add_exp(request.user, 2)
-            return redirect('thread_detail', url=thread.url)
-    raise Http404
-
-def thread_edit(request, pk):
-    if request.method == 'POST':
-        if not request.user.is_active:
-            raise Http404
-        thread = get_object_or_404(Thread, pk=pk)
-        thread_allow_write_state = thread.allow_write
-        form = ThreadForm(request.POST, request.FILES, instance=thread)
-        if form.is_valid():
-            thread = form.save(commit=False)
-            thread.tag = fn.get_clean_tag(thread.tag)
-            thread.allow_write = thread_allow_write_state
-            thread.save()
-            return redirect('thread_detail', url=thread.url)
-    raise Http404
-
-def thread_detail(request, url):
-    thread = get_object_or_404(Thread, url=url)
-    if thread.hide == True and not thread.author == request.user:
-        return redirect('/login' + '?next=' + str(thread.get_absolute_url()))
-
-    fn.view_count(type='thread', element=thread, request=request)
-
-    render_args = {
-        'thread': thread,
-        'form': StoryForm(),
-        'grade': fn.get_grade(thread.author),
-        'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
-    }
-    
-    render_args.update(fn.night_mode(request))
-    return render(request, 'board/thread/detail.html', render_args)
-
-def story_detail(request, url, username, story):
-    thread = get_object_or_404(Thread, url=url)
-    user = get_object_or_404(User, username=username)
-    story = get_object_or_404(Story, author=user, url=story)
-    if thread.hide == True and not thread.author == request.user:
-        return redirect('/login' + '?next=' + str(story.get_absolute_url()))
-    
-    render_args = {
-        'thread': thread,
-        'form': StoryForm(),
-        'grade': fn.get_grade(thread.author),
-        'check_bookmark': thread.bookmark.filter(id=request.user.id).exists(),
-    }
-    render_args['story_detail'] = True
-
-    fn.view_count(type='thread', element=thread, request=request)
-    render_args['story'] = story
-
-    render_args.update(fn.night_mode(request))
-    return render(request, 'board/thread/detail.html', render_args)
-
-# ------------------------------------------------------------ Thread End
-
 # Article
 def post_detail(request, username, url):
     user = get_object_or_404(User, username=username)
@@ -750,12 +685,14 @@ def post_detail(request, username, url):
         'form' : CommentForm(),
         'check_like' : post.likes.filter(id=request.user.id).exists(),
         'current_path': request.get_full_path(),
-        'battery': fn.get_exp(user),
-        'grade': fn.get_grade(user)
     }
+
+    fn.view_count(type='posts', element=post, request=request)
+    render_args.update(fn.night_mode(request))
 
     # Select right series
     get_series = request.GET.get('series')
+    series = None
     if get_series:
         render_args['get_series'] = True
         series = Series.objects.filter(url=get_series, owner=user, posts=post.id)
@@ -763,6 +700,10 @@ def post_detail(request, username, url):
         series = Series.objects.filter(owner=user, posts=post.id)
 
     if series:
+        render_args['series'] = series[0]
+        if series[0].layout == 'book':
+            return render(request, 'board/posts/book.html', render_args)    
+
         this_number = 0
         this_series = None
         for i in range(len(series)):
@@ -783,12 +724,7 @@ def post_detail(request, username, url):
             render_args['prev_serise'] = this_series.posts.all()[this_number - 1]
         except:
             pass
-
-    fn.view_count(type='posts', element=post, request=request)
-    
-    render_args.update(fn.night_mode(request))
-    render_args['white_nav'] = False
-    render_args['never_chage'] = True
+        
     return render(request, 'board/posts/detail.html', render_args)
 
 def post_sort_list(request, sort=None):
@@ -826,9 +762,8 @@ def post_sort_list(request, sort=None):
     return render(request, 'board/lists/sort.html', render_args)
 
 def post_list_in_tag(request, tag):
-    posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
-    thread = Thread.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('created_date').reverse()
-    elements = sorted(chain(posts, thread), key=lambda instance: instance.created_date, reverse=True)
+    posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('-created_date')
+    elements = posts
     if len(elements) == 0:
         raise Http404()
     page = request.GET.get('page', 1)
@@ -843,7 +778,7 @@ def post_list_in_tag(request, tag):
 
     description = None
     try:
-        description = Story.objects.get(thread__url='desc', url=tag)
+        description = Post.objects.get(url=tag)
         render_args['description'] = description
     except:
         pass
@@ -909,10 +844,11 @@ def post_edit(request, timestamp):
             post.updated_date = timezone.now()
             post.text_html = parsedown(post.text_md)
             post.tag = fn.get_clean_tag(post.tag)
-            if post.hide == True:
+            if post.hide:
                 for series in post.series.all():
-                    series.posts.remove(post)
-                    series.save()
+                    if not series.hide:
+                        series.posts.remove(post)
+                        series.save()
             post.save()
             return redirect('post_detail', username=post.author, url=post.url)
     else:

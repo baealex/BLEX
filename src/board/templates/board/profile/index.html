@@ -64,7 +64,6 @@
             <li{% if not tab %} class="active"{% endif %} data-href="{% url 'user_profile' username=user %}">개요</li>
             <li{% if tab == 'posts' %} class="active"{% endif %} data-href="{% url 'user_profile_posts' username=user %}">포스트</li>
             <li{% if tab == 'series' %} class="active"{% endif %} data-href="{% url 'user_profile_tab' username=user tab='series' %}">시리즈</li>
-            <li{% if tab == 'thread' %} class="active"{% endif %} data-href="{% url 'user_profile_tab' username=user tab='thread' %}">스레드</li>
             <li{% if tab == 'about' %} class="active"{% endif %} data-href="{% url 'user_profile_tab' username=user tab='about' %}">소개</li>
         </ul>
     </div>

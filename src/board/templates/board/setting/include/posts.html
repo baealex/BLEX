@@ -6,14 +6,44 @@
     </ul>
     <div class="p-3">
         <ul class="tag-list mb-0">
-            <li><a href="javascript:Analytics.sort('data', 'posts_analytics')">날짜</a></li>
-            <li><a href="javascript:Analytics.sort('title', 'posts_analytics')">이름</a></li>
-            <li><a href="javascript:Analytics.sort('today', 'posts_analytics')">오늘 조회수</a></li>
-            <li><a href="javascript:Analytics.sort('yesterday', 'posts_analytics')">어제 조회수</a></li>
-            <li><a href="javascript:Analytics.sort('total', 'posts_analytics')">총 조회수</a></li>
-            <li><a href="javascript:Analytics.sort('total_likes', 'posts_analytics')">추천</a></li>
-            <li><a href="javascript:Analytics.sort('total_comment', 'posts_analytics')">댓글</a></li>
+            <li><a href="?value=date">날짜</a></li>
+            <li><a href="?value=title">이름</a></li>
+            <li><a href="?value=today">오늘 조회수</a></li>
+            <li><a href="?value=yesterday">어제 조회수</a></li>
+            <li><a href="?value=total">총 조회수</a></li>
+            <li><a href="?value=like">추천</a></li>
+            <li><a href="?value=comment">댓글</a></li>
+            <li><a href="?value=hide">숨김</a></li>
         </ul>
     </div>
 </div>
-<ul id="analytics" class="list-group mt-3"></ul>
+<ul id="analytics" class="list-group mt-3">
+    {% for posts in elements %}
+    <li id="item-{{ posts.pk }}" class="blex-card p-3 mb-3" data-aos="zoom-in">
+        <p class="noto"><a class="deep-dark" href="{{ posts.get_absolute_url }}">{{ posts.title }}</a></p>
+        <ul class="setting-list-info">
+            <li><a class="element-lock" href="javascript:Posts.lock({{ posts.pk }})"><i class="fas fa-lock{% if not posts.hide %}-open{% endif %}"></i></a></li>
+            <li><a class="deep-dark" href="javascript:Posts.remove({{ posts.pk }})"><i class="far fa-trash-alt"></i></a></li>
+            <li>|</li>
+            <li><i class="far fa-eye"></i> <span class="ns">(Today : {{ posts.today }}, Yesterday : {{ posts.yesterday }}, Total : {{ posts.total }})</span></li>
+            <li><a class="shallow-dark" href="javascript:void(0)" onclick="Analytics.modal('{{ posts.author }}', 'posts_analytics', '{{ posts.pk }}');"><i class="fas fa-chart-line"></i> <span class="ns">More</li></a></li>
+            <li><i class="far fa-thumbs-up"></i> {{ posts.total_likes }}</li>
+            <li><i class="far fa-comment"></i> {{ posts.total_comment }}</li>
+        </ul>
+        <form>
+            <div class="input-group mt-2 mr-sm-2">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">#</div>
+                </div>
+                <input type="text" name="tag" value="{{ posts.tag }}" class="form-control" maxlength="255">
+                <button type="button" class="btn btn-dark" onclick="Posts.changeTag({{ posts.pk }})">
+                    <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </div>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+<div class="blex-card p-1" data-aos="zoom-in">
+    {% include 'board/common/include/pagenation.html' %}
+</div>

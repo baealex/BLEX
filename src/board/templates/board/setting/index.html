@@ -36,9 +36,6 @@
                         <li class="nav-item">
                             <a class="nav-link gray-dark{% if tab == 'posts'%} disabled{% endif %}" href="{% url 'setting_tab' tab='posts' %}"><i class="fas fa-pencil-alt"></i> 포스트</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link gray-dark{% if tab == 'thread'%} disabled{% endif %}" href="{% url 'setting_tab' tab='thread' %}"><i class="fas fa-stream"></i> 스레드</a>
-                        </li>
                     </ul>
                 </div>
                 <div class="col-lg-9 mt-lg-4 mb-4">
@@ -58,9 +55,6 @@
                     {% endif %}
                     {% if tab == 'posts' %}
                         {% include 'board/setting/include/posts.html'%}
-                    {% endif %}
-                    {% if tab == 'thread' %}
-                        {% include 'board/setting/include/thread.html'%}
                     {% endif %}
                 </div>
             </div>
@@ -91,11 +85,6 @@
             }
         });
         AOS.init();
-        {% if tab == 'posts' %}
-        Analytics.get('{{ request.user.username }}', 'posts_analytics');
-        {% elif tab == 'thread' %}
-        Analytics.get('{{ request.user.username }}', 'thread_analytics');
-        {% endif %}
     });
     </script>
 {% endblock %}

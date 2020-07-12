@@ -12,26 +12,6 @@ class HistoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Grade)
 
-@admin.register(Thread)
-class ThreadAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'title', 'hide', 'real_created_date', 'created_date']
-    list_display_links = ['id', 'title']
-    list_filter = ['author']
-    list_per_page = 30
-
-@admin.register(ThreadAnalytics)
-class ThreadAnalyticsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'thread']
-    list_display_links = ['id', 'thread']
-    list_filter = ['date']
-    list_per_page = 30
-
-@admin.register(Story)
-class StoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'thread', 'created_date']
-    list_filter = ['author']
-    list_per_page = 30
-
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
     list_display = ['user', 'agree_email', 'agree_history', 'telegram_id', 'telegram_token', 'password_qna']
@@ -74,16 +54,26 @@ class PostLikesAdmin(admin.ModelAdmin):
 
 @admin.register(PostAnalytics)
 class PostAnalyticsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'date', 'posts']
+    list_display = ['id', 'created_date', 'posts']
     list_display_links = ['id', 'posts']
-    list_filter = ['date']
+    list_filter = ['created_date']
     list_per_page = 30
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'post', 'text', 'created_date']
+    list_display = ['id', 'author', 'post', 'text_md', 'created_date']
     list_filter = ['author']
     list_per_page = 30
+
+    actions = ['update_md']
+
+    def update_md(self, request, queryset):
+        for data in queryset:
+            data.text_html = parsedown(data.text_md)
+            data.save()
+        self.message_user(request, str(len(queryset)) + '개의 댓글 업데이트')
+
+    update_md.short_description = '마크다운 업데이트'
 
 @admin.register(Notify)
 class NotifyAdmin(admin.ModelAdmin):
@@ -93,7 +83,32 @@ class NotifyAdmin(admin.ModelAdmin):
 class SeriesAdmin(admin.ModelAdmin):
     list_display = ['id', 'owner', 'name', 'created_date']
 
+    actions = ['update_md', 'hide']
+
+    def update_md(self, request, queryset):
+        for data in queryset:
+            data.text_html = parsedown(data.text_md)
+            data.save()
+        self.message_user(request, str(len(queryset)) + '개의 시리즈 업데이트')
+    
+    def hide(self, request, queryset):
+        for data in queryset:
+            data.hide = True
+            data.save()
+        self.message_user(request, str(len(queryset)) + '개의 시리즈 숨김')
+
+    update_md.short_description = '마크다운 업데이트'
+    hide.short_description = '숨기기'
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'grade']
     list_editable = ['grade']
+
+@admin.register(Referer)
+class RefererAdmin(admin.ModelAdmin):
+    list_display = ['id', 'created_date', 'posts', 'referer_from']
+
+@admin.register(RefererFrom)
+class RefererFromAdmin(admin.ModelAdmin):
+    list_display = ['id', 'location']

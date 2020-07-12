@@ -142,160 +142,6 @@ class Follow(models.Model):
     def __str__(self):
         return self.post.title
 
-class Thread(models.Model):
-    author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title             = models.CharField(max_length=50)
-    description       = models.TextField(blank=True)
-    url               = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    image             = models.ImageField(blank=True, upload_to=title_image_path)
-    hide              = models.BooleanField(default=False)
-    notice            = models.BooleanField(default=False)
-    allow_write       = models.BooleanField(default=False)
-    created_date      = models.DateTimeField(default=timezone.now)
-    real_created_date = models.DateTimeField(default=timezone.now)
-    tag               = models.CharField(max_length=50)
-    bookmark          = models.ManyToManyField(User, related_name='bookmark_thread', blank=True)
-
-    def __str__(self):
-        return self.title
-    
-    def parsedown(self):
-        return parsedown(self.description)
-
-    def thumbnail(self):
-        if self.image:
-            return self.image.url
-        else:
-            return settings.STATIC_URL + '/images/default-post.png' if not self.image else self.image.url
-
-    def total_bookmark(self):
-        return self.bookmark.count()
-    
-    def tagging(self):
-        return [tag for tag in self.tag.split(',') if tag]
-
-    def today(self):
-        count = 0
-        try:
-            today = timezone.make_aware(datetime.datetime.now())
-            count = ThreadAnalytics.objects.get(date=today, thread=self).table.count()
-        except:
-            pass
-        return count
-    
-    def yesterday(self):
-        count = 0
-        try:
-            yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
-            count = ThreadAnalytics.objects.get(date=yesterday, thread=self).table.count()
-        except:
-            pass
-        return count
-
-    def total(self):
-        count = ThreadAnalytics.objects.annotate(table_count=Count('table')).filter(thread=self).aggregate(Sum('table_count'))
-        if count['table_count__sum']:
-            return count['table_count__sum']
-        else:
-            return 0
-        
-    def trendy(self):
-        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
-        today          = timezone.make_aware(datetime.datetime.now())
-        counts = ThreadAnalytics.objects.filter(date__range=[seven_days_ago, today], thread=self).values_list('date', Count('table'))
-        trendy = 0
-        for count in counts:
-            rate = -(1/7) * ((today.date()-count[0]).days) + 2
-            trendy += count[1] * rate
-        return trendy
-
-    def get_absolute_url(self):
-        return reverse('thread_detail', args=[self.url])
-
-    def get_thumbnail(self):
-        return str(self.image) + '.minify.' + str(self.image).split('.')[-1]
-
-    def to_dict_for_analytics(self):
-        return {
-            'pk': self.pk,
-            'author': self.author.username,
-            'title': self.title,
-            'date': self.created_date,
-            'today': self.today(),
-            'yesterday': self.yesterday(),
-            'total': self.total(),
-            'hide': self.hide,
-            'total_story': self.stories.count(),
-            'total_bookmark': self.total_bookmark(),
-            'tag': self.tag,
-            'url': self.get_absolute_url(),
-        }
-
-    def save(self, *args, **kwargs):
-        will_make_thumbnail = False
-        if not self.pk and self.image:
-            will_make_thumbnail = True
-        try:
-            this = Thread.objects.get(id=self.id)
-            if this.image != self.image:
-                this.image.delete(save=False)
-                will_make_thumbnail = True
-        except:
-            pass
-        super(Thread, self).save(*args, **kwargs)
-        if will_make_thumbnail:
-            make_thumbnail(self, size=750, save_as=True, quality=85)
-            make_thumbnail(self, size=1920, quality=85)
-
-class ThreadAnalytics(models.Model):
-    thread  = models.ForeignKey(Thread, on_delete=models.CASCADE)
-    date    = models.DateField(default=timezone.now)
-    referer = models.TextField()
-    table   = models.ManyToManyField(History, related_name='story_viewer', blank=True)
-
-    def __str__(self):
-        return self.thread.title
-
-class Story(models.Model):
-    class Meta:
-        ordering = ['-created_date']
-    
-    thread       = models.ForeignKey('board.Thread', related_name='stories', on_delete = models.CASCADE)
-    author       = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title        = models.CharField(max_length=50)
-    url          = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    text_md      = models.TextField()
-    text_html    = models.TextField()
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
-    agree        = models.ManyToManyField(User, related_name='agree_story', blank=True)
-    disagree     = models.ManyToManyField(User, related_name='disagree_story', blank=True)
-
-    def __str__(self):
-        return self.title
-
-    def total_disagree(self):
-        return self.disagree.count()
-    
-    def total_agree(self):
-        return self.agree.count()
-
-    def to_dict(self):
-        return {
-            'pk': self.pk,
-            'title': self.title,
-            'author': self.author.username,
-            'content': self.text_html,
-            'agree': self.total_agree(),
-            'disagree': self.total_disagree(),
-            'thumbnail': self.author.profile.thumbnail(),
-            'created_date': self.created_date.strftime("%Y-%m-%d %H:%M"),
-            'updated_date': self.updated_date.strftime("%Y-%m-%d %H:%M"),
-        }
-
-    def get_absolute_url(self):
-        return reverse('story_detail', args=[self.thread.url, self.author.username, self.url])
-
 class TempPosts(models.Model):
     author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title             = models.CharField(max_length=50)
@@ -349,11 +195,14 @@ class Post(models.Model):
     def total_likes(self):
         return self.likes.count()
     
+    def total_comment(self):
+        return self.comments.count()
+    
     def today(self):
         count = 0
         try:
             today = timezone.make_aware(datetime.datetime.now())
-            count = PostAnalytics.objects.get(date=today, posts=self).table.count()
+            count = PostAnalytics.objects.get(created_date=today, posts=self).table.count()
         except:
             pass
         return count
@@ -362,7 +211,7 @@ class Post(models.Model):
         count = 0
         try:
             yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
-            count = PostAnalytics.objects.get(date=yesterday, posts=self).table.count()
+            count = PostAnalytics.objects.get(created_date=yesterday, posts=self).table.count()
         except:
             pass
         return count
@@ -377,7 +226,7 @@ class Post(models.Model):
     def trendy(self):
         seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
         today          = timezone.make_aware(datetime.datetime.now())
-        counts = PostAnalytics.objects.filter(date__range=[seven_days_ago, today], posts=self).values_list('date', Count('table'))
+        counts = PostAnalytics.objects.filter(created_date__range=[seven_days_ago, today], posts=self).values_list('created_date', Count('table'))
         trendy = 0
         for count in counts:
             rate = -(1/7) * ((today.date()-count[0]).days) + 2
@@ -423,10 +272,9 @@ class Post(models.Model):
             make_thumbnail(self, size=1920, quality=85)
 
 class PostAnalytics(models.Model):
-    posts   = models.ForeignKey(Post, on_delete=models.CASCADE)
-    date    = models.DateField(default=timezone.now)
-    referer = models.TextField()
-    table   = models.ManyToManyField(History, related_name='thread_viewer', blank=True)
+    posts        = models.ForeignKey(Post, on_delete=models.CASCADE)
+    table        = models.ManyToManyField(History, related_name='thread_viewer', blank=True)
+    created_date = models.DateField(default=timezone.now)
 
     def __str__(self):
         return self.posts.title
@@ -446,23 +294,21 @@ class PostLikes(models.Model):
 class Comment(models.Model):
     author       = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     post         = models.ForeignKey('board.Post', related_name='comments', on_delete = models.CASCADE)
-    text         = models.TextField(max_length=300)
-    edit         = models.BooleanField(default=False)
+    text_md      = models.TextField(max_length=300)
+    text_html    = models.TextField()
+    edited       = models.BooleanField(default=False)
     heart        = models.BooleanField(default=False)
     likes        = models.ManyToManyField(User, related_name='like_comments', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.text
+        return self.text_md
     
     def thumbnail(self):
         if self.image:
             return self.image.url
         else:
             return settings.STATIC_URL + '/images/default-post.png'
-    
-    def parsedown(self):
-        return parsedown(self.text)
     
     def total_likes(self):
         return self.likes.count()
@@ -472,7 +318,7 @@ class Comment(models.Model):
             'pk': self.pk,
             'author': self.author.username,
             'created_date': timesince(self.created_date),
-            'content': self.parsedown(),
+            'content': self.text_html,
             'total_likes': self.total_likes(),
             'thumbnail': self.author.profile.thumbnail(),
             'edited': 'edited' if self.edit == True else '',
@@ -497,12 +343,15 @@ class Notify(models.Model):
         }
 
 class Series(models.Model):
-    owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    name         = models.CharField(max_length=50, unique=True)
-    description  = models.TextField(blank=True)
-    url          = models.SlugField(max_length=50, unique=True, allow_unicode=True)
-    posts        = models.ManyToManyField(Post, related_name='series', blank=True)
-    created_date = models.DateTimeField(default=timezone.now)
+    owner            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    name             = models.CharField(max_length=50, unique=True)
+    text_md          = models.TextField(blank=True)
+    text_html        = models.TextField(blank=True)
+    hide             = models.BooleanField(default=False)
+    url              = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    posts            = models.ManyToManyField(Post, related_name='series', blank=True)
+    layout           = models.CharField(max_length=5, default='list')
+    created_date     = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
@@ -515,3 +364,40 @@ class Series(models.Model):
     
     def get_absolute_url(self):
         return reverse('series_list', args=[self.owner, self.url])
+
+class Report(models.Model):
+    user         = models.ForeignKey('board.history', on_delete=models.CASCADE)
+    posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    content      = models.TextField(blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return posts
+
+class SearchValue(models.Model):
+    value   = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return value
+
+class Search(models.Model):
+    user         = models.ForeignKey('board.history', on_delete=models.CASCADE)
+    search_value = models.ForeignKey('board.SearchValue', on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return value
+
+class RefererFrom(models.Model):
+    location = models.CharField(max_length=500, unique=True)
+
+    def __str__(self):
+        return self.location
+
+class Referer(models.Model):
+    posts        = models.ForeignKey('board.PostAnalytics', related_name='referers', on_delete=models.CASCADE)
+    referer_from = models.ForeignKey('board.RefererFrom', on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.referer_from.location

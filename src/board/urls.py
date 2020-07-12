@@ -49,12 +49,6 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
     # ------------------------------------------------------------ Others End
 
-    # Thread
-    path('thread/<url>', views.thread_detail, name='thread_detail'),
-    path('thread/<url>/@<username>/<story>', views.story_detail, name='story_detail'),
-    path('create', views.thread_create, name='thread_create'),
-    path('thread/<int:pk>/edit', views.thread_edit, name='thread_edit'),
-
     # Article
     path('@<username>/<url>', views.post_detail, name='post_detail'),
     path('write', views.post_write, name='post_write'),
@@ -73,10 +67,6 @@ urlpatterns = [
     path('api/v1/comments/<int:pk>', api_v1.comment, name='comment_api_v1'),
     path('api/v1/series/<int:pk>', api_v1.series, name='series_api_v1'),
     path('api/v1/users/<username>', api_v1.users, name='users_api_v1'),
-    path('api/v1/thread', api_v1.thread, name='thread_api_v1'),
-    path('api/v1/thread/<int:pk>', api_v1.thread, name='thread_api_v1'),
-    path('api/v1/story', api_v1.story, name='story_api_v1'),
-    path('api/v1/story/<int:pk>', api_v1.story, name='story_api_v1'),
     path('api/v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

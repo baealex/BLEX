@@ -55,10 +55,11 @@ def posts(request, pk):
         if put.get('hide'):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.hide = not post.hide
-            if post.hide == True:
+            if post.hide:
                 for series in post.series.all():
-                    series.posts.remove(post)
-                    series.save()
+                    if not series.hide:
+                        series.posts.remove(post)
+                        series.save()
             post.save()
             return JsonResponse({'hide': post.hide})
         if put.get('tag'):
@@ -135,6 +136,7 @@ def comment(request, pk=None):
             form = CommentForm(request.POST)
             if form.is_valid():
                 comment = form.save(commit=False)
+                comment.text_html = parsedown(comment.text_md)
                 comment.author = request.user
                 comment.post = post
                 comment.save()
@@ -184,10 +186,11 @@ def comment(request, pk=None):
                     send_notify_content = '\''+ comment.post.title +'\'글에 작성한 회원님의 댓글을 누군가 추천했습니다.'
                     fn.create_notify(user=comment.author, url=comment.post.get_absolute_url(), infomation=send_notify_content)
                 return HttpResponse(str(comment.total_likes()))
-            if put.get('text'):
+            if put.get('text_md'):
                 if not request.user == comment.author:
                     return HttpResponse('error:DU')
-                comment.text = put.get('text')
+                comment.text_md = put.get('text_md')
+                comment.text_html = parsedown(comment.text_md)
                 comment.edit = True
                 comment.save()
                 
@@ -217,7 +220,10 @@ def series(request, pk):
             if not request.user == series.owner:
                 return HttpResponse('error:DU')
             form = SeriesUpdateForm(instance=series)
-            form.fields['posts'].queryset = Post.objects.filter(created_date__lte=timezone.now(), author=request.user, hide=False)
+            posts = Post.objects.filter(created_date__lte=timezone.now(), author=request.user)
+            if not series.hide:
+                posts = posts.filter(hide=False)
+            form.fields['posts'].queryset = posts
             return render(request, 'board/series/form/series.html', {'form': form, 'series': series})
         
     if request.method == 'DELETE':
@@ -238,8 +244,7 @@ def users(request, username):
             posts = Post.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, hide=False)
             series = Series.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), owner=user)
             comments = Comment.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, post__hide=False)
-            story = Story.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, thread__hide=False)
-            activity = chain(posts, series, comments, story)
+            activity = chain(posts, series, comments)
 
             data = dict()
             for element in activity:
@@ -258,9 +263,8 @@ def users(request, username):
         if request.GET.get('get') == 'posts_analytics':
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')
-                seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
-                today           = timezone.make_aware(datetime.datetime.now())
-                posts_analytics = PostAnalytics.objects.filter(posts__id=pk, date__range=[seven_days_ago, today]).order_by('-date')
+                seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+                posts_analytics = PostAnalytics.objects.filter(posts__id=pk, date__gt=seven_days_ago).order_by('-date')
 
                 data = {
                     'items': [],
@@ -271,45 +275,17 @@ def users(request, username):
                         'date': item.date,
                         'count': item.table.count()
                     })
-                    for refer in reversed(item.referer.split('|')):
-                        if '^' in refer:
-                            data['referers'].append({
-                                'time': str(item.date) + ' ' + refer.split('^')[0],
-                                'from': refer.split('^')[1],
-                            })
+                    referers = Referer.objects.filter(posts=item, created_date__gt=seven_days_ago).order_by('-created_date')
+                    for referer in referers:
+                        data['referers'].append({
+                            'time': referer.created_date.strftime('%Y-%m-%d %H:%M'),
+                            'from': referer.referer_from.location,
+                        })
 
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
             else:
                 posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
                 return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params = {'ensure_ascii': True})
-        
-        if request.GET.get('get') == 'thread_analytics':
-            if request.GET.get('pk'):
-                pk = request.GET.get('pk')
-                seven_days_ago   = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
-                today            = timezone.make_aware(datetime.datetime.now())
-                thread_analytics = ThreadAnalytics.objects.filter(thread__id=pk, date__range=[seven_days_ago, today]).order_by('-date')
-
-                data = {
-                    'items': [],
-                    'referers': [],
-                }
-                for item in thread_analytics:
-                    data['items'].append({
-                        'date': item.date,
-                        'count': item.table.count()
-                    })
-                    for refer in reversed(item.referer.split('|')):
-                        if '^' in refer:
-                            data['referers'].append({
-                                'time': str(item.date) + ' ' + refer.split('^')[0],
-                                'from': refer.split('^')[1],
-                            })
-
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-            else:
-                threads = Thread.objects.filter(author=request.user).order_by('created_date').reverse()
-                return JsonResponse({'thread': [thread.to_dict_for_analytics() for thread in threads]}, json_dumps_params = {'ensure_ascii': True})
         
         if request.GET.get('get') == 'about-form':
             if hasattr(user, 'profile'):
@@ -362,167 +338,6 @@ def users(request, username):
                 profile.save()
             
             return HttpResponse(about_html)
-    
-    raise Http404
-
-def thread(request, pk=None):
-    if not pk:
-        if request.method == 'GET':
-            if request.GET.get('get') == 'modal':
-                form = ThreadForm()
-                return render(request, 'board/thread/form/thread.html', {'form': form})
-    if pk:
-        thread = get_object_or_404(Thread, pk=pk)
-        if request.method == 'GET':
-            if not request.user == thread.author:
-                return HttpResponse('error:DU')
-            if request.GET.get('get') == 'modal':
-                form = ThreadForm(instance=thread)
-                return render(request, 'board/thread/form/thread.html', {'form': form, 'thread': thread})
-        if request.method == 'PUT':
-            put = QueryDict(request.body)
-            if put.get('bookmark'):
-                if not request.user.is_active:
-                    return HttpResponse('error:NL')
-                if not thread.allow_write and request.user == thread.author:
-                    return HttpResponse('error:SU')
-                user = User.objects.get(username=request.user)
-                if thread.bookmark.filter(id=user.id).exists():
-                    thread.bookmark.remove(user)
-                    thread.save()
-                else:
-                    thread.bookmark.add(user)
-                    thread.save()
-                    send_notify_content = '\''+ thread.title +'\'스레드를 @' + user.username + '님이 구독했습니다.'
-                    fn.create_notify(user=thread.author, url=thread.get_absolute_url(), infomation=send_notify_content)
-                return HttpResponse('DONE')
-            if put.get('hide'):
-                fn.compere_user(request.user, thread.author, give_404_if='different')
-                thread.hide = not thread.hide
-                thread.save()
-                return JsonResponse({'hide': thread.hide})
-            if put.get('tag'):
-                fn.compere_user(request.user, thread.author, give_404_if='different')
-                thread.tag = fn.get_clean_tag(put.get('tag'))
-                thread.save()
-                return JsonResponse({'tag': thread.tag}, json_dumps_params = {'ensure_ascii': True})
-        if request.method == 'DELETE':
-            thread.delete()
-            return HttpResponse('DONE')
-    
-    raise Http404
-
-def story(request, pk=None):
-    if not pk:
-        if request.method == 'GET':
-            if request.GET.get('get') == 'modal':
-                thread_fk = request.GET.get('fk')
-                form = StoryForm()
-                return render(request, 'board/thread/form/story.html', {'form': form, 'thread_fk': thread_fk})
-        if request.method == 'POST':
-            thread = get_object_or_404(Thread, pk=request.GET.get('fk'))
-            form = StoryForm(request.POST)
-            if form.is_valid():
-                story = form.save(commit=False)
-                story.text_html = parsedown(story.text_md)
-                story.created_date = timezone.now()
-                story.author = request.user
-                story.thread = thread
-                story.url = slugify(story.title, allow_unicode=True)
-                if story.url == '':
-                    story.url = randstr(15)
-                i = 1
-                while True:
-                    try:
-                        story.save()
-                        break
-                    except:
-                        story.url = slugify(story.title+'-'+str(i), allow_unicode=True)
-                        i += 1
-                thread.created_date = story.created_date
-                thread.save()
-                fn.add_exp(request.user, 1)
-
-                data = {
-                    'redirect': story.get_absolute_url(),
-                }
-
-                send_notify_content = '\''+ thread.title +'\'스레드에 @'+ story.author.username +'님이 새로운 스토리를 발행했습니다.'
-                for user in thread.bookmark.all():
-                    if not user == story.author:
-                        fn.create_notify(user=user, url=story.get_absolute_url(), infomation=send_notify_content)
-                
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-    if pk:
-        story = get_object_or_404(Story, pk=pk)
-        if request.method == 'GET':
-            if not request.user == story.author:
-                return HttpResponse('error:DU')
-            if request.GET.get('get') == 'modal':
-                form = StoryForm(instance=story)
-                return render(request, 'board/thread/form/story.html', {'form': form, 'story': story})
-            else:
-                data = {
-                    'state': 'true',
-                    'element': story.to_dict()
-                }
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-        if request.method == 'PUT':
-            put = QueryDict(request.body)
-            if put.get('agree'):
-                if not request.user.is_active:
-                    return HttpResponse('error:NL')
-                if request.user == story.author:
-                    return HttpResponse('error:SU')
-                user = User.objects.get(username=request.user)
-                if story.agree.filter(id=user.id).exists():
-                    story.agree.remove(user)
-                    story.save()
-                else:
-                    if story.disagree.filter(id=user.id).exists():
-                        return HttpResponse('error:AD')
-                    story.agree.add(user)
-                    story.save()
-                    send_notify_content = '\''+ story.title +'\'스토리를 누군가 추천했습니다.'
-                    fn.create_notify(user=story.author, url=story.get_absolute_url(), infomation=send_notify_content)
-                return HttpResponse(str(story.total_agree()))
-            if put.get('disagree'):
-                if not request.user.is_active:
-                    return HttpResponse('error:NL')
-                if request.user == story.author:
-                    return HttpResponse('error:SU')
-                user = User.objects.get(username=request.user)
-                if story.disagree.filter(id=user.id).exists():
-                    story.disagree.remove(user)
-                    story.save()
-                else:
-                    if story.agree.filter(id=user.id).exists():
-                        return HttpResponse('error:AA')
-                    story.disagree.add(user)
-                    story.save()
-                return HttpResponse(str(story.total_disagree()))
-            if put.get('title'):
-                if not request.user == story.author:
-                    return HttpResponse('error:DU')
-                story.title = put.get('title')
-            if put.get('text_md'):
-                if not request.user == story.author:
-                    return HttpResponse('error:DU')
-                story.text_md = put.get('text_md')
-                story.text_html = parsedown(story.text_md)
-            story.updated_date = timezone.now()
-            story.save()
-                
-            data = {
-                'state': 'true',
-                'element': story.to_dict()
-            }
-
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
-        if request.method == 'DELETE':
-            redirect = story.thread.get_absolute_url()
-            story.delete()
-            return HttpResponse(redirect)
     
     raise Http404
 

@@ -38,10 +38,10 @@
             <a class="btn btn-dark" href="javascript:void(0)" onclick="Series.remove({{ series.pk }})">삭제</a>
         </div>
         {% endif %}
-        {% if series.description %}
+        {% if series.text_md %}
         <div class="series-desc mb-4">
             <blockquote class="noto">
-                {{ series.description }}
+                {{ series.text_md }}
             </blockquote>
             <div class="author">
                 <a href="{% url 'user_profile' username=series.owner %}"><img src="{{ user.profile.thumbnail }}" /></a>
