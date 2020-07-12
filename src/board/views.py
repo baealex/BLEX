@@ -510,7 +510,7 @@ def user_profile_tab(request, username, tab=None):
     
     if tab == 'series':
         render_args['tab_show'] = 'Series'
-        series = Series.objects.annotate(count_posts=Count('posts')).filter(owner=user, count_posts__gt=0).order_by('-created_date')
+        series = Series.objects.annotate(count_posts=Count('posts')).filter(owner=user, count_posts__gt=0, hide=False).order_by('-created_date')
         page = request.GET.get('page', 1)
         paginator = Paginator(series, 10)
         fn.page_check(page, paginator)
