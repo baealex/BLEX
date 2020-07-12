@@ -781,7 +781,7 @@ def post_list_in_tag(request, tag):
 
     description = None
     try:
-        description = Post.objects.get(url=tag)
+        description = Post.objects.get(url=tag, hide=False)
         render_args['description'] = description
     except:
         pass

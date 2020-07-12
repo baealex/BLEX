@@ -174,7 +174,7 @@ def get_clean_all_tags(user=None, count=True, desc=False, include='posts'):
     
     if desc:
         descriptions = dict()
-        posts = Post.objects.all()
+        posts = Post.objects.filter(hide=False)
         for post in posts:
             descriptions[post.url] = {
                 'desc': strip_tags(post.text_html)[:80],
