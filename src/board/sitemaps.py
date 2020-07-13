@@ -42,9 +42,8 @@ class UserSitemap(Sitemap):
         for user in users:
             user_site += [
                 reverse('user_profile', args=[user]),
-                reverse('user_profile_tab', args=[user, 'series']),
-                reverse('user_profile_tab', args=[user, 'thread']),
                 reverse('user_profile_tab', args=[user, 'about']),
+                reverse('user_profile_tab', args=[user, 'series']),
                 reverse('user_profile_posts', args=[user]),
             ]
         return user_site

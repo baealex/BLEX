@@ -423,20 +423,16 @@ var Analytics = (function() {
                     $(`#item-${pk}-detail`).modal('show');
 
                     am4core.ready(function () {
-                        if(select('body').hasClass('dark')) {
-                            am4core.useTheme(am4themes_dark);
-                        } else {
-                            am4core.useTheme(am4themes_dataviz);
-                        }
-                
+                        select('body').hasClass('dark') ? am4core.useTheme(am4themes_dark) : am4core.useTheme(am4themes_dataviz);
+                        
                         var chart = am4core.create(`chart-${pk}`, am4charts.XYChart);
-                
+                        
                         chart.data = data.items;
                         chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
-                
+                        
                         var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
                         var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-                
+                        
                         var series = chart.series.push(new am4charts.LineSeries());
                         series.dataFields.valueY = "count";
                         series.dataFields.dateX = "date";

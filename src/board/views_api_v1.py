@@ -261,6 +261,7 @@ def users(request, username):
                 pk = request.GET.get('pk')
                 seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
                 posts_analytics = PostAnalytics.objects.filter(posts__id=pk, created_date__gt=seven_days_ago).order_by('-created_date')
+                posts_referers = Referer.objects.filter(posts__posts__id=pk, created_date__gt=seven_days_ago).order_by('-created_date')[:30]
 
                 data = {
                     'items': [],
@@ -271,12 +272,11 @@ def users(request, username):
                         'date': item.created_date,
                         'count': item.table.count()
                     })
-                    referers = Referer.objects.filter(posts=item, created_date__gt=seven_days_ago).order_by('-created_date')
-                    for referer in referers:
-                        data['referers'].append({
-                            'time': referer.created_date.strftime('%Y-%m-%d %H:%M'),
-                            'from': referer.referer_from.location,
-                        })
+                for referer in posts_referers:
+                    data['referers'].append({
+                        'time': referer.created_date.strftime('%Y-%m-%d %H:%M'),
+                        'from': referer.referer_from.location,
+                    })
 
                 return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
             else:

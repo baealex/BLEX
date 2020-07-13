@@ -5,8 +5,8 @@ Disallow: /setting/
 Disallow: /external
 Disallow: /*?page
 Disallow: /*?next
-Disallow: /*?series
 Disallow: /*?fbclid
+Disallow: /*?value
 Disallow: /search?value
 Allow: /
 Sitemap: https://blex.me/sitemap.xml
