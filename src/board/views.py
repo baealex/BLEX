@@ -162,6 +162,9 @@ def set_username(request):
             user.is_active = True
             user.save()
 
+            fn.create_notify(user=user, url='/notion', infomation=user.first_name + (
+                '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
+
             auth.login(request, user)
             return redirect(settings.LOGIN_REDIRECT_URL)
         else:
