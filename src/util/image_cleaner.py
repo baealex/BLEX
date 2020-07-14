@@ -15,7 +15,7 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-from board.models import Post, Thread, Story, TempPosts, parsedown
+from board.models import Post, Comment, TempPosts, parsedown
 
 if __name__ == '__main__':
     content_image_names = dict()
@@ -23,10 +23,9 @@ if __name__ == '__main__':
     title_image_names = dict()
 
     posts = Post.objects.all()
-    thread = Thread.objects.all()
-    story = Story.objects.all()
+    comments = Comment.objects.all()
     
-    for data in chain(posts, thread, story):
+    for data in chain(posts, comments):
         try:
             title_image_names[str(data.image).split('/')[-1]] = 0
             title_image_names[str(data.get_thumbnail()).split('/')[-1]] = 0
