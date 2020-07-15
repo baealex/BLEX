@@ -353,11 +353,23 @@ class Series(models.Model):
     layout       = models.CharField(max_length=5, default='list')
     created_date = models.DateTimeField(default=timezone.now)
 
+    def posts(self):
+        posts = Post.objects.filter(series=self)
+        if self.layout == 'book':
+            posts = posts.order_by('-created_date')
+        else:
+            posts = posts.order_by('created_date')
+        
+        if not self.hide:
+            posts = posts.filter(hide=False)
+        
+        return posts
+
     def __str__(self):
         return self.name
 
     def thumbnail(self):
-        posts = Post.objects.filter(series=self)
+        posts = self.posts()
         if posts:
             return posts[0].thumbnail()
         else:

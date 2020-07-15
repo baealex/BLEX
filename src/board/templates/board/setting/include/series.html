@@ -5,9 +5,8 @@
         </li>
         {% for item in series %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span><a class="deep-dark noto" href="{{ item.get_absolute_url }}">{% if item.layout == 'book' %}(스레드){% endif %} {{ item.name }}</a></span>
+            <span><a class="deep-dark noto" href="{{ item.get_absolute_url }}">{{ item.name }} <span class="vs">{{ item.posts | length }}</span></a></span>
             <small>
-                {{ item.posts.count }} <i class="fas fa-book-open"></i>
                 <a class="deep-dark pl-2" href="javascript:void(0)" onclick="Series.edit({{ item.pk }})"><i class="far fa-edit"></i></a>
                 <a class="deep-dark pl-2" href="javascript:void(0)" onclick="Series.remove({{ item.pk }})"><i class="far fa-trash-alt"></i></a>
             </small>

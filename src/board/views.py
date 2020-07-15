@@ -407,16 +407,14 @@ def setting_tab(request, tab):
             render_args['value'] = value
 
             posts = Post.objects.filter(author=request.user)
-            if value == 'date':
+            if value == 'create':
                 posts = posts.order_by('-created_date')
+            elif value == 'update':
+                posts = posts.order_by('-updated_date')
             elif value == 'title':
                 posts = posts.order_by('title')
-            elif value == 'today':
+            elif value == 'view':
                 posts = sorted(posts, key=lambda instance: instance.today(), reverse=True)
-            elif value == 'yesterday':
-                posts = sorted(posts, key=lambda instance: instance.yesterday(), reverse=True)
-            elif value == 'total':
-                posts = sorted(posts, key=lambda instance: instance.total(), reverse=True)
             elif value == 'like':
                 posts = posts.annotate(total_like=Count('likes')).order_by('-total_like')
             elif value == 'comment':
@@ -425,7 +423,7 @@ def setting_tab(request, tab):
                 posts = posts.filter(hide=True)
 
             page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 15)
+            paginator = Paginator(posts, 10)
             fn.page_check(page, paginator)
             elements = paginator.get_page(page)
             render_args['elements'] = elements
@@ -561,7 +559,6 @@ def series_update(request, spk):
 def series_list(request, username, url):
     user = get_object_or_404(User, username=username)
     series = get_object_or_404(Series, owner=user, url=url)
-    series_posts = Post.objects.filter(series=series).order_by('created_date')
 
     if series.hide == True and not series.owner == request.user:
         return redirect('/login' + '?next=' + str(series.get_absolute_url()))
@@ -569,14 +566,11 @@ def series_list(request, username, url):
     render_args = {
         'user': user,
         'series': series,
-        'series_posts': series_posts,
     }
 
     render_args.update(fn.night_mode(request))
     
     if series.layout == 'book':
-        series_posts = series_posts.order_by('-created_date')
-        render_args['series_posts'] = series_posts
         return render(request, 'board/series/book.html', render_args)
     return render(request, 'board/series/list.html', render_args)
 

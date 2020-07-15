@@ -41,13 +41,13 @@
         <ul class="p-0 noto profile-activity mt-4">
             {% for active in activity %}
             <li>
-                {% if active.url and active.likes %}
+                {% if 'Post' in active|get_type %}
                 <i class="fas fa-edit"></i>
                 <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.title }}'</a> 포스트를 작성하였습니다.
-                {% elif active.post %}
+                {% elif 'Comment' in active|get_type %}
                 <i class="fas fa-comment"></i>
                 <a class="shallow-dark" href="{{ active.post.get_absolute_url }}">'{{ active.post }}'</a> 포스트에 댓글을 남겼습니다.
-                {% elif active.owner %}
+                {% elif 'Series' in active|get_type %}
                 <i class="fas fa-bookmark"></i>
                 <a class="shallow-dark" href="{{ active.get_absolute_url }}">'{{ active.name }}'</a> 시리즈를 생성하였습니다.
                 {% endif %}

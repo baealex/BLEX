@@ -48,7 +48,7 @@
             </div>
         </div>
         {% endif %}
-        {% for post in series_posts %}
+        {% for post in series.posts %}
         <div class="mb-5">
             <h5 class="card-title serif font-weight-bold"><a class="deep-dark" href="{% url 'post_detail' username=post.author url=post.url %}">{{ forloop.counter }}. {{ post.title | truncatechars:50 }}</a></h5>
             <p><a class="shallow-dark noto" href="{% url 'post_detail' username=post.author url=post.url %}">{{ post.text_html | striptags | truncatewords:50 }}</a></p>
