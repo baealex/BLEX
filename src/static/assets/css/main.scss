@@ -632,6 +632,15 @@ body.dark {
     img, video {
         max-width: 100%;
     }
+
+    code {
+        font-family: $gothic;
+        font-weight: 300;
+        color: #000;
+        background-color: #eee;
+        border-radius: 3px;
+        padding: 2px;
+    }
 }
 
 #comment-form {

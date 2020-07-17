@@ -27,10 +27,7 @@
     {% block footer %}{% endblock %}
     <script type="text/javascript" src="{% static 'library/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'library/bootstrap.js' %}"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/common.js?{{ static_version }}"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/render.js?{{ static_version }}"></script>
     <script type="text/javascript" src="{{ static_url }}/assets/js/action.js?{{ static_version }}"></script>
-    <script type="text/javascript" src="{{ static_url }}/assets/js/event.js?{{ static_version }}"></script>
     <script type="text/javascript">
     $(document).ready(function() {
         var csrftoken = cookie.get('csrftoken');
