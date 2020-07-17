@@ -354,7 +354,7 @@ def telegram(request, parameter):
                     check.save()
                     bot.send_message_async(req_userid, '정상적으로 연동되었습니다.')
             except:
-                message = '오늘은 어떤게 업데이트 되었을까요?\n\n' + settings.SITE_URL + '/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8'
+                message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
                 bot.send_message_async(req_userid, message)
             return HttpResponse('None')
     if parameter == 'makeToken':
