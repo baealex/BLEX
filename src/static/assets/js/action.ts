@@ -370,9 +370,9 @@ var User = (function() {
             }
         },
         appendTag: function(username) {
-            var textValue = $('#id_text').val();
+            var textValue = $('#id_text_md').val();
             if(textValue.indexOf(username) == -1) {
-                $('#id_text').val(textValue + (`@${username} `)).focus();
+                $('#id_text_md').val(textValue + (`@${username} `)).focus();
                 if(sendList.indexOf(username) == -1) {
                     sendList.push(username);
                 }

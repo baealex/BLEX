@@ -322,7 +322,7 @@ class Comment(models.Model):
             'content': self.text_html,
             'total_likes': self.total_likes(),
             'thumbnail': self.author.profile.thumbnail(),
-            'edited': 'edited' if self.edit == True else '',
+            'edited': 'edited' if self.edited == True else '',
         }
 
 class Notify(models.Model):
