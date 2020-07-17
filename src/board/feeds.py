@@ -17,7 +17,7 @@ class SitePostsFeed(Feed):
     description = 'BLOG EXPRESS ME'
 
     def items(self):
-        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)
+        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False).order_by('-created_date')
         return posts[:20]
 
     def item_title(self, item):
