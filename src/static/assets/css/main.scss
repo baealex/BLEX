@@ -640,6 +640,34 @@ body.dark {
         background-color: #eee;
         border-radius: 3px;
         padding: 2px;
+
+        body.dark & {
+            color: #fff;
+            background-color: #000;
+        }
+    }
+
+    pre {
+        background: #2d2d2d;
+        overflow-x: auto;
+        font-family: monospace;
+        padding: 1em;
+        font-size: 1em;
+        line-height: 1.5;
+
+        body.dark & {
+            background: #000;
+        }
+
+        code {
+            color: #fff !important;
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        a {
+            text-decoration: none;
+            color: #888;
+        }
     }
 }
 
