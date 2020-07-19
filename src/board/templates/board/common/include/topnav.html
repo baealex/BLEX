@@ -14,6 +14,9 @@
         </ul>
         {% if request.user.is_active %}
         <ul class="menu-item">
+            <a href="{% url 'user_profile' username=request.user %}">
+                <li><i class="fas fa-user"></i> 내 블로그</li>
+            </a>
             <a href="javascript:void(0)">
                 <li id="write-btn"><i class="fas fa-pencil-alt"></i> 포스트 작성</li>
             </a>
@@ -21,11 +24,6 @@
         {% endif %}
         {% if request.user.is_active %}
         <ul class="menu-footer-item">
-            <li>
-                <a href="{% url 'user_profile' username=request.user %}">
-                    <i class="fas fa-user"></i>
-                </a>
-            </li>
             <li>
                 <a href="{% url 'setting' %}">
                     <i class="fas fa-cogs"></i>
