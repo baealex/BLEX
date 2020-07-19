@@ -1,5 +1,6 @@
 User-agent: Googlebot
-Disallow:
+Disallow: /*.preview.jpg
+Allow: /
 
 User-agent: *
 Disallow: /
