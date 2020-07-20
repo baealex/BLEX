@@ -1,0 +1,13 @@
+version: "2.0"
+
+services:
+  app:
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./server/src/dump.json:/app/dump.json
+      - ./server/src/db.sqlite3:/app/db.sqlite3
+      - ./server/src/static/images:/app/static/images
+    ports:
+      - 9000:9000
