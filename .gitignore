@@ -1,15 +1,15 @@
-src/board/templates/board/source.html
-src/board/telegram_token.py
-src/main/settings.py
+server/src/board/templates/board/source.html
+server/src/board/telegram_token.py
+server/src/main/settings.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-src/static/images/
-src/static/assets/js/*.js
-src/static/assets/css/*.css
+server/src/static/images/
+server/src/static/assets/js/*.js
+server/src/static/assets/css/*.css
 migrations/
 
 node_modules/

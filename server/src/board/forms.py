@@ -31,8 +31,7 @@ class PostForm(forms.ModelForm):
             }),
             'image': forms.FileInput(attrs={
                 'style': 'display: none;',
-                'class': 'form-control',
-                'required': False
+                'class': 'form-control'
             }),
             'series': forms.Select(attrs={
                 'class': 'form-control'

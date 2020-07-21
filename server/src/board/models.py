@@ -169,7 +169,7 @@ class Post(models.Model):
     image         = models.ImageField(blank=True, upload_to=title_image_path)
     text_md       = models.TextField(blank=True)
     text_html     = models.TextField()
-    series        = models.ForeignKey('board.Series', on_delete=models.SET_NULL, null=True)
+    series        = models.ForeignKey('board.Series', on_delete=models.SET_NULL, null=True, blank=True)
     hide          = models.BooleanField(default=False)
     notice        = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
