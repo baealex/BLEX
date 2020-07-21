@@ -1,5 +1,6 @@
 import io
 import os
+import pytz
 import base64
 import hashlib
 import requests
@@ -15,6 +16,11 @@ from django.conf import settings
 
 from .models import *
 from . import telegram
+
+def convert_to_localtime(utctime):
+    utc = utctime.replace(tzinfo=pytz.UTC)
+    localtz = utc.astimezone(timezone.get_current_timezone())
+    return localtz
 
 def search_google(value, page):
     req_uri = 'https://www.googleapis.com/customsearch/v1/siterestrict'

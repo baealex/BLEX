@@ -6,6 +6,7 @@ services:
       context: ./server
       dockerfile: ./Dockerfile
     volumes:
+      - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
       - ./server/src/dump.json:/app/dump.json
       - ./server/src/db.sqlite3:/app/db.sqlite3
       - ./server/src/static/images:/app/static/images

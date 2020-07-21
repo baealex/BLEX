@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from .models import Post
+from . import views_fn as fn
 
 class CorrectMimeTypeFeed(Rss201rev2Feed):
     content_type = 'application/xml'
@@ -30,7 +31,7 @@ class SitePostsFeed(Feed):
         return item.get_absolute_url()
     
     def item_pubdate(self, item):
-        return item.created_date
+        return fn.convert_to_localtime(item.created_date)
 
 class UserPostsFeed(Feed):
     feed_type = CorrectMimeTypeFeed
@@ -64,4 +65,4 @@ class UserPostsFeed(Feed):
         return item.get_absolute_url()
 
     def item_pubdate(self, item):
-        return item.created_date
+        return fn.convert_to_localtime(item.created_date)
