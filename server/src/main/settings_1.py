@@ -20,10 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = 'hello_blex'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -125,14 +125,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-SITE_URL = 'https://example.com'
+SITE_URL = 'http://localhost:20000'
 
-API_URL = 'https://api.example.com'
+API_URL = 'http://localhost:20300'
 
-STATIC_URL = 'https://static.example.com/assets/'
+STATIC_URL = 'http://localhost:20200/assets/'
 STAITC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
 
-MEDIA_URL = 'https://static.example.com/'
+MEDIA_URL = 'http://localhost:20200/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
 
 LOGIN_REDIRECT_URL = '/'
@@ -148,16 +148,20 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 
+TELEGRAM_USE = False
 TELEGRAM_BOT_TOKEN = ''
 TELEGRAM_CHANNEL_ID   = ''
 TELEGRAM_ADMIN_ID  = ''
 
+GOOGLE_OAUTH_USE = False
 GOOGLE_OAUTH_CLIENT_ID = ''
 GOOGLE_OAUTH_CLIENT_SECRET = ''
 GOOGLE_RECAPTCHA_SECRET_KEY = ''
 
+GITHUB_OAUTH_USE = False
 GITHUB_OAUTH_CLIENT_ID = ''
 GITHUB_OAUTH_CLIENT_SECRET = ''
 
+GOOGLE_SEARCH_USE = False
 GOOGLE_SEARCH_API_KEY = ''
 GOOGLE_SEARCH_ID = ''

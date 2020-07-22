@@ -26,7 +26,7 @@ def randstr(length):
 
 def parsedown(text):
     data = {'md': text.encode('utf-8')}
-    res = requests.post(settings.API_URL + '/api/parsedown/get.php', data=data)
+    res = requests.post(settings.API_URL + '/parsedown/get.php', data=data)
     if res.status_code == 200:
         return res.text
     else:
