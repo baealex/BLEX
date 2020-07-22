@@ -63,6 +63,7 @@ coverage.xml
 *.pot
 
 # Django stuff:
+*.sh
 *.ini
 *.log
 local_settings.py

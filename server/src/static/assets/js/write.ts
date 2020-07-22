@@ -53,20 +53,7 @@ const Notify = (function() {
 
 const Save = (function() {
     const url = '/api/v1/posts/temp';
-    const token = getParameter('token');
     var isWait = false;
-
-    if(token) {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            data: {token: token},
-        }).then(data => {
-            $('#id_title').val(data.title);
-            $('#id_text_md').text(data.text_md);
-            $('#id_tag').val(data.tag);
-        });
-    }
     
     return {
         sendState: function() {
