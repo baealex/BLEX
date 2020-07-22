@@ -692,7 +692,10 @@ var User = (function() {
             });
         },
         editAbout: function(username) {
-            if($('#aboutButton').hasClass('edit')) {
+            if(select('#no-about').exist()) {
+                select('#no-about').remove();
+            }
+            if(select('#aboutButton').hasClass('edit')) {
                 $.ajax({
                     method: 'GET',
                     url: `/api/v1/users/${username}?get=about-form`,
