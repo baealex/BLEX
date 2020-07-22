@@ -2,6 +2,7 @@ import requests
 import datetime
 import random
 import time
+import pytz
 
 from django.db import models
 from django.db.models import Sum, Count
@@ -15,6 +16,11 @@ from django.utils.timesince import timesince
 from django.conf import settings
 
 from PIL import Image
+
+def convert_to_localtime(utctime):
+    utc = utctime.replace(tzinfo=pytz.UTC)
+    localtz = utc.astimezone(timezone.get_current_timezone())
+    return localtz
 
 def randstr(length):
     rstr = '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ'
@@ -202,7 +208,7 @@ class Post(models.Model):
     def today(self):
         count = 0
         try:
-            today = timezone.make_aware(datetime.datetime.now())
+            today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
             count = PostAnalytics.objects.get(created_date=today, posts=self).table.count()
         except:
             pass
@@ -211,7 +217,7 @@ class Post(models.Model):
     def yesterday(self):
         count = 0
         try:
-            yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+            yesterday = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
             count = PostAnalytics.objects.get(created_date=yesterday, posts=self).table.count()
         except:
             pass
@@ -225,8 +231,8 @@ class Post(models.Model):
             return 0
         
     def trendy(self):
-        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
-        today          = timezone.make_aware(datetime.datetime.now())
+        seven_days_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6)))
+        today          = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
         counts = PostAnalytics.objects.filter(created_date__range=[seven_days_ago, today], posts=self).values_list('created_date', Count('table'))
         trendy = 0
         for count in counts:

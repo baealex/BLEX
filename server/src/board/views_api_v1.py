@@ -274,7 +274,7 @@ def users(request, username):
                     })
                 for referer in posts_referers:
                     data['referers'].append({
-                        'time': fn.convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
+                        'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
                         'from': referer.referer_from.location,
                     })
 

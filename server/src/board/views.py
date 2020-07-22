@@ -828,7 +828,7 @@ def post_edit(request, timestamp):
         raise Http404
     
     date = timezone.make_aware(datetime.datetime.fromtimestamp(float(timestamp)/1000000))
-    date = fn.convert_to_localtime(date)
+    date = convert_to_localtime(date)
     post = get_object_or_404(Post, author=request.user, created_date=date)
     if not post.author == request.user:
         raise Http404

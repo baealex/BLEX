@@ -1,6 +1,5 @@
 import io
 import os
-import pytz
 import base64
 import hashlib
 import requests
@@ -89,7 +88,7 @@ def view_count(type, element, request):
         history.refresh_from_db()
     
     if not 'bot' in history.category:
-        today = timezone.make_aware(datetime.datetime.now())
+        today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
         today_analytics = None
         try:
             today_analytics = PostAnalytics.objects.get(created_date=today, posts=element)
