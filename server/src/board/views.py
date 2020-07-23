@@ -496,11 +496,11 @@ def user_profile_tab(request, username, tab=None):
         activity = sorted(chain(posts, series, comments), key=lambda instance: instance.created_date, reverse=True)[:8]
         render_args['activity'] = activity
 
-        today_date = timezone.make_aware(datetime.datetime.now())
+        today_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
         today = fn.get_view_count(user, today_date)
         render_args['today'] = today
 
-        yesterday_date = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+        yesterday_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
         yesterday = fn.get_view_count(user, yesterday_date)
         render_args['yesterday'] = yesterday
 

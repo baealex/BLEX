@@ -235,7 +235,7 @@ def users(request, username):
 
     if request.method == 'GET':
         if request.GET.get('get') == 'activity':
-            standard_date = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=30*12))
+            standard_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=365)))
             
             posts = Post.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, hide=False)
             series = Series.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), owner=user)
@@ -259,7 +259,7 @@ def users(request, username):
         if request.GET.get('get') == 'posts_analytics':
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')
-                seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+                seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
                 posts_analytics = PostAnalytics.objects.filter(posts__id=pk, created_date__gt=seven_days_ago).order_by('-created_date')
                 posts_referers = Referer.objects.filter(posts__posts__id=pk, created_date__gt=seven_days_ago).order_by('-created_date')[:30]
 
