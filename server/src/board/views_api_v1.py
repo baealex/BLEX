@@ -55,11 +55,6 @@ def posts(request, pk):
         if put.get('hide'):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.hide = not post.hide
-            if post.hide:
-                for series in post.series.all():
-                    if not series.hide:
-                        series.posts.remove(post)
-                        series.save()
             post.save()
             return JsonResponse({'hide': post.hide})
         if put.get('tag'):
