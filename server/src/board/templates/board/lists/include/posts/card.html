@@ -4,9 +4,9 @@
     <a href="{{ post.get_absolute_url }}">
         <picture>
         {% if post.image %}
-            <img class="list-image show-up lazy" data-src="{{ static_url }}/{{ post.get_thumbnail }}" alt="{{ post.title }}"/>
+            <img class="list-image show-up lazy" data-src="{{ static_url }}/{{ post.get_thumbnail }}"/>
         {% else %}
-            <img class="list-image show-up" src="{{ static_url }}/assets/images/default-post.png" alt="{{ post.title }}"/>
+            <img class="list-image show-up" src="{{ static_url }}/assets/images/default-post.png"/>
         {% endif %}
         </picture>
     </a>
