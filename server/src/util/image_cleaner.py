@@ -59,7 +59,7 @@ if __name__ == '__main__':
         if html == 'Temporary error':
             print(html, 'Cleaner Stop...')
             sys.exit()
-        soup = BeautifulSoup(parsedown(temp.text_md), 'html.parser')
+        soup = BeautifulSoup(html, 'html.parser')
         images = soup.select('img')
         for image in images:
             if image.get('src'):

@@ -21,8 +21,6 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
-      - ./server/src/static:/app/static
-      - ./server/src/dump.json:/app/dump.json
-      - ./server/src/db.sqlite3:/app/db.sqlite3
+      - ./server/src/:/app/
     ports:
       - 9000:9000

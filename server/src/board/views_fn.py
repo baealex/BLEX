@@ -201,11 +201,14 @@ def get_clean_tag(tag):
     clean_tag = slugify(tag.replace(',', '-').replace('_', '-'), allow_unicode=True).split('-')
     return ','.join(list(set(clean_tag)))
 
+def get_hash_key(data):
+    return base64.b64encode(hashlib.sha256(data).digest()).decode()
+
 def get_encrypt_ip(request):
     ip_addr = request.META.get('REMOTE_ADDR')
     if not ip_addr:
         ip_addr = request.META.get('HTTP_X_FORWARDED_FOR')
-    return base64.b64encode(hashlib.sha256(ip_addr.encode()).digest()).decode()
+    return get_hash_key(ip_addr.encode())
 
 def get_exp(user):
     if hasattr(user, 'profile'):

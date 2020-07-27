@@ -12,6 +12,11 @@ class HistoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Grade)
 
+@admin.register(ImageCache)
+class ImageCacheAdmin(admin.ModelAdmin):
+    list_display = ['id', 'key', 'path']
+    list_per_page = 50
+
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
     list_display = ['user', 'agree_email', 'agree_history', 'telegram_id', 'telegram_token', 'password_qna']

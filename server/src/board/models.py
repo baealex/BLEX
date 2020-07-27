@@ -65,8 +65,12 @@ def timestamp(date, kind=''):
     timestamp = timestamp + '0' * (16 - len(timestamp))
     return timestamp
 
+class ImageCache(models.Model):
+    key  = models.CharField(max_length=44, unique=True)
+    path = models.CharField(max_length=128, unique=True)
+
 class History(models.Model):
-    key      = models.CharField(max_length=128, unique=True)
+    key      = models.CharField(max_length=44, unique=True)
     agent    = models.CharField(max_length=200)
     category = models.CharField(max_length=15, blank=True)
 
