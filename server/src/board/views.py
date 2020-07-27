@@ -627,7 +627,7 @@ def image_upload(request):
 
             try:
                 image_cache = ImageCache.objects.get(key=image_key)
-                return HttpResponse(settings.MEDIA_URL[0:-1] + image_cache.path)
+                return HttpResponse(settings.MEDIA_URL + image_cache.path)
             except:
                 image_cache = ImageCache(key=image_key)
                 ext = str(image).split('.')[-1].lower()
