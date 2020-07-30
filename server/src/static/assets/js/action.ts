@@ -459,7 +459,6 @@ var Comment = (function() {
                     }
                     select('#comment-form textarea').val('');
                     safeExternal('#comment a');
-                    User.sendTag(fk);
                 }
             });
         },
@@ -646,7 +645,6 @@ var Telegram = (function() {
 })();
 var User = (function() {
     var url = '/api/v1/users';
-    var sendList = [];
     return {
         activity: function(username) {
             $.ajax({
@@ -721,23 +719,8 @@ var User = (function() {
             }
         },
         appendTag: function(username) {
-            var textValue = $('#id_text_md').val();
-            if(textValue.indexOf(username) == -1) {
-                $('#id_text_md').val(textValue + (`@${username} `)).focus();
-                if(sendList.indexOf(username) == -1) {
-                    sendList.push(username);
-                }
-            }
-        },
-        sendTag: function(pk) {
-            for(username of sendList) {
-                $.ajax({
-                    url: `${url}/${username}?on=${pk}`,
-                    type: 'PUT',
-                    data: {tagging: 'tagging'}
-                });
-            }
-            sendList = [];
+            let textValue = $('#id_text_md').val();
+            $('#id_text_md').val(textValue + (`\`@${username}\` `)).focus();
         }
     }
 })();

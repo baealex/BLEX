@@ -1,6 +1,7 @@
-import random
+import re
 import json
 import time
+import random
 
 from itertools import chain
 from django.db.models import Count, Q
@@ -140,6 +141,20 @@ def comment(request, pk=None):
                 if not comment.author == post.author:
                     send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다.'
                     fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+                
+                regex = re.compile(r'\`\@([a-zA-Z0-9]*)\`\s')
+                if regex.search(comment.text_md):
+                    tag_user_list = regex.findall(comment.text_md)
+                    tag_user_list = set(tag_user_list)
+
+                    commentors = Comment.objects.filter(post=post).values_list('author__username')
+                    commentors = set(map(lambda instance: instance[0], commentors))
+
+                    for tag_user in tag_user_list:
+                        if tag_user in commentors:
+                            _user = User.objects.get(username=tag_user)
+                            send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
+                            fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
                 
                 data = {
                     'state': 'true',
@@ -305,13 +320,6 @@ def users(request, username):
                 profile.save()
                 profile.subscriber.add(follower)
             return HttpResponse(str(user.profile.total_subscriber()))
-        
-        if put.get('tagging'):
-            post_pk = request.GET.get('on')
-            post = get_object_or_404(Post, pk=post_pk)
-            send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
-            fn.create_notify(user=user, url=post.get_absolute_url(), infomation=send_notify_content)
-            return HttpResponse(str(0))
         
         if put.get('about'):
             if not request.user == user:
