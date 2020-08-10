@@ -30,7 +30,7 @@ class SeriesSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return Series.objects.all(hide=False).order_by('pk')
+        return Series.objects.filter(hide=False).order_by('pk')
 
 class UserSitemap(Sitemap):
     changefreq = 'weekly'
