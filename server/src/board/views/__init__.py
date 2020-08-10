@@ -23,10 +23,10 @@ from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
-from .models import *
-from .forms import *
-from . import telegram
-from . import views_fn as fn
+from board.models import *
+from board.forms import *
+from board import telegram
+from board.views import function as fn
 
 # Account
 def social_login(request, social):

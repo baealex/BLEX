@@ -2,8 +2,8 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from itertools import chain
 
-from .models import Post, Series, Profile
-from .views_fn import get_clean_all_tags
+from board.models import Post, Series, Profile
+from board.views.function import get_clean_all_tags
 
 class StaticSitemap(Sitemap):
     changefreq = 'daily'
@@ -30,7 +30,7 @@ class SeriesSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return Series.objects.all().order_by('pk')
+        return Series.objects.all(hide=False).order_by('pk')
 
 class UserSitemap(Sitemap):
     changefreq = 'weekly'

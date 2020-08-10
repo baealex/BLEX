@@ -13,8 +13,8 @@ from django.utils.html import strip_tags
 from django.core.cache import cache
 from django.conf import settings
 
-from .models import *
-from . import telegram
+from board.models import *
+from board import telegram
 
 def search_google(value, page):
     req_uri = 'https://www.googleapis.com/customsearch/v1/siterestrict'

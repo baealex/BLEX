@@ -3,10 +3,10 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 from django.views.generic import TemplateView
 
-from .sitemaps import sitemaps
-from .feeds import SitePostsFeed, UserPostsFeed
-from . import views
-from . import views_api_v1 as api_v1
+from board.sitemaps import sitemaps
+from board.feeds import SitePostsFeed, UserPostsFeed
+from board import views
+from board.views.api import v1 as api_v1
 
 urlpatterns = [
     # Account

@@ -14,7 +14,7 @@ RUN apt-get install -y python3-psycopg2
 RUN apt-get install -y rsync
 RUN apt-get install -y sshpass
 
-COPY ./requirements.txt /app/
+COPY ./src/requirements.txt /app/
 
 WORKDIR /app
 RUN pip3 install -r requirements.txt

@@ -15,10 +15,10 @@ from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
-from .models import *
-from .forms import *
-from .telegram import TelegramBot
-from . import views_fn as fn
+from board.models import *
+from board.forms import *
+from board.telegram import TelegramBot
+from board.views import function as fn
 
 def topics(request):
     if request.method == 'GET':
