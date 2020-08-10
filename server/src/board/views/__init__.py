@@ -401,7 +401,7 @@ def setting_tab(request, tab):
             render_args['series'] = series
         
         elif tab == 'posts':
-            value = request.GET.get('value', 'date')
+            value = request.GET.get('value', 'create')
 
             render_args['subtitle'] = 'Posts'
             render_args['value'] = value
