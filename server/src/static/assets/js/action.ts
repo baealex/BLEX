@@ -437,6 +437,53 @@ var Comment = (function() {
         return component();
     };
 
+    var uploadImage = function(formData) {
+        var cursorPos = $('#id_text_md').prop('selectionStart');
+        var text = $('#id_text_md').val();
+        var textBefore = text.substring(0,  cursorPos);
+        var textAfter  = text.substring(cursorPos, text.length);
+
+        $('#id_text_md').val(textBefore + '[Image Upload...]()' + textAfter);
+        text = $('#id_text_md').val();
+
+        $.ajax({
+            url: '/upload/image',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            cache: false,
+            processData: false,
+        }).done(function (data) {
+            var result = '';
+            if(data.includes('.mp4')) {
+                result = `@gif[${data}]`;
+            } else {
+                result = `![](${data})`;
+            }
+            $('#id_text_md').val(text.replace('[Image Upload...]()', result));
+        }).fail(function () {
+            Notify.append('이미지 업로드에 실패했습니다.');
+        });
+    };
+
+    select('#id_text_md').on("drop", async function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer = e.originalEvent.dataTransfer;
+        var files = e.target.files || e.dataTransfer.files;
+        if(files.length > 1) {
+            Notify.append('하나씩 업로드 할 수 있습니다.');
+            return;
+        }
+        if(!files[0].type.match(/image.*/)) {
+            Notify.append('이미지 파일이 아닙니다.');
+            return;
+        }
+        var formData = new FormData();
+        formData.append('image', files[0]);
+        await uploadImage(formData);
+    });
+
     return {
         reload: function(element) {
             select(`#comment-${element.pk}`).html(render(element));
