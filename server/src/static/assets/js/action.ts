@@ -466,23 +466,25 @@ var Comment = (function() {
         });
     };
 
-    select('#id_text_md').on("drop", async function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        e.dataTransfer = e.originalEvent.dataTransfer;
-        var files = e.target.files || e.dataTransfer.files;
-        if(files.length > 1) {
-            Notify.append('하나씩 업로드 할 수 있습니다.');
-            return;
-        }
-        if(!files[0].type.match(/image.*/)) {
-            Notify.append('이미지 파일이 아닙니다.');
-            return;
-        }
-        var formData = new FormData();
-        formData.append('image', files[0]);
-        await uploadImage(formData);
-    });
+    if(select('#comment-form #id_text_md').exist()) {
+        select('#comment-form #id_text_md').on("drop", async function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer = e.originalEvent.dataTransfer;
+            var files = e.target.files || e.dataTransfer.files;
+            if(files.length > 1) {
+                Notify.append('하나씩 업로드 할 수 있습니다.');
+                return;
+            }
+            if(!files[0].type.match(/image.*/)) {
+                Notify.append('이미지 파일이 아닙니다.');
+                return;
+            }
+            var formData = new FormData();
+            formData.append('image', files[0]);
+            await uploadImage(formData);
+        });
+    }
 
     return {
         reload: function(element) {
