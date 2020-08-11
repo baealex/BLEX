@@ -1,28 +1,33 @@
-<div class="my-4 noto text-center">
+<div class="my-4 noto posts-sereis">
     <hr class="gradient-hr"/>
-    <h5 class="serif py-4">
-        <a href="{{ this_series.get_absolute_url }}" class="text-decoration-none deep-dark">
-            '{{ this_series }}' 시리즈
+    <h5 class="serif {% if post.series.text_md %}pt-4 pb-3{% else %}py-4{% endif %}">
+        <a href="{{ this_series.get_absolute_url }}" class="text-decoration-none deep-dark font-weight-bold">
+            '{{ this_series }}' 시리즈</a>
         </a>
     </h5>
-    <div class="row justify-content-between">
-        <div class="col-md-6">
-        {% if prev_serise %}
-            <a class="text-decoration-none deep-dark" href="{{ prev_serise.get_absolute_url }}">
-                <div class="col-md-12 rounded p-3 mt-3 bg-light show-up">
-                    <i class="fas fa-arrow-circle-left vivid-purple"></i><br>{{ prev_serise }}
-                </div>
-            </a>
-        {% endif %}
-        </div>
-        <div class="col-md-6">
-        {% if next_serise %}
-            <a class="text-decoration-none deep-dark" href="{{ next_serise.get_absolute_url }}">
-                <div class="col-md-12 rounded p-3 mt-3 bg-light show-up">
-                    <i class="fas fa-arrow-circle-right vivid-purple"></i><br>{{ next_serise }}
-                </div>
-            </a>
-        {% endif %}
+    {% if post.series.text_md %}
+    <div class="series-desc mb-3">
+        <blockquote class="noto">
+            {{ post.series.text_md }}
+        </blockquote>
+        <div class="author">
+            <a href="{% url 'user_profile' username=post.author %}"><img src="{{ post.author.profile.thumbnail }}" /></a>
         </div>
     </div>
+    {% endif %}
+    <ul>
+        {% if prev_serise %}
+        <li>
+            <a class="text-decoration-none shallow-dark" href="{{ prev_serise.get_absolute_url }}">{{ prev_serise }}</a><div class="series-count">{{ series_index | add:-1 }}/{{ series_length }}</div>
+        </li>
+        {% endif %}
+        <li>
+            <b>{{ post.title }}</b><div class="series-count">{{ series_index }}/{{ series_length }}</div>
+        </li>
+        {% if next_serise %}
+        <li>
+            <a class="text-decoration-none shallow-dark" href="{{ next_serise.get_absolute_url }}">{{ next_serise }}</a><div class="series-count">{{ series_index | add:1 }}/{{ series_length }}</div>
+        </li>
+        {% endif %}
+    </ul>
 </div>

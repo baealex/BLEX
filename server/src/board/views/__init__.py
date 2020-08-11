@@ -726,6 +726,8 @@ def post_detail(request, username, url):
                 render_args['prev_serise'] = series_posts[index - 1]
             except:
                 pass
+            render_args['series_index'] = index + 1
+            render_args['series_length'] = len(series_posts)
         
     return render(request, 'board/posts/detail.html', render_args)
 

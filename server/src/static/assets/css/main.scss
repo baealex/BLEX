@@ -1184,6 +1184,27 @@ footer {
         background: #1d1d1d;
     }
 }
+/* POSTS : DETAIL : SERIES */
+.posts-sereis {
+    li {
+        margin: 5px;
+    }
+
+    .series-count {
+        margin-left: 5px;
+        display: inline-block;
+        font-size: 10px;
+        padding: 0 3px;
+        color: #888;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+
+        body.dark & {
+            color: #ccc;
+            border: 1px solid #888;
+        }
+    }
+}
 /* ------------------------------ */
 /* PROFILE : LAYOUT */
 .user-avatar {
