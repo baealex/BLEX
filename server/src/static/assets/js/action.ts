@@ -470,19 +470,30 @@ var Comment = (function() {
         select('#comment-form #id_text_md').on("drop", async function(e) {
             e.stopPropagation();
             e.preventDefault();
-            e.dataTransfer = e.originalEvent.dataTransfer;
-            var files = e.target.files || e.dataTransfer.files;
-            if(files.length > 1) {
-                Notify.append('하나씩 업로드 할 수 있습니다.');
-                return;
+            const files = e.dataTransfer.files;
+            if(files.length > 0) {
+                if(files.length > 1) {
+                    Notify.append('하나씩 업로드 할 수 있습니다.');
+                    return;
+                }
+                if(!files[0].type.match(/image.*/)) {
+                    Notify.append('이미지 파일이 아닙니다.');
+                    return;
+                }
+                let formData = new FormData();
+                formData.append('image', files[0]);
+                await uploadImage(formData);
+            } else {
+                let data = e.dataTransfer.getData('text/plain');
+                if(data.includes('/@')) {
+                    var cursorPos = $('#id_text_md').prop('selectionStart');
+                    var text = $('#id_text_md').val();
+                    var textBefore = text.substring(0,  cursorPos);
+                    var textAfter  = text.substring(cursorPos, text.length);
+                    const username = data.split('/@').pop();
+                    $('#id_text_md').val(textBefore + `\`@${username}\` ` + textAfter);
+                }
             }
-            if(!files[0].type.match(/image.*/)) {
-                Notify.append('이미지 파일이 아닙니다.');
-                return;
-            }
-            var formData = new FormData();
-            formData.append('image', files[0]);
-            await uploadImage(formData);
         });
     }
 

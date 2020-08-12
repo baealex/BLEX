@@ -142,7 +142,7 @@ def comment(request, pk=None):
                     send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다.'
                     fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
                 
-                regex = re.compile(r'\`\@([a-zA-Z0-9]*)\`\s')
+                regex = re.compile(r'\`\@([a-zA-Z0-9]*)\`\s?')
                 if regex.search(comment.text_md):
                     tag_user_list = regex.findall(comment.text_md)
                     tag_user_list = set(tag_user_list)
@@ -153,8 +153,9 @@ def comment(request, pk=None):
                     for tag_user in tag_user_list:
                         if tag_user in commentors:
                             _user = User.objects.get(username=tag_user)
-                            send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
-                            fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
+                            if not _user == request.user:
+                                send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
+                                fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
                 
                 data = {
                     'state': 'true',
