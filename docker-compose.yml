@@ -1,7 +1,8 @@
 version: "2.0"
 
 services:
-  # image: nginx
+  # nginx:
+  #   image: nginx
   #   volumes:
   #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
   #     - ./server/src/uwsgi_params:/www/uwsgi_params
@@ -10,11 +11,14 @@ services:
   #   ports:
   #     - 20000:20000
   #     - 20200:20200
-  #     - 20300:20300
-  # 
-  # php:
-  #   image: php:fpm
-    
+
+  api_app:
+    image: richarvey/nginx-php-fpm
+    volumes:
+      - ./server/src/api:/var/www/html
+    ports:
+      - 20300:80
+  
   app:
     build:
       context: ./server
