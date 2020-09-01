@@ -585,15 +585,6 @@ def search(request):
         'white_nav' : True,
         'value' : value,
     }
-    
-    posts = Post.objects.annotate(low_title=Lower('title')).filter(Q(low_title__icontains=value.lower()) | Q(tag__icontains=value.lower())).filter(hide=False)
-    elements = posts
-    page = request.GET.get('page', 1)
-    paginator = Paginator(elements, 15)
-    fn.page_check(page, paginator)
-    elements = paginator.get_page(page)
-    render_args['elements'] = elements
-
     render_args.update(fn.night_mode(request))
     return render(request, 'board/common/search.html', render_args)
 

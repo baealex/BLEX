@@ -15,29 +15,13 @@
 {% endblock %}
 
 {% block content %}
-<p class="noto">
-    <i class="fas fa-search"></i> <a class="deep-dark" href="https://www.google.com/search?q=site%3A{{ site_url }}%20{{ value }}">Google에서 '{{ value }}' 검색하기</a>
-</p>
-{% for element in elements %}
-<div class="mt-5 noto">
-    <h5 class="card-title serif font-weight-bold">
-        <a class="deep-dark" href="{{ element.get_absolute_url }}">{{ element.title | truncatechars:50 }}</a>
-    </h5>
-    <p class="vs">
-        <a class="deep-dark" href="{% url 'user_profile' username=element.author %}">{{ element.author.username }}<a> · {{ element.created_date | date:"" }}
-    </p>
-    <p>
-        <a class="shallow-dark" href="{{ element.get_absolute_url }}">{{ element.text_html | striptags | truncatewords:50 }}</a>
-    </p>
-</div>
-{% empty %}
-<h5 class="card-title serif font-weight-bold mt-5">
-    <a class="deep-dark" href="{{ element.get_absolute_url }}">검색 결과가 존재하지 않습니다.</a>
-</h5>
-{% endfor %}
-{% include 'board/common/include/pagenation.html' %}
+<div class="gcse-searchresults-only"></div>
 {% endblock %}
 
 {% block footer%}
     {% include 'board/common/include/footer.html' %}
+{% endblock %}
+
+{% block script %}
+<script async src="https://cse.google.com/cse.js?cx=partner-pub-1254068519466911:9532536280"></script>
 {% endblock %}

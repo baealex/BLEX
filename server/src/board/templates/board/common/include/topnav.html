@@ -5,7 +5,7 @@
 <div class="side-menu off serif">
     <div class="inner">
         <form method="GET" action="/search">
-            <input autocomplete="off" type="text" class="search" name="value" value="" placeholder="Serach">
+            <input autocomplete="off" type="text" class="search" name="value" value="{% if value %}{{ value }}{% endif %}" placeholder="Serach">
         </form>
         <ul class="menu-item">
             <a href="{% url 'post_sort_list' %}"><li>인기 포스트</li></a>
