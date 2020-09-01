@@ -74,8 +74,12 @@
         </div>
 
         {% if post.block_comment %}
-        <div id="comment-close" class="comment-list noto s-shadow">
+        <div id="comment" class="comment-list noto s-shadow">
             댓글이 닫혀 있습니다.
+        </div>
+        {% elif post.hide %}
+        <div id="comment" class="comment-list noto s-shadow">
+            숨긴 글은 댓글을 확인할 수 없습니다.
         </div>
         {% else %}
         <div id="comment">
@@ -88,7 +92,7 @@
             {% endfor %}
         </div>
         {% endif %}
-        {% if not post.block_comment %}
+        {% if not post.block_comment and not post.hide %}
             {% if request.user.is_active %}
         <form id="comment-form" class="mb-3">
             {% csrf_token %}
