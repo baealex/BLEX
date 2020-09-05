@@ -1,30 +1,42 @@
 version: "2.0"
 
 services:
-  # nginx:
+  # webserver:
   #   image: nginx
   #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-  #     - ./server/src/uwsgi_params:/www/uwsgi_params
-  #     - ./server/src/static:/www/static
-  #     - ./server/src/api:/www/api
+  #     - ./webserver/nginx.conf:/etc/nginx/nginx.conf
+  #     - ./backend/src/uwsgi_params:/www/uwsgi_params
+  #     - ./backend/src/static:/www/static
+  #     - ./backend/src/api:/www/api
   #   ports:
-  #     - 20000:20000
-  #     - 20200:20200
-
-  api_app:
-    image: richarvey/nginx-php-fpm
-    volumes:
-      - ./server/src/api:/var/www/html
-    ports:
-      - 20300:80
+  #     - 20201:20001
+  #     - 20202:20002
   
-  app:
+  frontend:
     build:
-      context: ./server
+      context: ./frontend
+    volumes:
+      - ./frontend/src/pages/:/app/pages/
+      - ./frontend/src/public/:/app/public/
+      - ./frontend/src/styles/:/app/styles/
+      - ./frontend/src/modules/:/app/modules/
+      - ./frontend/src/components/:/app/components/
+    ports:
+      - 20001:3000
+  
+  backend:
+    build:
+      context: ./backend
       dockerfile: ./Dockerfile
     volumes:
+      - ./backend/src/:/app/
       - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
-      - ./server/src/:/app/
     ports:
-      - 9000:9000
+      - 20002:9000
+    
+  gfm-api:
+    image: richarvey/nginx-php-fpm
+    volumes:
+      - ./gfm-api:/var/www/html
+    ports:
+      - 20003:80

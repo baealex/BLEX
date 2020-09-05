@@ -1,0 +1,68 @@
+// 애니메이션 키프레임 및 클래스 정의
+/*
+    아래로 슬라이딩
+*/
+@keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
+@-moz-keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
+@-webkit-keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
+@-o-keyframes slide-bottom {0% {margin-top: -100px;}100% {margin-top: 0px;}}
+.slide-bottom
+{
+    animation: slide-bottom .5s 1;
+    -moz-animation: slide-bottom .5s 1;
+    -webkit-animation: slide-bottom .5s 1;
+    -o-animation: slide-bottom .5s 1;
+}
+
+/*
+    페이드인
+*/
+@keyframes fade-in {0% {opacity: 0;} 100% {opacity: 1;}}
+@-moz-keyframes fade-in {0% {opacity: 0;} 100% {opacity: 1;}}
+@-webkit-keyframes fade-in {0% {opacity: 0;} 100% {opacity: 1;}}
+@-o-keyframes fade-in {0% {opacity: 0;} 100% {opacity: 1;}}
+.fade-in
+{
+    animation: fade-in 3s 1;
+    -moz-animation: fade-in 3s 1;
+    -webkit-animation: fade-in 3s 1;
+    -o-animation: fade-in 3s 1;
+}
+
+/*
+    블러처리
+*/
+@keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
+@-moz-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
+@-webkit-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
+@-o-keyframes blurring {0% {background-color: rgba(0, 0, 0, 0); } 100% {background-color: rgba(0, 0, 0, 0.7); }}
+.blurring
+{
+    animation: blurring .5s 1;
+    -moz-animation: blurring .5s 1;
+    -webkit-animation: blurring .5s 1;
+    -o-animation: blurring .5s 1;
+}
+
+/*
+    마스크 옅어짐 처리
+*/
+@keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
+@-moz-keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
+@-webkit-keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
+@-o-keyframes mask-off {0% {background-color: rgba(0,0,0,1);} 100% {background-color: rgba(0,0,0,0.5);}}
+.mask-off
+{
+    animation: mask-off 7s 1;
+    -moz-animation: mask-off 7s 1;
+    -webkit-animation: mask-off 7s 1;
+    -o-animation: mask-off 7s 1;
+}
+
+/*
+    글쓰기에서 뒤로가기 버튼에 사용중
+*/
+@keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
+@-moz-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
+@-webkit-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}
+@-o-keyframes movebtn {0% { right : 23px; } 100% { right : 80px; }}

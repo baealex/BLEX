@@ -110,11 +110,11 @@ class Profile(models.Model):
     about_md   = models.TextField()
     about_html = models.TextField()
 
-    def thumbnail(self):
+    def get_thumbnail(self):
         if self.avatar:
             return self.avatar.url
         else:
-            return settings.STATIC_URL + '/images/default-avatar.jpg'
+            return 'assets/images/default-avatar.jpg'
 
     def __str__(self):
         return self.user.username
@@ -191,11 +191,11 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
-    def thumbnail(self):
+    def get_image(self):
         if self.image:
             return self.image.url
         else:
-            return settings.STATIC_URL + '/images/default-post.png'
+            return 'assets/images/default-post.png'
 
     def timestamp(self):
         return timestamp(self.created_date)
@@ -248,7 +248,10 @@ class Post(models.Model):
         return [tag for tag in self.tag.split(',') if tag]
 
     def get_thumbnail(self):
-        return str(self.image) + '.minify.' + str(self.image).split('.')[-1]
+        if self.image:
+            return str(self.image) + '.minify.' + str(self.image).split('.')[-1]
+        else:
+            return 'assets/images/default-post.png'
     
     def to_dict_for_analytics(self):
         return {

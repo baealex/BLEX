@@ -6,6 +6,7 @@ import random
 from itertools import chain
 from django.db.models import Count, Q
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse, Http404, QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
@@ -32,8 +33,45 @@ def topics(request):
 
     raise Http404
 
-def posts(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+def posts(request, sort):
+    if request.method == 'GET':
+        posts = fn.get_posts(sort)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(posts, 21)
+        fn.page_check(page, paginator)
+        posts = paginator.get_page(page)
+        return JsonResponse({
+            'items': list(map(lambda post: {
+                'title': post.title,
+                'url': post.url,
+                'created_date': post.created_date,
+                'image': post.get_thumbnail(),
+                'author_image': post.author.profile.get_thumbnail(),
+                'author': post.author.username,
+            }, posts)),
+            'last_page': posts.paginator.num_pages
+        }, json_dumps_params={'ensure_ascii': True})
+    
+
+def post(request, url):
+    post = get_object_or_404(Post, url=url)
+
+    if request.method == 'GET':
+        comments = Comment.objects.filter(post=post).order_by('created_date')
+        return JsonResponse({
+            'title': post.title,
+            'url': post.url,
+            'created_date': post.created_date,
+            'image': post.get_thumbnail(),
+            'author_image': post.author.profile.get_thumbnail(),
+            'author': post.author.username,
+            'text_html': post.text_html,
+            'comments': list(map(lambda comment: {
+                'author_image': comment.author.profile.get_thumbnail(),
+                'author': comment.author.username,
+                'text_html': comment.text_html,
+            }, comments))
+        })
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
