@@ -46,31 +46,32 @@ class Home extends React.Component {
                     <title>BLOG EXPRESS ME</title>
                 </Head>
 
-                <div className="grid">
-                    {this.props.data.items.map(item => (
-                        <ArticleCard
-                            image={item.image}
-                            url={item.url}
-                            title={item.title}
-                            author={item.author}
-                            authorImage={item.author_image}
-                        />
-                    ))}
-                </div>
+                <div className="container">
+                    <div className="row">
+                        {this.props.data.items.map(item => (
+                            <ArticleCard
+                                image={item.image}
+                                url={item.url}
+                                title={item.title}
+                                author={item.author}
+                                authorImage={item.author_image}
+                            />
+                        ))}
+                    </div>
 
-                <div className="page-nav">
-                    <div className="page-button">
-                        <Link href={`?page=${this.state.page - 1}`}>
-                            <a onClick={() => this.onPrevPage()}>이전 페이지</a>
-                        </Link>
+                    <div className="page-nav">
+                        <div className="page-button">
+                            <Link href={`?page=${this.state.page - 1}`}>
+                                <a onClick={() => this.onPrevPage()}>이전 페이지</a>
+                            </Link>
+                        </div>
+                        
+                        <div className="page-button">
+                            <Link href={`?page=${this.state.page + 1}`}>
+                                <a onClick={() => this.onNextPage()}>다음 페이지</a>
+                            </Link>
+                        </div>
                     </div>
-                    
-                    <div className="page-button">
-                        <Link href={`?page=${this.state.page + 1}`}>
-                            <a onClick={() => this.onNextPage()}>다음 페이지</a>
-                        </Link>
-                    </div>
-                    
                 </div>
 
                 <style jsx>{`

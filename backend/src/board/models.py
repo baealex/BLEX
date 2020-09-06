@@ -100,7 +100,7 @@ class Profile(models.Model):
     grade      = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
     exp        = models.IntegerField(default=0)
     bio        = models.TextField(max_length=500, blank=True)
-    avatar     = models.ImageField(blank=True,upload_to=avatar_path)
+    avatar     = models.ImageField(blank=True, upload_to=avatar_path)
     github     = models.CharField(max_length=15, blank=True)
     twitter    = models.CharField(max_length=15, blank=True)
     youtube    = models.CharField(max_length=30, blank=True)

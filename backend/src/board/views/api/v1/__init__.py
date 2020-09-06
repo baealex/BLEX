@@ -7,6 +7,7 @@ from itertools import chain
 from django.db.models import Count, Q
 from django.core.cache import cache
 from django.core.paginator import Paginator
+from django.contrib import auth
 from django.http import HttpResponse, JsonResponse, Http404, QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
@@ -21,6 +22,29 @@ from board.forms import *
 from board.telegram import TelegramBot
 from board.views import function as fn
 
+@csrf_exempt
+def login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        
+        user = auth.authenticate(username=username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                auth.login(request, user)
+                return JsonResponse({
+                    'login': 'success'
+                }, json_dumps_params={'ensure_ascii': True})
+        else:
+            result = {
+                'login': 'failure'
+            }
+            return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
+
+def signup(request):
+    pass
+
 def topics(request):
     if request.method == 'GET':
         cache_key = 'main_page_topics'
@@ -29,7 +53,7 @@ def topics(request):
             tags = sorted(fn.get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
             cache_time = 3600
             cache.set(cache_key, tags, cache_time)
-        return JsonResponse({'tags': tags}, json_dumps_params = {'ensure_ascii': True})
+        return JsonResponse({'tags': tags}, json_dumps_params={'ensure_ascii': True})
 
     raise Http404
 

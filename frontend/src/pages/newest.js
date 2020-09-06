@@ -19,15 +19,17 @@ class Home extends React.Component {
                     <title>BLOG EXPRESS ME</title>
                 </Head>
 
-                <div className="grid">
-                    {this.props.data.items.map(item => (
-                        <ArticleCard
-                            title={item.title}
-                            url={item.url}
-                            author={item.author}
-                            image={item.image}
-                        />
-                    ))}
+                <div className="container">
+                    <div className="row">
+                        {this.props.data.items.map(item => (
+                            <ArticleCard
+                                title={item.title}
+                                url={item.url}
+                                author={item.author}
+                                image={item.image}
+                            />
+                        ))}
+                    </div>
                 </div>
             </>
         )

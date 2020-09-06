@@ -5,7 +5,7 @@ export default function Comment(props) {
         <>
             <div className="comment-list">
                 <Link href={`/@${props.author}`}>
-                    <a><img src={props.authorImage}/></a>
+                    <a><div className="back-image thumb comment-thumb" style={{backgroundImage: `url(${props.authorImage})`}}/></a>
                 </Link>
                 <Link href={`/@${props.author}`}>
                     <a>{props.author}</a>

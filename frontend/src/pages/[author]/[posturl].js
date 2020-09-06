@@ -5,7 +5,7 @@ import React from 'react'
 
 import ArticleContent from '../../components/article/ArticleContent'
 import Comment from '../../components/comment/Comment'
-import NoComment from '../../components/comment/NoComment'
+import CommentAlert from '../../components/comment/CommentAlert'
 
 import API from '../../modules/api'
 import lazyLoad from '../../modules/lazy'
@@ -30,18 +30,35 @@ class Post extends React.Component {
                 </Head>
     
                 <div className="container">
-                    <h1>{this.props.data.title}</h1>
-                    <p>{this.props.data.author}</p>
-        
-                    <ArticleContent html={this.props.data.text_html}/>
+                    <div className="row">
+                        <div className="col-lg-2">
 
-                    {this.props.data.comments ? this.props.data.comments.map(comment => (
-                        <Comment
-                            author={comment.author}
-                            authorImage={comment.author_image}
-                            html={comment.text_html}
-                        />
-                    )) : <NoComment/>}
+                        </div>
+                        <div className="col-lg-8">
+                            <h1>{this.props.data.title}</h1>
+                            <p>{this.props.data.author}</p>
+                            <ArticleContent html={this.props.data.text_html}/>
+                        </div>
+                        <div className="col-lg-2">
+
+                        </div>
+                    </div>
+                </div>
+                <div className="py-5 bg-comment">
+                    <div class="container">
+                        <div class="col-lg-8 mx-auto px-0">
+                            {this.props.data.comments ? this.props.data.comments.map(comment => (
+                                <Comment
+                                    author={comment.author}
+                                    authorImage={comment.author_image}
+                                    html={comment.text_html}
+                                />
+                            )) : <CommentAlert
+                                    text={'작성된 댓글이 없습니다!'}
+                                />
+                            }
+                        </div>
+                    </div>
                 </div>
             </>
         )
