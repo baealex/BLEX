@@ -1055,24 +1055,26 @@ footer {
         padding-left: 0;
 
         li {
-            display:inline-block;
-            margin-bottom:15px;
+            display: inline-block;
+            margin-bottom: 15px;
+            color: rgba(0,0,0,.33);
+            cursor: pointer;
 
-            a {
-                color: rgba(0,0,0,.33);
+            body.dark & {
+                color: #aaa;
+            }
 
-                body.dark & {
-                    color: #aaa;
+            i {
+                transition: transform 0.2s;
+                font-size: 20px;
+
+                &:hover {
+                    transform: rotate(360deg);
                 }
+            }
 
-                i {
-                    transition: transform 0.2s;
-                    font-size: 20px;
-
-                    &:hover {
-                        transform: rotate(360deg);
-                    }
-                }
+            span {
+                display: block;
             }
         }
     }

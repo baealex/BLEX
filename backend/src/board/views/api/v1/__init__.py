@@ -85,11 +85,13 @@ def post(request, url):
         return JsonResponse({
             'title': post.title,
             'url': post.url,
-            'created_date': post.created_date,
+            'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
+            'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
             'image': post.get_thumbnail(),
             'author_image': post.author.profile.get_thumbnail(),
             'author': post.author.username,
             'text_html': post.text_html,
+            'total_likes': post.total_likes(),
             'comments': list(map(lambda comment: {
                 'author_image': comment.author.profile.get_thumbnail(),
                 'author': comment.author.username,
