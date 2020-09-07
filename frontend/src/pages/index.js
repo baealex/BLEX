@@ -14,17 +14,12 @@ export async function getServerSideProps(context) {
 }
 
 class Home extends React.Component {
-    state = {
-        page: 1,
-        lastPage: 9999,
-    }
-
     constructor(props) {
         super(props);
-        let newState = this.state;
-        newState.page = Number(props.page);
-        newState.lastPage = Number(props.data.last_page)
-        this.setState(newState);
+        this.state = {
+            page: Number(props.page),
+            lastPage: Number(props.data.last_page),
+        };
     }
 
     onNextPage() {
@@ -48,8 +43,9 @@ class Home extends React.Component {
 
                 <div className="container">
                     <div className="row">
-                        {this.props.data.items.map(item => (
+                        {this.props.data.items.map((item, idx) => (
                             <ArticleCard
+                                key={idx}
                                 image={item.image}
                                 url={item.url}
                                 title={item.title}

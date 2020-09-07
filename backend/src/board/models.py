@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 from django.template.defaultfilters import linebreaks
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import escape
+from django.utils.html import escape, strip_tags
 from django.utils.timesince import timesince
 from django.conf import settings
 
@@ -208,6 +208,12 @@ class Post(models.Model):
     
     def total_comment(self):
         return self.comments.count()
+    
+    def description(self):
+        return strip_tags(self.text_html)[:150]
+    
+    def read_time(self):
+        return len(strip_tags(self.text_html))/500
     
     def today(self):
         count = 0

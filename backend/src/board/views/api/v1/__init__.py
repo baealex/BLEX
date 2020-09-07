@@ -66,10 +66,11 @@ def posts(request, sort):
         posts = paginator.get_page(page)
         return JsonResponse({
             'items': list(map(lambda post: {
-                'title': post.title,
                 'url': post.url,
-                'created_date': post.created_date,
+                'title': post.title,
                 'image': post.get_thumbnail(),
+                'read_time': post.read_time(),
+                'created_date': post.created_date,
                 'author_image': post.author.profile.get_thumbnail(),
                 'author': post.author.username,
             }, posts)),
@@ -83,11 +84,13 @@ def post(request, url):
     if request.method == 'GET':
         comments = Comment.objects.filter(post=post).order_by('created_date')
         return JsonResponse({
+            'id': post.id,
             'title': post.title,
-            'url': post.url,
+            'image': post.get_thumbnail(),
+            'description': post.description(),
+            'read_time': post.read_time(),
             'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
             'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
-            'image': post.get_thumbnail(),
             'author_image': post.author.profile.get_thumbnail(),
             'author': post.author.username,
             'text_html': post.text_html,

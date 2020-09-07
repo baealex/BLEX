@@ -49,6 +49,10 @@ class Post extends React.Component {
                 href = `https://facebook.com/sharer.php?u=${window.location.href}`;
                 size = 'width=550,height=435';
                 break;
+            case 'pinterest':
+                href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${this.props.data.image}&description=${this.props.data.description}`
+                size = 'width=650,height=500';
+                break;
         }
         window.open(href, `${sns}-share`, size);
     }
@@ -68,17 +72,20 @@ class Post extends React.Component {
                                     <ul className="px-3">
                                         <li className="mx-4" onClick={() => this.onClickLike()}>
                                             <i className="far fa-heart"></i>
-                                            <span>{this.props.data.total_likes}</span>
+                                            <span className="mobile-disable">{this.props.data.total_likes}</span>
                                         </li>
                                         <li className="mx-4" onClick={() => this.onClickComment()}>
                                             <i className="far fa-comment"></i>
-                                            <span>{this.props.data.comments.length}</span>
+                                            <span className="mobile-disable">{this.props.data.comments.length}</span>
                                         </li>
                                         <li className="mx-4" onClick={() => this.onClickShare('twitter')}>
                                             <i className="fab fa-twitter"></i>
                                         </li>
                                         <li className="mx-4" onClick={() => this.onClickShare('facebook')}>
                                             <i className="fab fa-facebook"></i>
+                                        </li>
+                                        <li className="mx-4" onClick={() => this.onClickShare('pinterest')}>
+                                            <i className="fab fa-pinterest"></i>
                                         </li>
                                     </ul>
                                 </div>
