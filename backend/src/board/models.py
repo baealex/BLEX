@@ -213,7 +213,7 @@ class Post(models.Model):
         return strip_tags(self.text_html)[:150]
     
     def read_time(self):
-        return len(strip_tags(self.text_html))/500
+        return int(len(strip_tags(self.text_html))/500)
     
     def today(self):
         count = 0

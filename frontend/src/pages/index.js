@@ -50,6 +50,8 @@ class Home extends React.Component {
                                 url={item.url}
                                 title={item.title}
                                 author={item.author}
+                                readTime={item.read_time}
+                                createdDate={item.created_date}
                                 authorImage={item.author_image}
                             />
                         ))}

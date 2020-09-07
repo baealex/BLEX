@@ -8,11 +8,18 @@ export default function ArticleCard(props) {
                     <img className="list-image" src={`https://static.blex.me/${props.image}`}/>
                 </a>
             </Link>
-            <h5 className="card-title serif font-weight-bold mt-3">
-                {props.title}
-            </h5>
-            <p>
-                {props.author}
+            <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                <a className="deep-dark">
+                    <h5 className="card-title serif font-weight-bold mt-3">
+                        {props.title}
+                    </h5>
+                </a>
+            </Link>
+            <a>
+                <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.authorImage})`}}/>
+            </a>
+            <p class="vs serif">
+                <Link href="/[author]" as={`/@${props.author}`}><a class="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span class="shallow-dark">{props.readTime} min read</span>
             </p>
         </div>
     )

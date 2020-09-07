@@ -126,6 +126,8 @@ class Post extends React.Component {
                                     title={this.props.series.title}
                                     posts={this.props.series.posts}
                                     author={this.props.post.author}
+                                    authorImage={this.props.post.author_image}
+                                    description={this.props.series.description}
                                     activeSeries={this.props.activeSeries}
                                     sereisLength={this.props.sereisLength}
                                 />

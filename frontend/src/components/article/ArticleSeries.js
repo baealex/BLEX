@@ -4,8 +4,15 @@ import Link from 'next/link'
 class ArticleSereis extends React.Component {
     render() {
         return (
-            <div className="my-4 noto posts-sereis">
-                <h5 className="serif">'{this.props.title}' 시리즈</h5>
+            <div className="my-5 noto posts-sereis">
+                <div class="series-desc mb-3">
+                    <blockquote class="noto">
+                        <strong>'{this.props.title}' 시리즈</strong> {this.props.description}
+                    </blockquote>
+                    <div class="author">
+                        <a><img src={this.props.authorImage}/></a>
+                    </div>
+                </div>
                 <ul>
                     {this.props.posts.length > 1 ? this.props.posts.map((post, idx) => (
                         this.props.activeSeries >= idx - 2 && this.props.activeSeries <= idx + 2 ? (
