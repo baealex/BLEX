@@ -89,6 +89,7 @@ def post(request, url):
             'image': post.get_thumbnail(),
             'description': post.description(),
             'read_time': post.read_time(),
+            'series': post.series.id if post.series else None,
             'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
             'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
             'author_image': post.author.profile.get_thumbnail(),
@@ -129,7 +130,7 @@ def post(request, url):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.tag = fn.get_clean_tag(put.get('tag'))
             post.save()
-            return JsonResponse({'tag': post.tag}, json_dumps_params = {'ensure_ascii': True})
+            return JsonResponse({'tag': post.tag}, json_dumps_params={'ensure_ascii': True})
     
     if request.method == 'DELETE':
         fn.compere_user(request.user, post.author, give_404_if='different')
@@ -143,7 +144,7 @@ def temp_posts(request):
         token = request.GET.get('token')
         if token:
             temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-            return JsonResponse(temp_posts.to_dict(), json_dumps_params = {'ensure_ascii': True})
+            return JsonResponse(temp_posts.to_dict(), json_dumps_params={'ensure_ascii': True})
 
         if request.GET.get('get') == 'list':
             temps = TempPosts.objects.filter(author=request.user)
@@ -156,7 +157,7 @@ def temp_posts(request):
                     'title': temp.title,
                     'date': timesince(temp.created_date)
                 })
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+            return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
 
     if request.method == 'POST':
         temps = TempPosts.objects.filter(author=request.user).count()
@@ -230,7 +231,7 @@ def comment(request, pk=None):
                 }
                 data['element']['edited'] = ''
                 
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+                return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
     
     if pk:
         comment = get_object_or_404(Comment, pk=pk)
@@ -245,7 +246,7 @@ def comment(request, pk=None):
                     'state': 'true',
                     'element': comment.to_dict()
                 }
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+                return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
         
         if request.method == 'PUT':
             put = QueryDict(request.body)
@@ -277,7 +278,7 @@ def comment(request, pk=None):
                     'element': comment.to_dict()
                 }
 
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+                return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
         
         if request.method == 'DELETE':
             if not request.user == comment.author:
@@ -286,7 +287,7 @@ def comment(request, pk=None):
                 'pk': comment.pk
             }
             comment.delete()
-            return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+            return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
     
     raise Http404
 
@@ -299,6 +300,15 @@ def series(request, pk):
                 return HttpResponse('error:DU')
             form = SeriesUpdateForm(instance=series)
             return render(request, 'board/series/form/series.html', {'form': form, 'series': series})
+        return JsonResponse({
+            'title': series.name,
+            'url': series.url,
+            'description': series.text_md,
+            'posts': list(map(lambda post: {
+                'title': post.title,
+                'url': post.url
+            }, Post.objects.filter(series=series, hide=False)))
+        }, json_dumps_params={'ensure_ascii': True})
         
     if request.method == 'DELETE':
         if not request.user == series.owner:
@@ -327,7 +337,7 @@ def users(request, username):
                     data[key] += 1
                 else:
                     data[key] = 1
-            return JsonResponse({'data': data}, json_dumps_params = {'ensure_ascii': True})
+            return JsonResponse({'data': data}, json_dumps_params={'ensure_ascii': True})
 
         if not request.user.is_active:
             return HttpResponse('error:NL')
@@ -356,10 +366,10 @@ def users(request, username):
                         'from': referer.referer_from.location,
                     })
 
-                return JsonResponse(data, json_dumps_params = {'ensure_ascii': True})
+                return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
             else:
                 posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
-                return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params = {'ensure_ascii': True})
+                return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params={'ensure_ascii': True})
         
         if request.GET.get('get') == 'about-form':
             if hasattr(user, 'profile'):

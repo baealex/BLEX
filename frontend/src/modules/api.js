@@ -16,6 +16,10 @@ class API {
         return await axios.get(`${Config.API_SERVER}/v1/post/${encodeURIComponent(url)}`);
     }
 
+    async getSeries(pk) {
+        return await axios.get(`${Config.API_SERVER}/v1/series/${pk}`);
+    }
+
     async login(username, password) {
         return await axios({
             url: `${Config.API_SERVER}/v1/login`,

@@ -7,5 +7,5 @@ RUN npm i
 
 COPY ./src/ /app/
 
-ENTRYPOINT ["npm"]
-CMD ["run", "dev"]
+ENTRYPOINT ["npm", "run"]
+CMD ["dev"]

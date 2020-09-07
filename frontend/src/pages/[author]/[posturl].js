@@ -4,6 +4,7 @@ import axios from 'axios';
 import React from 'react'
 
 import ArticleContent from '../../components/article/ArticleContent'
+import ArticleSereis from '../../components/article/ArticleSeries'
 import Comment from '../../components/comment/Comment'
 import CommentAlert from '../../components/comment/CommentAlert'
 
@@ -12,12 +13,37 @@ import lazyLoad from '../../modules/lazy'
 
 export async function getServerSideProps(context) {
     const { posturl } = context.query;
-    const { data } = await API.getPost(posturl);
-    return { props: { data } }
+    const post = await API.getPost(posturl);
+    if(post.data.series) {
+        let series = await API.getSeries(post.data.series);
+        const sereisLength = series.data.posts.length;
+        const activeSeries = series.data.posts.findIndex(
+            item => item.title == post.data.title
+        );
+        return {
+            props: {
+                activeSeries,
+                hasSeries: true,
+                post: post.data,
+                series: series.data,
+                sereisLength
+            }
+        }
+    }
+    return {
+        props: {
+            hasSeries: false,
+            post: post.data
+        }
+    }
 }
 
 class Post extends React.Component {
     componentDidMount() {
+        lazyLoad();
+    }
+
+    componentDidUpdate() {
         lazyLoad();
     }
 
@@ -42,7 +68,7 @@ class Post extends React.Component {
         let size = '';
         switch(sns) {
             case 'twitter':
-                href = `https://twitter.com/intent/tweet?text=${this.props.data.title}&url=${window.location.href}`;
+                href = `https://twitter.com/intent/tweet?text=${this.props.post.title}&url=${window.location.href}`;
                 size = 'width=550,height=235';
                 break;
             case 'facebook':
@@ -50,7 +76,7 @@ class Post extends React.Component {
                 size = 'width=550,height=435';
                 break;
             case 'pinterest':
-                href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${this.props.data.image}&description=${this.props.data.description}`
+                href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${this.props.post.image}&description=${this.props.post.description}`
                 size = 'width=650,height=500';
                 break;
         }
@@ -61,7 +87,7 @@ class Post extends React.Component {
         return (
             <>
                 <Head>
-                    <title>{`${this.props.data.title} — ${this.props.data.author}`}</title>
+                    <title>{`${this.props.post.title} — ${this.props.post.author}`}</title>
                 </Head>
     
                 <div className="container">
@@ -72,11 +98,11 @@ class Post extends React.Component {
                                     <ul className="px-3">
                                         <li className="mx-4" onClick={() => this.onClickLike()}>
                                             <i className="far fa-heart"></i>
-                                            <span className="mobile-disable">{this.props.data.total_likes}</span>
+                                            <span className="mobile-disable">{this.props.post.total_likes}</span>
                                         </li>
                                         <li className="mx-4" onClick={() => this.onClickComment()}>
                                             <i className="far fa-comment"></i>
-                                            <span className="mobile-disable">{this.props.data.comments.length}</span>
+                                            <span className="mobile-disable">{this.props.post.comments.length}</span>
                                         </li>
                                         <li className="mx-4" onClick={() => this.onClickShare('twitter')}>
                                             <i className="fab fa-twitter"></i>
@@ -92,9 +118,18 @@ class Post extends React.Component {
                             </div>
                         </div>
                         <div className="col-lg-8">
-                            <h1 className="post-headline">{this.props.data.title}</h1>
-                            <p>{this.props.data.created_date}</p>
-                            <ArticleContent html={this.props.data.text_html}/>
+                            <h1 className="post-headline">{this.props.post.title}</h1>
+                            <p>{this.props.post.created_date}</p>
+                            <ArticleContent html={this.props.post.text_html}/>
+                            {this.props.hasSeries ? (
+                                <ArticleSereis
+                                    title={this.props.series.title}
+                                    posts={this.props.series.posts}
+                                    author={this.props.post.author}
+                                    activeSeries={this.props.activeSeries}
+                                    sereisLength={this.props.sereisLength}
+                                />
+                            ) : <></>}
                         </div>
                         <div className="col-lg-2">
 
@@ -104,7 +139,7 @@ class Post extends React.Component {
                 <div className="py-5 bg-comment">
                     <div className="container">
                         <div className="col-lg-8 mx-auto px-0">
-                            {this.props.data.comments ? this.props.data.comments.map(comment => (
+                            {this.props.post.comments.length > 0 ? this.props.post.comments.map(comment => (
                                 <Comment
                                     author={comment.author}
                                     authorImage={comment.author_image}
