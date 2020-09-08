@@ -98,11 +98,11 @@ class Post extends React.Component {
                                     <ul className="px-3">
                                         <li className="mx-4" onClick={() => this.onClickLike()}>
                                             <i className="far fa-heart"></i>
-                                            <span className="mobile-disable">{this.props.post.total_likes}</span>
+                                            <span>{this.props.post.total_likes}</span>
                                         </li>
                                         <li className="mx-4" onClick={() => this.onClickComment()}>
                                             <i className="far fa-comment"></i>
-                                            <span className="mobile-disable">{this.props.post.comments.length}</span>
+                                            <span>{this.props.post.comments.length}</span>
                                         </li>
                                         <li className="mx-4" onClick={() => this.onClickShare('twitter')}>
                                             <i className="fab fa-twitter"></i>

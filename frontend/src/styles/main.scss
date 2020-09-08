@@ -1065,7 +1065,11 @@ footer {
             }
 
             span {
-                display: block;
+                display: none;
+
+                @media only screen and (min-width: 991px) {
+                    display: block;
+                }
             }
         }
     }
@@ -1752,7 +1756,6 @@ footer {
     width: 35px;
     height: 35px;
     transition: all 0.2s;
-    border-radius: 3px;
 
     .bottom {
         position: absolute;

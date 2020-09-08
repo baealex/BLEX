@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 
-import cookie from '../../modules/cookie'
+import Cookie from '../../modules/cookie'
 
 class TopNavigation extends React.Component {
     constructor(props) {
@@ -12,9 +12,10 @@ class TopNavigation extends React.Component {
     }
 
     componentDidMount(){
-        const key = cookie().get('key');
-        const nightmode = cookie().get('nightmode');
-        nightmode === 'true' && document.querySelector('body').classList.add('dark');
+        this.bodyClass = document.querySelector('body').classList;
+        const key = Cookie.get('key');
+        const nightmode = Cookie.get('nightmode');
+        nightmode === 'true' && this.bodyClass.add('dark');
         this.setState({
             ...this.state,
             isSignin: key ? true : false,
@@ -29,9 +30,8 @@ class TopNavigation extends React.Component {
     }
 
     onClickNightMode() {
-        const bodyClass = document.querySelector('body').classList;
         if(this.state.isNightMode) {
-            cookie().set('nightmode', '', {
+            Cookie.set('nightmode', '', {
                 path: '/',
                 expire: -1,
             });
@@ -39,9 +39,9 @@ class TopNavigation extends React.Component {
                 ...this.state,
                 isNightMode: false
             });
-            bodyClass.remove('dark');
+            this.bodyClass.remove('dark');
         } else {
-            cookie().set('nightmode', 'true', {
+            Cookie.set('nightmode', 'true', {
                 path: '/',
                 expire: 365,
             });
@@ -49,7 +49,7 @@ class TopNavigation extends React.Component {
                 ...this.state,
                 isNightMode: true
             });
-            bodyClass.add('dark');
+            this.bodyClass.add('dark');
         }
     }
 
