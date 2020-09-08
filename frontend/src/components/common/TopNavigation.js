@@ -2,30 +2,41 @@ import React from 'react'
 import Link from 'next/link'
 
 import Cookie from '../../modules/cookie'
+import API from '../../modules/api';
 
 class TopNavigation extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             onNav: false,
+            isLogin: false,
+            username: '',
+            isNightMode: false
         };
     }
 
-    componentDidMount(){
+    async componentDidMount(){
         this.bodyClass = document.querySelector('body').classList;
-        const key = Cookie.get('key');
+        const alive = await API.alive();
         const nightmode = Cookie.get('nightmode');
         nightmode === 'true' && this.bodyClass.add('dark');
         this.setState({
             ...this.state,
-            isSignin: key ? true : false,
-            isNightMode: nightmode ? true : false
+            isLogin: alive.data !== 'dead' ? true : false,
+            username: alive.data !== 'dead' ? alive.data : '',
+            isNightMode: nightmode ? true : false,
         });
     }
 
     onClickNavigation() {
         let newState = this.state;
         newState.onNav = !newState.onNav;
+        this.setState(newState);
+    }
+
+    onMouseLeaveOnContent() {
+        let newState = this.state;
+        newState.onNav = false;
         this.setState(newState);
     }
 
@@ -53,36 +64,57 @@ class TopNavigation extends React.Component {
         }
     }
 
+    async onClickLogout() {
+        const { data } = await API.logout();
+        if(data.logout === 'success') {
+            this.setState({
+                ...this.state,
+                isLogin: false
+            });
+        }
+    }
+
     render() {
         return (
             <>
-                <nav
-                    onClick={() => this.onClickNavigation()}
-                    className={`menu ${this.state.onNav ? 'on' : 'off' }`}
-                >
-                    <img src="https://static.blex.me/assets/images/logo.png"/>
-                </nav>
-                <div className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
+                <div
+                    onMouseLeave={() => this.onMouseLeaveOnContent()}
+                    className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
+                    <nav
+                        onClick={() => this.onClickNavigation()}
+                        className={`menu ${this.state.onNav ? 'on' : 'off' }`}>
+                        <img src="https://static.blex.me/assets/images/logo.png"/>
+                    </nav>
                     <div className="inner">
                         <ul className="menu-item">
-                            <Link href="/">
-                                <a><li>인기 포스트</li></a>
-                            </Link>
-                            <Link href="/newest">
-                                <a><li>최신 포스트</li></a>
-                            </Link>
-                            <Link href="/tags">
-                                <a><li>태그 클라우드</li></a>
-                            </Link>
+                            <li>
+                                <Link href="/">
+                                    <a>인기 포스트</a>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/newest">
+                                    <a>최신 포스트</a>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/tags">
+                                    <a>태그 클라우드</a>
+                                </Link>
+                            </li>
                         </ul>
-                        {this.state.isSignin ? (
+                        {this.state.isLogin ? (
                             <ul className="menu-item">
-                                <a>
-                                    <li><i className="fas fa-user"></i> 내 블로그</li>
-                                </a>
-                                <a>
-                                    <li><i className="fas fa-pencil-alt"></i> 포스트 작성</li>
-                                </a>
+                                <li>
+                                    <Link href={`/[author]`} as={`/@${this.state.username}`}>
+                                        <a><i className="fas fa-user"></i> 내 블로그</a>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="/">
+                                        <a><i className="fas fa-pencil-alt"></i> 포스트 작성</a>
+                                    </Link>
+                                </li>
                             </ul>
                         ) : (
                             <></>
@@ -93,13 +125,19 @@ class TopNavigation extends React.Component {
                                     <i className={`fas fa-${this.state.isNightMode ? 'sun' : 'moon'}`}></i>
                                 </a>
                             </li>
-                            {this.state.isSignin ? (
+                            {this.state.isLogin ? (
                                 <li>
-                                    <a><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                                    <a onClick={() => this.onClickLogout()}>
+                                        <i className="fas fa-sign-out-alt"></i> 로그아웃
+                                    </a>
                                 </li>
                             ) : (
                                 <li>
-                                    <a><i className="fas fa-sign-in-alt"></i> 로그인</a> / <a>회원가입</a>
+                                    <Link href="/login">
+                                        <a>
+                                            <i className="fas fa-sign-in-alt"></i> 로그인
+                                        </a>
+                                    </Link>
                                 </li>
                             )}
                         </ul>

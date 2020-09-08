@@ -22,7 +22,12 @@ from board.forms import *
 from board.telegram import TelegramBot
 from board.views import function as fn
 
-@csrf_exempt
+def alive(request):
+    if request.method == 'GET':
+        if request.user.is_active:
+            return HttpResponse(request.user.username)
+        return HttpResponse('dead')
+
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username', '')
@@ -41,6 +46,17 @@ def login(request):
                 'login': 'failure'
             }
             return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
+
+def logout(request):
+    if request.method == 'POST':
+        if request.user.is_active:
+            auth.logout(request)
+            return JsonResponse({
+                'logout': 'success'
+            }, json_dumps_params={'ensure_ascii': True})
+        return JsonResponse({
+            'login': 'failure'
+        }, json_dumps_params={'ensure_ascii': True})
 
 def signup(request):
     pass
@@ -84,7 +100,7 @@ def post(request, url):
     if request.method == 'GET':
         comments = Comment.objects.filter(post=post).order_by('created_date')
         return JsonResponse({
-            'id': post.id,
+            'url': post.url,
             'title': post.title,
             'image': post.get_thumbnail(),
             'description': post.description(),
@@ -96,6 +112,7 @@ def post(request, url):
             'author': post.author.username,
             'text_html': post.text_html,
             'total_likes': post.total_likes(),
+            'is_liked': 'true' if post.likes.filter(id=request.user.id).exists() else 'false',
             'comments': list(map(lambda comment: {
                 'author_image': comment.author.profile.get_thumbnail(),
                 'author': comment.author.username,
@@ -115,11 +132,8 @@ def post(request, url):
                 post.likes.remove(user)
             else:
                 post.likes.add(user)
-                fn.add_exp(request.user, 1)
-
-                send_notify_content = '\''+ post.title +'\'글을 누군가 추천했습니다.'
-                fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
-
+                pass
+                # TODO: Notify Send
             return HttpResponse(str(post.total_likes()))
         if put.get('hide'):
             fn.compere_user(request.user, post.author, give_404_if='different')

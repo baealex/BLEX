@@ -18,8 +18,8 @@ export default function ArticleCard(props) {
             <a>
                 <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.authorImage})`}}/>
             </a>
-            <p class="vs serif">
-                <Link href="/[author]" as={`/@${props.author}`}><a class="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span class="shallow-dark">{props.readTime} min read</span>
+            <p className="vs serif">
+                <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
             </p>
         </div>
     )

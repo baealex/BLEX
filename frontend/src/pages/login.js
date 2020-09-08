@@ -30,7 +30,6 @@ class Post extends React.Component {
             alert('로그인 실패!');
         }
     }
-
     render() {
         console.log(this.props);
         return (

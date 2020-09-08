@@ -12,8 +12,9 @@ import API from '../../modules/api'
 import lazyLoad from '../../modules/lazy'
 
 export async function getServerSideProps(context) {
+    const { req } = context;
     const { posturl } = context.query;
-    const post = await API.getPost(posturl);
+    const post = await API.getPost(posturl, req.headers.cookie);
     if(post.data.series) {
         let series = await API.getSeries(post.data.series);
         const sereisLength = series.data.posts.length;
@@ -39,17 +40,50 @@ export async function getServerSideProps(context) {
 }
 
 class Post extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isLiked: props.post.is_liked === 'true' ? true : false,
+            totalLikes: props.post.total_likes
+        }
+    }
+
     componentDidMount() {
         lazyLoad();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState) {
+        if(
+            prevProps.post.is_liked !== this.props.post.is_liked ||
+            prevProps.post.total_likes !== this.props.post.total_likes
+        ) {
+            this.setState({
+                ...this.state,
+                isLiked: this.props.post.is_liked === 'true' ? true : false,
+                totalLikes: this.props.post.total_likes,
+            });
+        }
         lazyLoad();
     }
 
-    onClickLike() {
-        // TODO CSRF 처리
-        alert('좋아요 ♥');
+    async onClickLike() {
+        const { data } = await API.putPostLike(this.props.post.url);
+        if(typeof data == 'number') {
+            this.setState({
+                isLiked: !this.state.isLiked,
+                totalLikes: data
+            });
+        }
+        else if(data.includes('error')) {
+            switch(data.split(':')[1]) {
+                case 'NL':
+                    alert('로그인이 필요합니다.');
+                    break;
+                case 'SU':
+                    alert('자신의 글은 추천할 수 없습니다.');
+                    break;
+            }
+        }
     }
 
     onClickComment() {
@@ -97,8 +131,8 @@ class Post extends React.Component {
                                 <div className="share">
                                     <ul className="px-3">
                                         <li className="mx-4" onClick={() => this.onClickLike()}>
-                                            <i className="far fa-heart"></i>
-                                            <span>{this.props.post.total_likes}</span>
+                                            <i className={`${this.state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
+                                            <span>{this.state.totalLikes}</span>
                                         </li>
                                         <li className="mx-4" onClick={() => this.onClickComment()}>
                                             <i className="far fa-comment"></i>
@@ -141,8 +175,9 @@ class Post extends React.Component {
                 <div className="py-5 bg-comment">
                     <div className="container">
                         <div className="col-lg-8 mx-auto px-0">
-                            {this.props.post.comments.length > 0 ? this.props.post.comments.map(comment => (
+                            {this.props.post.comments.length > 0 ? this.props.post.comments.map((comment, idx) => (
                                 <Comment
+                                    key={idx}
                                     author={comment.author}
                                     authorImage={comment.author_image}
                                     html={comment.text_html}

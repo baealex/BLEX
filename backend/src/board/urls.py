@@ -63,7 +63,9 @@ from board.views.api import v1 as api_v1
 
 urlpatterns = [
     # API V1
+    path('v1/alive', api_v1.alive, name='alive_api_v1'),
     path('v1/login', api_v1.login, name='login_api_v1'),
+    path('v1/logout', api_v1.logout, name='logout_api_v1'),
     path('v1/users/<username>', api_v1.users, name='users_api_v1'),
     path('v1/topics', api_v1.topics, name='topics_api_v1'),
     path('v1/posts/temp', api_v1.temp_posts, name='temp_posts_api_v1'),
