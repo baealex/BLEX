@@ -1,0 +1,147 @@
+.custom-control-input:checked~.custom-control-label::before {
+    color: #fff;
+    border-color: $vivid-purple;
+    background-color: $vivid-purple;
+}
+
+.jumbotron {
+    background: none;
+}
+
+.modal-header {
+    border-radius: 0;
+    border: none;
+}
+
+.modal-content {
+    border-radius: 0;
+    background-clip: border-box;
+}
+
+.modal-footer {
+    background: hsl(0, 0%, 97%);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top: none;
+    border-radius: none;
+}
+
+.card {
+    border: none;
+}
+
+.card-header {
+    border-bottom: none;
+}
+
+.card-footer {
+    border-top: none;
+}
+
+.alert-warning {
+    border-left: 5px solid #ffc405;
+}
+
+.alert-success {
+    border-left: 5px solid #4fbb31;
+}
+
+.alert-danger {
+    border-left: 5px solid #ff5656;
+}
+
+.list-group-item {
+    word-break: break-all;
+}
+
+.custom-file-label {
+    overflow: hidden;
+}
+
+.form-control:focus {
+    box-shadow: none;
+}
+
+.navbar-brand img{
+    border-radius: .25rem;
+}
+
+.sticky-top {
+    z-index: 1;
+}
+
+body.dark {
+    .toast-header {
+        background: #1d1d1d;
+        color: #fff;
+    }
+
+    .toast-body {
+        background: #000;
+        color: #dbdbdb;
+    }
+
+    .custom-control-input:checked~.custom-control-label::before {
+        color: #fff;
+        border-color: $vivid-purple-complementary;
+        background-color: $vivid-purple-complementary;
+    }
+
+    .modal-content {
+        border: none;
+    }
+
+    .modal-body {
+        background: #2e2e2e;
+    }
+
+    .modal-footer {
+        background: #242424;
+    }
+
+    .modal-header {
+        background: #2e2e2e;
+    
+        .close {
+            color: #fff;
+    
+            &:hover {
+                color: #fff;
+            }
+        }
+    }
+
+    .custom-file-label {
+        color: #ccc;
+        border: 1px solid #1d1d1d;
+        background-color: #1d1d1d;
+    }
+
+    .custom-file-label::after,
+    .input-group-text {
+        background-color: rgb(65, 65, 65);
+        border: 0;
+        color: #ccc;
+    }
+
+    .list-group-item {
+        background-color: #262626;
+    }
+
+    .nav-link.disabled {
+        color: #ccc;
+    }
+
+    form .form-control,
+    form .form-control:focus {
+        border: none;
+        color: #ccc;
+        background-color: #1d1d1d;
+    }
+    
+    .custom-select {
+        background-color: #1d1d1d;
+        color: #ccc;
+        border: none;
+    }
+}

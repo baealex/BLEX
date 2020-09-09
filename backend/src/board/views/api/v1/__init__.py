@@ -117,6 +117,8 @@ def post(request, url):
                 'author_image': comment.author.profile.get_thumbnail(),
                 'author': comment.author.username,
                 'text_html': comment.text_html,
+                'time_since': timesince(comment.created_date),
+                'edited': 'true 'if comment.edited else 'false'
             }, comments))
         })
 

@@ -1,7 +1,9 @@
-import React from 'react'
-import Link from 'next/link'
+import React from 'react';
+import Link from 'next/link';
 
-import Cookie from '../../modules/cookie'
+import Modal from '../../components/common/Modal';
+
+import Cookie from '../../modules/cookie';
 import API from '../../modules/api';
 
 class TopNavigation extends React.Component {
@@ -10,8 +12,11 @@ class TopNavigation extends React.Component {
         this.state = {
             onNav: false,
             isLogin: false,
+            isNightMode: false,
             username: '',
-            isNightMode: false
+            password: '',
+            showLoginModal: false,
+            error: ''
         };
     }
 
@@ -29,15 +34,71 @@ class TopNavigation extends React.Component {
     }
 
     onClickNavigation() {
+        this.setState({
+            ...this.state,
+            onNav: !this.state.onNav
+        });
+    }
+
+    onClickLogin() {
+        this.setState({
+            ...this.state,
+            showLoginModal: true
+        });
+    }
+
+    onCloseModal(modalName) {
         let newState = this.state;
-        newState.onNav = !newState.onNav;
+        newState[modalName] = false;
+        this.setState(newState);
+    }
+
+    async onSubmitLogin() {
+        let newState = this.state;
+        const { data } = await API.login(this.state.username, this.state.password);
+        if(data.login == 'success') {
+            alert(`로그인 되었습니다.`);
+            newState.isLogin = true;
+            newState.showLoginModal = false;
+        } else {
+            alert('아이디 혹은 패스워드를 확인해주세요.');
+        }
+        newState.password = '';
+        this.setState(newState);
+    }
+
+    onSubmitSocialLogin(social) {
+        let url = '';
+        switch(social) {
+            case 'google':
+                url += 'https://accounts.google.com/o/oauth2/auth';
+                url += '?client_id=230716131865-ann8gcfd9b3oq3d6funkkb5r8k1d9d3o.apps.googleusercontent.com';
+                url += '&redirect_uri=' + window.location.protocol + '//' + window.location.hostname + '/login/callback/google';
+                url += '&response_type=code';
+                url += '&scope=openid profile email'
+                url += '&approval_prompt=force'
+                url += '&access_type=offline'
+                break;
+            case 'github':
+                url += 'https://github.com/login/oauth/authorize';
+                url += '?client_id=c5b001b86e3e77f2af1f';
+                url += '&redirect_uri=' + window.location.protocol + '//' + window.location.hostname + '/login/callback/github';
+                break;
+        }
+        location.href = url;
+    }
+
+    onInputChange(e) {
+        let newState = this.state;
+        newState[e.target.name] = e.target.value;
         this.setState(newState);
     }
 
     onMouseLeaveOnContent() {
-        let newState = this.state;
-        newState.onNav = false;
-        this.setState(newState);
+        this.setState({
+            ...this.state,
+            onNav: false
+        });
     }
 
     onClickNightMode() {
@@ -65,18 +126,55 @@ class TopNavigation extends React.Component {
     }
 
     async onClickLogout() {
-        const { data } = await API.logout();
-        if(data.logout === 'success') {
-            this.setState({
-                ...this.state,
-                isLogin: false
-            });
+        if(confirm('정말 로그아웃 하시겠습니까?')) {
+            const { data } = await API.logout();
+            if(data.logout === 'success') {
+                this.setState({
+                    ...this.state,
+                    isLogin: false
+                });
+            }
+            alert('로그아웃 되었습니다.');
         }
     }
 
     render() {
         return (
             <>
+                <Modal show={this.state.showLoginModal} close={() => this.onCloseModal('showLoginModal')}>
+                    <div className="content">
+                        <input
+                            className='login-form'
+                            name='username'
+                            placeholder='username'
+                            onChange={(e) => this.onInputChange(e)}
+                            value={this.state.username}
+                        />
+                        <input
+                            className='login-form'
+                            name='password'
+                            type='password'
+                            placeholder='password'
+                            onChange={(e) => this.onInputChange(e)}
+                            value={this.state.password}
+                        />
+                        <button
+                            className='login-button'
+                            onClick={() => this.onSubmitLogin()}>
+                            로그인
+                        </button>
+                        <button
+                            className='login-button google'
+                            onClick={() => this.onSubmitSocialLogin('google')}>
+                            <i class="fab fa-google"></i> Google 로그인
+                        </button>
+                        <button
+                            className='login-button github'
+                            onClick={() => this.onSubmitSocialLogin('github')}>
+                            <i class="fab fa-github"></i> GitHub 로그인
+                        </button>
+                    </div>
+                </Modal>
                 <div
                     onMouseLeave={() => this.onMouseLeaveOnContent()}
                     className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
@@ -133,11 +231,9 @@ class TopNavigation extends React.Component {
                                 </li>
                             ) : (
                                 <li>
-                                    <Link href="/login">
-                                        <a>
-                                            <i className="fas fa-sign-in-alt"></i> 로그인
-                                        </a>
-                                    </Link>
+                                    <a onClick={() => this.onClickLogin()}>
+                                        <i className="fas fa-sign-in-alt"></i> 로그인
+                                    </a>
                                 </li>
                             )}
                         </ul>

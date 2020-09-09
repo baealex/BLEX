@@ -180,6 +180,8 @@ class Post extends React.Component {
                                     key={idx}
                                     author={comment.author}
                                     authorImage={comment.author_image}
+                                    timeSince={comment.time_since}
+                                    edietd={comment.edietd}
                                     html={comment.text_html}
                                 />
                             )) : <CommentAlert
