@@ -8,15 +8,9 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "mobx": "^5.15.6",
-    "mobx-react": "^6.3.0",
     "next": "9.3.5",
     "node-sass": "^4.14.1",
     "react": "16.13.1",
     "react-dom": "16.13.1"
-  },
-  "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/plugin-proposal-decorators": "^7.10.5"
   }
 }

@@ -19,7 +19,6 @@ services:
       - ./frontend/src/pages/:/app/pages/
       - ./frontend/src/public/:/app/public/
       - ./frontend/src/styles/:/app/styles/
-      - ./frontend/src/stores/:/app/stores/
       - ./frontend/src/modules/:/app/modules/
       - ./frontend/src/components/:/app/components/
     ports:
