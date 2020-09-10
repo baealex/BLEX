@@ -39,11 +39,11 @@ def login(request):
             if user.is_active:
                 auth.login(request, user)
                 return JsonResponse({
-                    'login': 'success'
+                    'status': 'success'
                 }, json_dumps_params={'ensure_ascii': True})
         else:
             result = {
-                'login': 'failure'
+                'status': 'failure'
             }
             return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
 
@@ -52,10 +52,10 @@ def logout(request):
         if request.user.is_active:
             auth.logout(request)
             return JsonResponse({
-                'logout': 'success'
+                'status': 'success'
             }, json_dumps_params={'ensure_ascii': True})
         return JsonResponse({
-            'login': 'failure'
+            'status': 'failure'
         }, json_dumps_params={'ensure_ascii': True})
 
 def signup(request):
@@ -212,42 +212,46 @@ def temp_posts(request):
 def comment(request, pk=None):
     if not pk:
         if request.method == 'POST':
-            post = get_object_or_404(Post, pk=request.GET.get('fk'))
-            form = CommentForm(request.POST)
-            if form.is_valid():
-                comment = form.save(commit=False)
-                comment.text_html = parsedown(comment.text_md)
-                comment.author = request.user
-                comment.post = post
-                comment.save()
-                fn.add_exp(request.user, 1)
-                
-                if not comment.author == post.author:
-                    send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다.'
-                    fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
-                
-                regex = re.compile(r'\`\@([a-zA-Z0-9]*)\`\s?')
-                if regex.search(comment.text_md):
-                    tag_user_list = regex.findall(comment.text_md)
-                    tag_user_list = set(tag_user_list)
+            post = get_object_or_404(Post, url=request.GET.get('url'))
+            body = QueryDict(request.body)
+            comment = Comment(
+                post=post,
+                text_html=parsedown(body.get('comment')),
+                text_md=body.get('comment'),
+                author=request.user
+            )
+            comment.save()
+            fn.add_exp(request.user, 1)
+            
+            if not comment.author == post.author:
+                send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다.'
+                fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+            
+            regex = re.compile(r'\`\@([a-zA-Z0-9]*)\`\s?')
+            if regex.search(comment.text_md):
+                tag_user_list = regex.findall(comment.text_md)
+                tag_user_list = set(tag_user_list)
 
-                    commentors = Comment.objects.filter(post=post).values_list('author__username')
-                    commentors = set(map(lambda instance: instance[0], commentors))
+                commentors = Comment.objects.filter(post=post).values_list('author__username')
+                commentors = set(map(lambda instance: instance[0], commentors))
 
-                    for tag_user in tag_user_list:
-                        if tag_user in commentors:
-                            _user = User.objects.get(username=tag_user)
-                            if not _user == request.user:
-                                send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
-                                fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
-                
-                data = {
-                    'state': 'true',
-                    'element': comment.to_dict()
+                for tag_user in tag_user_list:
+                    if tag_user in commentors:
+                        _user = User.objects.get(username=tag_user)
+                        if not _user == request.user:
+                            send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
+                            fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
+            
+            return JsonResponse({
+                'status': 'success',
+                'element': {
+                    'author_image': comment.author.profile.get_thumbnail(),
+                    'author': comment.author.username,
+                    'text_html': comment.text_html,
+                    'time_since': timesince(comment.created_date),
+                    'edited': 'true 'if comment.edited else 'false'
                 }
-                data['element']['edited'] = ''
-                
-                return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+            }, json_dumps_params={'ensure_ascii': True})
     
     if pk:
         comment = get_object_or_404(Comment, pk=pk)

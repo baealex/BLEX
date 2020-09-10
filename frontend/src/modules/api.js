@@ -28,9 +28,9 @@ class API {
         return await axios({
             url: `${Config.API_SERVER}/v1/post/${encodeURIComponent(url)}`,
             method: 'GET',
-            headers: {
+            headers: cookie ? {
                 'Cookie': cookie
-            }
+            } : {}
         });
     }
 
@@ -46,6 +46,20 @@ class API {
             }),
             withCredentials: true,
         });
+    }
+
+    async postComment(url, comment) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/comments?url=${url}`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                comment
+            }),
+            withCredentials: true,
+        })
     }
 
     async getSeries(pk) {

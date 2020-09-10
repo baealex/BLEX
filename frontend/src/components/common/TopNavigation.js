@@ -5,31 +5,41 @@ import Modal from '../../components/common/Modal';
 
 import Cookie from '../../modules/cookie';
 import API from '../../modules/api';
+import Global from '../../modules/global';
 
 class TopNavigation extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             onNav: false,
-            isLogin: false,
             isNightMode: false,
-            username: '',
+            isLogin: Global.state.isLogin,
+            username: Global.state.username,
             password: '',
             showLoginModal: false,
             error: ''
         };
+        Global.appendUpdater('TopNavigation', () => this.setState({
+            ...this.state,
+            isLogin: Global.state.isLogin,
+            username: Global.state.username,
+        }));
     }
 
     async componentDidMount(){
         this.bodyClass = document.querySelector('body').classList;
-        const alive = await API.alive();
         const nightmode = Cookie.get('nightmode');
         nightmode === 'true' && this.bodyClass.add('dark');
         this.setState({
             ...this.state,
+            isNightMode: nightmode ? true : false,
+        });
+
+        const alive = await API.alive();
+        Global.setState({
+            ...Global.state,
             isLogin: alive.data !== 'dead' ? true : false,
             username: alive.data !== 'dead' ? alive.data : '',
-            isNightMode: nightmode ? true : false,
         });
     }
 
@@ -56,10 +66,14 @@ class TopNavigation extends React.Component {
     async onSubmitLogin() {
         let newState = this.state;
         const { data } = await API.login(this.state.username, this.state.password);
-        if(data.login == 'success') {
+        if(data.status == 'success') {
             alert(`로그인 되었습니다.`);
-            newState.isLogin = true;
             newState.showLoginModal = false;
+            newState.isLogin = true;
+            Global.setState({
+                ...Global.state,
+                isLogin: true
+            });
         } else {
             alert('아이디 혹은 패스워드를 확인해주세요.');
         }
@@ -128,9 +142,9 @@ class TopNavigation extends React.Component {
     async onClickLogout() {
         if(confirm('정말 로그아웃 하시겠습니까?')) {
             const { data } = await API.logout();
-            if(data.logout === 'success') {
-                this.setState({
-                    ...this.state,
+            if(data.status === 'success') {
+                Global.setState({
+                    ...Global.state,
                     isLogin: false
                 });
             }

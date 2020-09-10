@@ -6,10 +6,12 @@ import React from 'react'
 import ArticleContent from '../../components/article/ArticleContent'
 import ArticleSereis from '../../components/article/ArticleSeries'
 import Comment from '../../components/comment/Comment'
+import CommentForm from '../../components/comment/CommentForm'
 import CommentAlert from '../../components/comment/CommentAlert'
 
 import API from '../../modules/api'
 import lazyLoad from '../../modules/lazy'
+import Global from '../../modules/global'
 
 export async function getServerSideProps(context) {
     const { req } = context;
@@ -43,9 +45,15 @@ class Post extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            isLogin: Global.state.isLogin,
             isLiked: props.post.is_liked === 'true' ? true : false,
-            totalLikes: props.post.total_likes
+            totalLikes: props.post.total_likes,
+            comments: props.post.comments
         }
+        Global.appendUpdater('Post', () => this.setState({
+            ...this.state,
+            isLogin: Global.state.isLogin
+        }));
     }
 
     componentDidMount() {
@@ -55,12 +63,14 @@ class Post extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         if(
             prevProps.post.is_liked !== this.props.post.is_liked ||
+            prevProps.post.comments !== this.props.post.comments ||
             prevProps.post.total_likes !== this.props.post.total_likes
         ) {
             this.setState({
                 ...this.state,
                 isLiked: this.props.post.is_liked === 'true' ? true : false,
                 totalLikes: this.props.post.total_likes,
+                comments: this.props.post.comments
             });
         }
         lazyLoad();
@@ -93,8 +103,16 @@ class Post extends React.Component {
         });
     }
 
-    onClickCommentWirte() {
-
+    async onSubmutComment(text) {
+        const { data } = await API.postComment(this.props.post.url, text);
+        if(data.status !== 'success') {
+            alert('댓글 작성 실패!');
+            return;
+        }
+        this.setState({
+            ...this.setState,
+            comments: this.state.comments.concat(data.element)
+        });
     }
 
     onClickShare(sns) {
@@ -175,7 +193,7 @@ class Post extends React.Component {
                 <div className="py-5 bg-comment">
                     <div className="container">
                         <div className="col-lg-8 mx-auto px-0">
-                            {this.props.post.comments.length > 0 ? this.props.post.comments.map((comment, idx) => (
+                            {this.state.comments.length > 0 ? this.state.comments.map((comment, idx) => (
                                 <Comment
                                     key={idx}
                                     author={comment.author}
@@ -188,6 +206,11 @@ class Post extends React.Component {
                                     text={'작성된 댓글이 없습니다!'}
                                 />
                             }
+                            {this.state.isLogin ? (
+                                <CommentForm onSubmutComment={this.onSubmutComment.bind(this)}/>
+                            ) : (
+                                <div className="noto alert alert-warning s-shadow">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
+                            )}
                         </div>
                     </div>
                 </div>

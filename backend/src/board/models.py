@@ -324,7 +324,7 @@ class Comment(models.Model):
     def __str__(self):
         return self.text_md
     
-    def thumbnail(self):
+    def get_thumbnail(self):
         if self.image:
             return self.image.url
         else:
@@ -332,17 +332,6 @@ class Comment(models.Model):
     
     def total_likes(self):
         return self.likes.count()
-    
-    def to_dict(self):
-        return {
-            'pk': self.pk,
-            'author': self.author.username,
-            'created_date': timesince(self.created_date),
-            'content': self.text_html,
-            'total_likes': self.total_likes(),
-            'thumbnail': self.author.profile.thumbnail(),
-            'edited': 'edited' if self.edited == True else '',
-        }
 
 class Notify(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
