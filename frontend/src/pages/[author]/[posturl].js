@@ -1,14 +1,16 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import axios from 'axios';
-import React from 'react'
+import React from 'react';
 
 import ArticleContent from '../../components/article/ArticleContent'
 import ArticleSereis from '../../components/article/ArticleSeries'
 import Comment from '../../components/comment/Comment'
 import CommentForm from '../../components/comment/CommentForm'
 import CommentAlert from '../../components/comment/CommentAlert'
+import SEO from '../../components/seo'
 
+import Prism from '../../modules/library/prism'
 import API from '../../modules/api'
 import lazyLoad from '../../modules/lazy'
 import Global from '../../modules/global'
@@ -16,7 +18,8 @@ import Global from '../../modules/global'
 export async function getServerSideProps(context) {
     const { req } = context;
     const { posturl } = context.query;
-    const post = await API.getPost(posturl, req.headers.cookie);
+    let post = await API.getPost(posturl, req.headers.cookie);
+    post.data.tag = post.data.tag.split(',');
     if(post.data.series) {
         let series = await API.getSeries(post.data.series);
         const sereisLength = series.data.posts.length;
@@ -57,10 +60,11 @@ class Post extends React.Component {
     }
 
     componentDidMount() {
+        Prism.highlightAll();
         lazyLoad();
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps) {
         if(
             prevProps.post.is_liked !== this.props.post.is_liked ||
             prevProps.post.comments !== this.props.post.comments ||
@@ -72,8 +76,9 @@ class Post extends React.Component {
                 totalLikes: this.props.post.total_likes,
                 comments: this.props.post.comments
             });
+            Prism.highlightAll();
+            lazyLoad();
         }
-        lazyLoad();
     }
 
     async onClickLike() {
@@ -140,8 +145,15 @@ class Post extends React.Component {
             <>
                 <Head>
                     <title>{`${this.props.post.title} — ${this.props.post.author}`}</title>
+                    <SEO
+                        title={this.props.post.title}
+                        description={this.props.post.description}
+                        author={this.props.post.author}
+                        keywords={this.props.post.tag.join(',')}
+                        image={this.props.post.image}
+                        url={this.props.url}
+                    />
                 </Head>
-    
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-2">

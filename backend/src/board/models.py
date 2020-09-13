@@ -8,7 +8,7 @@ from django.db import models
 from django.db.models import Sum, Count
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.template.defaultfilters import linebreaks
+from django.template.defaultfilters import linebreaks, truncatewords
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape, strip_tags
@@ -210,7 +210,7 @@ class Post(models.Model):
         return self.comments.count()
     
     def description(self):
-        return strip_tags(self.text_html)[:150]
+        return truncatewords(strip_tags(self.text_html), 30)
     
     def read_time(self):
         return int(len(strip_tags(self.text_html))/500)

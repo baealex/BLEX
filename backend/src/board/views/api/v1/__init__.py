@@ -112,6 +112,7 @@ def post(request, url):
             'author': post.author.username,
             'text_html': post.text_html,
             'total_likes': post.total_likes(),
+            'tag': post.tag,
             'is_liked': 'true' if post.likes.filter(id=request.user.id).exists() else 'false',
             'comments': list(map(lambda comment: {
                 'author_image': comment.author.profile.get_thumbnail(),

@@ -5,6 +5,10 @@ import styles from '../styles/main.scss'
 
 import TopNavagation from '../components/common/TopNavigation'
 
+export async function getServerSideProps(context) {
+    console.log(context)
+}
+
 class Main extends App {
     render() {
         const {Component, pageProps} = this.props;
