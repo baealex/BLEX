@@ -94,34 +94,37 @@ def posts(request, sort):
         }, json_dumps_params={'ensure_ascii': True})
     
 
-def post(request, url):
-    post = get_object_or_404(Post, url=url)
-
-    if request.method == 'GET':
-        comments = Comment.objects.filter(post=post).order_by('created_date')
-        return JsonResponse({
-            'url': post.url,
-            'title': post.title,
-            'image': post.get_thumbnail(),
-            'description': post.description(),
-            'read_time': post.read_time(),
-            'series': post.series.id if post.series else None,
-            'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
-            'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
-            'author_image': post.author.profile.get_thumbnail(),
-            'author': post.author.username,
-            'text_html': post.text_html,
-            'total_likes': post.total_likes(),
-            'tag': post.tag,
-            'is_liked': 'true' if post.likes.filter(id=request.user.id).exists() else 'false',
-            'comments': list(map(lambda comment: {
-                'author_image': comment.author.profile.get_thumbnail(),
-                'author': comment.author.username,
-                'text_html': comment.text_html,
-                'time_since': timesince(comment.created_date),
-                'edited': 'true 'if comment.edited else 'false'
-            }, comments))
-        })
+def user_posts(request, username, url):
+    if not url:
+        pass
+    
+    if url:
+        post = get_object_or_404(Post, author__username=username, url=url)
+        if request.method == 'GET':
+            comments = Comment.objects.filter(post=post).order_by('created_date')
+            return JsonResponse({
+                'url': post.url,
+                'title': post.title,
+                'image': post.get_thumbnail(),
+                'description': post.description(),
+                'read_time': post.read_time(),
+                'series': post.series.id if post.series else None,
+                'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
+                'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
+                'author_image': post.author.profile.get_thumbnail(),
+                'author': post.author.username,
+                'text_html': post.text_html,
+                'total_likes': post.total_likes(),
+                'tag': post.tag,
+                'is_liked': 'true' if post.likes.filter(id=request.user.id).exists() else 'false',
+                'comments': list(map(lambda comment: {
+                    'author_image': comment.author.profile.get_thumbnail(),
+                    'author': comment.author.username,
+                    'text_html': comment.text_html,
+                    'time_since': timesince(comment.created_date),
+                    'edited': 'true 'if comment.edited else 'false'
+                }, comments))
+            })
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
@@ -343,22 +346,52 @@ def users(request, username):
     user = get_object_or_404(User, username=username)
 
     if request.method == 'GET':
-        if request.GET.get('get') == 'activity':
-            standard_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=365)))
-            
-            posts = Post.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, hide=False)
-            series = Series.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), owner=user)
-            comments = Comment.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, post__hide=False)
-            activity = chain(posts, series, comments)
-
+        if request.GET.get('includes'):
+            includes = request.GET.get('includes').split(',')
+            user_profile = Profile.objects.get(user=user)
             data = dict()
-            for element in activity:
-                key = timestamp(element.created_date, kind='grass')[:10]
-                if key in data:
-                    data[key] += 1
-                else:
-                    data[key] = 1
-            return JsonResponse({'data': data}, json_dumps_params={'ensure_ascii': True})
+            for include in includes:
+                if include == 'profile':
+                    data[include] = {
+                        'image': user_profile.get_thumbnail(),
+                        'username': user.username,
+                        'realname': user.first_name,
+                        'bio': user_profile.bio
+                    }
+                
+                if include == 'social':
+                    data[include] = user_profile.collect_social()
+
+                if include == 'activity':
+                    standard_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=365)))
+            
+                    posts = Post.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, hide=False)
+                    series = Series.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), owner=user)
+                    comments = Comment.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, post__hide=False)
+                    activity = chain(posts, series, comments)
+
+                    heatmap = dict()
+                    for element in activity:
+                        key = timestamp(element.created_date, kind='grass')[:10]
+                        if key in heatmap:
+                            heatmap[key] += 1
+                        else:
+                            heatmap[key] = 1
+                    data[include] = heatmap
+
+                if include == 'user_topic':
+                    pass
+                
+                if include == 'view_counter':
+                    pass
+                
+                if include == 'most_posts':
+                    pass
+                
+                if include == 'recent_activity':
+                    pass
+                
+            return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
 
         if not request.user.is_active:
             return HttpResponse('error:NL')

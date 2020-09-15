@@ -17,8 +17,8 @@ import Global from '../../modules/global'
 
 export async function getServerSideProps(context) {
     const { req } = context;
-    const { posturl } = context.query;
-    let post = await API.getPost(posturl, req.headers.cookie);
+    const { author, posturl } = context.query;
+    let post = await API.getPost(author.replace('@', ''), posturl, req.headers.cookie);
     post.data.tag = post.data.tag.split(',');
     if(post.data.series) {
         let series = await API.getSeries(post.data.series);
@@ -82,7 +82,7 @@ class Post extends React.Component {
     }
 
     async onClickLike() {
-        const { data } = await API.putPostLike(this.props.post.url);
+        const { data } = await API.putPostLike(this.props.post.author, this.props.post.url);
         if(typeof data == 'number') {
             this.setState({
                 isLiked: !this.state.isLiked,

@@ -24,9 +24,9 @@ class API {
         });
     }
 
-    async getPost(url, cookie=undefined) {
+    async getPost(author, url, cookie=undefined) {
         return await axios({
-            url: `${Config.API_SERVER}/v1/post/${encodeURIComponent(url)}`,
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
             method: 'GET',
             headers: cookie ? {
                 'Cookie': cookie
@@ -34,9 +34,9 @@ class API {
         });
     }
 
-    async putPostLike(url) {
+    async putPostLike(author, url) {
         return await axios({
-            url: `${Config.API_SERVER}/v1/post/${encodeURIComponent(url)}`,
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -45,6 +45,13 @@ class API {
                 like: 'like'
             }),
             withCredentials: true,
+        });
+    }
+
+    async getUserProfile(author, includes) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${author}?includes=${includes.join(',')}`,
+            method: 'GET'
         });
     }
 

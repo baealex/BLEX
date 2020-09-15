@@ -152,31 +152,6 @@
         }
     }
 
-    .ps {
-        float: right;
-
-        .pn {
-            background: none;
-            border: 1px solid #8e44ad;
-            border-radius: 5px;
-            padding: 2px;
-            width: 50px;
-
-            body.dark & {
-                border: 1px solid $vivid-purple-complementary;
-            }
-        }
-
-        .gp {
-            border: none;
-            background: none;
-        }
-
-        *:focus {
-            outline: none;
-        }
-    }
-
     .active {
         border: 2px solid #9b59b6;
         text-align: center;
@@ -989,12 +964,15 @@ footer {
 .social-link {
     list-style: none;
     padding-inline-start: 0px;
-}
-.social-link li {
-    display: inline;
-}
-.social-link i {
-    font-size: 25px;
+
+    li {
+        display: inline;
+        margin: 2px;
+
+        i {
+            font-size: 25px;
+        }
+    }
 }
 .post-list {
     background-image: url(https://static.blex.kr/assets/images/post-default.jpg);

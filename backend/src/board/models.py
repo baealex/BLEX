@@ -110,6 +110,20 @@ class Profile(models.Model):
     about_md   = models.TextField()
     about_html = models.TextField()
 
+    def collect_social(self):
+        result = dict()
+        if self.github:
+            result['github'] = self.github
+        if self.twitter:
+            result['twitter'] = self.twitter
+        if self.youtube:
+            result['youtube'] = self.youtube
+        if self.facebook:
+            result['facebook'] = self.facebook
+        if self.instagram:
+            result['instagram'] = self.instagram
+        return result
+
     def get_thumbnail(self):
         if self.avatar:
             return self.avatar.url
