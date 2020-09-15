@@ -1,8 +1,10 @@
+import React from 'react'
 import Head from 'next/head'
-import axios from 'axios'
+
 import ArticleCard from '../components/article/ArticleCard'
 
 import API from '../modules/api'
+import PageNav from '../components/common/PageNav'
 
 export async function getServerSideProps(context) {
     let { page } = context.query;
@@ -12,6 +14,20 @@ export async function getServerSideProps(context) {
 }
 
 class Home extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            page: Number(props.page),
+            lastPage: Number(props.data.last_page),
+        };
+    }
+
+    setPage(page) {
+        let newState = this.state;
+        newState.page = page;
+        this.setState(newState);
+    }
+
     render() {
         return (
             <>
@@ -20,7 +36,26 @@ class Home extends React.Component {
                 </Head>
 
                 <div className="container">
-                    
+                    <div className="row">
+                        {this.props.data.items.map((item, idx) => (
+                            <ArticleCard
+                                key={idx}
+                                image={item.image}
+                                url={item.url}
+                                title={item.title}
+                                author={item.author}
+                                readTime={item.read_time}
+                                createdDate={item.created_date}
+                                authorImage={item.author_image}
+                            />
+                        ))}
+                    </div>
+
+                    <PageNav
+                        page={this.state.page}
+                        last={this.state.lastPage}
+                        setPage={(page) => this.setPage(page)}
+                    />
                 </div>
             </>
         )

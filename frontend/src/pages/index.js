@@ -1,10 +1,10 @@
 import React from 'react'
 import Head from 'next/head'
-import Link from 'next/link'
 
 import ArticleCard from '../components/article/ArticleCard'
 
 import API from '../modules/api'
+import PageNav from '../components/common/PageNav'
 
 export async function getServerSideProps(context) {
     let { page } = context.query;
@@ -22,15 +22,9 @@ class Home extends React.Component {
         };
     }
 
-    onNextPage() {
+    setPage(page) {
         let newState = this.state;
-        newState.page += 1;
-        this.setState(newState);
-    }
-
-    onPrevPage() {
-        let newState = this.state;
-        newState.page -= 1;
+        newState.page = page;
         this.setState(newState);
     }
 
@@ -57,33 +51,12 @@ class Home extends React.Component {
                         ))}
                     </div>
 
-                    <div className="page-nav">
-                        <div className="page-button">
-                            <Link href={`?page=${this.state.page - 1}`}>
-                                <a onClick={() => this.onPrevPage()}>이전 페이지</a>
-                            </Link>
-                        </div>
-                        
-                        <div className="page-button">
-                            <Link href={`?page=${this.state.page + 1}`}>
-                                <a onClick={() => this.onNextPage()}>다음 페이지</a>
-                            </Link>
-                        </div>
-                    </div>
+                    <PageNav
+                        page={this.state.page}
+                        last={this.state.lastPage}
+                        setPage={(page) => this.setPage(page)}
+                    />
                 </div>
-
-                <style jsx>{`
-                    .page-nav {
-
-                    }
-
-                    .page-button {
-                        display: inline-block;
-                        padding: 16px;
-                        border-radius: 8px;
-                        border: 2px solid #ccc;
-                    }
-                `}</style>
             </>
         )
     }
