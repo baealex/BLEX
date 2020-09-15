@@ -3,17 +3,17 @@ import Link from 'next/link';
 import axios from 'axios';
 import React from 'react';
 
-import ArticleContent from '../../components/article/ArticleContent'
-import ArticleSereis from '../../components/article/ArticleSeries'
-import Comment from '../../components/comment/Comment'
-import CommentForm from '../../components/comment/CommentForm'
-import CommentAlert from '../../components/comment/CommentAlert'
-import SEO from '../../components/seo'
+import ArticleContent from '../../components/article/ArticleContent';
+import ArticleSereis from '../../components/article/ArticleSeries';
+import Comment from '../../components/comment/Comment';
+import CommentForm from '../../components/comment/CommentForm';
+import CommentAlert from '../../components/comment/CommentAlert';
+import SEO from '../../components/seo';
 
-import Prism from '../../modules/library/prism'
-import API from '../../modules/api'
-import lazyLoad from '../../modules/lazy'
-import Global from '../../modules/global'
+import Prism from '../../modules/library/prism';
+import API from '../../modules/api';
+import lazyLoad from '../../modules/lazy';
+import Global from '../../modules/global';
 
 export async function getServerSideProps(context) {
     const { req } = context;
@@ -185,6 +185,11 @@ class Post extends React.Component {
                             <h1 className="post-headline">{this.props.post.title}</h1>
                             <p>{this.props.post.created_date}</p>
                             <ArticleContent html={this.props.post.text_html}/>
+                            <ul class="tag-list noto">
+                                {this.props.post.tag.map((item, idx) => (
+                                    <li key={idx}><a href="#">{item}</a></li>
+                                ))}
+                            </ul>
                             {this.props.hasSeries ? (
                                 <ArticleSereis
                                     title={this.props.series.title}
@@ -196,9 +201,6 @@ class Post extends React.Component {
                                     sereisLength={this.props.sereisLength}
                                 />
                             ) : <></>}
-                        </div>
-                        <div className="col-lg-2">
-
                         </div>
                     </div>
                 </div>
