@@ -359,12 +359,11 @@ def users(request, username):
                         'bio': user_profile.bio
                     }
                 
-                if include == 'social':
+                elif include == 'social':
                     data[include] = user_profile.collect_social()
 
-                if include == 'activity':
+                elif include == 'heatmap':
                     standard_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=365)))
-            
                     posts = Post.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, hide=False)
                     series = Series.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), owner=user)
                     comments = Comment.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, post__hide=False)
@@ -379,18 +378,54 @@ def users(request, username):
                             heatmap[key] = 1
                     data[include] = heatmap
 
-                if include == 'user_topic':
-                    pass
+                elif include == 'topic':
+                    data[include] = fn.get_user_topics(user=user, include='posts')
                 
-                if include == 'view_counter':
-                    pass
+                elif include == 'view':
+                    today_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+                    yesterday_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+                    data[include] = {
+                        'today': fn.get_view_count(user, today_date),
+                        'yesterday': fn.get_view_count(user, yesterday_date),
+                        'total': fn.get_view_count(user)
+                    }
                 
-                if include == 'most_posts':
-                    pass
+                elif include == 'most':
+                    data[include] = list(map(lambda post: {
+                        'url': post.url,
+                        'title': post.title,
+                        'image': post.get_thumbnail(),
+                        'read_time': post.read_time(),
+                        'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                        'author_image': post.author.profile.get_thumbnail(),
+                        'author': post.author.username,
+                    }, fn.get_posts('trendy', user)[:6]))
                 
-                if include == 'recent_activity':
-                    pass
-                
+                elif include == 'recent':
+                    posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('-created_date')
+                    series = Series.objects.filter(owner=user, hide=False).order_by('-created_date')
+                    comments = Comment.objects.filter(author=user, post__hide=False).order_by('-created_date')
+                    activity = sorted(chain(posts, series, comments), key=lambda instance: instance.created_date, reverse=True)[:8]
+                    data[include] = list()
+                    for active in activity:
+                        active_dict = dict()
+                        active_type = str(type(active))
+                        if 'Post' in active_type:
+                            active_dict = {
+                                'type': 'edit',
+                                'text': active.title
+                            }
+                        elif 'Comment' in active_type:
+                            active_dict = {
+                                'type': 'comment',
+                                'text': active.post.title
+                            }
+                        elif 'Series' in active_type:
+                            active_dict = {
+                                'type': 'bookmark',
+                                'text': active.name
+                            }
+                        data[include].append(active_dict)
             return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
 
         if not request.user.is_active:

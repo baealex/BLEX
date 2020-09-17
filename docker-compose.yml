@@ -16,11 +16,8 @@ services:
     build:
       context: ./frontend
     volumes:
-      - ./frontend/src/pages/:/app/pages/
-      - ./frontend/src/public/:/app/public/
-      - ./frontend/src/styles/:/app/styles/
-      - ./frontend/src/modules/:/app/modules/
-      - ./frontend/src/components/:/app/components/
+      - /app/node_modules
+      - ./frontend/src/:/app/
     ports:
       - 20001:3000
   

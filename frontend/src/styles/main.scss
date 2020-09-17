@@ -1110,13 +1110,13 @@ footer {
 .profile-post p {
     word-break:break-all;
 }
-#heatmap {
+.heatmap {
     position: relative;
-    min-height: 752px;
+    min-height: 200px;
     overflow-x: auto;
     overflow-y: hidden;
 }
-#heatmap > div {
+.heatmap > div {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);

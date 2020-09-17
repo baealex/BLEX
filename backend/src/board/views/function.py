@@ -16,6 +16,9 @@ from django.conf import settings
 from board.models import *
 from board import telegram
 
+def wrapping_image():
+    pass
+
 def view_count(type, element, request):
     if element.author == request.user:
         return
