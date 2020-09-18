@@ -23,6 +23,7 @@ class TopNavigation extends React.Component {
             ...this.state,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
+            isNightMode: Global.state.isNightMode
         }));
     }
 
@@ -30,8 +31,8 @@ class TopNavigation extends React.Component {
         this.bodyClass = document.querySelector('body').classList;
         const nightmode = Cookie.get('nightmode');
         nightmode === 'true' && this.bodyClass.add('dark');
-        this.setState({
-            ...this.state,
+        Global.setState({
+            ...Global.state,
             isNightMode: nightmode ? true : false,
         });
 
@@ -121,8 +122,8 @@ class TopNavigation extends React.Component {
                 path: '/',
                 expire: -1,
             });
-            this.setState({
-                ...this.state,
+            Global.setState({
+                ...Global.state,
                 isNightMode: false
             });
             this.bodyClass.remove('dark');
@@ -131,8 +132,8 @@ class TopNavigation extends React.Component {
                 path: '/',
                 expire: 365,
             });
-            this.setState({
-                ...this.state,
+            Global.setState({
+                ...Global.state,
                 isNightMode: true
             });
             this.bodyClass.add('dark');

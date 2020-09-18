@@ -18,7 +18,11 @@ class Main extends App {
                 <Head>
                     <title>BLOG EXPRESS ME</title>
                     <link rel="icon" href="/favicon.ico" />
-                    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous"/>
+                    <link
+                        rel="stylesheet"
+                        href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+                        integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+                        crossOrigin="anonymous"/>
                     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR|Black+Han+Sans"/>
                     <link
                         rel="stylesheet"

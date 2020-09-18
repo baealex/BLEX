@@ -4,16 +4,16 @@ import React from 'react';
 class Navigation extends React.Component {
     render() {
         return (
-            <div class="profile-tab back-image mt-5">
-                <div class="mask">
-                    <ul class="serif">
+            <div className="profile-tab back-image mt-5">
+                <div className="mask">
+                    <ul className="serif">
                         <Link href="/[author]" as={`/@${this.props.username}`}>
                             <li>개요</li>
                         </Link>
-                        <Link href="/[author]" as={`/@${this.props.username}/posts`}>
+                        <Link href="/[author]/posts" as={`/@${this.props.username}/posts`}>
                             <li>포스트</li>
                         </Link>
-                        <Link href="/[author]" as={`/@${this.props.username}/series`}>
+                        <Link href="/[author]/series" as={`/@${this.props.username}/series`}>
                             <li>시리즈</li>
                         </Link>
                         <Link href="/[author]/about" as={`/@${this.props.username}/about`}>

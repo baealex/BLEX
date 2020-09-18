@@ -2,12 +2,12 @@ import Head from 'next/head';
 import Link from 'next/link';
 import React from 'react';
 
-import SEO from '../../components/seo'
+import SEO from '../../../components/seo'
 
-import API from '../../modules/api'
-import Social from '../../components/profile/Social';
-import Profile from '../../components/profile/Profile';
-import Navigation from '../../components/profile/Navigation';
+import API from '../../../modules/api'
+import Social from '../../../components/profile/Social';
+import Profile from '../../../components/profile/Profile';
+import Navigation from '../../../components/profile/Navigation';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
@@ -22,9 +22,10 @@ export async function getServerSideProps(context) {
     }
 }
 
-class About extends React.Component {
+class Posts extends React.Component {
     constructor(props) {
         super(props);
+
     }
 
     render() {
@@ -40,4 +41,4 @@ class About extends React.Component {
     }
 }
 
-export default About
+export default Posts

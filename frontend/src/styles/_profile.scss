@@ -1,0 +1,16 @@
+.profile-activity li {
+    list-style: none;
+    border: 3px solid #eee;
+    margin: 10px 0;
+    padding: 20px;
+    overflow: hidden;
+    word-wrap: break-word;
+
+    i {
+        margin-right: 10px;
+    }
+
+    body.dark & {
+        border: 3px solid #555;
+    }
+}

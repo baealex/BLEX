@@ -5,60 +5,10 @@
 @import 'share';
 @import 'modal';
 @import 'prism';
+@import 'useful';
+@import 'profile';
 @import 'googlesearch';
 @import 'bootstrapoverride';
-
-// 유용한 클래스 정의
-.c-pointer {
-    cursor: pointer;
-}
-.h-150 {
-    height: 150px;
-}
-.fade-mask {
-    background:linear-gradient(to bottom, rgba(0,0,0,0), rgba(255,255,255,1))
-}
-.fade-mask, .thick-mask {
-    width: 100%;
-    height: 100%;
-    color: #fff;
-}
-.none-list {
-    list-style: none;
-    padding-left: 0;
-    display: inline;
-}
-.none-list li { 
-    display: inline-block;
-}
-.padding-remove {
-    padding-right: 0px !important;
-    padding-left: 0px !important;
-}
-.mobile-disable {
-    display: none;
-}
-.pc-disable {
-    display: block;
-}
-.content {
-    margin-top: 120px;
-    word-break:break-all;
-
-    @media only screen and (max-width: 991px) {
-        margin-top: 60px;
-    }
-}
-@media only screen and (min-width: 991px) {
-    .mobile-disable {
-        display: block;
-    }
-    .pc-disable {
-        display: none;
-    }
-}
-
-
 
 // 태그 목록 디자인
 .tag-list {
@@ -1036,19 +986,6 @@ footer {
         }
     }
 }
-.profile-activity li {
-    list-style: none;
-    border: 3px solid #eee;
-    margin: 10px 0;
-    padding: 20px;
-    overflow: hidden;
-    word-wrap: break-word;
-}
-.profile-activity blockquote {
-    margin: 10px 0px;
-    padding: 10px;
-    border-left: 3px solid #ccc;
-}
 .profile-tags {
     @media only screen and (max-width: 991px) {
         overflow-x: scroll;
@@ -1741,9 +1678,6 @@ body.dark .post-mask {
 }
 body.dark .post-mask:hover {
     background-color: rgba(50, 50, 50, 0.3);
-}
-body.dark .profile-activity li {
-    border: 3px solid #555;
 }
 body.dark .series-desc blockquote {
     background: #1e1e1e;

@@ -3,11 +3,15 @@ import React from 'react';
 import SEO from '../../components/seo';
 
 import API from '../../modules/api';
+import Global from '../../modules/global';
+
 import Profile from '../../components/profile/Profile';
 import Navigation from '../../components/profile/Navigation';
 import Heatmap from '../../components/profile/Heatmap';
+import HeatmapDark from '../../components/profile/HeatmapDark';
 import ViewCounter from '../../components/profile/ViewCounter';
 import RecentActivity from '../../components/profile/RecentActivity';
+import FeatureContent from '../../components/profile/FeatureContent';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
@@ -21,6 +25,7 @@ export async function getServerSideProps(context) {
     ]);
     return {
         props: {
+            author: author.replace('@', ''),
             profile: data
         }
     }
@@ -29,19 +34,33 @@ export async function getServerSideProps(context) {
 class Overview extends React.Component {
     constructor(props) {
         super(props);
-
+        this.state = {
+            isNightMode: Global.state.isNightMode
+        };
+        Global.appendUpdater('Overview', () => {
+            this.setState({
+                isNightMode: Global.state.isNightMode
+            });
+        });
     }
 
     render() {
         console.log(this.props)
+        let heatmap = this.state.isNightMode ? (
+            <HeatmapDark data={this.props.profile.heatmap}/>
+        ) : (
+            <Heatmap data={this.props.profile.heatmap}/>
+        );
+
         return (
             <>
                 <Profile {...this.props.profile} {...this.props.social}/>
                 <Navigation username={this.props.profile.profile.username}/>
-                <div class="container">
-                    <div class="col-lg-8 mx-auto p-0">
+                <div className="container">
+                    <div className="col-lg-8 mx-auto p-0">
                         <ViewCounter {...this.props.profile.view}/>
-                        <Heatmap data={this.props.profile.heatmap}/>
+                        <FeatureContent articles={this.props.profile.most}/>
+                        {heatmap}
                         <RecentActivity data={this.props.profile.recent}/>
                     </div>
                 </div>
@@ -50,4 +69,4 @@ class Overview extends React.Component {
     }
 }
 
-export default Overview
+export default Overview;

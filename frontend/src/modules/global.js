@@ -2,7 +2,8 @@ class Global {
     constructor() {
         this.state = {
             isLogin: false,
-            username: ''
+            username: '',
+            isNightMode: false
         }
         this._updater = {};
     }

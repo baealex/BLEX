@@ -38,16 +38,7 @@ class Home extends React.Component {
                 <div className="container">
                     <div className="row">
                         {this.props.data.items.map((item, idx) => (
-                            <ArticleCard
-                                key={idx}
-                                image={item.image}
-                                url={item.url}
-                                title={item.title}
-                                author={item.author}
-                                readTime={item.read_time}
-                                createdDate={item.created_date}
-                                authorImage={item.author_image}
-                            />
+                            <ArticleCard key={idx} {...item}/>
                         ))}
                     </div>
 
