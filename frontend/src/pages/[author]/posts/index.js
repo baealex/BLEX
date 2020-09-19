@@ -5,7 +5,6 @@ import React from 'react';
 import SEO from '../../../components/seo'
 
 import API from '../../../modules/api'
-import Social from '../../../components/profile/Social';
 import Profile from '../../../components/profile/Profile';
 import Navigation from '../../../components/profile/Navigation';
 
