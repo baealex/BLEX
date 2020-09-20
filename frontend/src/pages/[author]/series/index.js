@@ -31,7 +31,7 @@ class Series extends React.Component {
     render() {
         return (
             <>
-                <Profile {...this.props.profile} {...this.props.social}/>
+                <Profile profile={this.props.profile.profile} social={this.props.social}/>
                 <Navigation username={this.props.profile.profile.username}/>
                 <div className="container">
 

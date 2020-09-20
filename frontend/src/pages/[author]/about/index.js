@@ -12,7 +12,7 @@ export async function getServerSideProps(context) {
     const { author } = context.query;
     const { data } = await API.getUserProfile(author.replace('@', ''), [
         'profile',
-        'social',
+        'social'
     ]);
     return {
         props: {
@@ -30,9 +30,8 @@ class About extends React.Component {
         return (
             <>
                 <Profile {...this.props.profile} {...this.props.social}/>
-                <Navigation username={this.props.profile.profile.username}/>
                 <div className="container">
-
+                    
                 </div>
             </>
         )

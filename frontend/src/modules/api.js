@@ -23,6 +23,13 @@ class API {
             method: 'GET',
         });
     }
+    
+    async getUserPosts(author, page, topic='') {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?topic=${topic}&page=${page}`,
+            method: 'GET',
+        });
+    }
 
     async getPost(author, url, cookie=undefined) {
         return await axios({

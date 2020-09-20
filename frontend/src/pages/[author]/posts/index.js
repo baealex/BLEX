@@ -6,17 +6,23 @@ import SEO from '../../../components/seo'
 
 import API from '../../../modules/api'
 import Profile from '../../../components/profile/Profile';
-import Navigation from '../../../components/profile/Navigation';
+import PostsComponent from '../../../components/profile/Posts';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
     const { data } = await API.getUserProfile(author.replace('@', ''), [
         'profile',
         'social',
+        'topic'
     ]);
+
+    let { page } = context.query;
+    page = page ? page : 1;
+    const posts = await API.getUserPosts(author.replace('@', ''), page);
     return {
         props: {
-            profile: data
+            profile: data,
+            posts: posts.data
         }
     }
 }
@@ -24,16 +30,15 @@ export async function getServerSideProps(context) {
 class Posts extends React.Component {
     constructor(props) {
         super(props);
-
     }
 
     render() {
+        console.log(this.props)
         return (
             <>
-                <Profile {...this.props.profile} {...this.props.social}/>
-                <Navigation username={this.props.profile.profile.username}/>
+                <Profile profile={this.props.profile.profile} social={this.props.social}/>
                 <div className="container">
-
+                    <PostsComponent topic={this.props.profile.topic}/>
                 </div>
             </>
         )

@@ -94,9 +94,31 @@ def posts(request, sort):
         }, json_dumps_params={'ensure_ascii': True})
     
 
-def user_posts(request, username, url):
+def user_posts(request, username, url=None):
     if not url:
-        pass
+        if request.method == 'GET':
+            posts = Post.objects.filter(created_date__lte=timezone.now(), author__username=username, hide=False)
+            topic = request.GET.get('topic', '')
+            if topic:
+                posts = posts.filter(tag__iregex=r'\b%s\b' % topic)
+            posts = posts.order_by('-created_date')
+            
+            page = request.GET.get('page', 1)
+            paginator = Paginator(posts, 10)
+            fn.page_check(page, paginator)
+            posts = paginator.get_page(page)
+            return JsonResponse({
+                'items': list(map(lambda post: {
+                    'url': post.url,
+                    'title': post.title,
+                    'image': post.get_thumbnail(),
+                    'read_time': post.read_time(),
+                    'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                    'author_image': post.author.profile.get_thumbnail(),
+                    'author': post.author.username,
+                }, posts)),
+                'last_page': posts.paginator.num_pages
+            }, json_dumps_params={'ensure_ascii': True})
     
     if url:
         post = get_object_or_404(Post, author__username=username, url=url)
