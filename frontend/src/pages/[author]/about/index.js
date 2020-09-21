@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import React from 'react';
 
 import SEO from '../../../components/seo'
@@ -10,7 +9,7 @@ import Navigation from '../../../components/profile/Navigation';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
-    const { data } = await API.getUserProfile(author.replace('@', ''), [
+    const { data } = await API.getUserProfile(author, [
         'profile',
         'social'
     ]);
@@ -29,7 +28,11 @@ class About extends React.Component {
     render() {
         return (
             <>
-                <Profile {...this.props.profile} {...this.props.social}/>
+                <Head>
+                    <title>{this.props.profile.profile.username} ({this.props.profile.profile.realname}) —  About</title>
+                </Head>
+
+                <Profile profile={this.props.profile.profile} social={this.props.profile.social}/>
                 <div className="container">
                     
                 </div>

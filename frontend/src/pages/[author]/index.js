@@ -1,4 +1,5 @@
 import React from 'react';
+import Head from 'next/head'
 
 import SEO from '../../components/seo';
 
@@ -15,7 +16,7 @@ import FeatureContent from '../../components/profile/FeatureContent';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
-    const { data } = await API.getUserProfile(author.replace('@', ''), [
+    const { data } = await API.getUserProfile(author, [
         'profile',
         'social',
         'heatmap',
@@ -25,7 +26,6 @@ export async function getServerSideProps(context) {
     ]);
     return {
         props: {
-            author: author.replace('@', ''),
             profile: data
         }
     }
@@ -53,7 +53,11 @@ class Overview extends React.Component {
 
         return (
             <>
-                <Profile profile={this.props.profile.profile} social={this.props.social}/>
+                <Head>
+                    <title>{this.props.profile.profile.username} ({this.props.profile.profile.realname})</title>
+                </Head>
+
+                <Profile profile={this.props.profile.profile} social={this.props.profile.social}/>
                 <div className="container">
                     <div className="col-lg-8 mx-auto p-0">
                         <ViewCounter {...this.props.profile.view}/>

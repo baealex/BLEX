@@ -5,6 +5,7 @@ import React from 'react';
 
 import ArticleContent from '../../components/article/ArticleContent';
 import ArticleSereis from '../../components/article/ArticleSeries';
+import TagList from '../../components/common/TagList';
 import Comment from '../../components/comment/Comment';
 import CommentForm from '../../components/comment/CommentForm';
 import CommentAlert from '../../components/comment/CommentAlert';
@@ -18,30 +19,29 @@ import Global from '../../modules/global';
 export async function getServerSideProps(context) {
     const { req } = context;
     const { author, posturl } = context.query;
-    let post = await API.getPost(author.replace('@', ''), posturl, req.headers.cookie);
+    let post = await API.getPost(author, posturl, req.headers.cookie);
     post.data.tag = post.data.tag.split(',');
+    const profile = await API.getUserProfile(author, [
+        'profile',
+        'social'
+    ]);
+    let resultProps = {
+        hasSeries: false,
+        post: post.data,
+        profile: profile.data
+    };
     if(post.data.series) {
         let series = await API.getSeries(post.data.series);
         const sereisLength = series.data.posts.length;
         const activeSeries = series.data.posts.findIndex(
             item => item.title == post.data.title
         );
-        return {
-            props: {
-                activeSeries,
-                hasSeries: true,
-                post: post.data,
-                series: series.data,
-                sereisLength
-            }
-        }
+        resultProps['hasSeries'] = true;
+        resultProps['activeSeries'] = activeSeries;
+        resultProps['sereisLength'] = sereisLength;
+        resultProps['series'] = series.data;
     }
-    return {
-        props: {
-            hasSeries: false,
-            post: post.data
-        }
-    }
+    return { props: resultProps };
 }
 
 class Post extends React.Component {
@@ -185,11 +185,7 @@ class Post extends React.Component {
                             <h1 className="post-headline">{this.props.post.title}</h1>
                             <p>{this.props.post.created_date}</p>
                             <ArticleContent html={this.props.post.text_html}/>
-                            <ul class="tag-list noto">
-                                {this.props.post.tag.map((item, idx) => (
-                                    <li key={idx}><a href="#">{item}</a></li>
-                                ))}
-                            </ul>
+                            <TagList tag={this.props.post.tag}/>
                             {this.props.hasSeries ? (
                                 <ArticleSereis
                                     title={this.props.series.title}

@@ -113,6 +113,7 @@ def user_posts(request, username, url=None):
                     'title': post.title,
                     'image': post.get_thumbnail(),
                     'read_time': post.read_time(),
+                    'description': post.description(),
                     'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
                     'author_image': post.author.profile.get_thumbnail(),
                     'author': post.author.username,

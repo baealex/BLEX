@@ -22,12 +22,6 @@ class Home extends React.Component {
         };
     }
 
-    setPage(page) {
-        let newState = this.state;
-        newState.page = page;
-        this.setState(newState);
-    }
-
     render() {
         return (
             <>
@@ -45,7 +39,7 @@ class Home extends React.Component {
                     <PageNav
                         page={this.state.page}
                         last={this.state.lastPage}
-                        setPage={(page) => this.setPage(page)}
+                        setPage={(page) => this.setState({...this.state, page: page })}
                     />
                 </div>
             </>

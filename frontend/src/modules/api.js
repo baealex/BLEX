@@ -26,7 +26,7 @@ class API {
     
     async getUserPosts(author, page, topic='') {
         return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?topic=${topic}&page=${page}`,
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?topic=${encodeURIComponent(topic)}&page=${page}`,
             method: 'GET',
         });
     }
