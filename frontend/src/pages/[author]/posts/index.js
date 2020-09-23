@@ -13,7 +13,7 @@ export async function getServerSideProps(context) {
     const { data } = await API.getUserProfile(author, [
         'profile',
         'social',
-        'topic'
+        'tags'
     ]);
 
     let { page } = context.query;
@@ -48,7 +48,7 @@ class Posts extends React.Component {
                 <div className="container">
                     <PostsComponent
                         author={this.props.profile.profile.username}
-                        topic={this.props.profile.topic}
+                        tags={this.props.profile.tags}
                         posts={this.props.posts.items}>
                         <PageNav
                             page={this.state.page}

@@ -24,9 +24,9 @@ class API {
         });
     }
     
-    async getUserPosts(author, page, topic='') {
+    async getUserPosts(author, page, tag='') {
         return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?topic=${encodeURIComponent(topic)}&page=${page}`,
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
             method: 'GET',
         });
     }
@@ -57,7 +57,21 @@ class API {
 
     async getUserProfile(author, includes) {
         return await axios({
-            url: `${Config.API_SERVER}/v1/users/${author}?includes=${includes.join(',')}`,
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
+            method: 'GET'
+        });
+    }
+
+    async getAllTags(page) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/tags?page=${page}`,
+            method: 'GET'
+        });
+    }
+
+    async getTag(tag, page) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
             method: 'GET'
         });
     }

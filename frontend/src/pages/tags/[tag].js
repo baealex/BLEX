@@ -1,33 +1,42 @@
-import React from 'react'
-import Head from 'next/head'
+import Head from 'next/head';
+import React from 'react';
 
-import ArticleCard from '../components/article/ArticleCard'
+import SEO from '../../components/seo'
 
-import API from '../modules/api'
-import PageNav from '../components/common/PageNav'
+import API from '../../modules/api'
+import PageNav from '../../components/common/PageNav';
+import ArticleCard from '../../components/article/ArticleCard';
+import TopicsDesc from '../../components/tag/TagDesc';
+import Title from '../../components/common/Title';
 
 export async function getServerSideProps(context) {
+    const { tag } = context.query;
     let { page } = context.query;
     page = page ? page : 1;
-    const { data } = await API.getAllPosts('newest', page);
-    return { props: { data, page } }
+    const { data } = await API.getTag(tag, page);
+    return {
+        props: {
+            page,
+            data
+        }
+    }
 }
 
-class Home extends React.Component {
+class Tag extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             page: Number(props.page),
-            lastPage: Number(props.data.last_page),
+            lastPage: Number(props.data.last_page)
         };
     }
-
+    
     componentDidUpdate(prevProps) {
         if(this.props.data.last_page != prevProps.data.last_page || this.props.page != prevProps.page) {
             this.setState({
                 page: Number(this.props.page),
                 lastPage: Number(this.props.data.last_page)
-            });
+            })
         }
     }
 
@@ -35,12 +44,16 @@ class Home extends React.Component {
         return (
             <>
                 <Head>
-                    <title>최신 포스트 — BLEX</title>
+                    <title>{this.props.data.tag} —  BLEX</title>
                 </Head>
 
                 <div className="container">
+                    <Title text={this.props.data.tag}/>
+                    {this.props.data.desc.url ? (
+                        <TopicsDesc {...this.props.data.desc}/>
+                    ) : ''}
                     <div className="row">
-                        {this.props.data.items.map((item, idx) => (
+                        {this.props.data.posts.map((item, idx) => (
                             <ArticleCard key={idx} {...item}/>
                         ))}
                     </div>
@@ -55,4 +68,4 @@ class Home extends React.Component {
     }
 }
 
-export default Home;
+export default Tag;

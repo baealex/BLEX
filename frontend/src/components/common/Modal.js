@@ -17,7 +17,7 @@ class Modal extends React.Component {
                         <div onClick={() => this.onClose()} className="modal-overlay"/>
                         <div className="modal-b">
                             <div onClick={() => this.onClose()} className="close-button">
-                                <i class="fas fa-times"></i>
+                                <i className="fas fa-times"></i>
                             </div>
                             {this.props.children}
                         </div>

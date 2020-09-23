@@ -5,7 +5,7 @@ import React from 'react';
 
 import ArticleContent from '../../components/article/ArticleContent';
 import ArticleSereis from '../../components/article/ArticleSeries';
-import TagList from '../../components/common/TagList';
+import TagList from '../../components/tag/TagList';
 import Comment from '../../components/comment/Comment';
 import CommentForm from '../../components/comment/CommentForm';
 import CommentAlert from '../../components/comment/CommentAlert';
@@ -145,15 +145,15 @@ class Post extends React.Component {
             <>
                 <Head>
                     <title>{`${this.props.post.title} — ${this.props.post.author}`}</title>
-                    <SEO
-                        title={this.props.post.title}
-                        description={this.props.post.description}
-                        author={this.props.post.author}
-                        keywords={this.props.post.tag.join(',')}
-                        image={this.props.post.image}
-                        url={this.props.url}
-                    />
                 </Head>
+                <SEO
+                    title={this.props.post.title}
+                    description={this.props.post.description}
+                    author={this.props.post.author}
+                    keywords={this.props.post.tag.join(',')}
+                    image={this.props.post.image}
+                    url={this.props.url}
+                />
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-2">

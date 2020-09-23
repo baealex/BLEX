@@ -15,9 +15,11 @@ export default function ArticleCard(props) {
                     </h5>
                 </a>
             </Link>
-            <a>
-                <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.author_image})`}}/>
-            </a>
+            <Link href="/[author]" as={`/@${props.author}`}>
+                <a>
+                    <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.author_image})`}}/>
+                </a>
+            </Link>
             <p className="vs serif">
                 <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.created_date} · <span className="shallow-dark">{props.read_time} min read</span>
             </p>

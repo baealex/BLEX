@@ -1,19 +1,19 @@
 import React from 'react'
 import Head from 'next/head'
 
-import ArticleCard from '../components/article/ArticleCard'
+import TagItem from '../../components/tag/TagItem'
 
-import API from '../modules/api'
-import PageNav from '../components/common/PageNav'
+import API from '../../modules/api'
+import PageNav from '../../components/common/PageNav'
 
 export async function getServerSideProps(context) {
     let { page } = context.query;
     page = page ? page : 1;
-    const { data } = await API.getAllPosts('newest', page);
+    const { data } = await API.getAllTags(page);
     return { props: { data, page } }
 }
 
-class Home extends React.Component {
+class Tags extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -35,13 +35,13 @@ class Home extends React.Component {
         return (
             <>
                 <Head>
-                    <title>최신 포스트 — BLEX</title>
+                    <title>태그 클라우드 — BLEX</title>
                 </Head>
 
                 <div className="container">
                     <div className="row">
-                        {this.props.data.items.map((item, idx) => (
-                            <ArticleCard key={idx} {...item}/>
+                        {this.props.data.tags.map((item, idx) => (
+                            <TagItem key={idx} {...item}/>
                         ))}
                     </div>
 
@@ -55,4 +55,4 @@ class Home extends React.Component {
     }
 }
 
-export default Home;
+export default Tags;

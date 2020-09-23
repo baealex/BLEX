@@ -181,12 +181,12 @@ class TopNavigation extends React.Component {
                         <button
                             className='login-button google'
                             onClick={() => this.onSubmitSocialLogin('google')}>
-                            <i class="fab fa-google"></i> Google 로그인
+                            <i className="fab fa-google"></i> Google 로그인
                         </button>
                         <button
                             className='login-button github'
                             onClick={() => this.onSubmitSocialLogin('github')}>
-                            <i class="fab fa-github"></i> GitHub 로그인
+                            <i className="fab fa-github"></i> GitHub 로그인
                         </button>
                     </div>
                 </Modal>

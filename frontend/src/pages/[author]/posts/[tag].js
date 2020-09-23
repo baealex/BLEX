@@ -9,20 +9,20 @@ import PostsComponent from '../../../components/profile/Posts';
 import PageNav from '../../../components/common/PageNav';
 
 export async function getServerSideProps(context) {
-    const { author, topic } = context.query;
+    const { author, tag } = context.query;
     const { data } = await API.getUserProfile(author, [
         'profile',
         'social',
-        'topic'
+        'tags'
     ]);
 
     let { page } = context.query;
     page = page ? page : 1;
-    const posts = await API.getUserPosts(author, page, topic);
+    const posts = await API.getUserPosts(author, page, tag);
     return {
         props: {
             page,
-            topic,
+            tag,
             profile: data,
             posts: posts.data
         }
@@ -38,23 +38,31 @@ class Posts extends React.Component {
         };
     }
 
+    componentDidUpdate(prevProps) {
+        if(this.props.posts.last_page != prevProps.posts.last_page || this.props.page != prevProps.page) {
+            this.setState({
+                page: Number(this.props.page),
+                lastPage: Number(this.props.posts.last_page)
+            })
+        }
+    }
+
     render() {
         return (
             <>
                 <Head>
-                    <title>{this.props.profile.profile.username}' {this.props.topic}</title>
+                    <title>{this.props.profile.profile.username}'s {this.props.tag}</title>
                 </Head>
 
                 <Profile profile={this.props.profile.profile} social={this.props.profile.social}/>
                 <div className="container">
                     <PostsComponent
                         author={this.props.profile.profile.username}
-                        topic={this.props.profile.topic}
+                        tags={this.props.profile.tags}
                         posts={this.props.posts.items}>
                         <PageNav
                             page={this.state.page}
                             last={this.state.lastPage}
-                            setPage={(page) => this.setState({...this.state, page: page })}
                         />
                     </PostsComponent>
                 </div>

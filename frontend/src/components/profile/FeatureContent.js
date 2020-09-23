@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import PurpleBorder from "../common/PurpleBorder";
 
 export default function FeatureContent(props) {
@@ -21,13 +23,15 @@ function FeatureCard(props) {
     return (
         <div className="col-md-4 mt-3">
             <div className="blex-card noto">
-                <a className="deep-dark" href={`@${props.author}/${props.url}`}>
-                    <img className="feature-image" src={props.image}/>
-                    <div className="p-3">
-                        {props.title}
-                        <div className="vs serif mt-2">{props.created_date} · <span className="shallow-dark">{props.read_time} min read</span></div>
-                    </div>
-                </a>
+                <Link href="/[author]/[posturl]" as={`@${props.author}/${props.url}`}>
+                    <a className="deep-dark">
+                        <img className="feature-image" src={`https://static.blex.me/${props.image}`}/>
+                        <div className="p-3">
+                            {props.title}
+                            <div className="vs serif mt-2">{props.created_date} · <span className="shallow-dark">{props.read_time} min read</span></div>
+                        </div>
+                    </a>
+                </Link>
             </div>
         </div>
     )

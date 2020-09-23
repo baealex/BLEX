@@ -22,7 +22,7 @@ class ArticleSereis extends React.Component {
                                 </Link>
                                 <div className="series-count">{idx + 1}/{this.props.sereisLength}</div>
                             </li>
-                        ) : <></>
+                        ) : ''
                     )) : <></>}
                 </ul>
             </div>

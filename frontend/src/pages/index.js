@@ -22,6 +22,15 @@ class Home extends React.Component {
         };
     }
 
+    componentDidUpdate(prevProps) {
+        if(this.props.data.last_page != prevProps.data.last_page || this.props.page != prevProps.page) {
+            this.setState({
+                page: Number(this.props.page),
+                lastPage: Number(this.props.data.last_page)
+            });
+        }
+    }
+
     render() {
         return (
             <>
@@ -39,7 +48,6 @@ class Home extends React.Component {
                     <PageNav
                         page={this.state.page}
                         last={this.state.lastPage}
-                        setPage={(page) => this.setState({...this.state, page: page })}
                     />
                 </div>
             </>

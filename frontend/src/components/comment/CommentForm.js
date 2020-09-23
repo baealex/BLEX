@@ -31,7 +31,7 @@ class CommentForm extends React.Component {
                     className="form-control noto"
                     onChange={(e) => this.onChangeComment(e)}
                     placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
-                    maxlength="300"
+                    maxLength="300"
                     value={this.state.comment}>
                 </textarea>
                 <button

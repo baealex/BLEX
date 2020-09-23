@@ -223,8 +223,8 @@ class Post(models.Model):
     def total_comment(self):
         return self.comments.count()
     
-    def description(self):
-        return truncatewords(strip_tags(self.text_html), 30)
+    def description(self, count=30):
+        return truncatewords(strip_tags(self.text_html), count)
     
     def read_time(self):
         return int(len(strip_tags(self.text_html))/500)

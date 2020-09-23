@@ -5,7 +5,7 @@ import PurpleBorder from '../common/PurpleBorder';
 export default function Posts(props) {
     return (
         <div className="row">
-            <Topics author={props.author} topic={props.topic}/>
+            <Tags author={props.author} tags={props.tags}/>
             <Articles posts={props.posts}>
                 {props.children}
             </Articles>
@@ -13,20 +13,20 @@ export default function Posts(props) {
     )
 }
 
-function Topics(props) {
+function Tags(props) {
     return (
         <div className="profile-tags col-lg-3">
             <ul className="mt-4 noto">
                 <h5>카테고리</h5>
-                <Link href="/[author]/posts" as={`/@${props.author}/posts`}>
+                <Link href="/[author]/posts" as={`/@${props.author}/posts`} scroll={false}>
                     <a className="shallow-dark">
-                        <li>전체<span className="ns">({props.topic.reduce((acc, cur) => acc += cur.count, 0)})</span></li>
+                        <li>전체</li>
                     </a>
                 </Link>
-                {props.topic.map((item, idx) => (
-                    <Link href="/[author]/posts/[topic]" as={`/@${props.author}/posts/${item.name}`}>
+                {props.tags.map((item, idx) => (
+                    <Link key={idx} href="/[author]/posts/[tag]" as={`/@${props.author}/posts/${item.name}`} scroll={false}>
                         <a className="shallow-dark">
-                            <li key={idx}>{item.name}<span className="ns">({item.count})</span></li>
+                            <li>{item.name}<span className="ns">({item.count})</span></li>
                         </a>
                     </Link>
                 ))}
