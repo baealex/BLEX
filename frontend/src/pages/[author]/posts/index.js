@@ -44,9 +44,10 @@ class Posts extends React.Component {
                     <title>{this.props.profile.profile.username} ({this.props.profile.profile.realname}) —  Posts</title>
                 </Head>
 
-                <Profile profile={this.props.profile.profile} social={this.props.profile.social}/>
+                <Profile active="posts" profile={this.props.profile.profile} social={this.props.profile.social}/>
                 <div className="container">
                     <PostsComponent
+                        active="all"
                         author={this.props.profile.profile.username}
                         tags={this.props.profile.tags}
                         posts={this.props.posts.items}>

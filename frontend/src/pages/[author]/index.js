@@ -57,7 +57,7 @@ class Overview extends React.Component {
                     <title>{this.props.profile.profile.username} ({this.props.profile.profile.realname})</title>
                 </Head>
 
-                <Profile profile={this.props.profile.profile} social={this.props.profile.social}/>
+                <Profile active="overview" profile={this.props.profile.profile} social={this.props.profile.social}/>
                 <div className="container">
                     <div className="col-lg-8 mx-auto p-0">
                         <ViewCounter {...this.props.profile.view}/>

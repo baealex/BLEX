@@ -8,16 +8,16 @@ class Navigation extends React.Component {
                 <div className="mask">
                     <ul className="serif">
                         <Link href="/[author]" as={`/@${this.props.username}`} scroll={false} prefetch={true}>
-                            <li>개요</li>
+                            <li className={this.props.active === 'overview' ? 'active' : ''}>개요</li>
                         </Link>
                         <Link href="/[author]/posts" as={`/@${this.props.username}/posts`} scroll={false} prefetch={true}>
-                            <li>포스트</li>
+                            <li className={this.props.active === 'posts' ? 'active' : ''}>포스트</li>
                         </Link>
                         <Link href="/[author]/series" as={`/@${this.props.username}/series`} scroll={false} prefetch={true}>
-                            <li>시리즈</li>
+                            <li className={this.props.active === 'series' ? 'active' : ''}>시리즈</li>
                         </Link>
                         <Link href="/[author]/about" as={`/@${this.props.username}/about`} scroll={false} prefetch={true}>
-                            <li>소개</li>
+                            <li className={this.props.active === 'about' ? 'active' : ''}>소개</li>
                         </Link>
                     </ul>
                 </div>

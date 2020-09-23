@@ -32,7 +32,7 @@ class Series extends React.Component {
                     <title>{this.props.profile.profile.username} ({this.props.profile.profile.realname}) —  Series</title>
                 </Head>
 
-                <Profile profile={this.props.profile.profile} social={this.props.profile.social}/>
+                <Profile active="series" profile={this.props.profile.profile} social={this.props.profile.social}/>
                 <div className="container">
 
                 </div>

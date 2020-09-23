@@ -12,7 +12,7 @@ export default function Profile(props) {
                     <Social {...props.social}/>
                 </div>
             </div>
-            <Navigation username={props.profile.username}/>
+            <Navigation active={props.active} username={props.profile.username}/>
         </>
     )
 }

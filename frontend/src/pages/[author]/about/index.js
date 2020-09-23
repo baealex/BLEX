@@ -32,7 +32,7 @@ class About extends React.Component {
                     <title>{this.props.profile.profile.username} ({this.props.profile.profile.realname}) —  About</title>
                 </Head>
 
-                <Profile profile={this.props.profile.profile} social={this.props.profile.social}/>
+                <Profile active="about" profile={this.props.profile.profile} social={this.props.profile.social}/>
                 <div className="container">
                     
                 </div>

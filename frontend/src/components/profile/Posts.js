@@ -5,7 +5,7 @@ import PurpleBorder from '../common/PurpleBorder';
 export default function Posts(props) {
     return (
         <div className="row">
-            <Tags author={props.author} tags={props.tags}/>
+            <Tags active={props.active} author={props.author} tags={props.tags}/>
             <Articles posts={props.posts}>
                 {props.children}
             </Articles>
@@ -19,13 +19,13 @@ function Tags(props) {
             <ul className="mt-4 noto">
                 <h5>카테고리</h5>
                 <Link href="/[author]/posts" as={`/@${props.author}/posts`} scroll={false}>
-                    <a className="shallow-dark">
-                        <li>전체</li>
+                    <a className={`shallow-dark ${props.active === 'all' ? 'active' : ''}`}>
+                        <li>전체 포스트</li>
                     </a>
                 </Link>
                 {props.tags.map((item, idx) => (
                     <Link key={idx} href="/[author]/posts/[tag]" as={`/@${props.author}/posts/${item.name}`} scroll={false}>
-                        <a className="shallow-dark">
+                        <a className={`shallow-dark ${props.active === item.name ? 'active' : ''}`}>
                             <li>{item.name}<span className="ns">({item.count})</span></li>
                         </a>
                     </Link>
