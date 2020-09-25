@@ -10,7 +10,9 @@ class ArticleSereis extends React.Component {
                         <strong>'{this.props.title}' 시리즈</strong> {this.props.description}
                     </blockquote>
                     <div className="author">
-                        <a><img src={this.props.authorImage}/></a>
+                        <Link href="/[author]" as={`/@${this.props.author}`}>
+                            <a><img src={this.props.authorImage}/></a>
+                        </Link>
                     </div>
                 </div>
                 <ul>

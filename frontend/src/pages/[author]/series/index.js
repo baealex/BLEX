@@ -5,7 +5,8 @@ import SEO from '../../../components/seo'
 
 import API from '../../../modules/api'
 import Profile from '../../../components/profile/Profile';
-import Navigation from '../../../components/profile/Navigation';
+import SeriesComponent from '../../../components/profile/Series';
+import PageNav from '../../../components/common/PageNav';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
@@ -13,9 +14,14 @@ export async function getServerSideProps(context) {
         'profile',
         'social',
     ]);
+    let { page } = context.query;
+    page = page ? page : 1;
+    const series = await API.getUserSeries(author, page);
     return {
         props: {
-            profile: data
+            page,
+            profile: data,
+            series: series.data
         }
     }
 }
@@ -23,8 +29,21 @@ export async function getServerSideProps(context) {
 class Series extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            page: Number(props.page),
+            lastPage: Number(props.series.last_page)
+        };
     }
 
+    componentDidUpdate(prevProps) {
+        if(this.props.series.last_page != prevProps.series.last_page || this.props.page != prevProps.page) {
+            this.setState({
+                page: Number(this.props.page),
+                lastPage: Number(this.props.series.last_page)
+            })
+        }
+    }
+    
     render() {
         return (
             <>
@@ -33,9 +52,16 @@ class Series extends React.Component {
                 </Head>
 
                 <Profile active="series" profile={this.props.profile.profile} social={this.props.profile.social}/>
-                <div className="container">
-
-                </div>
+                <SeriesComponent series={this.props.series.series}>
+                    <div className="container">
+                        <div className="col-lg-8 mx-auto">
+                            <PageNav
+                                page={this.state.page}
+                                last={this.state.lastPage}
+                            />
+                        </div>
+                    </div>
+                </SeriesComponent>
             </>
         )
     }

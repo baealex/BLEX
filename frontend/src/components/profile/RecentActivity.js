@@ -11,7 +11,7 @@ export default function RecentActivity(props) {
                     ))}
                 </ul>
             ) : (
-                <PurpleBorder text="아직 아무런 활동이 없습니다"/>
+                <PurpleBorder text="최근 활동이 없습니다"/>
             )}
         </>
     )

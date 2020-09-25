@@ -19,8 +19,7 @@ import Global from '../../modules/global';
 export async function getServerSideProps(context) {
     const { req } = context;
     const { author, posturl } = context.query;
-    let post = await API.getPost(author, posturl, req.headers.cookie);
-    post.data.tag = post.data.tag.split(',');
+    const post = await API.getPost(author, posturl, req.headers.cookie);
     const profile = await API.getUserProfile(author, [
         'profile',
         'social'
@@ -31,7 +30,7 @@ export async function getServerSideProps(context) {
         profile: profile.data
     };
     if(post.data.series) {
-        let series = await API.getSeries(post.data.series);
+        let series = await API.getSeries(author, post.data.series);
         const sereisLength = series.data.posts.length;
         const activeSeries = series.data.posts.findIndex(
             item => item.title == post.data.title
@@ -150,7 +149,7 @@ class Post extends React.Component {
                     title={this.props.post.title}
                     description={this.props.post.description}
                     author={this.props.post.author}
-                    keywords={this.props.post.tag.join(',')}
+                    keywords={this.props.post.tag}
                     image={this.props.post.image}
                     url={this.props.url}
                 />
@@ -185,7 +184,7 @@ class Post extends React.Component {
                             <h1 className="post-headline">{this.props.post.title}</h1>
                             <p>{this.props.post.created_date}</p>
                             <ArticleContent html={this.props.post.text_html}/>
-                            <TagList tag={this.props.post.tag}/>
+                            <TagList author={this.props.post.author} tag={this.props.post.tag.split(',')}/>
                             {this.props.hasSeries ? (
                                 <ArticleSereis
                                     title={this.props.series.title}

@@ -58,7 +58,7 @@ class Overview extends React.Component {
                 </Head>
 
                 <Profile active="overview" profile={this.props.profile.profile} social={this.props.profile.social}/>
-                <div className="container">
+                <div className="container mb-4">
                     <div className="col-lg-8 mx-auto p-0">
                         <ViewCounter {...this.props.profile.view}/>
                         <FeatureContent articles={this.props.profile.most}/>

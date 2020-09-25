@@ -40,7 +40,7 @@ class Home extends React.Component {
 
                 <div className="container">
                     <div className="row">
-                        {this.props.data.items.map((item, idx) => (
+                        {this.props.data.posts.map((item, idx) => (
                             <ArticleCard key={idx} {...item}/>
                         ))}
                     </div>

@@ -129,7 +129,7 @@ def posts(request, sort):
         fn.page_check(page, paginator)
         posts = paginator.get_page(page)
         return JsonResponse({
-            'items': list(map(lambda post: {
+            'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
                 'image': post.get_thumbnail(),
@@ -165,6 +165,7 @@ def user_posts(request, username, url=None):
                     'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
                     'author_image': post.author.profile.get_thumbnail(),
                     'author': post.author.username,
+                    'tag': post.tag,
                 }, posts)),
                 'last_page': posts.paginator.num_pages
             }, json_dumps_params={'ensure_ascii': True})
@@ -179,7 +180,7 @@ def user_posts(request, username, url=None):
                 'image': post.get_thumbnail(),
                 'description': post.description(),
                 'read_time': post.read_time(),
-                'series': post.series.id if post.series else None,
+                'series': post.series.url if post.series else None,
                 'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
                 'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
                 'author_image': post.author.profile.get_thumbnail(),
@@ -229,6 +230,42 @@ def user_posts(request, username, url=None):
         return HttpResponse('DONE')
     
     raise Http404
+
+def user_series(request, username, url=None):
+    if not url:
+        if request.method == 'GET':
+            series = Series.objects.filter(owner__username=username, hide=False).order_by('-created_date')
+            page = request.GET.get('page', 1)
+            paginator = Paginator(series, 10)
+            fn.page_check(page, paginator)
+            series = paginator.get_page(page)
+            return JsonResponse({
+                'series': list(map(lambda item: {
+                    'url': item.url,
+                    'name': item.name,
+                    'image': item.thumbnail(),
+                    'created_date': item.created_date.strftime('%Y년 %m월 %d일'),
+                    'owner': item.owner.username,
+                }, series)),
+                'last_page': series.paginator.num_pages
+            }, json_dumps_params={'ensure_ascii': True})
+    
+    if url:
+        series = get_object_or_404(Series, owner__username=username, url=url)
+        if request.method == 'GET':
+            if request.GET.get('type', 1):
+                posts = Post.objects.filter(series=series, hide=False)
+                return JsonResponse({
+                    'title': series.name,
+                    'url': series.url,
+                    'description': series.text_md,
+                    'posts': list(map(lambda post: {
+                        'url': post.url,
+                        'title': post.title,
+                        'description': post.description(50),
+                        'created_date': post.created_date.strftime('%Y년 %m월 %d일')
+                    }, posts))
+                }, json_dumps_params={'ensure_ascii': True})
 
 def temp_posts(request):
     if request.method == 'GET':
@@ -395,6 +432,7 @@ def series(request, pk):
                 return HttpResponse('error:DU')
             form = SeriesUpdateForm(instance=series)
             return render(request, 'board/series/form/series.html', {'form': form, 'series': series})
+        posts = Post.objects.filter(series=series, hide=False)
         return JsonResponse({
             'title': series.name,
             'url': series.url,
@@ -402,7 +440,7 @@ def series(request, pk):
             'posts': list(map(lambda post: {
                 'title': post.title,
                 'url': post.url
-            }, Post.objects.filter(series=series, hide=False)))
+            }, posts))
         }, json_dumps_params={'ensure_ascii': True})
         
     if request.method == 'DELETE':
@@ -473,10 +511,11 @@ def users(request, username):
                     }, fn.get_posts('trendy', user)[:6]))
                 
                 elif include == 'recent':
-                    posts = Post.objects.filter(created_date__lte=timezone.now(), author=user, hide=False).order_by('-created_date')
-                    series = Series.objects.filter(owner=user, hide=False).order_by('-created_date')
-                    comments = Comment.objects.filter(author=user, post__hide=False).order_by('-created_date')
-                    activity = sorted(chain(posts, series, comments), key=lambda instance: instance.created_date, reverse=True)[:8]
+                    seven_days_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
+                    posts = Post.objects.filter(created_date__gte=seven_days_ago, author=user, hide=False).order_by('-created_date')
+                    series = Series.objects.filter(created_date__gte=seven_days_ago, owner=user, hide=False).order_by('-created_date')
+                    comments = Comment.objects.filter(created_date__gte=seven_days_ago, author=user, post__hide=False).order_by('-created_date')
+                    activity = sorted(chain(posts, series, comments), key=lambda instance: instance.created_date, reverse=True)
                     data[include] = list()
                     for active in activity:
                         active_dict = dict()

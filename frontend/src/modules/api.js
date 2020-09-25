@@ -90,8 +90,12 @@ class API {
         })
     }
 
-    async getSeries(pk) {
-        return await axios.get(`${Config.API_SERVER}/v1/series/${pk}`);
+    async getUserSeries(author, page) {
+        return await axios.get(`${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series?page=${page}`);
+    }
+
+    async getSeries(author, url) {
+        return await axios.get(`${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`);
     }
 
     async login(username, password) {

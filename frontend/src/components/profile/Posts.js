@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import PurpleBorder from '../common/PurpleBorder';
+import TagList from '../tag/TagList';
 
 export default function Posts(props) {
     return (
@@ -71,6 +72,7 @@ function ArticleCard(props) {
                 </Link>
             </p>
             <p className="vs serif">{props.created_date} · <span className="shallow-dark">{props.read_time} min read</span></p>
+            <TagList author={props.author} tag={props.tag.split(',')}/>
         </div>
     )
 }
