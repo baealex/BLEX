@@ -1711,3 +1711,23 @@ body.dark .selection .active {
 body.dark .btn {
     color: #fff;
 }
+
+#nprogress {
+    .bar {
+        background: $vivid-purple !important;
+
+        body.dark & {
+            background: $vivid-purple-complementary !important;
+        }
+    }
+
+    .spinner-icon {
+        border-top-color: $vivid-purple !important;
+        border-left-color: $vivid-purple !important;
+
+        body.dark & {
+            border-top-color: $vivid-purple-complementary !important;
+            border-left-color: $vivid-purple-complementary !important;
+        }
+    }
+}
