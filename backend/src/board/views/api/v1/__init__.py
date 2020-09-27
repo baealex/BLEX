@@ -251,13 +251,17 @@ def user_series(request, username, url=None):
             }, json_dumps_params={'ensure_ascii': True})
     
     if url:
-        series = get_object_or_404(Series, owner__username=username, url=url)
+        user = User.objects.get(username=username)
+        series = get_object_or_404(Series, owner=user, url=url)
         if request.method == 'GET':
             if request.GET.get('type', 1):
                 posts = Post.objects.filter(series=series, hide=False)
                 return JsonResponse({
                     'title': series.name,
                     'url': series.url,
+                    'image': series.thumbnail(),
+                    'owner': user.username,
+                    'owner_image': user.profile.get_thumbnail(),
                     'description': series.text_md,
                     'posts': list(map(lambda post: {
                         'url': post.url,
