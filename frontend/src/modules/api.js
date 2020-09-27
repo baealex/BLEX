@@ -2,7 +2,6 @@ import Config from './config.json';
 import axios from 'axios';
 
 import NProgress from 'nprogress';
-import nProgress from 'nprogress';
 
 function serializeObject(obj) {
     return Object.keys(obj).reduce((acc, cur) => {
@@ -80,7 +79,7 @@ class API {
     }
 
     async postComment(url, comment) {
-        nProgress.start();
+        NProgress.start();
         try {
             const response = await axios({
                 url: `${Config.API_SERVER}/v1/comments?url=${url}`,
@@ -93,10 +92,10 @@ class API {
                 }),
                 withCredentials: true,
             });
-            nProgress.done();
+            NProgress.done();
             return response;
         } catch(e) {
-            nProgress.done();
+            NProgress.done();
             return e;
         }
     }
@@ -110,7 +109,7 @@ class API {
     }
 
     async login(username, password) {
-        nProgress.start();
+        NProgress.start();
         try {
             const response = await axios({
                 url: `${Config.API_SERVER}/v1/login`,
@@ -123,25 +122,25 @@ class API {
                     password
                 })
             });
-            nProgress.done();
+            NProgress.done();
             return response;
         } catch(e) {
-            nProgress.done();
+            NProgress.done();
             return e;
         }
     }
 
     async logout() {
-        nProgress.start();
+        NProgress.start();
         try {
             const response = await axios({
                 url: `${Config.API_SERVER}/v1/logout`,
                 method: 'POST'
             });
-            nProgress.done();
+            NProgress.done();
             return response;
         } catch(e) {
-            nProgress.done();
+            NProgress.done();
             return e;
         }
     }
