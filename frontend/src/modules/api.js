@@ -1,5 +1,8 @@
-import Config from './config.json'
-import axios from 'axios'
+import Config from './config.json';
+import axios from 'axios';
+
+import NProgress from 'nprogress';
+import nProgress from 'nprogress';
 
 function serializeObject(obj) {
     return Object.keys(obj).reduce((acc, cur) => {
@@ -77,17 +80,25 @@ class API {
     }
 
     async postComment(url, comment) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/comments?url=${url}`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                comment
-            }),
-            withCredentials: true,
-        })
+        nProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/comments?url=${url}`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: serializeObject({
+                    comment
+                }),
+                withCredentials: true,
+            });
+            nProgress.done();
+            return response;
+        } catch(e) {
+            nProgress.done();
+            return e;
+        }
     }
 
     async getUserSeries(author, page) {
@@ -99,24 +110,40 @@ class API {
     }
 
     async login(username, password) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/login`,
-            method: 'POST',
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                username,
-                password
-            })
-        });
+        nProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/login`,
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded'
+                },
+                data: serializeObject({
+                    username,
+                    password
+                })
+            });
+            nProgress.done();
+            return response;
+        } catch(e) {
+            nProgress.done();
+            return e;
+        }
     }
 
     async logout() {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/logout`,
-            method: 'POST'
-        });
+        nProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/logout`,
+                method: 'POST'
+            });
+            nProgress.done();
+            return response;
+        } catch(e) {
+            nProgress.done();
+            return e;
+        }
     }
 }
 

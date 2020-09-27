@@ -1,6 +1,4 @@
 import Head from 'next/head';
-import Link from 'next/link';
-import axios from 'axios';
 import React from 'react';
 
 import ArticleContent from '../../components/article/ArticleContent';
