@@ -1,0 +1,102 @@
+/* Text */
+.vivid-purple {
+    color: $vivid-purple;
+
+    body.dark & {
+        color: $vivid-purple-complementary;
+    }
+
+    &:hover {
+        color: $vivid-purple;
+        text-decoration: none;
+
+        body.dark & {
+            color: $vivid-purple-complementary;
+        }
+    }
+}
+
+.deep-dark {
+    color: $deep-dark;
+
+    body.dark & {
+        color: #e0e0e0;
+    }
+
+    &:hover {
+        color: $deep-dark;
+        text-decoration: none;
+        
+        body.dark & {
+            color: #e0e0e0;
+        }
+    }
+}
+
+.shallow-dark {
+    color: $shallow-dark;
+
+    body.dark & {
+        color: #a7a7a7;
+    }
+
+    &:hover {
+        color: $shallow-dark;
+        text-decoration: none;
+
+        body.dark & {
+            color: #a7a7a7;
+        }
+    }
+}
+
+.gray-dark {
+    color: $gray-dark;
+
+    &:hover {
+        color: $gray-dark;
+        text-decoration: none;
+    }
+}
+
+/* Backgound */
+body.dark {
+    background-color: $dark-mode-body-bg;
+    color: #d6d6d6;
+}
+
+.color-dark {
+    background: rgba(0,0,0,.84);
+    color: #fff;
+}
+
+.bg-rlight {
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, .98);
+}
+
+.bg-rdark {
+    background: rgba(0, 0, 0, .98);
+    border: none;
+}
+
+.bg-rlight .form-control {
+    border: none;
+    background: #eee;
+    color: #000;
+}
+
+.bg-rdark .form-control {
+    border: none;
+    background: #333;
+    color: #fff;
+}
+
+.bg-border-purple {
+    border-radius: 5px;
+    border: 1px solid $vivid-purple;
+    
+    body.dark & {
+        border: 1px solid $vivid-purple-complementary;
+    }
+}

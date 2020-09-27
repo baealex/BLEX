@@ -1,0 +1,60 @@
+.share {
+    text-align:center;
+
+    @media (max-width: 768px) {
+        margin-top:30px;
+    }
+
+    p {
+        margin-bottom: 10px;
+        font-size: 0.95rem;    
+    }
+
+    ul {
+        padding-left: 0;
+
+        li {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: rgba(0,0,0,.33);
+            cursor: pointer;
+
+            body.dark & {
+                color: #aaa;
+            }
+
+            i {
+                transition: color 0.2s;
+                font-size: 20px;
+                
+                &.fa-heart.fas {
+                    color: #474787;
+                }
+
+                &:hover {
+                    color: #474787;
+                }
+
+                &.fa-facebook:hover {
+                    color: #3b5998;
+                }
+
+                &.fa-twitter:hover {
+                    color: #00acee;
+                }
+
+                &.fa-pinterest:hover {
+                    color: #c51f26;
+                }
+            }
+
+            span {
+                display: none;
+
+                @media only screen and (min-width: 991px) {
+                    display: block;
+                }
+            }
+        }
+    }
+}

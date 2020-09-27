@@ -9,41 +9,43 @@
 </p>
 
 <p align="center">
+    <img src="https://img.shields.io/badge/nextjs-9.3.5-yellow?style=flat-square">
     <img src="https://img.shields.io/badge/django-2.2.10-blue?style=flat-square">
-    <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square">
 </p>
+
+<br>
 
 ## Service
 
-***"Do you happen to know any unique and pretty blogs?"*** Yes, I know. [Right here!](https://blex.me) BLEX is an open blog service that anyone can use freely. If you have any questions or suggestions, please contact im@baejino.com. (Oh! It's written in English but provided in Republic of Korea.)
+***"예쁘고 유니크한 블로그 없을까요?"*** 🙋‍♂️ [여기 있습니다!](https://blex.me) 블렉스는 가입형 블로그로 회원이라면 누구나 글을 자유롭게 작성할 수 있습니다. ~~무엇보다 쓰는 사람이 없어서 매우 유니크합니다!~~ 블렉스는 미니멀한 디자인과 신기술을 응용한 빠른 웹사이트를 지향하며 `AD-Free`, 3세대 블로그를 과감히 꿈꿉니다. 의견이나 질문할 내용이 있다면 [im@baejino.com](mailto:im@baejino.com)으로 연락주시기 바랍니다. 건의할 내용은 [issue](https://github.com/baealex/BLEX/issues)에 남겨주세요!
 
-![Mockup](https://user-images.githubusercontent.com/35596687/82721917-eec80900-9cfc-11ea-8780-3d9cf4d9c0b8.jpg)
+![1](https://user-images.githubusercontent.com/35596687/93216408-a7312580-f7a2-11ea-9dec-d1ca232b5b3e.png)
 
-![Login](https://user-images.githubusercontent.com/35596687/82722015-b7a62780-9cfd-11ea-90cc-766cf4ac7751.png)
+![2](https://user-images.githubusercontent.com/35596687/93216411-a8625280-f7a2-11ea-8966-6534b2026038.png)
 
-![Blog](https://user-images.githubusercontent.com/35596687/82722005-a8bf7500-9cfd-11ea-8db5-04a616382a30.png)
+![3](https://user-images.githubusercontent.com/35596687/93216412-a8fae900-f7a2-11ea-9d69-6b22166bbc68.png)
 
-![Write](https://user-images.githubusercontent.com/35596687/82722111-9b56ba80-9cfe-11ea-8087-8fa0968b1c83.png)
+![4](https://user-images.githubusercontent.com/35596687/93216415-a9937f80-f7a2-11ea-80ff-739458ca60bf.png)
 
-![Series](https://user-images.githubusercontent.com/35596687/82722002-a826de80-9cfd-11ea-9a7c-85c26a733468.png)
+![5](https://user-images.githubusercontent.com/35596687/93216420-a9937f80-f7a2-11ea-817b-813241e61a39.png)
 
-![Posts](https://user-images.githubusercontent.com/35596687/82722003-a8bf7500-9cfd-11ea-8b8d-a9a2282e5961.png)
+![6](https://user-images.githubusercontent.com/35596687/93216421-aa2c1600-f7a2-11ea-8473-134a09055656.png)
 
-![Thread](https://user-images.githubusercontent.com/35596687/82722001-a826de80-9cfd-11ea-8710-346a766fa664.png)
-
-![Overview](https://user-images.githubusercontent.com/35596687/82722006-a9580b80-9cfd-11ea-9e19-4d8f269b2d8a.png)
-
+![7](https://user-images.githubusercontent.com/35596687/93216422-aac4ac80-f7a2-11ea-8757-6842ce0afc85.png)
 
 ## Features
 
-- [x] **Can be written in Markdown** Powerd by [Parsedown](https://github.com/erusev/parsedown)
-- [x] **Can also support HTML** (Only br, center)
-- [x] **Can receive notifications by Telegram**
-- [x] **Developer respects user comments**
-- [x] **All in all, it's pretty**
-- [x] **Start with a Google or GitHub account**
+- [x] 마크다운으로 글 및 댓글 작성 Powerd by [Parsedown](https://github.com/erusev/parsedown)
+- [x] 일부 HTML 태그 허용
+- [x] 텔레그램으로 날아오는 알림 🚀
+- [x] 잔디로 정리되는 블로그 기록들
+- [x] 포스트의 유입경로와 조회수 제공 📈
+- [x] 여러분 눈 건강을 위한 나이트 모드 😉❤
+- [x] 깃허브와 구글 아이디로 빠른 시작
+- [x] 음...또 뭐가있지? 개발자가 착함 😅
 
-## Developer Notes
+## Notes
 
-- [Progress - Notion](https://www.notion.so/64ccf14e7b7f4799a282b2eddfc4d5a6?v=6babe35461c74a828ca08654b94bcaca)
-- [Update History - BLEX](https://blex.me/thread/%EA%B0%9C%EB%B0%9C%EB%85%B8%ED%8A%B8)
+- [기술스택](https://www.notion.so/676c4c14c9804d6e9c5bba6eb68059eb)
+- [개발 플래닝](https://www.notion.so/9b8b5cac32d947aa9396d9f57f2410be)
+- [아키택쳐 의사결정 기록](https://www.notion.so/3610dd49ba1f4403b154e0a27bcc3753)
