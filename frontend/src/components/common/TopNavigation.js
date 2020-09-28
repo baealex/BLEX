@@ -67,6 +67,12 @@ class TopNavigation extends React.Component {
         this.setState(newState);
     }
 
+    onEnterSearch(e) {
+        if(e.key == 'Enter') {
+            window.open('about:blank').location.href = `https://www.google.com/search?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
+        }
+    }
+
     onEnterLogin(e) {
         if(e.key == 'Enter') {
             this.onSubmitLogin();
@@ -225,6 +231,8 @@ class TopNavigation extends React.Component {
                             type='text'
                             value={this.state.search}
                             placeholder="Serach"
+                            onChange={(e) => this.onInputChange(e)}
+                            onKeyPress={(e) => this.onEnterSearch(e)}
                         />
                         <ul className="menu-item">
                             <li>

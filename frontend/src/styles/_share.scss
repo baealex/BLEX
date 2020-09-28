@@ -28,11 +28,19 @@
                 font-size: 20px;
                 
                 &.fa-heart.fas {
-                    color: #474787;
+                    color: $vivid-purple;
+
+                    body.dark & {
+                        color: $vivid-purple-complementary;
+                    }
                 }
 
                 &:hover {
-                    color: #474787;
+                    color: $vivid-purple;
+
+                    body.dark & {
+                        color: $vivid-purple-complementary;
+                    }
                 }
 
                 &.fa-facebook:hover {
