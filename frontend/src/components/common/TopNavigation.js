@@ -18,6 +18,7 @@ class TopNavigation extends React.Component {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             password: '',
+            search: '',
             showLoginModal: false,
             error: ''
         };
@@ -66,11 +67,25 @@ class TopNavigation extends React.Component {
         this.setState(newState);
     }
 
+    onEnterLogin(e) {
+        if(e.key == 'Enter') {
+            this.onSubmitLogin();
+        }
+    }
+
     async onSubmitLogin() {
+        if(this.state.username == '') {
+            toast('😅 아이디를 입력해주세요!')
+            return;
+        }
+        if(this.state.password == '') {
+            toast('😅 비밀번호를 입력해주세요!')
+            return;
+        }
         let newState = this.state;
         const { data } = await API.login(this.state.username, this.state.password);
         if(data.status == 'success') {
-            toast(`로그인 되었습니다.`);
+            toast(`😃 로그인 되었습니다.`);
             newState.showLoginModal = false;
             newState.isLogin = true;
             Global.setState({
@@ -78,7 +93,7 @@ class TopNavigation extends React.Component {
                 isLogin: true
             });
         } else {
-            toast('아이디 혹은 패스워드를 확인해주세요.');
+            toast('😥 아이디 혹은 패스워드를 확인해주세요.');
         }
         newState.password = '';
         this.setState(newState);
@@ -151,7 +166,7 @@ class TopNavigation extends React.Component {
                     isLogin: false
                 });
             }
-            toast('로그아웃 되었습니다.', toast.TYPE.INFO);
+            toast('😥 로그아웃 되었습니다.', toast.TYPE.INFO);
         }
     }
 
@@ -166,6 +181,7 @@ class TopNavigation extends React.Component {
                             placeholder='username'
                             onChange={(e) => this.onInputChange(e)}
                             value={this.state.username}
+                            onKeyPress={(e) => this.onEnterLogin(e)}
                         />
                         <input
                             className='login-form'
@@ -174,6 +190,7 @@ class TopNavigation extends React.Component {
                             placeholder='password'
                             onChange={(e) => this.onInputChange(e)}
                             value={this.state.password}
+                            onKeyPress={(e) => this.onEnterLogin(e)}
                         />
                         <button
                             className='login-button'
@@ -201,6 +218,14 @@ class TopNavigation extends React.Component {
                         <img src="https://static.blex.me/assets/images/logo.png"/>
                     </nav>
                     <div className="inner">
+                        <input
+                            autocomplete="off"
+                            className="search"
+                            name='search'
+                            type='text'
+                            value={this.state.search}
+                            placeholder="Serach"
+                        />
                         <ul className="menu-item">
                             <li>
                                 <Link href="/">
