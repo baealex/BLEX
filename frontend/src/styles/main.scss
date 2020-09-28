@@ -1451,9 +1451,11 @@ footer {
     padding: 15px 20px;
     background: #e6e6e6;
 }
+
 .login-form:focus {
     outline: none;
 }
+
 .login-button {
     margin: 4px 0;
     color: #fff;
@@ -1644,70 +1646,91 @@ footer {
 body.dark .author-info a {
     color: #dadada;
 }
+
 body.dark #heart .fas {
     color: #fff;
 }
+
 body.dark .form-control::placeholder {
     color: #ccc;
 }
+
 body.dark .user-avatar {
     background: #000;
     border: 1px solid #333;
 }
+
 body.dark .profile-post{
     border-bottom: 2px solid #aaa;
 }
+
 body.dark .alert-dark {
     color: #c4c4c4;
     border-color: #414141;
     background-color: #3f3f3f;
 }
+
 body.dark .bg-light, body.dark .btn-dark {
     background-color: #3f3f3f !important;
 }
+
 body.dark .foot-deco-active {
     border-bottom: 2px solid #fff;
 }
+
 body.dark .post-list > a {
     color: #fff;
 }
+
 body.dark .post-list {
     border-bottom: 1px solid #555;
 }
+
 body.dark .post-mask {
     background-color: $dark-mode-body-bg;
 }
+
 body.dark .post-mask:hover {
     background-color: rgba(50, 50, 50, 0.3);
 }
+
 body.dark .series-desc blockquote {
     background: #1e1e1e;
 }
+
 body.dark .series-desc blockquote::after {
     border-color: #1e1e1e transparent transparent transparent;
 }
+
 body.dark .fade-mask {
     background: linear-gradient(to bottom, rgba(0,0,0,0), #292929);
 }
+
 body.dark #thread-bookmark {
     color: #cccccc;
 }
+
 body.dark #thread .article pre {
     background: #272727;
 }
+
 body.dark .card {
     border: none;
 }
+
 body.dark .card-header,
 body.dark .card-footer {
     background: #1d1d1d;
 }
+
 body.dark .card-body {
     background: #000000;
 }
+
 body.dark .selection .active {
     color: #fff;
 }
+
 body.dark .btn {
     color: #fff;
 }
@@ -1729,5 +1752,33 @@ body.dark .btn {
             border-top-color: $vivid-purple-complementary !important;
             border-left-color: $vivid-purple-complementary !important;
         }
+    }
+}
+
+.Toastify__toast--default {
+    background: #fff !important;
+    color: #555 !important;
+
+    body.dark & {
+        background: #000 !important;
+        color: #ccc !important;
+    }
+}
+
+.Toastify__progress-bar {
+    height: 3px !important;
+}
+
+.Toastify__progress-bar--default {
+    background: $vivid-purple !important;
+
+    body.dark & {
+        background: $vivid-purple-complementary !important;
+    }
+}
+
+.Toastify__close-button--default {
+    body.dark & {
+        color: #fff !important;
     }
 }

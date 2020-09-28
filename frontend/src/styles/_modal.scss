@@ -21,10 +21,6 @@
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.30);
 
     & > * {
-        &:first-child{
-            margin-top: 16px;
-        }
-
         margin-left: 16px;
         margin-right: 16px;
     }
@@ -35,7 +31,17 @@
         padding: 4px;
     }
 
+    .title {
+        margin-top: 16px;
+        font-size: 1.2rem;
+        color: #555;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
     .close-button {
+        margin-top: 16px;
         font-size: 1.2rem;
         color: #999;
         position: absolute;

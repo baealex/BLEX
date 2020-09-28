@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import React from 'react';
 
+import { toast } from 'react-toastify';
+
 import ArticleContent from '../../components/article/ArticleContent';
 import ArticleSereis from '../../components/article/ArticleSeries';
 import TagList from '../../components/tag/TagList';
@@ -49,7 +51,7 @@ class Post extends React.Component {
             isLiked: props.post.is_liked === 'true' ? true : false,
             totalLikes: props.post.total_likes,
             comments: props.post.comments
-        }
+        };
         Global.appendUpdater('Post', () => this.setState({
             ...this.state,
             isLogin: Global.state.isLogin
@@ -79,7 +81,7 @@ class Post extends React.Component {
     }
 
     async onClickLike() {
-        const { data } = await API.putPostLike(this.props.post.author, this.props.post.url);
+        const { data } = await API.putPostLike('@' + this.props.post.author, this.props.post.url);
         if(typeof data == 'number') {
             this.setState({
                 isLiked: !this.state.isLiked,
@@ -89,10 +91,10 @@ class Post extends React.Component {
         else if(data.includes('error')) {
             switch(data.split(':')[1]) {
                 case 'NL':
-                    alert('로그인이 필요합니다.');
+                    toast('로그인이 필요합니다.');
                     break;
                 case 'SU':
-                    alert('자신의 글은 추천할 수 없습니다.');
+                    toast('자신의 글은 추천할 수 없습니다.');
                     break;
             }
         }
@@ -108,7 +110,7 @@ class Post extends React.Component {
     async onSubmutComment(text) {
         const { data } = await API.postComment(this.props.post.url, text);
         if(data.status !== 'success') {
-            alert('댓글 작성 실패!');
+            toast('댓글 작성 실패!');
             return;
         }
         this.setState({
@@ -157,21 +159,21 @@ class Post extends React.Component {
                             <div className="sticky-top sticky-top-200 sticky-margin-top-40">
                                 <div className="share">
                                     <ul className="px-3">
-                                        <li className="mx-4" onClick={() => this.onClickLike()}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickLike()}>
                                             <i className={`${this.state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
                                             <span>{this.state.totalLikes}</span>
                                         </li>
-                                        <li className="mx-4" onClick={() => this.onClickComment()}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickComment()}>
                                             <i className="far fa-comment"></i>
                                             <span>{this.props.post.comments.length}</span>
                                         </li>
-                                        <li className="mx-4" onClick={() => this.onClickShare('twitter')}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickShare('twitter')}>
                                             <i className="fab fa-twitter"></i>
                                         </li>
-                                        <li className="mx-4" onClick={() => this.onClickShare('facebook')}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickShare('facebook')}>
                                             <i className="fab fa-facebook"></i>
                                         </li>
-                                        <li className="mx-4" onClick={() => this.onClickShare('pinterest')}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickShare('pinterest')}>
                                             <i className="fab fa-pinterest"></i>
                                         </li>
                                     </ul>
@@ -216,7 +218,7 @@ class Post extends React.Component {
                             {this.state.isLogin ? (
                                 <CommentForm onSubmutComment={this.onSubmutComment.bind(this)}/>
                             ) : (
-                                <div className="noto alert alert-warning s-shadow">로그인된 사용자만 댓글을 작성할 수 있습니다.</div>
+                                <div className="noto alert alert-warning s-shadow">댓글을 작성하기 위해 로그인이 필요합니다.</div>
                             )}
                         </div>
                     </div>

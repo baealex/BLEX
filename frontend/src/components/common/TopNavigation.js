@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 
+import { toast } from 'react-toastify';
+
 import Modal from '../../components/common/Modal';
 
 import Cookie from '../../modules/cookie';
@@ -68,7 +70,7 @@ class TopNavigation extends React.Component {
         let newState = this.state;
         const { data } = await API.login(this.state.username, this.state.password);
         if(data.status == 'success') {
-            alert(`로그인 되었습니다.`);
+            toast(`로그인 되었습니다.`);
             newState.showLoginModal = false;
             newState.isLogin = true;
             Global.setState({
@@ -76,7 +78,7 @@ class TopNavigation extends React.Component {
                 isLogin: true
             });
         } else {
-            alert('아이디 혹은 패스워드를 확인해주세요.');
+            toast('아이디 혹은 패스워드를 확인해주세요.');
         }
         newState.password = '';
         this.setState(newState);
@@ -149,14 +151,14 @@ class TopNavigation extends React.Component {
                     isLogin: false
                 });
             }
-            alert('로그아웃 되었습니다.');
+            toast('로그아웃 되었습니다.', toast.TYPE.INFO);
         }
     }
 
     render() {
         return (
             <>
-                <Modal show={this.state.showLoginModal} close={() => this.onCloseModal('showLoginModal')}>
+                <Modal title='로그인' show={this.state.showLoginModal} close={() => this.onCloseModal('showLoginModal')}>
                     <div className="content">
                         <input
                             className='login-form'

@@ -4,6 +4,10 @@ import Link from 'next/link'
 import styles from '../styles/main.scss'
 
 import Router from 'next/router';
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
@@ -37,6 +41,7 @@ class Main extends App {
                 </Head>
 
                 <TopNavagation/>
+                <ToastContainer/>
 
                 <div className="content">
                     <Component {...pageProps}/>
