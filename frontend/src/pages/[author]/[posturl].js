@@ -15,6 +15,7 @@ import Prism from '../../modules/library/prism';
 import API from '../../modules/api';
 import lazyLoad from '../../modules/lazy';
 import Global from '../../modules/global';
+import ArticleAuthor from '../../components/article/ArticleAuthor';
 
 export async function getServerSideProps(context) {
     const { req } = context;
@@ -140,6 +141,7 @@ class Post extends React.Component {
     }
 
     render() {
+        console.log(this.props.profile)
         return (
             <>
                 <Head>
@@ -183,6 +185,7 @@ class Post extends React.Component {
                         <div className="col-lg-8">
                             <h1 className="post-headline">{this.props.post.title}</h1>
                             <p>{this.props.post.created_date}</p>
+                            <ArticleAuthor {...this.props.profile}/>
                             <ArticleContent html={this.props.post.text_html}/>
                             <TagList author={this.props.post.author} tag={this.props.post.tag.split(',')}/>
                             {this.props.hasSeries ? (

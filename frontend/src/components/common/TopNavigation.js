@@ -19,7 +19,10 @@ class TopNavigation extends React.Component {
             username: Global.state.username,
             password: '',
             search: '',
+            token: '',
+            notify: [],
             showLoginModal: false,
+            showNotifyModal: false,
             error: ''
         };
         Global.appendUpdater('TopNavigation', () => this.setState({
@@ -43,8 +46,17 @@ class TopNavigation extends React.Component {
         Global.setState({
             ...Global.state,
             isLogin: alive.data !== 'dead' ? true : false,
-            username: alive.data !== 'dead' ? alive.data : '',
+            username: alive.data !== 'dead' ? alive.data.username : '',
         });
+        if(alive.data !== 'dead') {
+            if(alive.data.notify.length > 0) {
+                this.setState({
+                    ...this.setState,
+                    notify: alive.data.notify
+                });
+                toast(`😲 읽지 않은 알림이 ${alive.data.notify.length}개 있습니다.`)
+            }
+        }
     }
 
     onClickNavigation() {
@@ -54,11 +66,13 @@ class TopNavigation extends React.Component {
         });
     }
 
-    onClickLogin() {
-        this.setState({
-            ...this.state,
-            showLoginModal: true
-        });
+    onShowModal(modalName) {
+        if(modalName == 'showTelegramModal') {
+            
+        }
+        let newState = this.state;
+        newState[modalName] = true;
+        this.setState(newState);
     }
 
     onCloseModal(modalName) {
@@ -96,8 +110,17 @@ class TopNavigation extends React.Component {
             newState.isLogin = true;
             Global.setState({
                 ...Global.state,
-                isLogin: true
+                isLogin: true,
+                username: data.username
             });
+
+            if(data.notify.length > 0) {
+                this.setState({
+                    ...this.setState,
+                    notify: data.notify
+                });
+                toast(`😲 읽지 않은 알림이 ${data.notify.length}개 있습니다.`)
+            }
         } else {
             toast('😥 아이디 혹은 패스워드를 확인해주세요.');
         }
@@ -215,6 +238,18 @@ class TopNavigation extends React.Component {
                         </button>
                     </div>
                 </Modal>
+                <Modal title='알림' show={this.state.showNotifyModal} close={() => this.onCloseModal('showNotifyModal')}>
+                    <div className="content">
+                        {this.state.notify.map((item, idx) => (
+                            <div className="blex-card p-3 my-2">
+                                {item.content}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="button-wrap">
+                        <button><i className="fab fa-telegram-plane"></i> 텔레그램 연동하고 실시간 알림받기</button>
+                    </div>
+                </Modal>
                 <div
                     onMouseLeave={() => this.onMouseLeaveOnContent()}
                     className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
@@ -254,6 +289,9 @@ class TopNavigation extends React.Component {
                         {this.state.isLogin ? (
                             <ul className="menu-item">
                                 <li>
+                                    <a onClick={() => this.onShowModal('showNotifyModal')}><i className="far fa-envelope"></i> 알림{this.state.notify.length > 0 ? ` (${this.state.notify.length})` : ''}</a>
+                                </li>
+                                <li>
                                     <Link href={`/[author]`} as={`/@${this.state.username}`}>
                                         <a><i className="fas fa-user"></i> 내 블로그</a>
                                     </Link>
@@ -281,7 +319,7 @@ class TopNavigation extends React.Component {
                                 </li>
                             ) : (
                                 <li>
-                                    <a onClick={() => this.onClickLogin()}>
+                                    <a onClick={() => this.onShowModal('showLoginModal')}>
                                         <i className="fas fa-sign-in-alt"></i> 로그인
                                     </a>
                                 </li>
