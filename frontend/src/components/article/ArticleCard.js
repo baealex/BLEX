@@ -5,7 +5,7 @@ export default function ArticleCard(props) {
         <div className="col-lg-4 mt-4">
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                 <a className="blex-card dee-dark">
-                    <img className="list-image" src={`https://static.blex.me/${props.image}`}/>
+                    <img className="list-image" src={props.image}/>
                 </a>
             </Link>
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>

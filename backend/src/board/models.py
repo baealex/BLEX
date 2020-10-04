@@ -128,7 +128,7 @@ class Profile(models.Model):
         if self.avatar:
             return self.avatar.url
         else:
-            return 'assets/images/default-avatar.jpg'
+            return settings.STATIC_URL + '/images/default-avatar.jpg'
 
     def __str__(self):
         return self.user.username
@@ -209,7 +209,7 @@ class Post(models.Model):
         if self.image:
             return self.image.url
         else:
-            return 'assets/images/default-post.png'
+            return settings.STATIC_URL + '/images/default-post.png'
 
     def timestamp(self):
         return timestamp(self.created_date)
@@ -269,9 +269,9 @@ class Post(models.Model):
 
     def get_thumbnail(self):
         if self.image:
-            return str(self.image) + '.minify.' + str(self.image).split('.')[-1]
+            return settings.MEDIA_URL + str(self.image) + '.minify.' + str(self.image).split('.')[-1]
         else:
-            return 'assets/images/default-post.png'
+            return settings.STATIC_URL + '/images/default-post.png'
     
     def to_dict_for_analytics(self):
         return {
