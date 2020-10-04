@@ -12,7 +12,7 @@ class Modal extends React.Component {
     render() {
         return (
             <>
-                {this.props.show ? (
+                {this.props.isOpen ? (
                     <>
                         <div onClick={() => this.onClose()} className="modal-overlay"/>
                         <div className="modal-b">

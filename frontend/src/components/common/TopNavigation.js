@@ -202,7 +202,7 @@ class TopNavigation extends React.Component {
     render() {
         return (
             <>
-                <Modal title='로그인' show={this.state.showLoginModal} close={() => this.onCloseModal('showLoginModal')}>
+                <Modal title='로그인' isOpen={this.state.showLoginModal} close={() => this.onCloseModal('showLoginModal')}>
                     <div className="content">
                         <input
                             className='login-form'
@@ -236,18 +236,6 @@ class TopNavigation extends React.Component {
                             onClick={() => this.onSubmitSocialLogin('github')}>
                             <i className="fab fa-github"></i> GitHub 로그인
                         </button>
-                    </div>
-                </Modal>
-                <Modal title='알림' show={this.state.showNotifyModal} close={() => this.onCloseModal('showNotifyModal')}>
-                    <div className="content">
-                        {this.state.notify.map((item, idx) => (
-                            <div className="blex-card p-3 my-2">
-                                {item.content}
-                            </div>
-                        ))}
-                    </div>
-                    <div className="button-wrap">
-                        <button><i className="fab fa-telegram-plane"></i> 텔레그램 연동하고 실시간 알림받기</button>
                     </div>
                 </Modal>
                 <div
@@ -288,9 +276,6 @@ class TopNavigation extends React.Component {
                         </ul>
                         {this.state.isLogin ? (
                             <ul className="menu-item">
-                                <li>
-                                    <a onClick={() => this.onShowModal('showNotifyModal')}><i className="far fa-envelope"></i> 알림{this.state.notify.length > 0 ? ` (${this.state.notify.length})` : ''}</a>
-                                </li>
                                 <li>
                                     <Link href={`/[author]`} as={`/@${this.state.username}`}>
                                         <a><i className="fas fa-user"></i> 내 블로그</a>
