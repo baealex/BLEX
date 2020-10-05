@@ -5,9 +5,16 @@ class ArticleSereis extends React.Component {
     render() {
         return (
             <div className="my-5 noto posts-sereis">
+                <Link href="/[author]/series/[seriesurl]" as={`/@${this.props.author}/series/${this.props.url}`}>
+                    <a className="deep-dark">
+                        <h4 className="serif font-weight-bold mb-3">
+                            '{this.props.title}' 시리즈
+                        </h4>
+                    </a>
+                </Link>
                 <div className="series-desc mb-3">
                     <blockquote className="noto">
-                        <strong>'{this.props.title}' 시리즈</strong> {this.props.description}
+                    {this.props.description ? this.props.description : '이 시리즈에 대한 설명이 없습니다.'}
                     </blockquote>
                     <div className="author">
                         <Link href="/[author]" as={`/@${this.props.author}`}>
