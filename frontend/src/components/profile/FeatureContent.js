@@ -25,7 +25,7 @@ function FeatureCard(props) {
             <div className="blex-card noto">
                 <Link href="/[author]/[posturl]" as={`@${props.author}/${props.url}`}>
                     <a className="deep-dark">
-                        <img className="feature-image" src={`https://static.blex.me/${props.image}`}/>
+                        <img className="feature-image" src={props.image}/>
                         <div className="p-3">
                             {props.title}
                             <div className="vs serif mt-2">{props.created_date} · <span className="shallow-dark">{props.read_time} min read</span></div>

@@ -54,7 +54,7 @@ function ArticleCard(props) {
         <div className="profile-post">
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                 <a>
-                    <img src={`https://static.blex.me/${props.image}`}/>
+                    <img src={props.image}/>
                 </a>
             </Link>
             <h4 className="card-title serif font-weight-bold mt-3">

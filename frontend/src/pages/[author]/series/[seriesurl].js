@@ -27,7 +27,7 @@ class Series extends React.Component {
                 </Head>
 
                 <div className="container">
-                    <div className="back-image series-title-image" style={{backgroundImage: `url(https://static.blex.me/${this.props.series.image})`}}>
+                    <div className="back-image series-title-image" style={{backgroundImage: `url(${this.props.series.image})`}}>
                         <div className="fade-mask"></div>
                     </div>
                     <div className="series-list">

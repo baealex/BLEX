@@ -13,7 +13,7 @@ export default function Posts(props) {
 
 function SeriesCard(props) {
     return (
-        <div className="post-list" style={{backgroundImage: `url(https://static.blex.me/${props.image})`}}>
+        <div className="post-list" style={{backgroundImage: `url(${props.image})`}}>
             <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <a className="post-title">
                     <div className="post-mask">
