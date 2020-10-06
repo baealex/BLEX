@@ -212,7 +212,7 @@ class Post extends React.Component {
                                     author={comment.author}
                                     authorImage={comment.author_image}
                                     timeSince={comment.time_since}
-                                    edietd={comment.edietd}
+                                    edited={comment.edited}
                                     html={comment.text_html}
                                 />
                             )) : <CommentAlert

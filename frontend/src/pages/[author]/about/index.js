@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import React from 'react';
 
+import { toast } from 'react-toastify';
+
 import SEO from '../../../components/seo'
 
 import API from '../../../modules/api'
@@ -32,7 +34,7 @@ class About extends React.Component {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
         }
-        Global.appendUpdater('TopNavigation', () => this.setState({
+        Global.appendUpdater('About', () => this.setState({
             ...this.state,
             isLogin: Global.state.isLogin,
             username: Global.state.username
@@ -59,6 +61,7 @@ class About extends React.Component {
             // 완료버튼 누른 상태
             const { data } = await API.putAbout('@' + this.state.username, this.state.aboutMD);
             newState.aboutHTML = data;
+            toast('😄 정상적으로 변경되었습니다.');
         }
         newState.isEdit = !newState.isEdit;
         this.setState(newState);

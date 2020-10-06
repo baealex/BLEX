@@ -93,7 +93,6 @@ urlpatterns = [
     path('v1/posts/<sort>', api_v1.posts, name='posts_api_v1'),
     path('v1/comments', api_v1.comment, name='comment_api_v1'),
     path('v1/comments/<int:pk>', api_v1.comment, name='comment_api_v1'),
-    path('v1/series/<int:pk>', api_v1.series, name='series_api_v1'),
     path('v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

@@ -288,6 +288,32 @@ def user_series(request, username, url=None):
                         'created_date': post.created_date.strftime('%Y년 %m월 %d일')
                     }, posts))
                 }, json_dumps_params={'ensure_ascii': True})
+        
+        if not request.user == series.owner:
+            return HttpResponse('error:DU')
+
+        if request.method == 'PUT':
+            put = QueryDict(request.body)
+            series.name = put.get('title')
+            series.text_md = put.get('description')
+            series.url = slugify(series.name, allow_unicode=True)
+            if series.url == '':
+                series.url = randstr(15)
+            i = 1
+            while True:
+                try:
+                    series.save()
+                    break
+                except:
+                    series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
+                    i += 1
+            return HttpResponse(series.url)
+
+        if user == 'DELETE':
+            series.delete()
+            return HttpResponse('FAIL')
+        
+        raise Http404
 
 def temp_posts(request):
     if request.method == 'GET':
@@ -442,34 +468,6 @@ def comment(request, pk=None):
             }
             comment.delete()
             return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
-    
-    raise Http404
-
-def series(request, pk):
-    series = get_object_or_404(Series, pk=pk)
-
-    if request.method == 'GET':
-        if request.GET.get('get') == 'modal':
-            if not request.user == series.owner:
-                return HttpResponse('error:DU')
-            form = SeriesUpdateForm(instance=series)
-            return render(request, 'board/series/form/series.html', {'form': form, 'series': series})
-        posts = Post.objects.filter(series=series, hide=False)
-        return JsonResponse({
-            'title': series.name,
-            'url': series.url,
-            'description': series.text_md,
-            'posts': list(map(lambda post: {
-                'title': post.title,
-                'url': post.url
-            }, posts))
-        }, json_dumps_params={'ensure_ascii': True})
-        
-    if request.method == 'DELETE':
-        if not request.user == series.owner:
-            return HttpResponse('error:DU')
-        series.delete()
-        return HttpResponse('DONE')
     
     raise Http404
 

@@ -68,9 +68,6 @@ class TopNavigation extends React.Component {
     }
 
     onOpenModal(modalName) {
-        if(modalName == 'showTelegramModal') {
-            
-        }
         let newState = this.state;
         newState[modalName] = true;
         this.setState(newState);
@@ -309,7 +306,7 @@ class TopNavigation extends React.Component {
                                 <>
                                     <li>
                                         <a onClick={() => this.onOpenModal('isLoginModalOpen')}>
-                                            <i class="fas fa-cogs"></i>
+                                            <i className="fas fa-cogs"></i>
                                         </a>
                                     </li>
                                     <li>

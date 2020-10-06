@@ -5,7 +5,7 @@ import NProgress from 'nprogress';
 
 function serializeObject(obj) {
     return Object.keys(obj).reduce((acc, cur) => {
-        return acc += obj[cur] ? `${cur}=${obj[cur]}&` : '';
+        return acc += `${cur}=${obj[cur]}&`;
     }, '').slice(0, -1);
 }
 
@@ -136,6 +136,26 @@ class API {
 
     async getSeries(author, url) {
         return await axios.get(`${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`);
+    }
+
+    async putSeries(author, url, data) {
+        NProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: serializeObject(data),
+                withCredentials: true,
+            });
+            NProgress.done();
+            return response;
+        } catch(e) {
+            NProgress.done();
+            return e;
+        }
     }
 
     async login(username, password) {
