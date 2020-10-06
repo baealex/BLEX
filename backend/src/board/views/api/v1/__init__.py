@@ -25,7 +25,17 @@ from board.views import function as fn
 def alive(request):
     if request.method == 'GET':
         if request.user.is_active:
-            return HttpResponse(request.user.username)
+            notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
+            result = {
+                'username': request.user.username,
+                'notify': list(map(lambda item: {
+                    'pk': item.pk,
+                    'url': item.url,
+                    'content': item.infomation,
+                    'created_date': timesince(item.created_date)
+                }, notify))
+            }
+            return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
         return HttpResponse('dead')
 
 def login(request):
@@ -38,8 +48,16 @@ def login(request):
         if user is not None:
             if user.is_active:
                 auth.login(request, user)
+                notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
                 return JsonResponse({
-                    'status': 'success'
+                    'status': 'success',
+                    'username': username,
+                    'notify': list(map(lambda item: {
+                        'pk': item.pk,
+                        'url': item.url,
+                        'content': item.infomation,
+                        'created_date': timesince(item.created_date)
+                    }, notify))
                 }, json_dumps_params={'ensure_ascii': True})
         else:
             result = {
@@ -540,13 +558,27 @@ def users(request, username):
                                 'text': active.name
                             }
                         data[include].append(active_dict)
+                
+                elif include == 'about':
+                    data[include] = user_profile.about_html
+                
             return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
 
         if not request.user.is_active:
             return HttpResponse('error:NL')
+        
         if not request.user == user:
             return HttpResponse('error:DU')
-            
+        
+        if request.GET.get('get') == 'profile':
+            fields = request.GET.get('fields').split(',')
+            user_profile = Profile.objects.get(user=user)
+            data = dict();
+            for field in fields:
+                if field == 'about_md':
+                    data[field] = user_profile.about_md
+            return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+        
         if request.GET.get('get') == 'posts_analytics':
             if request.GET.get('pk'):
                 pk = request.GET.get('pk')
@@ -573,14 +605,6 @@ def users(request, username):
             else:
                 posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
                 return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params={'ensure_ascii': True})
-        
-        if request.GET.get('get') == 'about-form':
-            if hasattr(user, 'profile'):
-                form = AboutForm(instance=user.profile)
-                return render(request, 'board/profile/form/about.html', {'form': form})
-            else:
-                form = AboutForm()
-                return render(request, 'board/profile/form/about.html', {'form': form})
 
     if request.method == 'PUT':
         put = QueryDict(request.body)

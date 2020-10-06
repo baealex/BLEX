@@ -242,7 +242,7 @@ class TopNavigation extends React.Component {
 
         const serachInput = (
             <input
-                autocomplete="off"
+                autoComplete="off"
                 className="search"
                 name="search"
                 type="text"

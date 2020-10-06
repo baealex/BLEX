@@ -31,7 +31,6 @@ from board.views.api import v1 as api_v1
 #   path('@<username>/posts/', views.user_profile_posts, name='user_profile_posts'),
 #   path('@<username>/posts/<tag>', views.user_profile_posts, name='user_profile_posts'),
 #   path('@<username>/<tab>/', views.user_profile_tab, name='user_profile_tab'),
-#   path('@<username>/blog/<tag>', views.user_profile_tag_redirect, name='user_profile_tag_redirect'),
 #   # ------------------------------------------------------------ Profile End
 #
 #   # Series
@@ -56,12 +55,29 @@ from board.views.api import v1 as api_v1
 #   path('', views.post_sort_list, name='post_sort_list'),
 #   path('<sort>', views.post_sort_list, name='post_sort_list'),
 #   path('tag/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
-#   path('topic/<tag>', views.post_list_in_tag_redirect, name='post_list_in_tag_redirect'),
 #   path('edit/<timestamp>', views.post_edit, name='post_edit'),
 #   # ------------------------------------------------------------ Article End
-#
+# ]
+
+def empty():
+    pass
 
 urlpatterns = [
+    # Sitemap Generator
+    path('tags/<tag>', empty, name='post_list_in_tag'),
+    path('@<username>', empty, name='user_profile'),
+    path('@<username>/posts', empty, name='user_profile_posts'),
+    path('@<username>/posts/<tag>', empty, name='user_profile_posts'),
+    path('@<username>/<tab>', empty, name='user_profile_tab'),
+    path('@<username>/<url>', empty, name='post_detail'),
+    path('@<username>/series/<url>', empty, name='series_list'),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+
+    # RSS and Etc
+    path('rss', SitePostsFeed()),
+    path('rss/@<username>', UserPostsFeed(), name="user_rss_feed"),
+    path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
+
     # API V1
     path('v1/alive', api_v1.alive, name='alive_api_v1'),
     path('v1/login', api_v1.login, name='login_api_v1'),

@@ -64,6 +64,36 @@ class API {
         });
     }
 
+    async getUserData(author, get, fields) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?get=${get}&fields=${fields.join(',')}`,
+            method: 'GET'
+        });
+    }
+
+    async putAbout(author, about_md) {
+        NProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}`,
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: serializeObject({
+                    about: author,
+                    about_md
+                }),
+                withCredentials: true,
+            });
+            NProgress.done();
+            return response;
+        } catch(e) {
+            NProgress.done();
+            return e;
+        }
+    }
+
     async getAllTags(page) {
         return await axios({
             url: `${Config.API_SERVER}/v1/tags?page=${page}`,

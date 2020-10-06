@@ -190,6 +190,7 @@ class Post extends React.Component {
                             <TagList author={this.props.post.author} tag={this.props.post.tag.split(',')}/>
                             {this.props.hasSeries ? (
                                 <ArticleSereis
+                                    url={this.props.series.url}
                                     title={this.props.series.title}
                                     posts={this.props.series.posts}
                                     author={this.props.post.author}
