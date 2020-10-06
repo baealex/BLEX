@@ -86,11 +86,13 @@ class About extends React.Component {
                         ) : (
                             <ArticleContent html={this.state.aboutHTML}/>
                         )}
-                        <button
-                            className="btn btn-dark btn-block mt-3 edit"
-                            onClick={() => this.onClickEdit()}>
-                            {this.state.isEdit ? '완료' : '편집'}
-                        </button>
+                        {this.props.profile.profile.username == this.state.username ? (
+                            <button
+                                className="btn btn-dark btn-block mt-3 edit"
+                                onClick={() => this.onClickEdit()}>
+                                {this.state.isEdit ? '완료' : '편집'}
+                            </button>
+                        ) : ''}
                     </div>
                 </div>
             </>
