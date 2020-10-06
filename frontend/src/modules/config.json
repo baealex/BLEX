@@ -1,3 +1,5 @@
 {
-    "API_SERVER": "http://192.168.0.14:8000"
+    "API_SERVER": "http://in-vm.baejino.com:8000",
+    "GOOGLE_OAUTH_CLIENT_ID": "230716131865-ann8gcfd9b3oq3d6funkkb5r8k1d9d3o",
+    "GITHUB_OAUTH_CLIENT_ID": "c5b001b86e3e77f2af1f"
 }

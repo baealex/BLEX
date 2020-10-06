@@ -8,6 +8,7 @@ import Modal from '../../components/common/Modal';
 import Cookie from '../../modules/cookie';
 import API from '../../modules/api';
 import Global from '../../modules/global';
+import Config from '../../modules/config.json';
 
 class TopNavigation extends React.Component {
     constructor(props) {
@@ -21,7 +22,7 @@ class TopNavigation extends React.Component {
             search: '',
             token: '',
             notify: [],
-            showLoginModal: false,
+            isLoginModalOpen: false,
             showNotifyModal: false,
             error: ''
         };
@@ -66,7 +67,7 @@ class TopNavigation extends React.Component {
         });
     }
 
-    onShowModal(modalName) {
+    onOpenModal(modalName) {
         if(modalName == 'showTelegramModal') {
             
         }
@@ -76,8 +77,8 @@ class TopNavigation extends React.Component {
     }
 
     onCloseModal(modalName) {
-        let newState = this.state;
-        newState[modalName] = false;
+        let newState = this.state
+        newState[modalName] = false
         this.setState(newState);
     }
 
@@ -95,18 +96,18 @@ class TopNavigation extends React.Component {
 
     async onSubmitLogin() {
         if(this.state.username == '') {
-            toast('😅 아이디를 입력해주세요!')
+            toast('😅 아이디를 입력해주세요!');
             return;
         }
         if(this.state.password == '') {
-            toast('😅 비밀번호를 입력해주세요!')
+            toast('😅 비밀번호를 입력해주세요!');
             return;
         }
         let newState = this.state;
         const { data } = await API.login(this.state.username, this.state.password);
         if(data.status == 'success') {
             toast(`😃 로그인 되었습니다.`);
-            newState.showLoginModal = false;
+            newState.isLoginModalOpen = false;
             newState.isLogin = true;
             Global.setState({
                 ...Global.state,
@@ -133,8 +134,8 @@ class TopNavigation extends React.Component {
         switch(social) {
             case 'google':
                 url += 'https://accounts.google.com/o/oauth2/auth';
-                url += '?client_id=230716131865-ann8gcfd9b3oq3d6funkkb5r8k1d9d3o.apps.googleusercontent.com';
-                url += '&redirect_uri=' + window.location.protocol + '//' + window.location.hostname + '/login/callback/google';
+                url += `?client_id=${Config.GOOGLE_OAUTH_CLIENT_ID}.apps.googleusercontent.com`;
+                url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/google`;
                 url += '&response_type=code';
                 url += '&scope=openid profile email'
                 url += '&approval_prompt=force'
@@ -142,8 +143,8 @@ class TopNavigation extends React.Component {
                 break;
             case 'github':
                 url += 'https://github.com/login/oauth/authorize';
-                url += '?client_id=c5b001b86e3e77f2af1f';
-                url += '&redirect_uri=' + window.location.protocol + '//' + window.location.hostname + '/login/callback/github';
+                url += `?client_id=${Config.GITHUB_OAUTH_CLIENT_ID}`;
+                url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/github`;
                 break;
         }
         location.href = url;
@@ -200,44 +201,61 @@ class TopNavigation extends React.Component {
     }
 
     render() {
+        const LoginModal = (
+            <Modal title='로그인' isOpen={this.state.isLoginModalOpen} close={() => this.onCloseModal('isLoginModalOpen')}>
+                <div className="content">
+                    <input
+                        className="login-form"
+                        name="username"
+                        placeholder="username"
+                        onChange={(e) => this.onInputChange(e)}
+                        value={this.state.username}
+                        onKeyPress={(e) => this.onEnterLogin(e)}
+                    />
+                    <input
+                        className="login-form"
+                        name="password"
+                        type="password"
+                        placeholder="password"
+                        onChange={(e) => this.onInputChange(e)}
+                        value={this.state.password}
+                        onKeyPress={(e) => this.onEnterLogin(e)}
+                    />
+                    <button
+                        className="login-button"
+                        onClick={() => this.onSubmitLogin()}>
+                        로그인
+                    </button>
+                    <button
+                        className="login-button google"
+                        onClick={() => this.onSubmitSocialLogin("google")}>
+                        <i className="fab fa-google"></i> Google 로그인
+                    </button>
+                    <button
+                        className="login-button github"
+                        onClick={() => this.onSubmitSocialLogin("github")}>
+                        <i className="fab fa-github"></i> GitHub 로그인
+                    </button>
+                </div>
+            </Modal>
+        );
+
+        const serachInput = (
+            <input
+                autocomplete="off"
+                className="search"
+                name="search"
+                type="text"
+                value={this.state.search}
+                placeholder="Serach"
+                onChange={(e) => this.onInputChange(e)}
+                onKeyPress={(e) => this.onEnterSearch(e)}
+            />
+        );
+
         return (
             <>
-                <Modal title='로그인' isOpen={this.state.showLoginModal} close={() => this.onCloseModal('showLoginModal')}>
-                    <div className="content">
-                        <input
-                            className='login-form'
-                            name='username'
-                            placeholder='username'
-                            onChange={(e) => this.onInputChange(e)}
-                            value={this.state.username}
-                            onKeyPress={(e) => this.onEnterLogin(e)}
-                        />
-                        <input
-                            className='login-form'
-                            name='password'
-                            type='password'
-                            placeholder='password'
-                            onChange={(e) => this.onInputChange(e)}
-                            value={this.state.password}
-                            onKeyPress={(e) => this.onEnterLogin(e)}
-                        />
-                        <button
-                            className='login-button'
-                            onClick={() => this.onSubmitLogin()}>
-                            로그인
-                        </button>
-                        <button
-                            className='login-button google'
-                            onClick={() => this.onSubmitSocialLogin('google')}>
-                            <i className="fab fa-google"></i> Google 로그인
-                        </button>
-                        <button
-                            className='login-button github'
-                            onClick={() => this.onSubmitSocialLogin('github')}>
-                            <i className="fab fa-github"></i> GitHub 로그인
-                        </button>
-                    </div>
-                </Modal>
+                {LoginModal}
                 <div
                     onMouseLeave={() => this.onMouseLeaveOnContent()}
                     className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
@@ -247,16 +265,7 @@ class TopNavigation extends React.Component {
                         <img src="https://static.blex.me/assets/images/logo.png"/>
                     </nav>
                     <div className="inner">
-                        <input
-                            autocomplete="off"
-                            className="search"
-                            name='search'
-                            type='text'
-                            value={this.state.search}
-                            placeholder="Serach"
-                            onChange={(e) => this.onInputChange(e)}
-                            onKeyPress={(e) => this.onEnterSearch(e)}
-                        />
+                        {serachInput}
                         <ul className="menu-item">
                             <li>
                                 <Link href="/">
@@ -297,14 +306,21 @@ class TopNavigation extends React.Component {
                                 </a>
                             </li>
                             {this.state.isLogin ? (
-                                <li>
-                                    <a onClick={() => this.onClickLogout()}>
-                                        <i className="fas fa-sign-out-alt"></i> 로그아웃
-                                    </a>
-                                </li>
+                                <>
+                                    <li>
+                                        <a onClick={() => this.onOpenModal('isLoginModalOpen')}>
+                                            <i class="fas fa-cogs"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a onClick={() => this.onClickLogout()}>
+                                            <i className="fas fa-sign-out-alt"></i> 로그아웃
+                                        </a>
+                                    </li>
+                                </>
                             ) : (
                                 <li>
-                                    <a onClick={() => this.onShowModal('showLoginModal')}>
+                                    <a onClick={() => this.onOpenModal('isLoginModalOpen')}>
                                         <i className="fas fa-sign-in-alt"></i> 로그인
                                     </a>
                                 </li>
