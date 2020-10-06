@@ -130,12 +130,85 @@ class API {
         }
     }
 
+    async likeComment(pk) {
+        NProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/comments/${pk}`,
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: serializeObject({
+                    like: pk
+                }),
+                withCredentials: true,
+            });
+            NProgress.done();
+            return response;
+        } catch(e) {
+            NProgress.done();
+            return e;
+        }
+    }
+
+    async getCommentMd(pk) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/comments/${pk}`,
+            method: 'GET'
+        });
+    }
+
+    async putComment(pk, comment) {
+        NProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/comments/${pk}`,
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: serializeObject({
+                    comment
+                }),
+                withCredentials: true,
+            });
+            NProgress.done();
+            return response;
+        } catch(e) {
+            NProgress.done();
+            return e;
+        }
+    }
+
+    async deleteComment(pk) {
+        NProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/comments/${pk}`,
+                method: 'DELETE',
+                withCredentials: true,
+            });
+            NProgress.done();
+            return response;
+        } catch(e) {
+            NProgress.done();
+            return e;
+        }
+    }
+
     async getUserSeries(author, page) {
-        return await axios.get(`${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series?page=${page}`);
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
+            method: 'GET'
+        });
     }
 
     async getSeries(author, url) {
-        return await axios.get(`${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`);
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+            method: 'GET'
+        });
     }
 
     async putSeries(author, url, data) {

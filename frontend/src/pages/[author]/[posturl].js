@@ -7,6 +7,7 @@ import ArticleContent from '../../components/article/ArticleContent';
 import ArticleSereis from '../../components/article/ArticleSeries';
 import TagList from '../../components/tag/TagList';
 import Comment from '../../components/comment/Comment';
+import CommentEdit from '../../components/comment/CommentEdit';
 import CommentForm from '../../components/comment/CommentForm';
 import CommentAlert from '../../components/comment/CommentAlert';
 import SEO from '../../components/seo';
@@ -48,14 +49,21 @@ class Post extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isLogin: Global.state.isLogin,
             isLiked: props.post.is_liked === 'true' ? true : false,
+            isLogin: Global.state.isLogin,
+            username: Global.state.username,
             totalLikes: props.post.total_likes,
-            comments: props.post.comments
+            comments: props.post.comments.map(comment => {
+                let newComment = comment;
+                newComment.isEdit = false;
+                newComment.contentPure = '';
+                return newComment;
+            })
         };
         Global.appendUpdater('Post', () => this.setState({
             ...this.state,
-            isLogin: Global.state.isLogin
+            isLogin: Global.state.isLogin,
+            username: Global.state.username
         }));
     }
 
@@ -108,18 +116,6 @@ class Post extends React.Component {
         });
     }
 
-    async onSubmutComment(text) {
-        const { data } = await API.postComment(this.props.post.url, text);
-        if(data.status !== 'success') {
-            toast('댓글 작성 실패!');
-            return;
-        }
-        this.setState({
-            ...this.setState,
-            comments: this.state.comments.concat(data.element)
-        });
-    }
-
     onClickShare(sns) {
         let href = '';
         let size = '';
@@ -140,8 +136,68 @@ class Post extends React.Component {
         window.open(href, `${sns}-share`, size);
     }
 
+    async onSubmitComment(text) {
+        const { data } = await API.postComment(this.props.post.url, text);
+        if(data.status !== 'success') {
+            toast('댓글 작성 실패!');
+            return;
+        }
+        this.setState({
+            ...this.setState,
+            comments: this.state.comments.concat(data.element)
+        });
+    }
+    
+    async onCommentEdit(pk) {
+        const { data } = await API.getCommentMd(pk);
+        let { comments } = this.state;
+        comments = comments.map(comment => (
+            comment.pk == pk ? ({
+                ...comment,
+                isEdit: true,
+                contentPure: data
+            }) : comment
+        ));
+        this.setState({...this.state, comments});
+    }
+
+    async onCommentEditSubmit(pk, comment) {
+        const { data } = await API.putComment(pk, comment);
+        let { comments } = this.state;
+        comments = comments.map(comment => (
+            comment.pk == pk ? ({
+                ...comment,
+                isEdit: false,
+                text_html: data
+            }) : comment
+        ));
+        this.setState({...this.state, comments});
+    }
+
+    async onCommentEditCancle(pk) {
+        let { comments } = this.state;
+        comments = comments.map(comment => (
+            comment.pk == pk ? ({
+                ...comment,
+                isEdit: false,
+            }) : comment
+        ));
+        this.setState({...this.state, comments});
+    }
+
+    async onCommentDelete(pk) {
+        const { data } = await API.deleteComment(pk);
+        if(data == 'DONE') {
+            let { comments } = this.state;
+            comments = comments.filter(comment => (
+                comment.pk !== pk
+            ));
+            this.setState({...this.state, comments});
+            toast('😀 댓글이 삭제되었습니다.');
+        }
+    }
+
     render() {
-        console.log(this.props.profile)
         return (
             <>
                 <Head>
@@ -207,20 +263,33 @@ class Post extends React.Component {
                     <div className="container">
                         <div className="col-lg-8 mx-auto px-0">
                             {this.state.comments.length > 0 ? this.state.comments.map((comment, idx) => (
-                                <Comment
-                                    key={idx}
-                                    author={comment.author}
-                                    authorImage={comment.author_image}
-                                    timeSince={comment.time_since}
-                                    edited={comment.edited}
-                                    html={comment.text_html}
-                                />
+                                comment.isEdit ? (
+                                    <CommentEdit
+                                        pk={comment.pk}
+                                        comment={comment.contentPure}
+                                        onSubmit={(pk, comment) => this.onCommentEditSubmit(pk, comment)}
+                                        onCancle={(pk) => this.onCommentEditCancle(pk)}
+                                    />
+                                ) : (
+                                    <Comment
+                                        key={idx}
+                                        pk={comment.pk}
+                                        author={comment.author}
+                                        authorImage={comment.author_image}
+                                        timeSince={comment.time_since}
+                                        html={comment.text_html}
+                                        isEdited={comment.edited === 'true' ? true : false}
+                                        isOwner={this.state.username === comment.author ? true : false}
+                                        onEdit={(pk) => this.onCommentEdit(pk)}
+                                        onDelete={(pk) => this.onCommentDelete(pk)}
+                                    />
+                                )
                             )) : <CommentAlert
                                     text={'작성된 댓글이 없습니다!'}
                                 />
                             }
                             {this.state.isLogin ? (
-                                <CommentForm onSubmutComment={this.onSubmutComment.bind(this)}/>
+                                <CommentForm onSubmit={this.onSubmitComment.bind(this)}/>
                             ) : (
                                 <div className="noto alert alert-warning s-shadow">댓글을 작성하기 위해 로그인이 필요합니다.</div>
                             )}

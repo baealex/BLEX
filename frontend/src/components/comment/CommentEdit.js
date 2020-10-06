@@ -5,7 +5,7 @@ class CommentForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            comment: ''
+            comment: props.comment
         }
     }
 
@@ -21,11 +21,11 @@ class CommentForm extends React.Component {
             toast('😅 댓글의 내용을 입력해주세요.');
             return;
         }
-        this.props.onSubmit(this.state.comment);
-        this.setState({
-            ...this.state,
-            comment: ''
-        });
+        if(this.state.comment == this.props.comment) {
+            this.props.onCancle(this.props.pk);
+            return;
+        }
+        this.props.onSubmit(this.props.pk, this.state.comment);
     }
 
     render() {
@@ -43,7 +43,7 @@ class CommentForm extends React.Component {
                     type="button"
                     onClick={() => this.onSubmit()}
                     className="btn btn-dark btn-block noto">
-                    댓글 작성
+                    완료
                 </button>
             </div>
         )

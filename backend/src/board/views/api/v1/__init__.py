@@ -208,6 +208,7 @@ def user_posts(request, username, url=None):
                 'tag': post.tag,
                 'is_liked': 'true' if post.likes.filter(id=request.user.id).exists() else 'false',
                 'comments': list(map(lambda comment: {
+                    'pk': comment.pk if request.user == comment.author else 0,
                     'author_image': comment.author.profile.get_thumbnail(),
                     'author': comment.author.username,
                     'text_html': comment.text_html,
@@ -415,19 +416,10 @@ def comment(request, pk=None):
     
     if pk:
         comment = get_object_or_404(Comment, pk=pk)
+
         if request.method == 'GET':
-            if request.GET.get('get') == 'form':
-                if not request.user == comment.author:
-                    return HttpResponse('error:DU')
-                form = CommentForm(instance=comment)
-                return render(request, 'board/posts/form/comment.html', {'form': form, 'comment': comment})
-            else:
-                data = {
-                    'state': 'true',
-                    'element': comment.to_dict()
-                }
-                return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
-        
+            return HttpResponse(comment.text_md)
+
         if request.method == 'PUT':
             put = QueryDict(request.body)
             if put.get('like'):
@@ -445,29 +437,21 @@ def comment(request, pk=None):
                     send_notify_content = '\''+ comment.post.title +'\'글에 작성한 회원님의 댓글을 누군가 추천했습니다.'
                     fn.create_notify(user=comment.author, url=comment.post.get_absolute_url(), infomation=send_notify_content)
                 return HttpResponse(str(comment.total_likes()))
-            if put.get('text_md'):
+            
+            if put.get('comment'):
                 if not request.user == comment.author:
                     return HttpResponse('error:DU')
-                comment.text_md = put.get('text_md')
+                comment.text_md = put.get('comment')
                 comment.text_html = parsedown(comment.text_md)
                 comment.edit = True
                 comment.save()
-                
-                data = {
-                    'state': 'true',
-                    'element': comment.to_dict()
-                }
-
-                return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+                return HttpResponse(comment.text_html)
         
         if request.method == 'DELETE':
             if not request.user == comment.author:
                 return HttpResponse('error:DU')
-            data = {
-                'pk': comment.pk
-            }
             comment.delete()
-            return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+            return HttpResponse('DONE')
     
     raise Http404
 

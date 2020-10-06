@@ -11,7 +11,17 @@ export default function Comment(props) {
                     <a className="font-weight-bold deep-dark">{props.author}</a>
                 </Link>
                 <br/>
-                <small>{`${props.timeSince}전${props.edited === 'true' ? (<span className='vs'> (Edited)</span>) : ''}`}</small>
+                <small>{`${props.timeSince}전${props.isEdited ? (<span className='vs'> (Edited)</span>) : ''}`}</small>
+                {props.isOwner ? (
+                    <ul className="none-list">
+                        <li className="ml-1">
+                            <a className="vs shallow-dark c-pointer" onClick={() => props.onEdit(props.pk)}>수정</a>
+                        </li>
+                        <li className="ml-1">
+                            <a className="vs shallow-dark c-pointer" onClick={() => props.onDelete(props.pk)}>삭제</a>
+                        </li>
+                    </ul>
+                ) : ''}
                 <div className="mt-4 comment-content" dangerouslySetInnerHTML={{ __html: props.html }}/>
             </div>
         </>
