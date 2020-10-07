@@ -3,12 +3,10 @@ import Link from 'next/link';
 
 import { toast } from 'react-toastify';
 
-import Modal from '../../components/common/Modal';
-
 import Cookie from '../../modules/cookie';
 import API from '../../modules/api';
 import Global from '../../modules/global';
-import Config from '../../modules/config.json';
+import LoginModal from '../modal/Login';
 
 class TopNavigation extends React.Component {
     constructor(props) {
@@ -18,13 +16,8 @@ class TopNavigation extends React.Component {
             isNightMode: false,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
-            password: '',
             search: '',
-            token: '',
-            notify: [],
-            isLoginModalOpen: false,
-            showNotifyModal: false,
-            error: ''
+            isLoginModalOpen: false
         };
         Global.appendUpdater('TopNavigation', () => this.setState({
             ...this.state,
@@ -50,12 +43,8 @@ class TopNavigation extends React.Component {
             username: alive.data !== 'dead' ? alive.data.username : '',
         });
         if(alive.data !== 'dead') {
-            if(alive.data.notify.length > 0) {
-                this.setState({
-                    ...this.setState,
-                    notify: alive.data.notify
-                });
-                toast(`😲 읽지 않은 알림이 ${alive.data.notify.length}개 있습니다.`)
+            if(alive.data.notify_count != 0) {
+                toast(`😲 읽지 않은 알림이 ${alive.data.notify_count}개 있습니다.`)
             }
         }
     }
@@ -83,68 +72,6 @@ class TopNavigation extends React.Component {
         if(e.key == 'Enter') {
             window.open('about:blank').location.href = `https://www.google.com/search?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
         }
-    }
-
-    onEnterLogin(e) {
-        if(e.key == 'Enter') {
-            this.onSubmitLogin();
-        }
-    }
-
-    async onSubmitLogin() {
-        if(this.state.username == '') {
-            toast('😅 아이디를 입력해주세요!');
-            return;
-        }
-        if(this.state.password == '') {
-            toast('😅 비밀번호를 입력해주세요!');
-            return;
-        }
-        let newState = this.state;
-        const { data } = await API.login(this.state.username, this.state.password);
-        if(data.status == 'success') {
-            toast(`😃 로그인 되었습니다.`);
-            newState.isLoginModalOpen = false;
-            newState.isLogin = true;
-            Global.setState({
-                ...Global.state,
-                isLogin: true,
-                username: data.username
-            });
-
-            if(data.notify.length > 0) {
-                this.setState({
-                    ...this.setState,
-                    notify: data.notify
-                });
-                toast(`😲 읽지 않은 알림이 ${data.notify.length}개 있습니다.`)
-            }
-        } else {
-            toast('😥 아이디 혹은 패스워드를 확인해주세요.');
-        }
-        newState.password = '';
-        this.setState(newState);
-    }
-
-    onSubmitSocialLogin(social) {
-        let url = '';
-        switch(social) {
-            case 'google':
-                url += 'https://accounts.google.com/o/oauth2/auth';
-                url += `?client_id=${Config.GOOGLE_OAUTH_CLIENT_ID}.apps.googleusercontent.com`;
-                url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/google`;
-                url += '&response_type=code';
-                url += '&scope=openid profile email'
-                url += '&approval_prompt=force'
-                url += '&access_type=offline'
-                break;
-            case 'github':
-                url += 'https://github.com/login/oauth/authorize';
-                url += `?client_id=${Config.GITHUB_OAUTH_CLIENT_ID}`;
-                url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/github`;
-                break;
-        }
-        location.href = url;
     }
 
     onInputChange(e) {
@@ -198,45 +125,6 @@ class TopNavigation extends React.Component {
     }
 
     render() {
-        const LoginModal = (
-            <Modal title='로그인' isOpen={this.state.isLoginModalOpen} close={() => this.onCloseModal('isLoginModalOpen')}>
-                <div className="content">
-                    <input
-                        className="login-form"
-                        name="username"
-                        placeholder="username"
-                        onChange={(e) => this.onInputChange(e)}
-                        value={this.state.username}
-                        onKeyPress={(e) => this.onEnterLogin(e)}
-                    />
-                    <input
-                        className="login-form"
-                        name="password"
-                        type="password"
-                        placeholder="password"
-                        onChange={(e) => this.onInputChange(e)}
-                        value={this.state.password}
-                        onKeyPress={(e) => this.onEnterLogin(e)}
-                    />
-                    <button
-                        className="login-button"
-                        onClick={() => this.onSubmitLogin()}>
-                        로그인
-                    </button>
-                    <button
-                        className="login-button google"
-                        onClick={() => this.onSubmitSocialLogin("google")}>
-                        <i className="fab fa-google"></i> Google 로그인
-                    </button>
-                    <button
-                        className="login-button github"
-                        onClick={() => this.onSubmitSocialLogin("github")}>
-                        <i className="fab fa-github"></i> GitHub 로그인
-                    </button>
-                </div>
-            </Modal>
-        );
-
         const serachInput = (
             <input
                 autoComplete="off"
@@ -252,7 +140,7 @@ class TopNavigation extends React.Component {
 
         return (
             <>
-                {LoginModal}
+                <LoginModal isOpen={this.state.isLoginModalOpen} onClose={() => this.onCloseModal('isLoginModalOpen')}/>
                 <div
                     onMouseLeave={() => this.onMouseLeaveOnContent()}
                     className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>

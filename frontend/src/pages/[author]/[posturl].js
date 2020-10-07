@@ -57,6 +57,9 @@ class Post extends React.Component {
                 let newComment = comment;
                 newComment.isEdit = false;
                 newComment.contentPure = '';
+                newComment.is_edited = (
+                    newComment.is_edited === 'true' ? true : false
+                );
                 return newComment;
             })
         };
@@ -168,6 +171,7 @@ class Post extends React.Component {
             comment.pk == pk ? ({
                 ...comment,
                 isEdit: false,
+                isEdited: true,
                 text_html: data
             }) : comment
         ));
@@ -278,7 +282,7 @@ class Post extends React.Component {
                                         authorImage={comment.author_image}
                                         timeSince={comment.time_since}
                                         html={comment.text_html}
-                                        isEdited={comment.edited === 'true' ? true : false}
+                                        isEdited={comment.is_edited}
                                         isOwner={this.state.username === comment.author ? true : false}
                                         onEdit={(pk) => this.onCommentEdit(pk)}
                                         onDelete={(pk) => this.onCommentDelete(pk)}

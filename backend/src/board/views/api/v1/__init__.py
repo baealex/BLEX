@@ -28,12 +28,7 @@ def alive(request):
             notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
             result = {
                 'username': request.user.username,
-                'notify': list(map(lambda item: {
-                    'pk': item.pk,
-                    'url': item.url,
-                    'content': item.infomation,
-                    'created_date': timesince(item.created_date)
-                }, notify))
+                'notify_count': notify.count()
             }
             return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
         return HttpResponse('dead')
@@ -52,12 +47,7 @@ def login(request):
                 return JsonResponse({
                     'status': 'success',
                     'username': username,
-                    'notify': list(map(lambda item: {
-                        'pk': item.pk,
-                        'url': item.url,
-                        'content': item.infomation,
-                        'created_date': timesince(item.created_date)
-                    }, notify))
+                    'notify_count': notify.count()
                 }, json_dumps_params={'ensure_ascii': True})
         else:
             result = {
@@ -213,7 +203,7 @@ def user_posts(request, username, url=None):
                     'author': comment.author.username,
                     'text_html': comment.text_html,
                     'time_since': timesince(comment.created_date),
-                    'edited': 'true 'if comment.edited else 'false'
+                    'is_edited': 'true' if comment.edited else 'false'
                 }, comments))
             })
 
@@ -443,7 +433,7 @@ def comment(request, pk=None):
                     return HttpResponse('error:DU')
                 comment.text_md = put.get('comment')
                 comment.text_html = parsedown(comment.text_md)
-                comment.edit = True
+                comment.edited = True
                 comment.save()
                 return HttpResponse(comment.text_html)
         
