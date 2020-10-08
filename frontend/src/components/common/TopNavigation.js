@@ -7,6 +7,7 @@ import Cookie from '../../modules/cookie';
 import API from '../../modules/api';
 import Global from '../../modules/global';
 import LoginModal from '../modal/Login';
+import SettingModal from '../modal/Setting';
 
 class TopNavigation extends React.Component {
     constructor(props) {
@@ -17,7 +18,8 @@ class TopNavigation extends React.Component {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             search: '',
-            isLoginModalOpen: false
+            isLoginModalOpen: false,
+            isSettingModalOpen: false
         };
         Global.appendUpdater('TopNavigation', () => this.setState({
             ...this.state,
@@ -70,7 +72,7 @@ class TopNavigation extends React.Component {
 
     onEnterSearch(e) {
         if(e.key == 'Enter') {
-            window.open('about:blank').location.href = `https://www.google.com/search?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
+            window.open('about:blank').location.href = `https://duckduckgo.com/?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
         }
     }
 
@@ -119,8 +121,8 @@ class TopNavigation extends React.Component {
                     ...Global.state,
                     isLogin: false
                 });
+                toast('😥 로그아웃 되었습니다.');
             }
-            toast('😥 로그아웃 되었습니다.', toast.TYPE.INFO);
         }
     }
 
@@ -141,6 +143,7 @@ class TopNavigation extends React.Component {
         return (
             <>
                 <LoginModal isOpen={this.state.isLoginModalOpen} onClose={() => this.onCloseModal('isLoginModalOpen')}/>
+                <SettingModal isOpen={this.state.isSettingModalOpen} onClose={() => this.onCloseModal('isSettingModalOpen')}/>
                 <div
                     onMouseLeave={() => this.onMouseLeaveOnContent()}
                     className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
@@ -176,8 +179,8 @@ class TopNavigation extends React.Component {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/">
-                                        <a><i className="fas fa-pencil-alt"></i> 포스트 작성</a>
+                                    <Link href="#">
+                                        <a onClick={() => toast('😥 준비중입니다...')}><i className="fas fa-pencil-alt"></i> 포스트 작성</a>
                                     </Link>
                                 </li>
                             </ul>
@@ -193,7 +196,7 @@ class TopNavigation extends React.Component {
                             {this.state.isLogin ? (
                                 <>
                                     <li>
-                                        <a onClick={() => this.onOpenModal('isLoginModalOpen')}>
+                                        <a onClick={() => this.onOpenModal('isSettingModalOpen')}>
                                             <i className="fas fa-cogs"></i>
                                         </a>
                                     </li>

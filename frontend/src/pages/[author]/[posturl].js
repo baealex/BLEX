@@ -21,7 +21,23 @@ import ArticleAuthor from '../../components/article/ArticleAuthor';
 export async function getServerSideProps(context) {
     const { req } = context;
     const { author, posturl } = context.query;
-    const post = await API.getPost(author, posturl, req.headers.cookie);
+
+    let user_ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+    if (user_ip.substr(0, 7) == "::ffff:") {
+        user_ip = user_ip.substr(7);
+    }
+    const user_agent = req.headers['user-agent'];
+    const referer = req.headers['referer'];
+    const cookie = req.headers['cookie'];
+
+    const post = await API.getPost(author, posturl, cookie);
+
+    API.postAnalytics(author, posturl, cookie, {
+        user_ip,
+        user_agent,
+        referer
+    });
+
     const profile = await API.getUserProfile(author, [
         'profile',
         'social'
@@ -57,9 +73,6 @@ class Post extends React.Component {
                 let newComment = comment;
                 newComment.isEdit = false;
                 newComment.contentPure = '';
-                newComment.is_edited = (
-                    newComment.is_edited === 'true' ? true : false
-                );
                 return newComment;
             })
         };
@@ -171,10 +184,11 @@ class Post extends React.Component {
             comment.pk == pk ? ({
                 ...comment,
                 isEdit: false,
-                isEdited: true,
-                text_html: data
+                text_html: data,
+                is_edited: 'true'
             }) : comment
         ));
+        toast('😀 댓글이 수정되었습니다.');
         this.setState({...this.state, comments});
     }
 
@@ -190,14 +204,16 @@ class Post extends React.Component {
     }
 
     async onCommentDelete(pk) {
-        const { data } = await API.deleteComment(pk);
-        if(data == 'DONE') {
-            let { comments } = this.state;
-            comments = comments.filter(comment => (
-                comment.pk !== pk
-            ));
-            this.setState({...this.state, comments});
-            toast('😀 댓글이 삭제되었습니다.');
+        if(confirm('정말 댓글을 삭제할까요?')) {
+            const { data } = await API.deleteComment(pk);
+            if(data == 'DONE') {
+                let { comments } = this.state;
+                comments = comments.filter(comment => (
+                    comment.pk !== pk
+                ));
+                this.setState({...this.state, comments});
+                toast('😀 댓글이 삭제되었습니다.');
+            }
         }
     }
 
@@ -215,6 +231,22 @@ class Post extends React.Component {
                     image={this.props.post.image}
                     url={this.props.url}
                 />
+                {this.props.post.image.includes('default') ? (
+                    <></>
+                ) : (
+                    <picture class="post-title-image">
+                        <img src={this.props.post.image}/>
+                        <div class="post-image-mask mask-off">
+                            <h1 class="post-headline fade-in">
+                            {this.props.hasSeries ? (
+                                <span class="post-series">'{this.props.series.title}' 시리즈</span>
+                            ) : ''}
+                                {this.props.post.title}
+                            </h1>
+                            <p class="post-date fade-in">{this.props.post.created_date}</p>
+                        </div>
+                    </picture>
+                )}
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-2">
@@ -243,8 +275,19 @@ class Post extends React.Component {
                             </div>
                         </div>
                         <div className="col-lg-8">
-                            <h1 className="post-headline">{this.props.post.title}</h1>
-                            <p>{this.props.post.created_date}</p>
+                            {this.props.post.image.includes('default') ? (
+                                <>
+                                    <h1 className="post-headline">
+                                        {this.props.hasSeries ? (
+                                            <span class="post-series">'{this.props.series.title}' 시리즈</span>
+                                        ) : ''}
+                                        {this.props.post.title}
+                                    </h1>
+                                    <p>{this.props.post.created_date}</p>
+                                </>
+                            ) : (
+                                <></>
+                            )}
                             <ArticleAuthor {...this.props.profile}/>
                             <ArticleContent html={this.props.post.text_html}/>
                             <TagList author={this.props.post.author} tag={this.props.post.tag.split(',')}/>
@@ -282,7 +325,7 @@ class Post extends React.Component {
                                         authorImage={comment.author_image}
                                         timeSince={comment.time_since}
                                         html={comment.text_html}
-                                        isEdited={comment.is_edited}
+                                        isEdited={comment.is_edited === 'true' ? true : false}
                                         isOwner={this.state.username === comment.author ? true : false}
                                         onEdit={(pk) => this.onCommentEdit(pk)}
                                         onDelete={(pk) => this.onCommentDelete(pk)}

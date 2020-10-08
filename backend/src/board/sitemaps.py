@@ -1,4 +1,5 @@
 from django.contrib.sitemaps import Sitemap
+from django.core.cache import cache
 from django.urls import reverse
 from itertools import chain
 

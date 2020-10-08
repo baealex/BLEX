@@ -181,6 +181,9 @@ def user_posts(request, username, url=None):
     if url:
         post = get_object_or_404(Post, author__username=username, url=url)
         if request.method == 'GET':
+            if post.hide and request.user != post.author:
+                raise Http404
+            
             comments = Comment.objects.filter(post=post).order_by('created_date')
             return JsonResponse({
                 'url': post.url,
@@ -226,7 +229,7 @@ def user_posts(request, username, url=None):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.hide = not post.hide
             post.save()
-            return JsonResponse({'hide': post.hide})
+            return HttpResponse('true' if post.hide else 'false')
         if put.get('tag'):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.tag = fn.get_clean_tag(put.get('tag'))
@@ -239,6 +242,40 @@ def user_posts(request, username, url=None):
         return HttpResponse('DONE')
     
     raise Http404
+
+def user_posts_analytics(request, username, url):
+    post = get_object_or_404(Post, author__username=username, url=url)
+    if request.method == 'GET':
+        if request.user != post.author:
+            raise Http404
+        
+        seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
+        posts_analytics = PostAnalytics.objects.filter(posts__id=post.pk, created_date__gt=seven_days_ago).order_by('-created_date')
+        posts_referers = Referer.objects.filter(posts__posts__id=post.pk, created_date__gt=seven_days_ago).order_by('-created_date')[:30]
+
+        data = {
+            'items': [],
+            'referers': [],
+        }
+        for item in posts_analytics:
+            data['items'].append({
+                'date': item.created_date,
+                'count': item.table.count()
+            })
+        for referer in posts_referers:
+            data['referers'].append({
+                'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
+                'from': referer.referer_from.location,
+            })
+        return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+
+    if request.method == 'POST':
+        body = QueryDict(request.body)
+        ip = body.get('user_ip', '').encode('utf8')
+        user_agent = body.get('user_agent', '')
+        referer = body.get('referer', '')
+        fn.view_count_api(post, request.user, ip, user_agent, referer)
+        return HttpResponse(randstr(25))
 
 def user_series(request, username, url=None):
     if not url:
@@ -258,6 +295,9 @@ def user_series(request, username, url=None):
                 }, series)),
                 'last_page': series.paginator.num_pages
             }, json_dumps_params={'ensure_ascii': True})
+        
+        if request.method == 'POST':
+            pass
     
     if url:
         user = User.objects.get(username=username)
@@ -305,6 +345,123 @@ def user_series(request, username, url=None):
             return HttpResponse('FAIL')
         
         raise Http404
+
+def user_setting(request, username, item):
+    user = get_object_or_404(User, username=username)
+    if request.user != user:
+        return HttpResponse('error:DU')
+    
+    if request.method == 'GET':
+        if item == 'notify':
+            notify = Notify.objects.filter(user=user, is_read=False).order_by('-created_date')
+            return JsonResponse({
+                'notify': list(map(lambda item: {
+                    'pk': item.pk,
+                    'url': item.url,
+                    'content': item.infomation,
+                    'created_date': timesince(item.created_date)
+                }, notify)),
+                'is_telegram_sync': 'true' if user.config.telegram_id else 'false'
+            }, json_dumps_params={'ensure_ascii': True})
+        
+        if item == 'account':
+            return JsonResponse({
+                'username': user.username,
+                'realname': user.first_name,
+                'created_date': user.date_joined.strftime('%Y년 %m월 %d일')
+            }, json_dumps_params={'ensure_ascii': True})
+        
+        if item == 'profile':
+            profile = Profile.objects.get(user=user)
+            return JsonResponse({
+                'avatar': profile.get_thumbnail(),
+                'homepage': profile.homepage,
+                'github': profile.github,
+                'twitter': profile.twitter,
+                'youtube': profile.youtube,
+                'facebook': profile.facebook,
+                'instagram': profile.instagram
+            }, json_dumps_params={'ensure_ascii': True})
+        
+        if item == 'posts':
+            posts = Post.objects.filter(author=user).order_by('-created_date')
+            return JsonResponse({
+                'posts': list(map(lambda post: {
+                    'url': post.url,
+                    'title': post.title,
+                    'created_date': post.created_date.strftime('%Y-%m-%d'),
+                    'updated_date': post.updated_date.strftime('%Y-%m-%d'),
+                    'hide': 'true' if post.hide else 'false',
+                    'total_likes': post.total_likes(),
+                    'total_comments': post.total_comment(),
+                    'today': post.today(),
+                    'yesterday': post.yesterday(),
+                    'total': post.total(),
+                    'tag': post.tag
+                }, posts))
+            }, json_dumps_params={'ensure_ascii': True})
+        
+        if item == 'series':
+            series = Series.objects.filter(owner=user).order_by('-created_date')
+            return JsonResponse({
+                'series': list(map(lambda item: {
+                    'url': item.url,
+                    'title': item.name,
+                    'total_posts': 0
+                }, series))
+            }, json_dumps_params={'ensure_ascii': True})
+    
+    if request.method == 'PUT':
+        put = QueryDict(request.body)
+
+        if item == 'notify':
+            pk = put.get('pk')
+            notify = Notify.objects.get(pk=pk)
+            notify.is_read = True
+            notify.save()
+            return HttpResponse('DONE')
+        
+        if item == 'account':
+            realname = put.get('realname', '')
+            password = put.get('password', '')
+            if realname and user.first_name != realname:
+                user.first_name = realname
+            if password:
+                user.set_password(password)
+            user.save()
+            return HttpResponse('DONE')
+        
+        if item == 'profile':
+            reqData = dict()
+            items = [
+                'homepage',
+                'github',
+                'twitter',
+                'facebook',
+                'instagram',
+                'youtube'
+            ]
+            for item in items:
+                reqData[item] = put.get(item, '')
+            
+            # TODO: QuerySet의 attr을 dict처럼 가져오는 방법 모색
+            profile = Profile.objects.get(user=user)
+            if profile.homepage != reqData['homepage']:
+                profile.homepage = reqData['homepage']
+            if profile.github != reqData['github']:
+                profile.github = reqData['github']
+            if profile.twitter != reqData['twitter']:
+                profile.twitter = reqData['twitter']
+            if profile.facebook != reqData['facebook']:
+                profile.facebook = reqData['facebook']
+            if profile.instagram != reqData['instagram']:
+                profile.instagram = reqData['instagram']
+            if profile.youtube != reqData['youtube']:
+                profile.youtube = reqData['youtube']
+            profile.save()
+            return HttpResponse('DONE')
+    
+    raise Http404
 
 def temp_posts(request):
     if request.method == 'GET':
@@ -396,6 +553,7 @@ def comment(request, pk=None):
             return JsonResponse({
                 'status': 'success',
                 'element': {
+                    'pk': comment.pk,
                     'author_image': comment.author.profile.get_thumbnail(),
                     'author': comment.author.username,
                     'text_html': comment.text_html,
@@ -550,33 +708,6 @@ def users(request, username):
                 if field == 'about_md':
                     data[field] = user_profile.about_md
             return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
-        
-        if request.GET.get('get') == 'posts_analytics':
-            if request.GET.get('pk'):
-                pk = request.GET.get('pk')
-                seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
-                posts_analytics = PostAnalytics.objects.filter(posts__id=pk, created_date__gt=seven_days_ago).order_by('-created_date')
-                posts_referers = Referer.objects.filter(posts__posts__id=pk, created_date__gt=seven_days_ago).order_by('-created_date')[:30]
-
-                data = {
-                    'items': [],
-                    'referers': [],
-                }
-                for item in posts_analytics:
-                    data['items'].append({
-                        'date': item.created_date,
-                        'count': item.table.count()
-                    })
-                for referer in posts_referers:
-                    data['referers'].append({
-                        'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
-                        'from': referer.referer_from.location,
-                    })
-
-                return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
-            else:
-                posts = Post.objects.filter(author=request.user).order_by('created_date').reverse()
-                return JsonResponse({'posts': [post.to_dict_for_analytics() for post in posts]}, json_dumps_params={'ensure_ascii': True})
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
@@ -637,9 +768,9 @@ def telegram(request, parameter):
                 message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
                 bot.send_message_async(req_userid, message)
             return HttpResponse('None')
+    
     if parameter == 'makeToken':
         if request.method == 'POST':
-
             token = randstr(6)
             has_token = Config.objects.filter(telegram_token=token)
             while len(has_token) > 0:
@@ -656,7 +787,8 @@ def telegram(request, parameter):
                 config.telegram_token = token
                 config.save()
                 return HttpResponse(token)
-    if parameter == 'unpair':
+    
+    if parameter == 'unsync':
         if request.method == 'POST':
             config = request.user.config
             if not config.telegram_id == '':

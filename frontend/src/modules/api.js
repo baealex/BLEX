@@ -1,11 +1,12 @@
-import Config from './config.json';
 import axios from 'axios';
 
 import NProgress from 'nprogress';
 
+import Config from './config.json';
+
 function serializeObject(obj) {
     return Object.keys(obj).reduce((acc, cur) => {
-        return acc += `${cur}=${obj[cur]}&`;
+        return acc += `${cur}=${obj[cur] === undefined ? '' : encodeURIComponent(obj[cur])}&`;
     }, '').slice(0, -1);
 }
 
@@ -40,6 +41,41 @@ class API {
             headers: cookie ? {
                 'Cookie': cookie
             } : {}
+        });
+    }
+
+    async putPostHide(author, url) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                hide: 'hide'
+            }),
+            withCredentials: true,
+        });
+    }
+
+    async getAnalytics(author, url) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
+            method: 'GET'
+        });
+    }
+
+    async postAnalytics(author, url, cookie=undefined, data={}) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
+            method: 'POST',
+            data: serializeObject(data),
+            headers: cookie ? {
+                'Cookie': cookie,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            } : {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
         });
     }
 
@@ -229,6 +265,36 @@ class API {
             NProgress.done();
             return e;
         }
+    }
+
+    async getSetting(username, item) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(username)}/setting/${item}`,
+            method: 'GET'
+        });
+    }
+
+    async putSetting(username, item, data) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(username)}/setting/${item}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject(data),
+            withCredentials: true,
+        });
+    }
+
+    async telegram(parameter) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/telegram/${parameter}`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            withCredentials: true,
+        });
     }
 
     async login(username, password) {
