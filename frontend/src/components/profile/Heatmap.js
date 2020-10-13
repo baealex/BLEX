@@ -2,7 +2,7 @@ import ReactFrappeChart from 'react-frappe-charts';
 
 export default function Heatmap(props) {
     return (
-        <div className="heatmap">
+        <div className="heatmap mt-5">
             <ReactFrappeChart
                 type='heatmap'
                 title={`${Object.keys(props.data).length} activity in the last year`}

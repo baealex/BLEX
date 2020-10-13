@@ -319,6 +319,28 @@ class API {
         }
     }
 
+    async socialLogin(social, code) {
+        NProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/login`,
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded'
+                },
+                data: serializeObject({
+                    social,
+                    code
+                })
+            });
+            NProgress.done();
+            return response;
+        } catch(e) {
+            NProgress.done();
+            return e;
+        }
+    }
+
     async logout() {
         NProgress.start();
         try {

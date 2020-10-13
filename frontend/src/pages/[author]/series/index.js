@@ -7,6 +7,7 @@ import API from '../../../modules/api'
 import Profile from '../../../components/profile/Profile';
 import SeriesComponent from '../../../components/profile/Series';
 import PageNav from '../../../components/common/PageNav';
+import PurpleBorder from '../../../components/common/PurpleBorder';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
@@ -55,6 +56,9 @@ class Series extends React.Component {
                 <SeriesComponent series={this.props.series.series}>
                     <div className="container">
                         <div className="col-lg-8 mx-auto">
+                            {this.props.series.series.length > 0 ? '' : (
+                                <PurpleBorder text="아직 생성된 시리즈가 없습니다."/>
+                            )}
                             <PageNav
                                 page={this.state.page}
                                 last={this.state.lastPage}

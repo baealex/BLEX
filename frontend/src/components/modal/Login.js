@@ -41,8 +41,17 @@ class LoginModal extends React.Component {
             toast('😅 비밀번호를 입력해주세요!');
             return;
         }
-        let newState = this.state;
         const { data } = await API.login(this.state.username, this.state.password);
+        this.loginCheck(data);
+    }
+
+    async onSocialLogin(social, code) {
+        const { data } = await API.socialLogin(social, code);
+        this.loginCheck(data);
+    }
+
+    async loginCheck(data) {
+        let newState = this.state;
         if(data.status == 'success') {
             toast(`😃 로그인 되었습니다.`);
             Global.setState({
@@ -80,17 +89,20 @@ class LoginModal extends React.Component {
                 url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/github`;
                 break;
         }
-        location.href = url;
+        window.___run = async (social, code) => {
+            await this.onSocialLogin(social, code);
+        };
+        window.open(url, 'Social Login', 'width=550,height=750');
     }
     
     render() {
         return (
             <Modal title='로그인' isOpen={this.props.isOpen} close={() => this.props.onClose()}>
-                <div className="content">
+                <div className="content noto">
                     <input
                         className="login-form"
                         name="username"
-                        placeholder="username"
+                        placeholder="Username"
                         onChange={(e) => this.onInputChange(e)}
                         value={this.state.username}
                         onKeyPress={(e) => this.onEnterLogin(e)}
@@ -99,7 +111,7 @@ class LoginModal extends React.Component {
                         className="login-form"
                         name="password"
                         type="password"
-                        placeholder="password"
+                        placeholder="Password"
                         onChange={(e) => this.onInputChange(e)}
                         value={this.state.password}
                         onKeyPress={(e) => this.onEnterLogin(e)}
@@ -107,17 +119,17 @@ class LoginModal extends React.Component {
                     <button
                         className="login-button"
                         onClick={() => this.onSubmitLogin()}>
-                        로그인
+                        기존 사용자 로그인
                     </button>
                     <button
                         className="login-button google"
                         onClick={() => this.onSubmitSocialLogin("google")}>
-                        <i className="fab fa-google"></i> Google 로그인
+                        <i className="fab fa-google"></i> Google로 시작하기
                     </button>
                     <button
                         className="login-button github"
                         onClick={() => this.onSubmitSocialLogin("github")}>
-                        <i className="fab fa-github"></i> GitHub 로그인
+                        <i className="fab fa-github"></i> GitHub로 시작하기
                     </button>
                 </div>
             </Modal>

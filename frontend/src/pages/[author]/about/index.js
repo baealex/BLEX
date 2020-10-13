@@ -9,6 +9,7 @@ import API from '../../../modules/api'
 import Global from '../../../modules/global';
 import Profile from '../../../components/profile/Profile';
 import ArticleContent from '../../../components/article/ArticleContent';
+import PurpleBorder from '../../../components/common/PurpleBorder';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
@@ -87,7 +88,11 @@ class About extends React.Component {
                                 value={this.state.aboutMD}
                             />
                         ) : (
-                            <ArticleContent html={this.state.aboutHTML}/>
+                            this.state.aboutHTML.length > 0 ? (
+                                <ArticleContent html={this.state.aboutHTML}/>
+                            ) : (
+                                <PurpleBorder text="아직 작성된 소개가 없습니다."/>
+                            )
                         )}
                         {this.props.profile.profile.username == this.state.username ? (
                             <button

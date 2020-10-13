@@ -6,6 +6,8 @@ import random
 from itertools import chain
 from django.db.models import Count, Q
 from django.core.cache import cache
+from django.core.files import File
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.contrib import auth
 from django.http import HttpResponse, JsonResponse, Http404, QueryDict
@@ -35,25 +37,132 @@ def alive(request):
 
 def login(request):
     if request.method == 'POST':
-        username = request.POST.get('username', '')
-        password = request.POST.get('password', '')
-        
-        user = auth.authenticate(username=username, password=password)
+        social = request.POST.get('social', '')
+        if not social:
+            username = request.POST.get('username', '')
+            password = request.POST.get('password', '')
+            
+            user = auth.authenticate(username=username, password=password)
 
-        if user is not None:
-            if user.is_active:
-                auth.login(request, user)
-                notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
-                return JsonResponse({
-                    'status': 'success',
-                    'username': username,
-                    'notify_count': notify.count()
-                }, json_dumps_params={'ensure_ascii': True})
-        else:
-            result = {
-                'status': 'failure'
-            }
-            return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
+            if user is not None:
+                if user.is_active:
+                    auth.login(request, user)
+                    notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
+                    return JsonResponse({
+                        'status': 'success',
+                        'username': username,
+                        'notify_count': notify.count()
+                    }, json_dumps_params={'ensure_ascii': True})
+            else:
+                result = {
+                    'status': 'failure'
+                }
+                return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
+
+        if social == 'github':
+            if request.POST.get('code'):
+                state = fn.auth_github(request.POST.get('code'))
+                if state['status']:
+                    node_id = state['user'].get('node_id')
+                    try:
+                        user = User.objects.get(last_name='github:' + str(node_id))
+                        auth.login(request, user)
+                        notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
+                        return JsonResponse({
+                            'status': 'success',
+                            'username': user.username,
+                            'notify_count': notify.count()
+                        }, json_dumps_params={'ensure_ascii': True})
+                    except:
+                        pass
+                        
+                    counter = 0
+                    username = state['user'].get('login')
+                    has_name = User.objects.filter(username=username)
+                    while len(has_name) > 0:
+                        has_name = User.objects.filter(username=username + str(counter))
+                        counter += 1
+                    
+                    username = username + str('' if counter == 0 else counter)
+                    new_user = User(username=username)
+                    new_user.first_name = state['user'].get('name')
+                    new_user.last_name = 'github:' + str(node_id)
+                    new_user.email = state['user'].get('email')
+                    new_user.is_active = True
+                    new_user.save()
+
+                    profile = Profile(user=new_user)
+                    avatar = fn.get_image(state['user'].get('avatar_url'))
+                    if avatar:
+                        profile.avatar.save(name='png', content=File(avatar))
+                    profile.github = state['user'].get('login')
+                    profile.save()
+
+                    config = Config(user=new_user)
+                    config.save()
+
+                    auth.login(request, new_user)
+                    return JsonResponse({
+                        'status': 'success',
+                        'username': username,
+                        'notify_count': 1
+                    }, json_dumps_params={'ensure_ascii': True})
+                else:
+                    return JsonResponse({
+                        'status': 'failure',
+                        'message': '요청중 에러 발생'
+                    }, json_dumps_params={'ensure_ascii': True})
+        
+        if social == 'google':
+            if request.POST.get('code'):
+                state = fn.auth_google(request.POST.get('code'))
+                if state['status']:
+                    node_id = state['user'].get('id')
+                    try:
+                        user = User.objects.get(last_name='google:' + str(node_id))
+                        auth.login(request, user)
+                        notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
+                        return JsonResponse({
+                            'status': 'success',
+                            'username': user.username,
+                            'notify_count': notify.count()
+                        }, json_dumps_params={'ensure_ascii': True})
+                    except:
+                        pass
+                    
+                    counter = 0
+                    username = state['user'].get('email').split('@')[0]
+                    has_name = User.objects.filter(username=username)
+                    while len(has_name) > 0:
+                        has_name = User.objects.filter(username=username + str(counter))
+                        counter += 1
+                    
+                    username = username + str('' if counter == 0 else counter)
+                    new_user = User(username=username)
+                    new_user.first_name = state['user'].get('name')
+                    new_user.last_name = 'google:' + str(node_id)
+                    new_user.email = state['user'].get('email')
+                    new_user.is_active = True
+                    new_user.save()
+
+                    profile = Profile(user=new_user)
+                    avatar = fn.get_image(state['user'].get('picture'))
+                    if avatar:
+                        profile.avatar.save(name='png', content=File(avatar))
+                    profile.save()
+
+                    config = Config(user=new_user)
+                    config.save()
+                    return JsonResponse({
+                        'status': 'success',
+                        'username': username,
+                        'notify_count': 1
+                    }, json_dumps_params={'ensure_ascii': True})
+                else:
+                    return JsonResponse({
+                        'status': 'failure',
+                        'message': '요청중 에러 발생'
+                    }, json_dumps_params={'ensure_ascii': True})
 
 def logout(request):
     if request.method == 'POST':
@@ -622,6 +731,7 @@ def users(request, username):
                 
                 elif include == 'social':
                     data[include] = user_profile.collect_social()
+                    data[include]['username'] = user.username
 
                 elif include == 'heatmap':
                     standard_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=365)))
