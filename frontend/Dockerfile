@@ -7,5 +7,7 @@ RUN npm i
 
 COPY ./src/ /app/
 
+RUN npm run build
+
 ENTRYPOINT ["npm", "run"]
-CMD ["dev"]
+CMD ["start"]

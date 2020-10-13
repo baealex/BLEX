@@ -1,6 +1,5 @@
 import App from 'next/app'
 import Head from 'next/head'
-import Link from 'next/link'
 import styles from '../styles/main.scss'
 
 import Router from 'next/router';

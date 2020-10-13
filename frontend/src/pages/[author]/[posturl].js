@@ -234,16 +234,16 @@ class Post extends React.Component {
                 {this.props.post.image.includes('default') ? (
                     <></>
                 ) : (
-                    <picture class="post-title-image">
+                    <picture className="post-title-image">
                         <img src={this.props.post.image}/>
-                        <div class="post-image-mask mask-off">
-                            <h1 class="post-headline fade-in">
+                        <div className="post-image-mask mask-off">
+                            <h1 className="post-headline fade-in">
                             {this.props.hasSeries ? (
-                                <span class="post-series">'{this.props.series.title}' 시리즈</span>
+                                <span className="post-series">'{this.props.series.title}' 시리즈</span>
                             ) : ''}
                                 {this.props.post.title}
                             </h1>
-                            <p class="post-date fade-in">{this.props.post.created_date}</p>
+                            <p className="post-date fade-in">{this.props.post.created_date}</p>
                         </div>
                     </picture>
                 )}
@@ -279,7 +279,7 @@ class Post extends React.Component {
                                 <>
                                     <h1 className="post-headline">
                                         {this.props.hasSeries ? (
-                                            <span class="post-series">'{this.props.series.title}' 시리즈</span>
+                                            <span className="post-series">'{this.props.series.title}' 시리즈</span>
                                         ) : ''}
                                         {this.props.post.title}
                                     </h1>

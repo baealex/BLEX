@@ -16,8 +16,11 @@ services:
     build:
       context: ./frontend
     volumes:
+      - /app/.next
       - /app/node_modules
       - ./frontend/src/:/app/
+    command:
+      - "dev"
     ports:
       - 20001:3000
   

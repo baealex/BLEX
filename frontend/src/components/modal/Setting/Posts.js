@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { toast } from 'react-toastify';
+import ReactFrappeChart from 'react-frappe-charts';
 
 import API from '../../../modules/api';
 import Link from 'next/link';
@@ -11,7 +12,6 @@ class PostsSetting extends React.Component {
         this.state = {
             posts: [],
             analytics: {
-                now: undefined,
                 data: []
             }
         };
@@ -47,12 +47,25 @@ class PostsSetting extends React.Component {
         let analytics = {
             ...this.state.analytics
         };
-        analytics.now = url;
-
         if(analytics.data[url] == undefined) {
             const { username } = this.props;
             const { data } = await API.getAnalytics('@' + username, url);
-            analytics.data[url] = data;
+            
+            const dates = [];
+            const counts = [];
+            for(const item of data.items) {
+                dates.push(item.date.slice(-2) + 'th');
+                counts.push(item.count);
+            }
+            dates.reverse();
+            counts.reverse();
+
+            const { referers } = data;
+            analytics.data[url] = {
+                dates,
+                counts,
+                referers
+            };
         }
 
         this.setState({
@@ -120,21 +133,32 @@ class PostsSetting extends React.Component {
                                 <i className="far fa-comment"></i> {post.total_comments}
                             </li>
                         </ul>
-                        {this.state.analytics.now == post.url ? (
-                            <div>
-                                <p>조회수</p>
-                                <ul>
-                                    {this.state.analytics.data[post.url].items.map((item, idx) => (
-                                        <li key={idx}>{item.date} : {item.count}</li>
-                                    ))}
-                                </ul>
-                                <p>유입경로</p>
-                                <ul>
-                                    {this.state.analytics.data[post.url].referers.map((item, idx) => (
-                                        <li key={idx}>{item.time} - {item.from}</li>
-                                    ))}
-                                </ul>
-                            </div>
+                        {this.state.analytics.data[post.url] ? (
+                            this.state.analytics.data[post.url].dates.length != 0 ? (
+                                <div>
+                                    <ReactFrappeChart
+                                        type="axis-mixed"
+                                        data={{
+                                            labels: this.state.analytics.data[post.url].dates,
+                                            datasets: [
+                                                {
+                                                    name: 'View',
+                                                    values: this.state.analytics.data[post.url].counts,
+                                                    chartType: 'line'
+                                                }
+                                            ]
+                                        }}
+                                        colors={['purple']}
+                                    />
+                                    <ul>
+                                        {this.state.analytics.data[post.url].referers.map((item, idx) => (
+                                            <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.from}</a></li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <div className="mt-3">데이터가 존재하지 않습니다.</div>
+                            )
                         ) : ''}
                     </li>
                 ))}

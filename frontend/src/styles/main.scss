@@ -1795,3 +1795,11 @@ body.dark .btn {
         color: #fff !important;
     }
 }
+
+.chart-container {
+    .graph-svg-tip {
+        .title {
+            display: none !important;   
+        }
+    }
+}
