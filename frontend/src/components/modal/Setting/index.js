@@ -121,39 +121,6 @@ class SettingModal extends React.Component {
                         </ul>
                     </div>
                 </Modal>
-
-                <style jsx>{`
-                    .row-navigator {
-                        margin: 0;
-                        background: #f5f5f5;
-                        border-radius: 0 0 5px 5px;
-                    }
-
-                    .row-navigator ul {
-                        margin: 0;
-                        padding: 16px;
-                        list-style: none;
-                        display: flex;
-                        flex-direction: row;
-                        justify-content: space-between;
-                    }
-
-                    .row-navigator ul li i {
-                        display: block;
-                    }
-
-                    .row-navigator ul li {
-                        font-size: 1.018em;
-                        text-align: center;
-                        cursor: pointer;
-                        color: #aaa;
-                    }
-
-                    .row-navigator ul li.active {
-                        transition: color .5s;
-                        color: #000;
-                    }
-                `}</style>
             </>
         );
     }

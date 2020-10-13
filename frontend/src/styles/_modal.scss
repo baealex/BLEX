@@ -6,6 +6,10 @@
     bottom: 0;
     right: 0;
     background-color: rgba(0, 0, 0, 0.48);
+
+    body.dark & {
+        background-color: rgba(255, 255, 255, .1);
+    }
 }
 
 .modal-b {
@@ -17,8 +21,12 @@
     width: 500px;
     max-width: calc(100% - 16px);
     border-radius: 5px;
-    background-color: white;
+    background-color: #fff;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.45);
+
+    body.dark & {
+        background-color: #000;
+    }
 
     & > * {
         margin-left: 16px;
@@ -40,6 +48,10 @@
         position: absolute;
         top: 0;
         left: 0;
+
+        body.dark & {
+            color: #ccc;
+        }
     }
 
     .close-button {
@@ -52,6 +64,14 @@
 
         &:hover {
             color: #000;
+        }
+
+        body.dark & {
+            color: #ccc;
+
+            &:hover {
+                color: #fff;
+            }
         }
     }
 
@@ -78,6 +98,45 @@
 
             &:focus {
                 outline: none;
+            }
+        }
+    }
+
+    .row-navigator {
+        margin: 0;
+        background: #f5f5f5;
+        border-radius: 0 0 5px 5px;
+
+        body.dark & {
+            background: #333;
+        }
+
+        ul {
+            margin: 0;
+            padding: 16px;
+            list-style: none;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            li {
+                font-size: 1.018em;
+                text-align: center;
+                cursor: pointer;
+                color: #aaa;
+
+                &.active {
+                    transition: color .5s;
+                    color: #000;
+
+                    body.dark & {
+                        color: #fff;
+                    }
+                }
+
+                i {
+                    display: block;
+                }
             }
         }
     }

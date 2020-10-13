@@ -12,7 +12,7 @@ class PostsSetting extends React.Component {
         this.state = {
             posts: [],
             analytics: {
-                data: []
+                data: {}
             }
         };
     }
@@ -64,9 +64,12 @@ class PostsSetting extends React.Component {
             analytics.data[url] = {
                 dates,
                 counts,
-                referers
+                referers,
+                isShow: false
             };
         }
+
+        analytics.data[url].isShow = !analytics.data[url].isShow;
 
         this.setState({
             ...this.state,
@@ -133,7 +136,7 @@ class PostsSetting extends React.Component {
                                 <i className="far fa-comment"></i> {post.total_comments}
                             </li>
                         </ul>
-                        {this.state.analytics.data[post.url] ? (
+                        {this.state.analytics.data[post.url] && this.state.analytics.data[post.url].isShow ? (
                             this.state.analytics.data[post.url].dates.length != 0 ? (
                                 <div>
                                     <ReactFrappeChart
