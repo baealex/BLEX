@@ -1,12 +1,2 @@
 User-agent: *
-Disallow: /api/
-Disallow: /setting
-Disallow: /setting/
-Disallow: /external
-Disallow: /*?page
-Disallow: /*?next
-Disallow: /*?fbclid
-Disallow: /*?value
-Disallow: /search?value
-Allow: /
-Sitemap: https://blex.me/sitemap.xml
+Disallow: /

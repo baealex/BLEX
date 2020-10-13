@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://blex.me/sitemap.xml
