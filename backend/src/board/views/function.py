@@ -370,6 +370,6 @@ def create_notify(user, url, infomation):
         if not telegram_id == '':
             bot = telegram.TelegramBot(settings.TELEGRAM_BOT_TOKEN)
             bot.send_messages_async(telegram_id, [
-                settings.SITE_URL + '/notify:' + str(new_notify.pk),
+                settings.SITE_URL + str(url),
                 infomation
             ])

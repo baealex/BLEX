@@ -633,9 +633,9 @@ def comment(request, pk=None):
             body = QueryDict(request.body)
             comment = Comment(
                 post=post,
-                text_html=parsedown(body.get('comment')),
+                author=request.user,
                 text_md=body.get('comment'),
-                author=request.user
+                text_html=body.get('comment_md')
             )
             comment.save()
             fn.add_exp(request.user, 1)
@@ -699,10 +699,10 @@ def comment(request, pk=None):
                 if not request.user == comment.author:
                     return HttpResponse('error:DU')
                 comment.text_md = put.get('comment')
-                comment.text_html = parsedown(comment.text_md)
+                comment.text_html = put.get('comment_md')
                 comment.edited = True
                 comment.save()
-                return HttpResponse(comment.text_html)
+                return HttpResponse('DONE')
         
         if request.method == 'DELETE':
             if not request.user == comment.author:
@@ -843,7 +843,7 @@ def users(request, username):
             if not request.user == user:
                 return HttpResponse('error:DU')
             about_md = put.get('about_md')
-            about_html = parsedown(about_md)
+            about_html = put.get('about_html')
             if hasattr(user, 'profile'):
                 user.profile.about_md = about_md
                 user.profile.about_html = about_html
@@ -854,7 +854,7 @@ def users(request, username):
                 profile.about_html = about_html
                 profile.save()
             
-            return HttpResponse(about_html)
+            return HttpResponse('DONE')
     
     raise Http404
 

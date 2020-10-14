@@ -107,7 +107,7 @@ class API {
         });
     }
 
-    async putAbout(author, about_md) {
+    async putAbout(author, about_md, about_html) {
         NProgress.start();
         try {
             const response = await axios({
@@ -118,7 +118,8 @@ class API {
                 },
                 data: serializeObject({
                     about: author,
-                    about_md
+                    about_md,
+                    about_html
                 }),
                 withCredentials: true,
             });
@@ -144,7 +145,7 @@ class API {
         });
     }
 
-    async postComment(url, comment) {
+    async postComment(url, comment, comment_md) {
         NProgress.start();
         try {
             const response = await axios({
@@ -154,7 +155,8 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 data: serializeObject({
-                    comment
+                    comment,
+                    comment_md
                 }),
                 withCredentials: true,
             });
@@ -195,7 +197,7 @@ class API {
         });
     }
 
-    async putComment(pk, comment) {
+    async putComment(pk, comment, comment_md) {
         NProgress.start();
         try {
             const response = await axios({
@@ -205,7 +207,8 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 data: serializeObject({
-                    comment
+                    comment,
+                    comment_md
                 }),
                 withCredentials: true,
             });

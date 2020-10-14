@@ -10,6 +10,7 @@ import Global from '../../../modules/global';
 import Profile from '../../../components/profile/Profile';
 import ArticleContent from '../../../components/article/ArticleContent';
 import PurpleBorder from '../../../components/common/PurpleBorder';
+import blexer from '../../../modules/blexer';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;
@@ -60,9 +61,12 @@ class About extends React.Component {
             }
         } else {
             // 완료버튼 누른 상태
-            const { data } = await API.putAbout('@' + this.state.username, this.state.aboutMD);
-            newState.aboutHTML = data;
-            toast('😄 정상적으로 변경되었습니다.');
+            const aboutHTML = blexer(this.state.aboutMD)
+            const { data } = await API.putAbout('@' + this.state.username, this.state.aboutMD, aboutHTML);
+            if(data == 'DONE') {
+                newState.aboutHTML = aboutHTML;
+                toast('😄 정상적으로 변경되었습니다.');
+            }
         }
         newState.isEdit = !newState.isEdit;
         this.setState(newState);

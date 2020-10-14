@@ -17,6 +17,7 @@ import API from '../../modules/api';
 import lazyLoad from '../../modules/lazy';
 import Global from '../../modules/global';
 import ArticleAuthor from '../../components/article/ArticleAuthor';
+import blexer from '../../modules/blexer';
 
 export async function getServerSideProps(context) {
     const { req } = context;
@@ -88,7 +89,9 @@ class Post extends React.Component {
         lazyLoad();
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState) {
+        let needSyntaxUpdate = false;
+
         if(
             prevProps.post.is_liked !== this.props.post.is_liked ||
             prevProps.post.comments !== this.props.post.comments ||
@@ -100,6 +103,14 @@ class Post extends React.Component {
                 totalLikes: this.props.post.total_likes,
                 comments: this.props.post.comments
             });
+            needSyntaxUpdate = true;
+        }
+
+        if(prevState.comments !== this.state.comments) {
+            needSyntaxUpdate = true;
+        }
+
+        if(needSyntaxUpdate) {
             Prism.highlightAll();
             lazyLoad();
         }
@@ -152,8 +163,9 @@ class Post extends React.Component {
         window.open(href, `${sns}-share`, size);
     }
 
-    async onSubmitComment(text) {
-        const { data } = await API.postComment(this.props.post.url, text);
+    async onSubmitComment(comment) {
+        const commentMarkdown = blexer(comment);
+        const { data } = await API.postComment(this.props.post.url, comment, commentMarkdown);
         if(data.status !== 'success') {
             toast('댓글 작성 실패!');
             return;
@@ -162,6 +174,7 @@ class Post extends React.Component {
             ...this.setState,
             comments: this.state.comments.concat(data.element)
         });
+        lazyLoad();
     }
     
     async onCommentEdit(pk) {
@@ -178,18 +191,22 @@ class Post extends React.Component {
     }
 
     async onCommentEditSubmit(pk, comment) {
-        const { data } = await API.putComment(pk, comment);
+        const commentMarkdown = blexer(comment);
+        const { data } = await API.putComment(pk, comment, commentMarkdown);
         let { comments } = this.state;
-        comments = comments.map(comment => (
-            comment.pk == pk ? ({
-                ...comment,
-                isEdit: false,
-                text_html: data,
-                is_edited: 'true'
-            }) : comment
-        ));
-        toast('😀 댓글이 수정되었습니다.');
-        this.setState({...this.state, comments});
+        if(data == 'DONE') {
+            comments = comments.map(comment => (
+                comment.pk == pk ? ({
+                    ...comment,
+                    isEdit: false,
+                    text_html: commentMarkdown,
+                    is_edited: 'true'
+                }) : comment
+            ));
+            toast('😀 댓글이 수정되었습니다.');
+            this.setState({...this.state, comments});
+            lazyLoad();
+        }
     }
 
     async onCommentEditCancle(pk) {

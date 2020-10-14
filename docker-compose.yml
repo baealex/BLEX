@@ -18,11 +18,11 @@ services:
   frontend:
     build:
       context: ./frontend
-    # volumes:
-    #   - /app/node_modules
-    #   - ./frontend/src/:/app/
-    # command:
-    #   - "dev"
+    volumes:
+      - /app/node_modules
+      - ./frontend/src/:/app/
+    command:
+      - "dev"
     ports:
       - 20001:3000
   

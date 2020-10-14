@@ -31,12 +31,7 @@ def randstr(length):
     return result
 
 def parsedown(text):
-    data = {'md': text.encode('utf-8')}
-    res = requests.post(settings.API_URL + '/parsedown/get.php', data=data)
-    if res.status_code == 200:
-        return res.text
-    else:
-        return 'Temporary error'
+    return 'Deprecated'
 
 def avatar_path(instance, filename):
     dt = datetime.datetime.now()
