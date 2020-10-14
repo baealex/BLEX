@@ -1,6 +1,7 @@
 version: "2.0"
 
 services:
+  # 개발 상태인 경우 주석 해제
   # webserver:
   #   image: nginx
   #   volumes:
@@ -11,16 +12,17 @@ services:
   #   ports:
   #     - 20201:20001
   #     - 20202:20002
+  #     - 20203:20003
   
+  # 개발 상태인 경우 주석 해제
   frontend:
     build:
       context: ./frontend
-    volumes:
-      - /app/.next
-      - /app/node_modules
-      - ./frontend/src/:/app/
-    command:
-      - "dev"
+    # volumes:
+    #   - /app/node_modules
+    #   - ./frontend/src/:/app/
+    # command:
+    #   - "dev"
     ports:
       - 20001:3000
   
@@ -33,10 +35,3 @@ services:
       - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
     ports:
       - 20002:9000
-    
-  gfm-api:
-    image: richarvey/nginx-php-fpm
-    volumes:
-      - ./gfm-api:/var/www/html
-    ports:
-      - 20003:80
