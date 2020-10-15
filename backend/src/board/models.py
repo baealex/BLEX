@@ -371,16 +371,16 @@ class Series(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     def posts(self):
-        posts = Post.objects.filter(series=self)
+        posts = Post.objects.filter(series=self, hide=False)
         if self.layout == 'book':
             posts = posts.order_by('-created_date')
         else:
             posts = posts.order_by('created_date')
         
-        if not self.hide:
-            posts = posts.filter(hide=False)
-        
         return posts
+
+    def total_posts(self):
+        return Post.objects.filter(series=self, hide=False).count()
 
     def __str__(self):
         return self.name

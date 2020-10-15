@@ -114,14 +114,14 @@ class TopNavigation extends React.Component {
     }
 
     async onClickLogout() {
-        if(confirm('정말 로그아웃 하시겠습니까?')) {
+        if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
             const { data } = await API.logout();
             if(data.status === 'success') {
                 Global.setState({
                     ...Global.state,
                     isLogin: false
                 });
-                toast('😥 로그아웃 되었습니다.');
+                toast('😀 로그아웃 되었습니다.');
             }
         }
     }

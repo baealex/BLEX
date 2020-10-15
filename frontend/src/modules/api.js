@@ -44,7 +44,7 @@ class API {
         });
     }
 
-    async putPostHide(author, url) {
+    async putPost(author, url, item) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
             method: 'PUT',
@@ -52,8 +52,16 @@ class API {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             data: serializeObject({
-                hide: 'hide'
+                [item]: item
             }),
+            withCredentials: true,
+        });
+    }
+
+    async deletePost(author, url) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
+            method: 'DELETE',
             withCredentials: true,
         });
     }
@@ -76,20 +84,6 @@ class API {
             } : {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
-        });
-    }
-
-    async putPostLike(author, url) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                like: 'like'
-            }),
-            withCredentials: true,
         });
     }
 
@@ -236,6 +230,20 @@ class API {
         }
     }
 
+    async postSeries(author, title) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                title
+            }),
+            withCredentials: true,
+        });
+    }
+
     async getUserSeries(author, page) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
@@ -268,6 +276,14 @@ class API {
             NProgress.done();
             return e;
         }
+    }
+
+    async deleteSeries(author, url) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+            method: 'DELETE',
+            withCredentials: true,
+        });
     }
 
     async getSetting(username, item) {

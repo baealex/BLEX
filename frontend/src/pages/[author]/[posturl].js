@@ -117,7 +117,7 @@ class Post extends React.Component {
     }
 
     async onClickLike() {
-        const { data } = await API.putPostLike('@' + this.props.post.author, this.props.post.url);
+        const { data } = await API.putPost('@' + this.props.post.author, this.props.post.url, 'like');
         if(typeof data == 'number') {
             this.setState({
                 isLiked: !this.state.isLiked,
@@ -221,7 +221,7 @@ class Post extends React.Component {
     }
 
     async onCommentDelete(pk) {
-        if(confirm('정말 댓글을 삭제할까요?')) {
+        if(confirm('😮 정말 이 댓글을 삭제할까요?')) {
             const { data } = await API.deleteComment(pk);
             if(data == 'DONE') {
                 let { comments } = this.state;

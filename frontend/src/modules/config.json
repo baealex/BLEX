@@ -1,5 +1,6 @@
 {
     "API_SERVER": "http://in-vm.baejino.com:8000",
     "GOOGLE_OAUTH_CLIENT_ID": "230716131865-ann8gcfd9b3oq3d6funkkb5r8k1d9d3o",
-    "GITHUB_OAUTH_CLIENT_ID": "c5b001b86e3e77f2af1f"
+    "GITHUB_OAUTH_CLIENT_ID": "c5b001b86e3e77f2af1f",
+    "GOOGLE_RECAPTCHA_KEY": "6Ld-vOUUAAAAAJ1Ko-08X6U13h_sj_0BFXuWtn0H"
 }

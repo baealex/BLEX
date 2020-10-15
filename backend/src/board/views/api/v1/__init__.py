@@ -53,11 +53,11 @@ def login(request):
                         'username': username,
                         'notify_count': notify.count()
                     }, json_dumps_params={'ensure_ascii': True})
-            else:
-                result = {
-                    'status': 'failure'
-                }
-                return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
+            result = {
+                'status': 'failure'
+            }
+            return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
+
 
         if social == 'github':
             if request.POST.get('code'):
@@ -234,8 +234,7 @@ def tags(request, tag=None):
                     'author': post.author.username,
                 }, posts))
             }, json_dumps_params={'ensure_ascii': True})
-
-
+        
     raise Http404
 
 def posts(request, sort):
@@ -344,6 +343,11 @@ def user_posts(request, username, url=None):
             post.tag = fn.get_clean_tag(put.get('tag'))
             post.save()
             return JsonResponse({'tag': post.tag}, json_dumps_params={'ensure_ascii': True})
+        if put.get('series'):
+            fn.compere_user(request.user, post.author, give_404_if='different')
+            post.series = None
+            post.save()
+            return HttpResponse('DONE')
     
     if request.method == 'DELETE':
         fn.compere_user(request.user, post.author, give_404_if='different')
@@ -406,7 +410,23 @@ def user_series(request, username, url=None):
             }, json_dumps_params={'ensure_ascii': True})
         
         if request.method == 'POST':
-            pass
+            body = QueryDict(request.body)
+            series = Series(
+                owner=request.user,
+                name=body.get('title')
+            )
+            series.url = slugify(series.name, allow_unicode=True)
+            if series.url == '':
+                series.url = randstr(15)
+            i = 1
+            while True:
+                try:
+                    series.save()
+                    break
+                except:
+                    series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
+                    i += 1
+            return HttpResponse(series.url)
     
     if url:
         user = User.objects.get(username=username)
@@ -449,9 +469,9 @@ def user_series(request, username, url=None):
                     i += 1
             return HttpResponse(series.url)
 
-        if user == 'DELETE':
+        if request.method == 'DELETE':
             series.delete()
-            return HttpResponse('FAIL')
+            return HttpResponse('DONE')
         
         raise Http404
 
@@ -484,6 +504,7 @@ def user_setting(request, username, item):
             profile = Profile.objects.get(user=user)
             return JsonResponse({
                 'avatar': profile.get_thumbnail(),
+                'bio': profile.bio,
                 'homepage': profile.homepage,
                 'github': profile.github,
                 'twitter': profile.twitter,
@@ -516,7 +537,7 @@ def user_setting(request, username, item):
                 'series': list(map(lambda item: {
                     'url': item.url,
                     'title': item.name,
-                    'total_posts': 0
+                    'total_posts': item.total_posts()
                 }, series))
             }, json_dumps_params={'ensure_ascii': True})
     
@@ -541,8 +562,9 @@ def user_setting(request, username, item):
             return HttpResponse('DONE')
         
         if item == 'profile':
-            reqData = dict()
+            req_data = dict()
             items = [
+                'bio',
                 'homepage',
                 'github',
                 'twitter',
@@ -551,22 +573,24 @@ def user_setting(request, username, item):
                 'youtube'
             ]
             for item in items:
-                reqData[item] = put.get(item, '')
+                req_data[item] = put.get(item, '')
             
             # TODO: QuerySet의 attr을 dict처럼 가져오는 방법 모색
             profile = Profile.objects.get(user=user)
-            if profile.homepage != reqData['homepage']:
-                profile.homepage = reqData['homepage']
-            if profile.github != reqData['github']:
-                profile.github = reqData['github']
-            if profile.twitter != reqData['twitter']:
-                profile.twitter = reqData['twitter']
-            if profile.facebook != reqData['facebook']:
-                profile.facebook = reqData['facebook']
-            if profile.instagram != reqData['instagram']:
-                profile.instagram = reqData['instagram']
-            if profile.youtube != reqData['youtube']:
-                profile.youtube = reqData['youtube']
+            if profile.bio != req_data['bio']:
+                profile.bio = req_data['bio']
+            if profile.homepage != req_data['homepage']:
+                profile.homepage = req_data['homepage']
+            if profile.github != req_data['github']:
+                profile.github = req_data['github']
+            if profile.twitter != req_data['twitter']:
+                profile.twitter = req_data['twitter']
+            if profile.facebook != req_data['facebook']:
+                profile.facebook = req_data['facebook']
+            if profile.instagram != req_data['instagram']:
+                profile.instagram = req_data['instagram']
+            if profile.youtube != req_data['youtube']:
+                profile.youtube = req_data['youtube']
             profile.save()
             return HttpResponse('DONE')
     

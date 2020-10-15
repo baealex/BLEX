@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/nextjs-9.3.5-yellow?style=flat-square">
+    <img src="https://img.shields.io/badge/nextjs-9.5.5-yellow?style=flat-square">
     <img src="https://img.shields.io/badge/django-2.2.10-blue?style=flat-square">
 </p>
 

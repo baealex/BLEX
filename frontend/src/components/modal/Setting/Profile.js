@@ -9,6 +9,7 @@ class ProfileSetting extends React.Component {
         super(props);
         this.state = {
             avatar: undefined,
+            bio: '',
             homepage: '',
             github: '',
             twitter: '',
@@ -38,6 +39,7 @@ class ProfileSetting extends React.Component {
     async onSubmit() {
         let sendData = {};
         const socialList = [
+            'bio',
             'homepage',
             'github',
             'twitter',
@@ -62,6 +64,15 @@ class ProfileSetting extends React.Component {
     render() {
         return (
             <>
+                <textarea
+                    name="bio"
+                    cols="40"
+                    rows="4"
+                    placeholder="자신을 간단히 설명하세요."
+                    className="form-control mb-3"
+                    onChange={(e) => this.onInputChange(e)}
+                    value={this.state.bio}
+                />
                 <label>Homepage : </label>
                 <div className="input-group mb-3">
                     <div className="input-group-prepend">

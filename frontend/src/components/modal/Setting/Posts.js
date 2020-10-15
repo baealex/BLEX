@@ -79,7 +79,7 @@ class PostsSetting extends React.Component {
 
     async onPostsHide(url) {
         const { tabname, username } = this.props;
-        const { data } = await API.putPostHide('@' + username, url);
+        const { data } = await API.putPost('@' + username, url, 'hide');
         let newState = this.state;
         newState.posts = newState.posts.map(post => (
             post.url == url ? ({
@@ -88,6 +88,21 @@ class PostsSetting extends React.Component {
             }) : post
         ));
         this.props.fetchData(tabname, newState);
+    }
+
+    async onDeletePosts(url) {
+        if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
+            const { tabname, username } = this.props;
+            const { data } = await API.deletePost('@' + username, url);
+            if(data == 'DONE') {
+                let newState = this.state;
+                newState.posts = newState.posts.filter(post => (
+                    post.url !== url
+                ));
+                this.props.fetchData(tabname, newState);
+                toast('😀 포스트가 삭제되었습니다.');
+            }   
+        }
     }
 
     render() {
@@ -109,12 +124,15 @@ class PostsSetting extends React.Component {
                 <ul className="list-group">
                 {this.state.posts.map((post, idx) => (
                     <li key={idx} className="blex-card p-3 mb-3">
-                        <p>
+                        <p className="d-flex justify-content-between">
                             <Link href="/[author]/[posturl]" as={`/@${this.props.username}/${post.url}`}>
                                 <a className="deep-dark">
                                     {post.title}
                                 </a>
                             </Link>
+                            <a onClick={() => this.onDeletePosts(post.url)}>
+                                <i className="fas fa-times"></i>
+                            </a>
                         </p>
                         <ul className="setting-list-info">
                             <li>
