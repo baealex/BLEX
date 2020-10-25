@@ -43,7 +43,7 @@ class Posts extends React.Component {
             this.setState({
                 page: Number(this.props.page),
                 lastPage: Number(this.props.posts.last_page)
-            })
+            });
         }
     }
 

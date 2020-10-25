@@ -192,10 +192,65 @@
     padding: 5px;
     height: 80vh;
 }
-.editormd {
-    margin-bottom: 3px;
-}
 
+.blex-editor {
+    .button {
+        font-family: $serif;
+        font-weight: bold;
+        margin: 5px;
+        font-size: 1em;
+    }
+
+    .CodeMirror {
+        height: 85vh !important;
+
+        .cm-header-1,
+        .cm-header-2,
+        .cm-header-3,
+        .cm-header-4 {
+            font-size: 1.6rem;
+        }
+    
+        .cm-header-5,
+        .cm-header-6 {
+            font-size: 1.2rem;
+        }
+    }
+
+    .preview {
+        height: 85vh;
+        overflow-y: scroll;
+        border-left: 1px solid #ddd;
+
+        body.dark & {
+            border-left: 1px solid #555;
+        }
+    }
+
+    .title {
+        width: 100%;
+        border: none;
+        display: block;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        background-color: #fff;
+        color: #000;
+
+        body.dark & {
+            background-color: $dark-mode-body-bg;
+            color: #fff;
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &::placeholder {
+            color: #ccc;
+        }
+    }
+}
 
 
 /* ------------------------------ */
@@ -208,19 +263,24 @@
     position: fixed;
     right: 23px;
     bottom: 23px;
-    background: rgba(0,0,0,1);
     border-radius: 100%;
     width: 50px;
     height: 50px;
     text-align: center;
-    color: #fff;
     z-index: 10;
+    background: #eee;
+    color: #000;
+
+    body.dark & {
+        background: #555;
+        color: #fff;
+    }
 }
 .write-btn i {
     padding-top: 12px;
     font-size: 24px;
 }
-#back {
+.write-btn.slide {
     right: 80px;
     animation: movebtn 0.5s 1;
 }
@@ -569,15 +629,10 @@ footer {
     }
 }
 .post-title-image > img {
-    margin-top: -120px;
     width: 100%;
     height: 100vh;
     min-height: 100vh;
     object-fit: cover;
-    @media only screen and (max-width: 991px) {
-        margin-top: -60px;
-        margin-bottom: 60px;
-    }
 }
 .post-image-mask {
     background-color: rgba(0,0,0,0.5);

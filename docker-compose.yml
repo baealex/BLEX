@@ -18,6 +18,7 @@ services:
   frontend:
     build:
       context: ./frontend
+    restart: always
     volumes:
       - /app/node_modules
       - ./frontend/src/:/app/
@@ -30,6 +31,7 @@ services:
     build:
       context: ./backend
       dockerfile: ./Dockerfile
+    restart: always
     volumes:
       - ./backend/src/:/app/
       - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro

@@ -46,10 +46,11 @@ def make_thumbnail(this, size, save_as=False, quality=100):
         this.image = this.avatar
     image = Image.open(this.image)
     if not save_as:
-        image.thumbnail((1920, 1920), Image.ANTIALIAS)
+        image.thumbnail((size, size), Image.ANTIALIAS)
         image.save('static/' + str(this.image), quality=quality)
+        return
     image.thumbnail((size, size), Image.ANTIALIAS)
-    image.save('static/' + (str(this.image) if not save_as else this.get_thumbnail()), quality=quality)
+    image.save('static/' + str(this.image) + '.minify.' + str(this.image).split('.')[-1], quality=quality)
 
 def timestamp(date, kind=''):
     if kind == 'grass':

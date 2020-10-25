@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 
 function PageNav(props) {
     const router = useRouter();
+    
     const pageRange = [];
     const page = Number(props.page);
     const last = Number(props.last);
@@ -36,14 +37,20 @@ function PageNav(props) {
                     {page != 1 ? (
                         <>
                             <li className="pi">
-                                <Link href={router.pathname} as={`?page=${page - 1}`}>
+                                <Link href={{
+                                    pathname: router.pathname,
+                                    query: { ...router.query, page: page - 1 }
+                                }}>
                                     <a className="pl">
                                         <i className="fas fa-arrow-left"></i>
                                     </a>
                                 </Link>
                             </li>
                             <li className="pi">
-                                <Link href={router.pathname} as={`?page=${1}`}>
+                                <Link href={{
+                                    pathname: router.pathname,
+                                    query: { ...router.query, page: 1 }
+                                }}>
                                     <a className="pl">
                                         <i className="fa fa-angle-double-left" aria-hidden="true"></i>
                                     </a>
@@ -53,12 +60,12 @@ function PageNav(props) {
                     ) : (
                         <>
                             <li className="pi disabled">    
-                                <a className="pl" href="#" tabIndex="-1">
+                                <a className="pl" tabIndex="-1">
                                     <i className="fas fa-arrow-left"></i>
                                 </a>
                             </li>
                             <li className="pi disabled">
-                                <a className="pl" href="#" tabIndex="-1">
+                                <a className="pl" tabIndex="-1">
                                     <i className="fa fa-angle-double-left" aria-hidden="true"></i>
                                 </a>
                             </li>
@@ -66,7 +73,10 @@ function PageNav(props) {
                     )}
                     {pageRange.map((item, idx) => (
                         <li key={idx} className={`pi ${page == item ? 'active' : ''}`}>
-                            <Link href={router.pathname} as={`?page=${item}`}>
+                            <Link href={{
+                                pathname: router.pathname,
+                                query: { ...router.query, page: item }
+                            }}>
                                 <a className="pl">
                                     {item}
                                 </a>
@@ -76,14 +86,20 @@ function PageNav(props) {
                     {page != last ? (
                         <>
                             <li className="pi">
-                                <Link href={router.pathname} as={`?page=${last}`}>
+                                <Link href={{
+                                    pathname: router.pathname,
+                                    query: { ...router.query, page: last }
+                                }}>
                                     <a className="pl">
                                         <i className="fa fa-angle-double-right" aria-hidden="true"></i>
                                     </a>
                                 </Link>
                             </li>
                             <li className="pi">
-                                <Link href={router.pathname} as={`?page=${page + 1}`}>
+                                <Link href={{
+                                    pathname: router.pathname,
+                                    query: { ...router.query, page: page + 1 }
+                                }}>
                                     <a className="pl">
                                         <i className="fas fa-arrow-right"></i>
                                     </a>
@@ -93,12 +109,12 @@ function PageNav(props) {
                     ) : (
                         <>
                             <li className="pi disabled">
-                                <a className="pl" href="#" tabIndex="-1">
+                                <a className="pl" tabIndex="-1">
                                     <i className="fa fa-angle-double-right" aria-hidden="true"></i>
                                 </a>
                             </li>
                             <li className="pi disabled">    
-                                <a className="pl" href="#" tabIndex="-1">
+                                <a className="pl" tabIndex="-1">
                                     <i className="fas fa-arrow-right"></i>
                                 </a>
                             </li>

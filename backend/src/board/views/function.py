@@ -21,7 +21,6 @@ def wrapping_image():
 
 def view_count_api(element, req_user, ip, user_agent, referer):
     if element.author == req_user:
-        print('same-user')
         return
     
     if not ip:

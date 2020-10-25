@@ -95,6 +95,7 @@ urlpatterns = [
     path('v1/posts/<sort>', api_v1.posts, name='posts_api_v1'),
     path('v1/comments', api_v1.comment, name='comment_api_v1'),
     path('v1/comments/<int:pk>', api_v1.comment, name='comment_api_v1'),
+    path('v1/image/upload', api_v1.image_upload, name='image_upload_v1'),
     path('v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

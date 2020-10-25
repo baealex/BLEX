@@ -13,10 +13,13 @@ function serializeObject(obj) {
 axios.defaults.withCredentials = true;
 
 class API {
-    async alive() {
+    async alive(cookie=undefined) {
         return await axios({
             url: `${Config.API_SERVER}/v1/alive`,
             method: 'GET',
+            headers: cookie ? {
+                'Cookie': cookie
+            } : {}
         });
     }
 
@@ -24,6 +27,69 @@ class API {
         return await axios({
             url: `${Config.API_SERVER}/v1/posts/${sort}?page=${page}`,
             method: 'GET',
+        });
+    }
+
+    async getAllTempPosts() {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/posts/temp?get=list`,
+            method: 'GET',
+            withCredentials: true,
+        });
+    }
+
+    async getTempPosts(token) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/posts/temp?token=${token}`,
+            method: 'GET',
+            withCredentials: true,
+        });
+    }
+
+    async postTempPosts(title, text_md, tag) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/posts/temp`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                title,
+                text_md,
+                tag
+            }),
+            withCredentials: true,
+        });
+    }
+
+    async putTempPosts(token, title, text_md, tag) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/posts/temp`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                token,
+                title,
+                text_md,
+                tag
+            }),
+            withCredentials: true,
+        });
+    }
+
+    async deleteTempPosts(token) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/posts/temp`,
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                token
+            }),
+            withCredentials: true,
         });
     }
     
@@ -34,9 +100,9 @@ class API {
         });
     }
 
-    async getPost(author, url, cookie=undefined) {
+    async getPost(author, url, mode, cookie=undefined) {
         return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?mode=${mode}`,
             method: 'GET',
             headers: cookie ? {
                 'Cookie': cookie
@@ -44,16 +110,26 @@ class API {
         });
     }
 
-    async putPost(author, url, item) {
+    async postPost(author, data) {
         return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data,
+            withCredentials: true,
+        });
+    }
+
+    async putPost(author, url, item, data={}) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${serializeObject({[item]: item})}`,
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            data: serializeObject({
-                [item]: item
-            }),
+            data: serializeObject(data),
             withCredentials: true,
         });
     }
@@ -351,6 +427,32 @@ class API {
                     social,
                     code
                 })
+            });
+            NProgress.done();
+            return response;
+        } catch(e) {
+            NProgress.done();
+            return e;
+        }
+    }
+
+    async uploadImage(file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        NProgress.start();
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/image/upload`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: formData,
+                withCredentials: true,
             });
             NProgress.done();
             return response;

@@ -5,6 +5,7 @@ import ArticleCard from '../components/article/ArticleCard'
 
 import API from '../modules/api'
 import PageNav from '../components/common/PageNav'
+import Footer from '../components/common/Footer'
 
 export async function getServerSideProps(context) {
     let { page } = context.query;
@@ -50,6 +51,7 @@ class Home extends React.Component {
                         last={this.state.lastPage}
                     />
                 </div>
+                <Footer/>
             </>
         )
     }

@@ -35,8 +35,9 @@
 
 ## Features
 
-- [x] 마크다운으로 글 및 댓글 작성 Powerd by [Parsedown](https://github.com/erusev/parsedown)
-- [x] 일부 HTML 태그 허용
+- [x] 마크다운으로 글 및 댓글 작성
+- [x] br, center 등 일부 마크업 지원
+- [x] 유튜브 영상 삽입 등 커스텀 문법 제공
 - [x] 텔레그램으로 날아오는 알림 🚀
 - [x] 잔디로 정리되는 블로그 기록들
 - [x] 포스트의 유입경로와 조회수 제공 📈

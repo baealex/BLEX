@@ -18,6 +18,7 @@ import lazyLoad from '../../modules/lazy';
 import Global from '../../modules/global';
 import ArticleAuthor from '../../components/article/ArticleAuthor';
 import blexer from '../../modules/blexer';
+import Footer from '../../components/common/Footer';
 
 export async function getServerSideProps(context) {
     const { req } = context;
@@ -31,7 +32,7 @@ export async function getServerSideProps(context) {
     const referer = req.headers['referer'];
     const cookie = req.headers['cookie'];
 
-    const post = await API.getPost(author, posturl, cookie);
+    const post = await API.getPost(author, posturl, 'view', cookie);
 
     API.postAnalytics(author, posturl, cookie, {
         user_ip,
@@ -127,10 +128,10 @@ class Post extends React.Component {
         else if(data.includes('error')) {
             switch(data.split(':')[1]) {
                 case 'NL':
-                    toast('로그인이 필요합니다.');
+                    toast('😅 로그인이 필요합니다.');
                     break;
                 case 'SU':
-                    toast('자신의 글은 추천할 수 없습니다.');
+                    toast('😅 자신의 글은 추천할 수 없습니다.');
                     break;
             }
         }
@@ -360,6 +361,7 @@ class Post extends React.Component {
                         </div>
                     </div>
                 </div>
+                <Footer bgdark={true}/>
             </>
         )
     }

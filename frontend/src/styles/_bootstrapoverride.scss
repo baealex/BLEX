@@ -135,3 +135,7 @@ body.dark {
         border: none;
     }
 }
+
+.custom-file-label::after {
+    content: '등록하기'
+}

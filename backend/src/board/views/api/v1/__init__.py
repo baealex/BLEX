@@ -1,3 +1,4 @@
+import os
 import re
 import json
 import time
@@ -18,6 +19,7 @@ from django.utils.text import slugify
 from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from PIL import Image, ImageFilter
 
 from board.models import *
 from board.forms import *
@@ -285,42 +287,94 @@ def user_posts(request, username, url=None):
                 }, posts)),
                 'last_page': posts.paginator.num_pages
             }, json_dumps_params={'ensure_ascii': True})
+        
+        if request.method == 'POST':
+            post = Post()
+            post.title = request.POST.get('title', '')
+            post.author = request.user
+            post.text_md = request.POST.get('text_md', '')
+            post.text_html = request.POST.get('text_html', '')
+
+            try:
+                series_url = request.POST.get('series', '')
+                if series_url:
+                    series = Series.objects.get(owner=request.user, url=series_url)
+                    post.series = series
+            except:
+                pass
+
+            try:
+                post.image = request.FILES['image']
+            except:
+                pass
+            post.tag = fn.get_clean_tag(request.POST.get('tag', ''))
+            post.url = slugify(post.title, allow_unicode=True)
+            if post.url == '':
+                post.url = randstr(15)
+            i = 1
+            while True:
+                try:
+                    post.save()
+                    break
+                except:
+                    post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
+                    i += 1
+
+            token = request.POST.get('token')
+            if token:
+                try:
+                    TempPosts.objects.get(token=token, author=request.user).delete()
+                except:
+                    pass
+            return HttpResponse(post.url)
     
     if url:
         post = get_object_or_404(Post, author__username=username, url=url)
         if request.method == 'GET':
-            if post.hide and request.user != post.author:
-                raise Http404
-            
-            comments = Comment.objects.filter(post=post).order_by('created_date')
-            return JsonResponse({
-                'url': post.url,
-                'title': post.title,
-                'image': post.get_thumbnail(),
-                'description': post.description(),
-                'read_time': post.read_time(),
-                'series': post.series.url if post.series else None,
-                'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
-                'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
-                'author_image': post.author.profile.get_thumbnail(),
-                'author': post.author.username,
-                'text_html': post.text_html,
-                'total_likes': post.total_likes(),
-                'tag': post.tag,
-                'is_liked': 'true' if post.likes.filter(id=request.user.id).exists() else 'false',
-                'comments': list(map(lambda comment: {
-                    'pk': comment.pk if request.user == comment.author else 0,
-                    'author_image': comment.author.profile.get_thumbnail(),
-                    'author': comment.author.username,
-                    'text_html': comment.text_html,
-                    'time_since': timesince(comment.created_date),
-                    'is_edited': 'true' if comment.edited else 'false'
-                }, comments))
-            })
+            if request.GET.get('mode') == 'edit':
+                fn.compere_user(request.user, post.author, give_404_if='different')
+                return JsonResponse({
+                    'image': post.get_thumbnail(),
+                    'title': post.title,
+                    'series': post.series.url if post.series else None,
+                    'text_md': post.text_md,
+                    'tag': post.tag,
+                    'hide': 'true' if post.hide else 'false'
+                })
+
+            if request.GET.get('mode') == 'view':
+                if post.hide and request.user != post.author:
+                    raise Http404
+                
+                comments = Comment.objects.filter(post=post).order_by('created_date')
+                return JsonResponse({
+                    'url': post.url,
+                    'title': post.title,
+                    'image': post.get_thumbnail(),
+                    'description': post.description(),
+                    'read_time': post.read_time(),
+                    'series': post.series.url if post.series else None,
+                    'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
+                    'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
+                    'author_image': post.author.profile.get_thumbnail(),
+                    'author': post.author.username,
+                    'text_html': post.text_html,
+                    'total_likes': post.total_likes(),
+                    'tag': post.tag,
+                    'is_liked': 'true' if post.likes.filter(id=request.user.id).exists() else 'false',
+                    'comments': list(map(lambda comment: {
+                        'pk': comment.pk if request.user == comment.author else 0,
+                        'author_image': comment.author.profile.get_thumbnail(),
+                        'author': comment.author.username,
+                        'text_html': comment.text_html,
+                        'time_since': timesince(comment.created_date),
+                        'is_edited': 'true' if comment.edited else 'false'
+                    }, comments))
+                })
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
-        if put.get('like'):
+        if request.GET.get('like', ''):
             if not request.user.is_active:
                 return HttpResponse('error:NL')
             if request.user == post.author:
@@ -333,19 +387,36 @@ def user_posts(request, username, url=None):
                 pass
                 # TODO: Notify Send
             return HttpResponse(str(post.total_likes()))
-        if put.get('hide'):
+        if request.GET.get('hide', ''):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.hide = not post.hide
             post.save()
             return HttpResponse('true' if post.hide else 'false')
-        if put.get('tag'):
+        if request.GET.get('tag', ''):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.tag = fn.get_clean_tag(put.get('tag'))
             post.save()
             return JsonResponse({'tag': post.tag}, json_dumps_params={'ensure_ascii': True})
-        if put.get('series'):
+        if request.GET.get('series', ''):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.series = None
+            post.save()
+            return HttpResponse('DONE')
+        if request.GET.get('edit', ''):
+            fn.compere_user(request.user, post.author, give_404_if='different')
+            post.title = put.get('title', '')
+            post.text_md = put.get('text_md', '')
+            post.text_html = put.get('text_html', '')
+
+            try:
+                series_url = put.get('series', '')
+                if series_url:
+                    series = Series.objects.get(owner=request.user, url=series_url)
+                    post.series = series
+            except:
+                pass
+
+            post.tag = fn.get_clean_tag(put.get('tag', ''))
             post.save()
             return HttpResponse('DONE')
     
@@ -626,7 +697,7 @@ def temp_posts(request):
         token = randstr(25)
         has_token = TempPosts.objects.filter(token=token, author=request.user)
         while len(has_token) > 0:
-            token = randstr(35)
+            token = randstr(25)
             has_token = TempPosts.objects.filter(token=token, author=request.user)
         
         temp_posts = TempPosts(token=token, author=request.user)
@@ -648,6 +719,14 @@ def temp_posts(request):
 
         return HttpResponse('DONE')
     
+    if request.method == 'DELETE':
+        body = QueryDict(request.body)
+        token = body.get('token')
+        temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
+        temp_posts.remove()
+
+        return HttpResponse('DONE')
+
     raise Http404
 
 def comment(request, pk=None):
@@ -880,6 +959,74 @@ def users(request, username):
             
             return HttpResponse('DONE')
     
+    raise Http404
+
+@csrf_exempt
+def image_upload(request):
+    if request.method == 'POST':
+        if not request.user.is_active:
+            raise Http404
+        if request.FILES['image']:
+            allowed_ext = ['jpg', 'jpeg', 'png', 'gif']
+            
+            image = request.FILES['image']
+            image_key = fn.get_hash_key(image.read())
+
+            try:
+                image_cache = ImageCache.objects.get(key=image_key)
+                return HttpResponse(settings.MEDIA_URL + image_cache.path)
+            except:
+                image_cache = ImageCache(key=image_key)
+                ext = str(image).split('.')[-1].lower()
+
+                if not ext in allowed_ext:
+                    return HttpResponse('허용된 확장자가 아닙니다.')
+                    
+                dt = datetime.datetime.now()
+                upload_path = fn.make_path(
+                    'static/images/content',
+                    [
+                        str(dt.year),
+                        str(dt.month),
+                        str(dt.day)
+                    ]
+                )
+
+                file_name = str(dt.hour) + '_' + randstr(20)
+                with open(upload_path + '/' + file_name + '.' + ext, 'wb+') as destination:
+                    for chunk in image.chunks():
+                        destination.write(chunk)
+                
+                if ext == 'gif':
+                    try:
+                        image_path = upload_path + '/' + file_name
+                        convert_image = Image.open(image_path + '.' + ext).convert('RGB')
+                        preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
+                        preview_image.save(image_path + '.mp4.preview.jpg', quality=50)
+
+                        os.system('ffmpeg -i '+ upload_path + '/' + file_name + '.gif' + ' -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -movflags +faststart '+ upload_path + '/' + file_name +'.mp4')
+                        os.system('rm ' + upload_path + '/' + file_name + '.gif')
+                        ext = 'mp4'
+                    except:
+                        return HttpResponse('이미지 업로드를 실패했습니다.')
+                else:
+                    try:
+                        image_path = upload_path + '/' + file_name + '.' + ext
+                        resize_image = Image.open(image_path)
+                        resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
+                        resize_image.save(image_path)
+
+                        if not ext == 'jpg':
+                            resize_image = resize_image.convert('RGB')
+                        preview_image = resize_image.filter(ImageFilter.GaussianBlur(50))
+                        preview_image.save(image_path + '.preview.jpg', quality=50)
+                    except:
+                        return HttpResponse('이미지 업로드를 실패했습니다.')
+                image_cache.path = upload_path.replace('static/', '') + '/' + file_name + '.' + ext
+                image_cache.save()
+                return HttpResponse(settings.MEDIA_URL + image_cache.path)
+            else:
+                return HttpResponse('이미지 파일이 아닙니다.')
     raise Http404
 
 @csrf_exempt

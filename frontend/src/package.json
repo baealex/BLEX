@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "codemirror": "^5.58.1",
     "frappe-charts": "^1.5.2",
     "next": "^9.5.5",
     "next-transpile-modules": "^4.1.0",
@@ -15,6 +16,7 @@
     "node-sass": "^4.14.1",
     "nprogress": "^0.2.0",
     "react": "16.13.1",
+    "react-codemirror2": "^7.2.1",
     "react-dom": "16.13.1",
     "react-frappe-charts": "^4.0.0",
     "react-toastify": "^6.0.8",

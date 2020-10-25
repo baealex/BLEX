@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Router from 'next/router'
 
 import { toast } from 'react-toastify';
 
@@ -49,6 +50,10 @@ class TopNavigation extends React.Component {
                 toast(`😲 읽지 않은 알림이 ${alive.data.notify_count}개 있습니다.`)
             }
         }
+
+        Router.events.on('routeChangeStart', () => {
+            this.onMouseLeaveOnContent();
+        });
     }
 
     onClickNavigation() {
@@ -142,15 +147,21 @@ class TopNavigation extends React.Component {
 
         return (
             <>
-                <LoginModal isOpen={this.state.isLoginModalOpen} onClose={() => this.onCloseModal('isLoginModalOpen')}/>
-                <SettingModal isOpen={this.state.isSettingModalOpen} onClose={() => this.onCloseModal('isSettingModalOpen')}/>
+                <LoginModal
+                    isOpen={this.state.isLoginModalOpen}
+                    onClose={() => this.onCloseModal('isLoginModalOpen')}
+                />
+                <SettingModal
+                    isOpen={this.state.isSettingModalOpen}
+                    onClose={() => this.onCloseModal('isSettingModalOpen')}
+                />
                 <div
                     onMouseLeave={() => this.onMouseLeaveOnContent()}
                     className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
                     <nav
                         onClick={() => this.onClickNavigation()}
                         className={`menu ${this.state.onNav ? 'on' : 'off' }`}>
-                        <img src="https://static.blex.me/assets/images/logo.png"/>
+                        <img src={this.state.onNav ? "/logor.png" : "/logo.png"}/>
                     </nav>
                     <div className="inner">
                         {serachInput}
@@ -179,8 +190,8 @@ class TopNavigation extends React.Component {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="#">
-                                        <a onClick={() => toast('😥 준비중입니다...')}><i className="fas fa-pencil-alt"></i> 포스트 작성</a>
+                                    <Link href="/write">
+                                        <a><i className="fas fa-pencil-alt"></i> 포스트 작성</a>
                                     </Link>
                                 </li>
                             </ul>
