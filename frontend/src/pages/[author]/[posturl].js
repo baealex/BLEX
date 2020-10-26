@@ -206,9 +206,10 @@ class Post extends React.Component {
                     is_edited: 'true'
                 }) : comment
             ));
-            toast('😀 댓글이 수정되었습니다.');
             this.setState({...this.state, comments});
             lazyLoad();
+            
+            toast('😀 댓글이 수정되었습니다.');
         }
     }
 

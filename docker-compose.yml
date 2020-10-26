@@ -19,11 +19,11 @@ services:
     build:
       context: ./frontend
     restart: always
-    # volumes:
-    #   - /app/node_modules
-    #   - ./frontend/src/:/app/
-    # command:
-    #   - "dev"
+    volumes:
+      - /app/node_modules
+      - ./frontend/src/:/app/
+    command:
+      - "dev"
     ports:
       - 20001:3000
   

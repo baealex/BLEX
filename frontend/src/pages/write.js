@@ -35,10 +35,11 @@ class Write extends React.Component {
             series: '',
             image: '',
             imageName: '',
-            isOpenTempPostsModal: false,
             isOpenPublishModal: false,
+            isOpenTempPostsModal: false,
             editor: undefined,
             tempPosts: [],
+            tempPostsCache: {},
             seriesArray: [],
             isNightMode: Global.state.isNightMode
         };
@@ -51,6 +52,7 @@ class Write extends React.Component {
         });
         this.preview = undefined;
         this.thumbnail = undefined;
+        this.saveTimer = undefined;
     }
 
     /* Component Method */
@@ -69,11 +71,13 @@ class Write extends React.Component {
             forceBreakCounter++;
         }
 
-        if(this.state.username == '') {
+        const { username } = this.state;
+
+        if(username == '') {
             toast('😅 로그인이 필요합니다. 비회원인 경우 글쓰기를 체험해 볼 수 있습니다.')
         } else {
             {
-                const { data } = await API.getSetting('@' + this.state.username, 'series');
+                const { data } = await API.getSetting('@' + username, 'series');
                 this.setState({
                     ...this.state,
                     seriesArray: data.series
@@ -104,23 +108,47 @@ class Write extends React.Component {
 
     async fecthTempPosts(token='') {
         if(token) {
+            const { tempPostsCache } = this.state;
+            
+            // 캐시가 존재하는 경우
+            if(tempPostsCache[token]) {
+                const { title, text, tags } = tempPostsCache[token];
+                this.setState({
+                    ...this.state,
+                    title,
+                    text,
+                    tags,
+                    token
+                });
+                return;
+            }
+            // 캐시 없을 때
             const { data } = await API.getTempPosts(token);
             this.setState({
                 ...this.state,
                 title: data.title,
                 text: data.text_md,
                 tags: data.tag,
-                token: data.token
+                token: data.token,
+                tempPostsCache: {
+                    ...tempPostsCache,
+                    [data.token]: {
+                        title: data.title,
+                        text: data.text_md,
+                        tags: data.tag,
+                    }
+                }
             });
-        } else {
-            this.setState({
-                ...this.state,
-                title: '',
-                text: '',
-                tags: '',
-                token: ''
-            });
+            return;
         }
+        // 새 글 작성
+        this.setState({
+            ...this.state,
+            title: '',
+            text: '',
+            tags: '',
+            token: ''
+        });
     }
 
     onOpenModal(name) {
@@ -148,6 +176,11 @@ class Write extends React.Component {
 
     onEditorChange(value) {
         this.setState({ ...this.state, text: value });
+        clearTimeout(this.saveTimer);
+        this.saveTimer = setTimeout(() => {
+            console.log('123');
+            this.onTempSave();
+        }, 5000);
     }
 
     onEditorMount(editor) {
@@ -209,6 +242,23 @@ class Write extends React.Component {
         if(token) {
             const { data } = await API.putTempPosts(token, title, text, tags);
             if(data == 'DONE') {
+                this.setState({
+                    ...this.state,
+                    tempPosts: this.state.tempPosts.map(post => (
+                        post.token == this.state.token ? ({
+                            ...post,
+                            title: this.state.title
+                        }) : post
+                    )),
+                    tempPostsCache: {
+                        ...this.state.tempPostsCache,
+                        [token]: {
+                            title: this.state.title,
+                            text: this.state.text,
+                            tags: this.state.tags
+                        }
+                    }
+                });
                 toast('😥 임시 저장이 완료되었습니다.');
             }
         } else {
