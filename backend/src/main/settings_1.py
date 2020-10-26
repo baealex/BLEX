@@ -136,8 +136,6 @@ USE_TZ = True
 
 SITE_URL = 'http://localhost:20000'
 
-API_URL = 'http://localhost:20300'
-
 STATIC_URL = 'http://localhost:20200/assets/'
 STAITC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
 
@@ -162,11 +160,9 @@ TELEGRAM_BOT_TOKEN = ''
 TELEGRAM_CHANNEL_ID   = ''
 TELEGRAM_ADMIN_ID  = ''
 
-GOOGLE_OAUTH_USE = False
 GOOGLE_OAUTH_CLIENT_ID = ''
 GOOGLE_OAUTH_CLIENT_SECRET = ''
 GOOGLE_RECAPTCHA_SECRET_KEY = ''
 
-GITHUB_OAUTH_USE = False
 GITHUB_OAUTH_CLIENT_ID = ''
 GITHUB_OAUTH_CLIENT_SECRET = ''
