@@ -259,7 +259,7 @@ class Write extends React.Component {
                         }
                     }
                 });
-                toast('😥 임시 저장이 완료되었습니다.');
+                toast('😀 임시 저장이 완료되었습니다.');
             }
         } else {
             const { data } = await API.postTempPosts(title, text, tags);
