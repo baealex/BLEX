@@ -18,10 +18,6 @@ import blexer from '../modules/blexer';
 import Global from '../modules/global';
 import API from '../modules/api';
 
-typeof window !== "undefined" && require('codemirror/lib/codemirror.css');
-typeof window !== "undefined" && require('codemirror/theme/material-darker.css');
-typeof window !== "undefined" && require('codemirror/mode/markdown/markdown');
-
 export async function getServerSideProps(context) {
     const { id } = context.query;
     return { props: { id } };
@@ -62,12 +58,6 @@ class Edit extends React.Component {
     /* Component Method */
 
     async componentDidMount() {
-        const onUnload = (e) => {
-            e.preventDefault();
-            e.returnValue = '변경 사항이 적용되지 않습니다. 정말 종료합니까?';
-        }
-        typeof window !== "undefined" && window.addEventListener('beforeunload', onUnload, false);
-
         const sleep = (ms) => {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
@@ -83,15 +73,7 @@ class Edit extends React.Component {
 
         const { username, url } = this.state;
 
-        {
-            const { data } = await API.getSetting('@' + username, 'series');
-            this.setState({
-                ...this.state,
-                seriesArray: data.series
-            });
-        }
-
-        {
+        try {
             const { data } = await API.getPost('@' + username, url, 'edit');
             this.setState({
                 ...this.state,
@@ -101,11 +83,20 @@ class Edit extends React.Component {
                 text: data.text_md,
                 tags: data.tag
             });
+        } catch(error) {
+            const { status } = error.response;
+            if(status === 404) {
+                Router.replace('/write');
+            }
         }
-    }
 
-    componentWillUnmount() {
-        typeof window !== "undefined" && window.removeEventListener('beforeunload', this.onUnload, false);
+        {
+            const { data } = await API.getSetting('@' + username, 'series');
+            this.setState({
+                ...this.state,
+                seriesArray: data.series
+            });
+        }
     }
 
     componentDidUpdate(prevState) {

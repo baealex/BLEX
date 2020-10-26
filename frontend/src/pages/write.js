@@ -18,10 +18,6 @@ import blexer from '../modules/blexer';
 import Global from '../modules/global';
 import API from '../modules/api';
 
-typeof window !== "undefined" && require('codemirror/lib/codemirror.css');
-typeof window !== "undefined" && require('codemirror/theme/material-darker.css');
-typeof window !== "undefined" && require('codemirror/mode/markdown/markdown');
-
 const modal = {
     publish: 'isOpenPublishModal',
     tempPosts: 'isOpenTempPostsModal'
@@ -60,12 +56,6 @@ class Write extends React.Component {
     /* Component Method */
 
     async componentDidMount() {
-        const onUnload = (e) => {
-            e.preventDefault();
-            e.returnValue = '변경 사항이 적용되지 않습니다. 정말 종료합니까?';
-        }
-        typeof window !== "undefined" && window.addEventListener('beforeunload', onUnload, false);
-
         const sleep = (ms) => {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
@@ -101,10 +91,6 @@ class Write extends React.Component {
                 }
             }
         }
-    }
-
-    componentWillUnmount() {
-        typeof window !== "undefined" && window.removeEventListener('beforeunload', this.onUnload, false);
     }
 
     componentDidUpdate(prevState) {

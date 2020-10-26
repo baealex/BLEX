@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import React from 'react';
+import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
@@ -118,7 +119,8 @@ class Post extends React.Component {
     }
 
     async onClickLike() {
-        const { data } = await API.putPost('@' + this.props.post.author, this.props.post.url, 'like');
+        const { author, url } = this.props.post;
+        const { data } = await API.putPost('@' + author, url, 'like');
         if(typeof data == 'number') {
             this.setState({
                 isLiked: !this.state.isLiked,
@@ -307,6 +309,11 @@ class Post extends React.Component {
                                 <></>
                             )}
                             <ArticleAuthor {...this.props.profile}/>
+                            {this.props.post.author == this.state.username ? (
+                                <div className="mb-3">
+                                    <div className="btn btn-block btn-dark noto" onClick={() => {Router.push(`/edit?id=${this.props.post.url}`)}}>포스트 수정</div>
+                                </div>
+                            ) : ''}
                             <ArticleContent html={this.props.post.text_html}/>
                             <TagList author={this.props.post.author} tag={this.props.post.tag.split(',')}/>
                             {this.props.hasSeries ? (

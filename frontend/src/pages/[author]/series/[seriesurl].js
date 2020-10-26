@@ -152,7 +152,7 @@ class Series extends React.Component {
                     ))}
                 </div>
                 <div className="button" onClick={() => this.seriesUpdate()}>
-                    <button>완료</button>
+                    <button>시리즈를 수정합니다</button>
                 </div>
             </Modal>
         ) : '';

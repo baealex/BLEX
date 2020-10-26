@@ -10,6 +10,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
+typeof window !== "undefined" && require('codemirror/lib/codemirror.css');
+typeof window !== "undefined" && require('codemirror/theme/material-darker.css');
+typeof window !== "undefined" && require('codemirror/mode/markdown/markdown');
+
 Router.events.on('routeChangeStart', () => NProgress.start());
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
