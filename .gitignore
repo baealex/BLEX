@@ -1,3 +1,5 @@
+frontend/src/modules/config.json
+
 backend/src/board/templates/board/source.html
 backend/src/board/telegram_token.py
 backend/src/main/settings.py

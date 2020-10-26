@@ -1,0 +1,6 @@
+{
+    "API_SERVER": "http://localhost:20202",
+    "GOOGLE_OAUTH_CLIENT_ID": "",
+    "GITHUB_OAUTH_CLIENT_ID": "",
+    "GOOGLE_RECAPTCHA_KEY": ""
+}
