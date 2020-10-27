@@ -19,14 +19,21 @@ export default function() {
                 integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
                 crossOrigin="anonymous"
             />
-            <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>
-            <script dangerouslySetInnerHTML={{ __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
+            {Config.GOOGLE_ANALYTICS_V4 ? (
+                <>
+                    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>
+                    <script dangerouslySetInnerHTML={{ __html: `
+                        window.dataLayer = window.dataLayer || [];
+                        function gtag(){dataLayer.push(arguments);}
+                        gtag('js', new Date());
 
-                gtag('config', '${Config.GOOGLE_ANALYTICS_V4}');
-            `}}/>
+                        gtag('config', '${Config.GOOGLE_ANALYTICS_V4}');
+                    `}}/>
+                </>
+            ) : ''}
+            {Config.GOOGLE_ADSENSE ? (
+                <script data-ad-client={`${Config.GOOGLE_ADSENSE}`} async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"/>
+            ) : ''}
         </Head>
     )
 }

@@ -39,8 +39,6 @@ class Main extends App {
                 <div className="content">
                     <Component {...pageProps}/>
                 </div>
-
-                <style jsx>{`${styles}`}</style>
             </>
         )
     }
