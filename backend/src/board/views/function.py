@@ -19,7 +19,7 @@ from board import telegram
 def wrapping_image():
     pass
 
-def view_count(element, request):
+def view_count(element, request, referer):
     if element.author == request.user:
         return
     
@@ -71,6 +71,64 @@ def view_count(element, request):
                 posts = today_analytics,
                 referer_from = referer_from
             ).save()
+
+def get_today_analytics(element):
+    today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+    today_analytics = None
+    try:
+        today_analytics = PostAnalytics.objects.get(created_date=today, posts=element)
+    except:
+        today_analytics = PostAnalytics(posts=element)
+        today_analytics.save()
+        today_analytics.refresh_from_db()
+    return today_analytics
+
+def create_history(request):
+    history = None
+    user_agent = request.META['HTTP_USER_AGENT']
+    try:
+        history = History.objects.get(key=get_encrypt_ip(request))
+        if not history.agent == user_agent[:200]:
+            history.agent = user_agent[:200]
+            if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
+                history.category = 'temp-bot'
+            else:
+                if not history.category == '' and not '(u)' in history.category:
+                    history.category += '(u)'
+            history.save()
+    except:
+        history = History(key=get_encrypt_ip(request))
+        history.agent = user_agent[:200]
+        if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
+            history.category = 'temp-bot'
+        history.save()
+        history.refresh_from_db()
+    return history
+
+def create_referer(element, referer):
+    if referer:
+        today_analytics = get_today_analytics(element)
+
+        referer_from = None
+        referer = referer[:500]
+        try:
+            referer_from = RefererFrom.objects.get(location=referer)
+        except:
+            referer_from = RefererFrom(location=referer)
+            referer_from.save()
+            referer_from.refresh_from_db()
+        Referer(
+            posts = today_analytics,
+            referer_from = referer_from
+        ).save()
+
+def view_up(element, request):
+    history = create_history(request)
+    if not history.category in 'bot':
+        today_analytics = get_today_analytics(element)
+        if not today_analytics.table.filter(id=history.id).exists():
+            today_analytics.table.add(history)
+            today_analytics.save()
 
 def get_posts(sort, user=None):
     if sort == 'trendy':

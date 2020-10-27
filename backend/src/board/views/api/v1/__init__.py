@@ -454,7 +454,14 @@ def user_posts_analytics(request, username, url):
         return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
 
     if request.method == 'POST':
-        fn.view_count(post, request)
+        viewonly = request.POST.get('viewonly', '')
+        if viewonly:
+            fn.view_up(post, request)
+        
+        referer = request.POST.get('referer', '')
+        if referer:
+            fn.create_referer(post, referer)
+        
         return HttpResponse(randstr(25))
 
 def user_series(request, username, url=None):

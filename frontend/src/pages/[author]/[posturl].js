@@ -24,10 +24,16 @@ import Footer from '../../components/common/Footer';
 export async function getServerSideProps(context) {
     const { req } = context;
     const { author, posturl } = context.query;
-    
     const cookie = req.headers['cookie'];
 
     const post = await API.getPost(author, posturl, 'view', cookie);
+
+    const referer = req.headers['referer'];
+    if(referer) {
+        API.postAnalytics(author, posturl, {
+            referer
+        });
+    }
 
     const profile = await API.getUserProfile(author, [
         'profile',
@@ -75,10 +81,10 @@ class Post extends React.Component {
     }
 
     componentDidMount() {
-        const { author, url } = this.props.post;
-        API.postAnalytics('@' + author, url);
         Prism.highlightAll();
         lazyLoad();
+
+        this.onViewUp();
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -96,6 +102,7 @@ class Post extends React.Component {
                 comments: this.props.post.comments
             });
             needSyntaxUpdate = true;
+            this.onViewUp();
         }
 
         if(prevState.comments !== this.state.comments) {
@@ -154,6 +161,13 @@ class Post extends React.Component {
                 break;
         }
         window.open(href, `${sns}-share`, size);
+    }
+
+    onViewUp() {
+        const { author, url } = this.props.post;
+        API.postAnalytics('@' + author, url, {
+            viewonly: Math.random()
+        });
     }
 
     async onSubmitComment(comment) {

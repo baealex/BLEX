@@ -149,10 +149,11 @@ class API {
         });
     }
 
-    async postAnalytics(author, url) {
+    async postAnalytics(author, url, data={}) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
             method: 'POST',
+            data: serializeObject(data),
             withCredentials: true,
         });
     }
