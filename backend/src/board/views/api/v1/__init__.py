@@ -454,11 +454,7 @@ def user_posts_analytics(request, username, url):
         return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
 
     if request.method == 'POST':
-        body = QueryDict(request.body)
-        ip = body.get('user_ip', '').encode('utf8')
-        user_agent = body.get('user_agent', '')
-        referer = body.get('referer', '')
-        fn.view_count_api(post, request.user, ip, user_agent, referer)
+        fn.view_count(post, request)
         return HttpResponse(randstr(25))
 
 def user_series(request, username, url=None):

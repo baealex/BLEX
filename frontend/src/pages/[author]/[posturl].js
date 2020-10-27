@@ -24,22 +24,10 @@ import Footer from '../../components/common/Footer';
 export async function getServerSideProps(context) {
     const { req } = context;
     const { author, posturl } = context.query;
-
-    let user_ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
-    if (user_ip.substr(0, 7) == "::ffff:") {
-        user_ip = user_ip.substr(7);
-    }
-    const user_agent = req.headers['user-agent'];
-    const referer = req.headers['referer'];
+    
     const cookie = req.headers['cookie'];
 
     const post = await API.getPost(author, posturl, 'view', cookie);
-
-    API.postAnalytics(author, posturl, cookie, {
-        user_ip,
-        user_agent,
-        referer
-    });
 
     const profile = await API.getUserProfile(author, [
         'profile',
@@ -87,6 +75,8 @@ class Post extends React.Component {
     }
 
     componentDidMount() {
+        const { author, url } = this.props.post;
+        API.postAnalytics('@' + author, url);
         Prism.highlightAll();
         lazyLoad();
     }

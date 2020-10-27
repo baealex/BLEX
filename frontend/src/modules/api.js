@@ -149,17 +149,11 @@ class API {
         });
     }
 
-    async postAnalytics(author, url, cookie=undefined, data={}) {
+    async postAnalytics(author, url) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
             method: 'POST',
-            data: serializeObject(data),
-            headers: cookie ? {
-                'Cookie': cookie,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            } : {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            withCredentials: true,
         });
     }
 

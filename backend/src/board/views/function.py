@@ -19,62 +19,7 @@ from board import telegram
 def wrapping_image():
     pass
 
-def view_count_api(element, req_user, ip, user_agent, referer):
-    if element.author == req_user:
-        return
-    
-    if not ip:
-        return
-    
-    history = None
-    try:
-        history = History.objects.get(key=get_hash_key(ip))
-        if not history.agent == user_agent[:200]:
-            history.agent = user_agent[:200]
-            if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
-                history.category = 'temp-bot'
-            else:
-                if not history.category == '' and not '(u)' in history.category:
-                    history.category += '(u)'
-            history.save()
-            history.refresh_from_db()
-    except:
-        history = History(key=get_hash_key(ip))
-        history.agent = user_agent[:200]
-        if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
-            history.category = 'temp-bot'
-        history.save()
-        history.refresh_from_db()
-    
-    if not 'bot' in history.category:
-        today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
-        today_analytics = None
-        try:
-            today_analytics = PostAnalytics.objects.get(created_date=today, posts=element)
-        except:
-            today_analytics = PostAnalytics(posts=element)
-            today_analytics.save()
-            today_analytics.refresh_from_db()
-        
-        if not today_analytics.table.filter(id=history.id).exists():
-            today_analytics.table.add(history)
-            today_analytics.save()
-        
-        if referer:
-            referer_from = None
-            referer = referer[:500]
-            try:
-                referer_from = RefererFrom.objects.get(location=referer)
-            except:
-                referer_from = RefererFrom(location=referer)
-                referer_from.save()
-                referer_from.refresh_from_db()
-            Referer(
-                posts = today_analytics,
-                referer_from = referer_from
-            ).save()
-
-def view_count(type, element, request):
+def view_count(element, request):
     if element.author == request.user:
         return
     
