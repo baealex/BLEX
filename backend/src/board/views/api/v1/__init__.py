@@ -456,13 +456,13 @@ def user_posts_analytics(request, username, url):
     if request.method == 'POST':
         viewonly = request.POST.get('viewonly', '')
         if viewonly:
-            fn.view_up(post, request)
+            fn.create_viewer(post, request)
         
         referer = request.POST.get('referer', '')
         if referer:
             fn.create_referer(post, referer)
         
-        return HttpResponse(randstr(25))
+        return HttpResponse(randstr(1))
 
 def user_series(request, username, url=None):
     if not url:
