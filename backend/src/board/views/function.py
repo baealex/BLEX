@@ -70,8 +70,19 @@ def view_count(element, request):
             ).save()
 
 def create_referer(element, referer):
-    if settings.SITE_URL in referer:
-        return
+    exclude_items = [
+        settings.SITE_URL,
+        'in-vm',
+        'AND',
+        'OR',
+        'IF',
+        'CASE',
+        'SELECT',
+        '127.0.0.1'
+    ]
+    for item in exclude_items:
+        if item in referer:
+            return
     
     if referer:
         today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
