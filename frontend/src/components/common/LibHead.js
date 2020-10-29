@@ -31,9 +31,6 @@ export default function() {
                     `}}/>
                 </>
             ) : ''}
-            {Config.GOOGLE_ADSENSE ? (
-                <script data-ad-client={`${Config.GOOGLE_ADSENSE}`} async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"/>
-            ) : ''}
         </Head>
     )
 }
