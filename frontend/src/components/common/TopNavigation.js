@@ -77,7 +77,7 @@ class TopNavigation extends React.Component {
 
     onEnterSearch(e) {
         if(e.key == 'Enter') {
-            window.open('about:blank').location.href = `https://duckduckgo.com/?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
+            window.open('about:blank').location.href = `https://google.com/search?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
         }
     }
 
