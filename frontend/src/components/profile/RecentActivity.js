@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import PurpleBorder from "../common/PurpleBorder";
 
 export default function RecentActivity(props) {
@@ -19,21 +21,22 @@ export default function RecentActivity(props) {
 
 function ActivityItem(props) {
     const className = `fas fa-${props.type}`;
-    let text = `'${props.text}' `;
+    
+    let desc = '';
     switch(props.type) {
         case 'edit':
-            text += '포스트를 작성하였습니다.'
+            desc = '포스트를 작성하였습니다.'
             break;
         case 'comment':
-            text += '포스트에 댓글을 남겼습니다.'
+            desc = '포스트에 댓글을 남겼습니다.'
             break;
         case 'bookmark':
-            text += '시리즈를 생성하였습니다.'
+            desc = '시리즈를 생성하였습니다.'
             break;
     }
     return (
         <>
-            <li><i className={className}></i>{text}</li>
+            <li><i className={className}></i> <Link href={props.url}><a className="shallow-dark">'{props.text}'</a></Link> {desc}</li>
         </>
     )
 }

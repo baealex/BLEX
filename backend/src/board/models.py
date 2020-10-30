@@ -340,6 +340,9 @@ class Comment(models.Model):
         else:
             return settings.STATIC_URL + '/images/default-post.png'
     
+    def get_absolute_url(self):
+        return self.post.get_absolute_url()
+    
     def total_likes(self):
         return self.likes.count()
 

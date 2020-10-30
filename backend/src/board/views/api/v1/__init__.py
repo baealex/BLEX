@@ -912,6 +912,7 @@ def users(request, username):
                                 'type': 'bookmark',
                                 'text': active.name
                             }
+                        active_dict['url'] = active.get_absolute_url()
                         data[include].append(active_dict)
                 
                 elif include == 'about':
