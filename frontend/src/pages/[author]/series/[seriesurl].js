@@ -10,12 +10,23 @@ import Global from '../../../modules/global';
 import Modal from '../../../components/common/Modal';
 
 export async function getServerSideProps(context) {
+    const raise = require('../../../modules/raise');
+
     const { author, seriesurl } = context.query;
-    const { data } = await API.getSeries(author, seriesurl);
-    return {
-        props: {
-            series: data
+
+    if(!author.includes('@')) {
+        raise.Http404(context.res);
+    }
+
+    try {
+        const { data } = await API.getSeries(author, seriesurl);
+        return {
+            props: {
+                series: data
+            }
         }
+    } catch(error) {
+        raise.auto(error.response.status, context.res);
     }
 }
 

@@ -9,23 +9,35 @@ import PostsComponent from '../../../components/profile/Posts';
 import PageNav from '../../../components/common/PageNav';
 
 export async function getServerSideProps(context) {
-    const { author, tag } = context.query;
-    const { data } = await API.getUserProfile(author, [
-        'profile',
-        'social',
-        'tags'
-    ]);
+    const raise = require('../../../modules/raise');
 
-    let { page } = context.query;
-    page = page ? page : 1;
-    const posts = await API.getUserPosts(author, page, tag);
-    return {
-        props: {
-            page,
-            tag,
-            profile: data,
-            posts: posts.data
+    const { author, tag } = context.query;
+
+    if(!author.includes('@')) {
+        raise.Http404(context.res);
+    }
+
+    try {
+        const { data } = await API.getUserProfile(author, [
+            'profile',
+            'social',
+            'tags'
+        ]);
+
+        let { page } = context.query;
+        page = page ? page : 1;
+        
+        const posts = await API.getUserPosts(author, page, tag);
+        return {
+            props: {
+                page,
+                tag,
+                profile: data,
+                posts: posts.data
+            }
         }
+    } catch(error) {
+        raise.auto(error.response.status, context.res);
     }
 }
 

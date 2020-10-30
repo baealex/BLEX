@@ -28,6 +28,16 @@ export async function dropImage(e) {
         toast('🤔 이미지 파일이 아닙니다.');
         return;
     }
-    const { data } = await API.uploadImage(file);
-    return data;
+    try {
+        const { data } = await API.uploadImage(file);
+        return data;
+    } catch(error) {
+        const { status } = error.response;
+        if(status == 404) {
+            return '로그인이 필요합니다';
+        }
+        if(status > 500) {
+            return '서버 장애가 발생했습니다';
+        }
+    }
 }

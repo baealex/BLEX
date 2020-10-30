@@ -74,7 +74,7 @@ class Write extends React.Component {
         const { username } = this.state;
 
         if(username == '') {
-            toast('😅 로그인이 필요합니다. 비회원인 경우 글쓰기를 체험해 볼 수 있습니다.')
+            Router.back();
         } else {
             {
                 const { data } = await API.getSetting('@' + username, 'series');
@@ -178,7 +178,6 @@ class Write extends React.Component {
         this.setState({ ...this.state, text: value });
         clearTimeout(this.saveTimer);
         this.saveTimer = setTimeout(() => {
-            console.log('123');
             this.onTempSave();
         }, 5000);
     }

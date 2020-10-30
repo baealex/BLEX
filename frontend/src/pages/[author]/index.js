@@ -12,19 +12,30 @@ import RecentActivity from '../../components/profile/RecentActivity';
 import FeatureContent from '../../components/profile/FeatureContent';
 
 export async function getServerSideProps(context) {
+    const raise = require('../../modules/raise');
+    
     const { author } = context.query;
-    const { data } = await API.getUserProfile(author, [
-        'profile',
-        'social',
-        'heatmap',
-        'view',
-        'most',
-        'recent'
-    ]);
-    return {
-        props: {
-            profile: data
+    
+    if(!author.includes('@')) {
+        raise.Http404(context.res);
+    }
+    
+    try {
+        const { data } = await API.getUserProfile(author, [
+            'profile',
+            'social',
+            'heatmap',
+            'view',
+            'most',
+            'recent'
+        ]);
+        return {
+            props: {
+                profile: data
+            }
         }
+    } catch(error) {
+        raise.auto(error.response.status, context.res);
     }
 }
 

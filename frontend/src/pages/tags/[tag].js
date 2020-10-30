@@ -10,15 +10,23 @@ import TopicsDesc from '../../components/tag/TagDesc';
 import Title from '../../components/common/Title';
 
 export async function getServerSideProps(context) {
+    const raise = require('../../modules/raise');
+
     const { tag } = context.query;
+
     let { page } = context.query;
     page = page ? page : 1;
-    const { data } = await API.getTag(tag, page);
-    return {
-        props: {
-            page,
-            data
+    
+    try {
+        const { data } = await API.getTag(tag, page);
+        return {
+            props: {
+                page,
+                data
+            }
         }
+    } catch(error) {
+        raise.auto(error.response.status, context.res);
     }
 }
 

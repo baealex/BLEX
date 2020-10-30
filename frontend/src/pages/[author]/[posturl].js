@@ -22,40 +22,51 @@ import blexer from '../../modules/blexer';
 import Footer from '../../components/common/Footer';
 
 export async function getServerSideProps(context) {
-    const { req } = context;
+    const raise = require('../../modules/raise');
+
+    const { req, res } = context;
     const { author, posturl } = context.query;
+
+    if(!author.includes('@')) {
+        raise.Http404(res);
+    }
+
     const cookie = req.headers['cookie'];
 
-    const post = await API.getPost(author, posturl, 'view', cookie);
+    try {
+        const post = await API.getPost(author, posturl, 'view', cookie);
 
-    const referer = req.headers['referer'];
-    if(referer) {
-        API.postAnalytics(author, posturl, {
-            referer
-        });
-    }
+        const referer = req.headers['referer'];
+        if(referer) {
+            API.postAnalytics(author, posturl, {
+                referer
+            });
+        }
 
-    const profile = await API.getUserProfile(author, [
-        'profile',
-        'social'
-    ]);
-    let resultProps = {
-        hasSeries: false,
-        post: post.data,
-        profile: profile.data
-    };
-    if(post.data.series) {
-        let series = await API.getSeries(author, post.data.series);
-        const sereisLength = series.data.posts.length;
-        const activeSeries = series.data.posts.findIndex(
-            item => item.title == post.data.title
-        );
-        resultProps['hasSeries'] = true;
-        resultProps['activeSeries'] = activeSeries;
-        resultProps['sereisLength'] = sereisLength;
-        resultProps['series'] = series.data;
+        const profile = await API.getUserProfile(author, [
+            'profile',
+            'social'
+        ]);
+        let resultProps = {
+            hasSeries: false,
+            post: post.data,
+            profile: profile.data
+        };
+        if(post.data.series) {
+            let series = await API.getSeries(author, post.data.series);
+            const sereisLength = series.data.posts.length;
+            const activeSeries = series.data.posts.findIndex(
+                item => item.title == post.data.title
+            );
+            resultProps['hasSeries'] = true;
+            resultProps['activeSeries'] = activeSeries;
+            resultProps['sereisLength'] = sereisLength;
+            resultProps['series'] = series.data;
+        }
+        return { props: resultProps };
+    } catch(error) {
+        raise.auto(error.response.status, res);
     }
-    return { props: resultProps };
 }
 
 class Post extends React.Component {
