@@ -26,9 +26,12 @@ class NotifySetting extends React.Component {
         const { data } = await API.putSetting('@' + username, tabname.toLowerCase(), { pk: pk });
         if(data == 'DONE') {
             let newData = tabdata;
-            newData.notify = newData.notify.filter(comment => (
-                comment.pk !== pk
-            ));
+            newData.notify = newData.notify.map(comment => {
+                return comment.pk == pk ? {
+                    ...comment,
+                    is_read: 'true'
+                } : comment;
+            });
             this.props.fetchData(tabname, newData);
         }
     }
@@ -90,11 +93,11 @@ class NotifySetting extends React.Component {
                 ) : ''}
                 {this.props.tabdata.notify.length == 0 ? (
                     <div className="blex-card p-3">
-                        모든 알림을 확인했습니다.
+                        최근 생성된 알림이 없습니다.
                     </div>
                 ) : this.props.tabdata.notify.map((item, idx) => (
-                    <Link key={idx} href="/[author]/[posturl]" as={item.url}>
-                        <a className="deep-dark" onClick={() => this.onReadNotify(item.pk)}>
+                    <Link key={idx} href={item.url}>
+                        <a className={item.is_read !== 'true' ? 'deep-dark' : 'shallow-dark'} onClick={() => this.onReadNotify(item.pk)}>
                             <div className="blex-card p-3">{item.content} <span className="ns shallow-dark">{item.created_date}전</span></div>
                         </a>
                     </Link>

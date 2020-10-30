@@ -103,6 +103,9 @@ def login(request):
                     config = Config(user=new_user)
                     config.save()
 
+                    fn.create_notify(user=new_user, url='/notion', infomation=new_user.first_name + (
+                        '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
+
                     auth.login(request, new_user)
                     return JsonResponse({
                         'status': 'success',
@@ -155,6 +158,11 @@ def login(request):
 
                     config = Config(user=new_user)
                     config.save()
+
+                    fn.create_notify(user=new_user, url='/notion', infomation=new_user.first_name + (
+                        '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
+
+                    auth.login(request, new_user)
                     return JsonResponse({
                         'status': 'success',
                         'username': username,
@@ -556,11 +564,13 @@ def user_setting(request, username, item):
     
     if request.method == 'GET':
         if item == 'notify':
-            notify = Notify.objects.filter(user=user, is_read=False).order_by('-created_date')
+            seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
+            notify = Notify.objects.filter(user=user, created_date__gt=seven_days_ago).order_by('-created_date')
             return JsonResponse({
                 'notify': list(map(lambda item: {
                     'pk': item.pk,
                     'url': item.url,
+                    'is_read': 'true' if item.is_read else 'false',
                     'content': item.infomation,
                     'created_date': timesince(item.created_date)
                 }, notify)),
