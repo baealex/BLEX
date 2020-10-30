@@ -744,13 +744,12 @@ def comment(request, pk=None):
                 text_html=body.get('comment_md')
             )
             comment.save()
-            fn.add_exp(request.user, 1)
             
             if not comment.author == post.author:
                 send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다.'
                 fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
             
-            regex = re.compile(r'\`\@([a-zA-Z0-9]*)\`\s?')
+            regex = re.compile(r'\`\@([a-zA-Z0-9\.]*)\`\s?')
             if regex.search(comment.text_md):
                 tag_user_list = regex.findall(comment.text_md)
                 tag_user_list = set(tag_user_list)
