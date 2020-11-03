@@ -265,7 +265,7 @@ class Post extends React.Component {
                     author={this.props.post.author}
                     keywords={this.props.post.tag}
                     image={this.props.post.image}
-                    url={this.props.url}
+                    isArticle={true}
                 />
                 {this.props.post.image.includes('default') ? (
                     <></>

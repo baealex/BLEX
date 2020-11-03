@@ -7,9 +7,6 @@ export default function SEO(props) {
 
     let key = 0;
 
-    twitterTag.push(<meta key={key++} name="twitter:card" content="summary"/>);
-    openGraphTag.push(<meta key={key++} property="og:type" content="blog"/>);
-
     if(props.title) {
         if(props.author) {
             twitterTag.push(<meta key={key++} name="twitter:title" content={`${props.title} — ${props.author}`}/>);
@@ -44,6 +41,10 @@ export default function SEO(props) {
         openGraphTag.push(<meta key={key++} property="og:image" content={props.image}/>);
     }
 
+    if(props.isArticle) {
+        twitterTag.push(<meta key={key++} name="twitter:card" content="summary"/>);
+        openGraphTag.push(<meta key={key++} property="og:type" content="blog"/>);
+    }
     openGraphTag.push(<meta key={key++} property="og:locale" content="ko_KR"/>);
     
     return (

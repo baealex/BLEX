@@ -1,11 +1,12 @@
-import React from 'react'
-import Head from 'next/head'
+import React from 'react';
+import Head from 'next/head';
 
-import ArticleCard from '../components/article/ArticleCard'
+import ArticleCard from '../components/article/ArticleCard';
+import SEO from '../components/seo';
 
-import API from '../modules/api'
-import PageNav from '../components/common/PageNav'
-import Footer from '../components/common/Footer'
+import API from '../modules/api';
+import PageNav from '../components/common/PageNav';
+import Footer from '../components/common/Footer';
 
 export async function getServerSideProps(context) {
     const raise = require('../modules/raise');
@@ -45,6 +46,11 @@ class Home extends React.Component {
                 <Head>
                     <title>BLOG EXPRESS ME</title>
                 </Head>
+
+                <SEO
+                    title={`BLOG EXPRESS ME`}
+                    description={`나를 표현하는 블로그, BLEX`}
+                />
 
                 <div className="container">
                     <div className="row">
