@@ -1,4 +1,6 @@
 import React from 'react';
+import Router from 'next/router';
+
 import Modal from '../common/Modal';
 
 import { toast } from 'react-toastify';
@@ -89,10 +91,15 @@ class LoginModal extends React.Component {
                 url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/github`;
                 break;
         }
-        window.___run = async (social, code) => {
+        window.___run = async (social, code, callback) => {
+            callback();
             await this.onSocialLogin(social, code);
         };
-        window.open(url, 'Social Login', 'width=550,height=750');
+        const windowWidth = 550;
+        const windowHeight = 750;
+        const windowPosX = (window.screen.width / 2) - (windowWidth / 2);
+        const windowPosY = (window.screen.height / 2) - (windowHeight / 2);
+        window.open(url, 'Social Login', `width=${windowWidth},height=${windowHeight},left=${windowPosX},top=${windowPosY}`);
     }
     
     render() {
