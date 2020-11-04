@@ -15,13 +15,6 @@ export async function getServerSideProps(context) {
 class SocialLogin extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            username: Global.state.username,
-        };
-        Global.appendUpdater('SocialLogin', () => this.setState({
-            ...this.state,
-            username: Global.state.username,
-        }));
     }
 
     async onSocialLogin(social, code) {
@@ -31,9 +24,6 @@ class SocialLogin extends React.Component {
 
     async loginCheck(data) {
         if(data.status == 'success') {
-            const oauthRedirect = Cookie.get('oauth_redirect');
-            oauthRedirect ? Router.replace(oauthRedirect) : Router.replace('/')
-
             toast(`😃 로그인 되었습니다.`);
 
             if(data.notify_count != 0) {
@@ -59,13 +49,23 @@ class SocialLogin extends React.Component {
         if(!social || !code) {
             return;
         }
-        this.onSocialLogin(social, code);
+
+        setTimeout(() => {
+            this.onSocialLogin(social, code);
+        }, 500);
+        
+        const oauthRedirect = Cookie.get('oauth_redirect');
+        oauthRedirect ? Router.replace(oauthRedirect) : Router.replace('/');
     }
 
     render() {
         return (
             <>
-                <div>Loading...</div>
+                <div className="content">
+                    <div className="container">
+                        <p>Loading...</p>
+                    </div>
+                </div>
             </>
         )
     }

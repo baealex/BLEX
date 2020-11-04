@@ -124,7 +124,8 @@ class TopNavigation extends React.Component {
             if(data.status === 'success') {
                 Global.setState({
                     ...Global.state,
-                    isLogin: false
+                    isLogin: false,
+                    username: ''
                 });
                 toast('😀 로그아웃 되었습니다.');
             }
