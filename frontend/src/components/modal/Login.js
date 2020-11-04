@@ -1,11 +1,11 @@
 import React from 'react';
-import Router from 'next/router';
 
 import Modal from '../common/Modal';
 
 import { toast } from 'react-toastify';
 
 import API from '../../modules/api';
+import Cookie from '../../modules/cookie';
 import Global from '../../modules/global';
 import Config from '../../modules/config.json';
 
@@ -74,6 +74,10 @@ class LoginModal extends React.Component {
     }
 
     onSubmitSocialLogin(social) {
+        Cookie.set('oauth_redirect', location.href, {
+            path: '/',
+            expire: 0.1,
+        });
         let url = '';
         switch(social) {
             case 'google':
@@ -91,15 +95,7 @@ class LoginModal extends React.Component {
                 url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/github`;
                 break;
         }
-        window.___run = async (social, code, callback) => {
-            callback();
-            await this.onSocialLogin(social, code);
-        };
-        const windowWidth = 550;
-        const windowHeight = 750;
-        const windowPosX = (window.screen.width / 2) - (windowWidth / 2);
-        const windowPosY = (window.screen.height / 2) - (windowHeight / 2);
-        window.open(url, 'Social Login', `width=${windowWidth},height=${windowHeight},left=${windowPosX},top=${windowPosY}`);
+        location.href = url;
     }
     
     render() {
