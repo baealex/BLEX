@@ -4,6 +4,8 @@ import json
 import time
 import random
 
+import humps
+
 from itertools import chain
 from django.db.models import Count, Q
 from django.core.cache import cache
@@ -26,6 +28,9 @@ from board.forms import *
 from board.telegram import TelegramBot
 from board.views import function as fn
 
+def CamelizeJsonResponse(obj, json_dumps_params={'ensure_ascii': True}):
+    return JsonResponse(humps.camelize(obj), json_dumps_params=json_dumps_params)
+
 def alive(request):
     if request.method == 'GET':
         if request.user.is_active:
@@ -34,7 +39,7 @@ def alive(request):
                 'username': request.user.username,
                 'notify_count': notify.count()
             }
-            return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
+            return CamelizeJsonResponse(result)
         return HttpResponse('dead')
 
 def login(request):
@@ -50,15 +55,15 @@ def login(request):
                 if user.is_active:
                     auth.login(request, user)
                     notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
-                    return JsonResponse({
+                    return CamelizeJsonResponse({
                         'status': 'success',
                         'username': username,
                         'notify_count': notify.count()
-                    }, json_dumps_params={'ensure_ascii': True})
+                    })
             result = {
                 'status': 'failure'
             }
-            return JsonResponse(result, json_dumps_params={'ensure_ascii': True})
+            return CamelizeJsonResponse(result)
 
 
         if social == 'github':
@@ -70,11 +75,11 @@ def login(request):
                         user = User.objects.get(last_name='github:' + str(node_id))
                         auth.login(request, user)
                         notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
-                        return JsonResponse({
+                        return CamelizeJsonResponse({
                             'status': 'success',
                             'username': user.username,
                             'notify_count': notify.count()
-                        }, json_dumps_params={'ensure_ascii': True})
+                        })
                     except:
                         pass
                         
@@ -107,16 +112,16 @@ def login(request):
                         '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
 
                     auth.login(request, new_user)
-                    return JsonResponse({
+                    return CamelizeJsonResponse({
                         'status': 'success',
                         'username': username,
                         'notify_count': 1
-                    }, json_dumps_params={'ensure_ascii': True})
+                    })
                 else:
-                    return JsonResponse({
+                    return CamelizeJsonResponse({
                         'status': 'failure',
                         'message': '요청중 에러 발생'
-                    }, json_dumps_params={'ensure_ascii': True})
+                    })
         
         if social == 'google':
             if request.POST.get('code'):
@@ -127,11 +132,11 @@ def login(request):
                         user = User.objects.get(last_name='google:' + str(node_id))
                         auth.login(request, user)
                         notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
-                        return JsonResponse({
+                        return CamelizeJsonResponse({
                             'status': 'success',
                             'username': user.username,
                             'notify_count': notify.count()
-                        }, json_dumps_params={'ensure_ascii': True})
+                        })
                     except:
                         pass
                     
@@ -163,27 +168,27 @@ def login(request):
                         '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
 
                     auth.login(request, new_user)
-                    return JsonResponse({
+                    return CamelizeJsonResponse({
                         'status': 'success',
                         'username': username,
                         'notify_count': 1
-                    }, json_dumps_params={'ensure_ascii': True})
+                    })
                 else:
-                    return JsonResponse({
+                    return CamelizeJsonResponse({
                         'status': 'failure',
                         'message': '요청중 에러 발생'
-                    }, json_dumps_params={'ensure_ascii': True})
+                    })
 
 def logout(request):
     if request.method == 'POST':
         if request.user.is_active:
             auth.logout(request)
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'status': 'success'
-            }, json_dumps_params={'ensure_ascii': True})
-        return JsonResponse({
+            })
+        return CamelizeJsonResponse({
             'status': 'failure'
-        }, json_dumps_params={'ensure_ascii': True})
+        })
 
 def signup(request):
     pass
@@ -201,14 +206,14 @@ def tags(request, tag=None):
             paginator = Paginator(tags, (3 * 2) * 15)
             fn.page_check(page, paginator)
             tags = paginator.get_page(page)
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'tags': list(map(lambda tag: {
                     'name': tag['name'],
                     'count': tag['count'],
                     'description': tag['desc']
                 }, tags)),
                 'last_page': tags.paginator.num_pages
-            }, json_dumps_params={'ensure_ascii': True})
+            })
     
     if tag:
         if request.method == 'GET':
@@ -230,7 +235,7 @@ def tags(request, tag=None):
             except:
                 pass
             
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'tag': tag,
                 'desc': desc_object,
                 'last_page': posts.paginator.num_pages,
@@ -243,7 +248,7 @@ def tags(request, tag=None):
                     'author_image': post.author.profile.get_thumbnail(),
                     'author': post.author.username,
                 }, posts))
-            }, json_dumps_params={'ensure_ascii': True})
+            })
         
     raise Http404
 
@@ -254,7 +259,7 @@ def posts(request, sort):
         paginator = Paginator(posts, 21)
         fn.page_check(page, paginator)
         posts = paginator.get_page(page)
-        return JsonResponse({
+        return CamelizeJsonResponse({
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
@@ -265,7 +270,7 @@ def posts(request, sort):
                 'author': post.author.username,
             }, posts)),
             'last_page': posts.paginator.num_pages
-        }, json_dumps_params={'ensure_ascii': True})
+        })
     
 
 def user_posts(request, username, url=None):
@@ -281,7 +286,7 @@ def user_posts(request, username, url=None):
             paginator = Paginator(posts, 10)
             fn.page_check(page, paginator)
             posts = paginator.get_page(page)
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'items': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
@@ -294,7 +299,7 @@ def user_posts(request, username, url=None):
                     'tag': post.tag,
                 }, posts)),
                 'last_page': posts.paginator.num_pages
-            }, json_dumps_params={'ensure_ascii': True})
+            })
         
         if request.method == 'POST':
             post = Post()
@@ -341,7 +346,7 @@ def user_posts(request, username, url=None):
         if request.method == 'GET':
             if request.GET.get('mode') == 'edit':
                 fn.compere_user(request.user, post.author, give_404_if='different')
-                return JsonResponse({
+                return CamelizeJsonResponse({
                     'image': post.get_thumbnail(),
                     'title': post.title,
                     'series': post.series.url if post.series else None,
@@ -355,7 +360,7 @@ def user_posts(request, username, url=None):
                     raise Http404
                 
                 comments = Comment.objects.filter(post=post).order_by('created_date')
-                return JsonResponse({
+                return CamelizeJsonResponse({
                     'url': post.url,
                     'title': post.title,
                     'image': post.get_thumbnail(),
@@ -404,7 +409,7 @@ def user_posts(request, username, url=None):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.tag = fn.get_clean_tag(put.get('tag'))
             post.save()
-            return JsonResponse({'tag': post.tag}, json_dumps_params={'ensure_ascii': True})
+            return CamelizeJsonResponse({'tag': post.tag})
         if request.GET.get('series', ''):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.series = None
@@ -459,7 +464,7 @@ def user_posts_analytics(request, username, url):
                 'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
                 'from': referer.referer_from.location,
             })
-        return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+        return CamelizeJsonResponse(data)
 
     if request.method == 'POST':
         viewonly = request.POST.get('viewonly', '')
@@ -480,7 +485,7 @@ def user_series(request, username, url=None):
             paginator = Paginator(series, 10)
             fn.page_check(page, paginator)
             series = paginator.get_page(page)
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'series': list(map(lambda item: {
                     'url': item.url,
                     'name': item.name,
@@ -489,7 +494,7 @@ def user_series(request, username, url=None):
                     'owner': item.owner.username,
                 }, series)),
                 'last_page': series.paginator.num_pages
-            }, json_dumps_params={'ensure_ascii': True})
+            })
         
         if request.method == 'POST':
             body = QueryDict(request.body)
@@ -516,7 +521,7 @@ def user_series(request, username, url=None):
         if request.method == 'GET':
             if request.GET.get('type', 1):
                 posts = Post.objects.filter(series=series, hide=False)
-                return JsonResponse({
+                return CamelizeJsonResponse({
                     'title': series.name,
                     'url': series.url,
                     'image': series.thumbnail(),
@@ -529,7 +534,7 @@ def user_series(request, username, url=None):
                         'description': post.description(50),
                         'created_date': post.created_date.strftime('%Y년 %m월 %d일')
                     }, posts))
-                }, json_dumps_params={'ensure_ascii': True})
+                })
         
         if not request.user == series.owner:
             return HttpResponse('error:DU')
@@ -566,7 +571,7 @@ def user_setting(request, username, item):
         if item == 'notify':
             seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
             notify = Notify.objects.filter(user=user, created_date__gt=seven_days_ago).order_by('-created_date')
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'notify': list(map(lambda item: {
                     'pk': item.pk,
                     'url': item.url,
@@ -575,18 +580,18 @@ def user_setting(request, username, item):
                     'created_date': timesince(item.created_date)
                 }, notify)),
                 'is_telegram_sync': 'true' if user.config.telegram_id else 'false'
-            }, json_dumps_params={'ensure_ascii': True})
+            })
         
         if item == 'account':
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'username': user.username,
                 'realname': user.first_name,
                 'created_date': user.date_joined.strftime('%Y년 %m월 %d일')
-            }, json_dumps_params={'ensure_ascii': True})
+            })
         
         if item == 'profile':
             profile = Profile.objects.get(user=user)
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'avatar': profile.get_thumbnail(),
                 'bio': profile.bio,
                 'homepage': profile.homepage,
@@ -595,11 +600,11 @@ def user_setting(request, username, item):
                 'youtube': profile.youtube,
                 'facebook': profile.facebook,
                 'instagram': profile.instagram
-            }, json_dumps_params={'ensure_ascii': True})
+            })
         
         if item == 'posts':
             posts = Post.objects.filter(author=user).order_by('-created_date')
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'posts': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
@@ -613,17 +618,17 @@ def user_setting(request, username, item):
                     'total': post.total(),
                     'tag': post.tag
                 }, posts))
-            }, json_dumps_params={'ensure_ascii': True})
+            })
         
         if item == 'series':
             series = Series.objects.filter(owner=user).order_by('-created_date')
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'series': list(map(lambda item: {
                     'url': item.url,
                     'title': item.name,
                     'total_posts': item.total_posts()
                 }, series))
-            }, json_dumps_params={'ensure_ascii': True})
+            })
     
     if request.method == 'PUT':
         put = QueryDict(request.body)
@@ -685,7 +690,7 @@ def temp_posts(request):
         token = request.GET.get('token')
         if token:
             temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-            return JsonResponse(temp_posts.to_dict(), json_dumps_params={'ensure_ascii': True})
+            return CamelizeJsonResponse(temp_posts.to_dict())
 
         if request.GET.get('get') == 'list':
             temps = TempPosts.objects.filter(author=request.user)
@@ -698,7 +703,7 @@ def temp_posts(request):
                     'title': temp.title,
                     'date': timesince(temp.created_date)
                 })
-            return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+            return CamelizeJsonResponse(data)
 
     if request.method == 'POST':
         temps = TempPosts.objects.filter(author=request.user).count()
@@ -750,8 +755,8 @@ def comment(request, pk=None):
             comment = Comment(
                 post=post,
                 author=request.user,
-                text_md=body.get('comment'),
-                text_html=body.get('comment_md')
+                text_md=body.get('comment_md'),
+                text_html=body.get('comment_html')
             )
             comment.save()
             
@@ -774,7 +779,7 @@ def comment(request, pk=None):
                             send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
                             fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
             
-            return JsonResponse({
+            return CamelizeJsonResponse({
                 'status': 'success',
                 'element': {
                     'pk': comment.pk,
@@ -784,7 +789,7 @@ def comment(request, pk=None):
                     'time_since': timesince(comment.created_date),
                     'edited': 'true 'if comment.edited else 'false'
                 }
-            }, json_dumps_params={'ensure_ascii': True})
+            })
     
     if pk:
         comment = get_object_or_404(Comment, pk=pk)
@@ -813,8 +818,8 @@ def comment(request, pk=None):
             if put.get('comment'):
                 if not request.user == comment.author:
                     return HttpResponse('error:DU')
-                comment.text_md = put.get('comment')
-                comment.text_html = put.get('comment_md')
+                comment.text_md = put.get('comment_md')
+                comment.text_html = put.get('comment_html')
                 comment.edited = True
                 comment.save()
                 return HttpResponse('DONE')
@@ -826,6 +831,49 @@ def comment(request, pk=None):
             return HttpResponse('DONE')
     
     raise Http404
+
+def feature_posts(request, tag=None):
+    if not tag:
+        username = request.GET.get('username', '')
+        if '@' in username:
+            username = username.replace('@', '')
+        if not username:
+            raise Http404('require username.')
+        
+        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, author__username=username)
+        exclude = request.GET.get('exclude', '')
+        if exclude:
+            posts = posts.exclude(url=exclude)
+        posts = posts.order_by('?')[:2]
+        return CamelizeJsonResponse({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'image': post.get_thumbnail(),
+                'read_time': post.read_time(),
+                'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                'author_image': post.author.profile.get_thumbnail(),
+                'author': post.author.username,
+            }, posts))
+        })
+
+    if tag:
+        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag)
+        exclude = request.GET.get('exclude', '')
+        if exclude:
+            posts = posts.exclude(url=exclude)
+        posts = posts.order_by('?')[:3]
+        return CamelizeJsonResponse({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'image': post.get_thumbnail(),
+                'read_time': post.read_time(),
+                'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                'author_image': post.author.profile.get_thumbnail(),
+                'author': post.author.username,
+            }, posts))
+        })
 
 def users(request, username):
     user = get_object_or_404(User, username=username)
@@ -918,7 +966,7 @@ def users(request, username):
                 elif include == 'about':
                     data[include] = user_profile.about_html
                 
-            return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+            return CamelizeJsonResponse(data)
 
         if not request.user.is_active:
             return HttpResponse('error:NL')
@@ -933,7 +981,7 @@ def users(request, username):
             for field in fields:
                 if field == 'about_md':
                     data[field] = user_profile.about_md
-            return JsonResponse(data, json_dumps_params={'ensure_ascii': True})
+            return CamelizeJsonResponse(data)
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
