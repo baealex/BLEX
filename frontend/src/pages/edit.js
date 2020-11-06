@@ -80,7 +80,7 @@ class Edit extends React.Component {
                 title: data.title,
                 series: data.series,
                 imageName: data.image,
-                text: data.text_md,
+                text: data.textMd,
                 tags: data.tag
             });
         } catch(error) {
@@ -163,8 +163,8 @@ class Edit extends React.Component {
         }
         const { data } = await API.putPost('@' + this.state.username, url, 'edit', {
             title: this.state.title,
-            text_md: this.state.text,
-            text_html: blexer(this.state.text),
+            textMd: this.state.text,
+            textHtml: blexer(this.state.text),
             series: this.state.series,
             tag: this.state.tags
         });

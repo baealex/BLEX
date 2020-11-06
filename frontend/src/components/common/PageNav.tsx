@@ -3,7 +3,10 @@ import Link from 'next/link';
 
 import { useRouter } from 'next/router'
 
-function PageNav(props) {
+function PageNav(props: {
+    page: Number,
+    last: Number
+}) {
     const router = useRouter();
     
     const pageRange = [];
@@ -60,12 +63,12 @@ function PageNav(props) {
                     ) : (
                         <>
                             <li className="pi disabled">    
-                                <a className="pl" tabIndex="-1">
+                                <a className="pl">
                                     <i className="fas fa-arrow-left"></i>
                                 </a>
                             </li>
                             <li className="pi disabled">
-                                <a className="pl" tabIndex="-1">
+                                <a className="pl">
                                     <i className="fa fa-angle-double-left" aria-hidden="true"></i>
                                 </a>
                             </li>
@@ -109,12 +112,12 @@ function PageNav(props) {
                     ) : (
                         <>
                             <li className="pi disabled">
-                                <a className="pl" tabIndex="-1">
+                                <a className="pl">
                                     <i className="fa fa-angle-double-right" aria-hidden="true"></i>
                                 </a>
                             </li>
                             <li className="pi disabled">    
-                                <a className="pl" tabIndex="-1">
+                                <a className="pl">
                                     <i className="fas fa-arrow-right"></i>
                                 </a>
                             </li>

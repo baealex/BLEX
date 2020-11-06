@@ -1,4 +1,6 @@
-export default function Social(props) {
+import { SocialProps } from '../../modules/interface';
+
+export default function Social(props: SocialProps) {
     return (
         <ul className="social-link">
             <li><a className="vivid-purple" href={`/rss/@${props.username}`}><i className="fas fa-rss-square"></i></a></li>

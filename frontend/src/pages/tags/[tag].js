@@ -35,15 +35,15 @@ class Tag extends React.Component {
         super(props);
         this.state = {
             page: Number(props.page),
-            lastPage: Number(props.data.last_page)
+            lastPage: Number(props.data.lastPage)
         };
     }
     
     componentDidUpdate(prevProps) {
-        if(this.props.data.last_page != prevProps.data.last_page || this.props.page != prevProps.page) {
+        if(this.props.data.lastPage != prevProps.data.lastPage || this.props.page != prevProps.page) {
             this.setState({
                 page: Number(this.props.page),
-                lastPage: Number(this.props.data.last_page)
+                lastPage: Number(this.props.data.lastPage)
             })
         }
     }

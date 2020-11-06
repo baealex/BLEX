@@ -1,8 +1,8 @@
-import App from 'next/app';
+import App, { AppProps } from 'next/app';
 import Head from 'next/head';
 import Router from 'next/router';
 
-import styles from '../styles/main.scss';
+import '../styles/main.scss';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,7 +21,14 @@ Router.events.on('routeChangeError', () => NProgress.done());
 import LibHead from '../components/common/LibHead';
 import TopNavagation from '../components/common/TopNavigation';
 
-class Main extends App {
+class Main extends App<any, any, any> {
+    props: AppProps;
+
+    constructor(props: AppProps) {
+        super(props);
+        this.props = props;
+    }
+
     render() {
         const {Component, pageProps} = this.props;
 
@@ -44,4 +51,4 @@ class Main extends App {
     }
 }
 
-export default Main
+export default Main;

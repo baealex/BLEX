@@ -1,15 +1,21 @@
 import React from 'react';
+
 import { toast } from 'react-toastify';
 
-class CommentForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            comment: ''
-        }
-    }
+interface Props {
+    onSubmit: Function;
+};
 
-    onChange(e) {
+interface State {
+    comment: string;
+}
+
+class CommentForm extends React.Component<Props, State> {
+    state: State = {
+        comment: '',
+    };
+
+    onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
         this.setState({
             ...this.state,
             comment: e.target.value
@@ -32,11 +38,11 @@ class CommentForm extends React.Component {
         return (
             <div className="comment-form mb-3">
                 <textarea
-                    rows="5"
+                    rows={5}
                     className="form-control noto"
                     onChange={(e) => this.onChange(e)}
                     placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
-                    maxLength="300"
+                    maxLength={300}
                     value={this.state.comment}>
                 </textarea>
                 <button
@@ -50,4 +56,4 @@ class CommentForm extends React.Component {
     }
 }
 
-export default CommentForm
+export default CommentForm;

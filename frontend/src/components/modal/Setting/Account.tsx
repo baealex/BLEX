@@ -4,8 +4,29 @@ import { toast } from 'react-toastify';
 
 import API from '../../../modules/api';
 
-class AccountSetting extends React.Component {
-    constructor(props) {
+interface Props {
+    username: string;
+    tabname: string;
+    tabdata: {
+        username: string;
+        realname: string;
+        createdDate: string;
+    },
+    fetchData: Function;
+}
+
+interface State {
+    realname: string;
+    password: string;
+    passwordCheck: string;
+    allowEmailShow: boolean;
+    allowHistoryCollect: boolean;
+}
+
+class AccountSetting extends React.Component<Props, State> {
+    state: State;
+
+    constructor(props: Props) {
         super(props);
         this.state = {
             realname: '',
@@ -32,20 +53,22 @@ class AccountSetting extends React.Component {
         });
     }
 
-    onInputChange(e) {
-        let newState = this.state;
-        newState[e.target.name] = e.target.value;
-        this.setState(newState);
+    onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            ...this.state,
+            [e.target.name]: e.target.value
+        });
     }
 
-    onCheckBoxChange(e) {
-        let newState = this.state;
-        newState[e.target.name] = e.target.checked;
-        this.setState(newState);
+    onCheckBoxChange(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            ...this.state,
+            [e.target.name]: e.target.checked
+        });
     }
 
     async onSubmit() {
-        let sendData = {};
+        let sendData: any = {};
         if(!this.state.realname) {
             toast('🤔 이름은 비워둘 수 없습니다.');
             return;
@@ -92,7 +115,7 @@ class AccountSetting extends React.Component {
                     @{this.props.tabdata.username}
                 </h3>
                 <p className="serif">
-                    {this.props.tabdata.created_date}
+                    {this.props.tabdata.createdDate}
                 </p>
                 <input
                     type="text"
@@ -100,7 +123,7 @@ class AccountSetting extends React.Component {
                     value={this.state.realname}
                     placeholder="이름"
                     className="form-control"
-                    maxLength="30"
+                    maxLength={30}
                     onChange={(e) => this.onInputChange(e)}
                 />
                 <input
@@ -109,7 +132,7 @@ class AccountSetting extends React.Component {
                     value={this.state.password}
                     placeholder="새 비밀번호"
                     className="form-control"
-                    maxLength="200"
+                    maxLength={200}
                     onChange={(e) => this.onInputChange(e)}
                 />
                 <input
@@ -118,7 +141,7 @@ class AccountSetting extends React.Component {
                     value={this.state.passwordCheck}
                     placeholder="비밀번호 확인"
                     className="form-control"
-                    maxLength="200"
+                    maxLength={200}
                     onChange={(e) => this.onInputChange(e)}
                 />
                 {/*

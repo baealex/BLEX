@@ -1,4 +1,11 @@
-export default function SelectForm(props) {
+interface Props {
+    title: string;
+    name: string;
+    onChange: Function;
+    children: JSX.Element;
+};
+
+export default function SelectForm(props: Props) {
     return (
         <div className="input-group mb-2 mr-sm-2 mt-3">
             <div className="input-group-prepend">

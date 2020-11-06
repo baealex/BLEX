@@ -202,7 +202,7 @@ class Series extends React.Component {
                                 <div className="author">
                                     <Link href="/[author]" as={`/@${this.props.series.owner}`}>
                                         <a>
-                                            <img src={this.props.series.owner_image}/>
+                                            <img src={this.props.series.ownerImage}/>
                                         </a>
                                     </Link>
                                 </div>

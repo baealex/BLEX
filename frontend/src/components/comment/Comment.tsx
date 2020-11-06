@@ -1,6 +1,18 @@
 import Link from 'next/link'
 
-export default function Comment(props) {
+interface CommentProps {
+    pk: number;
+    author: string;
+    authorImage: string;
+    timeSince: string;
+    isEdited: boolean;
+    isOwner: boolean;
+    onEdit: Function;
+    onDelete: Function;
+    html: string;
+};
+
+export default function Comment(props: CommentProps) {
     return (
         <>
             <div className="comment-list s-shadow">

@@ -46,15 +46,15 @@ class Posts extends React.Component {
         super(props);
         this.state = {
             page: Number(props.page),
-            lastPage: Number(props.posts.last_page)
+            lastPage: Number(props.posts.lastPage)
         };
     }
 
     componentDidUpdate(prevProps) {
-        if(this.props.posts.last_page != prevProps.posts.last_page || this.props.page != prevProps.page) {
+        if(this.props.posts.lastPage != prevProps.posts.lastPage || this.props.page != prevProps.page) {
             this.setState({
                 page: Number(this.props.page),
-                lastPage: Number(this.props.posts.last_page)
+                lastPage: Number(this.props.posts.lastPage)
             });
         }
     }

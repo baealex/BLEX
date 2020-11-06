@@ -1,4 +1,16 @@
-export default function InputForm(props) {
+type inputType = 'text' | 'password';
+
+interface Props {
+    title: string;
+    type: inputType;
+    name: string;
+    maxLength: number;
+    onChange: Function;
+    value: string;
+    placeholder: string;
+};
+
+export default function InputForm(props: Props) {
     return (
         <div className="input-group mb-2 mr-sm-2 mt-3">
             <div className="input-group-prepend">

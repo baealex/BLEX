@@ -10,8 +10,20 @@ import Global from '../../modules/global';
 import LoginModal from '../modal/Login';
 import SettingModal from '../modal/Setting';
 
+interface State {
+    onNav: boolean;
+    isNightMode: boolean;
+    isLogin: boolean;
+    username: string;
+    search: string;
+    isLoginModalOpen: boolean;
+    isSettingModalOpen: boolean;
+};
+
 class TopNavigation extends React.Component {
-    constructor(props) {
+    state: State;
+
+    constructor(props: any) {
         super(props);
         this.state = {
             onNav: false,
@@ -31,9 +43,9 @@ class TopNavigation extends React.Component {
     }
 
     async componentDidMount(){
-        this.bodyClass = document.querySelector('body').classList;
+        const bodyClass = document.querySelector('body');
         const nightmode = Cookie.get('nightmode');
-        nightmode === 'true' && this.bodyClass.add('dark');
+        nightmode === 'true' && bodyClass?.classList.add('dark');
         Global.setState({
             ...Global.state,
             isNightMode: nightmode ? true : false,
@@ -46,8 +58,8 @@ class TopNavigation extends React.Component {
             username: alive.data !== 'dead' ? alive.data.username : '',
         });
         if(alive.data !== 'dead') {
-            if(alive.data.notify_count != 0) {
-                toast(`😲 읽지 않은 알림이 ${alive.data.notify_count}개 있습니다.`)
+            if(alive.data.notifyCount != 0) {
+                toast(`😲 읽지 않은 알림이 ${alive.data.notifyCount}개 있습니다.`)
             }
         }
 
@@ -63,28 +75,31 @@ class TopNavigation extends React.Component {
         });
     }
 
-    onOpenModal(modalName) {
-        let newState = this.state;
-        newState[modalName] = true;
-        this.setState(newState);
+    onOpenModal(modalName: string) {
+        this.setState({
+            ...this.state,
+            [modalName]: true
+        });
     }
 
-    onCloseModal(modalName) {
-        let newState = this.state
-        newState[modalName] = false
-        this.setState(newState);
+    onCloseModal(modalName: string) {
+        this.setState({
+            ...this.state,
+            [modalName]: false
+        });
     }
 
-    onEnterSearch(e) {
+    onEnterSearch(e: React.KeyboardEvent<HTMLInputElement>) {
         if(e.key == 'Enter') {
-            window.open('about:blank').location.href = `https://google.com/search?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
+            window.open('about:blank')!.location.href = `https://google.com/search?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
         }
     }
 
-    onInputChange(e) {
-        let newState = this.state;
-        newState[e.target.name] = e.target.value;
-        this.setState(newState);
+    onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            ...this.state,
+            [e.target.name]: e.target.value
+        });
     }
 
     onMouseLeaveOnContent() {
@@ -95,6 +110,7 @@ class TopNavigation extends React.Component {
     }
 
     onClickNightMode() {
+        const bodyClass = document.querySelector('body');
         if(this.state.isNightMode) {
             Cookie.set('nightmode', '', {
                 path: '/',
@@ -104,7 +120,7 @@ class TopNavigation extends React.Component {
                 ...Global.state,
                 isNightMode: false
             });
-            this.bodyClass.remove('dark');
+            bodyClass?.classList.remove('dark');
         } else {
             Cookie.set('nightmode', 'true', {
                 path: '/',
@@ -114,7 +130,7 @@ class TopNavigation extends React.Component {
                 ...Global.state,
                 isNightMode: true
             });
-            this.bodyClass.add('dark');
+            bodyClass?.classList.add('dark');
         }
     }
 

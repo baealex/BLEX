@@ -1,5 +1,11 @@
-export default function ImageForm(props) {
-    let thumbnail;
+interface Props {
+    name: string;
+    imageName: string;
+    onChange: Function;
+};
+
+export default function ImageForm(props: Props) {
+    let thumbnail: HTMLInputElement;
 
     const onSelectImage = () => {
         thumbnail.click();
@@ -8,7 +14,7 @@ export default function ImageForm(props) {
     return (
         <div className="custom-file">
             <input
-                ref={(el) => {thumbnail = el}}
+                ref={(el) => {thumbnail = el as HTMLInputElement}}
                 type="file"
                 name={props.name}
                 style={{display: 'none'}}

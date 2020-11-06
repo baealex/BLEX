@@ -28,7 +28,7 @@ function FeatureCard(props) {
                         <img className="feature-image" src={props.image}/>
                         <div className="p-3">
                             {props.title}
-                            <div className="vs serif mt-2">{props.created_date} · <span className="shallow-dark">{props.read_time} min read</span></div>
+                            <div className="vs serif mt-2">{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span></div>
                         </div>
                     </a>
                 </Link>

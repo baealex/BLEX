@@ -4,7 +4,7 @@ import NProgress from 'nprogress';
 
 import Config from './config.json';
 
-function serializeObject(obj) {
+function serializeObject(obj: any) {
     return Object.keys(obj).reduce((acc, cur) => {
         return acc += `${cur}=${obj[cur] === undefined ? '' : encodeURIComponent(obj[cur])}&`;
     }, '').slice(0, -1);
@@ -23,7 +23,7 @@ class API {
         });
     }
 
-    async getAllPosts(sort, page) {
+    async getAllPosts(sort: string, page: number) {
         return await axios({
             url: `${Config.API_SERVER}/v1/posts/${sort}?page=${page}`,
             method: 'GET',
@@ -38,7 +38,7 @@ class API {
         });
     }
 
-    async getTempPosts(token) {
+    async getTempPosts(token: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/posts/temp?token=${token}`,
             method: 'GET',
@@ -46,7 +46,7 @@ class API {
         });
     }
 
-    async postTempPosts(title, text_md, tag) {
+    async postTempPosts(title: string, text_md: string, tag: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/posts/temp`,
             method: 'POST',
@@ -62,7 +62,7 @@ class API {
         });
     }
 
-    async putTempPosts(token, title, text_md, tag) {
+    async putTempPosts(token: string, title: string, text_md: string, tag: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/posts/temp`,
             method: 'PUT',
@@ -79,7 +79,7 @@ class API {
         });
     }
 
-    async deleteTempPosts(token) {
+    async deleteTempPosts(token: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/posts/temp`,
             method: 'DELETE',
@@ -93,14 +93,14 @@ class API {
         });
     }
     
-    async getUserPosts(author, page, tag='') {
+    async getUserPosts(author: string, page: number, tag: '') {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
             method: 'GET',
         });
     }
 
-    async getPost(author, url, mode, cookie=undefined) {
+    async getPost(author: string, url: string, mode: string, cookie?: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?mode=${mode}`,
             method: 'GET',
@@ -110,7 +110,7 @@ class API {
         });
     }
 
-    async postPost(author, data) {
+    async postPost(author: string, data: FormData) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts`,
             method: 'POST',
@@ -122,7 +122,7 @@ class API {
         });
     }
 
-    async putPost(author, url, item, data={}) {
+    async putPost(author: string, url: string, item='', data={}) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${serializeObject({[item]: item})}`,
             method: 'PUT',
@@ -134,7 +134,7 @@ class API {
         });
     }
 
-    async deletePost(author, url) {
+    async deletePost(author: string, url: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
             method: 'DELETE',
@@ -142,14 +142,14 @@ class API {
         });
     }
 
-    async getAnalytics(author, url) {
+    async getAnalytics(author: string, url: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
             method: 'GET'
         });
     }
 
-    async postAnalytics(author, url, data={}) {
+    async postAnalytics(author: string, url: string, data: {}) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
             method: 'POST',
@@ -158,21 +158,21 @@ class API {
         });
     }
 
-    async getUserProfile(author, includes) {
+    async getUserProfile(author: string, includes: string[]) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
             method: 'GET'
         });
     }
 
-    async getUserData(author, get, fields) {
+    async getUserData(author: string, get: string, fields: [string]) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?get=${get}&fields=${fields.join(',')}`,
             method: 'GET'
         });
     }
 
-    async putAbout(author, about_md, about_html) {
+    async putAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
         NProgress.start();
         try {
             const response = await axios({
@@ -183,8 +183,8 @@ class API {
                 },
                 data: serializeObject({
                     about: author,
-                    about_md,
-                    about_html
+                    about_md: aboutMarkdown,
+                    about_html: aboutMarkup
                 }),
                 withCredentials: true,
             });
@@ -196,21 +196,21 @@ class API {
         }
     }
 
-    async getAllTags(page) {
+    async getAllTags(page: number) {
         return await axios({
             url: `${Config.API_SERVER}/v1/tags?page=${page}`,
             method: 'GET'
         });
     }
 
-    async getTag(tag, page) {
+    async getTag(tag: string, page: number) {
         return await axios({
             url: `${Config.API_SERVER}/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
             method: 'GET'
         });
     }
 
-    async postComment(url, comment, comment_md) {
+    async postComment(url: string, content: string, contentMarkup: string) {
         NProgress.start();
         try {
             const response = await axios({
@@ -220,8 +220,8 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 data: serializeObject({
-                    comment,
-                    comment_md
+                    comment_html: contentMarkup,
+                    comment_md: content
                 }),
                 withCredentials: true,
             });
@@ -233,7 +233,7 @@ class API {
         }
     }
 
-    async likeComment(pk) {
+    async likeComment(pk: number) {
         NProgress.start();
         try {
             const response = await axios({
@@ -255,14 +255,14 @@ class API {
         }
     }
 
-    async getCommentMd(pk) {
+    async getCommentMd(pk: number) {
         return await axios({
             url: `${Config.API_SERVER}/v1/comments/${pk}`,
             method: 'GET'
         });
     }
 
-    async putComment(pk, comment, comment_md) {
+    async putComment(pk: number, content: string, commentMarkup: string) {
         NProgress.start();
         try {
             const response = await axios({
@@ -272,8 +272,8 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 data: serializeObject({
-                    comment,
-                    comment_md
+                    comment_html: commentMarkup,
+                    comment_md: content
                 }),
                 withCredentials: true,
             });
@@ -285,7 +285,7 @@ class API {
         }
     }
 
-    async deleteComment(pk) {
+    async deleteComment(pk: number) {
         NProgress.start();
         try {
             const response = await axios({
@@ -301,7 +301,7 @@ class API {
         }
     }
 
-    async postSeries(author, title) {
+    async postSeries(author: string, title: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series`,
             method: 'POST',
@@ -315,21 +315,21 @@ class API {
         });
     }
 
-    async getUserSeries(author, page) {
+    async getUserSeries(author: string, page: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
             method: 'GET'
         });
     }
 
-    async getSeries(author, url) {
+    async getSeries(author: string, url: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
             method: 'GET'
         });
     }
 
-    async putSeries(author, url, data) {
+    async putSeries(author: string, url: string, data: object) {
         NProgress.start();
         try {
             const response = await axios({
@@ -349,7 +349,7 @@ class API {
         }
     }
 
-    async deleteSeries(author, url) {
+    async deleteSeries(author: string, url: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
             method: 'DELETE',
@@ -357,14 +357,14 @@ class API {
         });
     }
 
-    async getSetting(username, item) {
+    async getSetting(username: string, item: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(username)}/setting/${item}`,
             method: 'GET'
         });
     }
 
-    async putSetting(username, item, data) {
+    async putSetting(username: string, item: string, data: object) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(username)}/setting/${item}`,
             method: 'PUT',
@@ -376,7 +376,7 @@ class API {
         });
     }
 
-    async telegram(parameter) {
+    async telegram(parameter: string) {
         return await axios({
             url: `${Config.API_SERVER}/v1/telegram/${parameter}`,
             method: 'POST',
@@ -387,7 +387,7 @@ class API {
         });
     }
 
-    async login(username, password) {
+    async login(username: string, password: string) {
         NProgress.start();
         try {
             const response = await axios({
@@ -409,7 +409,7 @@ class API {
         }
     }
 
-    async socialLogin(social, code) {
+    async socialLogin(social: string, code: string) {
         NProgress.start();
         try {
             const response = await axios({
@@ -431,7 +431,21 @@ class API {
         }
     }
 
-    async uploadImage(file) {
+    async getFeaturePosts(username: string, exclude: string) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/feature/posts?${serializeObject({username, exclude})}`,
+            method: 'GET',
+        });
+    }
+
+    async getFeatureTagPosts(tag: string, exclude: string) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/feature/posts/${tag}?${serializeObject({exclude})}`,
+            method: 'GET',
+        });
+    }
+
+    async uploadImage(file: File) {
         const formData = new FormData();
         formData.append('image', file);
 

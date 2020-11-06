@@ -9,8 +9,18 @@ import Cookie from '../../modules/cookie';
 import Global from '../../modules/global';
 import Config from '../../modules/config.json';
 
-class LoginModal extends React.Component {
-    constructor(props) {
+interface Props {
+    isOpen: boolean;
+    onClose: Function;
+}
+
+interface State {
+    username: string;
+    password: string;
+}
+
+class LoginModal extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {
             username: Global.state.username,
@@ -22,16 +32,17 @@ class LoginModal extends React.Component {
         }));
     }
 
-    onEnterLogin(e) {
+    onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
         if(e.key == 'Enter') {
             this.onSubmitLogin();
         }
     }
 
-    onInputChange(e) {
-        let newState = this.state;
-        newState[e.target.name] = e.target.value;
-        this.setState(newState);
+    onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            ...this.state,
+            [e.target.name]: e.target.value
+        });
     }
 
     async onSubmitLogin() {
@@ -47,13 +58,16 @@ class LoginModal extends React.Component {
         this.loginCheck(data);
     }
 
-    async onSocialLogin(social, code) {
+    async onSocialLogin(social: string, code: string) {
         const { data } = await API.socialLogin(social, code);
         this.loginCheck(data);
     }
 
-    async loginCheck(data) {
-        let newState = this.state;
+    async loginCheck(data: {
+        status: string;
+        username: string;
+        notifyCount: number;
+    }) {
         if(data.status == 'success') {
             toast(`😃 로그인 되었습니다.`);
             Global.setState({
@@ -62,18 +76,20 @@ class LoginModal extends React.Component {
                 username: data.username
             });
 
-            if(data.notify_count != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.notify_count}개 있습니다.`)
+            if(data.notifyCount != 0) {
+                toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`)
             }
             this.props.onClose();
         } else {
             toast('😥 아이디 혹은 패스워드를 확인해주세요.');
         }
-        newState.password = '';
-        this.setState(newState);
+        this.setState({
+            ...this.state,
+            password: ''
+        });
     }
 
-    onSubmitSocialLogin(social) {
+    onSubmitSocialLogin(social: string) {
         Cookie.set('oauth_redirect', location.href, {
             path: '/',
             expire: 0.1,

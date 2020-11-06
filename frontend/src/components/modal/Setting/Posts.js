@@ -112,13 +112,13 @@ class PostsSetting extends React.Component {
             <>
                 <ul className="tag-list mb-0">
                     <li><a onClick={() => this.sortArticle('title')}>가나다</a></li>
-                    <li><a onClick={() => this.sortArticle('created_date')}>최근 작성</a></li>
-                    <li><a onClick={() => this.sortArticle('updated_date')}>최근 수정</a></li>
+                    <li><a onClick={() => this.sortArticle('createdDate')}>최근 작성</a></li>
+                    <li><a onClick={() => this.sortArticle('updatedDate')}>최근 수정</a></li>
                     <li><a onClick={() => this.sortArticle('today')}>오늘 조회수 높은</a></li>
                     <li><a onClick={() => this.sortArticle('yesterday')}>어제 조회수 높은</a></li>
                     <li><a onClick={() => this.sortArticle('total')}>총 조회수 높은</a></li>
-                    <li><a onClick={() => this.sortArticle('total_likes')}>추천 많은</a></li>
-                    <li><a onClick={() => this.sortArticle('total_comments')}>댓글 많은</a></li>
+                    <li><a onClick={() => this.sortArticle('totalLikes')}>추천 많은</a></li>
+                    <li><a onClick={() => this.sortArticle('totalComments')}>댓글 많은</a></li>
                     <li><a onClick={() => this.sortArticle('hide')}>숨김 우선</a></li>
                 </ul>
                 <ul className="list-group">

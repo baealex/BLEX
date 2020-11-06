@@ -1,17 +1,29 @@
 import React from 'react';
+
 import Modal from '../../common/Modal';
-
-import { toast } from 'react-toastify';
-
-import Global from '../../../modules/global';
 import NotifySetting from './Notify';
 import AccountSetting from './Account';
 import ProfileSetting from './Profile';
 import PostsSetting from './Posts';
 import SeriesSetting from './Series';
 
-class SettingModal extends React.Component {
-    constructor(props) {
+import Global from '../../../modules/global';
+
+type tabName = 'Notify' | 'Account' | 'Profile' | 'Posts' | 'Series';
+
+interface Props {
+    isOpen: boolean;
+    onClose: Function;
+}
+
+interface State {
+    username: string;
+    activateTab: tabName;
+    data: any;
+}
+
+class SettingModal extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {
             username: Global.state.username,
@@ -24,7 +36,7 @@ class SettingModal extends React.Component {
         }));
     }
 
-    fetchData(tab, data) {
+    fetchData(tab: tabName, data: any) {
         let newState = this.state;
         newState.data[tab] = data;
         this.setState(newState);
@@ -39,13 +51,13 @@ class SettingModal extends React.Component {
             'Series'
         ];
 
-        const tabCheck = (tab) => {
+        const tabCheck = (tab: tabName) => {
             if(tabList.indexOf(tab) > -1) {
                 return this.state.activateTab == tab ? true : false;
             }
         }
 
-        const tabChange = (tab) => {
+        const tabChange = (tab: tabName) => {
             if(tabList.indexOf(tab) > -1) {
                 if(this.state.activateTab != tab) {
                     this.setState({...this.state, activateTab: tab});
@@ -58,7 +70,7 @@ class SettingModal extends React.Component {
                 username: this.state.username,
                 tabname: this.state.activateTab,
                 tabdata: this.state.data[this.state.activateTab],
-                fetchData: (tab, data) => this.fetchData(tab, data)
+                fetchData: (tab: tabName, data: any) => this.fetchData(tab, data)
             };
 
             switch(this.state.activateTab) {

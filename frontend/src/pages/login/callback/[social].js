@@ -26,8 +26,8 @@ class SocialLogin extends React.Component {
         if(data.status == 'success') {
             toast(`😃 로그인 되었습니다.`);
 
-            if(data.notify_count != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.notify_count}개 있습니다.`);
+            if(data.notifyCount != 0) {
+                toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`);
             }
 
             Global.setState({

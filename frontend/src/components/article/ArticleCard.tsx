@@ -1,6 +1,8 @@
-import Link from 'next/link'
+import Link from 'next/link';
 
-export default function ArticleCard(props) {
+import { ArticleCardProps } from '../../modules/interface';
+
+export default function ArticleCard(props: ArticleCardProps) {
     return (
         <div className="col-lg-4 mt-4">
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
@@ -17,11 +19,11 @@ export default function ArticleCard(props) {
             </Link>
             <Link href="/[author]" as={`/@${props.author}`}>
                 <a>
-                    <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.author_image})`}}/>
+                    <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.authorImage})`}}/>
                 </a>
             </Link>
             <p className="vs serif">
-                <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.created_date} · <span className="shallow-dark">{props.read_time} min read</span>
+                <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
             </p>
         </div>
     )

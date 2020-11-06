@@ -1,9 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 class Modal extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+    props: any;
 
     onClose() {
         this.props.close();

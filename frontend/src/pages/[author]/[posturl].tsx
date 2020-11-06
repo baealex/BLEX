@@ -1,3 +1,7 @@
+import { GetServerSidePropsContext } from 'next';
+
+import { AuthorProps } from '../../modules/interface';
+
 import Head from 'next/head';
 import React from 'react';
 import Router from 'next/router';
@@ -21,95 +25,150 @@ import ArticleAuthor from '../../components/article/ArticleAuthor';
 import blexer from '../../modules/blexer';
 import Footer from '../../components/common/Footer';
 
-export async function getServerSideProps(context) {
+interface Props {
+    profile: AuthorProps,
+    post: {
+        url: string;
+        title: string;
+        image: string;
+        author: string;
+        authorImage: string;
+        isLiked: string;
+        totalLikes: number;
+        description: string;
+        createdDate: string;
+        tag: string;
+        textHtml: string;
+        comments: Comment[];
+    },
+    series: {
+        url: string;
+        title: string;
+        description: string;
+        posts: SeriesPosts[];
+    },
+    hasSeries: boolean;
+    activeSeries: number;
+    sereisLength: number;
+}
+
+interface State {
+    isLogin: boolean;
+    isLiked: boolean;
+    username: string;
+    totalLikes: number;
+    comments: Comment[];
+}
+
+interface Comment {
+    pk: number;
+    author: string;
+    authorImage: string;
+    isEdit: boolean;
+    isEdited: string;
+    timeSince: string;
+    textHtml: string;
+    textMarkdown: string;
+}
+
+interface SeriesPosts {
+    url: string;
+    title: string;
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
     const raise = require('../../modules/raise');
 
     const { req, res } = context;
-    const { author, posturl } = context.query;
+    const { author = '', posturl = '' } = context.query;
 
-    if(!author.includes('@')) {
+    if(!author.includes('@') || !posturl) {
         raise.Http404(res);
     }
 
     const cookie = req.headers['cookie'];
 
     try {
-        const post = await API.getPost(author, posturl, 'view', cookie);
+        const post = await API.getPost(author as string, posturl as string, 'view', cookie);
 
         const referer = req.headers['referer'];
         if(referer) {
-            API.postAnalytics(author, posturl, {
+            API.postAnalytics(author as string, posturl as string, {
                 referer
             });
         }
 
-        const profile = await API.getUserProfile(author, [
+        const profile = await API.getUserProfile(author as string, [
             'profile',
             'social'
         ]);
-        let resultProps = {
+        
+        if(post.data.series) {
+            let series = await API.getSeries(author as string, post.data.series);
+            const sereisLength = series.data.posts.length;
+            const activeSeries = series.data.posts.findIndex(
+                (item: SeriesPosts) => item.title == post.data.title
+            );
+            return { props: {
+                hasSeries: true,
+                post: post.data,
+                profile: profile.data,
+                activeSeries,
+                sereisLength,
+                series: series.data
+            }}
+        }
+        return { props: {
             hasSeries: false,
             post: post.data,
             profile: profile.data
-        };
-        if(post.data.series) {
-            let series = await API.getSeries(author, post.data.series);
-            const sereisLength = series.data.posts.length;
-            const activeSeries = series.data.posts.findIndex(
-                item => item.title == post.data.title
-            );
-            resultProps['hasSeries'] = true;
-            resultProps['activeSeries'] = activeSeries;
-            resultProps['sereisLength'] = sereisLength;
-            resultProps['series'] = series.data;
-        }
-        return { props: resultProps };
+        }};
     } catch(error) {
         raise.auto(error.response.status, res);
     }
 }
 
-class Post extends React.Component {
-    constructor(props) {
+class PostDetail extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {
-            isLiked: props.post.is_liked === 'true' ? true : false,
+            isLiked: props.post.isLiked === 'true' ? true : false,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
-            totalLikes: props.post.total_likes,
+            totalLikes: props.post.totalLikes,
             comments: props.post.comments.map(comment => {
                 let newComment = comment;
                 newComment.isEdit = false;
-                newComment.contentPure = '';
+                newComment.textMarkdown = '';
                 return newComment;
             })
         };
-        Global.appendUpdater('Post', () => this.setState({
+        Global.appendUpdater('PostDetail', () => this.setState({
             ...this.state,
             isLogin: Global.state.isLogin,
             username: Global.state.username
         }));
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         Prism.highlightAll();
         lazyLoad();
 
         this.onViewUp();
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps: Props, prevState: State) {
         let needSyntaxUpdate = false;
 
         if(
-            prevProps.post.is_liked !== this.props.post.is_liked ||
+            prevProps.post.isLiked !== this.props.post.isLiked ||
             prevProps.post.comments !== this.props.post.comments ||
-            prevProps.post.total_likes !== this.props.post.total_likes
+            prevProps.post.totalLikes !== this.props.post.totalLikes
         ) {
             this.setState({
                 ...this.state,
-                isLiked: this.props.post.is_liked === 'true' ? true : false,
-                totalLikes: this.props.post.total_likes,
+                isLiked: this.props.post.isLiked === 'true' ? true : false,
+                totalLikes: this.props.post.totalLikes,
                 comments: this.props.post.comments
             });
             needSyntaxUpdate = true;
@@ -149,12 +208,12 @@ class Post extends React.Component {
 
     onClickComment() {
         window.scrollTo({
-            top: window.pageYOffset + document.querySelector('.bg-comment').getBoundingClientRect().top - 15,
+            top: window.pageYOffset + document.querySelector('.bg-comment')!.getBoundingClientRect().top - 15,
             behavior: 'smooth'
         });
     }
 
-    onClickShare(sns) {
+    onClickShare(sns: 'twitter' | 'facebook' | 'pinterest') {
         let href = '';
         let size = '';
         switch(sns) {
@@ -181,11 +240,11 @@ class Post extends React.Component {
         });
     }
 
-    async onSubmitComment(comment) {
-        const commentMarkdown = blexer(comment);
-        const { data } = await API.postComment(this.props.post.url, comment, commentMarkdown);
+    async onSubmitComment(content: string) {
+        const commentMarkup = blexer(content);
+        const { data } = await API.postComment(this.props.post.url, content, commentMarkup);
         if(data.status !== 'success') {
-            toast('댓글 작성 실패!');
+            toast('😅 댓글 작성중 오류가 발생했습니다!');
             return;
         }
         this.setState({
@@ -195,30 +254,30 @@ class Post extends React.Component {
         lazyLoad();
     }
     
-    async onCommentEdit(pk) {
+    async onCommentEdit(pk: number) {
         const { data } = await API.getCommentMd(pk);
         let { comments } = this.state;
         comments = comments.map(comment => (
             comment.pk == pk ? ({
                 ...comment,
                 isEdit: true,
-                contentPure: data
+                textMarkdown: data
             }) : comment
         ));
         this.setState({...this.state, comments});
     }
 
-    async onCommentEditSubmit(pk, comment) {
-        const commentMarkdown = blexer(comment);
-        const { data } = await API.putComment(pk, comment, commentMarkdown);
+    async onCommentEditSubmit(pk: number, content: string) {
+        const contentMarkup = blexer(content);
+        const { data } = await API.putComment(pk, content, contentMarkup);
         let { comments } = this.state;
         if(data == 'DONE') {
             comments = comments.map(comment => (
                 comment.pk == pk ? ({
                     ...comment,
                     isEdit: false,
-                    text_html: commentMarkdown,
-                    is_edited: 'true'
+                    textHtml: contentMarkup,
+                    isEdited: 'true'
                 }) : comment
             ));
             this.setState({...this.state, comments});
@@ -228,7 +287,7 @@ class Post extends React.Component {
         }
     }
 
-    async onCommentEditCancle(pk) {
+    async onCommentEditCancle(pk: number) {
         let { comments } = this.state;
         comments = comments.map(comment => (
             comment.pk == pk ? ({
@@ -239,7 +298,7 @@ class Post extends React.Component {
         this.setState({...this.state, comments});
     }
 
-    async onCommentDelete(pk) {
+    async onCommentDelete(pk: number) {
         if(confirm('😮 정말 이 댓글을 삭제할까요?')) {
             const { data } = await API.deleteComment(pk);
             if(data == 'DONE') {
@@ -279,7 +338,7 @@ class Post extends React.Component {
                             ) : ''}
                                 {this.props.post.title}
                             </h1>
-                            <p className="post-date fade-in">{this.props.post.created_date}</p>
+                            <p className="post-date fade-in">{this.props.post.createdDate}</p>
                         </div>
                     </picture>
                 )}
@@ -319,7 +378,7 @@ class Post extends React.Component {
                                         ) : ''}
                                         {this.props.post.title}
                                     </h1>
-                                    <p>{this.props.post.created_date}</p>
+                                    <p>{this.props.post.createdDate}</p>
                                 </>
                             ) : (
                                 <></>
@@ -330,7 +389,7 @@ class Post extends React.Component {
                                     <div className="btn btn-block btn-dark noto" onClick={() => {Router.push(`/edit?id=${this.props.post.url}`)}}>포스트 수정</div>
                                 </div>
                             ) : ''}
-                            <ArticleContent html={this.props.post.text_html}/>
+                            <ArticleContent html={this.props.post.textHtml}/>
                             <TagList author={this.props.post.author} tag={this.props.post.tag.split(',')}/>
                             {this.props.hasSeries ? (
                                 <ArticleSereis
@@ -338,7 +397,7 @@ class Post extends React.Component {
                                     title={this.props.series.title}
                                     posts={this.props.series.posts}
                                     author={this.props.post.author}
-                                    authorImage={this.props.post.author_image}
+                                    authorImage={this.props.post.authorImage}
                                     description={this.props.series.description}
                                     activeSeries={this.props.activeSeries}
                                     sereisLength={this.props.sereisLength}
@@ -350,26 +409,26 @@ class Post extends React.Component {
                 <div className="py-5 bg-comment">
                     <div className="container">
                         <div className="col-lg-8 mx-auto px-0">
-                            {this.state.comments.length > 0 ? this.state.comments.map((comment, idx) => (
+                            {this.state.comments.length > 0 ? this.state.comments.map((comment, idx: number) => (
                                 comment.isEdit ? (
                                     <CommentEdit
                                         pk={comment.pk}
-                                        comment={comment.contentPure}
-                                        onSubmit={(pk, comment) => this.onCommentEditSubmit(pk, comment)}
-                                        onCancle={(pk) => this.onCommentEditCancle(pk)}
+                                        comment={comment.textMarkdown}
+                                        onSubmit={(pk: number, content: string) => this.onCommentEditSubmit(pk, content)}
+                                        onCancle={(pk: number) => this.onCommentEditCancle(pk)}
                                     />
                                 ) : (
                                     <Comment
                                         key={idx}
                                         pk={comment.pk}
                                         author={comment.author}
-                                        authorImage={comment.author_image}
-                                        timeSince={comment.time_since}
-                                        html={comment.text_html}
-                                        isEdited={comment.is_edited === 'true' ? true : false}
+                                        authorImage={comment.authorImage}
+                                        timeSince={comment.timeSince}
+                                        html={comment.textHtml}
+                                        isEdited={comment.isEdited === 'true' ? true : false}
                                         isOwner={this.state.username === comment.author ? true : false}
-                                        onEdit={(pk) => this.onCommentEdit(pk)}
-                                        onDelete={(pk) => this.onCommentDelete(pk)}
+                                        onEdit={(pk: number) => this.onCommentEdit(pk)}
+                                        onDelete={(pk: number) => this.onCommentDelete(pk)}
                                     />
                                 )
                             )) : <CommentAlert
@@ -384,10 +443,25 @@ class Post extends React.Component {
                         </div>
                     </div>
                 </div>
-                <Footer bgdark={true}/>
+                <Footer bgdark={true}>
+                    <div className="container pt-4">
+                        <div className="row">
+                            <div className="col-lg-4 col-md-6">
+                                x
+                            </div>
+                            <div className="col-lg-4 col-md-6">
+                                x
+                            </div>
+                            <div className="col-lg-4 col-md-12">
+                                <h3>More in dd</h3>
+                                <div>asdasd asdasd</div>
+                            </div>
+                        </div>
+                    </div>
+                </Footer>
             </>
         )
     }
 }
 
-export default Post
+export default PostDetail;

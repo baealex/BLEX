@@ -71,7 +71,7 @@ function ArticleCard(props) {
                     </a>
                 </Link>
             </p>
-            <p className="vs serif">{props.created_date} · <span className="shallow-dark">{props.read_time} min read</span></p>
+            <p className="vs serif">{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span></p>
             <TagList author={props.author} tag={props.tag.split(',')}/>
         </div>
     )

@@ -5,8 +5,28 @@ import { toast } from 'react-toastify';
 
 import API from '../../../modules/api';
 
-class NotifySetting extends React.Component {
-    constructor(props) {
+interface Props {
+    username: string;
+    tabname: string;
+    tabdata: {
+        isTelegramSync: string;
+        notify: {
+            pk: number;
+            url: string;
+            content: string;
+            createdDate: string;
+            isRead: string;
+        }[];
+    },
+    fetchData: Function;
+}
+
+interface State {
+    telegramToken: string;
+}
+
+class NotifySetting extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {
             telegramToken: '',
@@ -21,16 +41,16 @@ class NotifySetting extends React.Component {
         }
     }
 
-    async onReadNotify(pk) {
+    async onReadNotify(pk: number) {
         const { username, tabname, tabdata } = this.props;
         const { data } = await API.putSetting('@' + username, tabname.toLowerCase(), { pk: pk });
         if(data == 'DONE') {
             let newData = tabdata;
-            newData.notify = newData.notify.map(comment => {
-                return comment.pk == pk ? {
-                    ...comment,
-                    is_read: 'true'
-                } : comment;
+            newData.notify = newData.notify.map(noti => {
+                return noti.pk == pk ? {
+                    ...noti,
+                    isRead: 'true'
+                } : noti;
             });
             this.props.fetchData(tabname, newData);
         }
@@ -56,7 +76,7 @@ class NotifySetting extends React.Component {
             if(data == 'DONE') {
                 this.props.fetchData(tabname, {
                     ...tabdata,
-                    is_telegram_sync: 'false'
+                    isTelegramsync: 'false'
                 });
             }
         }
@@ -67,7 +87,7 @@ class NotifySetting extends React.Component {
 
         return (
             <>
-                {this.props.tabdata.is_telegram_sync == 'false' ? (
+                {this.props.tabdata.isTelegramSync == 'false' ? (
                     <div className="p-3 btn-primary c-pointer" onClick={() => this.onTelegramSync()}>
                         <i className="fab fa-telegram-plane"></i> 텔레그램으로 실시간 알림받기
                     </div>
@@ -97,8 +117,8 @@ class NotifySetting extends React.Component {
                     </div>
                 ) : this.props.tabdata.notify.map((item, idx) => (
                     <Link key={idx} href={item.url}>
-                        <a className={item.is_read !== 'true' ? 'deep-dark' : 'shallow-dark'} onClick={() => this.onReadNotify(item.pk)}>
-                            <div className="blex-card p-3">{item.content} <span className="ns shallow-dark">{item.created_date}전</span></div>
+                        <a className={item.isRead !== 'true' ? 'deep-dark' : 'shallow-dark'} onClick={() => this.onReadNotify(item.pk)}>
+                            <div className="blex-card p-3">{item.content} <span className="ns shallow-dark">{item.createdDate}전</span></div>
                         </a>
                     </Link>
                 ))}

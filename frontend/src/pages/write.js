@@ -127,14 +127,14 @@ class Write extends React.Component {
             this.setState({
                 ...this.state,
                 title: data.title,
-                text: data.text_md,
+                text: data.textMd,
                 tags: data.tag,
                 token: data.token,
                 tempPostsCache: {
                     ...tempPostsCache,
                     [data.token]: {
                         title: data.title,
-                        text: data.text_md,
+                        text: data.textMd,
                         tags: data.tag,
                     }
                 }
@@ -209,8 +209,8 @@ class Write extends React.Component {
         }
         const formData = new FormData();
         formData.append('title', this.state.title);
-        formData.append('text_md', this.state.text);
-        formData.append('text_html', blexer(this.state.text));
+        formData.append('textMd', this.state.text);
+        formData.append('textHtml', blexer(this.state.text));
         if(this.state.image) {
             formData.append('image', this.state.image);
         }
