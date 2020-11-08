@@ -1,7 +1,5 @@
 import { GetServerSidePropsContext } from 'next';
 
-import { AuthorProps } from '../../modules/interface';
-
 import Head from 'next/head';
 import React from 'react';
 import Router from 'next/router';
@@ -21,12 +19,12 @@ import Prism from '../../modules/library/prism';
 import API from '../../modules/api';
 import lazyLoad from '../../modules/lazy';
 import Global from '../../modules/global';
-import ArticleAuthor from '../../components/article/ArticleAuthor';
+import ArticleAuthor, { ArticleAuthorProps } from '../../components/article/ArticleAuthor';
 import blexer from '../../modules/blexer';
 import Footer from '../../components/common/Footer';
 
 interface Props {
-    profile: AuthorProps,
+    profile: ArticleAuthorProps,
     post: {
         url: string;
         title: string;

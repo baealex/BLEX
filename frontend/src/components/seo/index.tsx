@@ -1,6 +1,16 @@
 import Head from 'next/head'
 
-export default function SEO(props) {
+interface Props {
+    title?: string;
+    author?: string;
+    description?: string;
+    keywords?: string;
+    url?: string;
+    image?: string;
+    isArticle?: boolean;
+};
+
+export default function SEO(props: Props) {
     let defaultTag = [];
     let openGraphTag = [];
     let twitterTag = [];

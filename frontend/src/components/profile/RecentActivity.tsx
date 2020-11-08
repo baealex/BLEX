@@ -2,13 +2,23 @@ import Link from 'next/link';
 
 import PurpleBorder from "../common/PurpleBorder";
 
-export default function RecentActivity(props) {
+interface RecentActivityProps {
+    data: ActivityItemProps[];
+}
+
+interface ActivityItemProps {
+    url: string;
+    type: string;
+    text: string;
+}
+
+export default function RecentActivity(props: RecentActivityProps) {
     return (
         <>
             <div className="h5 serif font-weight-bold mt-5">Recent Activity</div>
             {props.data.length > 0 ? (
                 <ul className="profile-activity p-0 noto mt-4">
-                    {props.data.map((item, idx) => (
+                    {props.data.map((item: ActivityItemProps, idx: number) => (
                         <ActivityItem key={idx} {...item}/>
                     ))}
                 </ul>
@@ -19,7 +29,7 @@ export default function RecentActivity(props) {
     )
 }
 
-function ActivityItem(props) {
+function ActivityItem(props: ActivityItemProps) {
     const className = `fas fa-${props.type}`;
     
     let desc = '';

@@ -1,4 +1,11 @@
-import { SocialProps } from '../../modules/interface';
+export interface SocialProps {
+    username: string;
+    github?: string;
+    twitter?: string;
+    youtube?: string;
+    facebook?: string;
+    instagram?: string;
+};
 
 export default function Social(props: SocialProps) {
     return (

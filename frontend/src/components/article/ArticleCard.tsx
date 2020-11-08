@@ -1,6 +1,14 @@
 import Link from 'next/link';
 
-import { ArticleCardProps } from '../../modules/interface';
+export interface ArticleCardProps {
+    author: string;
+    url: string;
+    image: string;
+    title: string;
+    authorImage: string;
+    createdDate: string;
+    readTime: number;
+}
 
 export default function ArticleCard(props: ArticleCardProps) {
     return (

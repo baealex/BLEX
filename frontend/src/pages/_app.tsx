@@ -21,12 +21,9 @@ Router.events.on('routeChangeError', () => NProgress.done());
 import LibHead from '../components/common/LibHead';
 import TopNavagation from '../components/common/TopNavigation';
 
-class Main extends App<any, any, any> {
-    props: AppProps;
-
+class Main extends App<AppProps> {
     constructor(props: AppProps) {
         super(props);
-        this.props = props;
     }
 
     render() {

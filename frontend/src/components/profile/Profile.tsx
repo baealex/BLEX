@@ -1,7 +1,17 @@
-import Social from "./Social";
+import Social, { SocialProps } from "./Social";
 import Navigation from "./Navigation";
 
-export default function Profile(props) {
+interface ProfileProps {
+    profile: {
+        image: string;
+        realname: string;
+        username: string;
+    },
+    social: SocialProps;
+    active: string;
+};
+
+export default function Profile(props: ProfileProps) {
     return (
         <>
             <div className="col-md-12">

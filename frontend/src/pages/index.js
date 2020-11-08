@@ -3,10 +3,10 @@ import Head from 'next/head';
 
 import ArticleCard from '../components/article/ArticleCard';
 import SEO from '../components/seo';
-
-import API from '../modules/api';
 import PageNav from '../components/common/PageNav';
 import Footer from '../components/common/Footer';
+
+import API from '../modules/api';
 
 export async function getServerSideProps(context) {
     const raise = require('../modules/raise');

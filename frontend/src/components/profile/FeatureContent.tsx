@@ -2,7 +2,20 @@ import Link from 'next/link';
 
 import PurpleBorder from "../common/PurpleBorder";
 
-export default function FeatureContent(props) {
+interface FeautreContentProps {
+    articles: FeatureCardProps[];
+}
+
+interface FeatureCardProps {
+    author: string;
+    url: string;
+    title: string;
+    image: string;
+    createdDate: string;
+    readTime: number;
+}
+
+export default function FeatureContent(props: FeautreContentProps) {
     return (
         <>
             <div className="h5 serif font-weight-bold mt-5">Featured Contents</div>
@@ -19,7 +32,7 @@ export default function FeatureContent(props) {
     )
 }
 
-function FeatureCard(props) {
+function FeatureCard(props: FeatureCardProps) {
     return (
         <div className="col-md-4 mt-3">
             <div className="blex-card noto">

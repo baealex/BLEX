@@ -1,9 +1,17 @@
 import Link from 'next/link';
-import Social from '../profile/Social';
+import Social, { SocialProps } from '../profile/Social';
 
-import { AuthorProps } from '../../modules/interface';
+export interface ArticleAuthorProps {
+    profile: {
+        username: string;
+        realname: string;
+        image: string;
+        bio: string;
+    };
+    social: SocialProps;
+};
 
-export default function ArticleAuthor(props: AuthorProps) {
+export default function ArticleAuthor(props: ArticleAuthorProps) {
     return (
         <div className="row post-top-meta">
             <Link href="/[author]" as={`/@${props.profile.username}`}>

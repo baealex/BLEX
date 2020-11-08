@@ -88,13 +88,7 @@ class NotifyAdmin(admin.ModelAdmin):
 class SeriesAdmin(admin.ModelAdmin):
     list_display = ['id', 'owner', 'name', 'created_date']
 
-    actions = ['update_md', 'hide']
-
-    def update_md(self, request, queryset):
-        for data in queryset:
-            data.text_html = parsedown(data.text_md)
-            data.save()
-        self.message_user(request, str(len(queryset)) + '개의 시리즈 업데이트')
+    actions = ['hide']
     
     def hide(self, request, queryset):
         for data in queryset:
@@ -102,7 +96,6 @@ class SeriesAdmin(admin.ModelAdmin):
             data.save()
         self.message_user(request, str(len(queryset)) + '개의 시리즈 숨김')
 
-    update_md.short_description = '마크다운 업데이트'
     hide.short_description = '숨기기'
 
 @admin.register(Profile)

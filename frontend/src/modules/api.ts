@@ -488,3 +488,49 @@ class API {
 }
 
 export default new API();
+
+/* ---------------------------------------------
+    Define Interface
+      - Please correct it when changing backend.
+--------------------------------------------- */
+
+export interface ProfileData {
+    profile: {
+        image: string;
+        username: string;
+        realname: string;
+        bio: string;
+    },
+    social?: {
+        username: string;
+        github?: string;
+        twitter?: string;
+        youtube?: string;
+        facebook?: string;
+        instagram?: string;
+    },
+    heatmap?: object;
+    tags?: {
+        name: string;
+        count: number;
+    }[],
+    view?: {
+        today: number;
+        yesterday: number;
+        total: number;
+    },
+    most?: {
+        url: string;
+        title: string;
+        image: string;
+        readTime: number;
+        createdDate: string;
+        authorImage: string;
+        author: string;
+    }[],
+    recent?: {
+        type: string;
+        text: string;
+        url: string;
+    }[],
+}
