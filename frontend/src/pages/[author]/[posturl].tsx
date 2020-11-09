@@ -3,6 +3,7 @@ import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import React from 'react';
 import Router from 'next/router';
+import Link from 'next/link';
 
 import { toast } from 'react-toastify';
 
@@ -13,15 +14,20 @@ import Comment from '../../components/comment/Comment';
 import CommentEdit from '../../components/comment/CommentEdit';
 import CommentForm from '../../components/comment/CommentForm';
 import CommentAlert from '../../components/comment/CommentAlert';
+import Footer from '../../components/common/Footer';
 import SEO from '../../components/seo';
 
 import Prism from '../../modules/library/prism';
-import API from '../../modules/api';
+import API, {
+    FeaturePostsData,
+    FeatureTagPostsData
+} from '../../modules/api';
 import lazyLoad from '../../modules/lazy';
 import Global from '../../modules/global';
 import ArticleAuthor, { ArticleAuthorProps } from '../../components/article/ArticleAuthor';
 import blexer from '../../modules/blexer';
-import Footer from '../../components/common/Footer';
+import ArticleCard from '../../components/article/ArticleCard';
+import ArticleCardSmall from '../../components/article/ArticleCardSmall';
 
 interface Props {
     profile: ArticleAuthorProps,
@@ -56,6 +62,9 @@ interface State {
     username: string;
     totalLikes: number;
     comments: Comment[];
+    selectedTag?: string;
+    featurePosts?: FeaturePostsData;
+    featureTagPosts?: FeatureTagPostsData;
 }
 
 interface Comment {
@@ -127,6 +136,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 class PostDetail extends React.Component<Props, State> {
+    state: State;
+
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -153,6 +164,7 @@ class PostDetail extends React.Component<Props, State> {
         lazyLoad();
 
         this.onViewUp();
+        this.getFeatureArticle();
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
@@ -171,6 +183,7 @@ class PostDetail extends React.Component<Props, State> {
             });
             needSyntaxUpdate = true;
             this.onViewUp();
+            this.getFeatureArticle();
         }
 
         if(prevState.comments !== this.state.comments) {
@@ -180,6 +193,27 @@ class PostDetail extends React.Component<Props, State> {
         if(needSyntaxUpdate) {
             Prism.highlightAll();
             lazyLoad();
+        }
+    }
+
+    async getFeatureArticle() {
+        {
+            const { data } = await API.getFeaturePosts(this.props.post.author, this.props.post.url);
+            this.setState({
+                ...this.state,
+                featurePosts: data
+            });
+        }
+        
+        {
+            const tags = this.props.post.tag.split(',');
+            const selectedTag = tags[Math.floor(Math.random() * tags.length)];
+            const { data } = await API.getFeatureTagPosts(selectedTag, this.props.post.url);
+            this.setState({
+                ...this.state,
+                selectedTag: selectedTag,
+                featureTagPosts: data
+            });
         }
     }
 
@@ -442,17 +476,18 @@ class PostDetail extends React.Component<Props, State> {
                     </div>
                 </div>
                 <Footer bgdark={true}>
-                    <div className="container pt-4">
+                    <div className="container pt-5 reverse-color">
                         <div className="row">
-                            <div className="col-lg-4 col-md-6">
-                                x
-                            </div>
-                            <div className="col-lg-4 col-md-6">
-                                x
-                            </div>
-                            <div className="col-lg-4 col-md-12">
-                                <h3>More in dd</h3>
-                                <div>asdasd asdasd</div>
+                            {this.state.featurePosts?.posts.map((item, idx) => (
+                                <ArticleCard key={idx} {...item}/>
+                            ))}
+                            <div className="col-lg-4 col-md-12 mt-4">
+                                <p className="ns noto">
+                                    <Link href={`/tags/${this.state.selectedTag}`}><a className="font-weight-bold deep-dark">{this.state.selectedTag}</a></Link> 주제로 작성된 다른 글
+                                </p>
+                                {this.state.featureTagPosts?.posts.map((item, idx) => (
+                                    <ArticleCardSmall key={idx} {...item}/>
+                                ))}
                             </div>
                         </div>
                     </div>

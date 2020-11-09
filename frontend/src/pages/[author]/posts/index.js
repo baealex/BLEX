@@ -1,8 +1,6 @@
 import Head from 'next/head';
 import React from 'react';
 
-import SEO from '../../../components/seo'
-
 import API from '../../../modules/api'
 import Profile from '../../../components/profile/Profile';
 import PostsComponent from '../../../components/profile/Posts';

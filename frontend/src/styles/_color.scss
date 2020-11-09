@@ -19,7 +19,7 @@
 .deep-dark {
     color: $deep-dark;
 
-    body.dark & {
+    body.dark &, .reverse-color & {
         color: #e0e0e0;
     }
 
@@ -27,7 +27,7 @@
         color: $deep-dark;
         text-decoration: none;
         
-        body.dark & {
+        body.dark &, .reverse-color & {
             color: #e0e0e0;
         }
     }
@@ -36,7 +36,7 @@
 .shallow-dark {
     color: $shallow-dark;
 
-    body.dark & {
+    body.dark &, .reverse-color & {
         color: #a7a7a7;
     }
 
@@ -44,7 +44,7 @@
         color: $shallow-dark;
         text-decoration: none;
 
-        body.dark & {
+        body.dark &, .reverse-color & {
             color: #a7a7a7;
         }
     }

@@ -93,7 +93,7 @@ class API {
         });
     }
     
-    async getUserPosts(author: string, page: number, tag: '') {
+    async getUserPosts(author: string, page: number, tag='') {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
             method: 'GET',
@@ -165,7 +165,7 @@ class API {
         });
     }
 
-    async getUserData(author: string, get: string, fields: [string]) {
+    async getUserData(author: string, get: string, fields: string[]) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?get=${get}&fields=${fields.join(',')}`,
             method: 'GET'
@@ -533,4 +533,28 @@ export interface ProfileData {
         text: string;
         url: string;
     }[],
+}
+
+export interface FeaturePostsData {
+    posts: {
+        url: string;
+        title: string;
+        image: string;
+        readTime: number;
+        createdDate: string;
+        authorImage: string;
+        author: string;
+    }[];
+}
+
+export interface FeatureTagPostsData {
+    posts: {
+        url: string;
+        title: string;
+        image: string;
+        readTime: number;
+        createdDate: string;
+        authorImage: string;
+        author: string;
+    }[];
 }

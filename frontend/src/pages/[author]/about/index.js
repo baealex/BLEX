@@ -55,7 +55,7 @@ class About extends React.Component {
             // 편집버튼 누른 상태
             if(newState.aboutMD == undefined) {
                 const { data } = await API.getUserData('@' + this.state.username, 'profile', [
-                    'aboutMd'
+                    'about_md'
                 ]);
                 newState.aboutMD = data.aboutMd;
             }
