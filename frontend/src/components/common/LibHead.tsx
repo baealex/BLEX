@@ -2,6 +2,14 @@ import Head from 'next/head';
 
 import Config from '../../modules/config.json';
 
+function minify(str: string) {
+    str = str.replace(/\s/g, '');
+    str = str.replace(/function/g, 'function ');
+    str = str.replace(/var/g, 'var ');
+    str = str.replace(/new/g, 'new ');
+    return str;
+}
+
 export default function() {
     return (
         <Head>
@@ -22,15 +30,30 @@ export default function() {
             {Config.GOOGLE_ANALYTICS_V4 ? (
                 <>
                     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>
-                    <script dangerouslySetInnerHTML={{ __html: `
+                    <script dangerouslySetInnerHTML={{ __html: minify(`
                         window.dataLayer = window.dataLayer || [];
-                        function gtag(){dataLayer.push(arguments);}
+                        function gtag() {
+                            dataLayer.push(arguments);
+                        }
                         gtag('js', new Date());
-
                         gtag('config', '${Config.GOOGLE_ANALYTICS_V4}');
-                    `}}/>
+                    `)}}/>
                 </>
             ) : ''}
+            {Config.MICROSOFT_CLARITY ? (
+                <script dangerouslySetInnerHTML={{ __html: minify(`
+                    (function(c, l, a, r, i, t, y) {
+                        c[a] = c[a] || function() {
+                            (c[a].q = c[a].q || []).push(arguments)
+                        };
+                        t = l.createElement(r);
+                        t.async = 1;
+                        t.src = "https://www.clarity.ms/tag/" + i;
+                        y = l.getElementsByTagName(r)[0];
+                        y.parentNode.insertBefore(t,y);
+                    })(window, document, "clarity", "script", "${Config.MICROSOFT_CLARITY}");
+                `)}}/>
+            ): ''}
         </Head>
     )
 }
