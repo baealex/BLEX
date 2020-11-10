@@ -1,8 +1,12 @@
 interface GlobalState {
+    isSettingModalOpen: boolean;
+    isLoginModalOpen: boolean;
     isLogin: boolean;
     isNightMode: boolean;
     username: string;
 }
+
+type ModalName = 'isSettingModalOpen' | 'isLoginModalOpen';
 
 class Global {
     state: GlobalState;
@@ -10,6 +14,8 @@ class Global {
 
     constructor() {
         this.state = {
+            isSettingModalOpen: false,
+            isLoginModalOpen: false,
             isLogin: false,
             isNightMode: false,
             username: '',
@@ -38,6 +44,20 @@ class Global {
 
     popUpdater(key: string) {
         delete this.updater[key];
+    }
+
+    onOpenModal(modalName: ModalName) {
+        this.setState({
+            ...this.state,
+            [modalName]: true
+        });
+    }
+
+    onCloseModal(modalName: ModalName) {
+        this.setState({
+            ...this.state,
+            [modalName]: false
+        });
     }
 }
 

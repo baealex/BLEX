@@ -31,11 +31,13 @@ class TopNavigation extends React.Component {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             search: '',
-            isLoginModalOpen: false,
-            isSettingModalOpen: false
+            isLoginModalOpen: Global.state.isSettingModalOpen,
+            isSettingModalOpen: Global.state.isLoginModalOpen
         };
         Global.appendUpdater('TopNavigation', () => this.setState({
             ...this.state,
+            isSettingModalOpen: Global.state.isSettingModalOpen,
+            isLoginModalOpen: Global.state.isLoginModalOpen,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             isNightMode: Global.state.isNightMode
@@ -72,20 +74,6 @@ class TopNavigation extends React.Component {
         this.setState({
             ...this.state,
             onNav: !this.state.onNav
-        });
-    }
-
-    onOpenModal(modalName: string) {
-        this.setState({
-            ...this.state,
-            [modalName]: true
-        });
-    }
-
-    onCloseModal(modalName: string) {
-        this.setState({
-            ...this.state,
-            [modalName]: false
         });
     }
 
@@ -166,11 +154,11 @@ class TopNavigation extends React.Component {
             <>
                 <LoginModal
                     isOpen={this.state.isLoginModalOpen}
-                    onClose={() => this.onCloseModal('isLoginModalOpen')}
+                    onClose={() => Global.onCloseModal('isLoginModalOpen')}
                 />
                 <SettingModal
                     isOpen={this.state.isSettingModalOpen}
-                    onClose={() => this.onCloseModal('isSettingModalOpen')}
+                    onClose={() => Global.onCloseModal('isSettingModalOpen')}
                 />
                 <div
                     onMouseLeave={() => this.onMouseLeaveOnContent()}
@@ -224,7 +212,7 @@ class TopNavigation extends React.Component {
                             {this.state.isLogin ? (
                                 <>
                                     <li>
-                                        <a onClick={() => this.onOpenModal('isSettingModalOpen')}>
+                                        <a onClick={() => Global.onOpenModal('isSettingModalOpen')}>
                                             <i className="fas fa-cogs"></i>
                                         </a>
                                     </li>
@@ -236,7 +224,7 @@ class TopNavigation extends React.Component {
                                 </>
                             ) : (
                                 <li>
-                                    <a onClick={() => this.onOpenModal('isLoginModalOpen')}>
+                                    <a onClick={() => Global.onOpenModal('isLoginModalOpen')}>
                                         <i className="fas fa-sign-in-alt"></i> 로그인
                                     </a>
                                 </li>

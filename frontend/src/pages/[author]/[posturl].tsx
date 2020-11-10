@@ -470,7 +470,9 @@ class PostDetail extends React.Component<Props, State> {
                             {this.state.isLogin ? (
                                 <CommentForm onSubmit={this.onSubmitComment.bind(this)}/>
                             ) : (
-                                <div className="noto alert alert-warning s-shadow">댓글을 작성하기 위해 로그인이 필요합니다.</div>
+                                <div className="noto alert alert-warning s-shadow c-pointer" onClick={() => Global.onOpenModal('isLoginModalOpen')}>
+                                    댓글을 작성하기 위해 로그인이 필요합니다.
+                                </div>
                             )}
                         </div>
                     </div>
