@@ -10,20 +10,31 @@ import PageNav from '../../../components/common/PageNav';
 import PurpleBorder from '../../../components/common/PurpleBorder';
 
 export async function getServerSideProps(context) {
+    const raise = require('../../../modules/raise');
+
     const { author } = context.query;
-    const { data } = await API.getUserProfile(author, [
-        'profile',
-        'social',
-    ]);
-    let { page } = context.query;
-    page = page ? page : 1;
-    const series = await API.getUserSeries(author, page);
-    return {
-        props: {
-            page,
-            profile: data,
-            series: series.data
+
+    if(!author.includes('@')) {
+        raise.Http404(context.res);
+    }
+
+    try {
+        const { data } = await API.getUserProfile(author, [
+            'profile',
+            'social',
+        ]);
+        let { page } = context.query;
+        page = page ? page : 1;
+        const series = await API.getUserSeries(author, page);
+        return {
+            props: {
+                page,
+                profile: data,
+                series: series.data
+            }
         }
+    } catch(error) {
+        raise.auto(error.response.status, context.res);
     }
 }
 
@@ -32,15 +43,15 @@ class Series extends React.Component {
         super(props);
         this.state = {
             page: Number(props.page),
-            lastPage: Number(props.series.last_page)
+            lastPage: Number(props.series.lastPage)
         };
     }
 
     componentDidUpdate(prevProps) {
-        if(this.props.series.last_page != prevProps.series.last_page || this.props.page != prevProps.page) {
+        if(this.props.series.lastPage != prevProps.series.lastPage || this.props.page != prevProps.page) {
             this.setState({
                 page: Number(this.props.page),
-                lastPage: Number(this.props.series.last_page)
+                lastPage: Number(this.props.series.lastPage)
             })
         }
     }
