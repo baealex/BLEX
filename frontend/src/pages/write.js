@@ -209,8 +209,8 @@ class Write extends React.Component {
         }
         const formData = new FormData();
         formData.append('title', this.state.title);
-        formData.append('textMd', this.state.text);
-        formData.append('textHtml', blexer(this.state.text));
+        formData.append('text_md', this.state.text);
+        formData.append('text_html', blexer(this.state.text));
         if(this.state.image) {
             formData.append('image', this.state.image);
         }

@@ -10,9 +10,9 @@ services:
   #     - ./backend/src/static:/www/static
   #     - ./backend/src/api:/www/api
   #   ports:
-  #     - 20201:20001
-  #     - 20202:20002
-  #     - 20203:20003
+  #     - 20201:20201
+  #     - 20202:20202
+  #     - 20203:20203
   
   # 개발 상태인 경우 주석 해제
   frontend:

@@ -163,8 +163,8 @@ class Edit extends React.Component {
         }
         const { data } = await API.putPost('@' + this.state.username, url, 'edit', {
             title: this.state.title,
-            textMd: this.state.text,
-            textHtml: blexer(this.state.text),
+            text_md: this.state.text,
+            text_html: blexer(this.state.text),
             series: this.state.series,
             tag: this.state.tags
         });
