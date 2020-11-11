@@ -1,16 +1,15 @@
-import Head from 'next/head';
 import React from 'react';
+import Head from 'next/head';
+
+import Profile from '@components/profile/Profile';
+import ArticleContent from '@components/article/ArticleContent';
+import PurpleBorder from '@components/common/PurpleBorder';
 
 import { toast } from 'react-toastify';
 
-import SEO from '../../../components/seo'
-
-import API from '../../../modules/api'
-import Global from '../../../modules/global';
-import Profile from '../../../components/profile/Profile';
-import ArticleContent from '../../../components/article/ArticleContent';
-import PurpleBorder from '../../../components/common/PurpleBorder';
-import blexer from '../../../modules/blexer';
+import API from '@modules/api'
+import Global from '@modules/global';
+import blexer from '@modules/blexer';
 
 export async function getServerSideProps(context) {
     const { author } = context.query;

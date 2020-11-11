@@ -1,10 +1,10 @@
-import React from 'react'
-import Head from 'next/head'
+import React from 'react';
+import Head from 'next/head';
 
-import TagItem from '../../components/tag/TagItem'
+import TagItem from '@components/tag/TagItem';
+import PageNav from '@components/common/PageNav';
 
-import API from '../../modules/api'
-import PageNav from '../../components/common/PageNav'
+import API from '@modules/api';
 
 export async function getServerSideProps(context) {
     let { page } = context.query;

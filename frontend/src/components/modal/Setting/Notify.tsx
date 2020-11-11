@@ -3,21 +3,16 @@ import Link from 'next/link';
 
 import { toast } from 'react-toastify';
 
-import API from '../../../modules/api';
+import API, { SettingNotifyData } from '../../../modules/api';
+
+interface TabData extends SettingNotifyData {
+    isTelegramSync: string;
+}
 
 interface Props {
     username: string;
     tabname: string;
-    tabdata: {
-        isTelegramSync: string;
-        notify: {
-            pk: number;
-            url: string;
-            content: string;
-            createdDate: string;
-            isRead: string;
-        }[];
-    },
+    tabdata: TabData,
     fetchData: Function;
 }
 
@@ -49,7 +44,7 @@ class NotifySetting extends React.Component<Props, State> {
             newData.notify = newData.notify.map(noti => {
                 return noti.pk == pk ? {
                     ...noti,
-                    isRead: 'true'
+                    isRead: true
                 } : noti;
             });
             this.props.fetchData(tabname, newData);
@@ -117,7 +112,7 @@ class NotifySetting extends React.Component<Props, State> {
                     </div>
                 ) : this.props.tabdata.notify.map((item, idx) => (
                     <Link key={idx} href={item.url}>
-                        <a className={item.isRead !== 'true' ? 'deep-dark' : 'shallow-dark'} onClick={() => this.onReadNotify(item.pk)}>
+                        <a className={item.isRead ? 'deep-dark' : 'shallow-dark'} onClick={() => this.onReadNotify(item.pk)}>
                             <div className="blex-card p-3">{item.content} <span className="ns shallow-dark">{item.createdDate}전</span></div>
                         </a>
                     </Link>

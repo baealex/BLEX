@@ -2,7 +2,11 @@
     "compilerOptions": {
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
-        "baseUrl": "src",
+        "baseUrl": ".",
+        "paths": {
+            "@components/*": ["./components/*"],
+            "@modules/*": ["./modules/*"]
+        },
         "jsx": "preserve",
         "lib": [
             "dom",

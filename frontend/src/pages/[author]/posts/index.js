@@ -1,13 +1,14 @@
-import Head from 'next/head';
 import React from 'react';
+import Head from 'next/head';
 
-import API from '../../../modules/api'
-import Profile from '../../../components/profile/Profile';
-import PostsComponent from '../../../components/profile/Posts';
-import PageNav from '../../../components/common/PageNav';
+import PageNav from '@components/common/PageNav';
+import Profile from '@components/profile/Profile';
+import PostsComponent from '@components/profile/Posts';
+
+import API from '@modules/api';
 
 export async function getServerSideProps(context) {
-    const raise = require('../../../modules/raise');
+    const raise = require('@modules/raise');
 
     const { author } = context.query;
 

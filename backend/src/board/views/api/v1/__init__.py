@@ -352,7 +352,7 @@ def user_posts(request, username, url=None):
                     'series': post.series.url if post.series else None,
                     'text_md': post.text_md,
                     'tag': post.tag,
-                    'hide': 'true' if post.hide else 'false'
+                    'is_hide': post.hide
                 })
 
             if request.GET.get('mode') == 'view':
@@ -374,14 +374,14 @@ def user_posts(request, username, url=None):
                     'text_html': post.text_html,
                     'total_likes': post.total_likes(),
                     'tag': post.tag,
-                    'is_liked': 'true' if post.likes.filter(id=request.user.id).exists() else 'false',
+                    'is_liked': post.likes.filter(id=request.user.id).exists(),
                     'comments': list(map(lambda comment: {
                         'pk': comment.pk if request.user == comment.author else 0,
                         'author_image': comment.author.profile.get_thumbnail(),
                         'author': comment.author.username,
                         'text_html': comment.text_html,
                         'time_since': timesince(comment.created_date),
-                        'is_edited': 'true' if comment.edited else 'false'
+                        'is_edited': comment.edited
                     }, comments))
                 })
 
@@ -404,7 +404,7 @@ def user_posts(request, username, url=None):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.hide = not post.hide
             post.save()
-            return HttpResponse('true' if post.hide else 'false')
+            return CamelizeJsonResponse({'is_hide': post.hide})
         if request.GET.get('tag', ''):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.tag = fn.get_clean_tag(put.get('tag'))
@@ -575,11 +575,11 @@ def user_setting(request, username, item):
                 'notify': list(map(lambda item: {
                     'pk': item.pk,
                     'url': item.url,
-                    'is_read': 'true' if item.is_read else 'false',
+                    'is_read': item.is_read,
                     'content': item.infomation,
                     'created_date': timesince(item.created_date)
                 }, notify)),
-                'is_telegram_sync': 'true' if user.config.telegram_id else 'false'
+                'is_telegram_sync': True if user.config.telegram_id else False
             })
         
         if item == 'account':
@@ -610,7 +610,7 @@ def user_setting(request, username, item):
                     'title': post.title,
                     'created_date': post.created_date.strftime('%Y-%m-%d'),
                     'updated_date': post.updated_date.strftime('%Y-%m-%d'),
-                    'hide': 'true' if post.hide else 'false',
+                    'is_hide': post.hide,
                     'total_likes': post.total_likes(),
                     'total_comments': post.total_comment(),
                     'today': post.today(),

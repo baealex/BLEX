@@ -1,13 +1,13 @@
 import React from 'react';
 
-import Modal from '../common/Modal';
+import Modal from '@components/common/Modal';
 
 import { toast } from 'react-toastify';
 
-import API from '../../modules/api';
-import Cookie from '../../modules/cookie';
-import Global from '../../modules/global';
-import Config from '../../modules/config.json';
+import API from '@modules/api';
+import Cookie from '@modules/cookie';
+import Global from '@modules/global';
+import Config from '@modules/config.json';
 
 interface Props {
     isOpen: boolean;

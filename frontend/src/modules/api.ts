@@ -509,7 +509,9 @@ export interface ProfileData {
         facebook?: string;
         instagram?: string;
     },
-    heatmap?: object;
+    heatmap?: {
+        [key: string]: number;
+    }[];
     tags?: {
         name: string;
         count: number;
@@ -556,5 +558,55 @@ export interface FeatureTagPostsData {
         createdDate: string;
         authorImage: string;
         author: string;
+    }[];
+}
+
+export interface SettingNotifyData {
+    notify: {
+        pk: number;
+        url: string;
+        isRead: boolean;
+        content: string;
+        createdDate: string;
+    }[];
+}
+
+export interface SettingAccountData {
+    username: string;
+    realname: string;
+    createdDate: string;
+}
+
+export interface SettingProfileData {
+    avatar: string;
+    bio: string;
+    homepage: string;
+    github: string;
+    twitter: string;
+    youtube: string;
+    facebook: string;
+    instagram: string;
+}
+
+export interface SettingPostsData {
+    posts: {
+        url: string;
+        title: string;
+        createdDate: string;
+        updatedDate: string;
+        isHide: boolean;
+        totalLikes: number;
+        totalComments: number;
+        today: number;
+        yesterday: number;
+        tag: string;
+    }[];
+}
+
+export interface SettingSeriesData {
+    series: {
+        url: string;
+        title: string;
+        totalPosts: number;
     }[];
 }

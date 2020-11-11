@@ -1,10 +1,10 @@
 import React from 'react';
-
-import { toast } from 'react-toastify';
+import Link from 'next/link';
 import ReactFrappeChart from 'react-frappe-charts';
 
-import API from '../../../modules/api';
-import Link from 'next/link';
+import { toast } from 'react-toastify';
+
+import API from '@modules/api';
 
 class PostsSetting extends React.Component {
     constructor(props) {
@@ -84,7 +84,7 @@ class PostsSetting extends React.Component {
         newState.posts = newState.posts.map(post => (
             post.url == url ? ({
                 ...post,
-                hide: JSON.stringify(data)
+                isHide: data.isHide
             }) : post
         ));
         this.props.fetchData(tabname, newState);
@@ -119,7 +119,7 @@ class PostsSetting extends React.Component {
                     <li><a onClick={() => this.sortArticle('total')}>총 조회수 높은</a></li>
                     <li><a onClick={() => this.sortArticle('totalLikes')}>추천 많은</a></li>
                     <li><a onClick={() => this.sortArticle('totalComments')}>댓글 많은</a></li>
-                    <li><a onClick={() => this.sortArticle('hide')}>숨김 우선</a></li>
+                    <li><a onClick={() => this.sortArticle('isHide')}>숨김 우선</a></li>
                 </ul>
                 <ul className="list-group">
                 {this.state.posts.map((post, idx) => (
@@ -137,7 +137,7 @@ class PostsSetting extends React.Component {
                         <ul className="setting-list-info">
                             <li>
                                 <a onClick={() => this.onPostsHide(post.url)} className="element-lock">
-                                    {post.hide == 'true' ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>}
+                                    {post.isHide ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>}
                                 </a>
                             </li>
                             <li>

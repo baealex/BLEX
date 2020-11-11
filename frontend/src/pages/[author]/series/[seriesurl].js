@@ -5,12 +5,12 @@ import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
-import API from '../../../modules/api';
-import Global from '../../../modules/global';
-import Modal from '../../../components/common/Modal';
+import API from '@modules/api';
+import Global from '@modules/global';
+import Modal from '@components/common/Modal';
 
 export async function getServerSideProps(context) {
-    const raise = require('../../../modules/raise');
+    const raise = require('@modules/raise');
 
     const { author, seriesurl } = context.query;
 

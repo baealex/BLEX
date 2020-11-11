@@ -2,16 +2,12 @@ import React from 'react';
 
 import { toast } from 'react-toastify';
 
-import API from '../../../modules/api';
+import API, { SettingAccountData } from '../../../modules/api';
 
 interface Props {
     username: string;
     tabname: string;
-    tabdata: {
-        username: string;
-        realname: string;
-        createdDate: string;
-    },
+    tabdata: SettingAccountData,
     fetchData: Function;
 }
 

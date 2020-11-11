@@ -2,21 +2,21 @@ import React from 'react';
 import Head from 'next/head';
 import Router from 'next/router';
 
+import Modal from '@components/common/Modal';
+import ImageForm from '@components/form/ImageForm';
+import SelectForm from '@components/form/SelectForm';
+import InputForm from '@components/form/InputForm';
+import ArticleContent from '@components/article/ArticleContent';
+
 import { toast } from 'react-toastify';
 import { Controlled as CodeMirror } from 'react-codemirror2'
 
-import Modal from '../components/common/Modal';
-import ImageForm from '../components/form/ImageForm';
-import SelectForm from '../components/form/SelectForm';
-import InputForm from '../components/form/InputForm';
-import ArticleContent from '../components/article/ArticleContent';
-
-import { dropImage } from '../modules/image';
-import Prism from '../modules/library/prism';
-import lazyLoad from '../modules/lazy';
-import blexer from '../modules/blexer';
-import Global from '../modules/global';
-import API from '../modules/api';
+import API from '@modules/api';
+import lazyLoad from '@modules/lazy';
+import blexer from '@modules/blexer';
+import Global from '@modules/global';
+import Prism from '@modules/library/prism';
+import { dropImage } from '@modules/image';
 
 const modal = {
     publish: 'isOpenPublishModal',

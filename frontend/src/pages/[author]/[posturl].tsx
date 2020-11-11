@@ -1,31 +1,32 @@
-import { GetServerSidePropsContext } from 'next';
-
-import Head from 'next/head';
 import React from 'react';
-import Router from 'next/router';
+import Head from 'next/head';
 import Link from 'next/link';
+import Router from 'next/router';
+
+import ArticleCard from '@components/article/ArticleCard';
+import ArticleAuthor from '@components/article/ArticleAuthor';
+import ArticleContent from '@components/article/ArticleContent';
+import ArticleSereis from '@components/article/ArticleSeries';
+import TagList from '@components/tag/TagList';
+import Comment from '@components/comment/Comment';
+import CommentEdit from '@components/comment/CommentEdit';
+import CommentForm from '@components/comment/CommentForm';
+import CommentAlert from '@components/comment/CommentAlert';
+import Footer from '@components/common/Footer';
+import SEO from '@components/seo';
 
 import { toast } from 'react-toastify';
 
-import ArticleContent from '../../components/article/ArticleContent';
-import ArticleSereis from '../../components/article/ArticleSeries';
-import TagList from '../../components/tag/TagList';
-import Comment from '../../components/comment/Comment';
-import CommentEdit from '../../components/comment/CommentEdit';
-import CommentForm from '../../components/comment/CommentForm';
-import CommentAlert from '../../components/comment/CommentAlert';
-import Footer from '../../components/common/Footer';
-import SEO from '../../components/seo';
+import Prism from '@modules/library/prism';
+import API from '@modules/api';
+import lazyLoad from '@modules/lazy';
+import Global from '@modules/global';
+import blexer from '@modules/blexer';
 
-import Prism from '../../modules/library/prism';
-import API, {
-    FeaturePostsData
-} from '../../modules/api';
-import lazyLoad from '../../modules/lazy';
-import Global from '../../modules/global';
-import ArticleAuthor, { ArticleAuthorProps } from '../../components/article/ArticleAuthor';
-import blexer from '../../modules/blexer';
-import ArticleCard from '../../components/article/ArticleCard';
+import { GetServerSidePropsContext } from 'next';
+
+import { ArticleAuthorProps } from '@components/article/ArticleAuthor';
+import { FeaturePostsData } from '@modules/api';
 
 interface Props {
     profile: ArticleAuthorProps,
@@ -35,7 +36,7 @@ interface Props {
         image: string;
         author: string;
         authorImage: string;
-        isLiked: string;
+        isLiked: boolean;
         totalLikes: number;
         description: string;
         createdDate: string;
@@ -69,7 +70,7 @@ interface Comment {
     author: string;
     authorImage: string;
     isEdit: boolean;
-    isEdited: string;
+    isEdited: boolean;
     timeSince: string;
     textHtml: string;
     textMarkdown: string;
@@ -81,7 +82,7 @@ interface SeriesPosts {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const raise = require('../../modules/raise');
+    const raise = require('@modules/raise');
 
     const { req, res } = context;
     const { author = '', posturl = '' } = context.query;
@@ -138,7 +139,7 @@ class PostDetail extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            isLiked: props.post.isLiked === 'true' ? true : false,
+            isLiked: props.post.isLiked,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             totalLikes: props.post.totalLikes,
@@ -174,7 +175,7 @@ class PostDetail extends React.Component<Props, State> {
         ) {
             this.setState({
                 ...this.state,
-                isLiked: this.props.post.isLiked === 'true' ? true : false,
+                isLiked: this.props.post.isLiked,
                 totalLikes: this.props.post.totalLikes,
                 comments: this.props.post.comments
             });
@@ -295,7 +296,7 @@ class PostDetail extends React.Component<Props, State> {
                     ...comment,
                     isEdit: false,
                     textHtml: contentMarkup,
-                    isEdited: 'true'
+                    isEdited: true
                 }) : comment
             ));
             this.setState({...this.state, comments});
@@ -443,7 +444,7 @@ class PostDetail extends React.Component<Props, State> {
                                         authorImage={comment.authorImage}
                                         timeSince={comment.timeSince}
                                         html={comment.textHtml}
-                                        isEdited={comment.isEdited === 'true' ? true : false}
+                                        isEdited={comment.isEdited}
                                         isOwner={this.state.username === comment.author ? true : false}
                                         onEdit={(pk: number) => this.onCommentEdit(pk)}
                                         onDelete={(pk: number) => this.onCommentDelete(pk)}

@@ -18,8 +18,8 @@ Router.events.on('routeChangeStart', () => NProgress.start());
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
-import LibHead from '../components/common/LibHead';
-import TopNavagation from '../components/common/TopNavigation';
+import LibHead from '@components/common/LibHead';
+import TopNavagation from '@components/common/TopNavigation';
 
 class Main extends App<AppProps> {
     constructor(props: AppProps) {

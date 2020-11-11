@@ -1,16 +1,15 @@
-import Head from 'next/head';
 import React from 'react';
+import Head from 'next/head';
 
-import SEO from '../../../components/seo'
+import PageNav from '@components/common/PageNav';
+import Profile from '@components/profile/Profile';
+import SeriesComponent from '@components/profile/Series';
+import PurpleBorder from '@components/common/PurpleBorder';
 
-import API from '../../../modules/api'
-import Profile from '../../../components/profile/Profile';
-import SeriesComponent from '../../../components/profile/Series';
-import PageNav from '../../../components/common/PageNav';
-import PurpleBorder from '../../../components/common/PurpleBorder';
+import API from '@modules/api'
 
 export async function getServerSideProps(context) {
-    const raise = require('../../../modules/raise');
+    const raise = require('@modules/raise');
 
     const { author } = context.query;
 

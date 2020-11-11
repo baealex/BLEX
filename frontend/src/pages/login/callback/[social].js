@@ -3,9 +3,9 @@ import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
-import API from '../../../modules/api';
-import Global from '../../../modules/global';
-import Cookie from '../../../modules/cookie';
+import API from '@modules/api';
+import Global from '@modules/global';
+import Cookie from '@modules/cookie';
 
 export async function getServerSideProps(context) {
     let { social, code } = context.query;

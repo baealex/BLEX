@@ -1,6 +1,11 @@
 import Link from 'next/link';
 
-export default function TagList(props) {
+interface TagListProps {
+    author: string;
+    tag: string[];
+}
+
+export default function TagList(props: TagListProps) {
     return (
         <ul className="tag-list noto">
             {props.tag.map((item, idx) => (

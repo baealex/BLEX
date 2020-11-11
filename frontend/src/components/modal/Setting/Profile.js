@@ -2,7 +2,7 @@ import React from 'react';
 
 import { toast } from 'react-toastify';
 
-import API from '../../../modules/api';
+import API from '@modules/api';
 
 class ProfileSetting extends React.Component {
     constructor(props) {

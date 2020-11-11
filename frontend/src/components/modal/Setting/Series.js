@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import { toast } from 'react-toastify';
 
-import API from '../../../modules/api';
+import API from '@modules/api';
 
 class SeriesSetting extends React.Component {
     constructor(props) {
@@ -44,7 +44,7 @@ class SeriesSetting extends React.Component {
         series.unshift({
             url: data,
             title: newSeriesName,
-            total_posts: 0
+            totalPosts: 0
         });
         this.setState({
             newSeriesName: '',
@@ -96,7 +96,7 @@ class SeriesSetting extends React.Component {
                     <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
                         <Link href="/[author]/series/[seriesurl]" as={`/@${this.props.username}/series/${item.url}`}>
                             <a className="deep-dark">
-                                {item.title} <span className="vs">{item.total_posts}</span>
+                                {item.title} <span className="vs">{item.totalPosts}</span>
                             </a>
                         </Link>
                         <a onClick={() => this.onSeriesDelete(item.url)}>

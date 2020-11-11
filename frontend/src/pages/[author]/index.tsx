@@ -1,17 +1,19 @@
 import React from 'react';
-import Head from 'next/head'
+import Head from 'next/head';
 
-import Profile from '../../components/profile/Profile';
-import Heatmap from '../../components/profile/Heatmap';
-import HeatmapDark from '../../components/profile/HeatmapDark';
-import ViewCounter from '../../components/profile/ViewCounter';
-import RecentActivity from '../../components/profile/RecentActivity';
-import FeatureArticle from '../../components/profile/FeatureArticle';
+import Profile from '@components/profile/Profile';
+import Heatmap from '@components/profile/Heatmap';
+import HeatmapDark from '@components/profile/HeatmapDark';
+import ViewCounter from '@components/profile/ViewCounter';
+import RecentActivity from '@components/profile/RecentActivity';
+import FeatureArticle from '@components/profile/FeatureArticle';
 
-import API, { ProfileData } from '../../modules/api';
-import Global from '../../modules/global';
+import API from '@modules/api';
+import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
+
+import { ProfileData } from '@modules/api';
 
 interface Props {
     profile: ProfileData
@@ -22,7 +24,7 @@ interface State {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const raise = require('../../modules/raise');
+    const raise = require('@modules/raise');
     
     const { author = '' } = context.query;
     

@@ -5,7 +5,6 @@ export function Http404(res) {
 }
 
 export function auto(status, res) {
-    console.log(status);
     if(status == 404) {
         Http404(res);
     }

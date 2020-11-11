@@ -5,18 +5,17 @@ import Router from 'next/router';
 import { toast } from 'react-toastify';
 import { Controlled as CodeMirror } from 'react-codemirror2'
 
-import Modal from '../components/common/Modal';
-import ImageForm from '../components/form/ImageForm';
-import SelectForm from '../components/form/SelectForm';
-import InputForm from '../components/form/InputForm';
-import ArticleContent from '../components/article/ArticleContent';
+import Modal from '@components/common/Modal';
+import InputForm from '@components/form/InputForm';
+import SelectForm from '@components/form/SelectForm';
+import ArticleContent from '@components/article/ArticleContent';
 
-import { dropImage } from '../modules/image';
-import Prism from '../modules/library/prism';
-import lazyLoad from '../modules/lazy';
-import blexer from '../modules/blexer';
-import Global from '../modules/global';
-import API from '../modules/api';
+import API from '@modules/api';
+import blexer from '@modules/blexer';
+import Global from '@modules/global';
+import lazyLoad from '@modules/lazy';
+import Prism from '@modules/library/prism';
+import { dropImage } from '@modules/image';
 
 export async function getServerSideProps(context) {
     const { id } = context.query;
