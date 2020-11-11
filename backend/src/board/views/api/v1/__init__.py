@@ -367,8 +367,8 @@ def user_posts(request, username, url=None):
                     'description': post.description(),
                     'read_time': post.read_time(),
                     'series': post.series.url if post.series else None,
-                    'created_date': post.created_date.strftime('%Y-%m-%d %H:%M'),
-                    'updated_date': post.updated_date.strftime('%Y-%m-%d %H:%M'),
+                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
+                    'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
                     'author_image': post.author.profile.get_thumbnail(),
                     'author': post.author.username,
                     'text_html': post.text_html,
@@ -420,6 +420,7 @@ def user_posts(request, username, url=None):
             post.title = put.get('title', '')
             post.text_md = put.get('text_md', '')
             post.text_html = put.get('text_html', '')
+            post.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
 
             try:
                 series_url = put.get('series', '')
@@ -490,7 +491,7 @@ def user_series(request, username, url=None):
                     'url': item.url,
                     'name': item.name,
                     'image': item.thumbnail(),
-                    'created_date': item.created_date.strftime('%Y년 %m월 %d일'),
+                    'created_date': convert_to_localtime(item.created_date).strftime('%Y년 %m월 %d일'),
                     'owner': item.owner.username,
                 }, series)),
                 'last_page': series.paginator.num_pages
@@ -532,7 +533,7 @@ def user_series(request, username, url=None):
                         'url': post.url,
                         'title': post.title,
                         'description': post.description(50),
-                        'created_date': post.created_date.strftime('%Y년 %m월 %d일')
+                        'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일')
                     }, posts))
                 })
         
@@ -577,7 +578,7 @@ def user_setting(request, username, item):
                     'url': item.url,
                     'is_read': item.is_read,
                     'content': item.infomation,
-                    'created_date': timesince(item.created_date)
+                    'created_date': timesince(convert_to_localtime(item.created_date))
                 }, notify)),
                 'is_telegram_sync': True if user.config.telegram_id else False
             })
@@ -787,7 +788,7 @@ def comment(request, pk=None):
                     'author': comment.author.username,
                     'text_html': comment.text_html,
                     'time_since': timesince(comment.created_date),
-                    'edited': 'true 'if comment.edited else 'false'
+                    'is_edited': comment.edited
                 }
             })
     
@@ -851,7 +852,7 @@ def feature_posts(request, tag=None):
                 'title': post.title,
                 'image': post.get_thumbnail(),
                 'read_time': post.read_time(),
-                'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author.profile.get_thumbnail(),
                 'author': post.author.username,
             }, posts))
@@ -869,7 +870,7 @@ def feature_posts(request, tag=None):
                 'title': post.title,
                 'image': post.get_thumbnail(),
                 'read_time': post.read_time(),
-                'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author.profile.get_thumbnail(),
                 'author': post.author.username,
             }, posts))
@@ -905,7 +906,7 @@ def users(request, username):
 
                     heatmap = dict()
                     for element in activity:
-                        key = timestamp(element.created_date, kind='grass')[:10]
+                        key = timestamp(convert_to_localtime(element.created_date), kind='grass')[:10]
                         if key in heatmap:
                             heatmap[key] += 1
                         else:
@@ -930,7 +931,7 @@ def users(request, username):
                         'title': post.title,
                         'image': post.get_thumbnail(),
                         'read_time': post.read_time(),
-                        'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                        'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                         'author_image': post.author.profile.get_thumbnail(),
                         'author': post.author.username,
                     }, fn.get_posts('trendy', user)[:6]))

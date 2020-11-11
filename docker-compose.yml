@@ -32,8 +32,9 @@ services:
       context: ./backend
       dockerfile: ./Dockerfile
     restart: always
+    environment:
+      TZ: "Asia/Seoul"
     volumes:
       - ./backend/src/:/app/
-      - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
     ports:
       - 20002:9000

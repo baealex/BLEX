@@ -40,6 +40,7 @@ interface Props {
         totalLikes: number;
         description: string;
         createdDate: string;
+        updatedDate: string;
         tag: string;
         textHtml: string;
         comments: Comment[];
@@ -357,7 +358,7 @@ class PostDetail extends React.Component<Props, State> {
                             ) : ''}
                                 {this.props.post.title}
                             </h1>
-                            <p className="post-date fade-in">{this.props.post.createdDate}</p>
+                            <time className="post-date fade-in">{this.props.post.createdDate}{this.props.post.createdDate !== this.props.post.updatedDate ? ` (Updated: ${this.props.post.updatedDate})` : ''}</time>
                         </div>
                     </picture>
                 )}
@@ -397,7 +398,7 @@ class PostDetail extends React.Component<Props, State> {
                                         ) : ''}
                                         {this.props.post.title}
                                     </h1>
-                                    <p>{this.props.post.createdDate}</p>
+                                    <time className="post-date">{this.props.post.createdDate}{this.props.post.createdDate !== this.props.post.updatedDate ? ` (Updated: ${this.props.post.updatedDate})` : ''}</time>
                                 </>
                             ) : (
                                 <></>
