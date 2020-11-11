@@ -432,7 +432,7 @@ class PostDetail extends React.Component<Props, State> {
                                 comment.isEdit ? (
                                     <CommentEdit
                                         pk={comment.pk}
-                                        comment={comment.textMarkdown}
+                                        content={comment.textMarkdown}
                                         onSubmit={(pk: number, content: string) => this.onCommentEditSubmit(pk, content)}
                                         onCancle={(pk: number) => this.onCommentEditCancle(pk)}
                                     />

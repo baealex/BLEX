@@ -4,37 +4,40 @@ import { toast } from 'react-toastify';
 
 interface Props {
     pk: number;
-    comment: string;
+    content: string;
     onCancle: Function;
     onSubmit: Function;
 };
 
 interface State {
-    comment: string;
+    content: string;
 };
 
 class CommentForm extends React.Component<Props, State> {
-    state: State = {
-        comment: '',
-    };
+    constructor(props: Props) {
+        super(props);
+        this.state = {
+            content: props.content,
+        }
+    }
 
     onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
         this.setState({
             ...this.state,
-            comment: e.target.value
+            content: e.target.value
         });
     }
 
     onSubmit() {
-        if(this.state.comment == '') {
+        if(this.state.content == '') {
             toast('😅 댓글의 내용을 입력해주세요.');
             return;
         }
-        if(this.state.comment == this.props.comment) {
+        if(this.state.content == this.props.content) {
             this.props.onCancle(this.props.pk);
             return;
         }
-        this.props.onSubmit(this.props.pk, this.state.comment);
+        this.props.onSubmit(this.props.pk, this.state.content);
     }
 
     render() {
@@ -46,7 +49,7 @@ class CommentForm extends React.Component<Props, State> {
                     onChange={(e) => this.onChange(e)}
                     placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
                     maxLength={300}
-                    value={this.state.comment}>
+                    value={this.state.content}>
                 </textarea>
                 <button
                     type="button"

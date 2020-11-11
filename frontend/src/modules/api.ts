@@ -272,8 +272,9 @@ class API {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 data: serializeObject({
+                    comment: 'comment',
+                    comment_md: content,
                     comment_html: commentMarkup,
-                    comment_md: content
                 }),
                 withCredentials: true,
             });
