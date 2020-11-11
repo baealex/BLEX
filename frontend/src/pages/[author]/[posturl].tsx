@@ -19,15 +19,13 @@ import SEO from '../../components/seo';
 
 import Prism from '../../modules/library/prism';
 import API, {
-    FeaturePostsData,
-    FeatureTagPostsData
+    FeaturePostsData
 } from '../../modules/api';
 import lazyLoad from '../../modules/lazy';
 import Global from '../../modules/global';
 import ArticleAuthor, { ArticleAuthorProps } from '../../components/article/ArticleAuthor';
 import blexer from '../../modules/blexer';
 import ArticleCard from '../../components/article/ArticleCard';
-import ArticleCardSmall from '../../components/article/ArticleCardSmall';
 
 interface Props {
     profile: ArticleAuthorProps,
@@ -64,7 +62,6 @@ interface State {
     comments: Comment[];
     selectedTag?: string;
     featurePosts?: FeaturePostsData;
-    featureTagPosts?: FeatureTagPostsData;
 }
 
 interface Comment {
@@ -202,17 +199,6 @@ class PostDetail extends React.Component<Props, State> {
             this.setState({
                 ...this.state,
                 featurePosts: data
-            });
-        }
-        
-        {
-            const tags = this.props.post.tag.split(',');
-            const selectedTag = tags[Math.floor(Math.random() * tags.length)];
-            const { data } = await API.getFeatureTagPosts(selectedTag, this.props.post.url);
-            this.setState({
-                ...this.state,
-                selectedTag: selectedTag,
-                featureTagPosts: data
             });
         }
     }
@@ -479,18 +465,16 @@ class PostDetail extends React.Component<Props, State> {
                 </div>
                 <Footer bgdark={true}>
                     <div className="container pt-5 reverse-color">
+                        <p className="noto">
+                            <Link href={`/@${this.props.post.author}`}>
+                                <a className="font-weight-bold deep-dark">
+                                    {this.props.profile.profile.realname}
+                                </a>
+                            </Link>님이 작성한 다른 글</p>
                         <div className="row">
                             {this.state.featurePosts?.posts.map((item, idx) => (
                                 <ArticleCard key={idx} {...item}/>
                             ))}
-                            <div className="col-lg-4 col-md-12 mt-4">
-                                <p className="ns noto">
-                                    <Link href={`/tags/${this.state.selectedTag}`}><a className="font-weight-bold deep-dark">{this.state.selectedTag}</a></Link> 주제로 작성된 다른 글
-                                </p>
-                                {this.state.featureTagPosts?.posts.map((item, idx) => (
-                                    <ArticleCardSmall key={idx} {...item}/>
-                                ))}
-                            </div>
                         </div>
                     </div>
                 </Footer>

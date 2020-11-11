@@ -844,7 +844,7 @@ def feature_posts(request, tag=None):
         exclude = request.GET.get('exclude', '')
         if exclude:
             posts = posts.exclude(url=exclude)
-        posts = posts.order_by('?')[:2]
+        posts = posts.order_by('?')[:3]
         return CamelizeJsonResponse({
             'posts': list(map(lambda post: {
                 'url': post.url,
