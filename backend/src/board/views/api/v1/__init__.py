@@ -376,7 +376,7 @@ def user_posts(request, username, url=None):
                     'tag': post.tag,
                     'is_liked': post.likes.filter(id=request.user.id).exists(),
                     'comments': list(map(lambda comment: {
-                        'pk': comment.pk if request.user == comment.author else 0,
+                        'pk': comment.pk,
                         'author_image': comment.author.profile.get_thumbnail(),
                         'author': comment.author.username,
                         'text_html': comment.text_html,

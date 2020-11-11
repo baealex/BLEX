@@ -277,7 +277,7 @@ class PostDetail extends React.Component<Props, State> {
         const { data } = await API.getCommentMd(pk);
         let { comments } = this.state;
         comments = comments.map(comment => (
-            comment.pk == pk ? ({
+            comment.pk === pk ? ({
                 ...comment,
                 isEdit: true,
                 textMarkdown: data
@@ -292,7 +292,7 @@ class PostDetail extends React.Component<Props, State> {
         let { comments } = this.state;
         if(data == 'DONE') {
             comments = comments.map(comment => (
-                comment.pk == pk ? ({
+                comment.pk === pk ? ({
                     ...comment,
                     isEdit: false,
                     textHtml: contentMarkup,
@@ -431,6 +431,7 @@ class PostDetail extends React.Component<Props, State> {
                             {this.state.comments.length > 0 ? this.state.comments.map((comment, idx: number) => (
                                 comment.isEdit ? (
                                     <CommentEdit
+                                        key={idx}
                                         pk={comment.pk}
                                         content={comment.textMarkdown}
                                         onSubmit={(pk: number, content: string) => this.onCommentEditSubmit(pk, content)}
@@ -451,7 +452,7 @@ class PostDetail extends React.Component<Props, State> {
                                     />
                                 )
                             )) : <CommentAlert
-                                    text={'작성된 댓글이 없습니다!'}
+                                    text={'😥 작성된 댓글이 없습니다!'}
                                 />
                             }
                             {this.state.isLogin ? (
