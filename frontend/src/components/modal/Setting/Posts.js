@@ -2,6 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import ReactFrappeChart from 'react-frappe-charts';
 
+import Sticker from '@components/sticker';
+
 import { toast } from 'react-toastify';
 
 import API from '@modules/api';
@@ -129,10 +131,18 @@ class PostsSetting extends React.Component {
         if(!this.props.tabdata) return <>Loading...</>;
 
         let { posts } = this.state;
+
+        if(posts.length == 0) {
+            return (
+                <>
+                    <Sticker name="blank"/>
+                </>
+            )
+        }
         
         if(this.state.search) {
             posts = posts.filter(post => 
-                post.title.toLowerCase().includes(this.state.search)
+                post.title.toLowerCase().includes(this.state.search.toLowerCase())
             );
         } 
 
