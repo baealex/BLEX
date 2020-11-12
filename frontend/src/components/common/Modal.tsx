@@ -4,7 +4,7 @@ interface Props {
     isOpen: boolean;
     close: Function;
     title: string;
-    children: JSX.Element;
+    children: JSX.Element | JSX.Element[];
 }
 
 class Modal extends React.Component<Props> {
