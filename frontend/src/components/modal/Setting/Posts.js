@@ -131,7 +131,9 @@ class PostsSetting extends React.Component {
         let { posts } = this.state;
         
         if(this.state.search) {
-            posts = posts.filter(post => post.title.includes(this.state.search));
+            posts = posts.filter(post => 
+                post.title.toLowerCase().includes(this.state.search)
+            );
         } 
 
         return (
