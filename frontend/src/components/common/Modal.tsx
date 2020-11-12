@@ -12,11 +12,13 @@ class Modal extends React.Component<Props> {
         document.body.style.overflow = 'hidden';
     }
     
-    componentDidUpdate() {
-        if(this.props.isOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'initial';
+    componentDidUpdate(prevProps: Props) {
+        if(prevProps.isOpen !== this.props.isOpen) {
+            if(this.props.isOpen) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'initial';
+            }
         }
     }
 
