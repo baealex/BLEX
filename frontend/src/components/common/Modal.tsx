@@ -3,7 +3,14 @@ import React from 'react';
 class Modal extends React.Component {
     props: any;
 
+    componentDidUpdate() {
+        if(this.props.isOpen) {
+            document.body.style.overflow = 'hidden';   
+        }
+    }
+
     onClose() {
+        document.body.style.overflow = 'initial';
         this.props.close();
     }
 
