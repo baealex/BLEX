@@ -15,17 +15,30 @@ class PostsSetting extends React.Component {
                 data: {}
             }
         };
+        this.canRefresh = true;
     }
 
     async componentDidMount() {
         if(this.props.tabdata === undefined) {
-            const { username, tabname } = this.props;
-            const { data } = await API.getSetting('@' + username, tabname.toLowerCase());
-            this.props.fetchData(tabname, data);
-            this.setState(data);
+            await this.getSettingPosts();
         } else {
             this.setState(this.props.tabdata);
         }
+    }
+
+    async getSettingPosts() {
+        if(!this.canRefresh) {
+            toast('😅 잠시 후 다시 사용할 수 있습니다.');
+            return;
+        }
+        this.canRefresh = false;
+        const { username, tabname } = this.props;
+        const { data } = await API.getSetting('@' + username, tabname.toLowerCase());
+        this.props.fetchData(tabname, data);
+        this.setState(data);
+        setTimeout(() => {
+            this.canRefresh = true;
+        }, 10000);
     }
 
     sortArticle(item) {
@@ -120,6 +133,7 @@ class PostsSetting extends React.Component {
                     <li><a onClick={() => this.sortArticle('totalLikes')}>추천 많은</a></li>
                     <li><a onClick={() => this.sortArticle('totalComments')}>댓글 많은</a></li>
                     <li><a onClick={() => this.sortArticle('isHide')}>숨김 우선</a></li>
+                    <li><a onClick={() => this.getSettingPosts()}>새로고침</a></li>
                 </ul>
                 <ul className="list-group">
                 {this.state.posts.map((post, idx) => (
@@ -148,10 +162,10 @@ class PostsSetting extends React.Component {
                                 </a>
                             </li>
                             <li>
-                                <i className="far fa-thumbs-up"></i> {post.total_likes}
+                                <i className="far fa-thumbs-up"></i> {post.totalLikes}
                             </li>
                             <li>
-                                <i className="far fa-comment"></i> {post.total_comments}
+                                <i className="far fa-comment"></i> {post.totalComments}
                             </li>
                         </ul>
                         {this.state.analytics.data[post.url] && this.state.analytics.data[post.url].isShow ? (
