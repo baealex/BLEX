@@ -8,10 +8,6 @@ interface Props {
 }
 
 class Modal extends React.Component<Props> {
-    componentDidMount() {
-        document.body.style.overflow = 'hidden';
-    }
-    
     componentDidUpdate(prevProps: Props) {
         if(prevProps.isOpen !== this.props.isOpen) {
             if(this.props.isOpen) {
