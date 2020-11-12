@@ -1,16 +1,30 @@
 import React from 'react';
 
-class Modal extends React.Component {
-    props: any;
+interface Props {
+    isOpen: boolean;
+    close: Function;
+    title: string;
+    children: JSX.Element;
+}
 
+class Modal extends React.Component<Props> {
+    componentDidMount() {
+        document.body.style.overflow = 'hidden';
+    }
+    
     componentDidUpdate() {
         if(this.props.isOpen) {
-            document.body.style.overflow = 'hidden';   
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'initial';
         }
     }
 
-    onClose() {
+    componentWillUnmount() {
         document.body.style.overflow = 'initial';
+    }
+
+    onClose() {
         this.props.close();
     }
 
