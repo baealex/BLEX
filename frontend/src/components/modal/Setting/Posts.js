@@ -11,6 +11,7 @@ class PostsSetting extends React.Component {
         super(props);
         this.state = {
             posts: [],
+            search: '',
             analytics: {
                 data: {}
             }
@@ -56,7 +57,7 @@ class PostsSetting extends React.Component {
         this.props.fetchData(tabname, newState);
     }
 
-    async onAnalytics(url) {        
+    async onAnalytics(url) {
         let analytics = {
             ...this.state.analytics
         };
@@ -118,8 +119,20 @@ class PostsSetting extends React.Component {
         }
     }
 
+    onInputChange(e) {
+        let newState = this.state;
+        newState[e.target.name] = e.target.value;
+        this.setState(newState);
+    }
+
     render() {
         if(!this.props.tabdata) return <>Loading...</>;
+
+        let { posts } = this.state;
+        
+        if(this.state.search) {
+            posts = posts.filter(post => post.title.includes(this.state.search));
+        } 
 
         return (
             <>
@@ -135,8 +148,15 @@ class PostsSetting extends React.Component {
                     <li><a onClick={() => this.sortArticle('isHide')}>숨김 우선</a></li>
                     <li><a onClick={() => this.getSettingPosts()}>새로고침</a></li>
                 </ul>
+                <input
+                    name="search"
+                    className="form-control my-3"
+                    placeholder="검색어를 입력하세요."
+                    value={this.state.search}
+                    onChange={(e) => {this.onInputChange(e)}}
+                />
                 <ul className="list-group">
-                {this.state.posts.map((post, idx) => (
+                {posts.map((post, idx) => (
                     <li key={idx} className="blex-card p-3 mb-3">
                         <p className="d-flex justify-content-between">
                             <Link href="/[author]/[posturl]" as={`/@${this.props.username}/${post.url}`}>
