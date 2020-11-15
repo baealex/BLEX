@@ -397,8 +397,8 @@ def user_posts(request, username, url=None):
                 post.likes.remove(user)
             else:
                 post.likes.add(user)
-                pass
-                # TODO: Notify Send
+                send_notify_content = '\''+ post.title +'\'글을 누군가 추천했습니다.'
+                fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
             return HttpResponse(str(post.total_likes()))
         if request.GET.get('hide', ''):
             fn.compere_user(request.user, post.author, give_404_if='different')
@@ -742,7 +742,7 @@ def temp_posts(request):
         body = QueryDict(request.body)
         token = body.get('token')
         temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-        temp_posts.remove()
+        temp_posts.delete()
 
         return HttpResponse('DONE')
 

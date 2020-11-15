@@ -221,6 +221,22 @@ class Write extends React.Component {
         Router.push('/[author]/[posturl]', `/@${this.state.username}/${data}`);
     }
 
+    async onDeleteTempPost(token) {
+        if(confirm('😅 정말 임시글을 삭제할까요?')) {
+            const { data } = await API.deleteTempPosts(token);
+            if(data == 'DONE') {
+                this.setState({
+                    ...this.state,
+                    token: '',
+                    tempPosts: this.state.tempPosts.filter(post => 
+                        post.token !== token
+                    )
+                });
+                toast('😀 임시글이 삭제되었습니다.');
+            }
+        }
+    }
+
     async onTempSave() {
         let {
             token,
@@ -303,16 +319,21 @@ class Write extends React.Component {
         const tempPostsModal = (
             <Modal title='임시 저장된 글' isOpen={this.state[modal.tempPosts]} close={() => this.onCloseModal(modal.tempPosts)}>
                 <div className="content noto">
-                    <ul>
-                        {tempPosts.map((item, idx) => (
-                            <li key={idx} className={this.state.token == item.token ? 'deep-dark' : 'shallow-dark'}>
-                                <a onClick={() => this.fecthTempPosts(item.token)}>{item.title}</a> <span className="vs">{item.date}전</span>
-                            </li>
-                        ))}
-                        <li className={this.state.token == '' ? 'deep-dark' : 'shallow-dark'}>
-                            <a onClick={() => this.fecthTempPosts()}>새 글 쓰기</a>
-                        </li>
-                    </ul>
+                    {tempPosts.map((item, idx) => (
+                        <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
+                            <a onClick={() => this.fecthTempPosts(item.token)} className={this.state.token == item.token ? 'deep-dark' : 'shallow-dark'}>
+                                {item.title} <span className="vs">{item.date}전</span>
+                            </a>
+                            <a onClick={() => this.onDeleteTempPost(item.token)}>
+                                <i className="fas fa-times"></i>
+                            </a>
+                        </div>
+                    ))}
+                    <div className="blex-card p-3 mb-3 d-flex justify-content-between">
+                        <a onClick={() => this.fecthTempPosts()} className={this.state.token == '' ? 'deep-dark' : 'shallow-dark'}>
+                            새 글 쓰기
+                        </a>
+                    </div>
                 </div>
                 <div className="button" onClick={() => this.onTempSave()}>
                     <button>현재 글 임시저장</button>
