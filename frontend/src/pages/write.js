@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Router from 'next/router';
 
 import Modal from '@components/common/Modal';
+import FullLoading from '@components/common/FullLoading';
 import ImageForm from '@components/form/ImageForm';
 import SelectForm from '@components/form/SelectForm';
 import InputForm from '@components/form/InputForm';
@@ -35,6 +36,7 @@ class Write extends React.Component {
             series: '',
             image: '',
             imageName: '',
+            isSumbit: false,
             isOpenPublishModal: false,
             isOpenTempPostsModal: false,
             editor: undefined,
@@ -217,8 +219,20 @@ class Write extends React.Component {
         formData.append('tag', this.state.tags);
         formData.append('series', this.state.series);
         formData.append('token', this.state.token);
-        const { data } = await API.postPost('@' + this.state.username, formData);
-        Router.push('/[author]/[posturl]', `/@${this.state.username}/${data}`);
+        try {
+            this.setState({
+                ...this.state,
+                isSumbit: true
+            });
+            const { data } = await API.postPost('@' + this.state.username, formData);
+            Router.push('/[author]/[posturl]', `/@${this.state.username}/${data}`);
+        } catch(e) {
+            this.setState({
+                ...this.state,
+                isSumbit: false
+            });
+            toast('😥 글 작성중 오류가 발생했습니다.');
+        }
     }
 
     async onDeleteTempPost(token) {
@@ -321,18 +335,18 @@ class Write extends React.Component {
                 <div className="content noto">
                     {tempPosts.map((item, idx) => (
                         <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
-                            <a onClick={() => this.fecthTempPosts(item.token)} className={this.state.token == item.token ? 'deep-dark' : 'shallow-dark'}>
+                            <span onClick={() => this.fecthTempPosts(item.token)} className={`c-pointer ${this.state.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
                                 {item.title} <span className="vs">{item.date}전</span>
-                            </a>
+                            </span>
                             <a onClick={() => this.onDeleteTempPost(item.token)}>
                                 <i className="fas fa-times"></i>
                             </a>
                         </div>
                     ))}
                     <div className="blex-card p-3 mb-3 d-flex justify-content-between">
-                        <a onClick={() => this.fecthTempPosts()} className={this.state.token == '' ? 'deep-dark' : 'shallow-dark'}>
+                        <span onClick={() => this.fecthTempPosts()} className={`c-pointer ${this.state.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
                             새 글 쓰기
-                        </a>
+                        </span>
                     </div>
                 </div>
                 <div className="button" onClick={() => this.onTempSave()}>
@@ -410,19 +424,21 @@ class Write extends React.Component {
 
                 {tempPostsModal}
 
-                <a onClick={() => this.onOpenModal(modal.tempPosts)}>
-                    <div className="write-btn slide">
-                        <i className="far fa-save"></i>
-                    </div>
-                </a>
+                <div
+                    className="write-btn slide"
+                    onClick={() => this.onOpenModal(modal.tempPosts)}>
+                    <i className="far fa-save"></i>
+                </div>
 
                 {publishModal}
 
-                <a onClick={() => this.onOpenModal(modal.publish)}>
-                    <div className="write-btn">
-                        <i className="fas fa-pencil-alt"></i>
-                    </div>
-                </a>
+                <div
+                    className="write-btn"
+                    onClick={() => this.onOpenModal(modal.publish)}>
+                    <i className="fas fa-pencil-alt"></i>
+                </div>
+                
+                {this.state.isSumbit ? <FullLoading/> : ''}
             </>
         )
     }

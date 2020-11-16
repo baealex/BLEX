@@ -17,7 +17,7 @@
 }
 
 .deep-dark {
-    color: $deep-dark !important;
+    color: $deep-dark;
 
     body.dark &, .reverse-color & {
         color: #e0e0e0;
@@ -34,7 +34,7 @@
 }
 
 .shallow-dark {
-    color: $shallow-dark !important;
+    color: $shallow-dark;
 
     body.dark &, .reverse-color & {
         color: #a7a7a7;
@@ -51,7 +51,7 @@
 }
 
 .gray-dark {
-    color: $gray-dark !important;
+    color: $gray-dark;
 
     &:hover {
         color: $gray-dark;

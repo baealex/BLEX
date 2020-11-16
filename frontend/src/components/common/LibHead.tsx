@@ -27,6 +27,10 @@ export default function() {
                 integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
                 crossOrigin="anonymous"
             />
+            <link
+                rel="stylesheet"
+                href="https://rawcdn.githack.com/nzbin/three-dots/c592f34f85813ce75b9bc984b1bafcea3cb39b37/dist/three-dots.min.css"
+            />
             {Config.GOOGLE_ANALYTICS_V4 ? (
                 <>
                     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>

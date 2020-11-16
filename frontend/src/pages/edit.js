@@ -8,6 +8,7 @@ import { Controlled as CodeMirror } from 'react-codemirror2'
 import Modal from '@components/common/Modal';
 import InputForm from '@components/form/InputForm';
 import SelectForm from '@components/form/SelectForm';
+import FullLoading from '@components/common/FullLoading';
 import ArticleContent from '@components/article/ArticleContent';
 
 import API from '@modules/api';
@@ -38,6 +39,7 @@ class Edit extends React.Component {
             series: '',
             image: '',
             imageName: '',
+            isSumbit: false,
             isOpenPublishModal: false,
             editor: undefined,
             seriesArray: [],
@@ -160,15 +162,27 @@ class Edit extends React.Component {
             toast('😅 키워드를 작성해주세요.');
             return;
         }
-        const { data } = await API.putPost('@' + this.state.username, url, 'edit', {
-            title: this.state.title,
-            text_md: this.state.text,
-            text_html: blexer(this.state.text),
-            series: this.state.series,
-            tag: this.state.tags
-        });
-        if(data == 'DONE') {
-            Router.push('/[author]/[posturl]', `/@${this.state.username}/${url}`);
+        try {
+            this.setState({
+                ...this.state,
+                isSumbit: true
+            });
+            const { data } = await API.putPost('@' + this.state.username, url, 'edit', {
+                title: this.state.title,
+                text_md: this.state.text,
+                text_html: blexer(this.state.text),
+                series: this.state.series,
+                tag: this.state.tags
+            });
+            if(data == 'DONE') {
+                Router.push('/[author]/[posturl]', `/@${this.state.username}/${url}`);
+            }
+        } catch(e) {
+            this.setState({
+                ...this.state,
+                isSumbit: false
+            });
+            toast('😥 글 수정중 오류가 발생했습니다.');
         }
     }
 
@@ -264,11 +278,13 @@ class Edit extends React.Component {
 
                 {publishModal}
 
-                <a onClick={() => this.onOpenModal(modal.publish)}>
-                    <div className="write-btn">
-                        <i className="fas fa-pencil-alt"></i>
-                    </div>
-                </a>
+                <div
+                    className="write-btn"
+                    onClick={() => this.onOpenModal(modal.publish)}>
+                    <i className="fas fa-pencil-alt"></i>
+                </div>
+                
+                {this.state.isSumbit ? <FullLoading/> : ''}
             </>
         )
     }
