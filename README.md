@@ -19,8 +19,6 @@
 
 ***"예쁘고 유니크한 블로그 없을까요?"*** 🙋‍♂️ [여기 있습니다!](https://blex.me) 블렉스는 가입형 블로그로 회원이라면 누구나 글을 자유롭게 작성할 수 있습니다. ~~무엇보다 쓰는 사람이 없어서 매우 유니크합니다!~~ 블렉스는 미니멀한 디자인과 신기술을 응용한 빠른 웹사이트를 지향하며 `AD-Free`, 3세대 블로그를 과감히 꿈꿉니다. 의견이나 질문할 내용이 있다면 [im@baejino.com](mailto:im@baejino.com)으로 연락주시기 바랍니다. 건의할 내용은 [issue](https://github.com/baealex/BLEX/issues)에 남겨주세요!
 
-![1](https://user-images.githubusercontent.com/35596687/93216408-a7312580-f7a2-11ea-9dec-d1ca232b5b3e.png)
-
 ![2](https://user-images.githubusercontent.com/35596687/93216411-a8625280-f7a2-11ea-8966-6534b2026038.png)
 
 ![3](https://user-images.githubusercontent.com/35596687/93216412-a8fae900-f7a2-11ea-9d69-6b22166bbc68.png)
@@ -29,9 +27,9 @@
 
 ![5](https://user-images.githubusercontent.com/35596687/93216420-a9937f80-f7a2-11ea-817b-813241e61a39.png)
 
-![6](https://user-images.githubusercontent.com/35596687/93216421-aa2c1600-f7a2-11ea-8473-134a09055656.png)
+![6](https://user-images.githubusercontent.com/35596687/99484360-8f913b80-29a3-11eb-90d6-dffcf7bcf3eb.png)
 
-![7](https://user-images.githubusercontent.com/35596687/93216422-aac4ac80-f7a2-11ea-8757-6842ce0afc85.png)
+![7](https://user-images.githubusercontent.com/35596687/99484279-5f499d00-29a3-11eb-9d68-7cb2bc66e660.png)
 
 ## Features
 
