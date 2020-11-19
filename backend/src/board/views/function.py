@@ -120,49 +120,13 @@ def create_viewer(element, request):
         history = History.objects.get(key=get_encrypt_ip(request))
         if not history.agent == user_agent[:200]:
             history.agent = user_agent[:200]
-            if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower() or 'headless' in user_agent.lower():
-                history.category = 'temp-bot'
-                bot_types = [
-                    'google',
-                    'bing',
-                    'commoncrawl',
-                    'petal',
-                    'notion',
-                    'naver',
-                    'kakao',
-                    'slack',
-                    'twitter',
-                    'telegram',
-                    'semrush',
-                    'mj12',
-                    'seznam',
-                    'blex',
-                    'yandex',
-                    'dot',
-                    'cocolyze',
-                    'bnf',
-                    'ads',
-                    'linkdex',
-                    'similartech',
-                    'coccoc',
-                    'ahrefs',
-                    'baidu',
-                    'facebook'
-                ]
-                for bot_type in bot_types:
-                    if bot_type in user_agent.lower():
-                        history.category = bot_type + '-bot'
-                        break
-            else:
-                if not history.category == '' and not '(u)' in history.category:
-                    history.category += '(u)'
+            history.category = bot_check(user_agent)
             history.save()
             history.refresh_from_db()
     except:
         history = History(key=get_encrypt_ip(request))
         history.agent = user_agent[:200]
-        if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
-            history.category = 'temp-bot'
+        history.category = bot_check(user_agent)
         history.save()
         history.refresh_from_db()
     
@@ -179,6 +143,42 @@ def create_viewer(element, request):
         if not today_analytics.table.filter(id=history.id).exists():
             today_analytics.table.add(history)
             today_analytics.save()
+
+def bot_check(user_agent):
+    user_agent_lower = user_agent.lower()
+    if 'bot' in user_agent_lower or 'facebookexternalhit' in user_agent_lower or 'headless' in user_agent_lower:
+        bot_types = [
+            'google',
+            'bing',
+            'commoncrawl',
+            'petal',
+            'notion',
+            'naver',
+            'kakao',
+            'slack',
+            'twitter',
+            'telegram',
+            'semrush',
+            'mj12',
+            'seznam',
+            'blex',
+            'yandex',
+            'dot',
+            'cocolyze',
+            'bnf',
+            'ads',
+            'linkdex',
+            'similartech',
+            'coccoc',
+            'ahrefs',
+            'baidu',
+            'facebook'
+        ]
+        for bot_type in bot_types:
+            if bot_type in user_agent.lower():
+                return bot_type + '-bot'
+        return 'temp-bot'
+    return ''
 
 def get_posts(sort, user=None):
     if sort == 'trendy':
