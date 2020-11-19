@@ -320,7 +320,7 @@ def user_posts(request, username, url=None):
                 post.image = request.FILES['image']
             except:
                 pass
-            post.tag = fn.get_clean_tag(request.POST.get('tag', ''))
+            post.tag = fn.get_clean_tag(request.POST.get('tag', ''))[:50]
             post.url = slugify(post.title, allow_unicode=True)
             if post.url == '':
                 post.url = randstr(15)
