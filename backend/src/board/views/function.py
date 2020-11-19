@@ -96,6 +96,9 @@ def create_referer(element, referer):
 
         referer_from = None
         referer = referer[:500]
+        if 'google' in referer and 'url' in referer:
+            referer = 'https://www.google.com/'
+        
         try:
             referer_from = RefererFrom.objects.get(location=referer)
         except:
