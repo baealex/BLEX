@@ -185,7 +185,7 @@ class TempPosts(models.Model):
 class Post(models.Model):
     author        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title         = models.CharField(max_length=50)
-    url           = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    url           = models.SlugField(max_length=65, unique=True, allow_unicode=True)
     image         = models.ImageField(blank=True, upload_to=title_image_path)
     text_md       = models.TextField(blank=True)
     text_html     = models.TextField()
