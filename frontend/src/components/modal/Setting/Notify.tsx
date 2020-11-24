@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import API, { SettingNotifyData } from '../../../modules/api';
 
 interface TabData extends SettingNotifyData {
-    isTelegramSync: string;
+    isTelegramSync: boolean;
 }
 
 interface Props {
@@ -71,7 +71,7 @@ class NotifySetting extends React.Component<Props, State> {
             if(data == 'DONE') {
                 this.props.fetchData(tabname, {
                     ...tabdata,
-                    isTelegramsync: 'false'
+                    isTelegramsync: false
                 });
             }
         }
@@ -82,13 +82,13 @@ class NotifySetting extends React.Component<Props, State> {
 
         return (
             <>
-                {this.props.tabdata.isTelegramSync == 'false' ? (
-                    <div className="p-3 btn-primary c-pointer" onClick={() => this.onTelegramSync()}>
-                        <i className="fab fa-telegram-plane"></i> 텔레그램으로 실시간 알림받기
-                    </div>
-                ) : (
+                {this.props.tabdata.isTelegramSync ? (
                     <div className="p-3 btn-primary c-pointer" onClick={() => this.onTelegramUnsync()}>
                         <i className="fab fa-telegram-plane"></i> 텔레그램과 연동을 해제할까요?
+                    </div>
+                ) : (
+                    <div className="p-3 btn-primary c-pointer" onClick={() => this.onTelegramSync()}>
+                        <i className="fab fa-telegram-plane"></i> 텔레그램으로 실시간 알림받기
                     </div>
                 )}
                 {this.state.telegramToken ? (
