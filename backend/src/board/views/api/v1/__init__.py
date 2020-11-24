@@ -648,6 +648,7 @@ def user_setting(request, username, item):
                 user.first_name = realname
             if password:
                 user.set_password(password)
+                auth.login(request, user)
             user.save()
             return HttpResponse('DONE')
         
