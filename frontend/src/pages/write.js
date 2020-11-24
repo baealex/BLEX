@@ -93,7 +93,11 @@ class Write extends React.Component {
                         ...this.state,
                         tempPosts: data.result
                     });
-                    toast('😀 작성하던 포스트가 있으시네요!');
+                    toast('😀 작성하던 포스트가 있으시네요!', {
+                        onClick: () => {
+                            this.onOpenModal(modal.tempPosts);
+                        }
+                    });
                 }
             }
         }
