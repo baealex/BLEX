@@ -70,7 +70,10 @@ class TopNavigation extends React.Component {
         }
 
         Router.events.on('routeChangeStart', () => {
-            this.onMouseLeaveOnContent();
+            this.setState({
+                ...this.state,
+                onNav: false
+            });
         });
     }
 
@@ -91,13 +94,6 @@ class TopNavigation extends React.Component {
         this.setState({
             ...this.state,
             [e.target.name]: e.target.value
-        });
-    }
-
-    onMouseLeaveOnContent() {
-        this.setState({
-            ...this.state,
-            onNav: false
         });
     }
 
@@ -165,7 +161,6 @@ class TopNavigation extends React.Component {
                     onClose={() => Global.onCloseModal('isSettingModalOpen')}
                 />
                 <div
-                    onMouseLeave={() => this.onMouseLeaveOnContent()}
                     className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
                     <nav
                         onClick={() => this.onClickNavigation()}
