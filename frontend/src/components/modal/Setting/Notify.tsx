@@ -112,7 +112,7 @@ class NotifySetting extends React.Component<Props, State> {
                     </div>
                 ) : this.props.tabdata.notify.map((item, idx) => (
                     <Link key={idx} href={item.url}>
-                        <a className={item.isRead ? 'deep-dark' : 'shallow-dark'} onClick={() => this.onReadNotify(item.pk)}>
+                        <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => this.onReadNotify(item.pk)}>
                             <div className="blex-card p-3">{item.content} <span className="ns shallow-dark">{item.createdDate}전</span></div>
                         </a>
                     </Link>
