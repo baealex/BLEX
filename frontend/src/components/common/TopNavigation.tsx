@@ -61,7 +61,11 @@ class TopNavigation extends React.Component {
         });
         if(alive.data !== 'dead') {
             if(alive.data.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${alive.data.notifyCount}개 있습니다.`)
+                toast(`😲 읽지 않은 알림이 ${alive.data.notifyCount}개 있습니다.`, {
+                    onClick:() => {
+                        Global.onOpenModal('isSettingModalOpen');
+                    }
+                });
             }
         }
 

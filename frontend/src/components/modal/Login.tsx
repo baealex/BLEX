@@ -77,7 +77,11 @@ class LoginModal extends React.Component<Props, State> {
             });
 
             if(data.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`)
+                toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`, {
+                    onClick:() => {
+                        Global.onOpenModal('isSettingModalOpen');
+                    }
+                })
             }
             this.props.onClose();
         } else {

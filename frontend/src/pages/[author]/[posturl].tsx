@@ -217,7 +217,11 @@ class PostDetail extends React.Component<Props, State> {
         else if(data.includes('error')) {
             switch(data.split(':')[1]) {
                 case 'NL':
-                    toast('😅 로그인이 필요합니다.');
+                    toast('😅 로그인이 필요합니다.', {
+                        onClick:() => {
+                            Global.onOpenModal('isLoginModalOpen');
+                        }
+                    });
                     break;
                 case 'SU':
                     toast('😅 자신의 글은 추천할 수 없습니다.');
