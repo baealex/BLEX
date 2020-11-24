@@ -1020,6 +1020,16 @@ def users(request, username):
                 profile.save()
             
             return HttpResponse('DONE')
+        
+        if put.get('username'):
+            if not request.user == user:
+                return HttpResponse('error:DU')
+            posts_count = Post.objects.filter(author=request.user).Count()
+            comments_count = Comments.objects.filter(author=request.user).Count()
+            if posts_count > 0 or comments_count > 0:
+                return HttpResponse('error:RJ')
+            user.uername = username
+            return HttpResponse('DONE')
     
     raise Http404
 
