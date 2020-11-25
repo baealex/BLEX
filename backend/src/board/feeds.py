@@ -9,6 +9,17 @@ from .models import Post, convert_to_localtime
 class CorrectMimeTypeFeed(Rss201rev2Feed):
     content_type = 'application/xml'
 
+class ImageRssFeedGenerator(Rss201rev2Feed):
+    content_type = 'application/xml'
+
+    def add_root_elements(self, handler):
+        super(ImageRssFeedGenerator, self).add_root_elements(handler)
+        handler.startElement(u'image', {})
+        handler.addQuickElement(u"url", self.feed['image_url'])
+        handler.addQuickElement(u"title", self.feed['title'])
+        handler.addQuickElement(u"link", self.feed['link'])
+        handler.endElement(u'image')
+
 class SitePostsFeed(Feed):
     feed_type = CorrectMimeTypeFeed
 
@@ -33,7 +44,7 @@ class SitePostsFeed(Feed):
         return convert_to_localtime(item.created_date)
 
 class UserPostsFeed(Feed):
-    feed_type = CorrectMimeTypeFeed
+    feed_type = ImageRssFeedGenerator
 
     def get_object(self, request, username):
         return User.objects.get(username=username)
@@ -43,6 +54,9 @@ class UserPostsFeed(Feed):
 
     def link(self, obj):
         return '/@' + obj.username
+
+    def feed_extra_kwargs(self, obj):
+        return {'image_url': obj.profile.get_thumbnail()}
 
     def description(self, obj):
         if hasattr(obj, 'profile') and obj.profile.bio:
