@@ -30,6 +30,14 @@ export default function blexer(md) {
         remarkable.renderer.rules.heading_open = (tokens, idx) => {
             return `<h${tokens[idx].hLevel} id=${makeID(tokens[idx + 1].content)}>`;
         };
+    }).use((remarkable) => {
+        remarkable.renderer.rules.image = (tokens, idx) => {
+            const dataSrc = ' data-src="' + tokens[idx].src + '"';
+            const src = ' src="' + tokens[idx].src + '.preview.jpg"';
+            const title = tokens[idx].title ? (' title="' + tokens[idx].title + '"') : '';
+            const alt = ' alt="' + (tokens[idx].alt ? tokens[idx].alt : '') + '"';
+            return '<img class="lazy"' + dataSrc + src + alt + title + '>';
+        }
     }).render(md);
 
     // Custom Markdown
