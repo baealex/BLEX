@@ -1,7 +1,36 @@
 import { Remarkable } from 'remarkable';
 
 export default function blexer(md) {
-    let html = new Remarkable().render(md);
+    const slugify = (text) => (
+        text ? text
+            .toString()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]+/g, '')
+            .replace(/--+/g, '-')
+        : ''
+    );
+
+    const ids = [];
+    const makeID = (text) => {
+        const id = slugify(text);
+        for(let idx=0; ; idx++) {
+            let tempId = id + (idx != 0 ? `-${idx}` : '');
+            if(!ids.includes(tempId)) {
+                ids.push(tempId);
+                return tempId;
+            }
+        }
+    };
+    
+    let html = new Remarkable().use((remarkable) => {
+        remarkable.renderer.rules.heading_open = (tokens, idx) => {
+            return `<h${tokens[idx].hLevel} id=${makeID(tokens[idx + 1].content)}>`;
+        };
+    }).render(md);
 
     // Custom Markdown
     html = html.replace(
