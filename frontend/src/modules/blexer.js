@@ -9,7 +9,7 @@ export default function blexer(md) {
             .toLowerCase()
             .trim()
             .replace(/\s+/g, '-')
-            .replace(/[^\w-]+/g, '')
+            .replace(/[\[\]{}()<>?|`~!@#$%^&*_+=,.;:\"'\\]/g, '')
             .replace(/--+/g, '-')
         : ''
     );
