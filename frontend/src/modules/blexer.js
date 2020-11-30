@@ -4,13 +4,12 @@ export default function blexer(md) {
     const slugify = (text) => (
         text ? text
             .toString()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase()
             .trim()
             .replace(/\s+/g, '-')
-            .replace(/[\[\]{}()<>?|`~!@#$%^&*_+=,.;:\"'\\]/g, '')
+            .replace(/[^가-힣a-z0-9\-]/g, '')
             .replace(/--+/g, '-')
+            .slice(0, 25)
         : ''
     );
 
