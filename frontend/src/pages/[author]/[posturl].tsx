@@ -63,6 +63,7 @@ interface State {
     totalLikes: number;
     comments: Comment[];
     selectedTag?: string;
+    headerNav?: string[][];
     featurePosts?: FeaturePostsData;
 }
 
@@ -164,6 +165,7 @@ class PostDetail extends React.Component<Props, State> {
 
         this.onViewUp();
         this.getFeatureArticle();
+        this.makeHeaderNav();
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
@@ -181,6 +183,7 @@ class PostDetail extends React.Component<Props, State> {
                 comments: this.props.post.comments
             });
             needSyntaxUpdate = true;
+            this.makeHeaderNav();
             this.onViewUp();
             this.getFeatureArticle();
         }
@@ -193,6 +196,24 @@ class PostDetail extends React.Component<Props, State> {
             Prism.highlightAll();
             lazyLoad();
         }
+    }
+
+    makeHeaderNav() {
+        const strip = (html: string) => {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            return doc.body.textContent || "";
+        };
+
+        const headers = this.props.post.textHtml.match(/<h[1-6] id=".*">.*<\/h[1-6]>/g);
+        const headerNav = headers?.map(item =>
+            item.replace(/<h(\d) id="([^"]*)">(.*)<\/h[1-6]>/, '$1,$2,$3').split(',')
+        ).map(item => 
+            [item[0], item[1], strip(item[2])]
+        );
+        this.setState({
+            ...this.state,
+            headerNav
+        });
     }
 
     async getFeatureArticle() {
@@ -427,6 +448,13 @@ class PostDetail extends React.Component<Props, State> {
                                     sereisLength={this.props.sereisLength}
                                 />
                             ) : <></>}
+                        </div>
+                        <div className="col-lg-2 mobile-disable">
+                            <div className="sticky-top article-nav">
+                                {this.state.headerNav?.map((item, idx) => (
+                                    <a className={`title-${Math.round(Number(item[0])/2)}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

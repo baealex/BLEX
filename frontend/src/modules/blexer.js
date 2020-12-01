@@ -27,7 +27,7 @@ export default function blexer(md) {
     
     let html = new Remarkable().use((remarkable) => {
         remarkable.renderer.rules.heading_open = (tokens, idx) => {
-            return `<h${tokens[idx].hLevel} id=${makeID(tokens[idx + 1].content)}>`;
+            return `<h${tokens[idx].hLevel} id="${makeID(tokens[idx + 1].content)}">`;
         };
     }).use((remarkable) => {
         remarkable.renderer.rules.image = (tokens, idx) => {

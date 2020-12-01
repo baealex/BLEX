@@ -817,9 +817,11 @@ footer {
 }
 /* ------------------------------ */
 /* POSTS : DETAIL : ARTICLE NAVIGATION */
-#article-nav {
+.article-nav {
     position: sticky;
-    max-height: 85vh;
+    top: 15px;
+    margin: 15px 0;
+    max-height: calc(100vh - 30px);
     overflow-y: hidden;
     overflow-x: hidden;
 
