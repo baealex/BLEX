@@ -104,9 +104,7 @@ class API {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?mode=${mode}`,
             method: 'GET',
-            headers: cookie ? {
-                'Cookie': cookie
-            } : {}
+            headers: cookie ? { cookie } : undefined
         });
     }
 

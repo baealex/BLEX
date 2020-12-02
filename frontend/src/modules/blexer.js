@@ -1,31 +1,36 @@
 import { Remarkable } from 'remarkable';
 
-export default function blexer(md) {
-    const slugify = (text) => (
-        text ? text
-            .toString()
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, '-')
-            .replace(/[^가-힣a-z0-9\-]/g, '')
-            .replace(/--+/g, '-')
-            .slice(0, 25)
-        : ''
-    );
+export const strip = (html) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
+};
 
-    const ids = [];
-    const makeID = (text) => {
-        const id = slugify(text);
-        for(let idx=0; ; idx++) {
-            let tempId = id + (idx != 0 ? `-${idx}` : '');
-            if(!ids.includes(tempId)) {
-                ids.push(tempId);
-                return tempId;
-            }
-        }
-    };
-    
+export const slugify = (text) => (
+    text ? text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\[([^\]]*)\]\([^\)]*\)/gi, '$1')
+        .replace(/\s+/g, '-')
+        .replace(/[^가-힣a-z0-9\-]/g, '')
+        .replace(/--+/g, '-')
+        .slice(0, 25)
+    : 'header'
+);
+
+export default function blexer(md) {
     let html = new Remarkable().use((remarkable) => {
+        const ids = [];
+        const makeID = (text) => {
+            const id = slugify(text);
+            for(let idx=0; ; idx++) {
+                let tempId = id + (idx != 0 ? `-${idx}` : '');
+                if(!ids.includes(tempId)) {
+                    ids.push(tempId);
+                    return tempId;
+                }
+            }
+        };
         remarkable.renderer.rules.heading_open = (tokens, idx) => {
             return `<h${tokens[idx].hLevel} id="${makeID(tokens[idx + 1].content)}">`;
         };

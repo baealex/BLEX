@@ -21,7 +21,7 @@ import Prism from '@modules/library/prism';
 import API from '@modules/api';
 import lazyLoad from '@modules/lazy';
 import Global from '@modules/global';
-import blexer from '@modules/blexer';
+import blexer, { strip } from '@modules/blexer';
 
 import { GetServerSidePropsContext } from 'next';
 
@@ -93,7 +93,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         raise.Http404(res);
     }
 
-    const cookie = req.headers['cookie'];
+    const cookie = req.headers.cookie;
 
     try {
         const post = await API.getPost(author as string, posturl as string, 'view', cookie);
@@ -199,11 +199,6 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     makeHeaderNav() {
-        const strip = (html: string) => {
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            return doc.body.textContent || "";
-        };
-
         const headers = this.props.post.textHtml.match(/<h[1-6] id=".*">.*<\/h[1-6]>/g);
         const headerNav = headers?.map(item =>
             item.replace(/<h(\d) id="([^"]*)">(.*)<\/h[1-6]>/, '$1,$2,$3').split(',')
