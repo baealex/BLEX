@@ -85,6 +85,7 @@ urlpatterns = [
     path('v1/users/@<username>', api_v1.users, name='users_api_v1'),
     path('v1/users/@<username>/posts', api_v1.user_posts, name='post_api_v1'),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts, name='post_api_v1'),
+    path('v1/users/@<username>/posts/<url>/comments', api_v1.user_posts_comments, name='post_comments_api_v1'),
     path('v1/users/@<username>/posts/<url>/analytics', api_v1.user_posts_analytics, name='post_analytics_api_v1'),
     path('v1/users/@<username>/series', api_v1.user_series, name='series_api_v1'),
     path('v1/users/@<username>/series/<url>', api_v1.user_series, name='series_api_v1'),

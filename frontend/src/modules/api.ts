@@ -108,6 +108,13 @@ class API {
         });
     }
 
+    async getPostComments(author: string, url: string) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/comments`,
+            method: 'GET',
+        });
+    }
+
     async postPost(author: string, data: FormData) {
         return await axios({
             url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts`,

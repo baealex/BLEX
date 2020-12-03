@@ -360,7 +360,6 @@ def user_posts(request, username, url=None):
                 if post.hide and request.user != post.author:
                     raise Http404
                 
-                comments = Comment.objects.filter(post=post).order_by('created_date')
                 return CamelizeJsonResponse({
                     'url': post.url,
                     'title': post.title,
@@ -374,16 +373,9 @@ def user_posts(request, username, url=None):
                     'author': post.author.username,
                     'text_html': post.text_html,
                     'total_likes': post.total_likes(),
+                    'total_comment': post.total_comment(),
                     'tag': post.tag,
-                    'is_liked': post.likes.filter(id=request.user.id).exists(),
-                    'comments': list(map(lambda comment: {
-                        'pk': comment.pk,
-                        'author_image': comment.author.profile.get_thumbnail(),
-                        'author': comment.author.username,
-                        'text_html': comment.text_html,
-                        'time_since': timesince(comment.created_date),
-                        'is_edited': comment.edited
-                    }, comments))
+                    'is_liked': post.likes.filter(id=request.user.id).exists()
                 })
 
     if request.method == 'PUT':
@@ -441,6 +433,22 @@ def user_posts(request, username, url=None):
         return HttpResponse('DONE')
     
     raise Http404
+
+def user_posts_comments(request, username, url):
+    post = get_object_or_404(Post, author__username=username, url=url)
+    if request.method == 'GET':
+        comments = Comment.objects.filter(post=post).order_by('created_date')
+        return CamelizeJsonResponse({
+            'comments': list(map(lambda comment: {
+                'pk': comment.pk,
+                'author_image': comment.author.profile.get_thumbnail(),
+                'author': comment.author.username,
+                'text_html': comment.text_html,
+                'time_since': timesince(comment.created_date),
+                'is_edited': comment.edited
+            }, comments))
+        })
+
 
 def user_posts_analytics(request, username, url):
     post = get_object_or_404(Post, author__username=username, url=url)

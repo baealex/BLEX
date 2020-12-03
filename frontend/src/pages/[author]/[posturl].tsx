@@ -41,12 +41,12 @@ interface Props {
         authorImage: string;
         isLiked: boolean;
         totalLikes: number;
+        totalComment: number;
         description: string;
         createdDate: string;
         updatedDate: string;
         tag: string;
         textHtml: string;
-        comments: Comment[];
     },
     series: {
         url: string;
@@ -148,12 +148,7 @@ class PostDetail extends React.Component<Props, State> {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             totalLikes: props.post.totalLikes,
-            comments: props.post.comments.map(comment => {
-                let newComment = comment;
-                newComment.isEdit = false;
-                newComment.textMarkdown = '';
-                return newComment;
-            })
+            comments: []
         };
         Global.appendUpdater('PostDetail', () => this.setState({
             ...this.state,
@@ -162,11 +157,14 @@ class PostDetail extends React.Component<Props, State> {
         }));
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         Prism.highlightAll();
         lazyLoadResource();
-        lazyIntersection('.page-footer', () => {
-            this.getFeatureArticle();
+        lazyIntersection('.bg-comment', async () => {
+            await this.getComments();
+        });
+        lazyIntersection('.page-footer', async () => {
+            await this.getFeatureArticle();
         });
 
         this.onViewUp();
@@ -176,23 +174,28 @@ class PostDetail extends React.Component<Props, State> {
     componentDidUpdate(prevProps: Props, prevState: State) {
         let needSyntaxUpdate = false;
 
-        if(
+        if (
+            prevProps.post.url !== this.props.post.url ||
+            prevProps.post.author !== this.props.post.author ||
             prevProps.post.isLiked !== this.props.post.isLiked ||
-            prevProps.post.comments !== this.props.post.comments ||
             prevProps.post.totalLikes !== this.props.post.totalLikes
         ) {
             this.setState({
-                ...this.state,
                 isLiked: this.props.post.isLiked,
                 totalLikes: this.props.post.totalLikes,
-                comments: this.props.post.comments
+                comments: []
             });
             needSyntaxUpdate = true;
-            this.makeHeaderNav();
-            this.onViewUp();
-            lazyIntersection('.page-footer', () => {
-                this.getFeatureArticle();
+
+            lazyIntersection('.bg-comment', async () => {
+                await this.getComments();
             });
+            lazyIntersection('.page-footer', async () => {
+                await this.getFeatureArticle();
+            });
+
+            this.onViewUp();
+            this.makeHeaderNav();
         }
 
         if(prevState.comments !== this.state.comments) {
@@ -213,19 +216,24 @@ class PostDetail extends React.Component<Props, State> {
             [item[0], item[1], strip(item[2])]
         );
         this.setState({
-            ...this.state,
             headerNav
         });
     }
 
+    async getComments() {
+        const { author, url } = this.props.post;
+        const { data } = await API.getPostComments(`@${author}`, url);
+        this.setState({
+            comments: data.comments
+        });
+    }
+
     async getFeatureArticle() {
-        {
-            const { data } = await API.getFeaturePosts(this.props.post.author, this.props.post.url);
-            this.setState({
-                ...this.state,
-                featurePosts: data
-            });
-        }
+        const { author, url } = this.props.post;
+        const { data } = await API.getFeaturePosts(author, url);
+        this.setState({
+            featurePosts: data
+        });
     }
 
     async onClickLike() {
@@ -401,7 +409,7 @@ class PostDetail extends React.Component<Props, State> {
                                         </li>
                                         <li className="mx-3 mx-lg-4" onClick={() => this.onClickComment()}>
                                             <i className="far fa-comment"></i>
-                                            <span>{this.props.post.comments.length}</span>
+                                            <span>{this.props.post.totalComment}</span>
                                         </li>
                                         <li className="mx-3 mx-lg-4" onClick={() => this.onClickShare('twitter')}>
                                             <i className="fab fa-twitter"></i>
