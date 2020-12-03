@@ -14,7 +14,7 @@ import ArticleContent from '@components/article/ArticleContent';
 import API from '@modules/api';
 import blexer from '@modules/blexer';
 import Global from '@modules/global';
-import lazyLoad from '@modules/lazy';
+import { lazyLoadResource } from '@modules/lazy';
 import Prism from '@modules/library/prism';
 import { dropImage } from '@modules/image';
 
@@ -103,7 +103,7 @@ class Edit extends React.Component {
     componentDidUpdate(prevState) {
         if (prevState.text !== this.state.text) {
             Prism.highlightAll();
-            lazyLoad();
+            lazyLoadResource();
         }
     }
 

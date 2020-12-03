@@ -13,7 +13,7 @@ import { toast } from 'react-toastify';
 import { Controlled as CodeMirror } from 'react-codemirror2'
 
 import API from '@modules/api';
-import lazyLoad from '@modules/lazy';
+import { lazyLoadResource } from '@modules/lazy';
 import blexer from '@modules/blexer';
 import Global from '@modules/global';
 import Prism from '@modules/library/prism';
@@ -106,7 +106,7 @@ class Write extends React.Component {
     componentDidUpdate(prevState) {
         if (prevState.text !== this.state.text) {
             Prism.highlightAll();
-            lazyLoad();
+            lazyLoadResource();
         }
     }
 

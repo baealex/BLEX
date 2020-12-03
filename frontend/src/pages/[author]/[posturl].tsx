@@ -19,7 +19,10 @@ import { toast } from 'react-toastify';
 
 import Prism from '@modules/library/prism';
 import API from '@modules/api';
-import lazyLoad from '@modules/lazy';
+import {
+    lazyLoadResource,
+    lazyIntersection
+} from '@modules/lazy';
 import Global from '@modules/global';
 import blexer, { strip } from '@modules/blexer';
 
@@ -161,10 +164,12 @@ class PostDetail extends React.Component<Props, State> {
 
     async componentDidMount() {
         Prism.highlightAll();
-        lazyLoad();
+        lazyLoadResource();
+        lazyIntersection('.page-footer', () => {
+            this.getFeatureArticle();
+        });
 
         this.onViewUp();
-        this.getFeatureArticle();
         this.makeHeaderNav();
     }
 
@@ -185,7 +190,9 @@ class PostDetail extends React.Component<Props, State> {
             needSyntaxUpdate = true;
             this.makeHeaderNav();
             this.onViewUp();
-            this.getFeatureArticle();
+            lazyIntersection('.page-footer', () => {
+                this.getFeatureArticle();
+            });
         }
 
         if(prevState.comments !== this.state.comments) {
@@ -194,7 +201,7 @@ class PostDetail extends React.Component<Props, State> {
 
         if(needSyntaxUpdate) {
             Prism.highlightAll();
-            lazyLoad();
+            lazyLoadResource();
         }
     }
 
@@ -291,7 +298,7 @@ class PostDetail extends React.Component<Props, State> {
             ...this.setState,
             comments: this.state.comments.concat(data.element)
         });
-        lazyLoad();
+        lazyLoadResource();
     }
     
     async onCommentEdit(pk: number) {
@@ -321,7 +328,7 @@ class PostDetail extends React.Component<Props, State> {
                 }) : comment
             ));
             this.setState({...this.state, comments});
-            lazyLoad();
+            lazyLoadResource();
             
             toast('😀 댓글이 수정되었습니다.');
         }

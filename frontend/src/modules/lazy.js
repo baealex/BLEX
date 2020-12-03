@@ -1,4 +1,25 @@
-export default function lazyLoad() {
+import { callbackify } from "util";
+
+export function lazyIntersection(className, callback) {
+    let element = document.querySelector(className);
+
+    if ("IntersectionObserver" in window) {
+        let observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    observer.unobserve(entry.target);
+                    callback();
+                }
+            });
+        });
+
+        observer.observe(element);
+    } else {
+        callback();
+    }
+}
+
+export function lazyLoadResource() {
     let lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
 
     if ("IntersectionObserver" in window) {
@@ -17,7 +38,10 @@ export default function lazyLoad() {
             lazyImageObserver.observe(lazyImage);
         });
     } else {
-        // Possibly fall back to a more compatible method here
+        lazyImages.forEach((lazyImage) => {
+            lazyImage.src = lazyImage.dataset.src;
+            lazyImage.classList.remove("lazy");
+        });
     }
 
     var lazyVideos = [].slice.call(document.querySelectorAll("video.lazy"));
@@ -42,5 +66,7 @@ export default function lazyLoad() {
         lazyVideos.forEach((lazyVideo) => {
             lazyVideoObserver.observe(lazyVideo);
         });
+    } else {
+        
     }
 }
