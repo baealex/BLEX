@@ -25,7 +25,8 @@ from django.conf import settings
 
 from board.models import *
 from board.forms import *
-from board import telegram
+from board.module.subtask import sub_task_manager
+from board.module.telegram import TelegramBot
 from board.views import function as fn
 
 # Account
@@ -234,7 +235,7 @@ def id_check(request):
         if len(user) > 0:
             return HttpResponse('ERROR:OL')
         else:
-            regex = re.compile('[a-z0-9]*')
+            regex = re.compile('[a-z0-9]{4,}')
             if not len(regex.match(username).group()) == len(username):
                 return HttpResponse('ERROR:NM')
             return HttpResponse('DONE')
@@ -278,8 +279,8 @@ def signout(request):
 def opinion(request):
     if request.method == 'POST':
         req = QueryDict(request.body)
-        bot = telegram.TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-        bot.send_message_async(settings.TELEGRAM_ADMIN_ID, 'Opinion : ' + req['opinion'])
+        bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+        sub_task_manager.append_task(lambda: bot.send_message(settings.TELEGRAM_ADMIN_ID, 'Opinion : ' + req['opinion']))
         return render(request, 'infomation/thanks.html')
     raise Http404
 
@@ -810,7 +811,6 @@ def post_write(request):
                 except:
                     post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
                     i += 1
-            fn.add_exp(request.user, 2)
 
             get_token = request.GET.get('token')
             if get_token:

@@ -25,7 +25,8 @@ from PIL import Image, ImageFilter
 
 from board.models import *
 from board.forms import *
-from board.telegram import TelegramBot
+from board.module.subtask import sub_task_manager
+from board.module.telegram import TelegramBot
 from board.views import function as fn
 
 def CamelizeJsonResponse(obj, json_dumps_params={'ensure_ascii': True}):
@@ -1117,10 +1118,10 @@ def telegram(request, parameter):
                     check.telegram_token = ''
                     check.telegram_id = req_userid
                     check.save()
-                    bot.send_message_async(req_userid, '정상적으로 연동되었습니다.')
+                    sub_task_manager.append_task(lambda: bot.send_message(req_userid, '정상적으로 연동되었습니다.'))
             except:
                 message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
-                bot.send_message_async(req_userid, message)
+                sub_task_manager.append_task(lambda: bot.send_message(req_userid, message))
             return HttpResponse('None')
     
     if parameter == 'makeToken':

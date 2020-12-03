@@ -14,7 +14,8 @@ from django.core.cache import cache
 from django.conf import settings
 
 from board.models import *
-from board import telegram
+from board.module.subtask import sub_task_manager
+from board.module.telegram import TelegramBot
 
 def view_count(element, request):
     if element.author == request.user:
@@ -381,16 +382,6 @@ def auth_captcha(response):
         return True
     return False
 
-def add_exp(user, num):
-    if hasattr(user, 'profile'):
-        user.profile.exp += num
-        if user.profile.exp > 100:
-            user.profile.exp = 100
-        user.profile.save()
-    else:
-        new_profile = Profile(user=user, exp=num)
-        new_profile.save()
-
 def make_path(upload_path, dir_list):
     for dir_name in dir_list:
         upload_path += ('/' + dir_name)
@@ -420,8 +411,9 @@ def create_notify(user, url, infomation):
     if hasattr(user, 'config'):
         telegram_id = user.config.telegram_id
         if not telegram_id == '':
-            bot = telegram.TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            bot.send_messages_async(telegram_id, [
+            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+            sub_task_manager.append_task(lambda: bot.send_messages(telegram_id, [
                 settings.SITE_URL + str(url),
                 infomation
-            ])
+            ]))
+                

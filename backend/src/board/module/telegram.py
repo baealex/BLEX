@@ -25,14 +25,6 @@ class TelegramBot:
             }
             result.append(requests.get(req_url, req_data))
         return result
-
-    def send_message_async(self, chat_id, text):
-        _thread = threading.Thread(target=self.send_message, args=(chat_id, text))
-        _thread.start()
-    
-    def send_messages_async(self, chat_id, text_list):
-        _thread = threading.Thread(target=self.send_messages, args=(chat_id, text_list))
-        _thread.start()
     
     def get_updateds(self):
         req_url = self.url + '/getUpdates'
