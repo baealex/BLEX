@@ -67,6 +67,7 @@ interface State {
     comments: Comment[];
     selectedTag?: string;
     headerNav?: string[][];
+    headerNow: string;
     featurePosts?: FeaturePostsData;
 }
 
@@ -148,6 +149,7 @@ class PostDetail extends React.Component<Props, State> {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             totalLikes: props.post.totalLikes,
+            headerNow: '',
             comments: []
         };
         Global.appendUpdater('PostDetail', () => this.setState({
@@ -210,14 +212,37 @@ class PostDetail extends React.Component<Props, State> {
 
     makeHeaderNav() {
         const headers = this.props.post.textHtml.match(/<h[1-6] id=".*">.*<\/h[1-6]>/g);
-        const headerNav = headers?.map(item =>
-            item.replace(/<h(\d) id="([^"]*)">(.*)<\/h[1-6]>/, '$1,$2,$3').split(',')
-        ).map(item => 
-            [item[0], item[1], strip(item[2])]
-        );
-        this.setState({
-            headerNav
-        });
+
+        if(headers) {
+            const headerNav = headers.map(item =>
+                item.replace(/<h(\d) id="([^"]*)">(.*)<\/h[1-6]>/, '$1,$2,$3').split(',')
+            ).map(item => 
+                [item[0], item[1], strip(item[2])]
+            );
+            this.setState({
+                headerNav
+            });
+
+            const headersTags = [].slice.call(document.querySelectorAll('.article h1, .article h2, .article h3, .article h4, .article h5, .article h6'));
+            if ("IntersectionObserver" in window) {
+                let observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            let header = entry.target;
+                            this.setState({
+                                headerNow: header.id
+                            });
+                        }
+                    });
+                }, {
+                    rootMargin: '0px 0px -98%',
+                });
+                
+                headersTags.forEach(header => {
+                    observer.observe(header);
+                });
+            }
+        }
     }
 
     async getComments() {
@@ -462,7 +487,7 @@ class PostDetail extends React.Component<Props, State> {
                         <div className="col-lg-2 mobile-disable">
                             <div className="sticky-top article-nav">
                                 {this.state.headerNav?.map((item, idx) => (
-                                    <a className={`title-${Math.round(Number(item[0])/2)}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
+                                    <a className={`title-${Math.round(Number(item[0])/2)} ${this.state.headerNow == item[1] ? 'nav-now' : ''}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
                                 ))}
                             </div>
                         </div>
