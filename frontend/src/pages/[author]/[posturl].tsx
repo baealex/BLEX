@@ -24,7 +24,7 @@ import {
     lazyIntersection
 } from '@modules/lazy';
 import Global from '@modules/global';
-import blexer, { strip } from '@modules/blexer';
+import blexer from '@modules/blexer';
 
 import { GetServerSidePropsContext } from 'next';
 
@@ -153,7 +153,6 @@ class PostDetail extends React.Component<Props, State> {
             comments: []
         };
         Global.appendUpdater('PostDetail', () => this.setState({
-            ...this.state,
             isLogin: Global.state.isLogin,
             username: Global.state.username
         }));
@@ -211,46 +210,60 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     makeHeaderNav() {
-        const headers = this.props.post.textHtml.match(/<h[1-6] id=".*">.*<\/h[1-6]>/g);
+        const headersTags = document.querySelectorAll('.article h1, .article h2, .article h3, .article h4, .article h5, .article h6');
+        if ("IntersectionObserver" in window) {
+            const headerNav: string[][] = [];
+            
+            let observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        this.setState({
+                            headerNow: entry.target.id
+                        });
+                    }
+                });
+            }, {
+                rootMargin: '0px 0px -95%',
+            });
+            
+            headersTags.forEach(header => {
+                if(header.id) {
+                    let idNumber = 0;
+                    switch(header.tagName.toUpperCase()) {
+                        case 'H1':
+                        case 'H2':
+                            idNumber = 1;
+                            break;
+                        case 'H3':
+                        case 'H4':
+                            idNumber = 2;
+                            break;
+                        case 'H5':
+                        case 'H6':
+                            idNumber = 3;
+                            break;
+                    }
+                    headerNav.push([
+                        idNumber.toString(), header.id, header.textContent ? header.textContent : '' 
+                    ]);
+                    observer.observe(header);
+                }
+            });
 
-        if(headers) {
-            const headerNav = headers.map(item =>
-                item.replace(/<h(\d) id="([^"]*)">(.*)<\/h[1-6]>/, '$1,$2,$3').split(',')
-            ).map(item => 
-                [item[0], item[1], strip(item[2])]
-            );
             this.setState({
                 headerNav
             });
-
-            const headersTags = [].slice.call(document.querySelectorAll('.article h1, .article h2, .article h3, .article h4, .article h5, .article h6'));
-            if ("IntersectionObserver" in window) {
-                let observer = new IntersectionObserver((entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            let header = entry.target;
-                            this.setState({
-                                headerNow: header.id
-                            });
-                        }
-                    });
-                }, {
-                    rootMargin: '0px 0px -98%',
-                });
-                
-                headersTags.forEach(header => {
-                    observer.observe(header);
-                });
-            }
         }
     }
 
     async getComments() {
-        const { author, url } = this.props.post;
-        const { data } = await API.getPostComments(`@${author}`, url);
-        this.setState({
-            comments: data.comments
-        });
+        if(this.props.post.totalComment > 0) {
+            const { author, url } = this.props.post;
+            const { data } = await API.getPostComments(`@${author}`, url);
+            this.setState({
+                comments: data.comments
+            });
+        }
     }
 
     async getFeatureArticle() {
