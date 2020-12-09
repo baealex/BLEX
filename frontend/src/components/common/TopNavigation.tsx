@@ -8,6 +8,7 @@ import Cookie from '../../modules/cookie';
 import API from '../../modules/api';
 import Global from '../../modules/global';
 import LoginModal from '../modal/Login';
+import SignupModal from '../modal/Signup';
 import SettingModal from '../modal/Setting';
 
 interface State {
@@ -17,6 +18,7 @@ interface State {
     username: string;
     search: string;
     isLoginModalOpen: boolean;
+    isSignupModalOpen: boolean;
     isSettingModalOpen: boolean;
 };
 
@@ -32,15 +34,17 @@ class TopNavigation extends React.Component {
             username: Global.state.username,
             search: '',
             isLoginModalOpen: Global.state.isSettingModalOpen,
+            isSignupModalOpen: Global.state.isSignupModalOpen,
             isSettingModalOpen: Global.state.isLoginModalOpen
         };
         Global.appendUpdater('TopNavigation', () => this.setState({
             ...this.state,
-            isSettingModalOpen: Global.state.isSettingModalOpen,
-            isLoginModalOpen: Global.state.isLoginModalOpen,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
-            isNightMode: Global.state.isNightMode
+            isNightMode: Global.state.isNightMode,
+            isLoginModalOpen: Global.state.isLoginModalOpen,
+            isSignupModalOpen: Global.state.isSignupModalOpen,
+            isSettingModalOpen: Global.state.isSettingModalOpen
         }));
     }
 
@@ -156,6 +160,10 @@ class TopNavigation extends React.Component {
                     isOpen={this.state.isLoginModalOpen}
                     onClose={() => Global.onCloseModal('isLoginModalOpen')}
                 />
+                <SignupModal
+                    isOpen={this.state.isSignupModalOpen}
+                    onClose={() => Global.onCloseModal('isSignupModalOpen')}
+                />
                 <SettingModal
                     isOpen={this.state.isSettingModalOpen}
                     onClose={() => Global.onCloseModal('isSettingModalOpen')}
@@ -225,6 +233,10 @@ class TopNavigation extends React.Component {
                                 <li>
                                     <a onClick={() => Global.onOpenModal('isLoginModalOpen')}>
                                         <i className="fas fa-sign-in-alt"></i> 로그인
+                                    </a>
+                                    {' / '}
+                                    <a onClick={() => Global.onOpenModal('isSignupModalOpen')}>
+                                        <i className="fas fa-sign-in-alt"></i> 회원가입
                                     </a>
                                 </li>
                             )}

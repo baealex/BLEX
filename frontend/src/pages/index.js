@@ -49,7 +49,7 @@ class Home extends React.Component {
 
                 <SEO
                     title={`BLOG EXPRESS ME`}
-                    description={`나를 표현하는 블로그, BLEX`}
+                    description={`온라인 창작자를 위한 블로그`}
                 />
 
                 <div className="container">

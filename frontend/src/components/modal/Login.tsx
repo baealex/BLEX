@@ -125,7 +125,7 @@ class LoginModal extends React.Component<Props, State> {
                     <input
                         className="login-form"
                         name="username"
-                        placeholder="Username"
+                        placeholder="아이디"
                         onChange={(e) => this.onInputChange(e)}
                         value={this.state.username}
                         onKeyPress={(e) => this.onEnterLogin(e)}
@@ -134,7 +134,7 @@ class LoginModal extends React.Component<Props, State> {
                         className="login-form"
                         name="password"
                         type="password"
-                        placeholder="Password"
+                        placeholder="패스워드"
                         onChange={(e) => this.onInputChange(e)}
                         value={this.state.password}
                         onKeyPress={(e) => this.onEnterLogin(e)}

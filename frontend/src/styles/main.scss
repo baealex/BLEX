@@ -1874,3 +1874,15 @@ body.dark .btn {
         }
     }
 }
+
+.active-button {
+    border: none;
+    border-radius: 1em;
+    padding: 5px 15px;
+    color: #fff;
+    background-color: #706fd3;
+}
+
+.display-center {
+    padding-top: 28vh;
+}

@@ -296,7 +296,7 @@ class Write extends React.Component {
             }
         } else {
             const { data } = await API.postTempPosts(title, text, tags);
-            if(data == 'Error:EG') {
+            if(data == 'error:OF') {
                 toast('😥 임시 저장은 5개만 가능해요.');
                 return;
             }

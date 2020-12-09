@@ -192,7 +192,78 @@ def logout(request):
         })
 
 def signup(request):
-    pass
+    if request.method == 'POST':
+        username = request.POST.get('username', '')
+        realname = request.POST.get('realname', '')
+        password = request.POST.get('password', '')
+        email = request.POST.get('email', '')
+
+        has_username = User.objects.filter(username=username)
+        if has_username.exists():
+            return HttpResponse('error:AE')
+
+        regex = re.compile('[a-z0-9]{4,15}')
+        if not regex.match(username) or not len(regex.match(username).group()) == len(username):
+            return HttpResponse('error:UN')
+
+        regex = re.compile('[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}')
+        if not regex.match(email) or not len(regex.match(email).group()) == len(email):
+            return HttpResponse('error:EN')
+
+        token = randstr(35)
+        has_token = User.objects.filter(last_name=token)
+        while has_token.exists():
+            token = randstr(35)
+            has_token = User.objects.filter(last_name=token)
+
+        new_user = User.objects.create_user(
+           username,
+           email,
+           password
+        )
+        new_user.first_name = realname;
+        new_user.last_name = 'email:' + token
+        new_user.is_active = False
+        new_user.save()
+
+        sub_task_manager.append_task(lambda: send_mail(
+            subject = '[ BLEX ] 이메일을 인증해 주세요!',
+            message = settings.SITE_URL + '/verify?token=' + token,
+            from_email = 'im@baejino.com',
+            recipient_list = [new_user.email],
+        ))
+        return HttpResponse('DONE')
+
+def verify_token(request, token):
+    user = get_object_or_404(User, last_name='email:' + token)
+    if user.is_active:
+        return HttpResponse('error:AV')
+    if request.method == 'GET':
+        if user.date_joined < timezone.now() - datetime.timedelta(days=7):
+            return HttpResponse('error:EP')
+        return HttpResponse(user.first_name)
+    if request.method == 'POST':
+        if settings.GOOGLE_RECAPTCHA_V2_SECRET_KEY:
+            gctoken = request.POST.get('gctoken', '')
+            if not gctoken:
+                return HttpResponse('error:RJ')
+            if not fn.auth_captcha_v2(gctoken):
+                return HttpResponse('error:RJ')
+        
+        user.is_active = True
+        user.last_name = ''
+        user.save()
+
+        profile = Profile(user=user)
+        profile.save()
+
+        config = Config(user=user)
+        config.save()
+        
+        fn.create_notify(user=user, url='/notion', infomation=user.first_name + (
+            '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
+
+        return HttpResponse('DONE')
 
 def tags(request, tag=None):
     if not tag:
@@ -719,7 +790,7 @@ def temp_posts(request):
     if request.method == 'POST':
         temps = TempPosts.objects.filter(author=request.user).count()
         if temps >= 5:
-            return HttpResponse('Error:EG')
+            return HttpResponse('error:OF')
         
         body = QueryDict(request.body)
 

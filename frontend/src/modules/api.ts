@@ -4,6 +4,20 @@ import NProgress from 'nprogress';
 
 import Config from './config.json';
 
+export const ERROR = {
+    REJECT: 'error:RJ',
+    EXPIRE: 'error:EP',
+    NOT_LOGIN: 'error:NL',
+    SAME_USER: 'error:SU',
+    DIFF_USER: 'error:DU',
+    OVER_FLOW: 'error:OF',
+    ALREADY_VERIFY: 'error:AV',
+    ALREADY_UNSYNC: 'error:AU',
+    ALREADY_EXISTS: 'error:AE',
+    EMAIL_NOT_MATCH: 'error:EN',
+    USERNAME_NOT_MATCH: 'error:UN',
+}
+
 function serializeObject(obj: any) {
     return Object.keys(obj).reduce((acc, cur) => {
         return acc += `${cur}=${obj[cur] === undefined ? '' : encodeURIComponent(obj[cur])}&`;
@@ -413,6 +427,44 @@ class API {
             NProgress.done();
             return e;
         }
+    }
+
+    async signup(username: string, password: string, email: string, realname: string) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/signup`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                username,
+                realname,
+                password,
+                email
+            }),
+            withCredentials: true,
+        });
+    }
+
+    async getVerifyToken(token: string) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/verify/${token}`,
+            method: 'GET',
+        });
+    }
+
+    async postVerifyToken(token: string, gctoken: string | undefined) {
+        return await axios({
+            url: `${Config.API_SERVER}/v1/users/verify/${token}`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                gctoken
+            }),
+            withCredentials: true,
+        });
     }
 
     async socialLogin(social: string, code: string) {
