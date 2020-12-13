@@ -423,7 +423,7 @@ class PostDetail extends React.Component<Props, State> {
                     <></>
                 ) : (
                     <picture className="post-title-image">
-                        <img src={this.props.post.image}/>
+                        <img src={this.props.post.image} alt={this.props.post.title}/>
                         <div className="post-image-mask mask-off">
                             <h1 className="post-headline fade-in">
                             {this.props.hasSeries ? (

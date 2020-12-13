@@ -20,7 +20,7 @@ export default function() {
                 crossOrigin="anonymous"/>
             <link
                 rel="stylesheet"
-                href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR|Black+Han+Sans"/>
+                href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR"/>
             <link
                 rel="stylesheet"
                 href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
