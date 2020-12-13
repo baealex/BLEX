@@ -696,7 +696,6 @@ def user_setting(request, username, item):
                     'total_comments': post.total_comment(),
                     'today': post.today(),
                     'yesterday': post.yesterday(),
-                    'total': post.total(),
                     'tag': post.tag
                 }, posts))
             })

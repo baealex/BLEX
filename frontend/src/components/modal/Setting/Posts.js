@@ -154,7 +154,6 @@ class PostsSetting extends React.Component {
                     <li><a onClick={() => this.sortArticle('updatedDate')}>최근 수정</a></li>
                     <li><a onClick={() => this.sortArticle('today')}>오늘 조회수 높은</a></li>
                     <li><a onClick={() => this.sortArticle('yesterday')}>어제 조회수 높은</a></li>
-                    <li><a onClick={() => this.sortArticle('total')}>총 조회수 높은</a></li>
                     <li><a onClick={() => this.sortArticle('totalLikes')}>추천 많은</a></li>
                     <li><a onClick={() => this.sortArticle('totalComments')}>댓글 많은</a></li>
                     <li><a onClick={() => this.sortArticle('isHide')}>숨김 우선</a></li>
@@ -187,7 +186,7 @@ class PostsSetting extends React.Component {
                                 </a>
                             </li>
                             <li>
-                                <i className="far fa-eye"></i> <span className="ns">(Today : {post.today}, Yesterday : {post.yesterday}, Total : {post.total})</span></li>
+                                <i className="far fa-eye"></i> <span className="ns">(Today : {post.today}, Yesterday : {post.yesterday})</span></li>
                             <li>
                                 <a onClick={() => this.onAnalytics(post.url)}>
                                     <i className="fas fa-chart-line"></i>
