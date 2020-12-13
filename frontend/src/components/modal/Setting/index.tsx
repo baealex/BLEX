@@ -30,10 +30,13 @@ class SettingModal extends React.Component<Props, State> {
             activateTab: 'Notify',
             data: {}
         };
-        Global.appendUpdater('SettingModal', () => this.setState({
-            ...this.state,
-            username: Global.state.username,
-        }));
+        Global.appendUpdater('SettingModal', () => {
+            this.setState({
+                username: Global.state.username,
+                activateTab: 'Notify',
+                data: {},
+            });
+        });
     }
 
     fetchData(tab: tabName, data: any) {

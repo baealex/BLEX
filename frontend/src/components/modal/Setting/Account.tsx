@@ -2,7 +2,8 @@ import React from 'react';
 
 import { toast } from 'react-toastify';
 
-import API, { SettingAccountData } from '../../../modules/api';
+import API, { SettingAccountData, ERROR } from '@modules/api';
+import Global from '@modules/global';
 
 interface Props {
     username: string;
@@ -12,9 +13,11 @@ interface Props {
 }
 
 interface State {
+    username: string;
     realname: string;
     password: string;
     passwordCheck: string;
+    isChangeUsername: boolean;
     allowEmailShow: boolean;
     allowHistoryCollect: boolean;
 }
@@ -25,9 +28,11 @@ class AccountSetting extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
+            username: '',
             realname: '',
             password: '',
             passwordCheck: '',
+            isChangeUsername: false,
             allowEmailShow: false,
             allowHistoryCollect: false
         }
@@ -45,7 +50,8 @@ class AccountSetting extends React.Component<Props, State> {
         }
         this.setState({
             ...this.state,
-            realname
+            realname,
+            username: this.props.username
         });
     }
 
@@ -102,14 +108,87 @@ class AccountSetting extends React.Component<Props, State> {
         // TODO: SignOut
     }
 
+    async onChangeUsername() {
+        if(!this.state.isChangeUsername) {
+            this.setState({
+                isChangeUsername: true
+            });
+        } else {
+            const { data } = await API.putUsername(
+                this.props.username,
+                this.state.username
+            );
+            if(data == ERROR.REJECT) {
+                toast('😥 작성한 댓글과 포스트가 존재하여 변경할 수 없습니다.');
+                this.setState({
+                    isChangeUsername: false
+                });
+                return;
+            }
+            if(data == ERROR.ALREADY_EXISTS) {
+                toast('😥 이미 존재하는 아이디입니다.');
+                return;
+            }
+            if(data == 'DONE') {
+                toast('😀 아이디가 변경되었습니다.');
+                Global.setState({
+                    ...Global.state,
+                    username: this.state.username
+                });
+                this.setState({
+                    isChangeUsername: false
+                });
+            }
+        }
+    }
+
     render() {
         if(!this.props.tabdata) return <>Loading...</>;
 
         return (
             <>
-                <h3 className="serif font-weight-bold">
-                    @{this.props.tabdata.username}
-                </h3>
+                {this.state.isChangeUsername ? (
+                    <div className="input-group mb-3">
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="아이디"
+                            className="form-control"
+                            value={this.state.username}
+                            onChange={(e) => this.onInputChange(e)}/>
+                        <div className="input-group-prepend">
+                            <button
+                                type="button"
+                                className="btn btn-dark"
+                                onClick={() => this.onChangeUsername()}>
+                                변경
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-dark"
+                                onClick={() => {
+                                    this.setState({
+                                        isChangeUsername: false,
+                                        username: this.props.username
+                                    })
+                                }}>
+                                취소
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="d-flex justify-content-between">
+                        <h3 className="serif font-weight-bold">
+                            @{this.props.username}
+                        </h3>
+                        <button
+                            type="button"
+                            className="btn btn-dark"
+                            onClick={() => this.onChangeUsername()}>
+                            아이디 변경
+                        </button>
+                    </div>
+                )}
                 <p className="serif">
                     {this.props.tabdata.createdDate}
                 </p>

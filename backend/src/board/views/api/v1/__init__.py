@@ -1105,11 +1105,18 @@ def users(request, username):
         if put.get('username'):
             if not request.user == user:
                 return HttpResponse('error:DU')
-            posts_count = Post.objects.filter(author=request.user).Count()
-            comments_count = Comments.objects.filter(author=request.user).Count()
-            if posts_count > 0 or comments_count > 0:
+            posts = Post.objects.filter(author=request.user)
+            comments = Comment.objects.filter(author=request.user)
+            if posts.count() > 0 or comments.count() > 0:
                 return HttpResponse('error:RJ')
-            user.uername = username
+
+            new_username = put.get('new_username')
+            has_username = User.objects.filter(username=new_username)
+            if has_username.exists():
+                return HttpResponse('error:AE')
+            
+            user.username = new_username
+            user.save()
             return HttpResponse('DONE')
     
     raise Http404

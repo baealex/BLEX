@@ -191,6 +191,29 @@ class API {
         });
     }
 
+    async putUsername(username: string, newUsername: string) {
+        NProgress.start();
+        try {
+            const response = await axios({
+                url: `${Config.API_SERVER}/v1/users/@${encodeURIComponent(username)}`,
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: serializeObject({
+                    username: username,
+                    new_username: newUsername
+                }),
+                withCredentials: true,
+            });
+            NProgress.done();
+            return response;
+        } catch(e) {
+            NProgress.done();
+            return e;
+        }
+    }
+
     async putAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
         NProgress.start();
         try {
