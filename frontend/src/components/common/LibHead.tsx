@@ -21,14 +21,6 @@ export default function() {
             <link
                 rel="stylesheet"
                 href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR"/>
-            <link
-                rel="stylesheet"
-                href="https://static.blex.me/assets/css/bootstrap.min.css"
-            />
-            <link
-                rel="stylesheet"
-                href="https://static.blex.me/assets/css/three-dots.min.css"
-            />
             {Config.GOOGLE_ANALYTICS_V4 ? (
                 <>
                     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>

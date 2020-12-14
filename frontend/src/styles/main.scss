@@ -1,4 +1,9 @@
 @import 'var';
+
+@import 'lib/bootstrap.min';
+@import 'lib/bootstrap.override';
+@import 'lib/three-dots.min';
+
 @import 'animation';
 @import 'fonts';
 @import 'color';
@@ -8,7 +13,6 @@
 @import 'useful';
 @import 'profile';
 @import 'googlesearch';
-@import 'bootstrapoverride';
 
 // 태그 목록 디자인
 .tag-list {
