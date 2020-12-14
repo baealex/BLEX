@@ -23,13 +23,11 @@ export default function() {
                 href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR"/>
             <link
                 rel="stylesheet"
-                href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-                integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
-                crossOrigin="anonymous"
+                href="https://static.blex.me/assets/css/bootstrap.min.css"
             />
             <link
                 rel="stylesheet"
-                href="https://rawcdn.githack.com/nzbin/three-dots/c592f34f85813ce75b9bc984b1bafcea3cb39b37/dist/three-dots.min.css"
+                href="https://static.blex.me/assets/css/three-dots.min.css"
             />
             {Config.GOOGLE_ANALYTICS_V4 ? (
                 <>
