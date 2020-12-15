@@ -180,10 +180,13 @@ class PostsSetting extends React.Component {
                             </a>
                         </p>
                         <ul className="setting-list-info">
-                            <li>
-                                <a onClick={() => this.onPostsHide(post.url)} className="element-lock">
-                                    {post.isHide ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>}
-                                </a>
+                            <li onClick={() => this.onPostsHide(post.url)} className="element-lock c-pointer">
+                                {post.isHide ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>}
+                            </li>
+                            <li className="c-pointer">
+                                <Link href={`/edit?id=${post.url}`}>
+                                    <i class="far fa-edit"></i>
+                                </Link>
                             </li>
                             <li>
                                 <i className="far fa-eye"></i> <span className="ns">(Today : {post.today}, Yesterday : {post.yesterday})</span></li>

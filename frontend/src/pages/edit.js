@@ -35,7 +35,6 @@ class Edit extends React.Component {
             title: '',
             tags: '',
             text: '',
-            url: props.id,
             series: '',
             image: '',
             imageName: '',
@@ -72,12 +71,22 @@ class Edit extends React.Component {
             forceBreakCounter++;
         }
 
-        const { username, url } = this.state;
+        const { username } = this.state;
+
+        this.fetchEditData();
+
+        const { data } = await API.getSetting('@' + username, 'series');
+        this.setState({
+            seriesArray: data.series
+        });
+    }
+
+    async fetchEditData() {
+        const { username } = this.state;
 
         try {
-            const { data } = await API.getPost('@' + username, url, 'edit');
+            const { data } = await API.getPost('@' + username, this.props.id, 'edit');
             this.setState({
-                ...this.state,
                 title: data.title,
                 series: data.series,
                 imageName: data.image,
@@ -90,20 +99,16 @@ class Edit extends React.Component {
                 Router.replace('/write');
             }
         }
-
-        {
-            const { data } = await API.getSetting('@' + username, 'series');
-            this.setState({
-                ...this.state,
-                seriesArray: data.series
-            });
-        }
     }
 
-    componentDidUpdate(prevState) {
+    componentDidUpdate(prevProps, prevState) {
         if (prevState.text !== this.state.text) {
             Prism.highlightAll();
             lazyLoadResource();
+        }
+
+        if (prevProps.id !== this.props.id) {
+            this.fetchEditData();
         }
     }
 
@@ -153,7 +158,6 @@ class Edit extends React.Component {
     }
 
     async onPublish() {
-        const { url } = this.state;
         if(!this.state.title) {
             toast('😅 제목이 비어있습니다.');
             return;
@@ -167,7 +171,7 @@ class Edit extends React.Component {
                 ...this.state,
                 isSumbit: true
             });
-            const { data } = await API.putPost('@' + this.state.username, url, 'edit', {
+            const { data } = await API.putPost('@' + this.state.username, this.props.id, 'edit', {
                 title: this.state.title,
                 text_md: this.state.text,
                 text_html: blexer(this.state.text),
@@ -175,7 +179,7 @@ class Edit extends React.Component {
                 tag: this.state.tags
             });
             if(data == 'DONE') {
-                Router.push('/[author]/[posturl]', `/@${this.state.username}/${url}`);
+                Router.push('/[author]/[posturl]', `/@${this.state.username}/${this.props.id}`);
             }
         } catch(e) {
             this.setState({
