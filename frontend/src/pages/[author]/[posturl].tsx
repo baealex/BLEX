@@ -405,6 +405,21 @@ class PostDetail extends React.Component<Props, State> {
         }
     }
 
+    onEdit() {
+        const { url } = this.props.post;
+        Router.push(`/edit?id=${url}`);
+    }
+
+    async onDelete() {
+        if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
+            const { author, url } = this.props.post;
+            const { data } = await API.deletePost('@' + author, url);
+            if(data == 'DONE') {
+                toast('😀 포스트가 삭제되었습니다.');
+            }   
+        }
+    }
+
     render() {
         return (
             <>
@@ -478,8 +493,9 @@ class PostDetail extends React.Component<Props, State> {
                             )}
                             <ArticleAuthor {...this.props.profile}/>
                             {this.props.post.author == this.state.username ? (
-                                <div className="mb-3">
-                                    <div className="btn btn-block btn-dark noto" onClick={() => {Router.push(`/edit?id=${this.props.post.url}`)}}>포스트 수정</div>
+                                <div className="mb-3 text-right">
+                                    <div className="btn btn-dark noto m-1" onClick={() => this.onEdit()}>포스트 수정</div>
+                                    <div className="btn btn-dark noto m-1" onClick={() => this.onDelete()}>포스트 삭제</div>
                                 </div>
                             ) : ''}
                             <ArticleContent html={this.props.post.textHtml}/>
