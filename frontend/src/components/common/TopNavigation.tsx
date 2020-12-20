@@ -173,7 +173,7 @@ class TopNavigation extends React.Component {
                     <nav
                         onClick={() => this.onClickNavigation()}
                         className={`menu ${this.state.onNav ? 'on' : 'off' }`}>
-                        <img src={this.state.onNav ? "/logor.png" : "/logo.png"} alt="logo"/>
+                        <img src="/logo.png" alt="logo"/>
                     </nav>
                     <div className="inner">
                         {serachInput}
