@@ -322,35 +322,6 @@
     height: 100vh;
 }
 
-// 글쓰기 목록
-.center-list {
-    text-align: center;
-}
-.center-list ul {
-    margin-top: 50vh;
-    transform: translateY(-50%);
-    list-style: none;
-    padding-left: 0px;
-}
-.center-list li {
-    margin: 15px;
-}
-.center-list a {
-    color: #fff;
-}
-.center-list a:hover {
-    text-decoration: none;
-}
-.center-list a:hover::before,
-.center-list a:hover::after {
-    display: inline-block;
-    content: "";
-    border-top: 1px solid #fff;
-    width: 2rem;
-    margin: 0 1rem;
-    transform: translateY(-5px);
-}
-
 
 
 // 포스트 목록(메인 페이지) 디자인
@@ -387,12 +358,8 @@
     border-top: 1px solid #ddd;
 }
 .bg-comment {
-    border-top: 1px solid #ddd;
-    background-color: rgba(0,0,0,0.05);
-
-    body.dark & {
-        border-top: 1px solid #333;
-    }
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 .s-shadow {
     box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
@@ -949,7 +916,7 @@ footer {
     padding: 20px;
 
     body.dark & {
-        background: #1d1d1d;
+        background: #1f1f1f;
     }
 }
 /* POSTS : DETAIL : SERIES */
