@@ -1,10 +1,11 @@
 import os
+import re
 import sys
+import time
 import django
 import datetime
 
 from itertools import chain
-from bs4 import BeautifulSoup
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -15,88 +16,42 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-from board.models import Post, Comment, TempPosts, parsedown
+from board.models import Post, Comment, TempPosts, ImageCache
 
 if __name__ == '__main__':
-    content_image_names = dict()
-    content_video_names = dict()
-    title_image_names = dict()
+    image_parser = re.compile(r'\!\[.*\]\(([^\s\"]*).*\)')
+    video_parser = re.compile(r'\@gif\[(.*)\]')
+    src_parser = re.compile(r'src=[\'\"]([^\'\"]*)[\'\"]')
+
+    title_image_dict = dict()
+    content_image_dict = dict()
 
     posts = Post.objects.all()
     comments = Comment.objects.all()
+    temp_posts = TempPosts.objects.all()
     
-    for data in chain(posts, comments):
-        try:
-            title_image_names[str(data.image).split('/')[-1]] = 0
-            title_image_names[str(data.get_thumbnail()).split('/')[-1]] = 0
-        except:
-            pass
+    for item in chain(posts, temp_posts, comments):
+        images = image_parser.findall(item.text_md)
+        videos = video_parser.findall(item.text_md)
+        etc = src_parser.findall(item.text_md)
         
-        try:
-            soup = BeautifulSoup(data.text_html, 'html.parser')
-            images = soup.select('img')
-            for image in images:
-                if image.get('src'):
-                    content_image_names[image.get('src').split('/')[-1]] = 0
-                if image.get('data-src'):
-                    content_image_names[image.get('data-src').split('/')[-1]] = 0
-            posters = soup.select('video')
-            for poster in posters:
-                if poster.get('poster'):
-                    content_video_names[poster.get('poster').split('/')[-1]] = 0
-            videos = soup.select('source')
-            for video in videos:
-                if video.get('src'):
-                    content_video_names[video.get('src').split('/')[-1]] = 0
-                if video.get('data-src'):
-                    content_video_names[video.get('data-src').split('/')[-1]] = 0
-        except:
-            pass
-    
-    temps = TempPosts.objects.all()
-    for temp in temps:
-        html = parsedown(temp.text_md)
-        if html == 'Temporary error':
-            print(html, 'Cleaner Stop...')
-            sys.exit()
-        soup = BeautifulSoup(html, 'html.parser')
-        images = soup.select('img')
-        for image in images:
-            if image.get('src'):
-                content_image_names[image.get('src').split('/')[-1]] = 0
-            if image.get('data-src'):
-                content_image_names[image.get('data-src').split('/')[-1]] = 0
-        posters = soup.select('video')
-        for poster in posters:
-            if poster.get('poster'):
-                content_video_names[poster.get('poster').split('/')[-1]] = 0
-        videos = soup.select('source')
-        for video in videos:
-            if video.get('src'):
-                content_video_names[video.get('src').split('/')[-1]] = 0
-            if video.get('data-src'):
-                content_video_names[video.get('data-src').split('/')[-1]] = 0
-
-    today = datetime.datetime.now()
-    today_path = str(today.year) + '/' + str(today.month) + '/' + str(today.day)
-
-    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-    yesterday_path = str(yesterday.year) + '/' + str(yesterday.month) + '/' + str(yesterday.day)
-
-    for(path, dir, files) in os.walk(TITLE_IMAGE_DIR):
-        for filename in files:
-            if not filename in title_image_names:
-                if today_path in path or yesterday_path in path:
-                    continue
-                print(path + '/' + filename)
-                os.remove(path + '/' + filename)
-
+        for image in chain(images, videos, etc):
+            content_image_dict[image.split('/')[-1]] = True
+        
     for (path, dir, files) in os.walk(CONTENT_IMAGE_DIR):
         for filename in files:
-            if not filename in content_image_names and not filename in content_video_names:
-                if today_path in path or yesterday_path in path:
-                    continue
+            try:
+                if not content_image_dict[filename.replace('.preview.jpg', '')]:
+                    pass
+            except KeyError:
                 print(path + '/' + filename)
-                os.remove(path + '/' + filename)
-    
-    print('ALL DONE!')
+                # os.remove(path + '/' + filename)
+
+    for image_cache in ImageCache.objects.all():
+        try:
+            if not content_image_dict[image_cache.path.split('/')[-1]]:
+                pass
+        except KeyError:
+            print(f'{image_cache.pk} : {image_cache.path}')
+            # image_cache.delete()
+            time.sleep(0.5)

@@ -10,6 +10,8 @@ RUN apt-get install -y ffmpeg
 RUN apt-get install -y python3-pip python3-dev
 RUN apt-get install -y python3-psycopg2
 
+ENV PYTHONIOENCODING utf-8
+
 COPY ./src/requirements.txt /app/
 
 WORKDIR /app

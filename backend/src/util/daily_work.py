@@ -20,10 +20,4 @@ for config in Config.objects.all():
     if not config.telegram_token == '':
         config.telegram_token = ''
         config.save()
-print('ALL CONFIGS DONE!')
-
-profiles = Profile.objects.filter(exp__gt=0)
-for profile in profiles:
-    profile.exp = F('exp') - 1
-    profile.save()
-print('ALL PROFILES DONE!')
+print('ALL CONFIGS WORK DONE!')
