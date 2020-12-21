@@ -3,23 +3,55 @@ import Head from 'next/head';
 import React from 'react';
 import Router from 'next/router';
 
+import SeriesDesc from '@components/series/SeriesDesc';
+
 import { toast } from 'react-toastify';
 
 import API from '@modules/api';
 import Global from '@modules/global';
 import Modal from '@components/common/Modal';
 
-export async function getServerSideProps(context) {
+import { GetServerSidePropsContext } from 'next';
+
+interface Props {
+    series: {
+        url: string;
+        title: string;
+        image: string;
+        author: string;
+        authorImage: string;
+        description: string;
+        posts: Posts[];
+    }
+};
+
+interface State {
+    isLogin: boolean;
+    username: string;
+    seriesTitle: string;
+    seriesDescription: string;
+    seriesPosts: Posts[];
+    isSereisModalOpen: boolean;
+};
+
+interface Posts {
+    url: string;
+    title: string;
+    description: string;
+    createdDate: string;
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
     const raise = require('@modules/raise');
 
-    const { author, seriesurl } = context.query;
+    const { author = '', seriesurl = '' } = context.query;
 
     if(!author.includes('@')) {
         raise.Http404(context.res);
     }
 
     try {
-        const { data } = await API.getSeries(author, seriesurl);
+        const { data } = await API.getSeries(author as string, seriesurl as string);
         return {
             props: {
                 series: data
@@ -30,8 +62,8 @@ export async function getServerSideProps(context) {
     }
 }
 
-class Series extends React.Component {
-    constructor(props) {
+class Series extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLogin: Global.state.isLogin,
@@ -48,7 +80,7 @@ class Series extends React.Component {
         }));
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: Props) {
         if(
             prevProps.series.title !== this.props.series.title ||
             prevProps.series.description !== this.props.series.description ||
@@ -63,27 +95,28 @@ class Series extends React.Component {
         }
     }
 
-    onOpenModal(modalName) {
-        let newState = this.state;
-        newState[modalName] = true;
-        this.setState(newState);
+    onOpenModal(modalName: 'isSereisModalOpen') {
+        this.setState({
+            [modalName]: true
+        });
     }
 
-    onCloseModal(modalName) {
-        let newState = this.state
-        newState[modalName] = false
-        this.setState(newState);
+    onCloseModal(modalName: 'isSereisModalOpen') {
+        this.setState({
+            [modalName]: false
+        });
     }
 
-    onInputChange(e) {
-        let newState = this.state;
-        newState[e.target.name] = e.target.value;
-        this.setState(newState);
+    onInputChange(e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            ...this.state,
+            seriesDescription: e.target.value
+        });
     }
 
     async seriesUpdate() {
         const { data } = await API.putSeries(
-            '@' + this.props.series.owner,
+            '@' + this.props.series.author,
             this.props.series.url,
             {
                 title: this.state.seriesTitle,
@@ -101,7 +134,7 @@ class Series extends React.Component {
         }
     }
 
-    async onPostsRemoveInSeries(url) {
+    async onPostsRemoveInSeries(url: string) {
         if(confirm('😮 이 포스트를 시리즈에서 제거할까요?')) {
             const { data } = await API.putPost('@' + this.state.username, url, 'series');
             if(data == 'DONE') {
@@ -124,7 +157,7 @@ class Series extends React.Component {
             seriesPosts
         } = this.state;
 
-        const SereisModal = this.props.series.owner == this.state.username ? (
+        const SereisModal = this.props.series.author == this.state.username ? (
             <Modal title="시리즈 수정" isOpen={this.state.isSereisModalOpen} close={() => this.onCloseModal('isSereisModalOpen')}>
                 <div className="content">
                     <div className="input-group mb-3 mr-sm-2 mt-3">
@@ -137,15 +170,15 @@ class Series extends React.Component {
                             value={seriesTitle}
                             placeholder="시리즈의 이름"
                             className="form-control"
-                            maxLength="50"
+                            maxLength={50}
                             required
                             onChange={(e) => this.onInputChange(e)}
                         />
                     </div>
                     <textarea
                         name="seriesDescription"
-                        cols="40"
-                        rows="5"
+                        cols={40}
+                        rows={5}
                         placeholder="설명을 작성하세요."
                         className="form-control"
                         onChange={(e) => this.onInputChange(e)}
@@ -171,7 +204,7 @@ class Series extends React.Component {
         return (
             <>
                 <Head>
-                    <title>{this.props.series.owner} — '{this.props.series.title}' 시리즈</title>
+                    <title>{this.props.series.author} — '{this.props.series.title}' 시리즈</title>
                 </Head>
 
                 {SereisModal}
@@ -185,37 +218,26 @@ class Series extends React.Component {
                             <h2 className="serif font-weight-bold">
                                 '{seriesTitle}' 시리즈
                             </h2>
-                            <Link href="/[author]" as={`/@${this.props.series.owner}`}>
+                            <Link href="/[author]" as={`/@${this.props.series.author}`}>
                                 <a className="post-series deep-dark serif font-weight-bold mb-3">
-                                    Created by {this.props.series.owner}
+                                    Created by {this.props.series.author}
                                 </a>
                             </Link>
-                            {this.props.series.owner == this.state.username ? (
+                            {this.props.series.author == this.state.username ? (
                                 <div className="mb-3">
                                     <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSereisModalOpen')}>시리즈 수정</div>
                                 </div>
                             ) : ''}
-                            <div className="series-desc mb-4">
-                                <blockquote className="noto">
-                                    {seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
-                                </blockquote>
-                                <div className="author">
-                                    <Link href="/[author]" as={`/@${this.props.series.owner}`}>
-                                        <a>
-                                            <img src={this.props.series.ownerImage}/>
-                                        </a>
-                                    </Link>
-                                </div>
-                            </div>
+                            <SeriesDesc {...this.props.series}/>
                             {seriesPosts.map((post, idx) => (
                                 <div key={idx} className="mb-5">
                                     <h5 className="card-title serif font-weight-bold">
-                                        <Link href="/[author]/[posturl]" as={`/@${this.props.series.owner}/${post.url}`}>
+                                        <Link href="/[author]/[posturl]" as={`/@${this.props.series.author}/${post.url}`}>
                                             <a className="deep-dark">{idx + 1}. {post.title}</a>
                                         </Link>
                                     </h5>
                                     <p>
-                                        <Link href="/[author]/[posturl]" as={`/@${this.props.series.owner}/${post.url}`}>
+                                        <Link href="/[author]/[posturl]" as={`/@${this.props.series.author}/${post.url}`}>
                                             <a className="shallow-dark noto">{post.description}</a>
                                         </Link>
                                     </p>

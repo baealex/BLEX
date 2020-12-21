@@ -606,8 +606,8 @@ def user_series(request, username, url=None):
                     'title': series.name,
                     'url': series.url,
                     'image': series.thumbnail(),
-                    'owner': user.username,
-                    'owner_image': user.profile.get_thumbnail(),
+                    'author': user.username,
+                    'author_image': user.profile.get_thumbnail(),
                     'description': series.text_md,
                     'posts': list(map(lambda post: {
                         'url': post.url,

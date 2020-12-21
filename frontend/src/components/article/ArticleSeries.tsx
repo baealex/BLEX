@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 
+import SeriesDesc from '@components/series/SeriesDesc';
+
 interface Props {
     url: string;
     title: string;
@@ -25,16 +27,7 @@ export default function ArticleSereis(props: Props) {
                     </h4>
                 </a>
             </Link>
-            <div className="series-desc mb-3">
-                <blockquote className="noto">
-                    {props.description ? props.description : '이 시리즈에 대한 설명이 없습니다.'}
-                </blockquote>
-                <div className="author">
-                    <Link href="/[author]" as={`/@${props.author}`}>
-                        <a><img src={props.authorImage}/></a>
-                    </Link>
-                </div>
-            </div>
+            <SeriesDesc {...props}/>
             <ul>
                 {props.posts.length > 1 ? props.posts.map((post, idx) => (
                     props.activeSeries >= idx - 2 && props.activeSeries <= idx + 2 ? (
