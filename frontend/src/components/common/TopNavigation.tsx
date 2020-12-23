@@ -4,7 +4,6 @@ import Router from 'next/router'
 
 import { toast } from 'react-toastify';
 
-import Cookie from '../../modules/cookie';
 import API from '../../modules/api';
 import Global from '../../modules/global';
 import LoginModal from '../modal/Login';
