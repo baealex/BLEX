@@ -50,11 +50,24 @@ class TopNavigation extends React.Component {
 
     async componentDidMount(){
         const bodyClass = document.querySelector('body');
-        const nightmode = Cookie.get('nightmode');
-        nightmode === 'true' && bodyClass?.classList.add('dark');
+        const darkModeCheck = '(prefers-color-scheme: dark)';
+        const systemDark = window.matchMedia && window.matchMedia(darkModeCheck);
+        systemDark.matches && bodyClass?.classList.add('dark');
         Global.setState({
             ...Global.state,
-            isNightMode: nightmode ? true : false,
+            isNightMode: systemDark.matches ? true : false,
+        });
+
+        window.matchMedia(darkModeCheck).addEventListener('change', e => {
+            Global.setState({
+                ...Global.state,
+                isNightMode: e.matches,
+            });
+            if(e.matches) {
+                bodyClass?.classList.add('dark');
+            } else {
+                bodyClass?.classList.remove('dark');
+            }
         });
 
         const alive = await API.alive();
@@ -99,31 +112,6 @@ class TopNavigation extends React.Component {
             ...this.state,
             [e.target.name]: e.target.value
         });
-    }
-
-    onClickNightMode() {
-        const bodyClass = document.querySelector('body');
-        if(this.state.isNightMode) {
-            Cookie.set('nightmode', '', {
-                path: '/',
-                expire: -1,
-            });
-            Global.setState({
-                ...Global.state,
-                isNightMode: false
-            });
-            bodyClass?.classList.remove('dark');
-        } else {
-            Cookie.set('nightmode', 'true', {
-                path: '/',
-                expire: 365,
-            });
-            Global.setState({
-                ...Global.state,
-                isNightMode: true
-            });
-            bodyClass?.classList.add('dark');
-        }
     }
 
     async onClickLogout() {
@@ -211,16 +199,11 @@ class TopNavigation extends React.Component {
                             <></>
                         )}
                         <ul className="menu-footer-item">
-                            <li>
-                                <a onClick={() => this.onClickNightMode()}>
-                                    <i className={`fas fa-${this.state.isNightMode ? 'sun' : 'moon'}`}></i>
-                                </a>
-                            </li>
                             {this.state.isLogin ? (
                                 <>
                                     <li>
                                         <a onClick={() => Global.onOpenModal('isSettingModalOpen')}>
-                                            <i className="fas fa-cogs"></i>
+                                            <i className="fas fa-cogs"></i> 설정
                                         </a>
                                     </li>
                                     <li>
@@ -230,15 +213,18 @@ class TopNavigation extends React.Component {
                                     </li>
                                 </>
                             ) : (
-                                <li>
-                                    <a onClick={() => Global.onOpenModal('isLoginModalOpen')}>
-                                        <i className="fas fa-sign-in-alt"></i> 로그인
-                                    </a>
-                                    {' / '}
-                                    <a onClick={() => Global.onOpenModal('isSignupModalOpen')}>
-                                        <i className="fas fa-sign-in-alt"></i> 회원가입
-                                    </a>
-                                </li>
+                                <>
+                                    <li>
+                                        <a onClick={() => Global.onOpenModal('isLoginModalOpen')}>
+                                            <i className="fas fa-sign-in-alt"></i> 로그인
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a onClick={() => Global.onOpenModal('isSignupModalOpen')}>
+                                            <i className="fas fa-users"></i> 회원가입
+                                        </a>
+                                    </li>
+                                </>
                             )}
                         </ul>
                     </div>
