@@ -34,9 +34,14 @@ class Verify extends React.Component {
 
     componentDidMount() {
         if(Config.GOOGLE_RECAPTCHA_V2_KEY) {
-            grecaptcha.render('google-recaptcha-v2', {
-                sitekey: Config.GOOGLE_RECAPTCHA_V2_KEY,
-            });
+            const loadCaptcha = setInterval(() => {
+                if(grecaptcha) {
+                    grecaptcha.render('google-recaptcha-v2', {
+                        sitekey: Config.GOOGLE_RECAPTCHA_V2_KEY,
+                    });
+                    clearInterval(loadCaptcha);
+                }
+            }, 500);
         }
     }
 
@@ -49,12 +54,14 @@ class Verify extends React.Component {
             }
             const { data } = await API.postVerifyToken(this.props.token, recaptchaToken);
             if(data == 'DONE') {
+                toast('😆 이메일이 인증되었습니다.');
                 Router.replace('/');
             }
             return;
         }
         const { data } = await API.postVerifyToken(this.props.token);
         if(data == 'DONE') {
+            toast('😆 이메일이 인증되었습니다.');
             Router.replace('/');
         }
         return;
