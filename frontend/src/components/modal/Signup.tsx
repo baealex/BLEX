@@ -4,6 +4,7 @@ import Modal from '@components/common/Modal';
 
 import { toast } from 'react-toastify';
 
+import { oauth } from '@modules/oauth';
 import API, { ERROR } from '@modules/api';
 
 interface Props {
@@ -154,6 +155,16 @@ class SignupModal extends React.Component<Props, State> {
                             className="login-button"
                             onClick={() => this.onSubmitLogin()}>
                             완료 및 이메일 인증
+                        </button>
+                        <button
+                            className="login-button google"
+                            onClick={() => oauth("google")}>
+                            <i className="fab fa-google"></i> Google 계정으로 시작하기
+                        </button>
+                        <button
+                            className="login-button github"
+                            onClick={() => oauth("github")}>
+                            <i className="fab fa-github"></i> GitHub 계정으로 시작하기
                         </button>
                         </>
                     )}

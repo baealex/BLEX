@@ -5,9 +5,8 @@ import Modal from '@components/common/Modal';
 import { toast } from 'react-toastify';
 
 import API from '@modules/api';
-import Cookie from '@modules/cookie';
 import Global from '@modules/global';
-import Config from '@modules/config.json';
+import { oauth } from '@modules/oauth';
 
 interface Props {
     isOpen: boolean;
@@ -92,31 +91,6 @@ class LoginModal extends React.Component<Props, State> {
             password: ''
         });
     }
-
-    onSubmitSocialLogin(social: string) {
-        Cookie.set('oauth_redirect', location.href, {
-            path: '/',
-            expire: 0.1,
-        });
-        let url = '';
-        switch(social) {
-            case 'google':
-                url += 'https://accounts.google.com/o/oauth2/auth';
-                url += `?client_id=${Config.GOOGLE_OAUTH_CLIENT_ID}.apps.googleusercontent.com`;
-                url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/google`;
-                url += '&response_type=code';
-                url += '&scope=openid profile email'
-                url += '&approval_prompt=force'
-                url += '&access_type=offline'
-                break;
-            case 'github':
-                url += 'https://github.com/login/oauth/authorize';
-                url += `?client_id=${Config.GITHUB_OAUTH_CLIENT_ID}`;
-                url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/github`;
-                break;
-        }
-        location.href = url;
-    }
     
     render() {
         return (
@@ -146,13 +120,13 @@ class LoginModal extends React.Component<Props, State> {
                     </button>
                     <button
                         className="login-button google"
-                        onClick={() => this.onSubmitSocialLogin("google")}>
-                        <i className="fab fa-google"></i> Google로 시작하기
+                        onClick={() => oauth("google")}>
+                        <i className="fab fa-google"></i> Google 계정으로 로그인
                     </button>
                     <button
                         className="login-button github"
-                        onClick={() => this.onSubmitSocialLogin("github")}>
-                        <i className="fab fa-github"></i> GitHub로 시작하기
+                        onClick={() => oauth("github")}>
+                        <i className="fab fa-github"></i> GitHub 계정으로 로그인
                     </button>
                 </div>
             </Modal>
