@@ -36,7 +36,6 @@ class About extends React.Component {
             username: Global.state.username,
         }
         Global.appendUpdater('About', () => this.setState({
-            ...this.state,
             isLogin: Global.state.isLogin,
             username: Global.state.username
         }));

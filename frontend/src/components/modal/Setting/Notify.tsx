@@ -58,7 +58,6 @@ class NotifySetting extends React.Component<Props, State> {
         }
         const {data} = await API.telegram('makeToken');
         this.setState({
-            ...this.state,
             telegramToken: data
         });
     }

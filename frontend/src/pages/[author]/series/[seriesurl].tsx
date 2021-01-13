@@ -74,7 +74,6 @@ class Series extends React.Component<Props, State> {
             isSereisModalOpen: false
         }
         Global.appendUpdater('Series', () => this.setState({
-            ...this.state,
             isLogin: Global.state.isLogin,
             username: Global.state.username
         }));
@@ -87,7 +86,6 @@ class Series extends React.Component<Props, State> {
             prevProps.series.posts !== this.props.series.posts
         ) {
             this.setState({
-                ...this.state,
                 seriesTitle: this.props.series.title,
                 seriesDescription: this.props.series.description,
                 seriesPosts: this.props.series.posts
@@ -108,9 +106,10 @@ class Series extends React.Component<Props, State> {
     }
 
     onInputChange(e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) {
+        console.log(e);
         this.setState({
             ...this.state,
-            seriesDescription: e.target.value
+            [e.target.name]: e.target.value
         });
     }
 
@@ -142,7 +141,9 @@ class Series extends React.Component<Props, State> {
                 seriesPosts = seriesPosts.filter(post => (
                     post.url !== url
                 ));
-                this.setState({...this.state, seriesPosts});
+                this.setState({
+                    seriesPosts
+                });
                 toast('😀 시리즈가 업데이트 되었습니다.');
             } else {
                 toast('😯 변경중 오류가 발생했습니다.');
@@ -228,7 +229,7 @@ class Series extends React.Component<Props, State> {
                                     <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSereisModalOpen')}>시리즈 수정</div>
                                 </div>
                             ) : ''}
-                            <SeriesDesc {...this.props.series}/>
+                            <SeriesDesc {...this.props.series} description={this.state.seriesDescription}/>
                             {seriesPosts.map((post, idx) => (
                                 <div key={idx} className="mb-5">
                                     <h5 className="card-title serif font-weight-bold">

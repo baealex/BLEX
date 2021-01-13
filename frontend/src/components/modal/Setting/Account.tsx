@@ -49,7 +49,6 @@ class AccountSetting extends React.Component<Props, State> {
             realname = this.props.tabdata.realname;
         }
         this.setState({
-            ...this.state,
             realname,
             username: this.props.username
         });
@@ -98,7 +97,6 @@ class AccountSetting extends React.Component<Props, State> {
             realname: sendData.realname,
         });
         this.setState({
-            ...this.state,
             password: '',
             passwordCheck: ''
         });
@@ -132,7 +130,6 @@ class AccountSetting extends React.Component<Props, State> {
             if(data == 'DONE') {
                 toast('😀 아이디가 변경되었습니다.');
                 Global.setState({
-                    ...Global.state,
                     username: this.state.username
                 });
                 this.setState({

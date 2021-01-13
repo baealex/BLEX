@@ -63,7 +63,7 @@ class SettingModal extends React.Component<Props, State> {
         const tabChange = (tab: tabName) => {
             if(tabList.indexOf(tab) > -1) {
                 if(this.state.activateTab != tab) {
-                    this.setState({...this.state, activateTab: tab});
+                    this.setState({activateTab: tab});
                 }
             }
         }

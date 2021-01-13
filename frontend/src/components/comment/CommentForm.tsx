@@ -21,7 +21,6 @@ class CommentForm extends React.Component<Props, State> {
 
     onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
         this.setState({
-            ...this.state,
             comment: e.target.value
         });
     }
@@ -61,7 +60,6 @@ class CommentForm extends React.Component<Props, State> {
         }
         this.props.onSubmit(this.state.comment);
         this.setState({
-            ...this.state,
             comment: ''
         });
     }

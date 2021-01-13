@@ -25,8 +25,8 @@ class Global {
         this.updater = {};
     }
 
-    setState(newState: GlobalState) {
-        this.state = newState;
+    setState(newState: object) {
+        Object.assign(this.state, newState);
         Object.keys(this.updater).forEach(key => {
             try {
                 this.runUpdater(key);
@@ -50,14 +50,12 @@ class Global {
 
     onOpenModal(modalName: ModalName) {
         this.setState({
-            ...this.state,
             [modalName]: true
         });
     }
 
     onCloseModal(modalName: ModalName) {
         this.setState({
-            ...this.state,
             [modalName]: false
         });
     }

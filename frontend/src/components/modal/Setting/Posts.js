@@ -88,7 +88,6 @@ class PostsSetting extends React.Component {
         analytics.data[url].isShow = !analytics.data[url].isShow;
 
         this.setState({
-            ...this.state,
             analytics
         });
     }

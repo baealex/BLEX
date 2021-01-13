@@ -341,7 +341,6 @@ class PostDetail extends React.Component<Props, State> {
             return;
         }
         this.setState({
-            ...this.setState,
             comments: this.state.comments.concat(data.element)
         });
         lazyLoadResource();
@@ -357,7 +356,7 @@ class PostDetail extends React.Component<Props, State> {
                 textMarkdown: data
             }) : comment
         ));
-        this.setState({...this.state, comments});
+        this.setState({comments});
     }
 
     async onCommentEditSubmit(pk: number, content: string) {
@@ -373,7 +372,7 @@ class PostDetail extends React.Component<Props, State> {
                     isEdited: true
                 }) : comment
             ));
-            this.setState({...this.state, comments});
+            this.setState({comments});
             lazyLoadResource();
             
             toast('😀 댓글이 수정되었습니다.');
@@ -388,7 +387,7 @@ class PostDetail extends React.Component<Props, State> {
                 isEdit: false,
             }) : comment
         ));
-        this.setState({...this.state, comments});
+        this.setState({comments});
     }
 
     async onCommentDelete(pk: number) {
@@ -399,7 +398,7 @@ class PostDetail extends React.Component<Props, State> {
                 comments = comments.filter(comment => (
                     comment.pk !== pk
                 ));
-                this.setState({...this.state, comments});
+                this.setState({comments});
                 toast('😀 댓글이 삭제되었습니다.');
             }
         }

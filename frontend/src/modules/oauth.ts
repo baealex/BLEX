@@ -1,7 +1,7 @@
 import Cookie from '@modules/cookie';
 import Config from '@modules/config.json';
 
-export function oauth(social) {
+export function oauth(social: 'google' | 'github') {
     Cookie.set('oauth_redirect', location.href, {
         path: '/',
         expire: 0.1,

@@ -26,7 +26,6 @@ class LoginModal extends React.Component<Props, State> {
             password: ''
         }
         Global.appendUpdater('LoginModal', () => this.setState({
-            ...this.state,
             username: Global.state.username,
         }));
     }
@@ -70,7 +69,6 @@ class LoginModal extends React.Component<Props, State> {
         if(data.status == 'success') {
             toast(`😃 로그인 되었습니다.`);
             Global.setState({
-                ...Global.state,
                 isLogin: true,
                 username: data.username
             });
@@ -87,7 +85,6 @@ class LoginModal extends React.Component<Props, State> {
             toast('😥 아이디 혹은 패스워드를 확인해주세요.');
         }
         this.setState({
-            ...this.state,
             password: ''
         });
     }

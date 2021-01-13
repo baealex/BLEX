@@ -47,7 +47,6 @@ class Write extends React.Component {
         };
         Global.appendUpdater('Write', () => {
             this.setState({
-                ...this.state,
                 username: Global.state.username,
                 isNightMode: Global.state.isNightMode
             });
@@ -81,7 +80,6 @@ class Write extends React.Component {
             {
                 const { data } = await API.getSetting('@' + username, 'series');
                 this.setState({
-                    ...this.state,
                     seriesArray: data.series
                 });
             }
@@ -90,7 +88,6 @@ class Write extends React.Component {
                 const { data } = await API.getAllTempPosts();
                 if(data.result.length > 0) {
                     this.setState({
-                        ...this.state,
                         tempPosts: data.result
                     });
                     toast('😀 작성하던 포스트가 있으시네요!', {
@@ -120,7 +117,6 @@ class Write extends React.Component {
             if(tempPostsCache[token]) {
                 const { title, text, tags } = tempPostsCache[token];
                 this.setState({
-                    ...this.state,
                     title,
                     text,
                     tags,
@@ -131,7 +127,6 @@ class Write extends React.Component {
             // 캐시 없을 때
             const { data } = await API.getTempPosts(token);
             this.setState({
-                ...this.state,
                 title: data.title,
                 text: data.textMd,
                 tags: data.tag,
@@ -149,7 +144,6 @@ class Write extends React.Component {
         }
         // 새 글 작성
         this.setState({
-            ...this.state,
             title: '',
             text: '',
             tags: '',
@@ -159,14 +153,12 @@ class Write extends React.Component {
 
     onOpenModal(name) {
         this.setState({
-            ...this.state,
             [name]: true
         });
     }
 
     onCloseModal(name) {
         this.setState({
-            ...this.state,
             [name]: false
         });
     }
@@ -181,7 +173,7 @@ class Write extends React.Component {
     }
 
     onEditorChange(value) {
-        this.setState({ ...this.state, text: value });
+        this.setState({ text: value });
         clearTimeout(this.saveTimer);
         this.saveTimer = setTimeout(() => {
             this.onTempSave();
@@ -189,7 +181,7 @@ class Write extends React.Component {
     }
 
     onEditorMount(editor) {
-        this.setState({ ...this.state, editor });
+        this.setState({ editor });
     }
 
     onEditorScroll(data) {
@@ -225,14 +217,12 @@ class Write extends React.Component {
         formData.append('token', this.state.token);
         try {
             this.setState({
-                ...this.state,
                 isSumbit: true
             });
             const { data } = await API.postPost('@' + this.state.username, formData);
             Router.push('/[author]/[posturl]', `/@${this.state.username}/${data}`);
         } catch(e) {
             this.setState({
-                ...this.state,
                 isSumbit: false
             });
             toast('😥 글 작성중 오류가 발생했습니다.');
@@ -244,7 +234,6 @@ class Write extends React.Component {
             const { data } = await API.deleteTempPosts(token);
             if(data == 'DONE') {
                 this.setState({
-                    ...this.state,
                     token: '',
                     tempPosts: this.state.tempPosts.filter(post => 
                         post.token !== token
@@ -267,7 +256,6 @@ class Write extends React.Component {
             const date = new Date();
             title = date.toLocaleString();
             this.setState({
-                ...this.state,
                 title
             });
         }
@@ -276,7 +264,6 @@ class Write extends React.Component {
             const { data } = await API.putTempPosts(token, title, text, tags);
             if(data == 'DONE') {
                 this.setState({
-                    ...this.state,
                     tempPosts: this.state.tempPosts.map(post => (
                         post.token == this.state.token ? ({
                             ...post,
@@ -301,7 +288,6 @@ class Write extends React.Component {
                 return;
             }
             this.setState({
-                ...this.state,
                 token: data,
                 tempPosts: this.state.tempPosts.concat({
                     token: data,
@@ -321,7 +307,6 @@ class Write extends React.Component {
         const { files } = e.target;
         const [ file ] = files;
         this.setState({
-            ...this.state,
             image: file,
             imageName: file.name
         });

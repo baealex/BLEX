@@ -35,7 +35,6 @@ class SocialLogin extends React.Component {
             }
 
             Global.setState({
-                ...Global.state,
                 isLogin: true,
                 username: data.username
             });

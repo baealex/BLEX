@@ -37,7 +37,6 @@ class TopNavigation extends React.Component {
             isSettingModalOpen: Global.state.isLoginModalOpen
         };
         Global.appendUpdater('TopNavigation', () => this.setState({
-            ...this.state,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             isNightMode: Global.state.isNightMode,
@@ -48,30 +47,29 @@ class TopNavigation extends React.Component {
     }
 
     async componentDidMount(){
-        const bodyClass = document.querySelector('body');
-        const darkModeCheck = '(prefers-color-scheme: dark)';
-        const systemDark = window.matchMedia && window.matchMedia(darkModeCheck);
-        systemDark.matches && bodyClass?.classList.add('dark');
-        Global.setState({
-            ...Global.state,
-            isNightMode: systemDark.matches ? true : false,
-        });
+        const body = document.querySelector('body');
 
-        window.matchMedia(darkModeCheck).addEventListener('change', e => {
+        const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+        if(systemDark.matches) {
+            body?.classList.add('dark');
             Global.setState({
-                ...Global.state,
+                isNightMode: true,
+            });
+        }
+
+        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if(e.matches) {
+                body?.classList.add('dark');
+            } else {
+                body?.classList.remove('dark');
+            }
+            Global.setState({
                 isNightMode: e.matches,
             });
-            if(e.matches) {
-                bodyClass?.classList.add('dark');
-            } else {
-                bodyClass?.classList.remove('dark');
-            }
         });
 
         const alive = await API.alive();
         Global.setState({
-            ...Global.state,
             isLogin: alive.data !== 'dead' ? true : false,
             username: alive.data !== 'dead' ? alive.data.username : '',
         });
@@ -87,7 +85,6 @@ class TopNavigation extends React.Component {
 
         Router.events.on('routeChangeStart', () => {
             this.setState({
-                ...this.state,
                 onNav: false
             });
         });
@@ -95,20 +92,18 @@ class TopNavigation extends React.Component {
 
     onClickNavigation() {
         this.setState({
-            ...this.state,
             onNav: !this.state.onNav
         });
     }
 
     onEnterSearch(e: React.KeyboardEvent<HTMLInputElement>) {
         if(e.key == 'Enter') {
-            window.open('about:blank')!.location.href = `https://google.com/search?q=${encodeURIComponent(`${this.state.search} site:blex.me`)}`;
+            window.open('about:blank')!.location.href = `https://duckduckgo.com/?q=${encodeURIComponent(`${this.state.search} site:${location.host}`)}`;
         }
     }
 
     onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
         this.setState({
-            ...this.state,
             [e.target.name]: e.target.value
         });
     }
@@ -118,7 +113,6 @@ class TopNavigation extends React.Component {
             const { data } = await API.logout();
             if(data.status === 'success') {
                 Global.setState({
-                    ...Global.state,
                     isLogin: false,
                     username: ''
                 });
@@ -135,7 +129,7 @@ class TopNavigation extends React.Component {
                 name="search"
                 type="text"
                 value={this.state.search}
-                placeholder="Serach"
+                placeholder="덕덕고에서 검색"
                 onChange={(e) => this.onInputChange(e)}
                 onKeyPress={(e) => this.onEnterSearch(e)}
             />

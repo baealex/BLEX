@@ -23,7 +23,6 @@ class CommentForm extends React.Component<Props, State> {
 
     onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
         this.setState({
-            ...this.state,
             content: e.target.value
         });
     }

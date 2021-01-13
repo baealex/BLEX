@@ -46,7 +46,6 @@ class Edit extends React.Component {
         };
         Global.appendUpdater('Edit', () => {
             this.setState({
-                ...this.state,
                 username: Global.state.username,
                 isNightMode: Global.state.isNightMode
             });
@@ -116,14 +115,12 @@ class Edit extends React.Component {
 
     onOpenModal(name) {
         this.setState({
-            ...this.state,
             [name]: true
         });
     }
 
     onCloseModal(name) {
         this.setState({
-            ...this.state,
             [name]: false
         });
     }
@@ -138,11 +135,15 @@ class Edit extends React.Component {
     }
 
     onEditorChange(value) {
-        this.setState({ ...this.state, text: value });
+        this.setState({
+            text: value
+        });
     }
 
     onEditorMount(editor) {
-        this.setState({ ...this.state, editor });
+        this.setState({
+            editor
+        });
     }
 
     onEditorScroll(data) {
@@ -168,7 +169,6 @@ class Edit extends React.Component {
         }
         try {
             this.setState({
-                ...this.state,
                 isSumbit: true
             });
             const { data } = await API.putPost('@' + this.state.username, this.props.id, 'edit', {
@@ -183,7 +183,6 @@ class Edit extends React.Component {
             }
         } catch(e) {
             this.setState({
-                ...this.state,
                 isSumbit: false
             });
             toast('😥 글 수정중 오류가 발생했습니다.');
@@ -198,7 +197,6 @@ class Edit extends React.Component {
         const { files } = e.target;
         const [ file ] = files;
         this.setState({
-            ...this.state,
             image: file,
             imageName: file.name
         });
