@@ -4,18 +4,18 @@ import Router from 'next/router'
 
 import { toast } from 'react-toastify';
 
-import API from '../../modules/api';
-import Global from '../../modules/global';
-import LoginModal from '../modal/Login';
-import SignupModal from '../modal/Signup';
-import SettingModal from '../modal/Setting';
+import API from '@modules/api';
+import Global from '@modules/global';
+import Search from '@components/common/Search';
+import LoginModal from '@components/modal/Login';
+import SignupModal from '@components/modal/Signup';
+import SettingModal from '@components/modal/Setting';
 
 interface State {
     onNav: boolean;
     isNightMode: boolean;
     isLogin: boolean;
     username: string;
-    search: string;
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
     isSettingModalOpen: boolean;
@@ -31,7 +31,6 @@ class TopNavigation extends React.Component {
             isNightMode: false,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
-            search: '',
             isLoginModalOpen: Global.state.isSettingModalOpen,
             isSignupModalOpen: Global.state.isSignupModalOpen,
             isSettingModalOpen: Global.state.isLoginModalOpen
@@ -96,18 +95,6 @@ class TopNavigation extends React.Component {
         });
     }
 
-    onEnterSearch(e: React.KeyboardEvent<HTMLInputElement>) {
-        if(e.key == 'Enter') {
-            window.open('about:blank')!.location.href = `https://duckduckgo.com/?q=${encodeURIComponent(`${this.state.search} site:${location.host}`)}`;
-        }
-    }
-
-    onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            [e.target.name]: e.target.value
-        });
-    }
-
     async onClickLogout() {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
             const { data } = await API.logout();
@@ -122,19 +109,6 @@ class TopNavigation extends React.Component {
     }
 
     render() {
-        const serachInput = (
-            <input
-                autoComplete="off"
-                className="search"
-                name="search"
-                type="text"
-                value={this.state.search}
-                placeholder="덕덕고에서 검색"
-                onChange={(e) => this.onInputChange(e)}
-                onKeyPress={(e) => this.onEnterSearch(e)}
-            />
-        );
-
         return (
             <>
                 <LoginModal
@@ -157,7 +131,7 @@ class TopNavigation extends React.Component {
                         <img src="/logo.png" alt="logo"/>
                     </nav>
                     <div className="inner">
-                        {serachInput}
+                        <Search/>
                         <ul className="menu-item">
                             <li>
                                 <Link href="/">
