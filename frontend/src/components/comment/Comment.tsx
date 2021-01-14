@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-interface CommentProps {
+interface Props {
     pk: number;
     author: string;
     authorImage: string;
@@ -12,7 +12,7 @@ interface CommentProps {
     html: string;
 };
 
-export default function Comment(props: CommentProps) {
+export default function Comment(props: Props) {
     return (
         <>
             <div className="comment-list s-shadow">

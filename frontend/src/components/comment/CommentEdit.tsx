@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { toast } from 'react-toastify';
 
@@ -9,56 +9,37 @@ interface Props {
     onSubmit: Function;
 };
 
-interface State {
-    content: string;
-};
+export default function CommentForm(props: Props) {
+    const [ content, setContent ] = useState(props.content);
 
-class CommentForm extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            content: props.content,
-        }
-    }
-
-    onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-        this.setState({
-            content: e.target.value
-        });
-    }
-
-    onSubmit() {
-        if(this.state.content == '') {
+    const onSubmit = () => {
+        if(content == '') {
             toast('😅 댓글의 내용을 입력해주세요.');
             return;
         }
-        if(this.state.content == this.props.content) {
-            this.props.onCancle(this.props.pk);
+        if(content == props.content) {
+            props.onCancle(props.pk);
             return;
         }
-        this.props.onSubmit(this.props.pk, this.state.content);
+        props.onSubmit(props.pk, content);
     }
 
-    render() {
-        return (
-            <div className="comment-form mb-3">
-                <textarea
-                    rows={5}
-                    className="form-control noto"
-                    onChange={(e) => this.onChange(e)}
-                    placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
-                    maxLength={300}
-                    value={this.state.content}>
-                </textarea>
-                <button
-                    type="button"
-                    onClick={() => this.onSubmit()}
-                    className="btn btn-dark btn-block noto">
-                    완료
-                </button>
-            </div>
-        )
-    }
+    return (
+        <div className="comment-form mb-3">
+            <textarea
+                rows={5}
+                className="form-control noto"
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
+                maxLength={300}
+                value={content}>
+            </textarea>
+            <button
+                type="button"
+                onClick={() => onSubmit()}
+                className="btn btn-dark btn-block noto">
+                완료
+            </button>
+        </div>
+    );
 }
-
-export default CommentForm

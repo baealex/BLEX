@@ -1,45 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-interface State {
-    search: string;
-}
+export default function Search() {
+    const [ keyword, setKeyword ] = useState('');
 
-class Search extends React.Component {
-    state: State;
-
-    constructor(props: any) {
-        super(props);
-        this.state = {
-            search: ''
-        };
-    }
-
-    onChange(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            [e.target.name]: e.target.value
-        });
-    }
-
-    onKeyPress(e: React.KeyboardEvent<HTMLInputElement>) {
+    const onSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if(e.key == 'Enter') {
-            window.open('about:blank')!.location.href = `https://duckduckgo.com/?q=${encodeURIComponent(`${this.state.search} site:${location.host}`)}`;
+            const search = `https://duckduckgo.com/?q=${encodeURIComponent(`${keyword} site:${location.host}`)}`;
+            window.open('about:blank')!.location.href = search;
         }
-    }
-    
-    render() {
-        return (
-            <input
-                autoComplete="off"
-                className="search"
-                name="search"
-                type="text"
-                value={this.state.search}
-                placeholder="덕덕고에서 검색"
-                onChange={(e) => this.onChange(e)}
-                onKeyPress={(e) => this.onKeyPress(e)}
-            />
-        );
-    }
-}
+    };
 
-export default Search;
+    return (
+        <input
+            autoComplete="off"
+            className="search"
+            name="search"
+            type="text"
+            value={keyword}
+            placeholder="덕덕고에서 검색"
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyPress={(e) => onSearch(e)}
+        />
+    );
+}
