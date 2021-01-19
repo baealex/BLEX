@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 import { useRouter } from 'next/router';
@@ -34,6 +34,14 @@ export default function(props: Props) {
             pageRange.push(num);
         }
     }
+
+    const [ inputPage, setInputPage ] = useState('');
+
+    const getPageRange = (num: number) => {
+        if(num < 1)    return 1;
+        if(num > last) return last;
+        return num;
+    };
 
     return (
         <>
@@ -125,6 +133,25 @@ export default function(props: Props) {
                             </li>
                         </>
                     )}
+                </ul>
+                <ul className="ps none-list mobile-disable">
+                    <span className="vs shallow-dark mr-2">Go to page</span>
+                    <input
+                        className="pn"
+                        type="number"
+                        min={1}
+                        max={last}
+                        value={inputPage}
+                        onChange={(e) => setInputPage(getPageRange(parseInt(e.target.value)).toString())}
+                    />
+                    <Link href={{
+                        pathname: router.pathname,
+                        query: { ...router.query, page: inputPage === '' ? page : inputPage }
+                    }}>
+                        <button className="gp">
+                            Go <i className="fas fa-chevron-right"></i>
+                        </button>
+                    </Link>
                 </ul>
             </nav>
         </>

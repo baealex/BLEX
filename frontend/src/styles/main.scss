@@ -106,6 +106,31 @@
         }
     }
 
+    .ps {
+        float: right;
+
+        .pn {
+            background: none;
+            border: 1px solid #8e44ad;
+            border-radius: 5px;
+            padding: 2px;
+            width: 50px;
+
+            body.dark & {
+                border: 1px solid $vivid-purple-complementary;
+            }
+        }
+
+        .gp {
+            border: none;
+            background: none;
+        }
+
+        *:focus {
+            outline: none;
+        }
+    }
+
     .active {
         border: 2px solid #9b59b6;
         text-align: center;

@@ -48,4 +48,4 @@ class Modal extends React.Component<Props> {
     }
 }
 
-export default Modal
+export default Modal;

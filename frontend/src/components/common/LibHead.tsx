@@ -1,6 +1,6 @@
 import Head from 'next/head';
 
-import Config from '../../modules/config.json';
+import Config from '@modules/config.json';
 
 function minify(str: string) {
     str = str.replace(/\s/g, '');
@@ -10,7 +10,7 @@ function minify(str: string) {
     return str;
 }
 
-export default function() {
+export default function LibHead() {
     return (
         <Head>
             <link
