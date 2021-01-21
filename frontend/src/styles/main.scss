@@ -622,7 +622,7 @@ footer {
     font-weight: bold;
     letter-spacing: -1px;
     font-variant: petite-caps;
-    font-size: 2rem;
+    font-size: 2.2rem;
 }
 .post-date {
     font-family: $gothic;
@@ -688,25 +688,26 @@ footer {
     }
 
     h1, h2, h3, h4, h5, h6 {
-        font-size: 1.6rem;
-        margin: 2em 0 0.85em;
+        font-size: 1.8rem;
+        margin: 2em 0 0.5em;
         font-weight: bold;
         font-family: $gothic;
+        letter-spacing: -1px;
+        font-variant: petite-caps;
         padding-bottom: 12px;
     }
 
     h1, h2 {
-        border-bottom: 5px solid #444;
+        border-bottom: 4px solid #444;
     }
 
     h3, h4 {
-        font-size: 1.4rem;
-        border-bottom: 3px solid #444;
+        font-size: 1.6rem;
+        border-bottom: 2px solid #444;
     }
 
     h5, h6 {
-        font-size: 1.2rem;
-        border-bottom: 1px solid #444;
+        font-size: 1.4rem;
     }
     
     p, ul, ol, table, div, pre {
@@ -725,23 +726,10 @@ footer {
 
     a {
         text-decoration: none;
-        color: #000;
-        transition: all .5s;
-        box-shadow: inset 0 -4px 0 $live-purple;
+        color: $vivid-purple;
 
         body.dark & {
-            color: #fff;
-            box-shadow: inset 0 -4px 0 $vivid-purple-complementary;
-        }
-
-        &:hover {
-            color: #fff;
-            box-shadow: inset 0 -38px 0 $live-purple;
-
-            body.dark & {
-                color: #000;
-                box-shadow: inset 0 -38px 0 $vivid-purple-complementary;
-            }
+            color: $vivid-purple-complementary;
         }
     }
 
@@ -848,100 +836,60 @@ footer {
 /* ------------------------------ */
 /* POSTS : DETAIL : ARTICLE NAVIGATION */
 .article-nav {
+    font-family: $gothic;
     position: sticky;
     top: 15px;
     margin: 15px 0;
     max-height: calc(100vh - 30px);
-    overflow-y: hidden;
     overflow-x: hidden;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        width: 3px;        
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #eee;
+    }
+
+    .title-1 {
+        margin-left: 0px;
+    }
+
+    .title-2 {
+        margin-left: 20px;
+    }
+
+    .title-3 {
+        margin-left: 50px;
+    }
 
     .title-1::before,
     .title-2::before,
     .title-3::before {
-        transition: all 0.3s;
-        content: '';
-        display: inline-block;
-        transform: translateY(-100%);
-        position: relative;
-        border-top: 2.5px solid #ccc;
+        width: 0px;
+    }
+
+    a {
+        color: #ccc;
+        cursor: pointer;
 
         body.dark & {
-            border-top: 2.5px solid #777;
+            color: #777;
         }
     }
 
-    .title-1::before {
-        width: 40px;
-    }
-
-    .title-2::before {
-        width: 20px;
-    }
-
-    .title-3::before {
-        width: 10px;
-    }
-
-    .nav-now.title-1::before,
-    .nav-now.title-2::before,
-    .nav-now.title-3::before {
-        border-color: #000;
+    a.nav-now {
+        color: #000 !important;
 
         body.dark & {
-            border-color: #fff;
-        }
-    }
-
-    &:hover {
-        overflow-y: auto;
-
-        &::-webkit-scrollbar {
-            width: 3px;        
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background-color: #eee;
-        }
-
-        .title-1 {
-            transform: translateX(5px);
-        }
-    
-        .title-2 {
-            transform: translateX(15px);
-        }
-    
-        .title-3 {
-            transform: translateX(30px);
-        }
-
-        .title-1::before,
-        .title-2::before,
-        .title-3::before {
-            width: 0px;
-        }
-
-        a {
-            color: #ccc;
-            cursor: pointer;
-
-            body.dark & {
-                color: #777;
-            }
-        }
-
-        a.nav-now {
-            color: #000 !important;
-
-            body.dark & {
-                color: #fff !important;
-            }
+            color: #fff !important;
         }
     }
 
     a {
         transition: all 0.3s;
-        color: rgba(0, 0, 0, 0);
+        color: rgba(0, 0, 0, 0.3);
         display: block;
         white-space: nowrap;
         font-size: 14px;
