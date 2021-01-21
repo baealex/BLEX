@@ -175,7 +175,7 @@ class AccountSetting extends React.Component<Props, State> {
                     </div>
                 ) : (
                     <div className="d-flex justify-content-between">
-                        <h3 className="serif font-weight-bold">
+                        <h3 className="noto font-weight-bold">
                             @{this.props.username}
                         </h3>
                         <button
@@ -186,7 +186,7 @@ class AccountSetting extends React.Component<Props, State> {
                         </button>
                     </div>
                 )}
-                <p className="serif">
+                <p className="noto">
                     {this.props.tabdata.createdDate}
                 </p>
                 <input

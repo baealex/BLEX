@@ -22,7 +22,7 @@ export default function ArticleSereis(props: Props) {
         <div className="my-5 noto posts-sereis">
             <Link href="/[author]/series/[seriesurl]" as={`/@${props.author}/series/${props.url}`}>
                 <a className="deep-dark">
-                    <h4 className="serif font-weight-bold mb-3">
+                    <h4 className="noto font-weight-bold mb-3">
                         '{props.title}' 시리즈
                     </h4>
                 </a>

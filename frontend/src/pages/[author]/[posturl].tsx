@@ -433,22 +433,6 @@ class PostDetail extends React.Component<Props, State> {
                     image={this.props.post.image}
                     isArticle={true}
                 />
-                {this.props.post.image.includes('default') ? (
-                    <></>
-                ) : (
-                    <picture className="post-title-image">
-                        <img src={this.props.post.image} alt={this.props.post.title}/>
-                        <div className="post-image-mask mask-off">
-                            <h1 className="post-headline fade-in">
-                            {this.props.hasSeries ? (
-                                <span className="post-series">'{this.props.series.title}' 시리즈</span>
-                            ) : ''}
-                                {this.props.post.title}
-                            </h1>
-                            <time className="post-date fade-in">{this.props.post.createdDate}{this.props.post.createdDate !== this.props.post.updatedDate ? ` (Updated: ${this.props.post.updatedDate})` : ''}</time>
-                        </div>
-                    </picture>
-                )}
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-2">
@@ -477,19 +461,13 @@ class PostDetail extends React.Component<Props, State> {
                             </div>
                         </div>
                         <div className="col-lg-8">
-                            {this.props.post.image.includes('default') ? (
-                                <>
-                                    <h1 className="post-headline">
-                                        {this.props.hasSeries ? (
-                                            <span className="post-series">'{this.props.series.title}' 시리즈</span>
-                                        ) : ''}
-                                        {this.props.post.title}
-                                    </h1>
-                                    <time className="post-date">{this.props.post.createdDate}{this.props.post.createdDate !== this.props.post.updatedDate ? ` (Updated: ${this.props.post.updatedDate})` : ''}</time>
-                                </>
-                            ) : (
-                                <></>
-                            )}
+                            <h1 className="post-headline">
+                                {this.props.hasSeries ? (
+                                    <span className="post-series">'{this.props.series.title}' 시리즈</span>
+                                ) : ''}
+                                {this.props.post.title}
+                            </h1>
+                            <time className="post-date">{this.props.post.createdDate}{this.props.post.createdDate !== this.props.post.updatedDate ? ` (Updated: ${this.props.post.updatedDate})` : ''}</time>
                             <ArticleAuthor {...this.props.profile}/>
                             {this.props.post.author == this.state.username ? (
                                 <div className="mb-3 text-right">

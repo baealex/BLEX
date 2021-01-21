@@ -20,7 +20,7 @@ export default function ArticleCard(props: ArticleCardProps) {
             </Link>
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                 <a className="deep-dark">
-                    <h5 className="card-title serif font-weight-bold mt-3">
+                    <h5 className="card-title noto font-weight-bold mt-3">
                         {props.title}
                     </h5>
                 </a>
@@ -30,7 +30,7 @@ export default function ArticleCard(props: ArticleCardProps) {
                     <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.authorImage})`}}/>
                 </a>
             </Link>
-            <p className="vs serif">
+            <p className="vs noto">
                 <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
             </p>
         </div>

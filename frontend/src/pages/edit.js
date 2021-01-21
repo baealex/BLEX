@@ -252,7 +252,7 @@ class Edit extends React.Component {
                 <div className="container-fluid blex-editor">
                     <input
                         name="title"
-                        className="serif title"
+                        className="noto title"
                         placeholder="제목을 입력하세요."
                         value={this.state.title}
                         onChange={(e) => this.onInputChange(e)}

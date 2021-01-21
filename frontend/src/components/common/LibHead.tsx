@@ -18,9 +18,6 @@ export default function LibHead() {
                 href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
                 integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
                 crossOrigin="anonymous"/>
-            <link
-                rel="stylesheet"
-                href="https://fonts.googleapis.com/css?family=Noto+Serif+KR|Noto+Sans+KR"/>
             {Config.GOOGLE_ANALYTICS_V4 ? (
                 <>
                     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>

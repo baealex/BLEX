@@ -1,3 +1,24 @@
+$serif: 'Noto Serif KR', serif;
+$gothic: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-serif;
+
+@font-face {
+    font-family: 'Spoqa Han Sans Neo';
+    font-weight: 700;
+    src: local('Spoqa Han Sans Bold'),
+    url('https://static.blex.me/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff2') format('woff2'),
+    url('https://static.blex.me/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff') format('woff'),
+    url('https://static.blex.me/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Spoqa Han Sans Neo';
+    font-weight: 400;
+    src: local('Spoqa Han Sans Regular'),
+    url('https://static.blex.me/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff2') format('woff2'),
+    url('https://static.blex.me/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff') format('woff'),
+    url('https://static.blex.me/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.ttf') format('truetype');
+}
+
 /* Style */
 .serif {
     font-family: $serif;

@@ -8,7 +8,7 @@ interface FeatureArticleProps {
 export default function FeatureArticle(props: FeatureArticleProps) {
     return (
         <>
-            <div className="h5 serif font-weight-bold mt-5">Featured Contents</div>
+            <div className="h5 noto font-weight-bold mt-5">Featured Contents</div>
             {props.articles.length > 0 ? (
                 <div className="row mt-1 mb-5">
                     {props.articles.map((article, idx) => (

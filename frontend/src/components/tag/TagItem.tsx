@@ -10,7 +10,7 @@ export default function TopicItem(props: TopicItemProps) {
     return (
         <div className="col-12 col-md-6 col-lg-4 mt-5">
             <div className="tag-card">
-                <div className="serif title">
+                <div className="noto title">
                     <Link href="/tags/[tag]" as={`/tags/${props.name}`}>
                         <a className="shallow-dark">{props.name} ({props.count})</a>
                     </Link>

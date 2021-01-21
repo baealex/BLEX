@@ -18,7 +18,7 @@ interface FeatureCardProps {
 export default function FeatureContent(props: FeautreContentProps) {
     return (
         <>
-            <div className="h5 serif font-weight-bold mt-5">Featured Contents</div>
+            <div className="h5 snotoerif font-weight-bold mt-5">Featured Contents</div>
             {props.articles.length > 0 ? (
                 <div className="row mt-1 mb-5">
                     {props.articles.map((article, idx) => (
@@ -41,7 +41,7 @@ function FeatureCard(props: FeatureCardProps) {
                         <img className="feature-image" src={props.image}/>
                         <div className="p-3">
                             {props.title}
-                            <div className="vs serif mt-2">{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span></div>
+                            <div className="vs noto mt-2">{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span></div>
                         </div>
                     </a>
                 </Link>

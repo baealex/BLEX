@@ -124,7 +124,7 @@ class TopNavigation extends React.Component {
                     onClose={() => Global.onCloseModal('isSettingModalOpen')}
                 />
                 <div
-                    className={`side-menu serif ${this.state.onNav ? 'on' : 'off' }`}>
+                    className={`side-menu noto ${this.state.onNav ? 'on' : 'off' }`}>
                     <nav
                         onClick={() => this.onClickNavigation()}
                         className={`menu ${this.state.onNav ? 'on' : 'off' }`}>

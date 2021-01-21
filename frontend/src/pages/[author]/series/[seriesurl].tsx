@@ -216,11 +216,11 @@ class Series extends React.Component<Props, State> {
                     </div>
                     <div className="series-list">
                         <div className="col-lg-8 mx-auto">
-                            <h2 className="serif font-weight-bold">
+                            <h2 className="noto font-weight-bold">
                                 '{seriesTitle}' 시리즈
                             </h2>
                             <Link href="/[author]" as={`/@${this.props.series.author}`}>
-                                <a className="post-series deep-dark serif font-weight-bold mb-3">
+                                <a className="post-series deep-dark noto font-weight-bold mb-3">
                                     Created by {this.props.series.author}
                                 </a>
                             </Link>
@@ -232,7 +232,7 @@ class Series extends React.Component<Props, State> {
                             <SeriesDesc {...this.props.series} description={this.state.seriesDescription}/>
                             {seriesPosts.map((post, idx) => (
                                 <div key={idx} className="mb-5">
-                                    <h5 className="card-title serif font-weight-bold">
+                                    <h5 className="card-title noto font-weight-bold">
                                         <Link href="/[author]/[posturl]" as={`/@${this.props.series.author}/${post.url}`}>
                                             <a className="deep-dark">{idx + 1}. {post.title}</a>
                                         </Link>

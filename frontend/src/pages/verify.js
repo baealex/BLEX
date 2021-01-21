@@ -77,9 +77,9 @@ class Verify extends React.Component {
                 
                 <div class="text-center display-center">
                     {Config.GOOGLE_RECAPTCHA_V2_KEY ? (
-                        <div className="h5 serif mb-4">{this.props.username}님은 로봇이 아닙니까?</div>
+                        <div className="h5 noto mb-4">{this.props.username}님은 로봇이 아닙니까?</div>
                     ) : (
-                        <div className="h5 serif mb-4">{this.props.username}님이 맞으십니까?</div>
+                        <div className="h5 noto mb-4">{this.props.username}님이 맞으십니까?</div>
                     )}
                     {Config.GOOGLE_RECAPTCHA_V2_KEY ? (
                         <p>

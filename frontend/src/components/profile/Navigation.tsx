@@ -9,7 +9,7 @@ export default function ProfileNavigation(props: ProfileNavigationProps) {
     return (
         <div className="profile-tab back-image mt-5">
             <div className="mask">
-                <ul className="serif">
+                <ul className="noto">
                     <Link href="/[author]" as={`/@${props.username}`} scroll={false} prefetch={true}>
                         <a>
                             <li className={props.active === 'overview' ? 'active' : ''}>개요</li>

@@ -20,8 +20,8 @@ export default function ArticleAuthor(props: ArticleAuthorProps) {
                 </a>
             </Link>
             <div className="author-info">
-                <h4 className="serif">{props.profile.realname}</h4>
-                <h5 className="serif">@{props.profile.username}</h5>
+                <h4 className="noto">{props.profile.realname}</h4>
+                <h5 className="noto">@{props.profile.username}</h5>
                 <p className="author-description mb-2">{props.profile.bio}</p>
                 <Social {...props.social}/>
             </div>
