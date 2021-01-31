@@ -6,7 +6,7 @@ import PageNav from '@components/common/PageNav';
 import TopicsDesc from '@components/tag/TagDesc';
 import Title from '@components/common/Title';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 
 export async function getServerSideProps(context) {
     const raise = require('@modules/raise');

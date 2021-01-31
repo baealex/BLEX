@@ -5,7 +5,7 @@ import PageNav from '@components/common/PageNav';
 import Profile from '@components/profile/Profile';
 import PostsComponent from '@components/profile/Posts';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 
 export async function getServerSideProps(context) {
     const raise = require('@modules/raise');

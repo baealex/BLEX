@@ -14,7 +14,7 @@ export default function ArticleCard(props: ArticleCardProps) {
     return (
         <div className="col-lg-4 mt-4">
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                <a className="blex-card dee-dark">
+                <a className="deep-dark">
                     <img className="list-image" src={props.image}/>
                 </a>
             </Link>

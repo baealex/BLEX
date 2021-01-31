@@ -26,554 +26,164 @@ function serializeObject(obj: any) {
 
 axios.defaults.withCredentials = true;
 
-class API {
-    async alive(cookie=undefined) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/alive`,
-            method: 'GET',
-            headers: cookie ? {
-                'Cookie': cookie
-            } : {}
-        });
-    }
-
-    async getAllPosts(sort: string, page: number) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/posts/${sort}?page=${page}`,
-            method: 'GET',
-        });
-    }
-
-    async getAllTempPosts() {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/posts/temp?get=list`,
-            method: 'GET',
-            withCredentials: true,
-        });
-    }
-
-    async getTempPosts(token: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/posts/temp?token=${token}`,
-            method: 'GET',
-            withCredentials: true,
-        });
-    }
-
-    async postTempPosts(title: string, text_md: string, tag: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/posts/temp`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                title,
-                text_md,
-                tag
-            }),
-            withCredentials: true,
-        });
-    }
-
-    async putTempPosts(token: string, title: string, text_md: string, tag: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/posts/temp`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                token,
-                title,
-                text_md,
-                tag
-            }),
-            withCredentials: true,
-        });
-    }
-
-    async deleteTempPosts(token: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/posts/temp`,
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                token
-            }),
-            withCredentials: true,
-        });
-    }
-    
-    async getUserPosts(author: string, page: number, tag='') {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
-            method: 'GET',
-        });
-    }
-
-    async getPost(author: string, url: string, mode: string, cookie?: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?mode=${mode}`,
-            method: 'GET',
-            headers: cookie ? { cookie } : undefined
-        });
-    }
-
-    async getPostComments(author: string, url: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/comments`,
-            method: 'GET',
-        });
-    }
-
-    async postPost(author: string, data: FormData) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data,
-            withCredentials: true,
-        });
-    }
-
-    async putPost(author: string, url: string, item='', data={}) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${serializeObject({[item]: item})}`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject(data),
-            withCredentials: true,
-        });
-    }
-
-    async deletePost(author: string, url: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
-            method: 'DELETE',
-            withCredentials: true,
-        });
-    }
-
-    async getAnalytics(author: string, url: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
-            method: 'GET'
-        });
-    }
-
-    async postAnalytics(author: string, url: string, data: {}) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
-            method: 'POST',
-            data: serializeObject(data),
-            withCredentials: true,
-        });
-    }
-
-    async getUserProfile(author: string, includes: string[]) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
-            method: 'GET'
-        });
-    }
-
-    async getUserData(author: string, get: string, fields: string[]) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?get=${get}&fields=${fields.join(',')}`,
-            method: 'GET'
-        });
-    }
-
-    async putUsername(username: string, newUsername: string) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/users/@${encodeURIComponent(username)}`,
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: serializeObject({
-                    username: username,
-                    new_username: newUsername
-                }),
-                withCredentials: true,
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async putAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}`,
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: serializeObject({
-                    about: author,
-                    about_md: aboutMarkdown,
-                    about_html: aboutMarkup
-                }),
-                withCredentials: true,
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async getAllTags(page: number) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/tags?page=${page}`,
-            method: 'GET'
-        });
-    }
-
-    async getTag(tag: string, page: number) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
-            method: 'GET'
-        });
-    }
-
-    async postComment(url: string, content: string, contentMarkup: string) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/comments?url=${url}`,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: serializeObject({
-                    comment_html: contentMarkup,
-                    comment_md: content
-                }),
-                withCredentials: true,
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async likeComment(pk: number) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/comments/${pk}`,
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: serializeObject({
-                    like: pk
-                }),
-                withCredentials: true,
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async getCommentMd(pk: number) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/comments/${pk}`,
-            method: 'GET'
-        });
-    }
-
-    async putComment(pk: number, content: string, commentMarkup: string) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/comments/${pk}`,
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: serializeObject({
-                    comment: 'comment',
-                    comment_md: content,
-                    comment_html: commentMarkup,
-                }),
-                withCredentials: true,
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async deleteComment(pk: number) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/comments/${pk}`,
-                method: 'DELETE',
-                withCredentials: true,
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async postSeries(author: string, title: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                title
-            }),
-            withCredentials: true,
-        });
-    }
-
-    async getUserSeries(author: string, page: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
-            method: 'GET'
-        });
-    }
-
-    async getSeries(author: string, url: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
-            method: 'GET'
-        });
-    }
-
-    async putSeries(author: string, url: string, data: object) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: serializeObject(data),
-                withCredentials: true,
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async deleteSeries(author: string, url: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
-            method: 'DELETE',
-            withCredentials: true,
-        });
-    }
-
-    async getSetting(username: string, item: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(username)}/setting/${item}`,
-            method: 'GET'
-        });
-    }
-
-    async putSetting(username: string, item: string, data: object) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(username)}/setting/${item}`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject(data),
-            withCredentials: true,
-        });
-    }
-
-    async telegram(parameter: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/telegram/${parameter}`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            withCredentials: true,
-        });
-    }
-
-    async login(username: string, password: string) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/login`,
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/x-www-form-urlencoded'
-                },
-                data: serializeObject({
-                    username,
-                    password
-                })
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async signup(username: string, password: string, email: string, realname: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/signup`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                username,
-                realname,
-                password,
-                email
-            }),
-            withCredentials: true,
-        });
-    }
-
-    async getVerifyToken(token: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/verify/${token}`,
-            method: 'GET',
-        });
-    }
-
-    async postVerifyToken(token: string, gctoken: string | undefined) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/users/verify/${token}`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                gctoken
-            }),
-            withCredentials: true,
-        });
-    }
-
-    async socialLogin(social: string, code: string) {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/login`,
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/x-www-form-urlencoded'
-                },
-                data: serializeObject({
-                    social,
-                    code
-                })
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async getFeaturePosts(username: string, exclude: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/feature/posts?${serializeObject({username, exclude})}`,
-            method: 'GET',
-        });
-    }
-
-    async getFeatureTagPosts(tag: string, exclude: string) {
-        return await axios({
-            url: `${Config.API_SERVER}/v1/feature/posts/${tag}?${serializeObject({exclude})}`,
-            method: 'GET',
-        });
-    }
-
-    async uploadImage(file: File) {
-        const formData = new FormData();
-        formData.append('image', file);
-
-        NProgress.start();
-        try {
-            const formData = new FormData();
-            formData.append('image', file);
-
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/image/upload`,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: formData,
-                withCredentials: true,
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
-
-    async logout() {
-        NProgress.start();
-        try {
-            const response = await axios({
-                url: `${Config.API_SERVER}/v1/logout`,
-                method: 'POST'
-            });
-            NProgress.done();
-            return response;
-        } catch(e) {
-            NProgress.done();
-            return e;
-        }
-    }
+export async function alive(cookie=undefined) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/login`,
+        method: 'GET',
+        headers: cookie ? {
+            'Cookie': cookie
+        } : {}
+    });
 }
 
-export default new API();
+export async function getAllPosts(sort: string, page: number) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/posts/${sort}?page=${page}`,
+        method: 'GET',
+    });
+}
 
-/* ---------------------------------------------
-    Define Interface
-      - Please correct it when changing backend.
---------------------------------------------- */
+export async function getAllTempPosts() {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/posts/temp?get=list`,
+        method: 'GET',
+        withCredentials: true,
+    });
+}
+
+export async function getTempPosts(token: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/posts/temp?token=${token}`,
+        method: 'GET',
+        withCredentials: true,
+    });
+}
+
+export async function postTempPosts(title: string, text_md: string, tag: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/posts/temp`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            title,
+            text_md,
+            tag
+        }),
+        withCredentials: true,
+    });
+}
+
+export async function putTempPosts(token: string, title: string, text_md: string, tag: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/posts/temp`,
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            token,
+            title,
+            text_md,
+            tag
+        }),
+        withCredentials: true,
+    });
+}
+
+export async function deleteTempPosts(token: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/posts/temp`,
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            token
+        }),
+        withCredentials: true,
+    });
+}
+
+export async function getUserPosts(author: string, page: number, tag='') {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
+        method: 'GET',
+    });
+}
+
+export async function getPost(author: string, url: string, mode: string, cookie?: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?mode=${mode}`,
+        method: 'GET',
+        headers: cookie ? { cookie } : undefined
+    });
+}
+
+export async function getPostComments(author: string, url: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/comments`,
+        method: 'GET',
+    });
+}
+
+export async function postPost(author: string, data: FormData) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data,
+        withCredentials: true,
+    });
+}
+
+export async function putPost(author: string, url: string, item='', data={}) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${serializeObject({[item]: item})}`,
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject(data),
+        withCredentials: true,
+    });
+}
+
+export async function deletePost(author: string, url: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
+        method: 'DELETE',
+        withCredentials: true,
+    });
+}
+
+export async function getAnalytics(author: string, url: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
+        method: 'GET'
+    });
+}
+
+export async function postAnalytics(author: string, url: string, data: {}) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
+        method: 'POST',
+        data: serializeObject(data),
+        withCredentials: true,
+    });
+}
+
+/* PROFILE */
+
+export async function getUserProfile(author: string, includes: string[]) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
+        method: 'GET'
+    });
+}
 
 export interface ProfileData {
     profile: {
@@ -618,6 +228,456 @@ export interface ProfileData {
     }[],
 }
 
+export async function getUserData(author: string, get: string, fields: string[]) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?get=${get}&fields=${fields.join(',')}`,
+        method: 'GET'
+    });
+}
+
+export async function putUsername(username: string, newUsername: string) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/users/@${encodeURIComponent(username)}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                username: username,
+                new_username: newUsername
+            }),
+            withCredentials: true,
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function putAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                about: author,
+                about_md: aboutMarkdown,
+                about_html: aboutMarkup
+            }),
+            withCredentials: true,
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function getAllTags(page: number) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/tags?page=${page}`,
+        method: 'GET'
+    });
+}
+
+export async function getTag(tag: string, page: number) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
+        method: 'GET'
+    });
+}
+
+export async function postComment(url: string, content: string, contentMarkup: string) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/comments?url=${url}`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                comment_html: contentMarkup,
+                comment_md: content
+            }),
+            withCredentials: true,
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function likeComment(pk: number) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/comments/${pk}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                like: pk
+            }),
+            withCredentials: true,
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function getCommentMd(pk: number) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/comments/${pk}`,
+        method: 'GET'
+    });
+}
+
+export async function putComment(pk: number, content: string, commentMarkup: string) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/comments/${pk}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                comment: 'comment',
+                comment_md: content,
+                comment_html: commentMarkup,
+            }),
+            withCredentials: true,
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function deleteComment(pk: number) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/comments/${pk}`,
+            method: 'DELETE',
+            withCredentials: true,
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function postSeries(author: string, title: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            title
+        }),
+        withCredentials: true,
+    });
+}
+
+export async function getUserSeries(author: string, page: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
+        method: 'GET'
+    });
+}
+
+export async function getSeries(author: string, url: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+        method: 'GET'
+    });
+}
+
+export async function putSeries(author: string, url: string, data: object) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject(data),
+            withCredentials: true,
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function deleteSeries(author: string, url: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+        method: 'DELETE',
+        withCredentials: true,
+    });
+}
+
+/* SETTING */
+
+export async function getSetting(cookie: string | undefined, item: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/setting/${item}`,
+        headers: {
+            cookie
+        },
+        method: 'GET'
+    });
+}
+
+export async function putSetting(item: string, data: object) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/setting/${item}`,
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject(data),
+        withCredentials: true,
+    });
+}
+
+export async function telegram(parameter: 'unsync' | 'makeToken') {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/telegram/${parameter}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        withCredentials: true,
+    });
+}
+
+export interface SettingNotifyData {
+    notify: {
+        pk: number;
+        url: string;
+        isRead: boolean;
+        content: string;
+        createdDate: string;
+    }[];
+    isTelegramSync: boolean;
+}
+
+export interface SettingAccountData {
+    username: string;
+    realname: string;
+    createdDate: string;
+}
+
+export interface SettingProfileData {
+    avatar: string;
+    bio: string;
+    homepage: string;
+    github: string;
+    twitter: string;
+    youtube: string;
+    facebook: string;
+    instagram: string;
+}
+
+export interface SettingPostsData {
+    username: string;
+    posts: {
+        url: string;
+        title: string;
+        createdDate: string;
+        updatedDate: string;
+        isHide: boolean;
+        totalLikes: number;
+        totalComments: number;
+        today: number;
+        yesterday: number;
+        tag: string;
+    }[];
+}
+
+export interface SettingSeriesData {
+    username: string;
+    series: {
+        url: string;
+        title: string;
+        totalPosts: number;
+    }[];
+}
+
+/* AUTH */
+
+export async function login(username: string, password: string) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/login`,
+            method: 'POST',
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                username,
+                password
+            })
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function signup(username: string, password: string, email: string, realname: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/signup`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            username,
+            realname,
+            password,
+            email
+        }),
+        withCredentials: true,
+    });
+}
+
+export async function signDelete() {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/signup`,
+        method: 'DELETE',
+        withCredentials: true,
+    });
+}
+
+export async function getVerifyToken(token: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/verify/${token}`,
+        method: 'GET',
+    });
+}
+
+export async function postVerifyToken(token: string, gctoken: string | undefined) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/verify/${token}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            gctoken
+        }),
+        withCredentials: true,
+    });
+}
+
+export async function socialLogin(social: string, code: string) {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/login`,
+            method: 'POST',
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            data: serializeObject({
+                social,
+                code
+            })
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function getFeaturePosts(username: string, exclude: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/feature/posts?${serializeObject({username, exclude})}`,
+        method: 'GET',
+    });
+}
+
+export async function getFeatureTagPosts(tag: string, exclude: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/feature/posts/${tag}?${serializeObject({exclude})}`,
+        method: 'GET',
+    });
+}
+
+export async function uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+    NProgress.start();
+    try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/image/upload`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: formData,
+            withCredentials: true,
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+export async function logout() {
+    NProgress.start();
+    try {
+        const response = await axios({
+            url: `${Config.API_SERVER}/v1/logout`,
+            method: 'POST'
+        });
+        NProgress.done();
+        return response;
+    } catch(e) {
+        NProgress.done();
+        return e;
+    }
+}
+
+
 export interface FeaturePostsData {
     posts: {
         url: string;
@@ -639,55 +699,5 @@ export interface FeatureTagPostsData {
         createdDate: string;
         authorImage: string;
         author: string;
-    }[];
-}
-
-export interface SettingNotifyData {
-    notify: {
-        pk: number;
-        url: string;
-        isRead: boolean;
-        content: string;
-        createdDate: string;
-    }[];
-}
-
-export interface SettingAccountData {
-    username: string;
-    realname: string;
-    createdDate: string;
-}
-
-export interface SettingProfileData {
-    avatar: string;
-    bio: string;
-    homepage: string;
-    github: string;
-    twitter: string;
-    youtube: string;
-    facebook: string;
-    instagram: string;
-}
-
-export interface SettingPostsData {
-    posts: {
-        url: string;
-        title: string;
-        createdDate: string;
-        updatedDate: string;
-        isHide: boolean;
-        totalLikes: number;
-        totalComments: number;
-        today: number;
-        yesterday: number;
-        tag: string;
-    }[];
-}
-
-export interface SettingSeriesData {
-    series: {
-        url: string;
-        title: string;
-        totalPosts: number;
     }[];
 }

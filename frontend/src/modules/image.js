@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 
-import API from './api';
+import * as API from './api';
 
 export function isImage(file) {
     const validTypes = [

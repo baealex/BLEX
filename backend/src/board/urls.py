@@ -79,7 +79,6 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
 
     # API V1
-    path('v1/alive', api_v1.alive, name='alive_api_v1'),
     path('v1/login', api_v1.login, name='login_api_v1'),
     path('v1/logout', api_v1.logout, name='logout_api_v1'),
     path('v1/signup', api_v1.signup, name='signup_api_v1'),
@@ -91,7 +90,7 @@ urlpatterns = [
     path('v1/users/@<username>/posts/<url>/analytics', api_v1.user_posts_analytics, name='post_analytics_api_v1'),
     path('v1/users/@<username>/series', api_v1.user_series, name='series_api_v1'),
     path('v1/users/@<username>/series/<url>', api_v1.user_series, name='series_api_v1'),
-    path('v1/users/@<username>/setting/<item>', api_v1.user_setting, name='setting_api_v1'),
+    path('v1/setting/<item>', api_v1.setting, name='setting_api_v1'),
     path('v1/tags', api_v1.tags, name='tags_api_v1'),
     path('v1/tags/<tag>', api_v1.tags, name='tags_api_v1'),
     path('v1/posts/temp', api_v1.temp_posts, name='temp_posts_api_v1'),

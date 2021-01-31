@@ -6,7 +6,7 @@ import Profile from '@components/profile/Profile';
 import SeriesComponent from '@components/profile/Series';
 import PurpleBorder from '@components/common/PurpleBorder';
 
-import API from '@modules/api'
+import * as API from '@modules/api'
 
 export async function getServerSideProps(context) {
     const raise = require('@modules/raise');

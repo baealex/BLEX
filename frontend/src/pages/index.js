@@ -6,7 +6,7 @@ import SEO from '@components/seo';
 import PageNav from '@components/common/PageNav';
 import Footer from '@components/common/Footer';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 
 export async function getServerSideProps(context) {
     const raise = require('@modules/raise');
@@ -46,11 +46,6 @@ class Home extends React.Component {
                 <Head>
                     <title>BLOG EXPRESS ME</title>
                 </Head>
-
-                <SEO
-                    title={`BLOG EXPRESS ME`}
-                    description={`온라인 창작자를 위한 블로그`}
-                />
 
                 <div className="container">
                     <div className="row">

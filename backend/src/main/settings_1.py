@@ -136,6 +136,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 SITE_URL = 'http://localhost:20000'
+API_KEY = ''
 
 STATIC_URL = 'http://localhost:20200/assets/'
 STAITC_ROOT = os.path.join(BASE_DIR, 'static/assets/')

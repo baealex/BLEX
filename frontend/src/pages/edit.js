@@ -3,15 +3,19 @@ import Head from 'next/head';
 import Router from 'next/router';
 
 import { toast } from 'react-toastify';
-import { Controlled as CodeMirror } from 'react-codemirror2'
 
-import Modal from '@components/common/Modal';
+import Modal from '@components/modal/Modal';
+import ModalContent from '@components/modal/Content';
+import ModalButton from '@components/modal/Button';
+
 import InputForm from '@components/form/InputForm';
 import SelectForm from '@components/form/SelectForm';
 import FullLoading from '@components/common/FullLoading';
-import ArticleContent from '@components/article/ArticleContent';
 
-import API from '@modules/api';
+import EditorTitle from '@components/editor/Title';
+import EditorContent from '@components/editor/Content';
+
+import * as API from '@modules/api';
 import blexer from '@modules/blexer';
 import Global from '@modules/global';
 import { lazyLoadResource } from '@modules/lazy';
@@ -35,6 +39,7 @@ class Edit extends React.Component {
             title: '',
             tags: '',
             text: '',
+            isEdit: true,
             series: '',
             image: '',
             imageName: '',
@@ -211,7 +216,7 @@ class Edit extends React.Component {
 
         const publishModal = (
             <Modal title='게시글 수정' isOpen={this.state[modal.publish]} close={() => this.onCloseModal(modal.publish)}>
-                <div className="content noto">
+                <ModalContent>
                     {/*
                     <ImageForm
                         name="image"
@@ -236,10 +241,8 @@ class Edit extends React.Component {
                         onChange={(e) => this.onInputChange(e)}
                         placeholder="띄어쓰기 혹은 반점으로 구분하세요."
                     />
-                </div>
-                <div className="button" onClick={() => this.onPublish()}>
-                    <button>글을 수정합니다</button>
-                </div>
+                </ModalContent>
+                <ModalButton text="글을 수정합니다" onClick={() => this.onPublish()}/>
             </Modal>
         );
 
@@ -249,31 +252,41 @@ class Edit extends React.Component {
                     <title>Edit — BLEX</title>
                 </Head>
 
-                <div className="container-fluid blex-editor">
-                    <input
-                        name="title"
-                        className="noto title"
-                        placeholder="제목을 입력하세요."
-                        value={this.state.title}
-                        onChange={(e) => this.onInputChange(e)}
-                    />
-                    <div className="row">
-                        <div className="col-lg-6" onDrop={(e) => this.onImageDrop(e)}>
-                            {typeof window !== "undefined" && <CodeMirror
-                                value={this.state.text}
-                                options={{
-                                    mode: 'markdown',
-                                    theme: this.state.isNightMode ? 'material-darker' : 'default',
-                                    lineNumbers: true,
-                                    lineWrapping: true,
-                                }}
-                                onScroll={(editor, data) => this.onEditorScroll(data)}
-                                editorDidMount={(editor) => this.onEditorMount(editor)}
-                                onBeforeChange={(editor, data, value) => this.onEditorChange(value)}
-                            />}
+                <div className="container">
+                    <div className="row justify-content-center">
+                        <div className="col-lg-8">
+                            <EditorTitle
+                                title={this.state.title}
+                                onChange={(e) => this.setState({
+                                    title: e.target.value
+                                })}
+                            />
+                            <EditorContent
+                                text={this.state.text}
+                                isEdit={this.state.isEdit}
+                                onChange={(e) => this.setState({
+                                    text: e.target.value
+                                })}
+                            />
                         </div>
-                        <div className="col-lg-6 preview mobile-disable" ref={(el) => { this.preview = el }}>
-                            <ArticleContent html={blexer(this.state.text)} />
+                        <div className="col-lg-2">
+                            <div className="sticky-top sticky-top-100">
+                                <div className="share">
+                                    <ul className="px-3">
+                                        {/*
+                                        <li className="mx-3 mx-lg-4" onClick={() => {}}>
+                                            <i className="far fa-image"></i>
+                                        </li>
+                                        <li className="mx-3 mx-lg-4" onClick={() => {}}>
+                                            <i className="fab fa-youtube"></i>
+                                        </li>
+                                        */}
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.setState({isEdit: !this.state.isEdit})}>
+                                            {this.state.isEdit ? <i className="far fa-eye-slash"></i> : <i className="far fa-eye"></i>}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

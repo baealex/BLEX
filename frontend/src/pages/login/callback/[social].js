@@ -3,7 +3,9 @@ import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
-import API from '@modules/api';
+import FullLoading from '@components/common/FullLoading';
+
+import * as API from '@modules/api';
 import Global from '@modules/global';
 import Cookie from '@modules/cookie';
 
@@ -29,7 +31,7 @@ class SocialLogin extends React.Component {
             if(data.notifyCount != 0) {
                 toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`, {
                     onClick:() => {
-                        Global.onOpenModal('isSettingModalOpen');
+                        Router.push('/setting');
                     }
                 });
             }
@@ -64,11 +66,7 @@ class SocialLogin extends React.Component {
     render() {
         return (
             <>
-                <div className="content">
-                    <div className="container">
-                        <p>Loading...</p>
-                    </div>
-                </div>
+                <FullLoading/>
             </>
         )
     }

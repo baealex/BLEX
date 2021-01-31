@@ -7,7 +7,7 @@ import PurpleBorder from '@components/common/PurpleBorder';
 
 import { toast } from 'react-toastify';
 
-import API from '@modules/api'
+import * as API from '@modules/api'
 import Global from '@modules/global';
 import blexer from '@modules/blexer';
 

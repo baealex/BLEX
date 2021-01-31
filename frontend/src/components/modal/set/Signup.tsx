@@ -1,11 +1,12 @@
 import React from 'react';
 
-import Modal from '@components/common/Modal';
+import Modal from '@components/modal/Modal';
+import ModalContent from '@components/modal/Content';
 
 import { toast } from 'react-toastify';
 
 import { oauth } from '@modules/oauth';
-import API, { ERROR } from '@modules/api';
+import * as API from '@modules/api';
 
 interface Props {
     isOpen: boolean;
@@ -74,15 +75,15 @@ class SignupModal extends React.Component<Props, State> {
             this.state.email,
             this.state.realname
         );
-        if(data == ERROR.ALREADY_EXISTS) {
+        if(data == API.ERROR.ALREADY_EXISTS) {
             toast('😥 이미 사용중인 아이디입니다.');
             return;
         }
-        if(data == ERROR.USERNAME_NOT_MATCH) {
+        if(data == API.ERROR.USERNAME_NOT_MATCH) {
             toast('😥 아이디는 4글자 이상 15글자 이하의 영어, 숫자입니다.');
             return;
         }
-        if(data == ERROR.EMAIL_NOT_MATCH) {
+        if(data == API.ERROR.EMAIL_NOT_MATCH) {
             toast('😥 올바른 이메일 형식이 아닙니다.');
             return;
         }
@@ -96,7 +97,7 @@ class SignupModal extends React.Component<Props, State> {
     render() {
         return (
             <Modal title='회원가입' isOpen={this.props.isOpen} close={() => this.props.onClose()}>
-                <div className="content noto">
+                <ModalContent>
                     {this.state.isDone ? (
                         <div className="mx-auto noto bg-border-purple p-3 bg-light deep-dark">
                             {this.state.realname}님의 회원가입을 진심으로 환영합니다! 💜
@@ -168,7 +169,7 @@ class SignupModal extends React.Component<Props, State> {
                         </button>
                         </>
                     )}
-                </div>
+                </ModalContent>
             </Modal>
         );
     }

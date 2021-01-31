@@ -4,7 +4,7 @@ import Head from 'next/head';
 import TagItem from '@components/tag/TagItem';
 import PageNav from '@components/common/PageNav';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 
 export async function getServerSideProps(context) {
     let { page } = context.query;

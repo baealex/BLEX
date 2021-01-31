@@ -4,11 +4,10 @@ import Head from 'next/head';
 import Profile from '@components/profile/Profile';
 import Heatmap from '@components/profile/Heatmap';
 import HeatmapDark from '@components/profile/HeatmapDark';
-import ViewCounter from '@components/profile/ViewCounter';
 import RecentActivity from '@components/profile/RecentActivity';
 import FeatureArticle from '@components/profile/FeatureArticle';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
@@ -37,7 +36,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'profile',
             'social',
             'heatmap',
-            'view',
             'most',
             'recent'
         ]);
@@ -82,9 +80,8 @@ class Overview extends React.Component<Props, State> {
                 <Profile active="overview" profile={this.props.profile.profile} social={this.props.profile.social!}/>
                 <div className="container mb-4">
                     <div className="col-lg-8 mx-auto p-0">
-                        <ViewCounter {...this.props.profile.view!}/>
-                        <FeatureArticle articles={this.props.profile.most!}/>
                         {heatmap}
+                        <FeatureArticle articles={this.props.profile.most!}/>
                         <RecentActivity data={this.props.profile.recent!}/>
                     </div>
                 </div>

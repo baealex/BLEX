@@ -4,12 +4,11 @@ import Router from 'next/router'
 
 import { toast } from 'react-toastify';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 import Global from '@modules/global';
 import Search from '@components/common/Search';
-import LoginModal from '@components/modal/Login';
-import SignupModal from '@components/modal/Signup';
-import SettingModal from '@components/modal/Setting';
+import LoginModal from '@components/modal/set/Login';
+import SignupModal from '@components/modal/set/Signup';
 
 interface State {
     onNav: boolean;
@@ -18,7 +17,6 @@ interface State {
     username: string;
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
-    isSettingModalOpen: boolean;
 };
 
 class TopNavigation extends React.Component {
@@ -31,9 +29,8 @@ class TopNavigation extends React.Component {
             isNightMode: false,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
-            isLoginModalOpen: Global.state.isSettingModalOpen,
+            isLoginModalOpen: Global.state.isLoginModalOpen,
             isSignupModalOpen: Global.state.isSignupModalOpen,
-            isSettingModalOpen: Global.state.isLoginModalOpen
         };
         Global.appendUpdater('TopNavigation', () => this.setState({
             isLogin: Global.state.isLogin,
@@ -41,7 +38,6 @@ class TopNavigation extends React.Component {
             isNightMode: Global.state.isNightMode,
             isLoginModalOpen: Global.state.isLoginModalOpen,
             isSignupModalOpen: Global.state.isSignupModalOpen,
-            isSettingModalOpen: Global.state.isSettingModalOpen
         }));
     }
 
@@ -76,7 +72,7 @@ class TopNavigation extends React.Component {
             if(alive.data.notifyCount != 0) {
                 toast(`😲 읽지 않은 알림이 ${alive.data.notifyCount}개 있습니다.`, {
                     onClick:() => {
-                        Global.onOpenModal('isSettingModalOpen');
+                        Router.push('/setting');
                     }
                 });
             }
@@ -119,16 +115,12 @@ class TopNavigation extends React.Component {
                     isOpen={this.state.isSignupModalOpen}
                     onClose={() => Global.onCloseModal('isSignupModalOpen')}
                 />
-                <SettingModal
-                    isOpen={this.state.isSettingModalOpen}
-                    onClose={() => Global.onCloseModal('isSettingModalOpen')}
-                />
                 <div
                     className={`side-menu noto ${this.state.onNav ? 'on' : 'off' }`}>
                     <nav
                         onClick={() => this.onClickNavigation()}
                         className={`menu ${this.state.onNav ? 'on' : 'off' }`}>
-                        <img src="/logo.png" alt="logo"/>
+                        <img src="/logo32.png" alt="logo"/>
                     </nav>
                     <div className="inner">
                         <Search/>
@@ -169,9 +161,9 @@ class TopNavigation extends React.Component {
                             {this.state.isLogin ? (
                                 <>
                                     <li>
-                                        <a onClick={() => Global.onOpenModal('isSettingModalOpen')}>
-                                            <i className="fas fa-cogs"></i> 설정
-                                        </a>
+                                        <Link href="/setting">
+                                            <a><i className="fas fa-cogs"></i> 설정</a>
+                                        </Link>
                                     </li>
                                     <li>
                                         <a onClick={() => this.onClickLogout()}>

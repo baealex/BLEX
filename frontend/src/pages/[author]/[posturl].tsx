@@ -18,7 +18,7 @@ import SEO from '@components/seo';
 import { toast } from 'react-toastify';
 
 import Prism from '@modules/library/prism';
-import API from '@modules/api';
+import * as API from '@modules/api';
 import {
     lazyLoadResource,
     lazyIntersection
@@ -227,6 +227,7 @@ class PostDetail extends React.Component<Props, State> {
             });
             
             headersTags.forEach(header => {
+                console.log(header.tagName);
                 if(header.id) {
                     let idNumber = 0;
                     switch(header.tagName.toUpperCase()) {
@@ -493,7 +494,7 @@ class PostDetail extends React.Component<Props, State> {
                         <div className="col-lg-2 mobile-disable">
                             <div className="sticky-top article-nav">
                                 {this.state.headerNav?.map((item, idx) => (
-                                    <a className={`title-${Math.round(Number(item[0])/2)} ${this.state.headerNow == item[1] ? 'nav-now' : ''}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
+                                    <a className={`title-${item[0]} ${this.state.headerNow == item[1] ? 'nav-now' : ''}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
                                 ))}
                             </div>
                         </div>

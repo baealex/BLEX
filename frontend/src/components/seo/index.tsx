@@ -11,9 +11,9 @@ interface Props {
 };
 
 export default function SEO(props: Props) {
-    let defaultTag = [];
-    let openGraphTag = [];
-    let twitterTag = [];
+    const defaultTag = [];
+    const openGraphTag = [];
+    const twitterTag = [];
 
     let key = 0;
 

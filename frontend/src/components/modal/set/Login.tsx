@@ -1,10 +1,12 @@
 import React from 'react';
+import Router from 'next/router';
 
-import Modal from '@components/common/Modal';
+import Modal from '@components/modal/Modal';
+import ModalContent from '@components/modal/Content';
 
 import { toast } from 'react-toastify';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 import Global from '@modules/global';
 import { oauth } from '@modules/oauth';
 
@@ -72,11 +74,11 @@ class LoginModal extends React.Component<Props, State> {
                 isLogin: true,
                 username: data.username
             });
-
+            
             if(data.notifyCount != 0) {
                 toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`, {
                     onClick:() => {
-                        Global.onOpenModal('isSettingModalOpen');
+                        Router.push('/setting');
                     }
                 })
             }
@@ -92,7 +94,7 @@ class LoginModal extends React.Component<Props, State> {
     render() {
         return (
             <Modal title='로그인' isOpen={this.props.isOpen} close={() => this.props.onClose()}>
-                <div className="content noto">
+                <ModalContent>
                     <input
                         className="login-form"
                         name="username"
@@ -125,7 +127,7 @@ class LoginModal extends React.Component<Props, State> {
                         onClick={() => oauth("github")}>
                         <i className="fab fa-github"></i> GitHub 계정으로 로그인
                     </button>
-                </div>
+                </ModalContent>
             </Modal>
         );
     }

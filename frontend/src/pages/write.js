@@ -2,17 +2,24 @@ import React from 'react';
 import Head from 'next/head';
 import Router from 'next/router';
 
-import Modal from '@components/common/Modal';
+import { toast } from 'react-toastify';
+
 import FullLoading from '@components/common/FullLoading';
+
+import Modal from '@components/modal/Modal';
+import ModalContent from '@components/modal/Content';
+import ModalButton from '@components/modal/Button';
+
 import ImageForm from '@components/form/ImageForm';
 import SelectForm from '@components/form/SelectForm';
 import InputForm from '@components/form/InputForm';
-import ArticleContent from '@components/article/ArticleContent';
 
-import { toast } from 'react-toastify';
-import { Controlled as CodeMirror } from 'react-codemirror2'
+import YoutubeModal from '@components/editor/YoutubeModal';
+import EditorTitle from '@components/editor/Title';
+import EditorContent from '@components/editor/Content';
+import TempArticleModal from '@components/editor/TempArticleModal';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 import { lazyLoadResource } from '@modules/lazy';
 import blexer from '@modules/blexer';
 import Global from '@modules/global';
@@ -32,6 +39,7 @@ class Write extends React.Component {
             title: '',
             tags: '',
             text: '',
+            isEdit: true,
             token: '',
             series: '',
             image: '',
@@ -42,13 +50,11 @@ class Write extends React.Component {
             editor: undefined,
             tempPosts: [],
             tempPostsCache: {},
-            seriesArray: [],
-            isNightMode: Global.state.isNightMode
+            seriesArray: []
         };
         Global.appendUpdater('Write', () => {
             this.setState({
                 username: Global.state.username,
-                isNightMode: Global.state.isNightMode
             });
         });
         this.preview = undefined;
@@ -319,34 +325,9 @@ class Write extends React.Component {
             imageName
         } = this.state;
 
-        const tempPostsModal = (
-            <Modal title='임시 저장된 글' isOpen={this.state[modal.tempPosts]} close={() => this.onCloseModal(modal.tempPosts)}>
-                <div className="content noto">
-                    {tempPosts.map((item, idx) => (
-                        <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
-                            <span onClick={() => this.fecthTempPosts(item.token)} className={`c-pointer ${this.state.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
-                                {item.title} <span className="vs">{item.date}전</span>
-                            </span>
-                            <a onClick={() => this.onDeleteTempPost(item.token)}>
-                                <i className="fas fa-times"></i>
-                            </a>
-                        </div>
-                    ))}
-                    <div className="blex-card p-3 mb-3 d-flex justify-content-between">
-                        <span onClick={() => this.fecthTempPosts()} className={`c-pointer ${this.state.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
-                            새 글 쓰기
-                        </span>
-                    </div>
-                </div>
-                <div className="button" onClick={() => this.onTempSave()}>
-                    <button>현재 글 임시저장</button>
-                </div>
-            </Modal>
-        );
-
         const publishModal = (
             <Modal title='게시글 발행' isOpen={this.state[modal.publish]} close={() => this.onCloseModal(modal.publish)}>
-                <div className="content noto">
+                <ModalContent>
                     <ImageForm
                         name="image"
                         imageName={imageName}
@@ -369,10 +350,8 @@ class Write extends React.Component {
                         onChange={(e) => this.onInputChange(e)}
                         placeholder="띄어쓰기 혹은 반점으로 구분하세요."
                     />
-                </div>
-                <div className="button" onClick={() => this.onPublish()}>
-                    <button>글을 발행합니다</button>
-                </div>
+                </ModalContent>
+                <ModalButton text="글을 발행합니다" onClick={() => this.onPublish()}/>
             </Modal>
         );
 
@@ -382,49 +361,71 @@ class Write extends React.Component {
                     <title>Write — BLEX</title>
                 </Head>
 
-                <div className="container-fluid blex-editor">
-                    <input
-                        name="title"
-                        className="noto title"
-                        placeholder="제목을 입력하세요."
-                        value={this.state.title}
-                        onChange={(e) => this.onInputChange(e)}
-                    />
-                    <div className="row">
-                        <div className="col-lg-6" onDrop={(e) => this.onImageDrop(e)}>
-                            {typeof window !== "undefined" && <CodeMirror
-                                value={this.state.text}
-                                options={{
-                                    mode: 'markdown',
-                                    theme: this.state.isNightMode ? 'material-darker' : 'default',
-                                    lineNumbers: true,
-                                    lineWrapping: true,
-                                }}
-                                onScroll={(editor, data) => this.onEditorScroll(data)}
-                                editorDidMount={(editor) => this.onEditorMount(editor)}
-                                onBeforeChange={(editor, data, value) => this.onEditorChange(value)}
-                            />}
+                <div className="container">
+                    <div className="row justify-content-center">
+                        <div className="col-lg-8">
+                            <EditorTitle
+                                title={this.state.title}
+                                onChange={(e) => this.setState({
+                                    title: e.target.value
+                                })}
+                            />
+                            <EditorContent
+                                text={this.state.text}
+                                isEdit={this.state.isEdit}
+                                onChange={(e) => this.setState({
+                                    text: e.target.value
+                                })}
+                            />
                         </div>
-                        <div className="col-lg-6 preview mobile-disable" ref={(el) => { this.preview = el }}>
-                            <ArticleContent html={blexer(this.state.text)} />
+                        <div className="col-lg-2">
+                            <div className="sticky-top sticky-top-100">
+                                <div className="share">
+                                    <ul className="px-3">
+                                        {/*
+                                        <li className="mx-3 mx-lg-4" onClick={() => {}}>
+                                            <i className="far fa-image"></i>
+                                        </li>
+                                        <li className="mx-3 mx-lg-4" onClick={() => {}}>
+                                            <i className="fab fa-youtube"></i>
+                                        </li>
+                                        */}
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.setState({isEdit: !this.state.isEdit})}>
+                                            {this.state.isEdit ? <i className="far fa-eye-slash"></i> : <i className="far fa-eye"></i>}
+                                        </li>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onOpenModal(modal.tempPosts)}>
+                                            <i className="far fa-save"></i>
+                                        </li>
+                                        <li className="mx-3 mx-lg-4" onClick={() => {
+                                            if(confirm('🤔 이 링크는 노션으로 연결됩니다. 연결하시겠습니까?')) {
+                                                window.open('about:blank').location.href = '//notion.so/b3901e0837ec40e3983d16589314b59a';
+                                            }
+                                        }}>
+                                            <i className="fas fa-question"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {tempPostsModal}
-
-                <div
-                    className="write-btn slide"
-                    onClick={() => this.onOpenModal(modal.tempPosts)}>
-                    <i className="far fa-save"></i>
-                </div>
+                <TempArticleModal
+                    token={this.state.token}
+                    isOpen={this.state[modal.tempPosts]}
+                    close={() => this.onCloseModal(modal.tempPosts)}
+                    tempPosts={tempPosts}
+                    onDelete={(token) => this.onDeleteTempPost(token)}
+                    onFecth={(token) => this.fecthTempPosts(token)}
+                    onSave={() => this.onTempSave()}
+                />
 
                 {publishModal}
 
                 <div
                     className="write-btn"
                     onClick={() => this.onOpenModal(modal.publish)}>
-                    <i className="fas fa-pencil-alt"></i>
+                    <i className="far fa-paper-plane"></i>
                 </div>
                 
                 {this.state.isSumbit ? <FullLoading/> : ''}

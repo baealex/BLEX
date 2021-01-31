@@ -7,7 +7,7 @@ import Config from '@modules/config.json';
 
 import { toast } from 'react-toastify';
 
-import API from '@modules/api';
+import * as API from '@modules/api';
 
 export async function getServerSideProps(context) {
     const raise = require('@modules/raise');

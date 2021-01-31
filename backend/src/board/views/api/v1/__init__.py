@@ -32,7 +32,7 @@ from board.views import function as fn
 def CamelizeJsonResponse(obj, json_dumps_params={'ensure_ascii': True}):
     return JsonResponse(humps.camelize(obj), json_dumps_params=json_dumps_params)
 
-def alive(request):
+def login(request):
     if request.method == 'GET':
         if request.user.is_active:
             notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
@@ -42,8 +42,7 @@ def alive(request):
             }
             return CamelizeJsonResponse(result)
         return HttpResponse('dead')
-
-def login(request):
+    
     if request.method == 'POST':
         social = request.POST.get('social', '')
         if not social:
@@ -179,6 +178,7 @@ def login(request):
                         'status': 'failure',
                         'message': '요청중 에러 발생'
                     })
+    raise Http404
 
 def logout(request):
     if request.method == 'POST':
@@ -190,6 +190,7 @@ def logout(request):
         return CamelizeJsonResponse({
             'status': 'failure'
         })
+    raise Http404
 
 def signup(request):
     if request.method == 'POST':
@@ -233,6 +234,13 @@ def signup(request):
             recipient_list = [new_user.email],
         ))
         return HttpResponse('DONE')
+    
+    if request.method == 'DELETE':
+        request.user.delete()
+        auth.logout(request)
+        return HttpResponse('DONE')
+    
+    raise Http404
 
 def verify_token(request, token):
     user = get_object_or_404(User, last_name='email:' + token)
@@ -643,10 +651,11 @@ def user_series(request, username, url=None):
         
         raise Http404
 
-def user_setting(request, username, item):
-    user = get_object_or_404(User, username=username)
-    if request.user != user:
-        return HttpResponse('error:DU')
+def setting(request, item):
+    if not request.user.is_active:
+        return HttpResponse('error:NL')
+
+    user = get_object_or_404(User, username=request.user)
     
     if request.method == 'GET':
         if item == 'notify':
@@ -686,6 +695,7 @@ def user_setting(request, username, item):
         if item == 'posts':
             posts = Post.objects.filter(author=user).order_by('-created_date')
             return CamelizeJsonResponse({
+                'username': request.user.username,
                 'posts': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
@@ -703,12 +713,22 @@ def user_setting(request, username, item):
         if item == 'series':
             series = Series.objects.filter(owner=user).order_by('-created_date')
             return CamelizeJsonResponse({
+                'username': request.user.username,
                 'series': list(map(lambda item: {
                     'url': item.url,
                     'title': item.name,
                     'total_posts': item.total_posts()
                 }, series))
             })
+        
+        if item == 'view':
+            today_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+            yesterday_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+            data[include] = {
+                'today': fn.get_view_count(user, today_date),
+                'yesterday': fn.get_view_count(user, yesterday_date),
+                'total': fn.get_view_count(user)
+            }
     
     if request.method == 'PUT':
         put = QueryDict(request.body)
@@ -995,15 +1015,6 @@ def users(request, username):
 
                 elif include == 'tags':
                     data[include] = fn.get_user_topics(user=user, include='posts')
-                
-                elif include == 'view':
-                    today_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
-                    yesterday_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
-                    data[include] = {
-                        'today': fn.get_view_count(user, today_date),
-                        'yesterday': fn.get_view_count(user, yesterday_date),
-                        'total': fn.get_view_count(user)
-                    }
                 
                 elif include == 'most':
                     data[include] = list(map(lambda post: {
