@@ -17,7 +17,6 @@ export default function Block(props: Props) {
 
     useEffect(() => {
         if(inputElement) {
-            inputElement.style.height = 'auto';
             inputElement.style.height = inputElement.scrollHeight + 'px';
         }
         if(!props.isEdit) {
@@ -37,6 +36,7 @@ export default function Block(props: Props) {
                     <style jsx>{`
                         textarea {
                             width: 100%;
+                            height: auto;
                             border: none;
                             font-size: 1.028em;
                             line-height: 2;
