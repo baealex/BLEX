@@ -24,8 +24,20 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 function sorted(key: string, list: any) {
+    return list.sort((left: any, right: any) => left[key] > right[key] ? -1 : left[key] < right[key] ? 1 : 0);
+}
+
+function trendy(list: any) {
     return list.sort((left: any, right: any) => {
-        return left[key] > right[key] ? -1 : left[key] < right[key] ? 1 : 0;  
+        const lt = left.today;
+        const ly = left.yesterday !== 0 ? left.yesterday : 1;
+        const li = lt / ly;
+
+        const rt = right.today;
+        const ry = right.yesterday !== 0 ? right.yesterday : 1;
+        const ri = rt / ry;
+
+        return li > ri ? -1 : li < ri ? 1 : 0;
     });
 }
 
@@ -102,6 +114,7 @@ export default function Setting(props: Props) {
                     <li><a onClick={() => setPosts([...sorted('updatedDate', posts)])}>최근 수정</a></li>
                     <li><a onClick={() => setPosts([...sorted('today', posts)])}>오늘 조회수 높은</a></li>
                     <li><a onClick={() => setPosts([...sorted('yesterday', posts)])}>어제 조회수 높은</a></li>
+                    <li><a onClick={() => setPosts([...trendy(posts)])}>조회수 급상승</a></li>
                     <li><a onClick={() => setPosts([...sorted('totalLikes', posts)])}>추천 많은</a></li>
                     <li><a onClick={() => setPosts([...sorted('totalComments', posts)])}>댓글 많은</a></li>
                     <li><a onClick={() => setPosts([...sorted('isHide', posts)])}>숨김 우선</a></li>
