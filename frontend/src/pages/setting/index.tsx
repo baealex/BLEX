@@ -62,7 +62,7 @@ export default function Setting(props: Props) {
                         </div>
                     )}
                     {props.notify.length == 0 ? (
-                        <div className="blex-card p-3">
+                        <div className="blex-card p-3 mt-3">
                             최근 생성된 알림이 없습니다.
                         </div>
                     ) : props.notify.map((item, idx) => (
