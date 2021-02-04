@@ -105,6 +105,29 @@ export default function Setting(props: Props) {
         ))]);
     };
 
+    const onTagChange = (url: string, value: string) => {
+        setPosts([...posts.map(post => (
+            post.url == url ? ({
+                ...post,
+                tag: value
+            }) : post
+        ))]);
+    };
+
+    const onTagSubmit = async (author: string, url: string) => {
+        const thisPost = posts.find(post => post.url == url);
+        const { data } = await API.putPost('@' + author, url, 'tag', {
+            tag: thisPost?.tag
+        });
+        setPosts([...posts.map(post => (
+            post.url == url ? ({
+                ...post,
+                tag: data.tag
+            }) : post
+        ))]);
+        toast('😀 태그가 수정되었습니다.');
+    };
+
     return (
         <>
             <SettingLayout tabname="posts">
@@ -118,6 +141,7 @@ export default function Setting(props: Props) {
                     <li><a onClick={() => setPosts([...sorted('totalLikes', posts)])}>추천 많은</a></li>
                     <li><a onClick={() => setPosts([...sorted('totalComments', posts)])}>댓글 많은</a></li>
                     <li><a onClick={() => setPosts([...sorted('isHide', posts)])}>숨김 우선</a></li>
+                    <li><a onClick={() => setPosts([...sorted('tag', posts)].reverse())}>태그</a></li>
                 </ul>
                 <input
                     name="search"
@@ -147,11 +171,7 @@ export default function Setting(props: Props) {
                                 </Link>
                             </li>
                             <li>
-                                <i className="far fa-eye"></i> <span className="ns">(Today : {post.today}, Yesterday : {post.yesterday})</span></li>
-                            <li>
-                                <a onClick={() => postsAnalytics(post.url)}>
-                                    <i className="fas fa-chart-line"></i>
-                                </a>
+                                <i className="far fa-eye"></i> <span className="ns">(Today : {post.today}, Yesterday : {post.yesterday})</span>
                             </li>
                             <li>
                                 <i className="far fa-thumbs-up"></i> {post.totalLikes}
@@ -159,7 +179,30 @@ export default function Setting(props: Props) {
                             <li>
                                 <i className="far fa-comment"></i> {post.totalComments}
                             </li>
+                            <li>
+                                <a onClick={() => postsAnalytics(post.url)}>
+                                    <i className="fas fa-chart-line"></i>
+                                </a>
+                            </li>
                         </ul>
+                        <div className="input-group mt-3 mr-sm-2">
+                            <div className="input-group-prepend">
+                                <div className="input-group-text">#</div>
+                            </div>
+                            <input
+                                type="text"
+                                name="tag"
+                                value={post.tag}
+                                onChange={(e) => onTagChange(post.url, e.target.value)}
+                                className="form-control"
+                                maxLength={255}
+                            />
+                            <div className="input-group-prepend">
+                                <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(props.username, post.url)}>
+                                    <i className="fas fa-sign-in-alt"></i>
+                                </button>
+                            </div>
+                        </div>
                     </li>
                 ))}
                 </ul>
