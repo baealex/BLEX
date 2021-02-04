@@ -32,7 +32,11 @@ export default function blexer(md) {
             }
         };
         remarkable.renderer.rules.heading_open = (tokens, idx) => {
-            return `<h${tokens[idx].hLevel} id="${makeID(tokens[idx + 1].content)}">`;
+            let hLevel = tokens[idx].hLevel;
+            if(tokens[idx].hLevel % 2 == 1) {
+                hLevel += 1;
+            }
+            return `<h${hLevel} id="${makeID(tokens[idx + 1].content)}">`;
         };
     }).use((remarkable) => {
         remarkable.renderer.rules.image = (tokens, idx) => {
