@@ -12,16 +12,27 @@ import Global from '@modules/global';
 import blexer from '@modules/blexer';
 
 export async function getServerSideProps(context) {
+    const raise = require('@modules/raise');
+
     const { author } = context.query;
-    const { data } = await API.getUserProfile(author, [
-        'profile',
-        'social',
-        'about'
-    ]);
-    return {
-        props: {
-            profile: data
+
+    if(!author.includes('@')) {
+        raise.Http404(context.res);
+    }
+
+    try {
+        const { data } = await API.getUserProfile(author, [
+            'profile',
+            'social',
+            'about'
+        ]);
+        return {
+            props: {
+                profile: data
+            }
         }
+    } catch(error) {
+        raise.auto(error.response.status, context.res);
     }
 }
 
