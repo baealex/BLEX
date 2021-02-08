@@ -227,7 +227,6 @@ class PostDetail extends React.Component<Props, State> {
             });
             
             headersTags.forEach(header => {
-                console.log(header.tagName);
                 if(header.id) {
                     let idNumber = 0;
                     switch(header.tagName.toUpperCase()) {
