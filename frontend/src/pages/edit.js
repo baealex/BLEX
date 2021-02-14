@@ -214,7 +214,6 @@ class Edit extends React.Component {
     }
 
     async onUploadImage(image) {
-        console.log(image)
         const link = await uploadImage(image);
         if(link) {
             const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
