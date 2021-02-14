@@ -1,4 +1,5 @@
 interface Props {
+    title: string;
     name: string;
     imageName: string;
     onChange: Function;
@@ -23,7 +24,7 @@ export default function ImageForm(props: Props) {
                 onChange={(e) => props.onChange(e)}
             />
             <label className="custom-file-label" onClick={() => onSelectImage()}>
-                {props.imageName ? props.imageName : '대표 이미지 선택'}
+                {props.imageName ? props.imageName : props.title}
 			</label>
         </div>
     );

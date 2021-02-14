@@ -24,6 +24,10 @@ export async function dropImage(e) {
         return;
     }
     const [ file ] = files;
+    return uploadImage(file);
+}
+
+export async function uploadImage(file) {
     if (!isImage(file)) {
         toast('🤔 이미지 파일이 아닙니다.');
         return;

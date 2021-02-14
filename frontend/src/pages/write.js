@@ -14,21 +14,24 @@ import ImageForm from '@components/form/ImageForm';
 import SelectForm from '@components/form/SelectForm';
 import InputForm from '@components/form/InputForm';
 
-import YoutubeModal from '@components/editor/YoutubeModal';
 import EditorTitle from '@components/editor/Title';
 import EditorContent from '@components/editor/Content';
-import TempArticleModal from '@components/editor/TempArticleModal';
+import EditorArticleModal from '@components/editor/modal/Article';
+import EditorImageModal from '@components/editor/modal/Image';
+// import EditorYoutubeModal from '@components/editor/modal/YouTube';
 
 import * as API from '@modules/api';
 import { lazyLoadResource } from '@modules/lazy';
 import blexer from '@modules/blexer';
 import Global from '@modules/global';
 import Prism from '@modules/library/prism';
-import { dropImage } from '@modules/image';
+import { dropImage, uploadImage } from '@modules/image';
 
 const modal = {
     publish: 'isOpenPublishModal',
-    tempPosts: 'isOpenTempPostsModal'
+    article: 'isOpenArticleModal',
+    youtube: 'isOpenYouTubeModal',
+    image: 'isOpenImageModal'
 };
 
 class Write extends React.Component {
@@ -46,7 +49,9 @@ class Write extends React.Component {
             imageName: '',
             isSumbit: false,
             isOpenPublishModal: false,
-            isOpenTempPostsModal: false,
+            isOpenArticleModal: false,
+            isOpenYouTubeModal: false,
+            isOpenImageModal: false,
             editor: undefined,
             tempPosts: [],
             tempPostsCache: {},
@@ -98,7 +103,7 @@ class Write extends React.Component {
                     });
                     toast('😀 작성하던 포스트가 있으시네요!', {
                         onClick: () => {
-                            this.onOpenModal(modal.tempPosts);
+                            this.onOpenModal(modal.article);
                         }
                     });
                 }
@@ -318,6 +323,17 @@ class Write extends React.Component {
         });
     }
 
+    async onUploadImage(image) {
+        console.log(image)
+        const link = await uploadImage(image);
+        if(link) {
+            const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
+            this.setState({
+                text: this.state.text += '\n' + imageMd
+            })
+        }
+    }
+
     render() {
         const {
             tempPosts,
@@ -329,6 +345,7 @@ class Write extends React.Component {
             <Modal title='게시글 발행' isOpen={this.state[modal.publish]} close={() => this.onCloseModal(modal.publish)}>
                 <ModalContent>
                     <ImageForm
+                        title="대표 이미지 선택"
                         name="image"
                         imageName={imageName}
                         onChange={(e) => this.onChangeImage(e)}
@@ -382,10 +399,10 @@ class Write extends React.Component {
                             <div className="sticky-top sticky-top-100">
                                 <div className="share">
                                     <ul className="px-3">
-                                        {/*
-                                        <li className="mx-3 mx-lg-4" onClick={() => {}}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onOpenModal(modal.image)}>
                                             <i className="far fa-image"></i>
                                         </li>
+                                        {/*
                                         <li className="mx-3 mx-lg-4" onClick={() => {}}>
                                             <i className="fab fa-youtube"></i>
                                         </li>
@@ -393,7 +410,7 @@ class Write extends React.Component {
                                         <li className="mx-3 mx-lg-4" onClick={() => this.setState({isEdit: !this.state.isEdit})}>
                                             {this.state.isEdit ? <i className="far fa-eye-slash"></i> : <i className="far fa-eye"></i>}
                                         </li>
-                                        <li className="mx-3 mx-lg-4" onClick={() => this.onOpenModal(modal.tempPosts)}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onOpenModal(modal.article)}>
                                             <i className="far fa-save"></i>
                                         </li>
                                         <li className="mx-3 mx-lg-4" onClick={() => {
@@ -410,14 +427,20 @@ class Write extends React.Component {
                     </div>
                 </div>
 
-                <TempArticleModal
+                <EditorArticleModal
                     token={this.state.token}
-                    isOpen={this.state[modal.tempPosts]}
-                    close={() => this.onCloseModal(modal.tempPosts)}
+                    isOpen={this.state[modal.article]}
+                    close={() => this.onCloseModal(modal.article)}
                     tempPosts={tempPosts}
                     onDelete={(token) => this.onDeleteTempPost(token)}
                     onFecth={(token) => this.fecthTempPosts(token)}
                     onSave={() => this.onTempSave()}
+                />
+
+                <EditorImageModal
+                    isOpen={this.state[modal.image]}
+                    close={() => this.onCloseModal(modal.image)}
+                    onUpload={(image) => this.onUploadImage(image)}
                 />
 
                 {publishModal}

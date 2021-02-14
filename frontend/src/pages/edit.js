@@ -14,13 +14,14 @@ import FullLoading from '@components/common/FullLoading';
 
 import EditorTitle from '@components/editor/Title';
 import EditorContent from '@components/editor/Content';
+import EditorImageModal from '@components/editor/modal/Image';
 
 import * as API from '@modules/api';
 import blexer from '@modules/blexer';
 import Global from '@modules/global';
 import { lazyLoadResource } from '@modules/lazy';
 import Prism from '@modules/library/prism';
-import { dropImage } from '@modules/image';
+import { dropImage, uploadImage } from '@modules/image';
 
 export async function getServerSideProps(context) {
     const { id } = context.query;
@@ -29,6 +30,8 @@ export async function getServerSideProps(context) {
 
 const modal = {
     publish: 'isOpenPublishModal',
+    youtube: 'isOpenYouTubeModal',
+    image: 'isOpenImageModal'
 };
 
 class Edit extends React.Component {
@@ -45,6 +48,8 @@ class Edit extends React.Component {
             imageName: '',
             isSumbit: false,
             isOpenPublishModal: false,
+            isOpenYouTubeModal: false,
+            isOpenImageModal: false,
             editor: undefined,
             seriesArray: [],
             isNightMode: Global.state.isNightMode
@@ -207,6 +212,17 @@ class Edit extends React.Component {
         });
     }
 
+    async onUploadImage(image) {
+        console.log(image)
+        const link = await uploadImage(image);
+        if(link) {
+            const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
+            this.setState({
+                text: this.state.text += '\n' + imageMd
+            })
+        }
+    }
+
     render() {
         const {
             seriesArray,
@@ -273,10 +289,10 @@ class Edit extends React.Component {
                             <div className="sticky-top sticky-top-100">
                                 <div className="share">
                                     <ul className="px-3">
-                                        {/*
-                                        <li className="mx-3 mx-lg-4" onClick={() => {}}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onOpenModal(modal.image)}>
                                             <i className="far fa-image"></i>
                                         </li>
+                                        {/*
                                         <li className="mx-3 mx-lg-4" onClick={() => {}}>
                                             <i className="fab fa-youtube"></i>
                                         </li>
@@ -290,6 +306,12 @@ class Edit extends React.Component {
                         </div>
                     </div>
                 </div>
+
+                <EditorImageModal
+                    isOpen={this.state[modal.image]}
+                    close={() => this.onCloseModal(modal.image)}
+                    onUpload={(image) => this.onUploadImage(image)}
+                />
 
                 {publishModal}
 
