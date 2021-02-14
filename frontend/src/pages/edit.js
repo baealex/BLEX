@@ -15,6 +15,7 @@ import FullLoading from '@components/common/FullLoading';
 import EditorTitle from '@components/editor/Title';
 import EditorContent from '@components/editor/Content';
 import EditorImageModal from '@components/editor/modal/Image';
+import EditorYoutubeModal from '@components/editor/modal/YouTube';
 
 import * as API from '@modules/api';
 import blexer from '@modules/blexer';
@@ -218,8 +219,17 @@ class Edit extends React.Component {
         if(link) {
             const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
             this.setState({
-                text: this.state.text += '\n' + imageMd
-            })
+                text: this.state.text += '\n' + imageMd + '\n'
+            });
+        }
+    }
+
+    onUploadYoutube(id) {
+        if(id) {
+            const youtubeMd = `@youtube[${id}]`;
+            this.setState({
+                text: this.state.text += '\n' + youtubeMd + '\n'
+            });
         }
     }
 
@@ -292,11 +302,9 @@ class Edit extends React.Component {
                                         <li className="mx-3 mx-lg-4" onClick={() => this.onOpenModal(modal.image)}>
                                             <i className="far fa-image"></i>
                                         </li>
-                                        {/*
                                         <li className="mx-3 mx-lg-4" onClick={() => {}}>
                                             <i className="fab fa-youtube"></i>
                                         </li>
-                                        */}
                                         <li className="mx-3 mx-lg-4" onClick={() => this.setState({isEdit: !this.state.isEdit})}>
                                             {this.state.isEdit ? <i className="far fa-eye-slash"></i> : <i className="far fa-eye"></i>}
                                         </li>
@@ -311,6 +319,12 @@ class Edit extends React.Component {
                     isOpen={this.state[modal.image]}
                     close={() => this.onCloseModal(modal.image)}
                     onUpload={(image) => this.onUploadImage(image)}
+                />
+
+                <EditorYoutubeModal
+                    isOpen={this.state[modal.youtube]}
+                    close={() => this.onCloseModal(modal.youtube)}
+                    onUpload={(id) => this.onUploadYoutube(id)}
                 />
 
                 {publishModal}

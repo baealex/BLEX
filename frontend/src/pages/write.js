@@ -18,7 +18,7 @@ import EditorTitle from '@components/editor/Title';
 import EditorContent from '@components/editor/Content';
 import EditorArticleModal from '@components/editor/modal/Article';
 import EditorImageModal from '@components/editor/modal/Image';
-// import EditorYoutubeModal from '@components/editor/modal/YouTube';
+import EditorYoutubeModal from '@components/editor/modal/YouTube';
 
 import * as API from '@modules/api';
 import { lazyLoadResource } from '@modules/lazy';
@@ -324,13 +324,21 @@ class Write extends React.Component {
     }
 
     async onUploadImage(image) {
-        console.log(image)
         const link = await uploadImage(image);
         if(link) {
             const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
             this.setState({
-                text: this.state.text += '\n' + imageMd
-            })
+                text: this.state.text += '\n' + imageMd + '\n'
+            });
+        }
+    }
+
+    onUploadYoutube(id) {
+        if(id) {
+            const youtubeMd = `@youtube[${id}]`;
+            this.setState({
+                text: this.state.text += '\n' + youtubeMd + '\n'
+            });
         }
     }
 
@@ -402,11 +410,9 @@ class Write extends React.Component {
                                         <li className="mx-3 mx-lg-4" onClick={() => this.onOpenModal(modal.image)}>
                                             <i className="far fa-image"></i>
                                         </li>
-                                        {/*
-                                        <li className="mx-3 mx-lg-4" onClick={() => {}}>
+                                        <li className="mx-3 mx-lg-4" onClick={() => this.onOpenModal(modal.youtube)}>
                                             <i className="fab fa-youtube"></i>
                                         </li>
-                                        */}
                                         <li className="mx-3 mx-lg-4" onClick={() => this.setState({isEdit: !this.state.isEdit})}>
                                             {this.state.isEdit ? <i className="far fa-eye-slash"></i> : <i className="far fa-eye"></i>}
                                         </li>
@@ -441,6 +447,12 @@ class Write extends React.Component {
                     isOpen={this.state[modal.image]}
                     close={() => this.onCloseModal(modal.image)}
                     onUpload={(image) => this.onUploadImage(image)}
+                />
+
+                <EditorYoutubeModal
+                    isOpen={this.state[modal.youtube]}
+                    close={() => this.onCloseModal(modal.youtube)}
+                    onUpload={(id) => this.onUploadYoutube(id)}
                 />
 
                 {publishModal}
