@@ -48,6 +48,7 @@ class Write extends React.Component {
             image: '',
             imageName: '',
             isSumbit: false,
+            isAutoSave: true,
             isOpenPublishModal: false,
             isOpenArticleModal: false,
             isOpenYouTubeModal: false,
@@ -186,9 +187,11 @@ class Write extends React.Component {
     onEditorChange(value) {
         this.setState({ text: value });
         clearTimeout(this.saveTimer);
-        this.saveTimer = setTimeout(() => {
-            this.onTempSave();
-        }, 5000);
+        if(this.state.isAutoSave) {
+            this.saveTimer = setTimeout(() => {
+                this.onTempSave();
+            }, 5000);
+        }
     }
 
     onEditorMount(editor) {
@@ -342,6 +345,13 @@ class Write extends React.Component {
         }
     }
 
+    onCheckAutoSave(checked) {
+        !checked && clearTimeout(this.saveTimer);
+        this.setState({
+            isAutoSave: checked
+        });
+    }
+
     render() {
         const {
             tempPosts,
@@ -398,9 +408,7 @@ class Write extends React.Component {
                             <EditorContent
                                 text={this.state.text}
                                 isEdit={this.state.isEdit}
-                                onChange={(e) => this.setState({
-                                    text: e.target.value
-                                })}
+                                onChange={(e) => this.onEditorChange(e.target.value)}
                             />
                         </div>
                         <div className="col-lg-2">
@@ -437,6 +445,8 @@ class Write extends React.Component {
                     token={this.state.token}
                     isOpen={this.state[modal.article]}
                     close={() => this.onCloseModal(modal.article)}
+                    isAutoSave={this.state.isAutoSave}
+                    onCheckAutoSave={(checked) => this.onCheckAutoSave(checked)}
                     tempPosts={tempPosts}
                     onDelete={(token) => this.onDeleteTempPost(token)}
                     onFecth={(token) => this.fecthTempPosts(token)}

@@ -2,10 +2,14 @@ import Modal from '@components/modal/Modal';
 import ModalContent from '@components/modal/Content';
 import ModalButton from '@components/modal/Button';
 
+import CheckBox from '@components/form/CheckBox';
+
 interface Props {
     isOpen: boolean;
     close: Function;
     token: string;
+    isAutoSave: boolean;
+    onCheckAutoSave: Function;
     tempPosts: TempPost[];
     onFecth: Function;
     onDelete: Function;
@@ -39,6 +43,11 @@ export default function TempArticleModal(props: Props) {
                         새 글 쓰기
                     </span>
                 </div>
+                <CheckBox
+                    label="포스트 자동 저장"
+                    checked={props.isAutoSave}
+                    onCheck={(checked: boolean) => props.onCheckAutoSave(checked)}
+                />
             </ModalContent>
             <ModalButton text="현재 글 임시저장" onClick={() => props.onSave()}/>
         </Modal>
