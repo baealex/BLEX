@@ -722,13 +722,39 @@ def setting(request, item):
             })
         
         if item == 'view':
-            today_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
-            yesterday_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
-            data[include] = {
-                'today': fn.get_view_count(user, today_date),
-                'yesterday': fn.get_view_count(user, yesterday_date),
-                'total': fn.get_view_count(user)
+            data = {
+                'username': request.user.username,
+                'views': [],
             }
+            for days_ago in range(7):
+                date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=days_ago)))
+                count = fn.get_view_count(request.user, date)
+                data['views'].append({
+                    'date': str(date)[:10],
+                    'count': count
+                })
+            return CamelizeJsonResponse(data)
+        
+        if item == 'referer':
+            referers = Referer.objects.filter(posts__posts__author=request.user).order_by('-created_date')
+
+            page = request.GET.get('page', 1)
+            paginator = Paginator(referers, 30)
+            fn.page_check(page, paginator)
+            if int(page) >= 10:
+                raise Http404
+            referers = paginator.get_page(page)
+
+            data = {
+                'referers': [],
+                'last_page': referers.paginator.num_pages
+            }
+            for referer in referers:
+                data['referers'].append({
+                    'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
+                    'url': referer.referer_from.location,
+                })
+            return CamelizeJsonResponse(data)
     
     if request.method == 'PUT':
         put = QueryDict(request.body)

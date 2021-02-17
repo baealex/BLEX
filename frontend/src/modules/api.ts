@@ -456,6 +456,16 @@ export async function getSetting(cookie: string | undefined, item: string) {
     });
 }
 
+export async function getSettingReferrers(cookie: string | undefined, page: number) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/setting/referer?page=${page}`,
+        headers: cookie ? {
+            cookie
+        } : {},
+        method: 'GET'
+    });
+}
+
 export async function putSetting(item: string, data: object) {
     return await axios({
         url: `${Config.API_SERVER}/v1/setting/${item}`,
@@ -530,6 +540,22 @@ export interface SettingSeriesData {
         title: string;
         totalPosts: number;
     }[];
+}
+
+export interface SettingViewData {
+    username: string;
+    views: {
+        date: string;
+        count: number;
+    }[];
+}
+
+export interface SettingRefererData {
+    referers: {
+        time: string;
+        url: string;
+    }[];
+    lastPage: number;
 }
 
 /* AUTH */

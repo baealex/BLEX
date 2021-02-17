@@ -32,6 +32,11 @@ export default function(props: Props) {
                     <a className={`nav-link ${props.tabname == 'posts' ? 'deep' : 'shallow'}-dark`}><i className="fas fa-pencil-alt"></i> 포스트</a>
                 </Link>
             </li>
+            <li className="nav-item">
+                <Link href="/setting/analytics">
+                    <a className={`nav-link ${props.tabname == 'analytics' ? 'deep' : 'shallow'}-dark`}><i className="fas fa-chart-line"></i> 분석</a>
+                </Link>
+            </li>
         </ul>
     );
 }
