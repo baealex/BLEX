@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import html
 import time
 import random
 
@@ -754,6 +755,7 @@ def setting(request, item):
                 data['referers'].append({
                     'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
                     'url': referer.referer_from.location,
+                    'title': html.unescape(referer.referer_from.title)
                 })
             return CamelizeJsonResponse(data)
     
@@ -887,6 +889,7 @@ def comment(request, pk=None):
                 text_html=body.get('comment_html')
             )
             comment.save()
+            comment.refresh_from_db()
 
             content = strip_tags(body.get('comment_html'))[:50]
             if not comment.author == post.author:
@@ -905,7 +908,7 @@ def comment(request, pk=None):
                     if tag_user in commentors:
                         _user = User.objects.get(username=tag_user)
                         if not _user == request.user:
-                            send_notify_content = '\''+ post.title + '\'글에서 @' + request.user.username + '님이 회원님을 태그했습니다.'
+                            send_notify_content = '\''+ post.title + '\'글에서 @' + request.user.username + '님이 회원님을 태그했습니다. #' + str(comment.pk)
                             fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
             
             return CamelizeJsonResponse({

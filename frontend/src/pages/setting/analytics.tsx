@@ -63,7 +63,7 @@ export default function Setting(props: Props) {
                 <div className="blex-card p-3 my-3">
                     <ul>
                         {referers.map((item: any, idx: number) => (
-                            <li key={idx}>{item.time} - <a className="shallow-dark" href={item.url} target="blank">{item.url}</a></li>
+                            <li key={idx}>{item.time} - <a className="shallow-dark" href={item.url} target="blank">{item.title ? item.title : item.url}</a></li>
                         ))}
                     </ul>
                 </div>

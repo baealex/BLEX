@@ -554,6 +554,7 @@ export interface SettingRefererData {
     referers: {
         time: string;
         url: string;
+        title: string;
     }[];
     lastPage: number;
 }
