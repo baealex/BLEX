@@ -13,6 +13,10 @@ interface Props extends API.SettingSeriesData {}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
+    if(!req.headers.cookie) {
+        res.writeHead(302, { Location: '/' });
+        res.end();
+    }
     const { data } = await API.getSetting(req.headers.cookie, 'series');
     if(data === API.ERROR.NOT_LOGIN) {
         res.writeHead(302, { Location: '/' });

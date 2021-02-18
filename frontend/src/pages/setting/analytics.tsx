@@ -13,12 +13,16 @@ interface Props extends API.SettingViewData, API.SettingRefererData {}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
+    if(!req.headers.cookie) {
+        res.writeHead(302, { Location: '/' });
+        res.end();
+    }
     const views = await API.getSetting(req.headers.cookie, 'view');
-    const referers = await API.getSettingReferrers(req.headers.cookie, 1);
     if(views.data === API.ERROR.NOT_LOGIN) {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
+    const referers = await API.getSettingReferrers(req.headers.cookie, 1);
     return {
         props: {...views.data, ...referers.data}
     };
@@ -63,10 +67,8 @@ export default function Setting(props: Props) {
                         ))}
                     </ul>
                 </div>
-                <div className="blex-card p-3 my-3 text-center">
-                    <span className={lastPage - page != 0 ? 'deep-dark c-pointer' : 'shallow-dark'} onClick={async () => getReferer()}>
-                        {`더 보기 (${lastPage - page})`}
-                    </span>
+                <div className={`blex-card p-3 my-3 text-center ${lastPage - page != 0 ? 'deep-dark c-pointer' : 'shallow-dark'}`} onClick={async () => getReferer()}>
+                    {`더 보기 (${lastPage - page})`}
                 </div>
             </SettingLayout>
         </>

@@ -17,6 +17,10 @@ interface Props extends API.SettingAccountData {}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
+    if(!req.headers.cookie) {
+        res.writeHead(302, { Location: '/' });
+        res.end();
+    }
     const { data } = await API.getSetting(req.headers.cookie, 'account');
     if(data === API.ERROR.NOT_LOGIN) {
         res.writeHead(302, { Location: '/' });
