@@ -28,6 +28,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 export default function Setting(props: Props) {
     const [ isSync, setSync ] = useState(props.isTelegramSync);
     const [ isModalOpen, setModalOpen ] = useState(false);
+    const [ notify, setNotify ] = useState(props.notify);
     const [ telegramToken, setTelegramToken ] = useState('');
 
     const makeToken = async () => {
@@ -48,6 +49,18 @@ export default function Setting(props: Props) {
         }
     }
 
+    const onReadNotify = async (pk: number) => {
+        const { data } = await API.putSetting('notify', { pk: pk });
+        if(data == 'DONE') {
+            setNotify(notify.map(item => {
+                return item.pk == pk ? {
+                    ...item,
+                    isRead: true
+                } : item;
+            }));
+        }
+    }
+
     return (
         <>
             <SettingLayout tabname="notify">
@@ -61,13 +74,13 @@ export default function Setting(props: Props) {
                             <i className="fab fa-telegram-plane"></i> 텔레그램으로 실시간 알림받기
                         </div>
                     )}
-                    {props.notify.length == 0 ? (
+                    {notify.length == 0 ? (
                         <div className="blex-card p-3 mt-3">
                             최근 생성된 알림이 없습니다.
                         </div>
-                    ) : props.notify.map((item, idx) => (
+                    ) : notify.map((item, idx) => (
                         <Link key={idx} href={item.url}>
-                            <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => {}}>
+                            <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => onReadNotify(item.pk)}>
                                 <div className="blex-card p-3 mt-3">{item.content} <span className="ns shallow-dark">{item.createdDate}전</span></div>
                             </a>
                         </Link>
