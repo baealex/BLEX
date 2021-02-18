@@ -18,6 +18,7 @@ from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.text import slugify
+from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -469,7 +470,7 @@ def user_posts(request, username, url=None):
                 post.likes.remove(user)
             else:
                 post.likes.add(user)
-                send_notify_content = '\''+ post.title +'\'글을 누군가 추천했습니다.'
+                send_notify_content = '\''+ post.title +'\'글을 @'+ user.username +'님께서 추천했습니다.'
                 fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
             return HttpResponse(str(post.total_likes()))
         if request.GET.get('hide', ''):
@@ -886,9 +887,10 @@ def comment(request, pk=None):
                 text_html=body.get('comment_html')
             )
             comment.save()
-            
+
+            content = strip_tags(body.get('comment_html'))[:50]
             if not comment.author == post.author:
-                send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다.'
+                send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다. > ' + content + ' …'
                 fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
             
             regex = re.compile(r'\`\@([a-zA-Z0-9\.]*)\`\s?')
@@ -903,7 +905,7 @@ def comment(request, pk=None):
                     if tag_user in commentors:
                         _user = User.objects.get(username=tag_user)
                         if not _user == request.user:
-                            send_notify_content = '\''+ post.title +'\'글에서 @'+ request.user.username +'님이 회원님을 태그했습니다.'
+                            send_notify_content = '\''+ post.title + '\'글에서 @' + request.user.username + '님이 회원님을 태그했습니다.'
                             fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
             
             return CamelizeJsonResponse({

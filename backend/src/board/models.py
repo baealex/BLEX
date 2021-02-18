@@ -67,6 +67,7 @@ class ImageCache(models.Model):
 
 class History(models.Model):
     key      = models.CharField(max_length=44, unique=True)
+    ip       = models.CharField(max_length=39)
     agent    = models.CharField(max_length=200)
     category = models.CharField(max_length=15, blank=True)
 
@@ -83,8 +84,8 @@ class Config(models.Model):
     user           = models.OneToOneField(User, on_delete=models.CASCADE)
     agree_email    = models.BooleanField(default=False)
     agree_history  = models.BooleanField(default=False)
-    telegram_token = models.CharField(max_length=8, blank=True)
-    telegram_id    = models.CharField(max_length=15, blank=True)
+    telegram_token = models.CharField(max_length=8, blank=True) # deprecate
+    telegram_id    = models.CharField(max_length=15, blank=True) # deprecate
     password_qna   = models.TextField(blank=True)
 
     def __str__(self):
@@ -220,7 +221,7 @@ class Post(models.Model):
         return self.comments.count()
     
     def description(self, count=25):
-        return truncatewords(strip_tags(self.text_html), count % 150)
+        return truncatewords(strip_tags(self.text_html), count)
     
     def read_time(self):
         return int(len(strip_tags(self.text_html))/500)
@@ -322,7 +323,7 @@ class PostLikes(models.Model):
         return self.post.title
 
 class Comment(models.Model):
-    author       = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    author       = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     post         = models.ForeignKey('board.Post', related_name='comments', on_delete = models.CASCADE)
     text_md      = models.TextField(max_length=300)
     text_html    = models.TextField()
@@ -348,6 +349,7 @@ class Comment(models.Model):
 
 class Notify(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    key          = models.CharField(max_length=44, unique=True)
     url          = models.CharField(max_length=255)
     is_read      = models.BooleanField(default=False)
     infomation   = models.TextField()
@@ -400,7 +402,8 @@ class Series(models.Model):
         return reverse('series_list', args=[self.owner, self.url])
 
 class Report(models.Model):
-    user         = models.ForeignKey('board.history', on_delete=models.CASCADE)
+    user         = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    reporter     = models.ForeignKey('board.history', on_delete=models.CASCADE)
     posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     content      = models.TextField(blank=True)
     created_date = models.DateTimeField(default=timezone.now)
@@ -408,22 +411,53 @@ class Report(models.Model):
     def __str__(self):
         return posts
 
-class SearchValue(models.Model):
-    value   = models.CharField(max_length=50, unique=True)
+class TelegramSync(models.Model):
+    user           = models.OneToOneField(User, on_delete=models.CASCADE)
+    tid            = models.CharField(max_length=15, blank=True)
+    auth_token     = models.CharField(max_length=8, blank=True)
+    auth_token_exp = models.DateTimeField(default=timezone.now)
+    created_date   = models.DateTimeField(default=timezone.now)
+
+    def token_expire_check(self):
+        pass
+
+class TwoFactorAuth(models.Model):
+    user               = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    recovery_key       = models.CharField(max_length=45, unique=True)
+    one_pass_token     = models.CharField(max_length=15, unique=True)
+    one_pass_token_exp = models.DateTimeField(default=timezone.now)
+    created_date       = models.DateTimeField(default=timezone.now)
+
+    def token_expire_check(self):
+        pass
+
+class Form(models.Model):
+    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title        = models.CharField(max_length=50)
+    content      = models.TextField(blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
-        return value
+        return self.title
 
 class Search(models.Model):
-    user         = models.ForeignKey('board.history', on_delete=models.CASCADE)
+    user         = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    searcher     = models.ForeignKey('board.history', on_delete=models.CASCADE)
     search_value = models.ForeignKey('board.SearchValue', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return value
+        return self.search_value.value
+
+class SearchValue(models.Model):
+    value   = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.value
 
 class RefererFrom(models.Model):
     location = models.CharField(max_length=500, unique=True)
+    title = models.CharField(max_length=100, default='')
 
     def __str__(self):
         return self.location

@@ -110,3 +110,24 @@ class RefererAdmin(admin.ModelAdmin):
 @admin.register(RefererFrom)
 class RefererFromAdmin(admin.ModelAdmin):
     list_display = ['id', 'location']
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ['id', 'posts', 'content', 'created_date']
+    list_per_page = 10
+
+@admin.register(TelegramSync)
+class TelegramSyncAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'tid', 'created_date']
+
+@admin.register(TwoFactorAuth)
+class TwoFactorAuthAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'created_date']
+
+@admin.register(Form)
+class FormAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'title']
+
+@admin.register(Search)
+class SearchAdmin(admin.ModelAdmin):
+    list_display = ['id', 'search_value', 'created_date']

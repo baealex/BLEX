@@ -416,7 +416,11 @@ def page_check(page, paginator):
         raise Http404
 
 def create_notify(user, url, infomation):
-    new_notify = Notify(user=user, url=url, infomation=infomation)
+    hash_key = get_hash_key((user.username + url + infomation).encode())
+    if Notify.objects.filter(key=hash_key).exists():
+        return
+    
+    new_notify = Notify(user=user, url=url, infomation=infomation, key=hash_key)
     new_notify.save()
     if hasattr(user, 'config'):
         telegram_id = user.config.telegram_id
@@ -426,4 +430,3 @@ def create_notify(user, url, infomation):
                 settings.SITE_URL + str(url),
                 infomation
             ]))
-                
