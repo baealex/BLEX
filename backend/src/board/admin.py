@@ -5,7 +5,7 @@ from.models import *
 # Register your models here.
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'agent', 'category']
+    list_display = ['id', 'ip', 'agent', 'category']
     list_editable = ['category']
     list_filter = ['category']
     list_per_page = 100
@@ -42,6 +42,7 @@ class PostAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'title']
     list_filter = ['author']
     list_per_page = 30
+
     actions = ['update_md']
 
     def update_md(self, request, queryset):

@@ -17,28 +17,32 @@ from board.models import *
 from board.module.subtask import sub_task_manager
 from board.module.telegram import TelegramBot
 
-def view_count(element, request):
+def view_count(element, request): # deprecated
     if element.author == request.user:
         return
     
     history = None
+    ip = get_ip(request)
     user_agent = request.META['HTTP_USER_AGENT']
+    key = get_hash_key((ip).encode())
     try:
-        history = History.objects.get(key=get_encrypt_ip(request))
+        history = History.objects.get(key=key)
+        will_save = False
+        if not history.ip:
+            history.ip = ip
+            will_save = True
         if not history.agent == user_agent[:200]:
             history.agent = user_agent[:200]
-            if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
-                history.category = 'temp-bot'
-            else:
-                if not history.category == '' and not '(u)' in history.category:
-                    history.category += '(u)'
+            history.category = bot_check(user_agent)
+            will_save = True
+        if will_save:
             history.save()
             history.refresh_from_db()
     except:
-        history = History(key=get_encrypt_ip(request))
+        history = History(key=key)
+        history.ip = ip
         history.agent = user_agent[:200]
-        if 'bot' in user_agent.lower() or 'facebookexternalhit' in user_agent.lower():
-            history.category = 'temp-bot'
+        history.category = bot_check(user_agent)
         history.save()
         history.refresh_from_db()
     
@@ -116,16 +120,25 @@ def create_viewer(element, request):
         return
     
     history = None
+    ip = get_ip(request)
     user_agent = request.META['HTTP_USER_AGENT']
+    key = get_hash_key((ip).encode())
     try:
-        history = History.objects.get(key=get_encrypt_ip(request))
+        history = History.objects.get(key=key)
+        will_save = False
+        if not history.ip:
+            history.ip = ip
+            will_save = True
         if not history.agent == user_agent[:200]:
             history.agent = user_agent[:200]
             history.category = bot_check(user_agent)
+            will_save = True
+        if will_save:
             history.save()
             history.refresh_from_db()
     except:
-        history = History(key=get_encrypt_ip(request))
+        history = History(key=key)
+        history.ip = ip
         history.agent = user_agent[:200]
         history.category = bot_check(user_agent)
         history.save()
@@ -277,11 +290,11 @@ def get_clean_tag(tag):
 def get_hash_key(data):
     return base64.b64encode(hashlib.sha256(data).digest()).decode()
 
-def get_encrypt_ip(request):
+def get_ip(request):
     ip_addr = request.META.get('REMOTE_ADDR')
     if not ip_addr:
         ip_addr = request.META.get('HTTP_X_FORWARDED_FOR')
-    return get_hash_key(ip_addr.encode())
+    return ip_addr
 
 def get_exp(user):
     if hasattr(user, 'profile'):
