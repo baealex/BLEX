@@ -110,7 +110,7 @@ class RefererAdmin(admin.ModelAdmin):
 
 @admin.register(RefererFrom)
 class RefererFromAdmin(admin.ModelAdmin):
-    list_display = ['id', 'location']
+    list_display = ['id', 'title', 'location']
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
