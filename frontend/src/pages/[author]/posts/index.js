@@ -67,6 +67,7 @@ class Posts extends React.Component {
                 <Profile active="posts" profile={this.props.profile.profile} social={this.props.profile.social}/>
                 <div className="container">
                     <PostsComponent
+                        allCount={this.props.posts.allCount}
                         active="all"
                         author={this.props.profile.profile.username}
                         tags={this.props.profile.tags}

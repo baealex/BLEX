@@ -359,6 +359,7 @@ def user_posts(request, username, url=None):
     if not url:
         if request.method == 'GET':
             posts = Post.objects.filter(created_date__lte=timezone.now(), author__username=username, hide=False)
+            all_count = posts.count()
             tag = request.GET.get('tag', '')
             if tag:
                 posts = posts.filter(tag__iregex=r'\b%s\b' % tag)
@@ -369,12 +370,13 @@ def user_posts(request, username, url=None):
             fn.page_check(page, paginator)
             posts = paginator.get_page(page)
             return CamelizeJsonResponse({
+                'all_count': all_count,
                 'items': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
                     'image': post.get_thumbnail(),
                     'read_time': post.read_time(),
-                    'description': post.description(),
+                    'description': post.description(35),
                     'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
                     'author_image': post.author.profile.get_thumbnail(),
                     'author': post.author.username,
@@ -445,7 +447,7 @@ def user_posts(request, username, url=None):
                     'url': post.url,
                     'title': post.title,
                     'image': post.get_thumbnail(),
-                    'description': post.description(),
+                    'description': post.description_tag(),
                     'read_time': post.read_time(),
                     'series': post.series.url if post.series else None,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),

@@ -6,6 +6,7 @@ export interface TagProps {
 }
 
 export interface TagsProps {
+    allCount: number;
     active: string;
     author: string;
     tags: TagProps[];
@@ -18,7 +19,7 @@ export default function Tags(props: TagsProps) {
                 <h5>카테고리</h5>
                 <Link href="/[author]/posts" as={`/@${props.author}/posts`} scroll={false}>
                     <a className={`shallow-dark ${props.active === 'all' ? 'active' : ''}`}>
-                        <li>전체 포스트</li>
+                        <li>전체 포스트<span className="ns">({props.allCount})</span></li>
                     </a>
                 </Link>
                 {props.tags.map((item, idx) => (

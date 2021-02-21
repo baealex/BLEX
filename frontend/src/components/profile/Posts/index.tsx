@@ -3,6 +3,7 @@ import Articles from './Article';
 
 interface PostsProps {
     posts: any;
+    allCount: number;
     active: string;
     author: string;
     tags: TagProps[];
@@ -12,7 +13,7 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
     return (
         <div className="row">
-            <Tags active={props.active} author={props.author} tags={props.tags}/>
+            <Tags allCount={props.allCount} active={props.active} author={props.author} tags={props.tags}/>
             <Articles posts={props.posts}>
                 {props.children}
             </Articles>

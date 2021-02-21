@@ -223,6 +223,9 @@ class Post(models.Model):
     def description(self, count=25):
         return truncatewords(strip_tags(self.text_html), count)
     
+    def description_tag(self, count=25):
+        return self.description(count)[:120]
+    
     def read_time(self):
         return int(len(strip_tags(self.text_html))/500)
     
