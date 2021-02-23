@@ -1251,8 +1251,8 @@ def telegram(request, parameter):
                 
                 check = TelegramSync.objects.get(auth_token=req_token)
                 if check:
-                    one_day_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
-                    if check.auth_token_exp < one_day_ago:
+                    one_day_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+                    if check.auth_token_exp > one_day_ago:
                         check.tid = req_userid
                         check.auth_token = ''
                         check.save()
@@ -1260,7 +1260,7 @@ def telegram(request, parameter):
                     else:
                         check.auth_token = ''
                         check.save()
-                        sub_task_manager.append_task(lambda: bot.send_message(req_userid, '기간이 만료된 토큰입니다. 다시 시도하십시오.'))
+                        sub_task_manager.append_task(lambda: bot.send_message(req_userid, '기간이 만료된 토큰입니다. 홈페이지에서 연동을 다시 시도하십시오.'))
                     
             except:
                 message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
