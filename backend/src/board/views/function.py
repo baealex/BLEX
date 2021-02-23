@@ -444,11 +444,11 @@ def create_notify(user, url, infomation):
     
     new_notify = Notify(user=user, url=url, infomation=infomation, key=hash_key)
     new_notify.save()
-    if hasattr(user, 'config'):
-        telegram_id = user.config.telegram_id
-        if not telegram_id == '':
+    if hasattr(user, 'telegramsync'):
+        tid = user.telegramsync.tid
+        if not tid == '':
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            sub_task_manager.append_task(lambda: bot.send_messages(telegram_id, [
+            sub_task_manager.append_task(lambda: bot.send_messages(tid, [
                 settings.SITE_URL + str(url),
                 infomation
             ]))

@@ -665,6 +665,12 @@ def setting(request, item):
         if item == 'notify':
             seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
             notify = Notify.objects.filter(user=user, created_date__gt=seven_days_ago).order_by('-created_date')
+            
+            is_telegram_sync = False
+            if hasattr(user, 'telegramsync'):
+                if not user.telegramsync.tid == '':
+                    is_telegram_sync = True
+            
             return CamelizeJsonResponse({
                 'notify': list(map(lambda item: {
                     'pk': item.pk,
@@ -673,7 +679,7 @@ def setting(request, item):
                     'content': item.infomation,
                     'created_date': timesince(convert_to_localtime(item.created_date))
                 }, notify)),
-                'is_telegram_sync': True if user.config.telegram_id else False
+                'is_telegram_sync': is_telegram_sync
             })
         
         if item == 'account':
@@ -1242,12 +1248,20 @@ def telegram(request, parameter):
                 req = json.loads(request.body.decode("utf-8"))
                 req_userid = req['message']['from']['id']
                 req_token = req['message']['text']
-                check = Config.objects.get(telegram_token=req_token)
+                
+                check = TelegramSync.objects.get(auth_token=req_token)
                 if check:
-                    check.telegram_token = ''
-                    check.telegram_id = req_userid
-                    check.save()
-                    sub_task_manager.append_task(lambda: bot.send_message(req_userid, '정상적으로 연동되었습니다.'))
+                    one_day_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+                    if check.auth_token_exp < one_day_ago:
+                        check.tid = req_userid
+                        check.auth_token = ''
+                        check.save()
+                        sub_task_manager.append_task(lambda: bot.send_message(req_userid, '정상적으로 연동되었습니다.'))
+                    else:
+                        check.auth_token = ''
+                        check.save()
+                        sub_task_manager.append_task(lambda: bot.send_message(req_userid, '기간이 만료된 토큰입니다. 다시 시도하십시오.'))
+                    
             except:
                 message = '블렉스 다양한 정보를 살펴보세요!\n\n' + settings.SITE_URL + '/notion'
                 sub_task_manager.append_task(lambda: bot.send_message(req_userid, message))
@@ -1256,30 +1270,29 @@ def telegram(request, parameter):
     if parameter == 'makeToken':
         if request.method == 'POST':
             token = randstr(6)
-            has_token = Config.objects.filter(telegram_token=token)
+            has_token = TelegramSync.objects.filter(auth_token=token)
             while len(has_token) > 0:
                 token = randstr(6)
-                has_token = Config.objects.filter(telegram_token=token)
-
-            if hasattr(request.user, 'config'):
-                config = request.user.config
-                config.telegram_token = token
-                config.save()
+                has_token = TelegramSync.objects.filter(auth_token=token)
+            if hasattr(request.user, 'telegramsync'):
+                telegramsync = request.user.telegramsync
+                telegramsync.auth_token = token
+                telegramsync.auth_token_exp = timezone.now()
+                telegramsync.save()
                 return HttpResponse(token)
             else:
-                config = Config(user=request.user)
-                config.telegram_token = token
-                config.save()
+                telegramsync = TelegramSync(user=request.user)
+                telegramsync.auth_token = token
+                telegramsync.save()
                 return HttpResponse(token)
     
     if parameter == 'unsync':
         if request.method == 'POST':
-            config = request.user.config
-            if not config.telegram_id == '':
-                config.telegram_id = ''
-                config.save()
-                return HttpResponse('DONE')
-            else:
-                return HttpResponse('error:AU')
+            if hasattr(request.user, 'telegramsync'):
+                telegramsync = request.user.telegramsync
+                if not telegramsync.tid == '':
+                    telegramsync.delete()
+                    return HttpResponse('DONE')
+            return HttpResponse('error:AU')
     
     raise Http404
