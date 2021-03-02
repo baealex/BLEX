@@ -524,9 +524,9 @@ def user_posts_comments(request, username, url):
         return CamelizeJsonResponse({
             'comments': list(map(lambda comment: {
                 'pk': comment.pk,
-                'author_image': comment.author.profile.get_thumbnail(),
-                'author': comment.author.username,
-                'text_html': comment.text_html,
+                'author': comment.author_username(),
+                'author_image': comment.author_thumbnail(),
+                'text_html': comment.get_text_html(),
                 'time_since': timesince(comment.created_date),
                 'is_edited': comment.edited
             }, comments))
@@ -967,7 +967,8 @@ def comment(request, pk=None):
         if request.method == 'DELETE':
             if not request.user == comment.author:
                 return HttpResponse('error:DU')
-            comment.delete()
+            comment.author = None
+            comment.save()
             return HttpResponse('DONE')
     
     raise Http404

@@ -338,6 +338,21 @@ class Comment(models.Model):
     def __str__(self):
         return self.text_md
     
+    def author_username(self):
+        if self.author == None:
+            return 'Ghost'
+        return self.author.username
+    
+    def author_thumbnail(self):
+        if self.author == None:
+            return settings.STATIC_URL + '/images/ghost.png'
+        return self.author.profile.get_thumbnail()
+    
+    def get_text_html(self):
+        if self.author == None:
+            return '삭제된 댓글입니다.'
+        return self.text_html
+
     def get_thumbnail(self):
         if self.image:
             return self.image.url
