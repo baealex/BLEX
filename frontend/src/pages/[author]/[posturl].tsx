@@ -336,7 +336,7 @@ class PostDetail extends React.Component<Props, State> {
     async onSubmitComment(content: string) {
         const commentMarkup = blexer(content);
         const { data } = await API.postComment(this.props.post.url, content, commentMarkup);
-        if(data.status !== 'success') {
+        if(data.status !== 'DONE') {
             toast('😅 댓글 작성중 오류가 발생했습니다!');
             return;
         }

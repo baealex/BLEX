@@ -4,16 +4,18 @@ import json
 import html
 import time
 import random
+import traceback
 
 import humps
 
 from itertools import chain
-from django.db.models import Count, Q
+from django.conf import settings
+from django.contrib import auth
 from django.core.cache import cache
 from django.core.files import File
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
-from django.contrib import auth
+from django.db.models import Count, Q
 from django.http import HttpResponse, JsonResponse, Http404, QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
@@ -22,11 +24,10 @@ from django.utils.text import slugify
 from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
 from PIL import Image, ImageFilter
 
-from board.models import *
 from board.forms import *
+from board.models import *
 from board.module.subtask import sub_task_manager
 from board.module.telegram import TelegramBot
 from board.views import function as fn
@@ -40,7 +41,8 @@ def login(request):
             notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
             result = {
                 'username': request.user.username,
-                'notify_count': notify.count()
+                'notify_count': notify.count(),
+                'asdasd': 'asdasd111'
             }
             return CamelizeJsonResponse(result)
         return HttpResponse('dead')
@@ -55,10 +57,21 @@ def login(request):
 
             if user is not None:
                 if user.is_active:
+                    if user.config.has_two_factor_auth():
+                        def create_auth_token():
+                            token = randnum(6)
+                            user.twofactorauth.create_token(token)
+                            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+                            bot.send_message(user.telegramsync.tid, f'2차 인증 코드입니다 : {token}')
+                        sub_task_manager.append_task(create_auth_token)
+                        return CamelizeJsonResponse({
+                            'status': 'ready',
+                            'username': user.username
+                        })
                     auth.login(request, user)
                     notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
                     return CamelizeJsonResponse({
-                        'status': 'success',
+                        'status': 'DONE',
                         'username': username,
                         'notify_count': notify.count()
                     })
@@ -75,10 +88,21 @@ def login(request):
                     node_id = state['user'].get('node_id')
                     try:
                         user = User.objects.get(last_name='github:' + str(node_id))
+                        if user.config.has_two_factor_auth():
+                            def create_auth_token():
+                                token = randnum(6)
+                                user.twofactorauth.create_token(token)
+                                bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+                                bot.send_message(user.telegramsync.tid, f'2차 인증용 코드입니다 : {token}')
+                            sub_task_manager.append_task(create_auth_token)
+                            return CamelizeJsonResponse({
+                                'status': 'ready',
+                                'username': user.username
+                            })
                         auth.login(request, user)
                         notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
                         return CamelizeJsonResponse({
-                            'status': 'success',
+                            'status': 'DONE',
                             'username': user.username,
                             'notify_count': notify.count()
                         })
@@ -115,7 +139,7 @@ def login(request):
 
                     auth.login(request, new_user)
                     return CamelizeJsonResponse({
-                        'status': 'success',
+                        'status': 'DONE',
                         'username': username,
                         'notify_count': 1
                     })
@@ -132,10 +156,21 @@ def login(request):
                     node_id = state['user'].get('id')
                     try:
                         user = User.objects.get(last_name='google:' + str(node_id))
+                        if user.config.has_two_factor_auth():
+                            def create_auth_token():
+                                token = randnum(6)
+                                user.twofactorauth.create_token(token)
+                                bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+                                bot.send_message(user.telegramsync.tid, f'2차 인증용 코드입니다 : {token}')
+                            sub_task_manager.append_task(create_auth_token)
+                            return CamelizeJsonResponse({
+                                'status': 'ready',
+                                'username': user.username
+                            })
                         auth.login(request, user)
                         notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
                         return CamelizeJsonResponse({
-                            'status': 'success',
+                            'status': 'DONE',
                             'username': user.username,
                             'notify_count': notify.count()
                         })
@@ -171,7 +206,7 @@ def login(request):
 
                     auth.login(request, new_user)
                     return CamelizeJsonResponse({
-                        'status': 'success',
+                        'status': 'DONE',
                         'username': username,
                         'notify_count': 1
                     })
@@ -187,7 +222,7 @@ def logout(request):
         if request.user.is_active:
             auth.logout(request)
             return CamelizeJsonResponse({
-                'status': 'success'
+                'status': 'DONE'
             })
         return CamelizeJsonResponse({
             'status': 'failure'
@@ -386,6 +421,9 @@ def user_posts(request, username, url=None):
             })
         
         if request.method == 'POST':
+            if not request.user.is_active:
+                return HttpResponse('error:NL')
+
             post = Post()
             post.title = request.POST.get('title', '')
             post.author = request.user
@@ -663,13 +701,8 @@ def setting(request, item):
     
     if request.method == 'GET':
         if item == 'notify':
-            seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
+            seven_days_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
             notify = Notify.objects.filter(user=user, created_date__gt=seven_days_ago).order_by('-created_date')
-            
-            is_telegram_sync = False
-            if hasattr(user, 'telegramsync'):
-                if not user.telegramsync.tid == '':
-                    is_telegram_sync = True
             
             return CamelizeJsonResponse({
                 'notify': list(map(lambda item: {
@@ -679,14 +712,15 @@ def setting(request, item):
                     'content': item.infomation,
                     'created_date': timesince(convert_to_localtime(item.created_date))
                 }, notify)),
-                'is_telegram_sync': is_telegram_sync
+                'is_telegram_sync': request.user.config.has_telegram_id()
             })
         
         if item == 'account':
             return CamelizeJsonResponse({
                 'username': user.username,
                 'realname': user.first_name,
-                'created_date': user.date_joined.strftime('%Y년 %m월 %d일')
+                'created_date': user.date_joined.strftime('%Y년 %m월 %d일'),
+                'has_two_factor_auth': user.config.has_two_factor_auth()
             })
         
         if item == 'profile':
@@ -824,6 +858,9 @@ def setting(request, item):
     raise Http404
 
 def temp_posts(request):
+    if not request.user.is_active:
+        return HttpResponse('error:NL')
+
     if request.method == 'GET':
         token = request.GET.get('token')
         if token:
@@ -920,7 +957,7 @@ def comment(request, pk=None):
                             fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
             
             return CamelizeJsonResponse({
-                'status': 'success',
+                'status': 'DONE',
                 'element': {
                     'pk': comment.pk,
                     'author_image': comment.author.profile.get_thumbnail(),
@@ -1170,7 +1207,6 @@ def users(request, username):
     
     raise Http404
 
-@csrf_exempt
 def image_upload(request):
     if request.method == 'POST':
         if not request.user.is_active:
@@ -1238,7 +1274,6 @@ def image_upload(request):
                 return HttpResponse('이미지 파일이 아닙니다.')
     raise Http404
 
-@csrf_exempt
 def telegram(request, parameter):
     if parameter == 'webHook':
         if request.method == 'POST':
@@ -1249,17 +1284,16 @@ def telegram(request, parameter):
                 req_userid = req['message']['from']['id']
                 req_token = req['message']['text']
                 
-                check = TelegramSync.objects.get(auth_token=req_token)
-                if check:
-                    one_day_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
-                    if check.auth_token_exp > one_day_ago:
-                        check.tid = req_userid
-                        check.auth_token = ''
-                        check.save()
+                telegram_sync = TelegramSync.objects.get(auth_token=req_token)
+                if telegram_sync:
+                    if not telegram_sync.is_token_expire():
+                        telegram_sync.tid = req_userid
+                        telegram_sync.auth_token = ''
+                        telegram_sync.save()
                         sub_task_manager.append_task(lambda: bot.send_message(req_userid, '정상적으로 연동되었습니다.'))
                     else:
-                        check.auth_token = ''
-                        check.save()
+                        telegram_sync.auth_token = ''
+                        telegram_sync.save()
                         sub_task_manager.append_task(lambda: bot.send_message(req_userid, '기간이 만료된 토큰입니다. 홈페이지에서 연동을 다시 시도하십시오.'))
                     
             except:
@@ -1294,5 +1328,82 @@ def telegram(request, parameter):
                     telegramsync.delete()
                     return HttpResponse('DONE')
             return HttpResponse('error:AU')
+    
+    raise Http404
+
+def two_factor_auth(request):
+    if not request.user.is_active:
+        return HttpResponse('error:NL')
+    
+    if request.method == 'POST':
+        if not request.user.config.has_telegram_id():
+            return HttpResponse('error:NT')
+        
+        if hasattr(request.user, 'twofactorauth'):
+            return HttpResponse('error:AE')
+
+        recovery_key = randstr(45)
+
+        sub_task_manager.append_task(lambda: send_mail(
+            subject='[ BLEX ] 2차 인증 복구키',
+            message=f'핸드폰을 사용할 수 없다면 이 복구키를 사용하여 로그인 하십시오.\n\n{recovery_key}',
+            from_email='im@baejino.com',
+            recipient_list=[request.user.email],
+        ))
+
+        two_factor_auth = TwoFactorAuth(user=request.user)
+        two_factor_auth.recovery_key = recovery_key
+        two_factor_auth.save()
+        return HttpResponse('DONE')
+    
+    if request.method == 'DELETE':
+        if not hasattr(request.user, 'twofactorauth'):
+            return HttpResponse('error:AU')
+        
+        if not request.user.twofactorauth.has_been_a_day():
+            return HttpResponse('error:RJ')
+        
+        request.user.twofactorauth.delete()
+        return HttpResponse('DONE')
+
+    raise Http404
+
+def two_factor_auth_send(request):
+    if request.method == 'POST':
+        body = QueryDict(request.body)
+        auth_token = body.get('auth_token', '')
+        try:
+            if len(auth_token) == 6:
+                two_factor_auth = TwoFactorAuth.objects.get(one_pass_token=auth_token)
+                if two_factor_auth:
+                    if two_factor_auth.is_token_expire():
+                        return HttpResponse('error:EP')
+                    user = two_factor_auth.user
+                    two_factor_auth.one_pass_token = ''
+                    two_factor_auth.save()
+                    auth.login(request, user)
+                    notify = Notify.objects.filter(user=user, is_read=False).order_by('-created_date')
+                    return CamelizeJsonResponse({
+                        'status': 'DONE',
+                        'username': user.username,
+                        'notify_count': notify.count()
+                    })
+            else:
+                two_factor_auth = TwoFactorAuth.objects.get(recovery_key=auth_token)
+                if two_factor_auth:
+                    user = two_factor_auth.user
+                    two_factor_auth.one_pass_token = ''
+                    two_factor_auth.save()
+                    auth.login(request, user)
+                    notify = Notify.objects.filter(user=user, is_read=False).order_by('-created_date')
+                    return CamelizeJsonResponse({
+                        'status': 'DONE',
+                        'username': user.username,
+                        'notify_count': notify.count()
+                    })
+        except:
+            traceback.print_exc()
+
+        return HttpResponse('error:RJ')
     
     raise Http404

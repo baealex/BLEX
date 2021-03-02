@@ -32,11 +32,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 export default function Setting(props: Props) {
-    const [ isModalOpen, setModalOpen ] = useState(false);
+    const [ isSignDeleteModalOpen, setSignDeleteModalOpen ] = useState(false);
+    const [ isCreateTwoFactorAuthModalOpen, setCreateTwoFactorAuthModalOpen ] = useState(false);
     const [ isChangeUsername, setChangeUsername ] = useState(false);
     const [ username, setUsername ] = useState(props.username);
     const [ realname, setRealname ] = useState(props.realname);
     const [ password, setPassword ] = useState('');
+    const [ hasTwoFactorAuth, setTwoFactorAuth ] = useState(props.hasTwoFactorAuth);
     const [ passwordCheck, setPasswordCheck ] = useState('');
 
     const onChangeUsername = async () => {
@@ -91,7 +93,7 @@ export default function Setting(props: Props) {
     };
 
     const onSignOut = async () => {
-        const { data } = await API.signDelete();
+        const { data } = await API.deleteSign();
         if(data == 'DONE') {
             Global.setState({
                 isLogin: false
@@ -100,6 +102,49 @@ export default function Setting(props: Props) {
             Router.push('/');
         }
     };
+
+    const onCreateTwoFactorAuth = async () => {
+        const { data } = await API.createTwoFactorAuth();
+        if(data == API.ERROR.NOT_LOGIN) {
+            toast('😥 로그인이 필요합니다.');
+            return;
+        }
+        if(data == API.ERROR.NEED_TELEGRAM) {
+            toast('😥 텔레그램 연동이 필요합니다.', {
+                onClick: () => Router.push('/setting')
+            });
+            return;
+        }
+        if(data == API.ERROR.ALREADY_EXISTS) {
+            toast('😥 이미 등록되어 있습니다.');
+            return;
+        }
+        if(data == 'DONE') {
+            toast('😀 2차 인증이 등록되었습니다.');
+            setCreateTwoFactorAuthModalOpen(false);
+            setTwoFactorAuth(true);
+            return;
+        }
+        toast('😥 등록중 오류가 발생했습니다.');
+    }
+
+    const onDeleteTwoFactorAuth = async () => {
+        const { data } = await API.deleteTwoFactorAuth();
+        if(data == API.ERROR.ALREADY_UNSYNC) {
+            toast('😥 이미 해제되어 있습니다.');
+            return;
+        }
+        if(data == API.ERROR.REJECT) {
+            toast('😥 인증을 해제할 수 없습니다.');
+            return;
+        }
+        if(data == 'DONE') {
+            toast('😀 2차 인증이 해제되었습니다.');
+            setTwoFactorAuth(false);
+            return;
+        }
+        toast('😥 해제중 오류가 발생했습니다.');
+    }
 
     return (
         <>
@@ -176,10 +221,23 @@ export default function Setting(props: Props) {
                         className="btn btn-dark"
                         onClick={() => onSubmit()}>정보 변경
                     </button>
+                    {hasTwoFactorAuth ? (
+                        <button
+                            type="button"
+                            className="btn btn-dark"
+                            onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') ? onDeleteTwoFactorAuth() : ''}>2차 인증 중지
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            className="btn btn-dark"
+                            onClick={() => setCreateTwoFactorAuthModalOpen(true)}>2차 인증 등록
+                        </button>
+                    )}
                     <button
                         type="button"
                         className="btn btn-dark"
-                        onClick={() => setModalOpen(true)}>회원 탈퇴
+                        onClick={() => setSignDeleteModalOpen(true)}>회원 탈퇴
                     </button>
                     <style jsx>{`
                         input {
@@ -191,13 +249,38 @@ export default function Setting(props: Props) {
                     `}</style>
                 </>
             </SettingLayout>
-            <Modal title="정말 탈퇴 하시겠습니까?" isOpen={isModalOpen} close={() => setModalOpen(false)}>
+            <Modal title="정말 탈퇴 하시겠습니까?" isOpen={isSignDeleteModalOpen} close={() => setSignDeleteModalOpen(false)}>
                 <ModalContent>
                     <>
                         유저님의 회원정보와 작성한 모든 데이터가 즉시 삭제되며 이 작업은 되돌릴 수 없습니다.
                     </>
                 </ModalContent>
                 <ModalButton text="네 탈퇴하겠습니다." onClick={() => onSignOut()}/>
+            </Modal>
+
+            <Modal title="2차 인증을 사용할까요?" isOpen={isCreateTwoFactorAuthModalOpen} close={() => setCreateTwoFactorAuthModalOpen(false)}>
+                <ModalContent>
+                    <>
+                        다음과 같은 요구사항이 필요합니다.
+                        <ul>
+                            <li>
+                                계정에 등록된 이메일이 유효해야 합니다.
+                                등록된 이메일로 복구키를 전송하며
+                                복구키는 핸드폰을 소지하지 않았거나
+                                기술적인 문제로 인증코드가 전달되지 않았을 때
+                                사용할 수 있습니다.
+                            </li>
+                            <li>
+                                텔레그램 연동이 필요합니다.
+                                별도의 어플리케이션이 존재하지 않으므로
+                                텔레그램을 활용하고 있으며
+                                텔레그램은 '알림'탭에서 연동할 수 있습니다.
+                            </li>
+                        </ul>
+                        연동 후 최소 하루동안 유지해야 하므로 신중하게 연동하여 주십시오.
+                    </>
+                </ModalContent>
+                <ModalButton text="네 사용하겠습니다." onClick={() => onCreateTwoFactorAuth()}/>
             </Modal>
         </>
     );

@@ -9,6 +9,7 @@ import Global from '@modules/global';
 import Search from '@components/common/Search';
 import LoginModal from '@components/modal/set/Login';
 import SignupModal from '@components/modal/set/Signup';
+import TwoFactorAuthModal from '@components/modal/set/TwoFactorAuth';
 
 interface State {
     onNav: boolean;
@@ -17,6 +18,7 @@ interface State {
     username: string;
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
+    isTwoFactorAuthModalOpen: boolean,
 };
 
 class TopNavigation extends React.Component {
@@ -31,6 +33,7 @@ class TopNavigation extends React.Component {
             username: Global.state.username,
             isLoginModalOpen: Global.state.isLoginModalOpen,
             isSignupModalOpen: Global.state.isSignupModalOpen,
+            isTwoFactorAuthModalOpen: Global.state.isTwoFactorAuthModalOpen,
         };
         Global.appendUpdater('TopNavigation', () => this.setState({
             isLogin: Global.state.isLogin,
@@ -38,6 +41,7 @@ class TopNavigation extends React.Component {
             isNightMode: Global.state.isNightMode,
             isLoginModalOpen: Global.state.isLoginModalOpen,
             isSignupModalOpen: Global.state.isSignupModalOpen,
+            isTwoFactorAuthModalOpen: Global.state.isTwoFactorAuthModalOpen,
         }));
     }
 
@@ -94,7 +98,7 @@ class TopNavigation extends React.Component {
     async onClickLogout() {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
             const { data } = await API.logout();
-            if(data.status === 'success') {
+            if(data.status === 'DONE') {
                 Global.setState({
                     isLogin: false,
                     username: ''
@@ -114,6 +118,10 @@ class TopNavigation extends React.Component {
                 <SignupModal
                     isOpen={this.state.isSignupModalOpen}
                     onClose={() => Global.onCloseModal('isSignupModalOpen')}
+                />
+                <TwoFactorAuthModal
+                    isOpen={this.state.isTwoFactorAuthModalOpen}
+                    onClose={() => Global.onCloseModal('isTwoFactorAuthModalOpen')}
                 />
                 <div
                     className={`side-menu noto ${this.state.onNav ? 'on' : 'off' }`}>

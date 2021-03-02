@@ -25,7 +25,7 @@ class SocialLogin extends React.Component {
     }
 
     async loginCheck(data) {
-        if(data.status == 'success') {
+        if(data.status == 'DONE') {
             toast(`😃 로그인 되었습니다.`);
 
             if(data.notifyCount != 0) {
@@ -40,6 +40,9 @@ class SocialLogin extends React.Component {
                 isLogin: true,
                 username: data.username
             });
+        } else if(data.status == 'ready') {
+            toast('😃 2차 인증 코드를 입력해 주세요.');
+            Global.onOpenModal('isTwoFactorAuthModalOpen');
         } else {
             toast('😥 인증이 실패했습니다.');
         }
