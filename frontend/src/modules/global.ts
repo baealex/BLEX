@@ -5,9 +5,10 @@ interface GlobalState {
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
     isSettingModalOpen: boolean;
+    isTwoFactorAuthModalOpen: boolean;
 }
 
-type ModalName = 'isSettingModalOpen' | 'isLoginModalOpen' |  'isSignupModalOpen';
+type ModalName = 'isSettingModalOpen' | 'isLoginModalOpen' |  'isSignupModalOpen' | 'isTwoFactorAuthModalOpen';
 
 class Global {
     state: GlobalState;
@@ -21,6 +22,7 @@ class Global {
             isLoginModalOpen: false,
             isSignupModalOpen: false,
             isSettingModalOpen: false,
+            isTwoFactorAuthModalOpen: false,
         }
         this.updater = {};
     }

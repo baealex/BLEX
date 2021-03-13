@@ -8,7 +8,6 @@ import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';
-import { oauth } from '@modules/oauth';
 
 interface Props {
     isOpen: boolean;
@@ -16,20 +15,30 @@ interface Props {
 }
 
 interface State {
-    username: string;
-    password: string;
+    code: string;
+    timer: number;
 }
 
 class LoginModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            username: Global.state.username,
-            password: ''
+            code: '',
+            timer: 0,
         }
-        Global.appendUpdater('LoginModal', () => this.setState({
-            username: Global.state.username,
-        }));
+    }
+
+    componentDidUpdate(prevProps: Props) {
+        if(prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
+            this.setState({timer: 60 * 5});
+            const timerEvent = setInterval(() => {
+                if(this.state.timer <= 0) {
+                    clearInterval(timerEvent);
+                    return;
+                }
+                this.setState({timer: this.state.timer - 1});
+            }, 1000);
+        }
     }
 
     onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -46,15 +55,11 @@ class LoginModal extends React.Component<Props, State> {
     }
 
     async onSubmitLogin() {
-        if(this.state.username == '') {
-            toast('😅 아이디를 입력해주세요!');
+        if(this.state.code == '') {
+            toast('😅 코드를 입력해주세요!');
             return;
         }
-        if(this.state.password == '') {
-            toast('😅 비밀번호를 입력해주세요!');
-            return;
-        }
-        const { data } = await API.login(this.state.username, this.state.password);
+        const { data } = await API.verifyTwoFactorAuth(this.state.code);
         this.loginCheck(data);
     }
 
@@ -83,53 +88,39 @@ class LoginModal extends React.Component<Props, State> {
                 })
             }
             this.props.onClose();
-        } else if(data.status == 'ready') {
-            toast('😃 2차 인증 코드를 입력해 주세요.');
-            Global.onOpenModal('isTwoFactorAuthModalOpen');
-            this.props.onClose();
-        } else if(data.status == 'failure'){
-            toast('😥 아이디 혹은 패스워드를 확인해 주세요.');
         }
-        this.setState({
-            password: ''
-        });
+        if(JSON.stringify(data).includes(API.ERROR.EXPIRE)) {
+            toast('😥 코드가 만료되었습니다.');
+        }
+        if(JSON.stringify(data).includes(API.ERROR.REJECT)) {
+            toast('😥 코드를 확인하여 주십시오.');
+        }
     }
     
     render() {
+        const remainMinute = Math.floor(this.state.timer / 60);
+        const remainSecond = this.state.timer % 60;
+        const remainTime = `${remainMinute}:${remainSecond >= 10 ? remainSecond : `0${remainSecond}`}`
         return (
-            <Modal title='로그인' isOpen={this.props.isOpen} close={() => this.props.onClose()}>
+            <Modal title='2차 인증' isOpen={this.props.isOpen} close={() => {}}>
                 <ModalContent>
+                    <p>
+                        텔레그램으로 전송된 2차 인증 코드를 입력하세요.
+                        코드를 받을 수 없다면 복구키를 입력해 주십시오.
+                        인증 코드 유효시간 {remainTime}
+                    </p>
                     <input
                         className="login-form"
-                        name="username"
-                        placeholder="아이디"
+                        name="code"
+                        placeholder="코드"
                         onChange={(e) => this.onInputChange(e)}
-                        value={this.state.username}
-                        onKeyPress={(e) => this.onEnterLogin(e)}
-                    />
-                    <input
-                        className="login-form"
-                        name="password"
-                        type="password"
-                        placeholder="패스워드"
-                        onChange={(e) => this.onInputChange(e)}
-                        value={this.state.password}
+                        value={this.state.code}
                         onKeyPress={(e) => this.onEnterLogin(e)}
                     />
                     <button
                         className="login-button"
                         onClick={() => this.onSubmitLogin()}>
-                        기존 사용자 로그인
-                    </button>
-                    <button
-                        className="login-button google"
-                        onClick={() => oauth("google")}>
-                        <i className="fab fa-google"></i> Google 계정으로 로그인
-                    </button>
-                    <button
-                        className="login-button github"
-                        onClick={() => oauth("github")}>
-                        <i className="fab fa-github"></i> GitHub 계정으로 로그인
+                        인증
                     </button>
                 </ModalContent>
             </Modal>

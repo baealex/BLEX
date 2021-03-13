@@ -101,5 +101,7 @@ urlpatterns = [
     path('v1/feature/posts/<tag>', api_v1.feature_posts, name="feature_posts_api_v1"),
     path('v1/image/upload', api_v1.image_upload, name='image_upload_v1'),
     path('v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
+    path('v1/auth', api_v1.two_factor_auth, name='two_factor_auth_api_v1'),
+    path('v1/auth/send', api_v1.two_factor_auth_send, name='two_factor_auth_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

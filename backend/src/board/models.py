@@ -22,6 +22,14 @@ def convert_to_localtime(utctime):
     localtz = utc.astimezone(timezone.get_current_timezone())
     return localtz
 
+def randnum(length):
+    rstr = '0123456789'
+    rstr_len = len(rstr) - 1
+    result = ''
+    for i in range(length):
+        result += rstr[random.randint(0, rstr_len)]
+    return result
+
 def randstr(length):
     rstr = '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ'
     rstr_len = len(rstr) - 1
@@ -87,6 +95,17 @@ class Config(models.Model):
     telegram_token = models.CharField(max_length=8, blank=True) # deprecate
     telegram_id    = models.CharField(max_length=15, blank=True) # deprecate
     password_qna   = models.TextField(blank=True)
+
+    def has_telegram_id(self):
+        if hasattr(self.user, 'telegramsync'):
+            if not self.user.telegramsync.tid == '':
+                return True
+        return False
+    
+    def has_two_factor_auth(self):
+        if hasattr(self.user, 'twofactorauth'):
+            return True
+        return False
 
     def __str__(self):
         return self.user.username
@@ -436,18 +455,35 @@ class TelegramSync(models.Model):
     auth_token_exp = models.DateTimeField(default=timezone.now)
     created_date   = models.DateTimeField(default=timezone.now)
 
-    def token_expire_check(self):
-        pass
+    def is_token_expire(self):
+        one_day_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+        if self.auth_token_exp < one_day_ago:
+            return True
+        return False
 
 class TwoFactorAuth(models.Model):
     user               = models.OneToOneField('auth.User', on_delete=models.CASCADE)
-    recovery_key       = models.CharField(max_length=45, unique=True)
-    one_pass_token     = models.CharField(max_length=15, unique=True)
+    recovery_key       = models.CharField(max_length=45, blank=True)
+    one_pass_token     = models.CharField(max_length=15, blank=True)
     one_pass_token_exp = models.DateTimeField(default=timezone.now)
     created_date       = models.DateTimeField(default=timezone.now)
 
-    def token_expire_check(self):
-        pass
+    def create_token(self, token):
+        self.one_pass_token = token
+        self.one_pass_token_exp = timezone.now()
+        self.save()
+
+    def is_token_expire(self):
+        five_minute_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(minutes=5)))
+        if self.one_pass_token_exp < five_minute_ago:
+            return True
+        return False
+    
+    def has_been_a_day(self):
+        one_day_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+        if self.created_date < one_day_ago:
+            return True
+        return False
 
 class Form(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)

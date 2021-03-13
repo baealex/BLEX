@@ -14,9 +14,10 @@ export const ERROR = {
     ALREADY_VERIFY: 'error:AV',
     ALREADY_UNSYNC: 'error:AU',
     ALREADY_EXISTS: 'error:AE',
+    NEED_TELEGRAM: 'error:NT',
     EMAIL_NOT_MATCH: 'error:EN',
     USERNAME_NOT_MATCH: 'error:UN',
-}
+};
 
 function serializeObject(obj: any) {
     return Object.keys(obj).reduce((acc, cur) => {
@@ -25,16 +26,6 @@ function serializeObject(obj: any) {
 }
 
 axios.defaults.withCredentials = true;
-
-export async function alive(cookie=undefined) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/login`,
-        method: 'GET',
-        headers: cookie ? {
-            'Cookie': cookie
-        } : {}
-    });
-}
 
 export async function getAllPosts(sort: string, page: number) {
     return await axios({
@@ -504,6 +495,7 @@ export interface SettingAccountData {
     username: string;
     realname: string;
     createdDate: string;
+    hasTwoFactorAuth: boolean;
 }
 
 export interface SettingProfileData {
@@ -561,6 +553,16 @@ export interface SettingRefererData {
 
 /* AUTH */
 
+export async function alive(cookie=undefined) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/login`,
+        method: 'GET',
+        headers: cookie ? {
+            'Cookie': cookie
+        } : {}
+    });
+}
+
 export async function login(username: string, password: string) {
     NProgress.start();
     try {
@@ -600,11 +602,38 @@ export async function signup(username: string, password: string, email: string, 
     });
 }
 
-export async function signDelete() {
+export async function deleteSign() {
     return await axios({
         url: `${Config.API_SERVER}/v1/signup`,
         method: 'DELETE',
         withCredentials: true,
+    });
+}
+
+export async function createTwoFactorAuth() {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/auth`,
+        method: 'POST',
+        withCredentials: true,
+    });
+}
+
+export async function deleteTwoFactorAuth() {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/auth`,
+        method: 'DELETE',
+        withCredentials: true,
+    });
+}
+
+export async function verifyTwoFactorAuth(authToken: string) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/auth/send`,
+        method: 'POST',
+        withCredentials: true,
+        data: serializeObject({
+            auth_token: authToken
+        })
     });
 }
 
