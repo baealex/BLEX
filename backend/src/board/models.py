@@ -212,6 +212,7 @@ class Post(models.Model):
     series        = models.ForeignKey('board.Series', on_delete=models.SET_NULL, null=True, blank=True)
     hide          = models.BooleanField(default=False)
     notice        = models.BooleanField(default=False)
+    advertise     = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
     likes         = models.ManyToManyField(User, through='PostLikes', related_name='like_posts', blank=True)
     tag           = models.CharField(max_length=50)
@@ -510,8 +511,12 @@ class SearchValue(models.Model):
         return self.value
 
 class RefererFrom(models.Model):
-    location = models.CharField(max_length=500, unique=True)
-    title = models.CharField(max_length=100, default='')
+    location     = models.CharField(max_length=500, unique=True)
+    title        = models.CharField(max_length=100, default='')
+    image        = models.CharField(max_length=500, default='')
+    description  = models.CharField(max_length=250, default='')
+    updated_date = models.DateTimeField(default=timezone.now)
+    created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.location
