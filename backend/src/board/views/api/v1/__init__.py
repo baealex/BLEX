@@ -882,7 +882,7 @@ def temp_posts(request):
 
     if request.method == 'POST':
         temps = TempPosts.objects.filter(author=request.user).count()
-        if temps >= 5:
+        if temps >= 20:
             return HttpResponse('error:OF')
         
         body = QueryDict(request.body)
