@@ -1,4 +1,3 @@
-import requests
 import datetime
 import random
 import time
@@ -520,6 +519,12 @@ class RefererFrom(models.Model):
 
     def __str__(self):
         return self.location
+    
+    def should_update(self):
+        one_month_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=30)))
+        if self.updated_date < one_month_ago:
+            return True
+        return False
 
 class Referer(models.Model):
     posts        = models.ForeignKey('board.PostAnalytics', related_name='referers', on_delete=models.CASCADE)

@@ -111,12 +111,13 @@ def create_referer(element, referer):
             referer_from = RefererFrom(location=referer)
             referer_from.save()
             referer_from.refresh_from_db()
-        if not referer_from.title:
+        if referer_from.should_update():
             def get_title():
                 response = requests.get(referer)
                 title = re.search(r'<title.*?>(.+?)</title>', response.text)
                 if title:
                     referer_from.title = title.group(1)
+                    referer_from.updated_date = timezone.now()
                     referer_from.save()
             sub_task_manager.append_task(get_title)
         Referer(
