@@ -22,13 +22,6 @@ class ConfigAdmin(admin.ModelAdmin):
     list_display = ['user', 'agree_email', 'agree_history', 'telegram_id', 'telegram_token', 'password_qna']
     actions = ['send_report']
 
-    def send_report(self, request, queryset):
-        pass
-        # updated_count = queryset.update(hide=True)
-        # self.message_user(request, str(updated_count) + '명에게 보고서 전송')
-    
-    send_report.short_description = '보고서 전송'
-
 @admin.register(TempPosts)
 class TempPostsAdmin(admin.ModelAdmin):
     list_display = ['id', 'author', 'title', 'token', 'created_date',]
@@ -108,9 +101,22 @@ class ProfileAdmin(admin.ModelAdmin):
 class RefererAdmin(admin.ModelAdmin):
     list_display = ['id', 'created_date', 'posts', 'referer_from']
 
+    def get_fieldsets(self, request, obj=None):
+        if request.user.is_superuser:
+            fieldsets = (
+                    (None, {
+                        'fields': (
+                            ('created_date'),
+                        )
+                    }),
+                )
+        else:
+            fieldsets = super().get_fieldsets(request, obj)
+        return fieldsets
+
 @admin.register(RefererFrom)
 class RefererFromAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'location']
+    list_display = ['id', 'title', 'updated_date', 'location',]
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
