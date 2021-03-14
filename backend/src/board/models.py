@@ -521,10 +521,20 @@ class RefererFrom(models.Model):
         return self.location
     
     def should_update(self):
+        created_date = self.created_date.strftime('%x%X')
+        updated_date = self.updated_date.strftime('%x%X')
+        if created_date == updated_date:
+            return True
+        
         one_month_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=30)))
         if self.updated_date < one_month_ago:
             return True
+        
         return False
+    
+    def save(self, *args, **kwargs):
+        self.updated_date = timezone.now()
+        super(RefererFrom, self).save(*args, **kwargs)
 
 class Referer(models.Model):
     posts        = models.ForeignKey('board.PostAnalytics', related_name='referers', on_delete=models.CASCADE)
