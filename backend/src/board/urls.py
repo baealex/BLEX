@@ -5,7 +5,6 @@ from django.views.generic import TemplateView
 
 from board.sitemaps import sitemaps
 from board.feeds import SitePostsFeed, UserPostsFeed
-# from board import views
 from board.views.api import v1 as api_v1
 
 # urlpatterns = [
