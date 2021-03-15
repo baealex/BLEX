@@ -394,22 +394,12 @@ def auth_github(code):
             pass
     return {'status': False}
 
-def auth_captcha_v2(response):
+def auth_hcaptcha(response):
     data = {
         'response': response,
-        'secret': settings.GOOGLE_RECAPTCHA_V2_SECRET_KEY
+        'secret': settings.HCHAPTCHA_SECRET_KEY
     }
-    response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-    if response.json().get('success'):
-        return True
-    return False
-
-def auth_captcha_v3(response):
-    data = {
-        'response': response,
-        'secret': settings.GOOGLE_RECAPTCHA_V3_SECRET_KEY
-    }
-    response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+    response = requests.post('https://hcaptcha.com/siteverify', data=data)
     if response.json().get('success'):
         return True
     return False

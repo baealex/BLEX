@@ -644,7 +644,7 @@ export async function getVerifyToken(token: string) {
     });
 }
 
-export async function postVerifyToken(token: string, gctoken: string | undefined) {
+export async function postVerifyToken(token: string, hctoken?: string) {
     return await axios({
         url: `${Config.API_SERVER}/v1/users/verify/${token}`,
         method: 'POST',
@@ -652,7 +652,7 @@ export async function postVerifyToken(token: string, gctoken: string | undefined
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         data: serializeObject({
-            gctoken
+            hctoken
         }),
         withCredentials: true,
     });

@@ -288,11 +288,11 @@ def verify_token(request, token):
             return HttpResponse('error:EP')
         return HttpResponse(user.first_name)
     if request.method == 'POST':
-        if settings.GOOGLE_RECAPTCHA_V2_SECRET_KEY:
-            gctoken = request.POST.get('gctoken', '')
-            if not gctoken:
+        if settings.HCHAPTCHA_SECRET_KEY:
+            hctoken = request.POST.get('hctoken', '')
+            if not hctoken:
                 return HttpResponse('error:RJ')
-            if not fn.auth_captcha_v2(gctoken):
+            if not fn.auth_hcaptcha(hctoken):
                 return HttpResponse('error:RJ')
         
         user.is_active = True

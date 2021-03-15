@@ -1,6 +1,6 @@
 interface FooterProps {
-    bgdark: boolean;
-    children: JSX.Element;
+    bgdark?: boolean;
+    children?: JSX.Element;
 };
 
 export default function Footer(props: FooterProps) {

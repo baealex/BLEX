@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hcaptcha/react-hcaptcha": "^0.3.5",
     "axios": "^0.21.1",
     "frappe-charts": "^1.5.7",
     "next": "^10.0.8",
@@ -21,6 +22,7 @@
     "remarkable": "^2.0.1"
   },
   "devDependencies": {
+    "@types/hcaptcha__react-hcaptcha": "^0.1.4",
     "@types/node": "^14.14.33",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.1",
