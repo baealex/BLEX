@@ -66,6 +66,7 @@ class Write extends React.Component {
         this.preview = undefined;
         this.thumbnail = undefined;
         this.saveTimer = undefined;
+        this.contentInput = undefined;
     }
 
     /* Component Method */
@@ -178,9 +179,14 @@ class Write extends React.Component {
     async onImageDrop(e) {
         const link = await dropImage(e);
         if(link) {
-            const doc = this.state.editor.getDoc();
             const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
-            doc.replaceRange(imageMd, doc.getCursor());
+            const cursorPos = this.contentInput.textarea.selectionStart;
+            const text = this.state.text;
+            const preText = text.substr(0, cursorPos);
+            const endText = text.substr(cursorPos, text.length - 1);
+            this.setState({
+                text: preText + '\n' + imageMd + '\n' + endText
+            });
         }
     }
 
@@ -330,8 +336,12 @@ class Write extends React.Component {
         const link = await uploadImage(image);
         if(link) {
             const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
+            const cursorPos = this.contentInput.textarea.selectionStart;
+            const text = this.state.text;
+            const preText = text.substr(0, cursorPos);
+            const endText = text.substr(cursorPos, text.length - 1);
             this.setState({
-                text: this.state.text += '\n' + imageMd + '\n'
+                text: preText + '\n' + imageMd + '\n' + endText
             });
         }
     }
@@ -398,7 +408,7 @@ class Write extends React.Component {
 
                 <div className="container">
                     <div className="row justify-content-center">
-                        <div className="col-lg-8">
+                        <div className="col-lg-8" onDrop={(e) => this.onImageDrop(e)}>
                             <EditorTitle
                                 title={this.state.title}
                                 onChange={(e) => this.setState({
@@ -406,6 +416,7 @@ class Write extends React.Component {
                                 })}
                             />
                             <EditorContent
+                                ref={el => this.contentInput = el}
                                 text={this.state.text}
                                 isEdit={this.state.isEdit}
                                 onChange={(e) => this.onEditorChange(e.target.value)}
