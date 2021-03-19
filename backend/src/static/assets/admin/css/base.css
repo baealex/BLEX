@@ -4,6 +4,10 @@
 
 @import url(fonts.css);
 
+html, body {
+    height: 100%;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -16,12 +20,12 @@ body {
 /* LINKS */
 
 a:link, a:visited {
-    color: #9b59b6;
+    color: #447e9b;
     text-decoration: none;
 }
 
 a:focus, a:hover {
-    color: #8c00ff;
+    color: #036;
 }
 
 a:focus {
@@ -94,7 +98,7 @@ h5 {
     letter-spacing: 1px;
 }
 
-ul li {
+ul > li {
     list-style-type: square;
     padding: 1px 0;
 }
@@ -124,6 +128,7 @@ form {
 
 fieldset {
     margin: 0;
+    min-width: 0;
     padding: 0;
     border: none;
     border-top: 1px solid #eee;
@@ -141,6 +146,7 @@ code, pre {
     font-family: "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace;
     color: #666;
     font-size: 12px;
+    overflow-x: auto;
 }
 
 pre.literal-block {
@@ -171,20 +177,8 @@ hr {
     font-size: 11px;
 }
 
-.tiny {
-    font-size: 10px;
-}
-
-p.tiny {
-    margin-top: -2px;
-}
-
 .mini {
     font-size: 10px;
-}
-
-p.mini {
-    margin-top: -3px;
 }
 
 .help, p.help, form p.help, div.help, form div.help, div.help li {
@@ -209,30 +203,8 @@ p img, h1 img, h2 img, h3 img, h4 img, td img {
     font-weight: normal;
 }
 
-.float-right {
-    float: right;
-}
-
-.float-left {
-    float: left;
-}
-
 .clear {
     clear: both;
-}
-
-.align-left {
-    text-align: left;
-}
-
-.align-right {
-    text-align: right;
-}
-
-.example {
-    margin: 10px 0;
-    padding: 5px 10px;
-    background: #efefef;
 }
 
 .nowrap {
@@ -284,11 +256,14 @@ tr.alt {
     background: #f6f6f6;
 }
 
-.row1 {
+tr:nth-child(odd), .row-form-errors {
     background: #fff;
 }
 
-.row2 {
+tr:nth-child(even),
+tr:nth-child(even) .errorlist,
+tr:nth-child(odd) + .row-form-errors,
+tr:nth-child(odd) + .row-form-errors .errorlist {
     background: #f9f9f9;
 }
 
@@ -441,13 +416,15 @@ select {
 }
 
 select[multiple] {
+    /* Allow HTML size attribute to override the height in the rule above. */
+    height: auto;
     min-height: 150px;
 }
 
 /* FORM BUTTONS */
 
 .button, input[type=submit], input[type=button], .submit-row input, a.button {
-    background: #515199;
+    background: #79aec8;
     padding: 10px 15px;
     border: none;
     border-radius: 4px;
@@ -462,7 +439,7 @@ a.button {
 .button:active, input[type=submit]:active, input[type=button]:active,
 .button:focus, input[type=submit]:focus, input[type=button]:focus,
 .button:hover, input[type=submit]:hover, input[type=button]:hover {
-    background: #706fd3;
+    background: #609ab6;
 }
 
 .button[disabled], input[type=submit][disabled], input[type=button][disabled] {
@@ -473,13 +450,13 @@ a.button {
     float: right;
     border: none;
     font-weight: 400;
-    background: #474787;
+    background: #417690;
 }
 
 .button.default:active, input[type=submit].default:active,
 .button.default:focus, input[type=submit].default:focus,
 .button.default:hover, input[type=submit].default:hover {
-    background: #706fd3;
+    background: #205067;
 }
 
 .button[disabled].default,
@@ -520,7 +497,7 @@ input[type=button][disabled].default {
     font-weight: 400;
     font-size: 13px;
     text-align: left;
-    background: #706fd3;
+    background: #79aec8;
     color: #fff;
 }
 
@@ -618,22 +595,9 @@ td ul.errorlist li {
     padding-left: 0;
 }
 
-.errors input, .errors select, .errors textarea {
+.errors input, .errors select, .errors textarea,
+td ul.errorlist + input, td ul.errorlist + select, td ul.errorlist + textarea {
     border: 1px solid #ba2121;
-}
-
-div.system-message {
-    background: #ffc;
-    margin: 10px;
-    padding: 6px 8px;
-    font-size: .8em;
-}
-
-div.system-message p.system-message-title {
-    padding: 4px 5px 4px 25px;
-    margin: 0;
-    color: #c11;
-    background: #ffefef url(../img/icon-no.svg) 5px 5px no-repeat;
 }
 
 .description {
@@ -644,23 +608,28 @@ div.system-message p.system-message-title {
 /* BREADCRUMBS */
 
 div.breadcrumbs {
-    background: #515199;
+    background: #79aec8;
     padding: 10px 40px;
     border: none;
     font-size: 14px;
-    color: #fd0;
+    color: #c4dce8;
     text-align: left;
 }
 
 div.breadcrumbs a {
-    color: #ffffff;
+    color: #fff;
 }
 
 div.breadcrumbs a:focus, div.breadcrumbs a:hover {
-    color: #fd0;
+    color: #c4dce8;
 }
 
 /* ACTION ICONS */
+
+.viewlink, .inlineviewlink {
+    padding-left: 16px;
+    background: url(../img/icon-viewlink.svg) 0 1px no-repeat;
+}
 
 .addlink {
     padding-left: 16px;
@@ -729,7 +698,7 @@ a.deletelink:focus, a.deletelink:hover {
 }
 
 .object-tools a:focus, .object-tools a:hover {
-    background-color: #515199;
+    background-color: #417690;
 }
 
 .object-tools a:focus{
@@ -767,6 +736,23 @@ table#change-history tbody th {
     width: 100%;
     min-width: 980px;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#container > div {
+    flex-shrink: 0;
+}
+
+#container > .main {
+    display: flex;
+    flex: 1 0 auto;
+}
+
+.main > .content {
+    flex:  1 0;
+    max-width: 100%;
 }
 
 #content {
@@ -822,10 +808,12 @@ table#change-history tbody th {
 
 #header {
     width: auto;
-    height: 40px;
+    height: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px 40px;
-    background: #474787;
-    line-height: 40px;
+    background: #417690;
     color: #ffc;
     overflow: hidden;
 }
@@ -883,8 +871,8 @@ table#change-history tbody th {
 
 #user-tools a:focus, #user-tools a:hover {
     text-decoration: none;
-    border-bottom-color: #fd0;
-    color: #fd0;
+    border-bottom-color: #79aec8;
+    color: #79aec8;
 }
 
 /* SIDEBAR */
