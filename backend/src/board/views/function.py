@@ -397,7 +397,7 @@ def auth_github(code):
 def auth_hcaptcha(response):
     data = {
         'response': response,
-        'secret': settings.HCHAPTCHA_SECRET_KEY
+        'secret': settings.HCAPTCHA_SECRET_KEY
     }
     response = requests.post('https://hcaptcha.com/siteverify', data=data)
     if response.json().get('success'):
