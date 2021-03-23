@@ -42,7 +42,6 @@ def login(request):
             result = {
                 'username': request.user.username,
                 'notify_count': notify.count(),
-                'asdasd': 'asdasd111'
             }
             return CamelizeJsonResponse(result)
         return HttpResponse('dead')
@@ -281,15 +280,17 @@ def signup(request):
 
 def verify_token(request, token):
     user = get_object_or_404(User, last_name='email:' + token)
-    if user.is_active:
-        return HttpResponse('error:AV')
     
     if request.method == 'GET':
-        if user.date_joined < timezone.now() - datetime.timedelta(days=7):
-            return HttpResponse('error:EP')
         return HttpResponse(user.first_name)
     
     if request.method == 'POST':
+        if user.is_active:
+            return HttpResponse('error:AV')
+
+        if user.date_joined < timezone.now() - datetime.timedelta(days=7):
+            return HttpResponse('error:EP')
+        
         if settings.HCAPTCHA_SECRET_KEY:
             hctoken = request.POST.get('hctoken', '')
             if not hctoken:
@@ -311,7 +312,11 @@ def verify_token(request, token):
             '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
 
         auth.login(request, user)
-        return HttpResponse('DONE')
+        return CamelizeJsonResponse({
+            'status': 'DONE',
+            'username': username,
+            'notify_count': 1
+        })
 
 def tags(request, tag=None):
     if not tag:
