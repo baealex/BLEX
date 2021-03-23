@@ -314,7 +314,7 @@ def verify_token(request, token):
         auth.login(request, user)
         return CamelizeJsonResponse({
             'status': 'DONE',
-            'username': username,
+            'username': user.username,
             'notify_count': 1
         })
 
