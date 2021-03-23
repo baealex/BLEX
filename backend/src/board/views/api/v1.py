@@ -283,12 +283,14 @@ def verify_token(request, token):
     user = get_object_or_404(User, last_name='email:' + token)
     if user.is_active:
         return HttpResponse('error:AV')
+    
     if request.method == 'GET':
         if user.date_joined < timezone.now() - datetime.timedelta(days=7):
             return HttpResponse('error:EP')
         return HttpResponse(user.first_name)
+    
     if request.method == 'POST':
-        if settings.HCHAPTCHA_SECRET_KEY:
+        if settings.HCAPTCHA_SECRET_KEY:
             hctoken = request.POST.get('hctoken', '')
             if not hctoken:
                 return HttpResponse('error:RJ')
@@ -308,6 +310,7 @@ def verify_token(request, token):
         fn.create_notify(user=user, url='/notion', infomation=user.first_name + (
             '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
 
+        auth.login(request, user)
         return HttpResponse('DONE')
 
 def tags(request, tag=None):
