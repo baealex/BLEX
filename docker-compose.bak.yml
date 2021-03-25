@@ -1,0 +1,21 @@
+version: "2.0"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    ports:
+      - 20011:3000
+  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    restart: always
+    environment:
+      TZ: "Asia/Seoul"
+    volumes:
+      - ./backend/src/:/app/
+    ports:
+      - 20012:9000
