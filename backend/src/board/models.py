@@ -533,7 +533,7 @@ class RefererFrom(models.Model):
         return False
     
     def save(self, *args, **kwargs):
-        self.updated_date = timezone.now()
+        self.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() + datetime.timedelta(minutes=1)))
         super(RefererFrom, self).save(*args, **kwargs)
 
 class Referer(models.Model):
