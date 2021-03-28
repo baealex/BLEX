@@ -532,9 +532,9 @@ class RefererFrom(models.Model):
         
         return False
     
-    def save(self, *args, **kwargs):
+    def update(self):
         self.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() + datetime.timedelta(minutes=1)))
-        super(RefererFrom, self).save(*args, **kwargs)
+        self.save()
 
 class Referer(models.Model):
     posts        = models.ForeignKey('board.PostAnalytics', related_name='referers', on_delete=models.CASCADE)

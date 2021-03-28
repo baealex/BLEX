@@ -117,7 +117,7 @@ def create_referer(element, referer):
                 title = re.search(r'<title.*?>(.+?)</title>', response.text)
                 if title:
                     referer_from.title = title.group(1)
-                referer_from.save()
+                referer_from.update()
             sub_task_manager.append_task(get_title)
         Referer(
             posts = today_analytics,
