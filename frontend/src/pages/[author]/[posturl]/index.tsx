@@ -405,8 +405,8 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     onEdit() {
-        const { url } = this.props.post;
-        Router.push(`/edit?id=${url}`);
+        const { author, url } = this.props.post;
+        Router.push(`/@${author}/${url}/edit`);
     }
 
     async onDelete() {

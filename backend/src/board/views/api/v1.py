@@ -450,6 +450,7 @@ def user_posts(request, username, url=None):
                 post.image = request.FILES['image']
             except:
                 pass
+            
             post.tag = fn.get_clean_tag(request.POST.get('tag', ''))[:50]
             post.url = slugify(post.title, allow_unicode=True)
             if post.url == '':
@@ -507,6 +508,30 @@ def user_posts(request, username, url=None):
                     'is_liked': post.likes.filter(id=request.user.id).exists()
                 })
 
+    if request.method == 'POST':
+        fn.compere_user(request.user, post.author, give_404_if='different')
+        post.title = request.POST.get('title', '')
+        post.text_md = request.POST.get('text_md', '')
+        post.text_html = request.POST.get('text_html', '')
+        post.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+
+        try:
+            series_url = request.POST.get('series', '')
+            if series_url:
+                series = Series.objects.get(owner=request.user, url=series_url)
+                post.series = series
+        except:
+            pass
+        
+        try:
+            post.image = request.FILES['image']
+        except:
+            pass
+
+        post.tag = fn.get_clean_tag(request.POST.get('tag', ''))
+        post.save()
+        return HttpResponse('DONE')
+
     if request.method == 'PUT':
         put = QueryDict(request.body)
         if request.GET.get('like', ''):
@@ -535,24 +560,6 @@ def user_posts(request, username, url=None):
         if request.GET.get('series', ''):
             fn.compere_user(request.user, post.author, give_404_if='different')
             post.series = None
-            post.save()
-            return HttpResponse('DONE')
-        if request.GET.get('edit', ''):
-            fn.compere_user(request.user, post.author, give_404_if='different')
-            post.title = put.get('title', '')
-            post.text_md = put.get('text_md', '')
-            post.text_html = put.get('text_html', '')
-            post.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
-
-            try:
-                series_url = put.get('series', '')
-                if series_url:
-                    series = Series.objects.get(owner=request.user, url=series_url)
-                    post.series = series
-            except:
-                pass
-
-            post.tag = fn.get_clean_tag(put.get('tag', ''))
             post.save()
             return HttpResponse('DONE')
     

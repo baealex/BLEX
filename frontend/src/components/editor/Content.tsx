@@ -7,24 +7,34 @@ import {
 } from '@modules/lazy';
 
 interface Props {
-    text: string;
-    isEdit: boolean;
+    value: string;
     onChange: Function;
+    isEditMode: boolean;
 }
 
 class EditorContent extends React.Component<Props> {
-    private textarea: HTMLTextAreaElement | null;
+    public textarea: HTMLTextAreaElement | null;
 
     constructor(props: Props) {
         super(props);
         this.textarea = null;
     }
 
+    componentDidMount() {
+        const init = setInterval(() => {
+            if(this.textarea) {
+                this.textarea.style.height = this.textarea.scrollHeight + 'px';
+                clearInterval(init);
+            }
+        }, 100);
+    }
+
     componentDidUpdate() {
         if(this.textarea) {
             this.textarea.style.height = this.textarea.scrollHeight + 'px';
         }
-        if(!this.props.isEdit) {
+
+        if(!this.props.isEditMode) {
             lazyLoadResource();
         }
     }
@@ -32,11 +42,13 @@ class EditorContent extends React.Component<Props> {
     render() {
         return (
             <>
-                {this.props.isEdit ? (
+                {this.props.isEditMode ? (
                     <>
                         <textarea
+                            id="teatarea"
                             ref={el => this.textarea = el}
-                            value={this.props.text} placeholder="마크다운으로 글을 작성하세요."
+                            value={this.props.value}
+                            placeholder="마크다운으로 글을 작성하세요."
                             onChange={(e) => this.props.onChange(e)}
                         />
                         <style jsx>{`
@@ -63,7 +75,7 @@ class EditorContent extends React.Component<Props> {
                     </>
                 ) : (
                     <>
-                        <ArticleContent html={blexer(this.props.text)}/>
+                        <ArticleContent html={blexer(this.props.value)}/>
                     </>
                 )}
             </>

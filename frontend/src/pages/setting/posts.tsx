@@ -170,7 +170,7 @@ export default function Setting(props: Props) {
                                 {post.isHide ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>}
                             </li>
                             <li className="c-pointer">
-                                <Link href={`/edit?id=${post.url}`}>
+                                <Link href="/[author]/[posturl]/edit" as={`/@${props.username}/${post.url}/edit`}>
                                     <i className="far fa-edit"></i>
                                 </Link>
                             </li>

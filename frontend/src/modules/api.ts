@@ -131,6 +131,18 @@ export async function postPost(author: string, data: FormData) {
     });
 }
 
+export async function editPost(author: string, url: string, data: FormData) {
+    return await axios({
+        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data,
+        withCredentials: true,
+    });
+}
+
 export async function putPost(author: string, url: string, item='', data={}) {
     return await axios({
         url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${serializeObject({[item]: item})}`,
@@ -553,7 +565,7 @@ export interface SettingRefererData {
 
 /* AUTH */
 
-export async function alive(cookie=undefined) {
+export async function alive(cookie='') {
     return await axios({
         url: `${Config.API_SERVER}/v1/login`,
         method: 'GET',

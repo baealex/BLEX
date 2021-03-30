@@ -1,5 +1,5 @@
 interface Props {
-    title: string;
+    value: string;
     onChange: Function;
 };
 
@@ -11,7 +11,7 @@ export default function EditorTitle(props: Props) {
                 className="noto"
                 placeholder="제목을 입력하세요."
                 maxLength={50}
-                value={props.title}
+                value={props.value}
                 onChange={(e) => props.onChange(e)}
             />
             <style jsx>{`

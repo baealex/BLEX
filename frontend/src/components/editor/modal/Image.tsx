@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from 'react';
+import { useState } from 'react';
 
 import Modal from '@components/modal/Modal';
 import ModalContent from '@components/modal/Content';
@@ -25,7 +25,7 @@ export default function TempArticleModal(props: Props) {
                     title="이미지 선택"
                     name="image"
                     imageName={imagePath}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         const { files } = e.target;
 
                         if(files) {

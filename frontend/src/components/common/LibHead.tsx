@@ -18,7 +18,7 @@ export default function LibHead() {
                 href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
                 integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
                 crossOrigin="anonymous"/>
-            {Config.GOOGLE_ANALYTICS_V4 ? (
+            {Config.GOOGLE_ANALYTICS_V4 && (
                 <>
                     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>
                     <script dangerouslySetInnerHTML={{ __html: minify(`
@@ -30,8 +30,8 @@ export default function LibHead() {
                         gtag('config', '${Config.GOOGLE_ANALYTICS_V4}');
                     `)}}/>
                 </>
-            ) : ''}
-            {Config.MICROSOFT_CLARITY ? (
+            )}
+            {Config.MICROSOFT_CLARITY && (
                 <script dangerouslySetInnerHTML={{ __html: minify(`
                     (function(c, l, a, r, i, t, y) {
                         c[a] = c[a] || function() {
@@ -44,7 +44,7 @@ export default function LibHead() {
                         y.parentNode.insertBefore(t,y);
                     })(window, document, "clarity", "script", "${Config.MICROSOFT_CLARITY}");
                 `)}}/>
-            ): ''}
+            )}
         </Head>
     )
 }
