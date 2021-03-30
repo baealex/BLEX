@@ -232,7 +232,7 @@ export default function Setting(props: Props) {
                                 />
                                 <ul>
                                     {analytics[apNow].referers.map((item: any, idx: number) => (
-                                        <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.from}</a></li>
+                                        <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a></li>
                                     ))}
                                 </ul>
                             </>
