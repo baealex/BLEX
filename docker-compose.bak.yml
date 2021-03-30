@@ -15,6 +15,7 @@ services:
     restart: always
     environment:
       TZ: "Asia/Seoul"
+      LANG: "C.UTF-8"
     volumes:
       - ./backend/src/:/app/
     ports:

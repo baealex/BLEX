@@ -9,7 +9,30 @@ import * as API from '@modules/api';
 import blexer from '@modules/blexer';
 import Global from '@modules/global';
 
-interface Props {};
+import { GetServerSidePropsContext } from 'next';
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+    const raise = require('@modules/raise');
+
+    const { req, res } = context;
+    
+    const cookie = req.headers.cookie;
+    const { data } = await API.alive(cookie);
+
+    if(data == 'dead') {
+        raise.Http404(res);
+    }
+    
+    return {
+        props: {
+            username: data.username
+        }
+    };
+}
+
+interface Props {
+    username: string;
+};
 
 interface State {
     username: string;
@@ -42,10 +65,10 @@ interface State {
 class Write extends React.Component<Props, State> {
     private saveTimer: any;
 
-    constructor(props: {}) {
+    constructor(props: Props) {
         super(props);
         this.state = {
-            username: Global.state.username,
+            username: props.username,
             title: '',
             content: '',
             tags: '',
@@ -68,40 +91,21 @@ class Write extends React.Component<Props, State> {
     /* Component Method */
 
     async componentDidMount() {
-        const sleep = (ms: number) => {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        let forceBreakCounter = 0;
-        while(true) {
-            await sleep(10);
-            if(forceBreakCounter > 50 || this.state.username != '') {
-                break;
-            }
-            forceBreakCounter++;
-        }
-
-        const { username } = this.state;
-
-        if(username == '') {
-            Router.back();
-        } else {
-            const { series } = (await API.getSetting('', 'series')).data;
-            this.setState({
-                seriesArray: series
-            });
+        const { series } = (await API.getSetting('', 'series')).data;
+        this.setState({
+            seriesArray: series
+        });
     
-            const { data } = await API.getAllTempPosts();
-            if(data.result.length > 0) {
-                this.setState({
-                    tempPosts: data.result
-                });
-                toast('😀 작성하던 포스트가 있으시네요!', {
-                    onClick: () => {
-                        this.setState({isOpenArticleModal: true});
-                    }
-                });
-            }
+        const { data } = await API.getAllTempPosts();
+        if(data.result.length > 0) {
+            this.setState({
+                tempPosts: data.result
+            });
+            toast('😀 작성하던 포스트가 있으시네요!', {
+                onClick: () => {
+                    this.setState({isOpenArticleModal: true});
+                }
+            });
         }
     }
 

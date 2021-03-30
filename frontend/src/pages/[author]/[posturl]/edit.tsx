@@ -10,20 +10,32 @@ import blexer from '@modules/blexer'
 import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const cookie = context.req.headers.cookie;
+    const raise = require('@modules/raise');
 
+    const { req, res } = context;
     const { author = '', posturl = '' } = context.query;
-    const posts = (await API.getPost(author as string, posturl as string, 'edit', cookie)).data;
-    const { series } = (await API.getSetting(cookie, 'series')).data;
 
-    return {
-        props: {
-            posturl: posturl,
-            username: author,
-            seriesArray: series,
-            ...posts
-        }
-    };
+    if(!author.includes('@') || !posturl) {
+        raise.Http404(res);
+    }
+
+    try {
+        const cookie = req.headers.cookie;
+        
+        const posts = (await API.getPost(author as string, posturl as string, 'edit', cookie)).data;
+        const { series } = (await API.getSetting(cookie, 'series')).data;
+    
+        return {
+            props: {
+                posturl: posturl,
+                username: author,
+                seriesArray: series,
+                ...posts
+            }
+        };
+    } catch(error) {
+        raise.auto(error.response.status, res);
+    }
 }
 
 interface PostsEditData {
