@@ -240,7 +240,7 @@ class Post(models.Model):
         return self.comments.count()
     
     def description(self, count=25):
-        return truncatewords(strip_tags(self.text_html), count)
+        return truncatewords(strip_tags(self.text_html), count)[:200]
     
     def description_tag(self, count=25):
         return self.description(count)[:120]

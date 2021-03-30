@@ -18,7 +18,7 @@ export default function ArticleCard(props: ArticelCardProps) {
         <div className="profile-post">
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                 <a>
-                    <img src={props.image}/>
+                    {!props.image.includes('default') && <img src={props.image}/>}
                 </a>
             </Link>
             <h4 className="card-title noto font-weight-bold mt-3">

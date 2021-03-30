@@ -5,6 +5,7 @@ export interface ArticleCardProps {
     url: string;
     image: string;
     title: string;
+    description?: string;
     authorImage: string;
     createdDate: string;
     readTime: number;
@@ -13,26 +14,31 @@ export interface ArticleCardProps {
 export default function ArticleCard(props: ArticleCardProps) {
     return (
         <div className="col-lg-4 mt-4">
-            <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                <a className="deep-dark">
-                    <img className="list-image" src={props.image}/>
-                </a>
-            </Link>
-            <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                <a className="deep-dark">
-                    <h5 className="card-title noto font-weight-bold mt-3">
-                        {props.title}
-                    </h5>
-                </a>
-            </Link>
-            <Link href="/[author]" as={`/@${props.author}`}>
-                <a>
-                    <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.authorImage})`}}/>
-                </a>
-            </Link>
-            <p className="vs noto">
-                <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
-            </p>
+            <div className="blex-card">
+                <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                    <a className="deep-dark">
+                        <img className="list-image mobile-disable" src={props.image}/>
+                    </a>
+                </Link>
+                <div className="p-2">
+                    <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                        <a className="deep-dark">
+                            <h5 className="card-title noto font-weight-bold mt-3">
+                                {props.title}
+                            </h5>
+                            <p className="noto">{props.description}</p>
+                        </a>
+                    </Link>
+                    <Link href="/[author]" as={`/@${props.author}`}>
+                        <a>
+                            <div className="back-image thumb list-thumb" style={{backgroundImage: `url(${props.authorImage})`}}/>
+                        </a>
+                    </Link>
+                    <p className="vs noto">
+                        <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
+                    </p>
+                </div>
+            </div>
         </div>
     )
 }

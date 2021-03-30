@@ -389,6 +389,7 @@ def posts(request, sort):
                 'url': post.url,
                 'title': post.title,
                 'image': post.get_thumbnail(),
+                'description': post.description(),
                 'read_time': post.read_time(),
                 'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
                 'author_image': post.author.profile.get_thumbnail(),
