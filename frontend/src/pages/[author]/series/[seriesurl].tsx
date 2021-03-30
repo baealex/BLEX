@@ -7,6 +7,7 @@ import Modal from '@components/modal/Modal';
 import ModalContent from '@components/modal/Content';
 import ModalButton from '@components/modal/Button';
 import SeriesDesc from '@components/series/SeriesDesc';
+import ArticleCard from '@components/profile/Series/ArticleCard';
 
 import { toast } from 'react-toastify';
 
@@ -33,12 +34,14 @@ interface State {
     seriesTitle: string;
     seriesDescription: string;
     seriesPosts: Posts[];
-    isSereisModalOpen: boolean;
+    isSeriesModalOpen: boolean;
+    isSeriesReverse: boolean;
 };
 
 interface Posts {
     url: string;
     title: string;
+    readTime: number;
     description: string;
     createdDate: string;
 }
@@ -73,7 +76,8 @@ class Series extends React.Component<Props, State> {
             seriesTitle: props.series.title,
             seriesDescription: props.series.description,
             seriesPosts: props.series.posts,
-            isSereisModalOpen: false
+            isSeriesModalOpen: false,
+            isSeriesReverse: false
         }
         Global.appendUpdater('Series', () => this.setState({
             isLogin: Global.state.isLogin,
@@ -95,13 +99,13 @@ class Series extends React.Component<Props, State> {
         }
     }
 
-    onOpenModal(modalName: 'isSereisModalOpen') {
+    onOpenModal(modalName: 'isSeriesModalOpen') {
         this.setState({
             [modalName]: true
         });
     }
 
-    onCloseModal(modalName: 'isSereisModalOpen') {
+    onCloseModal(modalName: 'isSeriesModalOpen') {
         this.setState({
             [modalName]: false
         });
@@ -128,7 +132,7 @@ class Series extends React.Component<Props, State> {
             if(data !== this.props.series.url) {
                 Router.replace('/[author]/series/[seriesurl]', `/@${this.state.username}/series/${data}`);
             }
-            this.onCloseModal('isSereisModalOpen');
+            this.onCloseModal('isSeriesModalOpen');
             toast('😀 시리즈가 업데이트 되었습니다.');
         } else {
             toast('😯 변경중 오류가 발생했습니다.');
@@ -161,7 +165,7 @@ class Series extends React.Component<Props, State> {
         } = this.state;
 
         const SereisModal = this.props.series.author == this.state.username ? (
-            <Modal title="시리즈 수정" isOpen={this.state.isSereisModalOpen} close={() => this.onCloseModal('isSereisModalOpen')}>
+            <Modal title="시리즈 수정" isOpen={this.state.isSeriesModalOpen} close={() => this.onCloseModal('isSeriesModalOpen')}>
                 <ModalContent>
                     <>
                         <div className="input-group mb-3 mr-sm-2 mt-3">
@@ -204,6 +208,10 @@ class Series extends React.Component<Props, State> {
             </Modal>
         ) : '';
 
+        const {
+            isSeriesReverse
+        } = this.state;
+
         return (
             <>
                 <Head>
@@ -228,23 +236,37 @@ class Series extends React.Component<Props, State> {
                             </Link>
                             {this.props.series.author == this.state.username ? (
                                 <div className="mb-3">
-                                    <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSereisModalOpen')}>시리즈 수정</div>
+                                    <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSeriesModalOpen')}>시리즈 수정</div>
                                 </div>
                             ) : ''}
                             <SeriesDesc {...this.props.series} description={this.state.seriesDescription}/>
-                            {seriesPosts.map((post, idx) => (
-                                <div key={idx} className="mb-5">
-                                    <h5 className="card-title noto font-weight-bold">
-                                        <Link href="/[author]/[posturl]" as={`/@${this.props.series.author}/${post.url}`}>
-                                            <a className="deep-dark">{idx + 1}. {post.title}</a>
-                                        </Link>
-                                    </h5>
-                                    <p>
-                                        <Link href="/[author]/[posturl]" as={`/@${this.props.series.author}/${post.url}`}>
-                                            <a className="shallow-dark noto">{post.description}</a>
-                                        </Link>
-                                    </p>
+                            <div className="mt-5 mb-3 text-right">
+                                <div className="btn btn-dark noto m-1" onClick={() => this.setState({isSeriesReverse: !isSeriesReverse})}>
+                                    {isSeriesReverse ? (
+                                        <>
+                                            <i className="fas fa-sort-down"/> 최근부터
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fas fa-sort-up"/> 과거부터
+                                        </>
+                                    )}
                                 </div>
+                            </div>
+                            {isSeriesReverse ? seriesPosts.map((post, idx) => (
+                                <ArticleCard
+                                    key={idx}
+                                    idx={idx}
+                                    author={this.props.series.author}
+                                    {...post}
+                                />
+                            )).reverse() : seriesPosts.map((post, idx) => (
+                                <ArticleCard
+                                    key={idx}
+                                    idx={idx}
+                                    author={this.props.series.author}
+                                    {...post}
+                                />
                             ))}
                         </div>
                     </div>

@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 import PageNav from '@components/common/PageNav';
 import Profile from '@components/profile/Profile';
-import SeriesComponent from '@components/profile/Series';
+import SeriesCard from '@components/profile/Series/SeriesCard';
 import PurpleBorder from '@components/common/PurpleBorder';
 
 import * as API from '@modules/api'
@@ -63,7 +63,7 @@ class Series extends React.Component {
                 </Head>
 
                 <Profile active="series" profile={this.props.profile.profile} social={this.props.profile.social}/>
-                <SeriesComponent series={this.props.series.series}>
+                <SeriesCard series={this.props.series.series}>
                     <div className="container">
                         <div className="col-lg-8 mx-auto">
                             {this.props.series.series.length > 0 ? '' : (
@@ -75,7 +75,7 @@ class Series extends React.Component {
                             />
                         </div>
                     </div>
-                </SeriesComponent>
+                </SeriesCard>
             </>
         )
     }
