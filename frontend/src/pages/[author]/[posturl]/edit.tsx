@@ -10,13 +10,13 @@ import blexer from '@modules/blexer'
 import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const raise = require('@modules/raise');
-
-    const { req, res } = context;
+    const { req } = context;
     const { author = '', posturl = '' } = context.query;
 
     if(!author.includes('@') || !posturl) {
-        raise.Http404(res);
+        return {
+            notFound: true
+        };
     }
 
     try {
@@ -34,7 +34,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             }
         };
     } catch(error) {
-        raise.auto(error.response.status, res);
+        return {
+            notFound: true
+        };
     }
 }
 

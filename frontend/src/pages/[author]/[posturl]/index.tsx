@@ -88,17 +88,18 @@ interface SeriesPosts {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const raise = require('@modules/raise');
-
-    const { req, res } = context;
+    const { req } = context;
     const { author = '', posturl = '' } = context.query;
-
+    
     if(!author.includes('@') || !posturl) {
-        raise.Http404(res);
+        return {
+            notFound: true
+        };
     }
 
     const cookie = req.headers.cookie;
 
+    console.log('tt');
     try {
         const post = await API.getPost(author as string, posturl as string, 'view', cookie);
 
@@ -135,7 +136,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             profile: profile.data
         }};
     } catch(error) {
-        raise.auto(error.response.status, res);
+        return {
+            notFound: true
+        };
     }
 }
 

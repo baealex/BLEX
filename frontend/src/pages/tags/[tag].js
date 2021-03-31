@@ -9,8 +9,6 @@ import Title from '@components/common/Title';
 import * as API from '@modules/api';
 
 export async function getServerSideProps(context) {
-    const raise = require('@modules/raise');
-
     const { tag } = context.query;
 
     let { page } = context.query;
@@ -25,7 +23,9 @@ export async function getServerSideProps(context) {
             }
         }
     } catch(error) {
-        raise.auto(error.response.status, context.res);
+        return {
+            notFound: true
+        };
     }
 }
 

@@ -8,8 +8,6 @@ import Footer from '@components/common/Footer';
 import * as API from '@modules/api';
 
 export async function getServerSideProps(context) {
-    const raise = require('@modules/raise');
-    
     let { page } = context.query;
     page = page ? page : 1;
     
@@ -17,7 +15,9 @@ export async function getServerSideProps(context) {
         const { data } = await API.getAllPosts('newest', page);
         return { props: { data, page } };
     } catch(error) {
-        raise.auto(error.response.status, context.res);
+        return {
+            notFound: true
+        };
     }
 }
 

@@ -8,12 +8,12 @@ import PostsComponent from '@components/profile/Posts';
 import * as API from '@modules/api';
 
 export async function getServerSideProps(context) {
-    const raise = require('@modules/raise');
-
     const { author } = context.query;
 
     if(!author.includes('@')) {
-        raise.Http404(context.res);
+        return {
+            notFound: true
+        };
     }
 
     try {
@@ -35,7 +35,9 @@ export async function getServerSideProps(context) {
             }
         }
     } catch(error) {
-        raise.auto(error.response.status, context.res);
+        return {
+            notFound: true
+        };
     }
 }
 

@@ -23,12 +23,12 @@ interface State {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const raise = require('@modules/raise');
-    
     const { author = '' } = context.query;
     
     if(!author.includes('@')) {
-        raise.Http404(context.res);
+        return {
+            notFound: true
+        };
     }
     
     try {
@@ -45,7 +45,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             }
         }
     } catch(error) {
-        raise.auto(error.response.status, context.res);
+        return {
+            notFound: true
+        };
     }
 }
 

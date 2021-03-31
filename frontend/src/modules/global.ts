@@ -4,11 +4,10 @@ interface GlobalState {
     isNightMode: boolean;
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
-    isSettingModalOpen: boolean;
     isTwoFactorAuthModalOpen: boolean;
 }
 
-type ModalName = 'isSettingModalOpen' | 'isLoginModalOpen' |  'isSignupModalOpen' | 'isTwoFactorAuthModalOpen';
+type ModalName = 'isLoginModalOpen' |  'isSignupModalOpen' | 'isTwoFactorAuthModalOpen';
 
 class Global {
     state: GlobalState;
@@ -21,7 +20,6 @@ class Global {
             isNightMode: false,
             isLoginModalOpen: false,
             isSignupModalOpen: false,
-            isSettingModalOpen: false,
             isTwoFactorAuthModalOpen: false,
         }
         this.updater = {};

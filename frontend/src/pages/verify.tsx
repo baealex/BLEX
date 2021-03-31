@@ -12,8 +12,6 @@ import { GetServerSidePropsContext } from 'next';
 import * as API from '@modules/api';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const raise = require('@modules/raise');
-
     const { token } = context.query;
     
     try {
@@ -25,7 +23,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             }
         }
     } catch(error) {
-        raise.auto(error.response.status, context.res);
+        return {
+            notFound: true
+        };
     }
 }
 

@@ -12,15 +12,15 @@ import Global from '@modules/global';
 import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const raise = require('@modules/raise');
-
-    const { req, res } = context;
+    const { req } = context;
     
     const cookie = req.headers.cookie;
     const { data } = await API.alive(cookie);
 
     if(data == 'dead') {
-        raise.Http404(res);
+        return {
+            notFound: true
+        };
     }
     
     return {

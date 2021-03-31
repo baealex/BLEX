@@ -4,7 +4,6 @@ import blexer from '@modules/blexer';
 import Config from '@modules/config';
 
 export async function getServerSideProps(context) {
-    const raise = require('@modules/raise');
     try {
         if(context.req.method === 'POST') {
             const { token, text } = JSON.parse(context.req.read().toString());
@@ -15,8 +14,9 @@ export async function getServerSideProps(context) {
     } catch(e) {
         
     }
-    raise.auto(404, context.res);
-    return {props: {}};
+    return {
+        notFound: true
+    };
 }
 
 class Blexer extends React.Component {
