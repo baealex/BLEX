@@ -17,7 +17,7 @@
 
 ## Service
 
-***"예쁘고 유니크한 블로그 없을까요?"*** 🙋‍♂️ [여기 있습니다!](https://blex.me) 블렉스는 가입형 블로그로 회원이라면 누구나 글을 자유롭게 작성할 수 있습니다. ~~무엇보다 쓰는 사람이 없어서 매우 유니크합니다!~~ 블렉스는 미니멀한 디자인과 신기술을 응용한 빠른 웹사이트를 지향하며 `AD-Free`, 3세대 블로그를 과감히 꿈꿉니다. 의견이나 질문할 내용이 있다면 [baealex@hey.com](mailto:baealex@hey.com)으로 연락주시기 바랍니다. 의견은 [discussions](https://github.com/baealex/BLEX/discussions)에 남겨주세요!
+***"예쁘고 유니크한 블로그 없을까요?"*** 🙋‍♂️ [여기 있습니다!](https://blex.me) 블렉스는 가입형 블로그로 회원이라면 누구나 글을 자유롭게 작성할 수 있습니다. ~~무엇보다 쓰는 사람이 없어서 매우 유니크합니다!~~ 블렉스는 미니멀한 디자인과 신기술을 응용한 빠른 웹사이트를 지향하며 `AD-Free`, 3세대 블로그를 과감히 꿈꿉니다. 연락은 [baealex@hey.com](mailto:baealex@hey.com)으로 부탁드리며 의견은 [discussions](https://github.com/baealex/BLEX/discussions)에 남겨주세요!
 
 ![홈 화면](https://user-images.githubusercontent.com/35596687/113148293-a9556000-926c-11eb-9474-d6ebc7adc621.PNG)
 
