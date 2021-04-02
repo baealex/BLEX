@@ -47,6 +47,7 @@ function trendy(list: any) {
 
 export default function Setting(props: Props) {
     const [ isModalOpen, setModalOpen ] = useState(false);
+    const [ selectedTag, setSelectedTag ] = useState('');
 
     const [ search, setSearch ] = useState('');
     const [ posts, setPosts ] = useState(props.posts);
@@ -56,9 +57,24 @@ export default function Setting(props: Props) {
 
     let renderPosts = posts;
 
+    const tags = Array.from(posts.reduce((acc, cur) => {
+        for(const tag of cur.tag.split(',')) {
+            acc.has(tag) ?
+                acc.set(tag, acc.get(tag) + 1) :
+                acc.set(tag, 1);
+        }
+        return acc;
+    }, new Map()).entries()).sort((x, y) => x[1] < y[1] ? 1 : -1);
+
     if(search) {
-        renderPosts = posts.filter(post => 
+        renderPosts = posts.filter(post =>
             post.title.toLowerCase().includes(search.toLowerCase())
+        );
+    }
+
+    if(selectedTag) {
+        renderPosts = renderPosts.filter(post => 
+            post.tag.includes(selectedTag)
         );
     }
 
@@ -134,7 +150,28 @@ export default function Setting(props: Props) {
 
     return (
         <>
-            <SettingLayout tabname="posts">
+            <SettingLayout tabname="posts" sticky={false} sideChildren={(
+                <ul className="nav noto blex-card my-3">
+                    <li className="nav-item">
+                        <span
+                            onClick={() => setSelectedTag('')}
+                            className={`nav-link c-pointer ${selectedTag ? 'shallow' : 'deep'}-dark`}
+                        >
+                            전체 ({posts.length})
+                        </span>
+                    </li>
+                    {tags.map((item, idx) => (
+                        <li key={idx} className="nav-item">
+                            <span
+                                onClick={() => setSelectedTag(item[0])}
+                                className={`nav-link c-pointer ${selectedTag == item[0] ? 'deep' : 'shallow'}-dark`}
+                            >
+                                {item[0]} ({item[1]})
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            )}>
                 <ul className="tag-list mb-0">
                     <li><a onClick={() => setPosts([...sorted('title', posts).reverse()])}>가나다</a></li>
                     <li><a onClick={() => setPosts([...sorted('createdDate', posts)])}>최근 작성</a></li>

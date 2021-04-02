@@ -1,12 +1,15 @@
 import Link from 'next/link';
 
 interface Props { 
+    sticky?: boolean;
     tabname?: string;
 }
 
 export default function(props: Props) {
+    const stickyClass = props.sticky ? 'sticky-top-100 sticky-top' : ''
+
     return (
-        <ul className="nav noto sticky-top-100 sticky-top blex-card">
+        <ul className={`nav noto ${stickyClass} blex-card`}>
             <li className="nav-item">
                 <Link href="/setting">
                     <a className={`nav-link ${props.tabname == 'notify' ? 'deep' : 'shallow'}-dark`}><i className="far fa-envelope"></i> 알림</a>
