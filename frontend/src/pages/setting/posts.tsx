@@ -58,7 +58,7 @@ export default function Setting(props: Props) {
     let renderPosts = posts;
 
     const tags = Array.from(posts.reduce((acc, cur) => {
-        for(const tag of cur.tag.split(',')) {
+        for(const tag of cur.fixedTag.split(',')) {
             acc.has(tag) ?
                 acc.set(tag, acc.get(tag) + 1) :
                 acc.set(tag, 1);
@@ -74,7 +74,7 @@ export default function Setting(props: Props) {
 
     if(selectedTag) {
         renderPosts = renderPosts.filter(post => 
-            post.tag.includes(selectedTag)
+            post.fixedTag.includes(selectedTag)
         );
     }
 
@@ -142,7 +142,8 @@ export default function Setting(props: Props) {
         setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
-                tag: data.tag
+                tag: data.tag,
+                fixedTag: data.tag
             }) : post
         ))]);
         toast('😀 태그가 수정되었습니다.');

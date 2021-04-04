@@ -768,7 +768,8 @@ def setting(request, item):
                     'total_comments': post.total_comment(),
                     'today': post.today(),
                     'yesterday': post.yesterday(),
-                    'tag': post.tag
+                    'tag': post.tag,
+                    'fixed_tag': post.tag
                 }, posts))
             })
         

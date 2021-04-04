@@ -534,6 +534,7 @@ export interface SettingPostsData {
         today: number;
         yesterday: number;
         tag: string;
+        fixedTag: string;
     }[];
 }
 
