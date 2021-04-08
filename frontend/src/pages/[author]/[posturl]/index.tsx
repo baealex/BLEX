@@ -66,8 +66,9 @@ interface State {
     totalLikes: number;
     comments: Comment[];
     selectedTag?: string;
-    headerNav?: string[][];
+    headerNav: string[][];
     headerNow: string;
+    isOpenSideIndex: boolean;
     featurePosts?: FeaturePostsData;
 }
 
@@ -152,6 +153,8 @@ class PostDetail extends React.Component<Props, State> {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             totalLikes: props.post.totalLikes,
+            isOpenSideIndex: false,
+            headerNav: [],
             headerNow: '',
             comments: []
         };
@@ -423,6 +426,10 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     render() {
+        const {
+            isOpenSideIndex
+        } = this.state;
+
         return (
             <>
                 <Head>
@@ -495,11 +502,27 @@ class PostDetail extends React.Component<Props, State> {
                         </div>
                         <div className="col-lg-2 mobile-disable">
                             <div className="sticky-top article-nav">
-                                {this.state.headerNav?.map((item, idx) => (
+                                {this.state.headerNav.map((item, idx) => (
                                     <a className={`title-${item[0]} ${this.state.headerNow == item[1] ? 'nav-now' : ''}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
                                 ))}
                             </div>
                         </div>
+                        {this.state.headerNav.length > 0 && (
+                            <div className="pc-disable">
+                                <div className={`thread-menu ${isOpenSideIndex ? 'closed' : ''}`} onClick={() => this.setState({isOpenSideIndex: !isOpenSideIndex})}>
+                                    <i className="fas fa-rocket"/>
+                                </div>
+                                <div className={`thread-sidebar ${isOpenSideIndex ? '' : 'closed'}`}>
+                                    <ul>
+                                        {this.state.headerNav.map((item, idx) => (
+                                            <li className={`story-read ml-${item[0]}`} key={idx}>
+                                                <a className={this.state.headerNow == item[1] ? 'active' : ''} href={`#${item[1]}`}>{item[2]}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="py-5 bg-comment">

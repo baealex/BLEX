@@ -811,7 +811,6 @@ footer {
 /* POSTS : DETAIL : ARTICLE NAVIGATION */
 .article-nav {
     font-family: $gothic;
-    position: sticky;
     top: 15px;
     margin: 15px 0;
     max-height: calc(100vh - 30px);
@@ -1319,47 +1318,56 @@ footer {
 .thread-menu {
     position: fixed;
     z-index: 997;
-    transition: margin-left 0.5s;
+    transition: margin-right 0.5s;
     top: 15px;
+    right: 15px;
     color: #ccc;
     border: 1px solid #ccc;
-    margin-left: 0;
+    border-radius: 5px;
+    margin-right: 0;
     cursor: pointer;
-    padding: 0 0.5em;
+    padding: 0 0.3em;
     font-size: 1.45em;
-    background-color: #fff;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
 
     body.dark & {
-        background-color: #222;
+        box-shadow: none;
+        border: 1px solid #444;
+        background: rgba(0, 0, 0, 0.55);
     }
 
     &.hover {
         color: #777;
     }
 
-    &.closer {
-        left: calc(300px + 15px);
-    }
-
     &.closed {
-        margin-left: -300px;
+        color: $vivid-purple;
+
+        body.dark & {
+            color: $vivid-purple-complementary;
+        }
     }
 }
+
 .thread-sidebar {
     position: fixed;
     top: 0;
     z-index: 996;
-    margin-left: 0px;
-    transition: margin-left 0.5s;
-    left: 0;
-    width: 300px;
+    margin-right: 0px;
+    transition: margin-right 0.5s;
+    right: 0;
+    margin: 0;
+    width: 250px;
     height: 100vh;
     padding: 55px 15px 0px 15px;
     overflow-y: scroll;
-    background-color: #f8f8f8;
+    background: #fff;
+    box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
 
     body.dark & {
-        background-color: #222;
+        background-color: #171717;
+        box-shadow: none;
     }
 
     &::-webkit-scrollbar {
@@ -1396,34 +1404,36 @@ footer {
 
         li {
             margin: 18px 0;
-            cursor: pointer;
-            color: #777777;
-            text-decoration: none;
 
-            body.dark & {
-                color: #bdbdbd;
-            }
-
-            &:hover {
-                color: #c99cff;
+            a {
+                color: #777777;
+                text-decoration: none;
 
                 body.dark & {
-                    color: $smooth-purple-complementary;
+                    color: #bdbdbd;
                 }
-            }
-
-            &.active {
-                color: $vivid-purple;
-
-                body.dark & {
-                    color: $vivid-purple-complementary;
+    
+                &:hover {
+                    color: #c99cff;
+    
+                    body.dark & {
+                        color: $smooth-purple-complementary;
+                    }
+                }
+    
+                &.active {
+                    color: $vivid-purple;
+    
+                    body.dark & {
+                        color: $vivid-purple-complementary;
+                    }
                 }
             }
         }
     }
 
     &.closed {
-        margin-left: -300px;
+        margin-right: -250px;
     }
 }
 @media only screen and (min-width: 700px) {
