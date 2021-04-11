@@ -89,6 +89,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'main.wsgi.application'
 
+FILE_UPLOAD_PERMISSIONS = 0o644
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -145,28 +149,38 @@ STAITC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
 MEDIA_URL = 'http://localhost:20200/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 
+# Email verify
+
+EMAIL_VERIFY_USE = False
 EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp.****.com'
 EMAIL_PORT = '465'
-EMAIL_HOST_USER = '********@gmail.com'
+EMAIL_HOST_USER = '********@****.com'
 EMAIL_HOST_PASSWORD = '********'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-FILE_UPLOAD_PERMISSIONS = 0o644
+
+# Telegram notification
 
 TELEGRAM_USE = False
 TELEGRAM_BOT_TOKEN = ''
 TELEGRAM_CHANNEL_ID   = ''
 TELEGRAM_ADMIN_ID  = ''
 
+
+# OAuth key
+
+OAUTH_USE = False
 GOOGLE_OAUTH_CLIENT_ID = ''
 GOOGLE_OAUTH_CLIENT_SECRET = ''
 
 GITHUB_OAUTH_CLIENT_ID = ''
 GITHUB_OAUTH_CLIENT_SECRET = ''
 
+
+# Captcha key
+
+CAPTCHA_USE = False
 HCAPTCHA_SECRET_KEY = ''
