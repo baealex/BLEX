@@ -780,7 +780,7 @@ def setting(request, item):
                 'series': list(map(lambda item: {
                     'url': item.url,
                     'title': item.name,
-                    'total_posts': item.total_posts()
+                    'total_posts': item.posts.count()
                 }, series))
             })
         

@@ -68,24 +68,48 @@ def timestamp(date, kind=''):
     timestamp = timestamp + '0' * (16 - len(timestamp))
     return timestamp
 
-class ImageCache(models.Model):
-    key  = models.CharField(max_length=44, unique=True)
-    path = models.CharField(max_length=128, unique=True)
 
-class History(models.Model):
-    key      = models.CharField(max_length=44, unique=True)
-    ip       = models.CharField(max_length=39)
-    agent    = models.CharField(max_length=200)
-    category = models.CharField(max_length=15, blank=True)
+# Models
 
+class Comment(models.Model):
+    author       = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    post         = models.ForeignKey('board.Post', related_name='comments', on_delete = models.CASCADE)
+    text_md      = models.TextField(max_length=300)
+    text_html    = models.TextField()
+    edited       = models.BooleanField(default=False)
+    heart        = models.BooleanField(default=False)
+    likes        = models.ManyToManyField(User, related_name='like_comments', blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
+    
+    def author_username(self):
+        if self.author == None:
+            return 'Ghost'
+        return self.author.username
+    
+    def author_thumbnail(self):
+        if self.author == None:
+            return settings.STATIC_URL + '/images/ghost.png'
+        return self.author.profile.get_thumbnail()
+    
+    def get_text_html(self):
+        if self.author == None:
+            return '삭제된 댓글입니다.'
+        return self.text_html
+
+    def get_thumbnail(self):
+        if self.image:
+            return self.image.url
+        else:
+            return settings.STATIC_URL + '/images/default-post.png'
+    
+    def get_absolute_url(self):
+        return self.post.get_absolute_url()
+    
+    def total_likes(self):
+        return self.likes.count()
+    
     def __str__(self):
-        return str(self.id)
-
-class Grade(models.Model):
-    name = models.CharField(max_length=30, unique=True)
-
-    def __str__(self):
-        return self.name
+        return self.text_md
 
 class Config(models.Model):
     user           = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -109,97 +133,66 @@ class Config(models.Model):
     def __str__(self):
         return self.user.username
 
-class Profile(models.Model):
-    user       = models.OneToOneField(User, on_delete=models.CASCADE)
-    subscriber = models.ManyToManyField(User, through='Follow', related_name='following', blank=True)
-    grade      = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
-    exp        = models.IntegerField(default=0)
-    bio        = models.TextField(max_length=500, blank=True)
-    avatar     = models.ImageField(blank=True, upload_to=avatar_path)
-    github     = models.CharField(max_length=15, blank=True)
-    twitter    = models.CharField(max_length=15, blank=True)
-    youtube    = models.CharField(max_length=30, blank=True)
-    facebook   = models.CharField(max_length=30, blank=True)
-    instagram  = models.CharField(max_length=15, blank=True)
-    homepage   = models.CharField(max_length=100, blank=True)
-    about_md   = models.TextField()
-    about_html = models.TextField()
-
-    def collect_social(self):
-        result = dict()
-        if self.github:
-            result['github'] = self.github
-        if self.twitter:
-            result['twitter'] = self.twitter
-        if self.youtube:
-            result['youtube'] = self.youtube
-        if self.facebook:
-            result['facebook'] = self.facebook
-        if self.instagram:
-            result['instagram'] = self.instagram
-        return result
-
-    def get_thumbnail(self):
-        if self.avatar:
-            return self.avatar.url
-        else:
-            return settings.STATIC_URL + '/images/default-avatar.jpg'
-
-    def __str__(self):
-        return self.user.username
-    
-    def total_subscriber(self):
-        return self.subscriber.count()
-
-    def save(self, *args, **kwargs):
-        will_make_thumbnail = False
-        if not self.pk and self.avatar:
-            will_make_thumbnail = True
-        try:
-            this = Profile.objects.get(id=self.id)
-            if this.avatar != self.avatar:
-                this.avatar.delete(save=False)
-                will_make_thumbnail = True
-        except:
-            pass
-        super(Profile, self).save(*args, **kwargs)
-        if will_make_thumbnail:
-            make_thumbnail(self, size=500)
-    
-    def get_absolute_url(self):
-        return reverse('user_profile', args=[self.user])
-
 class Follow(models.Model):
     class Meta:
         db_table = 'board_user_follow'
-        auto_created = True
     
-    following    = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    follower     = models.ForeignKey(User, on_delete=models.CASCADE)
+    following    = models.ForeignKey('board.Profile', related_name='subscriber', on_delete=models.CASCADE)
+    follower     = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.post.title
+        return str(self.follower)
 
-class TempPosts(models.Model):
-    author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title             = models.CharField(max_length=50)
-    token             = models.CharField(max_length=50)
-    text_md           = models.TextField(blank=True)
-    tag               = models.CharField(max_length=50)
-    created_date      = models.DateTimeField(default=timezone.now)
-
-    def to_dict(self):
-        return {
-            'title': self.title,
-            'token': self.token,
-            'text_md': self.text_md,
-            'tag': self.tag,
-            'created_date': timesince(self.created_date),
-        }
+class Form(models.Model):
+    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title        = models.CharField(max_length=50)
+    content      = models.TextField(blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
         return self.title
+
+class Grade(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class History(models.Model):
+    key      = models.CharField(max_length=44, unique=True)
+    ip       = models.CharField(max_length=39)
+    agent    = models.CharField(max_length=200)
+    category = models.CharField(max_length=15, blank=True)
+
+    def __str__(self):
+        return str(self.key)
+
+class ImageCache(models.Model):
+    key  = models.CharField(max_length=44, unique=True)
+    path = models.CharField(max_length=128, unique=True)
+
+    def __str__(self):
+        return self.path
+
+class Notify(models.Model):
+    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    key          = models.CharField(max_length=44, unique=True)
+    url          = models.CharField(max_length=255)
+    is_read      = models.BooleanField(default=False)
+    infomation   = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def to_dict(self):
+        return {
+            'pk': self.pk,
+            'user': self.user.username,
+            'infomation': self.infomation,
+            'created_date': timesince(self.created_date)
+        }
+    
+    def __str__(self):
+        return str(self.user)
 
 class Post(models.Model):
     author        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -208,18 +201,14 @@ class Post(models.Model):
     image         = models.ImageField(blank=True, upload_to=title_image_path)
     text_md       = models.TextField(blank=True)
     text_html     = models.TextField()
-    series        = models.ForeignKey('board.Series', on_delete=models.SET_NULL, null=True, blank=True)
+    series        = models.ForeignKey('board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
     hide          = models.BooleanField(default=False)
     notice        = models.BooleanField(default=False)
     advertise     = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
-    likes         = models.ManyToManyField(User, through='PostLikes', related_name='like_posts', blank=True)
     tag           = models.CharField(max_length=50)
     created_date  = models.DateTimeField(default=timezone.now)
     updated_date  = models.DateTimeField(default=timezone.now)
-    
-    def __str__(self):
-        return self.title
 
     def get_image(self):
         if self.image:
@@ -292,6 +281,9 @@ class Post(models.Model):
         else:
             return settings.STATIC_URL + '/images/default-post.png'
     
+    def __str__(self):
+        return self.title
+    
     def to_dict_for_analytics(self):
         return {
             'pk': self.pk,
@@ -325,83 +317,142 @@ class Post(models.Model):
             make_thumbnail(self, size=1920, quality=85)
 
 class PostAnalytics(models.Model):
-    posts        = models.ForeignKey(Post, on_delete=models.CASCADE)
+    posts        = models.ForeignKey('board.Post', related_name='likes', on_delete=models.CASCADE)
     table        = models.ManyToManyField(History, related_name='thread_viewer', blank=True)
     created_date = models.DateField(default=timezone.now)
 
     def __str__(self):
-        return self.posts.title
+        return str(self.posts)
 
 class PostLikes(models.Model):
     class Meta:
         db_table = 'board_post_likes'
-        auto_created = True
-    
-    post         = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    post         = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     user         = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.post.title
+        return str(self.post)
 
-class Comment(models.Model):
-    author       = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    post         = models.ForeignKey('board.Post', related_name='comments', on_delete = models.CASCADE)
-    text_md      = models.TextField(max_length=300)
-    text_html    = models.TextField()
-    edited       = models.BooleanField(default=False)
-    heart        = models.BooleanField(default=False)
-    likes        = models.ManyToManyField(User, related_name='like_comments', blank=True)
-    created_date = models.DateTimeField(default=timezone.now)
+class Profile(models.Model):
+    user       = models.OneToOneField(User, on_delete=models.CASCADE)
+    grade      = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
+    exp        = models.IntegerField(default=0)
+    bio        = models.TextField(max_length=500, blank=True)
+    avatar     = models.ImageField(blank=True, upload_to=avatar_path)
+    github     = models.CharField(max_length=15, blank=True)
+    twitter    = models.CharField(max_length=15, blank=True)
+    youtube    = models.CharField(max_length=30, blank=True)
+    facebook   = models.CharField(max_length=30, blank=True)
+    instagram  = models.CharField(max_length=15, blank=True)
+    homepage   = models.CharField(max_length=100, blank=True)
+    about_md   = models.TextField()
+    about_html = models.TextField()
 
-    def __str__(self):
-        return self.text_md
-    
-    def author_username(self):
-        if self.author == None:
-            return 'Ghost'
-        return self.author.username
-    
-    def author_thumbnail(self):
-        if self.author == None:
-            return settings.STATIC_URL + '/images/ghost.png'
-        return self.author.profile.get_thumbnail()
-    
-    def get_text_html(self):
-        if self.author == None:
-            return '삭제된 댓글입니다.'
-        return self.text_html
+    def collect_social(self):
+        result = dict()
+        if self.github:
+            result['github'] = self.github
+        if self.twitter:
+            result['twitter'] = self.twitter
+        if self.youtube:
+            result['youtube'] = self.youtube
+        if self.facebook:
+            result['facebook'] = self.facebook
+        if self.instagram:
+            result['instagram'] = self.instagram
+        return result
 
     def get_thumbnail(self):
-        if self.image:
-            return self.image.url
+        if self.avatar:
+            return self.avatar.url
         else:
-            return settings.STATIC_URL + '/images/default-post.png'
+            return settings.STATIC_URL + '/images/default-avatar.jpg'
+    
+    def total_subscriber(self):
+        return self.subscriber.count()
+
+    def save(self, *args, **kwargs):
+        will_make_thumbnail = False
+        if not self.pk and self.avatar:
+            will_make_thumbnail = True
+        try:
+            this = Profile.objects.get(id=self.id)
+            if this.avatar != self.avatar:
+                this.avatar.delete(save=False)
+                will_make_thumbnail = True
+        except:
+            pass
+        super(Profile, self).save(*args, **kwargs)
+        if will_make_thumbnail:
+            make_thumbnail(self, size=500)
     
     def get_absolute_url(self):
-        return self.post.get_absolute_url()
+        return reverse('user_profile', args=[self.user])
     
-    def total_likes(self):
-        return self.likes.count()
+    def __str__(self):
+        return self.user.username
 
-class Notify(models.Model):
-    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    key          = models.CharField(max_length=44, unique=True)
-    url          = models.CharField(max_length=255)
-    is_read      = models.BooleanField(default=False)
-    infomation   = models.TextField()
+class Referer(models.Model):
+    posts        = models.ForeignKey('board.PostAnalytics', on_delete=models.CASCADE)
+    referer_from = models.ForeignKey('board.RefererFrom', related_name='referers', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.infomation
+        return self.referer_from.location
 
-    def to_dict(self):
-        return {
-            'pk': self.pk,
-            'user': self.user.username,
-            'infomation': self.infomation,
-            'created_date': timesince(self.created_date)
-        }
+class RefererFrom(models.Model):
+    location     = models.CharField(max_length=500, unique=True)
+    title        = models.CharField(max_length=100, default='')
+    image        = models.CharField(max_length=500, default='')
+    description  = models.CharField(max_length=250, default='')
+    updated_date = models.DateTimeField(default=timezone.now)
+    created_date = models.DateTimeField(default=timezone.now)
+    
+    def should_update(self):
+        created_date = self.created_date.strftime('%x%X')
+        updated_date = self.updated_date.strftime('%x%X')
+        if created_date == updated_date:
+            return True
+        
+        one_month_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=30)))
+        if self.updated_date < one_month_ago:
+            return True
+        
+        return False
+    
+    def update(self):
+        self.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() + datetime.timedelta(minutes=1)))
+        self.save()
+    
+    def __str__(self):
+        return self.location
+
+class Report(models.Model):
+    user         = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    reporter     = models.ForeignKey('board.history', on_delete=models.CASCADE)
+    posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    content      = models.TextField(blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return posts.title
+
+class Search(models.Model):
+    user         = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    searcher     = models.ForeignKey('board.history', on_delete=models.CASCADE)
+    search_value = models.ForeignKey('board.SearchValue', on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.search_value.vlue
+
+class SearchValue(models.Model):
+    value   = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.value
 
 class Series(models.Model):
     owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -413,23 +464,8 @@ class Series(models.Model):
     layout       = models.CharField(max_length=5, default='list')
     created_date = models.DateTimeField(default=timezone.now)
 
-    def posts(self):
-        posts = Post.objects.filter(series=self, hide=False)
-        if self.layout == 'book':
-            posts = posts.order_by('-created_date')
-        else:
-            posts = posts.order_by('created_date')
-        
-        return posts
-
-    def total_posts(self):
-        return Post.objects.filter(series=self, hide=False).count()
-
-    def __str__(self):
-        return self.name
-
     def thumbnail(self):
-        posts = self.posts()
+        posts = Post.objects.filter(series=self, hide=False)
         if posts:
             return posts[0].get_thumbnail()
         else:
@@ -437,16 +473,9 @@ class Series(models.Model):
     
     def get_absolute_url(self):
         return reverse('series_list', args=[self.owner, self.url])
-
-class Report(models.Model):
-    user         = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    reporter     = models.ForeignKey('board.history', on_delete=models.CASCADE)
-    posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
-    content      = models.TextField(blank=True)
-    created_date = models.DateTimeField(default=timezone.now)
-
+    
     def __str__(self):
-        return posts
+        return self.name
 
 class TelegramSync(models.Model):
     user           = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -460,6 +489,29 @@ class TelegramSync(models.Model):
         if self.auth_token_exp < one_day_ago:
             return True
         return False
+    
+    def __str__(self):
+        return self.user.username
+
+class TempPosts(models.Model):
+    author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title             = models.CharField(max_length=50)
+    token             = models.CharField(max_length=50)
+    text_md           = models.TextField(blank=True)
+    tag               = models.CharField(max_length=50)
+    created_date      = models.DateTimeField(default=timezone.now)
+
+    def to_dict(self):
+        return {
+            'title': self.title,
+            'token': self.token,
+            'text_md': self.text_md,
+            'tag': self.tag,
+            'created_date': timesince(self.created_date),
+        }
+    
+    def __str__(self):
+        return self.title
 
 class TwoFactorAuth(models.Model):
     user               = models.OneToOneField('auth.User', on_delete=models.CASCADE)
@@ -484,62 +536,6 @@ class TwoFactorAuth(models.Model):
         if self.created_date < one_day_ago:
             return True
         return False
-
-class Form(models.Model):
-    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title        = models.CharField(max_length=50)
-    content      = models.TextField(blank=True)
-    created_date = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
-        return self.title
-
-class Search(models.Model):
-    user         = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    searcher     = models.ForeignKey('board.history', on_delete=models.CASCADE)
-    search_value = models.ForeignKey('board.SearchValue', on_delete=models.CASCADE)
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.search_value.value
-
-class SearchValue(models.Model):
-    value   = models.CharField(max_length=50, unique=True)
-    
-    def __str__(self):
-        return self.value
-
-class RefererFrom(models.Model):
-    location     = models.CharField(max_length=500, unique=True)
-    title        = models.CharField(max_length=100, default='')
-    image        = models.CharField(max_length=500, default='')
-    description  = models.CharField(max_length=250, default='')
-    updated_date = models.DateTimeField(default=timezone.now)
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.location
-    
-    def should_update(self):
-        created_date = self.created_date.strftime('%x%X')
-        updated_date = self.updated_date.strftime('%x%X')
-        if created_date == updated_date:
-            return True
-        
-        one_month_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=30)))
-        if self.updated_date < one_month_ago:
-            return True
-        
-        return False
-    
-    def update(self):
-        self.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() + datetime.timedelta(minutes=1)))
-        self.save()
-
-class Referer(models.Model):
-    posts        = models.ForeignKey('board.PostAnalytics', related_name='referers', on_delete=models.CASCADE)
-    referer_from = models.ForeignKey('board.RefererFrom', on_delete=models.CASCADE)
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.referer_from.location
+        return self.user.username
