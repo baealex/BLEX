@@ -317,8 +317,8 @@ class Post(models.Model):
             make_thumbnail(self, size=1920, quality=85)
 
 class PostAnalytics(models.Model):
-    posts        = models.ForeignKey('board.Post', related_name='likes', on_delete=models.CASCADE)
-    table        = models.ManyToManyField(History, related_name='thread_viewer', blank=True)
+    posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    table        = models.ManyToManyField(History, blank=True)
     created_date = models.DateField(default=timezone.now)
 
     def __str__(self):
@@ -328,7 +328,7 @@ class PostLikes(models.Model):
     class Meta:
         db_table = 'board_post_likes'
 
-    post         = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    post         = models.ForeignKey('board.Post', related_name='likes', on_delete=models.CASCADE)
     user         = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
