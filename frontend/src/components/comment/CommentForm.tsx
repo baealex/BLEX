@@ -1,29 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { toast } from 'react-toastify';
 
 import { dropImage } from '@modules/image';
 
 interface Props {
+    content: string;
+    onChange: Function;
     onSubmit: Function;
 };
 
 export default function CommentForm(props: Props) {
-    const [ content, setContent ] = useState('');
-
     let input: HTMLTextAreaElement | null;
 
     const onDrop = async (e: React.DragEvent<HTMLTextAreaElement>) => {
         const cursorPos = input?.selectionStart;
-        const textBefore = content.substring(0,  cursorPos);
-        const textAfter  = content.substring(cursorPos || 0, content.length);
+        const textBefore = props.content.substring(0,  cursorPos);
+        const textAfter  = props.content.substring(cursorPos || 0, props.content.length);
 
         const files = e.dataTransfer.files;
         if(files.length > 0) {
             const link = await dropImage(e);
             if(link) {
                 const image = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
-                setContent(textBefore + `${image}` + textAfter);
+                props.onChange(textBefore + `${image}` + textAfter);
                 return;
             }
         }
@@ -32,18 +32,18 @@ export default function CommentForm(props: Props) {
         const data = e.dataTransfer.getData('text/plain');
         if(data.includes('/@')) {
             const username = data.split('/@').pop();
-            setContent(textBefore + `\`@${username}\`` + textAfter);
+            props.onChange(textBefore + `\`@${username}\`` + textAfter);
             return;
         }
     }
 
     const onSubmit = () => {
-        if(content == '') {
+        if(props.content == '') {
             toast('😅 댓글의 내용을 입력해주세요.');
             return;
         }
-        props.onSubmit(content);
-        setContent('');
+        props.onSubmit(props.content);
+        props.onChange('');
     }
 
     return (
@@ -52,11 +52,11 @@ export default function CommentForm(props: Props) {
                 ref={el => input = el}
                 rows={5}
                 className="form-control noto"
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => props.onChange(e.target.value)}
                 onDrop={(e) => onDrop(e)}
                 placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
                 maxLength={300}
-                value={content}>
+                value={props.content}>
             </textarea>
             <button
                 type="button"

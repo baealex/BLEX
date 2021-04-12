@@ -582,7 +582,9 @@ def user_posts_comments(request, username, url):
                 'author_image': comment.author_thumbnail(),
                 'text_html': comment.get_text_html(),
                 'time_since': timesince(comment.created_date),
-                'is_edited': comment.edited
+                'is_edited': comment.edited,
+                'total_likes': comment.total_likes(),
+                'is_liked': comment.likes.filter(id=request.user.id).exists(),
             }, comments))
         })
 
@@ -1000,6 +1002,8 @@ def comment(request, pk=None):
                     return HttpResponse('error:NL')
                 if request.user == comment.author:
                     return HttpResponse('error:SU')
+                if comment.author == None:
+                    return HttpResponse('error:RJ')
                 user = User.objects.get(username=request.user)
                 if comment.likes.filter(id=user.id).exists():
                     comment.likes.remove(user)
@@ -1007,7 +1011,7 @@ def comment(request, pk=None):
                 else:
                     comment.likes.add(user)
                     comment.save()
-                    send_notify_content = '\''+ comment.post.title +'\'글에 작성한 회원님의 댓글을 누군가 추천했습니다.'
+                    send_notify_content = '\''+ comment.post.title +'\'글에 작성한 회원님의 #' + str(comment.pk) + ' 댓글을 @'+ user.username +'님께서 추천했습니다.'
                     fn.create_notify(user=comment.author, url=comment.post.get_absolute_url(), infomation=send_notify_content)
                 return HttpResponse(str(comment.total_likes()))
             

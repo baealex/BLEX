@@ -19,7 +19,9 @@ export const ERROR = {
     USERNAME_NOT_MATCH: 'error:UN',
 };
 
-function serializeObject(obj: any) {
+function serializeObject(obj: {
+    [key: string]: any
+}) {
     return Object.keys(obj).reduce((acc, cur) => {
         return acc += `${cur}=${obj[cur] === undefined ? '' : encodeURIComponent(obj[cur])}&`;
     }, '').slice(0, -1);
@@ -113,11 +115,26 @@ export async function getPost(author: string, url: string, mode: string, cookie?
 }
 
 export async function getPostComments(author: string, url: string) {
-    return await axios({
+    return await axios.request<GetPostCommentData>({
         url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/comments`,
         method: 'GET',
     });
 }
+
+export interface GetPostCommentData {
+    comments: {
+        pk: number;
+        author: string;
+        authorImage: string;
+        isEdit: boolean;
+        isEdited: boolean;
+        timeSince: string;
+        textHtml: string;
+        textMarkdown: string;
+        totalLikes: number;
+        isLiked: boolean;
+    }[];
+};
 
 export async function postPost(author: string, data: FormData) {
     return await axios({
@@ -374,6 +391,7 @@ export async function putComment(pk: number, content: string, commentMarkup: str
         return e;
     }
 }
+
 
 export async function deleteComment(pk: number) {
     NProgress.start();

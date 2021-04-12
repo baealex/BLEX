@@ -216,7 +216,7 @@ export default function Setting(props: Props) {
                                 <i className="far fa-eye"></i> <span className="ns">(Today : {post.today}, Yesterday : {post.yesterday})</span>
                             </li>
                             <li>
-                                <i className="far fa-thumbs-up"></i> {post.totalLikes}
+                                <i className="far fa-heart"></i> {post.totalLikes}
                             </li>
                             <li>
                                 <i className="far fa-comment"></i> {post.totalComments}

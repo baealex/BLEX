@@ -378,92 +378,6 @@
     box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
 }
 
-.comment-content {
-    font-family: $gothic;
-
-    h1, h2, h3, h4, h5, h6 {
-        font-size: 1.2em;
-        font-family: $serif;
-        font-weight: 600;    
-    }
-    
-    a {
-        color: #a7a7a7;
-        
-        &:hover {
-            text-decoration: none;        
-        }
-    }
-
-    blockquote {
-        border-left: 4px solid #9c56d4;
-        background: #f8f8f8;
-        padding: 10px;
-
-        body.dark & {
-            border-left: 4px solid $smooth-purple-complementary;
-            background: $dark-mode-body-bg;
-        }
-
-        p {
-            margin-bottom: 0;
-        }
-    }
-
-    img, video {
-        max-width: 100%;
-    }
-
-    code {
-        font-family: $gothic;
-        font-weight: 300;
-        color: #000;
-        background-color: #eee;
-        border-radius: 3px;
-        padding: 2px;
-
-        body.dark & {
-            color: #fff;
-            background-color: #000;
-        }
-    }
-
-    pre {
-        background: #2d2d2d;
-        overflow-x: auto;
-        font-family: monospace;
-        padding: 1em;
-        font-size: 1em;
-        line-height: 1.5;
-
-        body.dark & {
-            background: #000;
-        }
-
-        code {
-            color: #fff !important;
-            background-color: rgba(0, 0, 0, 0);
-        }
-
-        a {
-            text-decoration: none;
-            color: #888;
-        }
-    }
-}
-
-.comment-form {
-    .form-control {
-        box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
-        border: 0;
-        border-radius: 0;    
-
-        :focus {
-            box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
-        }
-    }
-}
-
 footer { 
     color: #ccc;
     
@@ -886,11 +800,96 @@ footer {
 .comment-list {
     word-break: break-word;
     background: #fff;
-    margin-bottom: 15px;
-    padding: 20px;
+    padding: 30px 15px 10px 15px;
 
     body.dark & {
         background: #1f1f1f;
+    }
+
+    .comment-content {
+        font-family: $gothic;
+    
+        h1, h2, h3, h4, h5, h6 {
+            font-size: 1.2em;
+            font-family: $serif;
+            font-weight: 600;    
+        }
+        
+        a {
+            color: #a7a7a7;
+            
+            &:hover {
+                text-decoration: none;        
+            }
+        }
+    
+        blockquote {
+            border-left: 4px solid #9c56d4;
+            background: #f8f8f8;
+            padding: 10px;
+    
+            body.dark & {
+                border-left: 4px solid $smooth-purple-complementary;
+                background: $dark-mode-body-bg;
+            }
+    
+            p {
+                margin-bottom: 0;
+            }
+        }
+    
+        img, video {
+            max-width: 100%;
+        }
+    
+        code {
+            font-family: $gothic;
+            font-weight: 300;
+            color: #000;
+            background-color: #eee;
+            border-radius: 3px;
+            padding: 2px;
+    
+            body.dark & {
+                color: #fff;
+                background-color: #000;
+            }
+        }
+    
+        pre {
+            background: #2d2d2d;
+            overflow-x: auto;
+            font-family: monospace;
+            padding: 1em;
+            font-size: 1em;
+            line-height: 1.5;
+    
+            body.dark & {
+                background: #000;
+            }
+    
+            code {
+                color: #fff !important;
+                background-color: rgba(0, 0, 0, 0);
+            }
+    
+            a {
+                text-decoration: none;
+                color: #888;
+            }
+        }
+    }
+    
+    .comment-form {
+        .form-control {
+            box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
+            border: 0;
+            border-radius: 0;    
+    
+            :focus {
+                box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
+            }
+        }
     }
 }
 /* POSTS : DETAIL : SERIES */

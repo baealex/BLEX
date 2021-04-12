@@ -8,7 +8,7 @@ import ArticleAuthor from '@components/article/ArticleAuthor';
 import ArticleContent from '@components/article/ArticleContent';
 import ArticleSereis from '@components/article/ArticleSeries';
 import TagList from '@components/tag/TagList';
-import Comment from '@components/comment/Comment';
+import CommentItem from '@components/comment/CommentItem';
 import CommentEdit from '@components/comment/CommentEdit';
 import CommentForm from '@components/comment/CommentForm';
 import CommentAlert from '@components/comment/CommentAlert';
@@ -65,6 +65,7 @@ interface State {
     username: string;
     totalLikes: number;
     comments: Comment[];
+    commentForm: string;
     selectedTag?: string;
     headerNav: string[][];
     headerNow: string;
@@ -81,6 +82,8 @@ interface Comment {
     timeSince: string;
     textHtml: string;
     textMarkdown: string;
+    totalLikes: number;
+    isLiked: boolean;
 }
 
 interface SeriesPosts {
@@ -100,7 +103,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
     const cookie = req.headers.cookie;
 
-    console.log('tt');
     try {
         const post = await API.getPost(author as string, posturl as string, 'view', cookie);
 
@@ -154,6 +156,7 @@ class PostDetail extends React.Component<Props, State> {
             username: Global.state.username,
             totalLikes: props.post.totalLikes,
             isOpenSideIndex: false,
+            commentForm: '',
             headerNav: [],
             headerNow: '',
             comments: []
@@ -351,6 +354,28 @@ class PostDetail extends React.Component<Props, State> {
         });
         lazyLoadResource();
     }
+
+    async onCommentLike(pk: number) {
+        const { data } = await API.likeComment(pk);
+        if(data === API.ERROR.SAME_USER) {
+            toast('😅 자신의 댓글은 추천할 수 없습니다.');
+            return;
+        }
+        if(data === API.ERROR.REJECT) {
+            toast('😅 삭제된 댓글은 추천할 수 없습니다.');
+            return;
+        }
+
+        let { comments } = this.state;
+        comments = comments.map(comment => (
+            comment.pk === pk ? ({
+                ...comment,
+                isLiked: !comment.isLiked,
+                totalLikes: data,
+            }) : comment
+        ));
+        this.setState({comments});
+    }
     
     async onCommentEdit(pk: number) {
         const { data } = await API.getCommentMd(pk);
@@ -394,6 +419,26 @@ class PostDetail extends React.Component<Props, State> {
             }) : comment
         ));
         this.setState({comments});
+    }
+
+    onCommentTag(username: string) {
+        if(!this.state.username) {
+            toast('😅 로그인이 필요합니다.', {
+                onClick: () => Global.onOpenModal('isLoginModalOpen')
+            });
+            return;
+        }
+
+        const { commentForm } = this.state;
+        if(commentForm.includes(`\`@${username}\``)) {
+            toast(`😅 이미 ${username}님을 태그했습니다.`);
+            return; 
+        }
+        
+        this.setState({
+            commentForm: commentForm + ` \`@${username}\``
+        });
+        toast(`😀 ${username}님을 태그했습니다.`);
     }
 
     async onCommentDelete(pk: number) {
@@ -538,7 +583,7 @@ class PostDetail extends React.Component<Props, State> {
                                         onCancle={(pk: number) => this.onCommentEditCancle(pk)}
                                     />
                                 ) : (
-                                    <Comment
+                                    <CommentItem
                                         key={idx}
                                         pk={comment.pk}
                                         author={comment.author}
@@ -547,8 +592,12 @@ class PostDetail extends React.Component<Props, State> {
                                         html={comment.textHtml}
                                         isEdited={comment.isEdited}
                                         isOwner={this.state.username === comment.author ? true : false}
+                                        totalLikes={comment.totalLikes}
+                                        isLiked={comment.isLiked}
                                         onEdit={(pk: number) => this.onCommentEdit(pk)}
                                         onDelete={(pk: number) => this.onCommentDelete(pk)}
+                                        onLike={(pk: number) => this.onCommentLike(pk)}
+                                        onTag={(username: string) => this.onCommentTag(username)}
                                     />
                                 )
                             )) : <CommentAlert
@@ -556,7 +605,13 @@ class PostDetail extends React.Component<Props, State> {
                                 />
                             }
                             {this.state.isLogin ? (
-                                <CommentForm onSubmit={this.onSubmitComment.bind(this)}/>
+                                <CommentForm
+                                    content={this.state.commentForm}
+                                    onChange={(value: string) => this.setState({
+                                        commentForm: value
+                                    })}
+                                    onSubmit={this.onSubmitComment.bind(this)}
+                                />
                             ) : (
                                 <div className="noto alert alert-warning s-shadow c-pointer" onClick={() => Global.onOpenModal('isLoginModalOpen')}>
                                     댓글을 작성하기 위해 로그인이 필요합니다.
