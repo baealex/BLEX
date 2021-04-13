@@ -357,6 +357,14 @@ class PostDetail extends React.Component<Props, State> {
 
     async onCommentLike(pk: number) {
         const { data } = await API.likeComment(pk);
+        if(data === API.ERROR.NOT_LOGIN) {
+            toast('😅 로그인이 필요합니다.', {
+                onClick:() => {
+                    Global.onOpenModal('isLoginModalOpen');
+                }
+            });
+            return;
+        }
         if(data === API.ERROR.SAME_USER) {
             toast('😅 자신의 댓글은 추천할 수 없습니다.');
             return;
