@@ -12,6 +12,7 @@ import CommentItem from '@components/comment/CommentItem';
 import CommentEdit from '@components/comment/CommentEdit';
 import CommentForm from '@components/comment/CommentForm';
 import CommentAlert from '@components/comment/CommentAlert';
+import Toggle from '@components/toggle';
 import Footer from '@components/common/Footer';
 import SEO from '@components/seo';
 
@@ -538,6 +539,16 @@ class PostDetail extends React.Component<Props, State> {
                                     <div className="btn btn-dark noto m-1" onClick={() => this.onDelete()}>포스트 삭제</div>
                                 </div>
                             ) : ''}
+                            <Toggle
+                                label="링크를 새탭에서 여세요."
+                                onClick={() => {
+                                    const { isOpenNewTab } = Global.state;
+                                    Global.setState({
+                                        isOpenNewTab: !isOpenNewTab,
+                                    });
+                                }}
+                                defaultChecked={Global.state.isOpenNewTab}
+                            />
                             <ArticleContent html={this.props.post.textHtml}/>
                             <TagList author={this.props.post.author} tag={this.props.post.tag.split(',')}/>
                             {this.props.hasSeries ? (

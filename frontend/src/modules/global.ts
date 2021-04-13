@@ -2,6 +2,7 @@ interface GlobalState {
     isLogin: boolean;
     username: string;
     isNightMode: boolean;
+    isOpenNewTab: boolean;
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
     isTwoFactorAuthModalOpen: boolean;
@@ -18,6 +19,7 @@ class Global {
             isLogin: false,
             username: '',
             isNightMode: false,
+            isOpenNewTab: false,
             isLoginModalOpen: false,
             isSignupModalOpen: false,
             isTwoFactorAuthModalOpen: false,

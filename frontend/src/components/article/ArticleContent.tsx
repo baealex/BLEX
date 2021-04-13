@@ -1,4 +1,7 @@
+import { useState, useEffect } from 'react';
 import Router from 'next/router';
+
+import Global from '@modules/global'
 
 function onInnerLinkClickEvent(this: HTMLAnchorElement, e: any) {
     if(this.href.includes(`${location.protocol}//${location.host}/`)) {
@@ -7,14 +10,33 @@ function onInnerLinkClickEvent(this: HTMLAnchorElement, e: any) {
     }
 }
 
+function onNewTabLinkClickEvent(this: HTMLAnchorElement, e: any) {
+    e.preventDefault();
+    window.open(this.href, '_blank');
+}
+
 export default function ArticleContent(props: {
     html: string;
 }) {
-    if(typeof window !== "undefined") {
-        document.querySelectorAll('.article a').forEach(element => {
-            element.addEventListener('click', onInnerLinkClickEvent);
-        });
-    }
+    const [ isOpenNewTab, setIsOpenNewTab ] = useState(Global.state.isOpenNewTab);
+    Global.appendUpdater('ArticleContentIsOpenNewTab', () => {
+        setIsOpenNewTab(Global.state.isOpenNewTab);
+    });
+
+    useEffect(() => {
+        if(typeof window !== "undefined") {
+            document.querySelectorAll('.article a').forEach(element => {
+                if(isOpenNewTab) {
+                    element.removeEventListener('click', onInnerLinkClickEvent);
+                    element.addEventListener('click', onNewTabLinkClickEvent);
+                } else {
+                    element.removeEventListener('click', onNewTabLinkClickEvent);
+                    element.addEventListener('click', onInnerLinkClickEvent);
+                }
+            });
+        }
+    }, [isOpenNewTab]);
+
     return (
         <div
             className="article noto"
