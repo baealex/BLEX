@@ -232,7 +232,10 @@ class Post(models.Model):
         return truncatewords(strip_tags(self.text_html), count)[:200]
     
     def description_tag(self, count=25):
-        return self.description(count)[:120]
+        description = self.description(count)[:120]
+        if not description:
+            description = '이 포스트는 이미지 혹은 영상으로만 구성되어 있습니다.'
+        return description
     
     def read_time(self):
         return int(len(strip_tags(self.text_html))/500)
