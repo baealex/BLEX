@@ -14,10 +14,11 @@ from django.conf import settings
 
 from board.models import *
 
-rfs = RefererFrom.objects.all()
+rfs = RefererFrom.objects.exclude(title='')
 
 for rf in rfs:
     if rf.title:
         rf.title = html.unescape(rf.title)
     rf.save()
+    print(rf.title)
     time.sleep(0.3)
