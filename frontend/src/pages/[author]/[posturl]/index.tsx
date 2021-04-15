@@ -12,7 +12,7 @@ import CommentItem from '@components/comment/CommentItem';
 import CommentEdit from '@components/comment/CommentEdit';
 import CommentForm from '@components/comment/CommentForm';
 import CommentAlert from '@components/comment/CommentAlert';
-import Toggle from '@components/toggle';
+import Toggle from '@components/atoms/toggle';
 import Footer from '@components/common/Footer';
 import SEO from '@components/seo';
 
@@ -567,7 +567,7 @@ class PostDetail extends React.Component<Props, State> {
                             ) : <></>}
                         </div>
                         <div className="col-lg-2 mobile-disable">
-                            <div className="sticky-top article-nav">
+                            <div className="sticky-top article-nav none-drag">
                                 {this.state.headerNav.map((item, idx) => (
                                     <a className={`title-${item[0]} ${this.state.headerNow == item[1] ? 'nav-now' : ''}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
                                 ))}
@@ -579,7 +579,7 @@ class PostDetail extends React.Component<Props, State> {
                                     <i className="fas fa-rocket"/>
                                 </div>
                                 <div className={`thread-sidebar ${isOpenSideIndex ? '' : 'closed'}`}>
-                                    <ul>
+                                    <ul className="none-drag">
                                         {this.state.headerNav.map((item, idx) => (
                                             <li className={`story-read ml-${item[0]}`} key={idx}>
                                                 <a className={this.state.headerNow == item[1] ? 'active' : ''} href={`#${item[1]}`}>{item[2]}</a>

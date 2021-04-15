@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 interface Props {
     label: string;
     onClick: Function;
@@ -5,24 +7,26 @@ interface Props {
 };
 
 export default function Toggle(props: Props) {
-    let checkbox: HTMLInputElement;
+    const checkbox = useRef<HTMLInputElement>(null);
 
     const onClickCheckbox = () => {
-        checkbox?.click();
+        checkbox.current?.click();
     };
 
     return (
         <div className="custom-control custom-switch noto">
             <input
-                ref={(el) => checkbox = el as HTMLInputElement}
+                ref={checkbox}
                 onClick={(e: any) => props.onClick(e.target.checked)}
                 type="checkbox"
-                className="custom-control-input"
+                className="custom-control-input c-pointer"
                 defaultChecked={props.defaultChecked}
             />
-            <label className="custom-control-label" onClick={() => onClickCheckbox()}>
-                {props.label}
-            </label>
+            {props.label && (
+                <label className="custom-control-label none-drag c-pointer" onClick={() => onClickCheckbox()}>
+                    {props.label}
+                </label>
+            )}
         </div>
     )
 }
