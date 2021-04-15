@@ -75,7 +75,7 @@ class EditorContent extends React.Component<Props> {
                     </>
                 ) : (
                     <>
-                        <ArticleContent html={blexer(this.props.value)}/>
+                        <ArticleContent isEdit html={blexer(this.props.value)}/>
                     </>
                 )}
             </>

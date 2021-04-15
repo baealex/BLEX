@@ -17,6 +17,7 @@ function onNewTabLinkClickEvent(this: HTMLAnchorElement, e: any) {
 
 export default function ArticleContent(props: {
     html: string;
+    isEdit?: boolean;
 }) {
     const [ isOpenNewTab, setIsOpenNewTab ] = useState(Global.state.isOpenNewTab);
     Global.appendUpdater('ArticleContentIsOpenNewTab', () => {
@@ -26,7 +27,7 @@ export default function ArticleContent(props: {
     useEffect(() => {
         if(typeof window !== "undefined") {
             document.querySelectorAll('.article a').forEach(element => {
-                if(isOpenNewTab) {
+                if(isOpenNewTab || props.isEdit) {
                     element.removeEventListener('click', onInnerLinkClickEvent);
                     element.addEventListener('click', onNewTabLinkClickEvent);
                 } else {
