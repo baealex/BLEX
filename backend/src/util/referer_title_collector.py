@@ -26,9 +26,10 @@ for rf in rfs:
         title = title.group(1)
         title = html.unescape(title)
         title = urllib.parse.unquote(title)
-        rf.title = title
-        rf.update()
-    if not title:
+        if not 'http://' in title and not 'https://' in title:
+            rf.title = title
+    if not rf.title:
         rf.title = rf.location.split('//')[1].split('/')[0]
     print(rf.title)
+    rf.update()
     time.sleep(10)

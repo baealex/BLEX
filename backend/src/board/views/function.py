@@ -121,9 +121,9 @@ def create_referer(element, referer):
                     title = title.group(1)
                     title = html.unescape(title)
                     title = urllib.parse.unquote(title)
-                    if not 'https://' in title:
+                    if not 'http://' in title and not 'https://' in title:
                         referer_from.title = title
-                if not title:
+                if not referer_from.title:
                     referer_from.title = referer.split('//')[1].split('/')[0]
                 referer_from.update()
             sub_task_manager.append_task(get_title)
