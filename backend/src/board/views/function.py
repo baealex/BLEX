@@ -121,7 +121,8 @@ def create_referer(element, referer):
                     title = title.group(1)
                     title = html.unescape(title)
                     title = urllib.parse.unquote(title)
-                    referer_from.title = title
+                    if not 'https://' in title:
+                        referer_from.title = title
                 if not title:
                     referer_from.title = referer.split('//')[1].split('/')[0]
                 referer_from.update()

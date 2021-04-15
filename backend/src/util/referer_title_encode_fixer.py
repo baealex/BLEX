@@ -18,10 +18,10 @@ from board.models import *
 rfs = RefererFrom.objects.exclude(title='')
 
 for rf in rfs:
-    if rf.title:
-        rf.title = html.unescape(rf.title)
-        rf.title = urllib.parse.unquote(rf.title)
-        print(rf.title)
-        if 'https://' in rf.title:
-            rf.title = ''
+    rf.title = html.unescape(rf.title)
+    rf.title = urllib.parse.unquote(rf.title)
+    print(rf.title)
+    if 'https://' in rf.title:
+        rf.title = ''
+    rf.save()
     time.sleep(0.3)
