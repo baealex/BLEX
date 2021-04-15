@@ -20,14 +20,17 @@ from board.models import *
 rfs = RefererFrom.objects.filter(title='')
 
 for rf in rfs:
-    response = requests.get(rf.location)
-    title = re.search(r'<title.*?>(.+?)</title>', response.text)
-    if title:
-        title = title.group(1)
-        title = html.unescape(title)
-        title = urllib.parse.unquote(title)
-        if not 'http://' in title and not 'https://' in title:
-            rf.title = title
+    try:
+        response = requests.get(rf.location)
+        title = re.search(r'<title.*?>(.+?)</title>', response.text)
+        if title:
+            title = title.group(1)
+            title = html.unescape(title)
+            title = urllib.parse.unquote(title)
+            if not 'http://' in title and not 'https://' in title:
+                rf.title = title
+    except:
+        pass
     if not rf.title:
         rf.title = rf.location.split('//')[1].split('/')[0]
     print(rf.title)

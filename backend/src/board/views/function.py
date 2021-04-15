@@ -115,14 +115,17 @@ def create_referer(element, referer):
             referer_from.refresh_from_db()
         if referer_from.should_update():
             def get_title():
-                response = requests.get(referer)
-                title = re.search(r'<title.*?>(.+?)</title>', response.text)
-                if title:
-                    title = title.group(1)
-                    title = html.unescape(title)
-                    title = urllib.parse.unquote(title)
-                    if not 'http://' in title and not 'https://' in title:
-                        referer_from.title = title
+                try:
+                    response = requests.get(referer)
+                    title = re.search(r'<title.*?>(.+?)</title>', response.text)
+                    if title:
+                        title = title.group(1)
+                        title = html.unescape(title)
+                        title = urllib.parse.unquote(title)
+                        if not 'http://' in title and not 'https://' in title:
+                            referer_from.title = title
+                except:
+                    pass
                 if not referer_from.title:
                     referer_from.title = referer.split('//')[1].split('/')[0]
                 referer_from.update()
