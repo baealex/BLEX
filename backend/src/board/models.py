@@ -407,9 +407,9 @@ class Referer(models.Model):
 
 class RefererFrom(models.Model):
     location     = models.CharField(max_length=500, unique=True)
-    title        = models.CharField(max_length=100, default='')
-    image        = models.CharField(max_length=500, default='')
-    description  = models.CharField(max_length=250, default='')
+    title        = models.CharField(max_length=100, default='', blank=True)
+    image        = models.CharField(max_length=500, default='', blank=True)
+    description  = models.CharField(max_length=250, default='', blank=True)
     updated_date = models.DateTimeField(default=timezone.now)
     created_date = models.DateTimeField(default=timezone.now)
     

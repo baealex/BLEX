@@ -1,9 +1,7 @@
 import os
 import re
 import json
-import html
 import time
-import random
 import traceback
 
 import humps
@@ -612,7 +610,7 @@ def user_posts_analytics(request, username, url):
             data['referers'].append({
                 'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
                 'from': referer.referer_from.location,
-                'title': html.unescape(referer.referer_from.title)
+                'title': referer.referer_from.title
             })
         return CamelizeJsonResponse(data)
 
@@ -818,7 +816,7 @@ def setting(request, item):
                 data['referers'].append({
                     'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
                     'url': referer.referer_from.location,
-                    'title': html.unescape(referer.referer_from.title)
+                    'title': referer.referer_from.title
                 })
             return CamelizeJsonResponse(data)
     
