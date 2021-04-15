@@ -4,6 +4,7 @@ import sys
 import html
 import time
 import django
+import urllib
 import requests
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,7 +23,11 @@ for rf in rfs:
     response = requests.get(rf.location)
     title = re.search(r'<title.*?>(.+?)</title>', response.text)
     if title:
-        rf.title = html.unescape(title.group(1))
+        title = title.group(1)
+        title = html.unescape(title)
+        title = urllib.parse.unquote(title)
+        rf.title = title
+        rf.update()
     if not title:
         rf.title = rf.location.split('//')[1].split('/')[0]
     print(rf.title)

@@ -1,6 +1,7 @@
 import os
 import sys
 import html
+import urllib
 import django
 import time
 
@@ -19,6 +20,8 @@ rfs = RefererFrom.objects.exclude(title='')
 for rf in rfs:
     if rf.title:
         rf.title = html.unescape(rf.title)
-    rf.save()
-    print(rf.title)
+        rf.title = urllib.parse.unquote(rf.title)
+        print(rf.title)
+        if 'https://' in rf.title:
+            rf.title = ''
     time.sleep(0.3)

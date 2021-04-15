@@ -2,6 +2,7 @@ import io
 import os
 import re
 import html
+import urllib
 import base64
 import hashlib
 import requests
@@ -117,7 +118,10 @@ def create_referer(element, referer):
                 response = requests.get(referer)
                 title = re.search(r'<title.*?>(.+?)</title>', response.text)
                 if title:
-                    referer_from.title = html.unescape(title.group(1))
+                    title = title.group(1)
+                    title = html.unescape(title)
+                    title = urllib.parse.unquote(title)
+                    referer_from.title = title
                 if not title:
                     referer_from.title = referer.split('//')[1].split('/')[0]
                 referer_from.update()
