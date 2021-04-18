@@ -504,7 +504,7 @@ def user_posts(request, username, url=None):
                     'total_likes': post.total_likes(),
                     'total_comment': post.total_comment(),
                     'tag': post.tag,
-                    'is_liked': post.likes.filter(id=request.user.id).exists()
+                    'is_liked': post.likes.filter(user=request.user).exists()
                 })
 
     if request.method == 'POST':
@@ -539,10 +539,11 @@ def user_posts(request, username, url=None):
             if request.user == post.author:
                 return HttpResponse('error:SU')
             user = User.objects.get(username=request.user)
-            if post.likes.filter(id=user.id).exists():
-                post.likes.remove(user)
+            post_like = post.likes.filter(user=user)
+            if post_like.exists():
+                post_like.delete()
             else:
-                post.likes.add(user)
+                PostLikes(post=post, user=user).save()
                 send_notify_content = '\''+ post.title +'\'글을 @'+ user.username +'님께서 추천했습니다.'
                 fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
             return HttpResponse(str(post.total_likes()))
