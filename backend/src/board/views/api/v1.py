@@ -720,7 +720,7 @@ def setting(request, item):
     if request.method == 'GET':
         if item == 'notify':
             seven_days_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
-            notify = Notify.objects.filter(user=user, created_date__gt=seven_days_ago).order_by('-created_date')
+            notify = Notify.objects.filter(user=user).filter(Q(created_date__gt=seven_days_ago) | Q(is_read=False)).order_by('-created_date')
             
             return CamelizeJsonResponse({
                 'notify': list(map(lambda item: {
