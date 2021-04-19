@@ -84,6 +84,7 @@ class Write extends React.Component<Props, State> {
         Global.appendUpdater('Write', () => {
             this.setState({
                 username: Global.state.username,
+                isAutoSave: Global.state.isAutoSave,
             });
         });
     }
@@ -250,7 +251,7 @@ class Write extends React.Component<Props, State> {
 
     onCheckAutoSave(checked: boolean) {
         !checked && clearTimeout(this.saveTimer);
-        this.setState({
+        Global.setState({
             isAutoSave: checked
         });
     }

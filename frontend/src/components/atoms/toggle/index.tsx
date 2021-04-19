@@ -2,7 +2,7 @@ import { useRef } from 'react';
 
 interface Props {
     label: string;
-    onClick: Function;
+    onClick: (value: boolean) => void;
     defaultChecked?: boolean;
 };
 

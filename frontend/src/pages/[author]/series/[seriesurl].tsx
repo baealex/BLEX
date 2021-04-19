@@ -35,7 +35,7 @@ interface State {
     seriesDescription: string;
     seriesPosts: Posts[];
     isSeriesModalOpen: boolean;
-    isSeriesReverse: boolean;
+    isSortOldFirst: boolean;
 };
 
 interface Posts {
@@ -79,11 +79,12 @@ class Series extends React.Component<Props, State> {
             seriesDescription: props.series.description,
             seriesPosts: props.series.posts,
             isSeriesModalOpen: false,
-            isSeriesReverse: false
+            isSortOldFirst: true,
         }
-        Global.appendUpdater('Series', () => this.setState({
+        Global.appendUpdater('AuthorSeriesDetail', () => this.setState({
             isLogin: Global.state.isLogin,
-            username: Global.state.username
+            username: Global.state.username,
+            isSortOldFirst: Global.state.isSortOldFirst
         }));
     }
 
@@ -211,8 +212,10 @@ class Series extends React.Component<Props, State> {
         ) : '';
 
         const {
-            isSeriesReverse
+            isSortOldFirst
         } = this.state;
+
+        console.log(isSortOldFirst);
 
         return (
             <>
@@ -243,33 +246,35 @@ class Series extends React.Component<Props, State> {
                             ) : ''}
                             <SeriesDesc {...this.props.series} description={this.state.seriesDescription}/>
                             <div className="mt-5 mb-3 text-right">
-                                <div className="btn btn-dark noto m-1" onClick={() => this.setState({isSeriesReverse: !isSeriesReverse})}>
-                                    {isSeriesReverse ? (
+                                <div className="btn btn-dark noto m-1" onClick={() => Global.setState({
+                                    isSortOldFirst: !isSortOldFirst
+                                })}>
+                                    {isSortOldFirst ? (
                                         <>
-                                            <i className="fas fa-sort-down"/> 최근부터
+                                            <i className="fas fa-sort-up"/> 과거부터
                                         </>
                                     ) : (
                                         <>
-                                            <i className="fas fa-sort-up"/> 과거부터
+                                            <i className="fas fa-sort-down"/> 최근부터
                                         </>
                                     )}
                                 </div>
                             </div>
-                            {isSeriesReverse ? seriesPosts.map((post, idx) => (
+                            {isSortOldFirst ? seriesPosts.map((post, idx) => (
                                 <ArticleCard
                                     key={idx}
                                     idx={idx}
                                     author={this.props.series.author}
                                     {...post}
                                 />
-                            )).reverse() : seriesPosts.map((post, idx) => (
+                            )) : seriesPosts.map((post, idx) => (
                                 <ArticleCard
                                     key={idx}
                                     idx={idx}
                                     author={this.props.series.author}
                                     {...post}
                                 />
-                            ))}
+                            )).reverse()}
                         </div>
                     </div>
                 </div>
