@@ -43,6 +43,8 @@ interface State {
     series: string;
     image: File | undefined;
     isAutoSave: boolean;
+    isHide: boolean;
+    isAdvertise: boolean;
     isOpenArticleModal: boolean;
     tempPosts: {
         token: string;
@@ -74,6 +76,8 @@ class Write extends React.Component<Props, State> {
             tags: '',
             token: '',
             series: '',
+            isHide: false,
+            isAdvertise: false,
             image: undefined,
             isAutoSave: true,
             isOpenArticleModal: false,
@@ -176,6 +180,8 @@ class Write extends React.Component<Props, State> {
             formData.append('tag', this.state.tags);
             formData.append('series', this.state.series);
             formData.append('token', this.state.token);
+            formData.append('is_hide', JSON.stringify(this.state.isHide));
+            formData.append('is_advertise', JSON.stringify(this.state.isAdvertise));
 
             const { data } = await API.postPost('@' + this.state.username, formData);
             Router.push('/[author]/[posturl]', `/@${this.state.username}/${data}`);
@@ -286,14 +292,22 @@ class Write extends React.Component<Props, State> {
                     series={{
                         list: seriesArray,
                         value: this.state.series,
-                        onChange: (value: string) => this.setState({series: value}),
+                        onChange: (value) => this.setState({series: value}),
                     }}
                     tags={{
                         value: this.state.tags,
-                        onChange: (value: string) => this.setState({tags: value}),
+                        onChange: (value) => this.setState({tags: value}),
+                    }}
+                    isHide={{
+                        value: this.state.isHide,
+                        onChange: (value) => this.setState({isHide: value})
+                    }}
+                    isAdvertise={{
+                        value: this.state.isAdvertise,
+                        onChange: (value) => this.setState({isAdvertise: value})
                     }}
                     image={{
-                        onChange: (image: File) => this.setState({image: image})
+                        onChange: (image) => this.setState({image: image})
                     }}
                     publish={{
                         title: "포스트 발행",

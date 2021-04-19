@@ -436,6 +436,8 @@ def user_posts(request, username, url=None):
             post.author = request.user
             post.text_md = request.POST.get('text_md', '')
             post.text_html = request.POST.get('text_html', '')
+            post.hide = True if request.POST.get('is_hide', '') == 'true' else False
+            post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
 
             try:
                 series_url = request.POST.get('series', '')
@@ -482,7 +484,8 @@ def user_posts(request, username, url=None):
                     'series': post.series.url if post.series else None,
                     'text_md': post.text_md,
                     'tag': post.tag,
-                    'is_hide': post.hide
+                    'is_hide': post.hide,
+                    'is_advertise': post.advertise
                 })
 
             if request.GET.get('mode') == 'view':
@@ -512,6 +515,8 @@ def user_posts(request, username, url=None):
         post.title = request.POST.get('title', '')
         post.text_md = request.POST.get('text_md', '')
         post.text_html = request.POST.get('text_html', '')
+        post.hide = True if request.POST.get('is_hide', '') == 'true' else False
+        post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
         post.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
 
         try:

@@ -4,6 +4,7 @@ import Modal from '@components/modal/Modal';
 import ModalContent from '@components/modal/Content';
 import ModalButton from '@components/modal/Button';
 
+import CheckBox from '@components/atoms/check-box';
 import ImageForm from '@components/form/ImageForm';
 import InputForm from '@components/form/InputForm';
 import SelectForm from '@components/form/SelectForm';
@@ -19,11 +20,11 @@ import { dropImage, uploadImage } from '@modules/image';
 interface Props {
     title: {
         value: string;
-        onChange: Function;
+        onChange: (value: string) => void;
     },
     content: {
         value: string;
-        onChange: Function;
+        onChange: (value: string) => void;
     }
     series: {
         list?: {
@@ -31,18 +32,26 @@ interface Props {
             title: string;
         }[];
         value: string;
-        onChange: Function;
+        onChange: (value: string) => void;
     }
     tags: {
         value: string;
-        onChange: Function;
+        onChange: (value: string) => void;
     }
     image: {
-        onChange: Function;
+        onChange: (image: File) => void;
     }
     publish: {
         title: string;
         buttonText: string;
+    }
+    isHide: {
+        value: boolean;
+        onChange: (value: boolean) => void;
+    }
+    isAdvertise: {
+        value: boolean;
+        onChange: (value: boolean) => void;
     }
     onSubmit: Function;
     addon?: {
@@ -187,6 +196,16 @@ export default function Layout(props: Props) {
                             value={props.tags.value}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.tags.onChange(e.target.value)}
                             placeholder="띄어쓰기 혹은 반점으로 구분하세요."
+                        />
+                        <CheckBox
+                            label="포스트를 숨깁니다."
+                            defaultChecked={props.isHide.value}
+                            onClick={(value: boolean) => props.isHide.onChange(value)}
+                        />
+                        <CheckBox
+                            label="포스트에 광고가 있습니다."
+                            defaultChecked={props.isAdvertise.value}
+                            onClick={(value: boolean) => props.isAdvertise.onChange(value)}
                         />
                     </ModalContent>
                     <ModalButton text={props.publish.buttonText} onClick={() => onSubmit()}/>

@@ -46,7 +46,8 @@ interface PostsEditData {
     series: string;
     textMd: string;
     tag: string;
-    isHide: string;
+    isHide: boolean;
+    isAdvertise: boolean;
 }
 
 interface Props extends PostsEditData {
@@ -65,6 +66,8 @@ export default function Edit(props: Props) {
     const [ content, setContent ] = useState(props.textMd);
     const [ series, setSeries ] = useState(props.series);
     const [ tags, setTags ] = useState(props.tag);
+    const [ isHide, setIsHide ] = useState(props.isHide);
+    const [ isAdvertise, setIsAdvertise ] = useState(props.isAdvertise);
 
     const onSubmit = async () => {
         if(!title) {
@@ -85,6 +88,8 @@ export default function Edit(props: Props) {
             }
             formData.append('tag', tags);
             formData.append('series', series);
+            formData.append('is_hide', JSON.stringify(isHide));
+            formData.append('is_advertise', JSON.stringify(isAdvertise));
 
             const { data } = await API.editPost(props.username, props.posturl, formData);
             if(data == 'DONE') {
@@ -99,23 +104,31 @@ export default function Edit(props: Props) {
         <EditorLayout
             title={{
                 value: title,
-                onChange: (value: string) => setTitle(value),
+                onChange: (value) => setTitle(value),
             }}
             content={{
                 value: content,
-                onChange: (value: string) => setContent(value),
+                onChange: (value) => setContent(value),
             }}
             series={{
                 list: props.seriesArray,
                 value: series,
-                onChange: (value: string) => setSeries(value),
+                onChange: (value) => setSeries(value),
             }}
             tags={{
                 value: tags,
-                onChange: (value: string) => setTags(value),
+                onChange: (value) => setTags(value),
+            }}
+            isHide={{
+                value: isHide,
+                onChange: (value) => setIsHide(value)
+            }}
+            isAdvertise={{
+                value: isAdvertise,
+                onChange: (value) => setIsAdvertise(value)
             }}
             image={{
-                onChange: (image: File) => {
+                onChange: (image) => {
                     imageFile = image;
                     console.log(imageFile);
                 }
@@ -125,6 +138,6 @@ export default function Edit(props: Props) {
                 buttonText: "이렇게 수정하겠습니다"
             }}
             onSubmit={onSubmit}
-        ></EditorLayout>
+        />
     )
 }

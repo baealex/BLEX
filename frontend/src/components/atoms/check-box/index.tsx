@@ -1,6 +1,6 @@
 interface Props {
     label: string;
-    onCheck: (value: boolean) => void;
+    onClick: (value: boolean) => void;
     defaultChecked: boolean;
 };
 
@@ -12,10 +12,10 @@ export default function CheckBox(props: Props) {
     };
 
     return (
-        <div className="form-group form-check">
+        <div className="d-flex align-items-center form-group form-check">
             <input
                 ref={(el) => checkbox = el as HTMLInputElement}
-                onClick={(e: any) => props.onCheck(e.target.checked)}
+                onClick={(e: any) => props.onClick(e.target.checked)}
                 type="checkbox"
                 className="form-check-input c-pointer"
                 defaultChecked={props.defaultChecked}
