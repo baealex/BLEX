@@ -786,14 +786,6 @@ footer {
             color: #777;
             text-decoration: none;
         }
-
-        &::selection {
-            background: rgba(0, 0, 0, 0);   
-        }
-        
-        &::-moz-selection {
-            background: rgba(0, 0, 0, 0);
-        }
     }
 }
 /* POSTS : DETAIL : COMMENT */

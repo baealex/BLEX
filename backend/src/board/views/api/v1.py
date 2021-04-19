@@ -504,7 +504,7 @@ def user_posts(request, username, url=None):
                     'total_likes': post.total_likes(),
                     'total_comment': post.total_comment(),
                     'tag': post.tag,
-                    'is_liked': post.likes.filter(user=request.user).exists()
+                    'is_liked': post.likes.filter(user__id=request.user.id).exists()
                 })
 
     if request.method == 'POST':
