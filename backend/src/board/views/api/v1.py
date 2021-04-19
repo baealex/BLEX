@@ -744,7 +744,9 @@ def setting(request, item):
                 'username': user.username,
                 'realname': user.first_name,
                 'created_date': user.date_joined.strftime('%Y년 %m월 %d일'),
-                'has_two_factor_auth': user.config.has_two_factor_auth()
+                'has_two_factor_auth': user.config.has_two_factor_auth(),
+                'agree_email': user.config.agree_email,
+                'agree_history': user.config.agree_history
             })
         
         if item == 'profile':
@@ -837,14 +839,22 @@ def setting(request, item):
             return HttpResponse('DONE')
         
         if item == 'account':
+            should_update = False
             realname = put.get('realname', '')
             password = put.get('password', '')
             if realname and user.first_name != realname:
                 user.first_name = realname
+                should_update = True
             if password:
                 user.set_password(password)
                 auth.login(request, user)
-            user.save()
+                should_update = True
+            if should_update:
+                user.save()
+            
+            user.config.agree_email = True if put.get('agree_email', '') == 'true' else False
+            user.config.agree_history = True if put.get('agree_history', '') == 'true' else False
+            user.config.save()
             return HttpResponse('DONE')
         
         if item == 'profile':

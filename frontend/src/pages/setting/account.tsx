@@ -7,6 +7,7 @@ import Modal from '@components/modal/Modal';
 import ModalButton from '@components/modal/Button';
 import ModalContent from '@components/modal/Content';
 import SettingLayout from '@components/setting/layout';
+import CheckBox from '@components/atoms/check-box';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';
@@ -40,6 +41,8 @@ export default function Setting(props: Props) {
     const [ password, setPassword ] = useState('');
     const [ hasTwoFactorAuth, setTwoFactorAuth ] = useState(props.hasTwoFactorAuth);
     const [ passwordCheck, setPasswordCheck ] = useState('');
+    const [ agreeEmail, setAgreeEmail ] = useState(props.agreeEmail);
+    const [ agreeHistory, setAgreeHistory ] = useState(props.agreeHistory);
 
     const onChangeUsername = async () => {
         const { data } = await API.putUsername(
@@ -83,6 +86,9 @@ export default function Setting(props: Props) {
             }
             sendData.password = password;
         }
+
+        sendData.agree_email = agreeEmail;
+        sendData.agree_history = agreeHistory;
 
         const { data } = await API.putSetting('account', sendData);
         if(data == 'DONE') {
@@ -215,6 +221,16 @@ export default function Setting(props: Props) {
                         className="form-control"
                         maxLength={200}
                         onChange={(e) => setPasswordCheck(e.target.value)}
+                    />
+                    <CheckBox
+                        label="이메일 전송에 동의합니다."
+                        defaultChecked={agreeEmail}
+                        onClick={(value: boolean) => setAgreeEmail(value)}
+                    />
+                    <CheckBox
+                        label="활동 내역 수집에 동의합니다."
+                        defaultChecked={agreeHistory}
+                        onClick={(value: boolean) => setAgreeHistory(value)}
                     />
                     <button
                         type="button"

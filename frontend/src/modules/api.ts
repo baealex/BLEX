@@ -526,6 +526,8 @@ export interface SettingAccountData {
     realname: string;
     createdDate: string;
     hasTwoFactorAuth: boolean;
+    agreeEmail: boolean;
+    agreeHistory: boolean;
 }
 
 export interface SettingProfileData {
