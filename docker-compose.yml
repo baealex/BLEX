@@ -18,6 +18,7 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: ./Dockerfile
     restart: always
     # volumes:
     #   - /app/node_modules

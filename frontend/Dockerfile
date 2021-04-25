@@ -4,7 +4,7 @@ COPY ./src/package.json /app/
 
 WORKDIR /app
 
-RUN npm i --also=dev
+RUN npm i
 
 COPY ./src/ /app/
 
