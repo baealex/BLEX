@@ -14,7 +14,7 @@
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.1",
     "axios": "^0.21.1",
-    "frappe-charts": "^1.5.7",
+    "frappe-charts": "^1.6.1",
     "next": "^10.0.8",
     "next-transpile-modules": "^4.1.0",
     "node-fetch": ">=2.6.1",

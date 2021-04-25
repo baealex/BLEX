@@ -1074,15 +1074,13 @@ footer {
     word-break:break-all;
 }
 .heatmap {
-    position: relative;
     min-height: 200px;
     overflow-x: auto;
     overflow-y: hidden;
-}
-.heatmap > div {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    
+    div {
+        margin: 0 auto;
+    }
 }
 .grid {
     display: grid;
@@ -1822,14 +1820,6 @@ body.dark .btn {
 .Toastify__close-button--default {
     body.dark & {
         color: #fff !important;
-    }
-}
-
-.chart-container {
-    .graph-svg-tip {
-        .title {
-            display: none !important;   
-        }
     }
 }
 
