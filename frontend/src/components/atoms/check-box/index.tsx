@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 interface Props {
     label: string;
     onClick: (value: boolean) => void;
@@ -5,16 +7,16 @@ interface Props {
 };
 
 export default function CheckBox(props: Props) {
-    let checkbox: HTMLInputElement;
+    const checkbox = useRef<HTMLInputElement>(null);
 
     const onClickCheckbox = () => {
-        checkbox?.click();
+        checkbox.current?.click();
     };
 
     return (
         <div className="d-flex align-items-center form-group form-check">
             <input
-                ref={(el) => checkbox = el as HTMLInputElement}
+                ref={checkbox}
                 onClick={(e: any) => props.onClick(e.target.checked)}
                 type="checkbox"
                 className="form-check-input c-pointer"

@@ -499,6 +499,19 @@ export async function putSetting(item: string, data: object) {
     });
 }
 
+export async function changeAvatar(data: FormData) {
+    return await axios.request<ChangeAvatarData>({
+        url: `${Config.API_SERVER}/v1/setting/avatar`,
+        method: 'POST',
+        data: data,
+        withCredentials: true,
+    });
+}
+
+export interface ChangeAvatarData {
+    url: string;
+}
+
 export async function telegram(parameter: 'unsync' | 'makeToken') {
     return await axios({
         url: `${Config.API_SERVER}/v1/telegram/${parameter}`,

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import NProgress from 'nprogress';
 
 import SettingLayout from '@components/setting/layout';
+import { ImageInput } from '@components/integrated';
 
 import * as API from '@modules/api';
 
@@ -26,6 +28,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 export default function Setting(props: Props) {
+    const [ avatar, setAvatar ] = useState(props.avatar);
     const [ bio, setBio ] = useState(props.bio);
     const [ homepage, setHomepage ] = useState(props.homepage);
     const [ github, setGithub ] = useState(props.github);
@@ -54,6 +57,22 @@ export default function Setting(props: Props) {
     return (
         <>
             <SettingLayout tabname="profile">
+                <label>Avatar : </label>
+                <div className="mb-3">
+                    <ImageInput
+                        url={avatar}
+                        label="아바타 선택"
+                        onChange={async (file) => {
+                            NProgress.start();
+                            const formData = new FormData();
+                            formData.append('avatar', file);
+                            const { data } = await API.changeAvatar(formData);
+                            setAvatar(data.url);
+                            NProgress.done()
+                        }}
+                    />
+                </div>
+                <label>Bio : </label>
                 <textarea
                     cols={40}
                     rows={4}

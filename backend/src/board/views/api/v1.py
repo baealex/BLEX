@@ -828,6 +828,15 @@ def setting(request, item):
                 })
             return CamelizeJsonResponse(data)
     
+    if request.method == 'POST':
+        if item == 'avatar':
+            profile = Profile.objects.get(user=user)
+            profile.avatar = request.FILES['avatar']
+            profile.save()
+            return CamelizeJsonResponse({
+                'url': profile.get_thumbnail(),
+            })
+
     if request.method == 'PUT':
         put = QueryDict(request.body)
 
