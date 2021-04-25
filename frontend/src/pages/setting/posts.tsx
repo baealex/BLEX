@@ -6,6 +6,9 @@ import { toast } from 'react-toastify';
 import Modal from '@components/modal/Modal';
 import ModalContent from '@components/modal/Content';
 import SettingLayout from '@components/setting/layout';
+import {
+    Arcodian
+} from '@components/integrated'
 
 import * as API from '@modules/api';
 
@@ -152,26 +155,30 @@ export default function Setting(props: Props) {
     return (
         <>
             <SettingLayout tabname="posts" sticky={false} sideChildren={(
-                <ul className="nav noto blex-card my-3">
-                    <li className="nav-item">
-                        <span
-                            onClick={() => setSelectedTag('')}
-                            className={`nav-link c-pointer ${selectedTag ? 'shallow' : 'deep'}-dark`}
-                        >
-                            전체 ({posts.length})
-                        </span>
-                    </li>
-                    {tags.map((item, idx) => (
-                        <li key={idx} className="nav-item">
-                            <span
-                                onClick={() => setSelectedTag(item[0])}
-                                className={`nav-link c-pointer ${selectedTag == item[0] ? 'deep' : 'shallow'}-dark`}
-                            >
-                                {item[0]} ({item[1]})
-                            </span>
-                        </li>
-                    ))}
-                </ul>
+                <div className="noto blex-card my-3">
+                    <Arcodian>
+                        <ul className="nav d-block">
+                            <li className="nav-item">
+                                <span
+                                    onClick={() => setSelectedTag('')}
+                                    className={`nav-link c-pointer ${selectedTag ? 'shallow' : 'deep'}-dark`}
+                                >
+                                    전체 ({posts.length})
+                                </span>
+                            </li>
+                            {tags.map((item, idx) => (
+                                <li key={idx} className="nav-item">
+                                    <span
+                                        onClick={() => setSelectedTag(item[0])}
+                                        className={`nav-link c-pointer ${selectedTag == item[0] ? 'deep' : 'shallow'}-dark`}
+                                    >
+                                        {item[0]} ({item[1]})
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </Arcodian>
+                </div>
             )}>
                 <ul className="tag-list mb-0">
                     <li><a onClick={() => setPosts([...sorted('title', posts).reverse()])}>가나다</a></li>
@@ -196,9 +203,9 @@ export default function Setting(props: Props) {
                 {renderPosts.map((post, idx) => (
                     <li key={idx} className="blex-card p-3 mb-3">
                         <p className="d-flex justify-content-between">
-                            <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
-                                <a className="deep-dark">{post.title}</a>
-                            </Link>
+                            <a className="deep-dark" href={`/@${props.username}/${post.url}`} target="_blank">
+                                {post.title}
+                            </a>
                             <a onClick={() => onPostsDelete(post.url)}>
                                 <i className="fas fa-times"></i>
                             </a>
