@@ -217,8 +217,6 @@ class Series extends React.Component<Props, State> {
             isSortOldFirst
         } = this.state;
 
-        console.log(isSortOldFirst);
-
         return (
             <>
                 <Head>

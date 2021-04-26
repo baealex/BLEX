@@ -93,7 +93,9 @@ interface SeriesPosts {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const { req } = context;
+    const { cookies } = context.req;
+    Global.configInject(cookies);
+
     const { author = '', posturl = '' } = context.query;
     
     if(!author.includes('@') || !posturl) {
@@ -102,13 +104,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
     }
 
-    const cookie = req.headers.cookie;
+    const { cookie } = context.req.headers;
 
     try {
         const post = await API.getPost(author as string, posturl as string, 'view', cookie);
 
-        const referer = req.headers['referer'];
-        if(referer) {
+        const { referer } = context.req.headers;
+        if (referer) {
             API.postAnalytics(author as string, posturl as string, {
                 referer
             });
@@ -119,7 +121,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'social'
         ]);
         
-        if(post.data.series) {
+        if (post.data.series) {
             let series = await API.getSeries(author as string, post.data.series);
             const sereisLength = series.data.posts.length;
             const activeSeries = series.data.posts.findIndex(
