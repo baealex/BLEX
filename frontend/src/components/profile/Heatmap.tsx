@@ -3,19 +3,23 @@ import { Chart } from 'frappe-charts';
 
 interface HeatmapProps {
     isNightMode: boolean;
-    data: {
+    data?: {
         [key: string]: number;
     };
 }
 
 export default function Heatmap(props: HeatmapProps) {
+    const {
+        data = {},
+    } = props;
+
     useEffect(() => {
         new Chart('#heatmap', {
             type: 'heatmap',
-            title: `${Object.keys(props.data).length} activity in the last year`,
+            title: `${Object.keys(data).length} activity in the last year`,
             data: {
                 end: new Date(),
-                dataPoints: props.data
+                dataPoints: data
             },
             width: 800,
             countLabel: 'Activity',
