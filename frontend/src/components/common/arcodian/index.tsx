@@ -22,7 +22,11 @@ export function Arcodian(props: ArcodianProps) {
 
     return (
         <>
-            <div className="arcodian">
+            <div className="arcodian" style={{
+                height: isOpen 
+                    ? `${maxHeight}px`
+                    : `${maxHeight < minHeight ? maxHeight : minHeight}px`
+            }}>
                 <div ref={divRef}>
                     {props.children}
                 </div>
@@ -33,9 +37,6 @@ export function Arcodian(props: ArcodianProps) {
             <style jsx>{`
                 .arcodian {
                     transition: height 1s;
-                    height : ${isOpen
-                        ? `${maxHeight}px`
-                        : `${maxHeight < minHeight ? maxHeight : minHeight}px`};
                     overflow: hidden;
                     position: relative;
 

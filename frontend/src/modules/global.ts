@@ -101,6 +101,20 @@ class Global {
         });
     }
 
+    configInject(cookies: {
+        [key: string]: string;
+    }) {
+        const isAutoSave = cookies['isAutoSave'] === 'false' ? false : true;
+        const isOpenNewTab = cookies['isOpenNewTab'] === 'true' ? true : false;
+        const isSortOldFirst = cookies['isSortOldFirst'] === 'false' ? false : true;
+        
+        this.setState({
+            isAutoSave,
+            isOpenNewTab,
+            isSortOldFirst
+        });
+    }
+
     configSave(name: ConfigName, value: string) {
         cookie.set(name, value, {
             path: '/',

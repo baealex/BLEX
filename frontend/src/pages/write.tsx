@@ -12,9 +12,10 @@ import Global from '@modules/global';
 import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const { req } = context;
-    
-    const cookie = req.headers.cookie;
+    const { cookies } = context.req;
+    Global.configInject(cookies);
+
+    const { cookie } = context.req.headers;
     const { data } = await API.alive(cookie);
 
     if(data == 'dead') {
@@ -79,7 +80,7 @@ class Write extends React.Component<Props, State> {
             isHide: false,
             isAdvertise: false,
             image: undefined,
-            isAutoSave: true,
+            isAutoSave: Global.state.isAutoSave,
             isOpenArticleModal: false,
             tempPosts: [],
             tempPostsCache: {},

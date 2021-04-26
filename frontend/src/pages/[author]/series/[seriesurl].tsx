@@ -47,6 +47,9 @@ interface Posts {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+    const { cookies } = context.req;
+    Global.configInject(cookies);
+    
     const { author = '', seriesurl = '' } = context.query;
 
     if(!author.includes('@')) {
@@ -79,7 +82,7 @@ class Series extends React.Component<Props, State> {
             seriesDescription: props.series.description,
             seriesPosts: props.series.posts,
             isSeriesModalOpen: false,
-            isSortOldFirst: true,
+            isSortOldFirst: Global.state.isSortOldFirst,
         }
         Global.appendUpdater('AuthorSeriesDetail', () => this.setState({
             isLogin: Global.state.isLogin,
@@ -115,7 +118,6 @@ class Series extends React.Component<Props, State> {
     }
 
     onInputChange(e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) {
-        console.log(e);
         this.setState({
             ...this.state,
             [e.target.name]: e.target.value

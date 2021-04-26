@@ -222,7 +222,7 @@ export interface ProfileData {
     },
     heatmap?: {
         [key: string]: number;
-    }[];
+    };
     tags?: {
         name: string;
         count: number;
