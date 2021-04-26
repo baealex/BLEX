@@ -3,7 +3,6 @@ import Head from 'next/head';
 
 import Profile from '@components/profile/Profile';
 import Heatmap from '@components/profile/Heatmap';
-import HeatmapDark from '@components/profile/HeatmapDark';
 import RecentActivity from '@components/profile/RecentActivity';
 import FeatureArticle from '@components/profile/FeatureArticle';
 
@@ -67,12 +66,6 @@ class Overview extends React.Component<Props, State> {
     }
 
     render() {
-        let heatmap = this.state.isNightMode ? (
-            <HeatmapDark data={this.props.profile.heatmap}/>
-        ) : (
-            <Heatmap data={this.props.profile.heatmap}/>
-        );
-
         return (
             <>
                 <Head>
@@ -82,7 +75,10 @@ class Overview extends React.Component<Props, State> {
                 <Profile active="overview" profile={this.props.profile.profile} social={this.props.profile.social!}/>
                 <div className="container mb-4">
                     <div className="col-lg-8 mx-auto p-0">
-                        {heatmap}
+                        <Heatmap
+                            isNightMode={this.state.isNightMode}
+                            data={this.props.profile.heatmap}
+                        />
                         <FeatureArticle articles={this.props.profile.most!}/>
                         <RecentActivity data={this.props.profile.recent!}/>
                     </div>
