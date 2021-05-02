@@ -14,7 +14,7 @@ import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
 
-interface Props extends API.SettingPostsData {}
+interface Props extends API.GetSettingPostsData {}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
@@ -22,12 +22,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
-    const { data } = await API.getSetting(req.headers.cookie, 'posts');
-    if(data === API.ERROR.NOT_LOGIN) {
+    const { data } = await API.getSettingPosts(req.headers.cookie);
+    if(data.status === 'ERROR') {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
-    return {props: data};
+    return {
+        props: data.body
+    };
 }
 
 function sorted(key: string, list: any) {

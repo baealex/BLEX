@@ -23,13 +23,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         const cookie = req.headers.cookie;
         
         const posts = (await API.getPost(author as string, posturl as string, 'edit', cookie)).data;
-        const { series } = (await API.getSetting(cookie, 'series')).data;
     
         return {
             props: {
                 posturl: posturl,
                 username: author,
-                seriesArray: series,
                 ...posts
             }
         };
@@ -53,10 +51,6 @@ interface PostsEditData {
 interface Props extends PostsEditData {
     posturl: string;
     username: string;
-    seriesArray: {
-        url: string;
-        title: string;
-    }[];
 }
 
 let imageFile: File | undefined;
@@ -111,7 +105,6 @@ export default function Edit(props: Props) {
                 onChange: (value) => setContent(value),
             }}
             series={{
-                list: props.seriesArray,
                 value: series,
                 onChange: (value) => setSeries(value),
             }}

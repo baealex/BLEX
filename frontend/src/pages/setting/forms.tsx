@@ -12,13 +12,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
-    const { data } = await API.getSetting(req.headers.cookie, 'forms');
-    if(data === API.ERROR.NOT_LOGIN) {
+    const { data } = await API.getSettingForms(req.headers.cookie);
+    if(data.status === 'ERROR') {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
     return {
-        props: data
+        props: data.body
     };
 }
 

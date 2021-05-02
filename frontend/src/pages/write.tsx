@@ -59,10 +59,6 @@ interface State {
             tags: string;
         };
     };
-    seriesArray: {
-        url: string;
-        title: string;
-    }[];
 }
 
 class Write extends React.Component<Props, State> {
@@ -83,8 +79,7 @@ class Write extends React.Component<Props, State> {
             isAutoSave: Global.state.isAutoSave,
             isOpenArticleModal: false,
             tempPosts: [],
-            tempPostsCache: {},
-            seriesArray: []
+            tempPostsCache: {}
         };
         Global.appendUpdater('Write', () => {
             this.setState({
@@ -97,11 +92,6 @@ class Write extends React.Component<Props, State> {
     /* Component Method */
 
     async componentDidMount() {
-        const { series } = (await API.getSetting('', 'series')).data;
-        this.setState({
-            seriesArray: series
-        });
-    
         const { data } = await API.getAllTempPosts();
         if(data.result.length > 0) {
             this.setState({
@@ -266,7 +256,6 @@ class Write extends React.Component<Props, State> {
     render() {
         const {
             tempPosts,
-            seriesArray
         } = this.state;
 
         return (
@@ -291,7 +280,6 @@ class Write extends React.Component<Props, State> {
                         },
                     }}
                     series={{
-                        list: seriesArray,
                         value: this.state.series,
                         onChange: (value) => this.setState({series: value}),
                     }}

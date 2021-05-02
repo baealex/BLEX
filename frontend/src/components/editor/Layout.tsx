@@ -29,10 +29,6 @@ interface Props {
         onChange: (value: string) => void;
     }
     series: {
-        list?: {
-            url: string;
-            title: string;
-        }[];
         value: string;
         onChange: (value: string) => void;
     }
@@ -74,12 +70,22 @@ export default function Layout(props: Props) {
     const [ isOepnYoutubeModal, setIsOpenYoutubeModal ] = useState(false);
     const [ isOepnPublishModal, setIsOpenPublishModal ] = useState(false);
 
-    const [ forms, setForms ] = useState<API.GetFormsDataForms[]>();
+    const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
+    const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
 
     useEffect(() => {
-        API.getForms().then((response) => {
+        API.getSettingForms('').then((response) => {
             const { data } = response;
-            setForms(data.forms);
+            if (data.body) {
+                setForms(data.body.forms);
+            }
+        });
+
+        API.getSettingSeries('').then((response) => {
+            const { data } = response;
+            if (data.body) {
+                setSeries(data.body.series);
+            }
         })
     }, []);
 
@@ -200,7 +206,7 @@ export default function Layout(props: Props) {
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.series.onChange(e.target.value)}>
                             <>
                                 <option value="">선택하지 않음</option>
-                                {props.series.list?.map((item, idx) => (
+                                {series?.map((item, idx) => (
                                     <option
                                         key={idx}
                                         value={item.url}

@@ -14,7 +14,7 @@ import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
 
-interface Props extends API.SettingAccountData {}
+interface Props extends API.GetSettingAccountData {}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
@@ -22,13 +22,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
-    const { data } = await API.getSetting(req.headers.cookie, 'account');
-    if(data === API.ERROR.NOT_LOGIN) {
+    const { data } = await API.getSettingAcount(req.headers.cookie);
+    if(data.status === 'ERROR') {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
     return {
-        props: data
+        props: data.body
     };
 }
 

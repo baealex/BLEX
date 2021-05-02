@@ -9,22 +9,21 @@ import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
 
-interface Props extends API.SettingViewData, API.SettingRefererData {}
+interface Props extends API.GetSettingViewData, API.GetSettingRefererData {}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
-    if(!req.headers.cookie) {
-        res.writeHead(302, { Location: '/' });
-        res.end();
-    }
-    const views = await API.getSetting(req.headers.cookie, 'view');
-    if(views.data === API.ERROR.NOT_LOGIN) {
+    const views = await API.getSettingView(req.headers.cookie);
+    if (views.data.status === 'ERROR') {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
     const referers = await API.getSettingReferrers(req.headers.cookie, 1);
     return {
-        props: {...views.data, ...referers.data}
+        props: {
+            ...views.data.body,
+            ...referers.data.body
+        }
     };
 }
 
@@ -36,7 +35,9 @@ export default function Setting(props: Props) {
     const getReferer = async () => {
         if(page < lastPage) {
             const { data } = await API.getSettingReferrers(undefined, page);
-            setReferers(referers.concat(data.referers))
+            if (data.body) {
+                setReferers(referers.concat(data.body.referers));
+            }
             setPage(page + 1);   
         }
     };

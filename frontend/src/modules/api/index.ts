@@ -1,8 +1,12 @@
+export * from './setting';
+
 import axios from 'axios';
+
+axios.defaults.withCredentials = true;
 
 import NProgress from 'nprogress';
 
-import Config from './config.json';
+import Config from '../config.json';
 
 export const ERROR = {
     REJECT: 'error:RJ',
@@ -19,17 +23,26 @@ export const ERROR = {
     USERNAME_NOT_MATCH: 'error:UN',
 };
 
+type ErrorCode =
+    'RJ' | 'EP' | 'NL' | 'SU' |
+    'DU' | 'OF' | 'AV' | 'AU' |
+    'AE' | 'NT' | 'EN' | 'UN' ;
+
+export interface ResponseData<T> {
+    status: 'DONE' | 'ERROR',
+    errorCode?: ErrorCode,
+    body?: T
+}
+
 type DoneOrFail = 'DONE' | 'FAIL';
 
-function serializeObject(obj: {
+export function serializeObject(obj: {
     [key: string]: any
 }) {
     return Object.keys(obj).reduce((acc, cur) => {
         return acc += `${cur}=${obj[cur] === undefined ? '' : encodeURIComponent(obj[cur])}&`;
     }, '').slice(0, -1);
 }
-
-axios.defaults.withCredentials = true;
 
 export async function getAllPosts(sort: string, page: number) {
     return await axios({
@@ -467,40 +480,6 @@ export async function deleteSeries(author: string, url: string) {
     });
 }
 
-/* SETTING */
-
-export async function getSetting(cookie: string | undefined, item: string) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/setting/${item}`,
-        headers: {
-            cookie
-        },
-        method: 'GET'
-    });
-}
-
-export async function getSettingReferrers(cookie: string | undefined, page: number) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/setting/referer?page=${page}`,
-        headers: cookie ? {
-            cookie
-        } : {},
-        method: 'GET'
-    });
-}
-
-export async function putSetting(item: string, data: object) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/setting/${item}`,
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject(data),
-        withCredentials: true,
-    });
-}
-
 export async function changeAvatar(data: FormData) {
     return await axios.request<ChangeAvatarData>({
         url: `${Config.API_SERVER}/v1/setting/avatar`,
@@ -523,80 +502,6 @@ export async function telegram(parameter: 'unsync' | 'makeToken') {
         },
         withCredentials: true,
     });
-}
-
-export interface SettingNotifyData {
-    notify: {
-        pk: number;
-        url: string;
-        isRead: boolean;
-        content: string;
-        createdDate: string;
-    }[];
-    isTelegramSync: boolean;
-}
-
-export interface SettingAccountData {
-    username: string;
-    realname: string;
-    createdDate: string;
-    hasTwoFactorAuth: boolean;
-    agreeEmail: boolean;
-    agreeHistory: boolean;
-}
-
-export interface SettingProfileData {
-    avatar: string;
-    bio: string;
-    homepage: string;
-    github: string;
-    twitter: string;
-    youtube: string;
-    facebook: string;
-    instagram: string;
-}
-
-export interface SettingPostsData {
-    username: string;
-    posts: {
-        url: string;
-        title: string;
-        createdDate: string;
-        updatedDate: string;
-        isHide: boolean;
-        totalLikes: number;
-        totalComments: number;
-        today: number;
-        yesterday: number;
-        tag: string;
-        fixedTag: string;
-    }[];
-}
-
-export interface SettingSeriesData {
-    username: string;
-    series: {
-        url: string;
-        title: string;
-        totalPosts: number;
-    }[];
-}
-
-export interface SettingViewData {
-    username: string;
-    views: {
-        date: string;
-        count: number;
-    }[];
-}
-
-export interface SettingRefererData {
-    referers: {
-        time: string;
-        url: string;
-        title: string;
-    }[];
-    lastPage: number;
 }
 
 /* AUTH */
@@ -823,23 +728,6 @@ export async function deleteForms(id: number) {
         method: 'DELETE',
     })
 };
-
-export async function getForms() {
-    return axios.request<GetFormsData>({
-        url: `${Config.API_SERVER}/v1/forms`,
-        method: 'GET',
-    })
-}
-
-export interface GetFormsData {
-    forms: GetFormsDataForms[];
-};
-
-export interface GetFormsDataForms {
-    id: number;
-    title: string;
-    createdDate: string;
-}
 
 export async function getForm(id: number) {
     return axios.request<GetFormData>({
