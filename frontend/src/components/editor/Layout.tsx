@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Modal from '@components/modal/Modal';
 import ModalContent from '@components/modal/Content';
@@ -12,9 +12,11 @@ import FullLoading from '@components/common/FullLoading';
 
 import EditorTitle from '@components/editor/Title';
 import EditorContent from '@components/editor/Content';
+import EditorFromsModal from '@components/editor/modal/Forms';
 import EditorImageModal from '@components/editor/modal/Image';
 import EditorYoutubeModal from '@components/editor/modal/YouTube';
 
+import * as API from '@modules/api';
 import { dropImage, uploadImage } from '@modules/image';
 
 interface Props {
@@ -67,9 +69,19 @@ export default function Layout(props: Props) {
     const [ imagePreview, setImagePreview ] = useState('');
     const [ isSumbit, setIsSubmit ] = useState(false);
     const [ isEditMode, setIsEditMode ] = useState(true);
+    const [ isOepnFormsModal, setIsOpenFormsModal ] = useState(false);
     const [ isOepnImageModal, setIsOpenImageModal ] = useState(false);
     const [ isOepnYoutubeModal, setIsOpenYoutubeModal ] = useState(false);
     const [ isOepnPublishModal, setIsOpenPublishModal ] = useState(false);
+
+    const [ forms, setForms ] = useState<API.GetFormsDataForms[]>();
+
+    useEffect(() => {
+        API.getForms().then((response) => {
+            const { data } = response;
+            setForms(data.forms);
+        })
+    }, []);
 
     const appendTextOnCursor = (val: string) => {
         const text = props.content.value;
@@ -112,6 +124,13 @@ export default function Layout(props: Props) {
         setIsSubmit(false);
     }
 
+    const onFetchForm = async (id: number) => {
+        const { data } = await API.getForm(id);
+        if (data.content) {
+            appendTextOnCursor(data.content);
+        }
+    }
+
     return (
         <div className="container">
             <div className="row justify-content-center">
@@ -141,6 +160,9 @@ export default function Layout(props: Props) {
                                     {isEditMode ?
                                         <i className="far fa-eye-slash"/> :
                                         <i className="far fa-eye"/>}
+                                </li>
+                                <li className="mx-3 mx-lg-4" onClick={() => setIsOpenFormsModal(true)}>
+                                    <i className="fab fa-wpforms"></i>
                                 </li>
                                 {props.addon?.sideButton}
                             </ul>
@@ -221,6 +243,13 @@ export default function Layout(props: Props) {
                     isOpen={isOepnYoutubeModal}
                     close={() => setIsOpenYoutubeModal(false)}
                     onUpload={(id: string) => onUploadYoutube(id)}
+                />
+
+                <EditorFromsModal
+                    isOpen={isOepnFormsModal}
+                    close={() => setIsOpenFormsModal(false)}
+                    forms={forms}
+                    onFetch={onFetchForm}
                 />
 
                 {props.addon?.modal}

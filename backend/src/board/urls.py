@@ -7,57 +7,6 @@ from board.sitemaps import sitemaps
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
 
-# urlpatterns = [
-#   """
-#   # Account
-#   path('login', views.login, name='login'),
-#   path('login/callback/<social>', views.social_login, name='social_login'),
-#   path('login/social/username/set', views.set_username, name='set_username'),
-#   path('logout', auth_views.LogoutView.as_view(), name='logout'),
-#   path('signup', views.signup, name='signup'),
-#   path('signup/help/id', views.id_check, name='id_check'),
-#   path('active/<token>', views.user_active, name='user_active'),
-#   path('signout', views.signout, name='signout'),
-#   path('opinion', views.opinion, name='opinion'),
-#   path('setting', views.setting, name='setting'),
-#   path('external', views.external, name='external'),
-#   path('setting/<tab>', views.setting_tab, name='setting_tab'),
-#   path('notify:<pk>', views.notify_redirect, name='notify_redirect'),
-#   # ------------------------------------------------------------ Account End
-#
-#   # Profile
-#   path('@<username>', views.user_profile_tab, name='user_profile'),
-#   path('@<username>/posts/', views.user_profile_posts, name='user_profile_posts'),
-#   path('@<username>/posts/<tag>', views.user_profile_posts, name='user_profile_posts'),
-#   path('@<username>/<tab>/', views.user_profile_tab, name='user_profile_tab'),
-#   # ------------------------------------------------------------ Profile End
-#
-#   # Series
-#   path('series/<int:spk>/update', views.series_update, name='series_update'),
-#   path('@<username>/series/<url>', views.series_list, name='series_list'),
-#   # ------------------------------------------------------------ Series End
-#
-#   # Others
-#   path('search', views.search, name='search'),
-#   path('backup', views.content_backup,name='content_backup'),
-#   path('upload/image', views.image_upload, name='image_upload'),
-#   # Not in views
-#   path('rss', SitePostsFeed()),
-#   path('rss/@<username>', UserPostsFeed(), name="user_rss_feed"),
-#   path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
-#   path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),
-#   # ------------------------------------------------------------ Others End
-#
-#   # Article
-#   path('@<username>/<url>', views.post_detail, name='post_detail'),
-#   path('write', views.post_write, name='post_write'),
-#   path('', views.post_sort_list, name='post_sort_list'),
-#   path('<sort>', views.post_sort_list, name='post_sort_list'),
-#   path('tag/<tag>', views.post_list_in_tag, name='post_list_in_tag'),
-#   path('edit/<timestamp>', views.post_edit, name='post_edit'),
-#   # ------------------------------------------------------------ Article End
-# ]
-
 def empty():
     pass
 
@@ -102,5 +51,7 @@ urlpatterns = [
     path('v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
     path('v1/auth', api_v1.two_factor_auth, name='two_factor_auth_api_v1'),
     path('v1/auth/send', api_v1.two_factor_auth_send, name='two_factor_auth_api_v1'),
+    path('v1/forms', api_v1.forms, name='forms_api_v1'),
+    path('v1/forms/<pk>', api_v1.forms, name='forms_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

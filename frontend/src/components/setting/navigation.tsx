@@ -5,41 +5,68 @@ interface Props {
     tabname?: string;
 }
 
+const NAVIGATION_ITEMS = [
+    {
+        title: '알림',
+        icon: 'far fa-envelope',
+        name: 'notify',
+        url: '/setting',
+    },
+    {
+        title: '계정',
+        icon: 'far fa-user',
+        name: 'account',
+        url: '/setting/account',
+    },
+    {
+        title: '프로필',
+        icon: 'far fa-id-badge',
+        name: 'profile',
+        url: '/setting/profile',
+    },
+    {
+        title: '시리즈',
+        icon: 'fas fa-book',
+        name: 'series',
+        url: '/setting/series',
+    },
+    {
+        title: '포스트',
+        icon: 'fas fa-pencil-alt',
+        name: 'posts',
+        url: '/setting/posts',
+    },
+    {
+        title: '서식',
+        icon: 'fab fa-wpforms',
+        name: 'forms',
+        url: '/setting/forms',
+    },
+    {
+        title: '분석',
+        icon: 'fas fa-chart-line',
+        name: 'analytics',
+        url: '/setting/analytics',
+    },
+];
+
 export default function(props: Props) {
     const stickyClass = props.sticky ? 'sticky-top-100 sticky-top' : ''
 
     return (
         <ul className={`nav noto ${stickyClass} blex-card`}>
-            <li className="nav-item">
-                <Link href="/setting">
-                    <a className={`nav-link ${props.tabname == 'notify' ? 'deep' : 'shallow'}-dark`}><i className="far fa-envelope"></i> 알림</a>
-                </Link>
-            </li>
-            <li className="nav-item">
-                <Link href="/setting/account">
-                    <a className={`nav-link ${props.tabname == 'account' ? 'deep' : 'shallow'}-dark`}><i className="far fa-user"></i> 계정</a>
-                </Link>
-            </li>
-            <li className="nav-item">
-                <Link href="/setting/profile">
-                    <a className={`nav-link ${props.tabname == 'profile' ? 'deep' : 'shallow'}-dark`}><i className="far fa-id-badge"></i> 프로필</a>
-                </Link>
-            </li>
-            <li className="nav-item">
-                <Link href="/setting/series">
-                    <a className={`nav-link ${props.tabname == 'series' ? 'deep' : 'shallow'}-dark`}><i className="fas fa-book"></i> 시리즈</a>
-                </Link>
-            </li>
-            <li className="nav-item">
-                <Link href="/setting/posts">
-                    <a className={`nav-link ${props.tabname == 'posts' ? 'deep' : 'shallow'}-dark`}><i className="fas fa-pencil-alt"></i> 포스트</a>
-                </Link>
-            </li>
-            <li className="nav-item">
-                <Link href="/setting/analytics">
-                    <a className={`nav-link ${props.tabname == 'analytics' ? 'deep' : 'shallow'}-dark`}><i className="fas fa-chart-line"></i> 분석</a>
-                </Link>
-            </li>
+            {NAVIGATION_ITEMS.map((item, idx) => (
+                <li key={idx} className="nav-item">
+                    <Link href={item.url}>
+                        <a className={`nav-link ${
+                            props.tabname == item.name
+                                ? 'deep'
+                                : 'shallow'}-dark`}>
+                            <i className={item.icon}/> {item.title}
+                        </a>
+                    </Link>
+                </li>
+            ))}
         </ul>
     );
 }

@@ -19,6 +19,8 @@ export const ERROR = {
     USERNAME_NOT_MATCH: 'error:UN',
 };
 
+type DoneOrFail = 'DONE' | 'FAIL';
+
 function serializeObject(obj: {
     [key: string]: any
 }) {
@@ -802,4 +804,51 @@ export interface FeatureTagPostsData {
         authorImage: string;
         author: string;
     }[];
+}
+
+export async function postForms(title: string, content: string) {
+    return axios.request({
+        url: `${Config.API_SERVER}/v1/forms`,
+        method: 'POST',
+        data: serializeObject({
+            title,
+            content,
+        })
+    })
+};
+
+export async function deleteForms(id: number) {
+    return axios.request<DoneOrFail>({
+        url: `${Config.API_SERVER}/v1/forms/${id}`,
+        method: 'DELETE',
+    })
+};
+
+export async function getForms() {
+    return axios.request<GetFormsData>({
+        url: `${Config.API_SERVER}/v1/forms`,
+        method: 'GET',
+    })
+}
+
+export interface GetFormsData {
+    forms: GetFormsDataForms[];
+};
+
+export interface GetFormsDataForms {
+    id: number;
+    title: string;
+    createdDate: string;
+}
+
+export async function getForm(id: number) {
+    return axios.request<GetFormData>({
+        url: `${Config.API_SERVER}/v1/forms/${id}`,
+        method: 'GET',
+    })
+}
+
+export interface GetFormData {
+    title: string;
+    content: string;
 }

@@ -827,7 +827,17 @@ def setting(request, item):
                     'title': referer.referer_from.title
                 })
             return CamelizeJsonResponse(data)
-    
+        
+        if item == 'forms':
+            user_forms = Form.objects.filter(user=request.user)
+            return CamelizeJsonResponse({
+                'forms': list(map(lambda form: {
+                    'id': form.id,
+                    'title': form.title,
+                    'created_date': form.created_date,
+                }, user_forms))
+            })
+     
     if request.method == 'POST':
         if item == 'avatar':
             profile = Profile.objects.get(user=user)
@@ -1452,5 +1462,49 @@ def two_factor_auth_send(request):
             traceback.print_exc()
 
         return HttpResponse('error:RJ')
+    
+    raise Http404
+
+def forms(request, pk=None):
+    if not pk:
+        if request.method == 'GET':
+            user_forms = Form.objects.filter(user=request.user)
+            return CamelizeJsonResponse({
+                'forms': list(map(lambda form: {
+                    'id': form.id,
+                    'title': form.title,
+                    'created_date': form.created_date,
+                }, user_forms))
+            })
+
+        if request.method == 'POST':
+            new_from = Form(
+                user=request.user,
+                title=request.POST.get('title', ''),
+                content=request.POST.get('content', '')
+            )
+            new_from.save()
+            return HttpResponse(str(new_from.id))
+    
+    else:
+        if request.method == 'GET':
+            form = get_object_or_404(Form, pk=pk)
+            return CamelizeJsonResponse({
+                'title': form.title,
+                'content': form.content
+            })
+        
+        if request.method == 'PUT':
+            body = QueryDict(request.body)
+            form = get_object_or_404(Form, pk=pk)
+            form.title = body.get('title', '')
+            form.content = body.get('content', '')
+            form.save()
+            return HttpResponse('DONE')
+        
+        if request.method == 'DELETE':
+            form = get_object_or_404(Form, pk=pk)
+            form.delete()
+            return HttpResponse('DONE')
     
     raise Http404
