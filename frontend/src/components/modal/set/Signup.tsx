@@ -69,25 +69,30 @@ class SignupModal extends React.Component<Props, State> {
             toast('😅 이름을 입력해주세요!');
             return;
         }
-        const { data } = await API.signup(
+        const { data } = await API.postSign(
             this.state.username, 
             this.state.password,
             this.state.email,
             this.state.realname
         );
-        if(data == API.ERROR.ALREADY_EXISTS) {
-            toast('😥 이미 사용중인 아이디입니다.');
-            return;
+        if (data.status === 'ERROR') {
+            if (data.errorCode) {
+                const { errorCode } = data;
+                if (errorCode === API.ERROR.ALREADY_EXISTS) {
+                    toast('😥 이미 사용중인 아이디입니다.');
+                    return;
+                }
+                if (errorCode === API.ERROR.USERNAME_NOT_MATCH) {
+                    toast('😥 아이디는 4글자 이상 15글자 이하의 영어, 숫자입니다.');
+                    return;
+                }
+                if (errorCode === API.ERROR.EMAIL_NOT_MATCH) {
+                    toast('😥 올바른 이메일 형식이 아닙니다.');
+                    return;
+                }
+            }
         }
-        if(data == API.ERROR.USERNAME_NOT_MATCH) {
-            toast('😥 아이디는 4글자 이상 15글자 이하의 영어, 숫자입니다.');
-            return;
-        }
-        if(data == API.ERROR.EMAIL_NOT_MATCH) {
-            toast('😥 올바른 이메일 형식이 아닙니다.');
-            return;
-        }
-        if(data == 'DONE') {
+        if(data.status === 'DONE') {
             this.setState({
                 isDone: true
             });

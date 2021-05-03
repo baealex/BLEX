@@ -1,3 +1,4 @@
+export * from './auth';
 export * from './setting';
 
 import axios from 'axios';
@@ -24,9 +25,9 @@ export const ERROR = {
 };
 
 type ErrorCode =
-    'RJ' | 'EP' | 'NL' | 'SU' |
-    'DU' | 'OF' | 'AV' | 'AU' |
-    'AE' | 'NT' | 'EN' | 'UN' ;
+    'error:RJ' | 'error:EP' | 'error:NL' | 'error:SU' |
+    'error:DU' | 'error:OF' | 'error:AV' | 'error:AU' |
+    'error:AE' | 'error:NT' | 'error:EN' | 'error:UN' ;
 
 export interface ResponseData<T> {
     status: 'DONE' | 'ERROR',
@@ -491,135 +492,6 @@ export async function telegram(parameter: 'unsync' | 'makeToken') {
     });
 }
 
-/* AUTH */
-
-export async function alive(cookie='') {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/login`,
-        method: 'GET',
-        headers: cookie ? {
-            'Cookie': cookie
-        } : {}
-    });
-}
-
-export async function login(username: string, password: string) {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/login`,
-            method: 'POST',
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                username,
-                password
-            })
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
-}
-
-export async function signup(username: string, password: string, email: string, realname: string) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/signup`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            username,
-            realname,
-            password,
-            email
-        }),
-        withCredentials: true,
-    });
-}
-
-export async function deleteSign() {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/signup`,
-        method: 'DELETE',
-        withCredentials: true,
-    });
-}
-
-export async function createTwoFactorAuth() {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/auth`,
-        method: 'POST',
-        withCredentials: true,
-    });
-}
-
-export async function deleteTwoFactorAuth() {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/auth`,
-        method: 'DELETE',
-        withCredentials: true,
-    });
-}
-
-export async function verifyTwoFactorAuth(authToken: string) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/auth/send`,
-        method: 'POST',
-        withCredentials: true,
-        data: serializeObject({
-            auth_token: authToken
-        })
-    });
-}
-
-export async function getVerifyToken(token: string) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/verify/${token}`,
-        method: 'GET',
-    });
-}
-
-export async function postVerifyToken(token: string, hctoken?: string) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/verify/${token}`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            hctoken
-        }),
-        withCredentials: true,
-    });
-}
-
-export async function socialLogin(social: string, code: string) {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/login`,
-            method: 'POST',
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                social,
-                code
-            })
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
-}
-
 export async function getFeaturePosts(username: string, exclude: string) {
     return await axios({
         url: `${Config.API_SERVER}/v1/feature/posts?${serializeObject({username, exclude})}`,
@@ -649,21 +521,6 @@ export async function uploadImage(file: File) {
             },
             data: formData,
             withCredentials: true,
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
-}
-
-export async function logout() {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/logout`,
-            method: 'POST'
         });
         NProgress.done();
         return response;

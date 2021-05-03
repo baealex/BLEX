@@ -67,14 +67,14 @@ class TopNavigation extends React.Component {
             });
         });
 
-        const alive = await API.alive();
+        const { data } = await API.getLogin();
         Global.setState({
-            isLogin: alive.data !== 'dead' ? true : false,
-            username: alive.data !== 'dead' ? alive.data.username : '',
+            isLogin: data.status === 'DONE' ? true : false,
+            username: data.status === 'DONE' ? data.body.username : '',
         });
-        if(alive.data !== 'dead') {
-            if(alive.data.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${alive.data.notifyCount}개 있습니다.`, {
+        if(data.status === 'DONE') {
+            if(data.body.notifyCount != 0) {
+                toast(`😲 읽지 않은 알림이 ${data.body.notifyCount}개 있습니다.`, {
                     onClick:() => {
                         Router.push('/setting');
                     }
@@ -97,7 +97,7 @@ class TopNavigation extends React.Component {
 
     async onClickLogout() {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
-            const { data } = await API.logout();
+            const { data } = await API.postLogout();
             if(data.status === 'DONE') {
                 Global.setState({
                     isLogin: false,

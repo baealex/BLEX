@@ -59,41 +59,41 @@ class LoginModal extends React.Component<Props, State> {
             toast('😅 코드를 입력해주세요!');
             return;
         }
-        const { data } = await API.verifyTwoFactorAuth(this.state.code);
+        const { data } = await API.postSecuritySend(this.state.code);
         this.loginCheck(data);
     }
 
     async onSocialLogin(social: string, code: string) {
-        const { data } = await API.socialLogin(social, code);
+        const { data } = await API.postSignSocialLogin(social, code);
         this.loginCheck(data);
     }
 
-    async loginCheck(data: {
-        status: string;
-        username: string;
-        notifyCount: number;
-    }) {
-        if(data.status == 'DONE') {
+    async loginCheck(data: API.ResponseData<API.PostLoginData>) {
+        if (data.status === 'ERROR') {
+            if (data.errorCode === API.ERROR.EXPIRE) {
+                toast('😥 코드가 만료되었습니다.');
+            }
+
+            if (data.errorCode === API.ERROR.REJECT) {
+                toast('😥 코드를 확인하여 주십시오.');
+            }
+        }
+
+        if (data.status == 'DONE') {
             toast(`😃 로그인 되었습니다.`);
             Global.setState({
                 isLogin: true,
-                username: data.username
+                username: data.body.username
             });
             
-            if(data.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`, {
+            if(data.body.notifyCount != 0) {
+                toast(`😲 읽지 않은 알림이 ${data.body.notifyCount}개 있습니다.`, {
                     onClick:() => {
                         Router.push('/setting');
                     }
                 })
             }
             this.props.onClose();
-        }
-        if(JSON.stringify(data).includes(API.ERROR.EXPIRE)) {
-            toast('😥 코드가 만료되었습니다.');
-        }
-        if(JSON.stringify(data).includes(API.ERROR.REJECT)) {
-            toast('😥 코드를 확인하여 주십시오.');
         }
     }
     

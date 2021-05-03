@@ -29,8 +29,11 @@ urlpatterns = [
     # API V1
     path('v1/login', api_v1.login, name='login_api_v1'),
     path('v1/logout', api_v1.logout, name='logout_api_v1'),
-    path('v1/signup', api_v1.signup, name='signup_api_v1'),
-    path('v1/users/verify/<token>', api_v1.verify_token, name='verify_token_api_v1'),
+    path('v1/sign', api_v1.sign, name='sign_api_v1'),
+    path('v1/sign/<social>', api_v1.sign_social, name='sign_social_api_v1'),
+    path('v1/auth/email-verify/<token>', api_v1.email_verify, name='email_verify_api_v1'),
+    path('v1/auth/security', api_v1.security, name='security_api_v1'),
+    path('v1/auth/security/send', api_v1.security_send, name='security_send_api_v1'),
     path('v1/users/@<username>', api_v1.users, name='users_api_v1'),
     path('v1/users/@<username>/posts', api_v1.user_posts, name='post_api_v1'),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts, name='post_api_v1'),
@@ -49,8 +52,6 @@ urlpatterns = [
     path('v1/feature/posts/<tag>', api_v1.feature_posts, name="feature_posts_api_v1"),
     path('v1/image/upload', api_v1.image_upload, name='image_upload_v1'),
     path('v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
-    path('v1/auth', api_v1.two_factor_auth, name='two_factor_auth_api_v1'),
-    path('v1/auth/send', api_v1.two_factor_auth_send, name='two_factor_auth_api_v1'),
     path('v1/forms', api_v1.forms, name='forms_api_v1'),
     path('v1/forms/<pk>', api_v1.forms, name='forms_api_v1'),
     # ------------------------------------------------------------ API V1 End

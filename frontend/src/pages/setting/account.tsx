@@ -100,7 +100,7 @@ export default function Setting(props: Props) {
 
     const onSignOut = async () => {
         const { data } = await API.deleteSign();
-        if(data == 'DONE') {
+        if(data.status === 'DONE') {
             Global.setState({
                 isLogin: false
             });
@@ -110,22 +110,24 @@ export default function Setting(props: Props) {
     };
 
     const onCreateTwoFactorAuth = async () => {
-        const { data } = await API.createTwoFactorAuth();
-        if(data == API.ERROR.NOT_LOGIN) {
-            toast('😥 로그인이 필요합니다.');
-            return;
+        const { data } = await API.postSecurity();
+        if (data.status === 'ERROR') {
+            if (data.errorCode === API.ERROR.NOT_LOGIN) {
+                toast('😥 로그인이 필요합니다.');
+                return;
+            }
+            if (data.errorCode === API.ERROR.NEED_TELEGRAM) {
+                toast('😥 텔레그램 연동이 필요합니다.', {
+                    onClick: () => Router.push('/setting')
+                });
+                return;
+            }
+            if (data.errorCode === API.ERROR.ALREADY_EXISTS) {
+                toast('😥 이미 등록되어 있습니다.');
+                return;
+            }
         }
-        if(data == API.ERROR.NEED_TELEGRAM) {
-            toast('😥 텔레그램 연동이 필요합니다.', {
-                onClick: () => Router.push('/setting')
-            });
-            return;
-        }
-        if(data == API.ERROR.ALREADY_EXISTS) {
-            toast('😥 이미 등록되어 있습니다.');
-            return;
-        }
-        if(data == 'DONE') {
+        if (data.status === 'DONE') {
             toast('😀 2차 인증이 등록되었습니다.');
             setCreateTwoFactorAuthModalOpen(false);
             setTwoFactorAuth(true);
@@ -135,16 +137,18 @@ export default function Setting(props: Props) {
     }
 
     const onDeleteTwoFactorAuth = async () => {
-        const { data } = await API.deleteTwoFactorAuth();
-        if(data == API.ERROR.ALREADY_UNSYNC) {
-            toast('😥 이미 해제되어 있습니다.');
-            return;
+        const { data } = await API.deleteSecurity();
+        if (data.status === 'ERROR') {
+            if (data.errorCode == API.ERROR.ALREADY_UNSYNC) {
+                toast('😥 이미 해제되어 있습니다.');
+                return;
+            }
+            if (data.errorCode == API.ERROR.REJECT) {
+                toast('😥 인증을 해제할 수 없습니다.');
+                return;
+            }
         }
-        if(data == API.ERROR.REJECT) {
-            toast('😥 인증을 해제할 수 없습니다.');
-            return;
-        }
-        if(data == 'DONE') {
+        if (data.status === 'DONE') {
             toast('😀 2차 인증이 해제되었습니다.');
             setTwoFactorAuth(false);
             return;

@@ -15,11 +15,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { token } = context.query;
     
     try {
-        const { data } = await API.getVerifyToken(token as string);
+        const { data } = await API.getEmailVerify(token as string);
         return {
             props: {
                 token,
-                username: data
+                username: data.body.firstName
             }
         }
     } catch(error) {
@@ -42,20 +42,22 @@ export default function Verify(props: Props) {
                 return;
             }
         }
-        const { data } = await API.postVerifyToken(props.token, hctoken);
-        if(data == API.ERROR.ALREADY_VERIFY) {
-            toast('😥 이미 인증된 메일입니다.');
+        const { data } = await API.postEmailVerify(props.token, hctoken);
+        if (data.status === 'ERROR') {
+            if (data.errorCode === API.ERROR.ALREADY_VERIFY) {
+                toast('😥 이미 인증된 메일입니다.');
+            }
+            if (data.errorCode === API.ERROR.EXPIRE) {
+                toast('😥 만료된 토큰입니다.');
+            }
+            if (data.errorCode === API.ERROR.REJECT) {
+                toast('😥 인증이 실패했습니다.');
+            }
         }
-        if(data == API.ERROR.EXPIRE) {
-            toast('😥 만료된 토큰입니다.');
-        }
-        if(data == API.ERROR.REJECT) {
-            toast('😥 인증이 실패했습니다.');
-        }
-        if(data.status == 'DONE') {
+        if(data.status === 'DONE') {
             toast(`😆 ${props.username}님! 환영합니다 🎉`);
-            if(data.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`, {
+            if(data.body.notifyCount != 0) {
+                toast(`😲 읽지 않은 알림이 ${data.body.notifyCount}개 있습니다.`, {
                     onClick:() => {
                         Router.push('/setting');
                     }

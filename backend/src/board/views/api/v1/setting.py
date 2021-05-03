@@ -1,7 +1,5 @@
 import time
 
-import humps
-
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse, Http404, QueryDict

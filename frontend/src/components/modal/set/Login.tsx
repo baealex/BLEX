@@ -54,41 +54,42 @@ class LoginModal extends React.Component<Props, State> {
             toast('😅 비밀번호를 입력해주세요!');
             return;
         }
-        const { data } = await API.login(this.state.username, this.state.password);
+        const { data } = await API.postLogin(this.state.username, this.state.password);
         this.loginCheck(data);
     }
 
     async onSocialLogin(social: string, code: string) {
-        const { data } = await API.socialLogin(social, code);
+        const { data } = await API.postSignSocialLogin(social, code);
         this.loginCheck(data);
     }
 
-    async loginCheck(data: {
-        status: string;
-        username: string;
-        notifyCount: number;
-    }) {
-        if(data.status == 'DONE') {
+    async loginCheck(data: API.ResponseData<API.PostLoginData>) {
+        if (data.status === 'ERROR') {
+            toast('😥 아이디 혹은 패스워드를 확인해 주세요.');
+        }
+
+        if (data.status === 'DONE') {
+            if (data.body.security) {
+                toast('😃 2차 인증 코드를 입력해 주세요.');
+                Global.onOpenModal('isTwoFactorAuthModalOpen');
+                this.props.onClose();
+                return;
+            }
+
             toast(`😃 로그인 되었습니다.`);
             Global.setState({
                 isLogin: true,
-                username: data.username
+                username: data.body.username
             });
-            
-            if(data.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.notifyCount}개 있습니다.`, {
+
+            if(data.body.notifyCount != 0) {
+                toast(`😲 읽지 않은 알림이 ${data.body.notifyCount}개 있습니다.`, {
                     onClick:() => {
                         Router.push('/setting');
                     }
                 })
             }
             this.props.onClose();
-        } else if(data.status == 'ready') {
-            toast('😃 2차 인증 코드를 입력해 주세요.');
-            Global.onOpenModal('isTwoFactorAuthModalOpen');
-            this.props.onClose();
-        } else if(data.status == 'failure'){
-            toast('😥 아이디 혹은 패스워드를 확인해 주세요.');
         }
         this.setState({
             password: ''

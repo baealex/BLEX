@@ -11,7 +11,10 @@ import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req } = context;
-    const { author = '', posturl = '' } = context.query;
+    const {
+        author = '',
+        posturl = ''
+    } = context.query;
 
     if(!author.includes('@') || !posturl) {
         return {

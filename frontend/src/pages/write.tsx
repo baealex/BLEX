@@ -16,9 +16,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     Global.configInject(cookies);
 
     const { cookie } = context.req.headers;
-    const { data } = await API.alive(cookie);
+    const { data } = await API.getLogin(cookie);
 
-    if(data == 'dead') {
+    if(data.status !== 'DONE') {
         return {
             notFound: true
         };
@@ -26,7 +26,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     
     return {
         props: {
-            username: data.username
+            username: data.body.username
         }
     };
 }
