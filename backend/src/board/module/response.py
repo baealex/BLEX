@@ -10,10 +10,10 @@ def CamelizeJsonResponse(obj, json_dumps_params={
         json_dumps_params=json_dumps_params
     )
 
-def StatusDone(body: dict):
+def StatusDone(body={}):
     return CamelizeJsonResponse({
         'status': 'DONE',
-        'body': body if body else None,
+        'body': body,
     })
 
 def StatusError(code: str):

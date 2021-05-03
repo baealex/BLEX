@@ -91,7 +91,7 @@ export default function Setting(props: Props) {
         sendData.agree_history = agreeHistory;
 
         const { data } = await API.putSetting('account', sendData);
-        if(data == 'DONE') {
+        if(data.status === 'DONE') {
             toast('😀 계정이 업데이트 되었습니다.');
         }
         setPassword('');

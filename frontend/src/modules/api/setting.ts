@@ -180,7 +180,7 @@ export interface GetSettingFormsDataForms {
 }
 
 export async function putSetting(item: string, data: object) {
-    return await axios({
+    return await axios.request<ResponseData<any>>({
         url: `${Config.API_SERVER}/v1/setting/${item}`,
         method: 'PUT',
         headers: {
@@ -189,4 +189,17 @@ export async function putSetting(item: string, data: object) {
         data: serializeObject(data),
         withCredentials: true,
     });
+}
+
+export async function postSettingAvatar(data: FormData) {
+    return await axios.request<ResponseData<PostSettingAvatarData>>({
+        url: `${Config.API_SERVER}/v1/setting/avatar`,
+        method: 'POST',
+        data: data,
+        withCredentials: true,
+    });
+}
+
+export interface PostSettingAvatarData {
+    url: string;
 }

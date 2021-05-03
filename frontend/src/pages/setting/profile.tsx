@@ -49,7 +49,7 @@ export default function Setting(props: Props) {
         sendData['youtube'] = youtube;
 
         const { data } = await API.putSetting('profile', sendData);
-        if(data == 'DONE') {
+        if(data.status === 'DONE') {
             toast('😀 프로필이 업데이트 되었습니다.');
         }
     };
@@ -66,8 +66,8 @@ export default function Setting(props: Props) {
                             NProgress.start();
                             const formData = new FormData();
                             formData.append('avatar', file);
-                            const { data } = await API.changeAvatar(formData);
-                            setAvatar(data.url);
+                            const { data } = await API.postSettingAvatar(formData);
+                            setAvatar(data.body.url);
                             NProgress.done()
                         }}
                     />

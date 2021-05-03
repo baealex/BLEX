@@ -55,7 +55,7 @@ export default function Setting(props: Props) {
 
     const onReadNotify = async (pk: number) => {
         const { data } = await API.putSetting('notify', { pk: pk });
-        if(data == 'DONE') {
+        if(data.status === 'DONE') {
             setNotify(notify.map(item => {
                 return item.pk == pk ? {
                     ...item,
