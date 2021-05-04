@@ -836,6 +836,21 @@ def image_upload(request):
                         ext = 'mp4'
                     except:
                         return HttpResponse('이미지 업로드를 실패했습니다.')
+                if ext == 'png':
+                    try:
+                        resize_image = Image.open(upload_path + '/' + file_name + '.' + ext)
+                        resize_image = resize_image.convert('RGB')
+
+                        resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
+                        resize_image.save(upload_path + '/' + file_name + '.jpg')
+                        os.system('rm ' + upload_path + '/' + file_name + '.png')
+                        ext = 'jpg'
+                        
+                        image_path = upload_path + '/' + file_name + '.' + ext
+                        preview_image = resize_image.filter(ImageFilter.GaussianBlur(50))
+                        preview_image.save(image_path + '.preview.jpg', quality=50)
+                    except:
+                        return HttpResponse('이미지 업로드를 실패했습니다.')
                 else:
                     try:
                         image_path = upload_path + '/' + file_name + '.' + ext
