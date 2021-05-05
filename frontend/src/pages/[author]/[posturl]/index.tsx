@@ -87,7 +87,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             API.postPostAnalytics(posturl as string, {
                 user_agent: req.headers["user-agent"],
                 referer: req.headers.referer ? req.headers.referer : '',
-                ip: req.socket.remoteAddress,
+                ip: req.headers["x-real-ip"] || req.socket.remoteAddress,
                 time: new Date().getTime(),
             }, cookie);
         } catch (e) {
