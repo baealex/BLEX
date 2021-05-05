@@ -170,7 +170,7 @@ export function Comment(props: CommentProps) {
                 Global.popUpdater('Comment');
             }
         } else {
-            if (comments) {
+            if (comments.length > 0) {
                 setComments([]);
             }
         }
