@@ -7,11 +7,8 @@ import ArticleCard from '@components/article/ArticleCard';
 import ArticleAuthor from '@components/article/ArticleAuthor';
 import ArticleContent from '@components/article/ArticleContent';
 import ArticleSereis from '@components/article/ArticleSeries';
+import { Comment } from '@components/comment';
 import TagList from '@components/tag/TagList';
-import CommentItem from '@components/comment/CommentItem';
-import CommentEdit from '@components/comment/CommentEdit';
-import CommentForm from '@components/comment/CommentForm';
-import CommentAlert from '@components/comment/CommentAlert';
 import Toggle from '@components/atoms/toggle';
 import Footer from '@components/common/Footer';
 import SEO from '@components/seo';
@@ -25,7 +22,6 @@ import {
     lazyIntersection
 } from '@modules/lazy';
 import Global from '@modules/global';
-import blexer from '@modules/blexer';
 
 import { GetServerSidePropsContext } from 'next';
 
@@ -270,11 +266,7 @@ class PostDetail extends React.Component<Props, State> {
 
     async getComments() {
         if(this.props.post.totalComment > 0) {
-            const { author, url } = this.props.post;
-            const { data } = await API.getPostComments(`@${author}`, url);
-            this.setState({
-                comments: data.comments
-            });
+
         }
     }
 
@@ -343,127 +335,6 @@ class PostDetail extends React.Component<Props, State> {
         API.postAnalytics('@' + author, url, {
             viewonly: Math.random()
         });
-    }
-
-    async onSubmitComment(content: string) {
-        const commentMarkup = blexer(content);
-        const { data } = await API.postComment(this.props.post.url, content, commentMarkup);
-        if(data.status !== 'DONE') {
-            toast('😅 댓글 작성중 오류가 발생했습니다!');
-            return;
-        }
-        this.setState({
-            comments: this.state.comments.concat(data.element)
-        });
-        lazyLoadResource();
-    }
-
-    async onCommentLike(pk: number) {
-        const { data } = await API.likeComment(pk);
-        if(data === API.ERROR.NOT_LOGIN) {
-            toast('😅 로그인이 필요합니다.', {
-                onClick:() => {
-                    Global.onOpenModal('isLoginModalOpen');
-                }
-            });
-            return;
-        }
-        if(data === API.ERROR.SAME_USER) {
-            toast('😅 자신의 댓글은 추천할 수 없습니다.');
-            return;
-        }
-        if(data === API.ERROR.REJECT) {
-            toast('😅 삭제된 댓글은 추천할 수 없습니다.');
-            return;
-        }
-
-        let { comments } = this.state;
-        comments = comments.map(comment => (
-            comment.pk === pk ? ({
-                ...comment,
-                isLiked: !comment.isLiked,
-                totalLikes: data,
-            }) : comment
-        ));
-        this.setState({comments});
-    }
-    
-    async onCommentEdit(pk: number) {
-        const { data } = await API.getCommentMd(pk);
-        let { comments } = this.state;
-        comments = comments.map(comment => (
-            comment.pk === pk ? ({
-                ...comment,
-                isEdit: true,
-                textMarkdown: data
-            }) : comment
-        ));
-        this.setState({comments});
-    }
-
-    async onCommentEditSubmit(pk: number, content: string) {
-        const contentMarkup = blexer(content);
-        const { data } = await API.putComment(pk, content, contentMarkup);
-        let { comments } = this.state;
-        if(data == 'DONE') {
-            comments = comments.map(comment => (
-                comment.pk === pk ? ({
-                    ...comment,
-                    isEdit: false,
-                    textHtml: contentMarkup,
-                    isEdited: true
-                }) : comment
-            ));
-            this.setState({comments});
-            lazyLoadResource();
-            
-            toast('😀 댓글이 수정되었습니다.');
-        }
-    }
-
-    async onCommentEditCancle(pk: number) {
-        let { comments } = this.state;
-        comments = comments.map(comment => (
-            comment.pk == pk ? ({
-                ...comment,
-                isEdit: false,
-            }) : comment
-        ));
-        this.setState({comments});
-    }
-
-    onCommentTag(username: string) {
-        if(!this.state.username) {
-            toast('😅 로그인이 필요합니다.', {
-                onClick: () => Global.onOpenModal('isLoginModalOpen')
-            });
-            return;
-        }
-
-        const { commentForm } = this.state;
-        if(commentForm.includes(`\`@${username}\``)) {
-            toast(`😅 이미 ${username}님을 태그했습니다.`);
-            return; 
-        }
-        
-        this.setState({
-            commentForm: commentForm + ` \`@${username}\``
-        });
-        toast(`😀 ${username}님을 태그했습니다.`);
-    }
-
-    async onCommentDelete(pk: number) {
-        if(confirm('😮 정말 이 댓글을 삭제할까요?')) {
-            const { data } = await API.deleteComment(pk);
-            if(data == 'DONE') {
-                let { comments } = this.state;
-                comments = comments.filter(comment => (
-                    comment.pk !== pk
-                ));
-                this.setState({comments});
-                toast('😀 댓글이 삭제되었습니다.');
-            }
-        }
     }
 
     onEdit() {
@@ -594,54 +465,10 @@ class PostDetail extends React.Component<Props, State> {
                     </div>
                 </div>
                 <div className="py-5 bg-comment">
-                    <div className="container">
-                        <div className="col-lg-8 mx-auto px-0">
-                            {this.state.comments.length > 0 ? this.state.comments.map((comment, idx: number) => (
-                                comment.isEdit ? (
-                                    <CommentEdit
-                                        key={idx}
-                                        pk={comment.pk}
-                                        content={comment.textMarkdown}
-                                        onSubmit={(pk: number, content: string) => this.onCommentEditSubmit(pk, content)}
-                                        onCancle={(pk: number) => this.onCommentEditCancle(pk)}
-                                    />
-                                ) : (
-                                    <CommentItem
-                                        key={idx}
-                                        pk={comment.pk}
-                                        author={comment.author}
-                                        authorImage={comment.authorImage}
-                                        timeSince={comment.timeSince}
-                                        html={comment.textHtml}
-                                        isEdited={comment.isEdited}
-                                        isOwner={this.state.username === comment.author ? true : false}
-                                        totalLikes={comment.totalLikes}
-                                        isLiked={comment.isLiked}
-                                        onEdit={(pk: number) => this.onCommentEdit(pk)}
-                                        onDelete={(pk: number) => this.onCommentDelete(pk)}
-                                        onLike={(pk: number) => this.onCommentLike(pk)}
-                                        onTag={(username: string) => this.onCommentTag(username)}
-                                    />
-                                )
-                            )) : <CommentAlert
-                                    text={'😥 작성된 댓글이 없습니다!'}
-                                />
-                            }
-                            {this.state.isLogin ? (
-                                <CommentForm
-                                    content={this.state.commentForm}
-                                    onChange={(value: string) => this.setState({
-                                        commentForm: value
-                                    })}
-                                    onSubmit={this.onSubmitComment.bind(this)}
-                                />
-                            ) : (
-                                <div className="noto alert alert-warning s-shadow c-pointer" onClick={() => Global.onOpenModal('isLoginModalOpen')}>
-                                    댓글을 작성하기 위해 로그인이 필요합니다.
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    <Comment
+                        author={this.props.post.author}
+                        url={this.props.post.url}
+                    />
                 </div>
                 <Footer bgdark={true}>
                     <div className="container pt-5 reverse-color">

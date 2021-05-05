@@ -139,19 +139,19 @@ export async function getPostComments(author: string, url: string) {
 }
 
 export interface GetPostCommentData {
-    comments: {
-        pk: number;
-        author: string;
-        authorImage: string;
-        isEdit: boolean;
-        isEdited: boolean;
-        timeSince: string;
-        textHtml: string;
-        textMarkdown: string;
-        totalLikes: number;
-        isLiked: boolean;
-    }[];
+    comments: GetPostCommentDataComment[];
 };
+
+export interface GetPostCommentDataComment {
+    pk: number;
+    author: string;
+    authorImage: string;
+    isEdited: boolean;
+    timeSince: string;
+    textHtml: string;
+    totalLikes: number;
+    isLiked: boolean;
+}
 
 export async function postPost(author: string, data: FormData) {
     return await axios({
