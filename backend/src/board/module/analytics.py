@@ -29,7 +29,7 @@ def view_count(posts, request, ip, user_agent, referer):
         create_referer(posts, referer)
 
 def create_referer(posts, referer):
-    if not vaild_referer(referer):
+    if not has_vaild_referer(referer):
         return
     
     today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
@@ -74,8 +74,7 @@ def create_referer(posts, referer):
         referer_from = referer_from
     ).save()
 
-def vaild_referer(referer):
-    referer_lower = referer.lower()
+def has_vaild_referer(referer):
     exclude_items = [
         settings.SITE_URL,
         'in-vm',
@@ -129,39 +128,52 @@ def create_viewer(posts, ip, user_agent):
             today_analytics.table.add(history)
             today_analytics.save()
 
-def bot_check(user_agent):
+def has_bot_keyword(user_agent):
     user_agent_lower = user_agent.lower()
-    if 'bot' in user_agent_lower or 'facebookexternalhit' in user_agent_lower or 'headless' in user_agent_lower:
-        bot_types = [
-            'google',
-            'bing',
-            'commoncrawl',
-            'petal',
-            'notion',
-            'naver',
-            'kakao',
-            'slack',
-            'twitter',
-            'telegram',
-            'semrush',
-            'mj12',
-            'seznam',
-            'blex',
-            'yandex',
-            'zoominfo'
-            'dot',
-            'cocolyze',
-            'bnf',
-            'ads',
-            'linkdex',
-            'similartech',
-            'coccoc',
-            'ahrefs',
-            'baidu',
-            'facebook'
-        ]
-        for bot_type in bot_types:
-            if bot_type in user_agent.lower():
-                return bot_type + '-bot'
-        return 'temp-bot'
-    return ''
+    include_items = [
+        'facebookexternalhit',
+        'headless',
+        'yeti',
+        'bot',
+    ]
+    for item in include_items:
+        if item in user_agent_lower:
+            return True
+    return False
+
+def bot_check(user_agent):
+    if not has_bot_keyword(user_agent):
+        return ''
+    
+    bot_types = [
+        'google',
+        'bing',
+        'commoncrawl',
+        'petal',
+        'notion',
+        'naver',
+        'kakao',
+        'slack',
+        'twitter',
+        'telegram',
+        'semrush',
+        'mj12',
+        'seznam',
+        'blex',
+        'yandex',
+        'zoominfo'
+        'dot',
+        'cocolyze',
+        'bnf',
+        'ads',
+        'linkdex',
+        'similartech',
+        'coccoc',
+        'ahrefs',
+        'baidu',
+        'facebook'
+    ]
+    for bot_type in bot_types:
+        if bot_type in user_agent.lower():
+            return bot_type + '-bot'
+    return 'temp-bot'
