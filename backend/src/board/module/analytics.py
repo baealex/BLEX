@@ -29,6 +29,53 @@ def view_count(posts, request, ip, user_agent, referer):
         create_referer(posts, referer)
 
 def create_referer(posts, referer):
+    if not vaild_referer(referer):
+        return
+    
+    today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+    today_analytics = None
+    try:
+        today_analytics = PostAnalytics.objects.get(created_date=today, posts=posts)
+    except:
+        today_analytics = PostAnalytics(posts=posts)
+        today_analytics.save()
+        today_analytics.refresh_from_db()
+
+    referer_from = None
+    referer = referer[:500]
+    if 'google' in referer and 'url' in referer:
+        referer = 'https://www.google.com/'
+    
+    try:
+        referer_from = RefererFrom.objects.get(location=referer)
+    except:
+        referer_from = RefererFrom(location=referer)
+        referer_from.save()
+        referer_from.refresh_from_db()
+    if referer_from.should_update():
+        def get_title():
+            try:
+                response = requests.get(referer)
+                title = re.search(r'<title.*?>(.+?)</title>', response.text)
+                if title:
+                    title = title.group(1)
+                    title = html.unescape(title)
+                    title = urllib.parse.unquote(title)
+                    if not 'http://' in title and not 'https://' in title:
+                        referer_from.title = title
+            except:
+                pass
+            if not referer_from.title:
+                referer_from.title = referer.split('//')[1].split('/')[0]
+            referer_from.update()
+        sub_task_manager.append_task(get_title)
+    Referer(
+        posts = today_analytics,
+        referer_from = referer_from
+    ).save()
+
+def vaild_referer(referer):
+    referer_lower = referer.lower()
     exclude_items = [
         settings.SITE_URL,
         'in-vm',
@@ -41,50 +88,8 @@ def create_referer(posts, referer):
     ]
     for item in exclude_items:
         if item in referer:
-            return
-    
-    if referer:
-        today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
-        today_analytics = None
-        try:
-            today_analytics = PostAnalytics.objects.get(created_date=today, posts=posts)
-        except:
-            today_analytics = PostAnalytics(posts=posts)
-            today_analytics.save()
-            today_analytics.refresh_from_db()
-
-        referer_from = None
-        referer = referer[:500]
-        if 'google' in referer and 'url' in referer:
-            referer = 'https://www.google.com/'
-        
-        try:
-            referer_from = RefererFrom.objects.get(location=referer)
-        except:
-            referer_from = RefererFrom(location=referer)
-            referer_from.save()
-            referer_from.refresh_from_db()
-        if referer_from.should_update():
-            def get_title():
-                try:
-                    response = requests.get(referer)
-                    title = re.search(r'<title.*?>(.+?)</title>', response.text)
-                    if title:
-                        title = title.group(1)
-                        title = html.unescape(title)
-                        title = urllib.parse.unquote(title)
-                        if not 'http://' in title and not 'https://' in title:
-                            referer_from.title = title
-                except:
-                    pass
-                if not referer_from.title:
-                    referer_from.title = referer.split('//')[1].split('/')[0]
-                referer_from.update()
-            sub_task_manager.append_task(get_title)
-        Referer(
-            posts = today_analytics,
-            referer_from = referer_from
-        ).save()
+            return False
+    return True 
 
 def create_viewer(posts, ip, user_agent):
     history = None
@@ -124,23 +129,6 @@ def create_viewer(posts, ip, user_agent):
             today_analytics.table.add(history)
             today_analytics.save()
 
-def vaild_referer(referer):
-    referer_lower = referer.lower()
-    exclude_items = [
-        settings.SITE_URL,
-        'in-vm',
-        'AND',
-        'OR',
-        'IF',
-        'CASE',
-        'SELECT',
-        '127.0.0.1'
-    ]
-    for item in exclude_items:
-        if item in referer:
-            return False
-    return True 
-
 def bot_check(user_agent):
     user_agent_lower = user_agent.lower()
     if 'bot' in user_agent_lower or 'facebookexternalhit' in user_agent_lower or 'headless' in user_agent_lower:
@@ -160,6 +148,7 @@ def bot_check(user_agent):
             'seznam',
             'blex',
             'yandex',
+            'zoominfo'
             'dot',
             'cocolyze',
             'bnf',
