@@ -13,6 +13,9 @@ import { toast } from 'react-toastify';
 import * as API from '@modules/api';
 import Global from '@modules/global';
 import blexer from '@modules/blexer';
+import {
+    lazyLoadResource
+} from '@modules/lazy';
 
 export interface CommentProps {
     author: string;
@@ -152,6 +155,7 @@ export function Comment(props: CommentProps) {
                 isEdit: false,
                 textMarkdown: '',
             })));
+            lazyLoadResource();
         })
     }, [props.url]);
 
