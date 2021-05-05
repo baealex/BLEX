@@ -256,6 +256,11 @@ def posts_analytics(request, url):
         referer = request.POST.get('referer', '')
         time = request.POST.get('time', '')
 
+        print('ip :', ip)
+        print('user_agent :', user_agent)
+        print('referer :', referer)
+        print('time :', time)
+
         view_count(post, request, ip, user_agent, referer)
         
         return StatusDone({
