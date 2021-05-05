@@ -138,11 +138,8 @@ class PostDetail extends React.Component<Props, State> {
     componentDidMount() {
         Prism.highlightAll();
         lazyLoadResource();
-        lazyIntersection('.page-footer', async () => {
-            await this.getFeatureArticle();
-        });
-
         this.makeHeaderNav();
+        this.getFeatureArticle();
     }
 
     componentDidUpdate(prevProps: Props) {
