@@ -5,8 +5,8 @@ import { toast } from 'react-toastify';
 interface Props {
     pk: number;
     content: string;
-    onCancle: Function;
-    onSubmit: Function;
+    onCancle: (pk: number) => void;
+    onSubmit: (pk: number, content: string) => void;
 };
 
 export default function CommentForm(props: Props) {

@@ -6,8 +6,8 @@ import { dropImage } from '@modules/image';
 
 interface Props {
     content: string;
-    onChange: Function;
-    onSubmit: Function;
+    onChange: (content: string) => void;
+    onSubmit: (content: string) => void;
 };
 
 export default function CommentForm(props: Props) {

@@ -8,10 +8,10 @@ interface Props {
     isLiked: boolean;
     isEdited: boolean;
     isOwner: boolean;
-    onLike: Function;
-    onEdit: Function;
-    onDelete: Function;
-    onTag: Function;
+    onLike: (pk: number) => void;
+    onEdit: (pk: number) => void;
+    onDelete: (pk: number) => void;
+    onTag: (username: string) => void;
     html: string;
     totalLikes: number;
 };
