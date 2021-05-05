@@ -133,6 +133,11 @@ def has_bot_keyword(user_agent):
     include_items = [
         'facebookexternalhit',
         'headless',
+        'requests',
+        'crawler',
+        'parser',
+        'embed',
+        'scrap',
         'yeti',
         'bot',
     ]
