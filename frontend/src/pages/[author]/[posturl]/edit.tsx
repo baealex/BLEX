@@ -25,7 +25,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     try {
         const cookie = req.headers.cookie;
         
-        const posts = (await API.getPost(posturl as string, 'edit', cookie)).data;
+        const posts = (await API.getAnUserPostsEdit(
+            author as string,
+            posturl as string,
+            cookie)
+        ).data;
     
         return {
             props: {
@@ -41,17 +45,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 }
 
-interface PostsEditData {
-    image: string;
-    title: string;
-    series: string;
-    textMd: string;
-    tag: string;
-    isHide: boolean;
-    isAdvertise: boolean;
-}
-
-interface Props extends PostsEditData {
+interface Props extends API.GetAnUserPostsEditData {
     posturl: string;
     username: string;
 }
@@ -66,17 +60,19 @@ export default function Edit(props: Props) {
     const [ isHide, setIsHide ] = useState(props.isHide);
     const [ isAdvertise, setIsAdvertise ] = useState(props.isAdvertise);
 
-    const onSubmit = async () => {
+    const onSubmit = async (onFail: Function) => {
         if(!title) {
             toast('😅 제목이 비어있습니다.');
+            onFail();
             return;
         }
         if(!tags) {
             toast('😅 키워드를 작성해주세요.');
+            onFail();
             return;
         }
         try {
-            const { data } = await API.postPost(props.posturl, {
+            const { data } = await API.postAnUserPosts(props.username, props.posturl, {
                 title: title,
                 text_md: content,
                 text_html: blexer(content),
@@ -91,6 +87,7 @@ export default function Edit(props: Props) {
             }
         } catch(e) {
             toast('😥 글 수정중 오류가 발생했습니다.');
+            onFail();
         }
     }
     

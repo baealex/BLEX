@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
 
 import Profile from '@components/profile/Profile';
@@ -11,14 +11,8 @@ import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
 
-import { ProfileData } from '@modules/api';
-
 interface Props {
-    profile: ProfileData
-}
-
-interface State {
-    isNightMode: boolean;
+    profile: API.ProfileData
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -50,42 +44,38 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 }
 
-class Overview extends React.Component<Props, State> {
-    state: State;
+export default function Overview(props: Props) {
+    const [ isNightMode, setIsNightMode ] = useState(Global.state.isNightMode);
 
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            isNightMode: Global.state.isNightMode
-        };
+    useEffect(() => {
         Global.appendUpdater('Overview', () => {
-            this.setState({
-                isNightMode: Global.state.isNightMode
-            });
+            setIsNightMode(Global.state.isNightMode);
         });
-    }
 
-    render() {
-        return (
-            <>
-                <Head>
-                    <title>{this.props.profile.profile.username} ({this.props.profile.profile.realname})</title>
-                </Head>
+        return () => Global.popUpdater('Overview');
+    }, []);
 
-                <Profile active="overview" profile={this.props.profile.profile} social={this.props.profile.social!}/>
-                <div className="container mb-4">
-                    <div className="col-lg-8 mx-auto p-0">
-                        <Heatmap
-                            isNightMode={this.state.isNightMode}
-                            data={this.props.profile.heatmap}
-                        />
-                        <FeatureArticle articles={this.props.profile.most!}/>
-                        <RecentActivity data={this.props.profile.recent!}/>
-                    </div>
+    return (
+        <>
+            <Head>
+                <title>{props.profile.profile.username} ({props.profile.profile.realname})</title>
+            </Head>
+
+            <Profile
+                active="overview"
+                profile={props.profile.profile}
+                social={props.profile.social!}
+            />
+            <div className="container mb-4">
+                <div className="col-lg-8 mx-auto p-0">
+                    <Heatmap
+                        isNightMode={isNightMode}
+                        data={props.profile.heatmap}
+                    />
+                    <FeatureArticle articles={props.profile.most!}/>
+                    <RecentActivity data={props.profile.recent!}/>
                 </div>
-            </>
-        )
-    }
+            </div>
+        </>
+    )
 }
-
-export default Overview;

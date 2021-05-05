@@ -20,9 +20,14 @@ export default function ArticleContent(props: {
     isEdit?: boolean;
 }) {
     const [ isOpenNewTab, setIsOpenNewTab ] = useState(Global.state.isOpenNewTab);
-    Global.appendUpdater('ArticleContentIsOpenNewTab', () => {
-        setIsOpenNewTab(Global.state.isOpenNewTab);
-    });
+
+    useEffect(() => {
+        Global.appendUpdater('ArticleContentIsOpenNewTab', () => {
+            setIsOpenNewTab(Global.state.isOpenNewTab);
+        });
+
+        return () => Global.popUpdater('ArticleContentIsOpenNewTab');
+    }, []);
 
     useEffect(() => {
         if(typeof window !== "undefined") {

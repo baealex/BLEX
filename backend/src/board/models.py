@@ -504,15 +504,6 @@ class TempPosts(models.Model):
     tag               = models.CharField(max_length=50)
     created_date      = models.DateTimeField(default=timezone.now)
 
-    def to_dict(self):
-        return {
-            'title': self.title,
-            'token': self.token,
-            'text_md': self.text_md,
-            'tag': self.tag,
-            'created_date': timesince(self.created_date),
-        }
-    
     def __str__(self):
         return self.title
 

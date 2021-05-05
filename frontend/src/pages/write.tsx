@@ -47,11 +47,7 @@ interface State {
     isHide: boolean;
     isAdvertise: boolean;
     isOpenArticleModal: boolean;
-    tempPosts: {
-        token: string;
-        title: string;
-        date: string;
-    }[],
+    tempPosts: API.GetTempPostsDataTemp[],
     tempPostsCache: {
         [token: string]: {
             title: string;
@@ -92,10 +88,10 @@ class Write extends React.Component<Props, State> {
     /* Component Method */
 
     async componentDidMount() {
-        const { data } = await API.getAllTempPosts();
-        if(data.result.length > 0) {
+        const { data } = await API.getTempPosts();
+        if(data.body.temps.length > 0) {
             this.setState({
-                tempPosts: data.result
+                tempPosts: data.body.temps
             });
             toast('😀 작성하던 포스트가 있으시네요!', {
                 onClick: () => {
@@ -124,18 +120,18 @@ class Write extends React.Component<Props, State> {
             }
 
             // 캐시 없을 때
-            const { data } = await API.getTempPosts(token);
+            const { data } = await API.getAnTempPosts(token);
             this.setState({
-                title: data.title,
-                content: data.textMd,
-                tags: data.tag,
-                token: data.token,
+                title: data.body.title,
+                content: data.body.textMd,
+                tags: data.body.tag,
+                token: data.body.token,
                 tempPostsCache: {
                     ...tempPostsCache,
-                    [data.token]: {
-                        title: data.title,
-                        content: data.textMd,
-                        tags: data.tag,
+                    [data.body.token]: {
+                        title: data.body.title,
+                        content: data.body.textMd,
+                        tags: data.body.tag,
                     }
                 }
             });
@@ -151,13 +147,15 @@ class Write extends React.Component<Props, State> {
         });
     }
 
-    async onSubmit() {
+    async onSubmit(onFail: Function) {
         if(!this.state.title) {
             toast('😅 제목이 비어있습니다.');
+            onFail();
             return;
         }
         if(!this.state.tags) {
             toast('😅 키워드를 작성해주세요.');
+            onFail();
             return;
         }
         try {
@@ -175,13 +173,14 @@ class Write extends React.Component<Props, State> {
             Router.push('/[author]/[posturl]', `/@${this.state.username}/${data.body.url}`);
         } catch(e) {
             toast('😥 글 작성중 오류가 발생했습니다.');
+            onFail();
         }
     }
 
     async onDeleteTempPost(token: string) {
         if(confirm('😅 정말 임시글을 삭제할까요?')) {
             const { data } = await API.deleteTempPosts(token);
-            if(data == 'DONE') {
+            if(data.status === 'DONE') {
                 this.setState({
                     token: '',
                     tempPosts: this.state.tempPosts.filter(post => 
@@ -206,7 +205,7 @@ class Write extends React.Component<Props, State> {
 
         if(token) {
             const { data } = await API.putTempPosts(token, title, content, tags);
-            if(data == 'DONE') {
+            if(data.status === 'DONE') {
                 this.setState({
                     tempPosts: this.state.tempPosts.map(post => (
                         post.token == this.state.token ? ({
@@ -227,19 +226,21 @@ class Write extends React.Component<Props, State> {
             }
         } else {
             const { data } = await API.postTempPosts(title, content, tags);
-            if(data == 'error:OF') {
-                toast('😥 임시 저장글 갯수가 초과했습니다');
-                return;
+            if (data.status === 'ERROR') {
+                if (data.errorCode === API.ERROR.OVER_FLOW) {
+                    toast('😥 임시 저장글 갯수가 초과했습니다');
+                    return;    
+                }
             }
             this.setState({
-                token: data,
+                token: data.body.token,
                 tempPosts: this.state.tempPosts.concat({
-                    token: data,
+                    token: data.body.token,
                     title: title,
-                    date: '0분'
+                    createdDate: '0분'
                 })
             });
-            // TODO: TempPostsArray에 추가
+            toast('😀 임시 저장이 완료되었습니다.');
         }
     }
 

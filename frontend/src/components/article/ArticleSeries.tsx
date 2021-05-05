@@ -5,9 +5,9 @@ import SeriesDesc from '@components/series/SeriesDesc';
 
 interface Props {
     url: string;
-    title: string;
-    author: string;
-    authorImage: string;
+    name: string;
+    owner: string;
+    ownerImage: string;
     description?: string;
     posts: {
         url: string;
@@ -20,10 +20,10 @@ interface Props {
 export default function ArticleSereis(props: Props) {
     return (
         <div className="my-5 noto posts-sereis">
-            <Link href="/[author]/series/[seriesurl]" as={`/@${props.author}/series/${props.url}`}>
+            <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <a className="deep-dark">
                     <h4 className="noto font-weight-bold mb-3">
-                        '{props.title}' 시리즈
+                        '{props.name}' 시리즈
                     </h4>
                 </a>
             </Link>
@@ -32,7 +32,7 @@ export default function ArticleSereis(props: Props) {
                 {props.posts.length > 1 ? props.posts.map((post, idx) => (
                     props.activeSeries >= idx - 2 && props.activeSeries <= idx + 2 ? (
                         <li key={idx}>
-                            <Link href="/[author]/[posturl]" as={`/@${props.author}/${post.url}`}>
+                            <Link href="/[author]/[posturl]" as={`/@${props.owner}/${post.url}`}>
                                 <a className={`${idx == props.activeSeries ? 'deep' : 'shallow'}-dark`}>{post.title}</a>
                             </Link>
                             <div className="series-count">{idx + 1}/{props.sereisLength}</div>

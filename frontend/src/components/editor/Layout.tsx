@@ -51,7 +51,7 @@ interface Props {
         value: boolean;
         onChange: (value: boolean) => void;
     }
-    onSubmit: Function;
+    onSubmit: (onFail: Function) => void;
     addon?: {
         sideButton: JSX.Element | JSX.Element[];
         modal: JSX.Element | JSX.Element[];
@@ -126,7 +126,9 @@ export default function Layout(props: Props) {
 
     const onSubmit = async () => {
         setIsSubmit(true);
-        await props.onSubmit();
+        await props.onSubmit(() => {
+            setIsSubmit(false);
+        });
     }
 
     const onFetchForm = async (id: number) => {

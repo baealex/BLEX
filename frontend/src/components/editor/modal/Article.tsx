@@ -4,22 +4,18 @@ import ModalButton from '@components/modal/Button';
 
 import Toggle from '@components/atoms/toggle';
 
+import * as API from '@modules/api';
+
 interface Props {
     isOpen: boolean;
     close: Function;
     token: string;
     isAutoSave: boolean;
     onCheckAutoSave: Function;
-    tempPosts: TempPost[];
+    tempPosts: API.GetTempPostsDataTemp[];
     onFecth: Function;
     onDelete: Function;
     onSave: Function;
-}
-
-interface TempPost {
-    token: string;
-    title: string;
-    date: string;
 }
 
 export default function TempArticleModal(props: Props) {
@@ -30,7 +26,7 @@ export default function TempArticleModal(props: Props) {
                     {props.tempPosts.map((item, idx) => (
                         <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
                             <span onClick={() => props.onFecth(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
-                                {item.title} <span className="vs">{item.date}전</span>
+                                {item.title} <span className="vs">{item.createdDate}전</span>
                             </span>
                             <a onClick={() => props.onDelete(item.token)}>
                                 <i className="fas fa-times"></i>

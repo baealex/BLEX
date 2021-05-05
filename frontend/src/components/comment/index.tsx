@@ -33,11 +33,6 @@ export function Comment(props: CommentProps) {
     const [ comments, setComments ] = useState<Comment[]>([]);
     const [ commentText, setCommentText ] = useState('');
 
-    Global.appendUpdater('Comment', () => {
-        setIsLogin(Global.state.isLogin);
-        setUsername(Global.state.username);
-    });
-
     const handleSubmit = async (content: string) => {
         const html = blexer(content);
         const { data } = await API.postComments(props.url, content, html);
@@ -156,7 +151,14 @@ export function Comment(props: CommentProps) {
                 textMarkdown: '',
             })));
             lazyLoadResource();
-        })
+        });
+
+        Global.appendUpdater('Comment', () => {
+            setIsLogin(Global.state.isLogin);
+            setUsername(Global.state.username);
+        });
+
+        return () => Global.popUpdater('Comment');
     }, [props.url]);
 
     return (

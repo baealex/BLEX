@@ -24,19 +24,12 @@ import {
 import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
-
 import { ArticleAuthorProps } from '@components/article/ArticleAuthor';
-import { FeaturePostsData } from '@modules/api';
 
 interface Props {
     profile: ArticleAuthorProps,
-    post: API.GetPostData,
-    series: {
-        url: string;
-        title: string;
-        description: string;
-        posts: SeriesPosts[];
-    },
+    post: API.GetAnUserPostsViewData,
+    series: API.GetAnUserSeriesData,
     hasSeries: boolean;
     activeSeries: number;
     sereisLength: number;
@@ -51,12 +44,7 @@ interface State {
     headerNav: string[][];
     headerNow: string;
     isOpenSideIndex: boolean;
-    featurePosts?: FeaturePostsData;
-}
-
-interface SeriesPosts {
-    url: string;
-    title: string;
+    featurePosts?: API.GetFeaturePostsData;
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -75,13 +63,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookie } = context.req.headers;
 
     try {
-        const post = await API.getPost(posturl as string, 'view', cookie);
-
-        if ('@' + post.data.body.author !== author) {
-            return {
-                notFound: true
-            };
-        }
+        const post = await API.getAnUserPostsView(
+            author as string,
+            posturl as string,
+            cookie
+        );
 
         try {
             API.postPostAnalytics(posturl as string, {
@@ -100,10 +86,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         ]);
         
         if (post.data.body.series) {
-            let series = await API.getSeries(author as string, post.data.body.series);
-            const sereisLength = series.data.posts.length;
-            const activeSeries = series.data.posts.findIndex(
-                (item: SeriesPosts) => item.title == post.data.body.title
+            let series = await API.getAnUserSeries(
+                author as string,
+                post.data.body.series
+            );
+            const sereisLength = series.data.body.posts.length;
+            const activeSeries = series.data.body.posts.findIndex(
+                (item) => item.title == post.data.body.title
             );
             return { props: {
                 hasSeries: true,
@@ -111,7 +100,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 profile: profile.data,
                 activeSeries,
                 sereisLength,
-                series: series.data
+                series: series.data.body
             }}
         }
         return { props: {
@@ -244,13 +233,13 @@ class PostDetail extends React.Component<Props, State> {
         const { author, url } = this.props.post;
         const { data } = await API.getFeaturePosts(author, url);
         this.setState({
-            featurePosts: data
+            featurePosts: data.body
         });
     }
 
     async onClickLike() {
-        const { url } = this.props.post;
-        const { data } = await API.putPost(url, 'like');
+        const { author, url } = this.props.post;
+        const { data } = await API.putAnUserPosts('@' + author, url, 'like');
         if (data.status === 'DONE') {
             if (data.body.totalLikes) {
                 this.setState({
@@ -308,8 +297,8 @@ class PostDetail extends React.Component<Props, State> {
 
     async onDelete() {
         if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { url } = this.props.post;
-            const { data } = await API.deletePost(url);
+            const { author, url } = this.props.post;
+            const { data } = await API.deleteAnUserPosts('@' + author, url);
             if(data.status === 'DONE') {
                 toast('😀 포스트가 삭제되었습니다.');
             }   
@@ -364,7 +353,7 @@ class PostDetail extends React.Component<Props, State> {
                         <div className="col-lg-8">
                             <h1 className="post-headline">
                                 {this.props.hasSeries ? (
-                                    <span className="post-series">'{this.props.series.title}' 시리즈</span>
+                                    <span className="post-series">'{this.props.series.name}' 시리즈</span>
                                 ) : ''}
                                 {this.props.post.title}
                             </h1>
@@ -395,12 +384,7 @@ class PostDetail extends React.Component<Props, State> {
                             />
                             {this.props.hasSeries ? (
                                 <ArticleSereis
-                                    url={this.props.series.url}
-                                    title={this.props.series.title}
-                                    posts={this.props.series.posts}
-                                    author={this.props.post.author}
-                                    authorImage={this.props.post.authorImage}
-                                    description={this.props.series.description}
+                                    {...this.props.series}
                                     activeSeries={this.props.activeSeries}
                                     sereisLength={this.props.sereisLength}
                                 />

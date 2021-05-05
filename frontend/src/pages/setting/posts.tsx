@@ -110,7 +110,7 @@ export default function Setting(props: Props) {
 
     const onPostsDelete = async (url: string) => {
         if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { data } = await API.deletePost(url);
+            const { data } = await API.deleteAnUserPosts('@' + props.username, url);
             if(data.status === 'DONE') {
                 setPosts([...posts.filter(post => (
                     post.url !== url
@@ -121,7 +121,7 @@ export default function Setting(props: Props) {
     };
 
     const onPostsHide = async (url: string) => {
-        const { data } = await API.putPost(url, 'hide');
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'hide');
         setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
@@ -141,7 +141,7 @@ export default function Setting(props: Props) {
 
     const onTagSubmit = async (url: string) => {
         const thisPost = posts.find(post => post.url == url);
-        const { data } = await API.putPost(url, 'tag', {
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', {
             tag: thisPost?.tag
         });
         setPosts([...posts.map(post => (

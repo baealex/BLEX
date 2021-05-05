@@ -16,36 +16,6 @@ import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
 
-interface Props {
-    series: {
-        url: string;
-        title: string;
-        image: string;
-        author: string;
-        authorImage: string;
-        description: string;
-        posts: Posts[];
-    }
-};
-
-interface State {
-    isLogin: boolean;
-    username: string;
-    seriesTitle: string;
-    seriesDescription: string;
-    seriesPosts: Posts[];
-    isSeriesModalOpen: boolean;
-    isSortOldFirst: boolean;
-};
-
-interface Posts {
-    url: string;
-    title: string;
-    readTime: number;
-    description: string;
-    createdDate: string;
-}
-
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
     Global.configInject(cookies);
@@ -59,10 +29,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 
     try {
-        const { data } = await API.getSeries(author as string, seriesurl as string);
+        const { data } = await API.getAnUserSeries(
+            author as string,
+            seriesurl as string
+        );
         return {
             props: {
-                series: data
+                series: data.body
             }
         }
     } catch(error) {
@@ -72,13 +45,27 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 }
 
+interface Props {
+    series: API.GetAnUserSeriesData,
+};
+
+interface State {
+    isLogin: boolean;
+    username: string;
+    seriesTitle: string;
+    seriesDescription: string;
+    seriesPosts: API.GetAnUserSeriesDataPosts[];
+    isSeriesModalOpen: boolean;
+    isSortOldFirst: boolean;
+};
+
 class Series extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
-            seriesTitle: props.series.title,
+            seriesTitle: props.series.name,
             seriesDescription: props.series.description,
             seriesPosts: props.series.posts,
             isSeriesModalOpen: false,
@@ -93,12 +80,12 @@ class Series extends React.Component<Props, State> {
 
     componentDidUpdate(prevProps: Props) {
         if(
-            prevProps.series.title !== this.props.series.title ||
+            prevProps.series.name !== this.props.series.name ||
             prevProps.series.description !== this.props.series.description ||
             prevProps.series.posts !== this.props.series.posts
         ) {
             this.setState({
-                seriesTitle: this.props.series.title,
+                seriesTitle: this.props.series.name,
                 seriesDescription: this.props.series.description,
                 seriesPosts: this.props.series.posts
             });
@@ -125,17 +112,20 @@ class Series extends React.Component<Props, State> {
     }
 
     async seriesUpdate() {
-        const { data } = await API.putSeries(
-            '@' + this.props.series.author,
+        const { data } = await API.putUserSeries(
+            '@' + this.props.series.owner,
             this.props.series.url,
             {
                 title: this.state.seriesTitle,
                 description: this.state.seriesDescription
             }
         );
-        if(data !== 'FAIL') {
-            if(data !== this.props.series.url) {
-                Router.replace('/[author]/series/[seriesurl]', `/@${this.state.username}/series/${data}`);
+        if(data.status === 'DONE') {
+            if(data.body.url) {
+                Router.replace(
+                    '/[author]/series/[seriesurl]',
+                    `/@${this.state.username}/series/${data.body.url}`
+                );
             }
             this.onCloseModal('isSeriesModalOpen');
             toast('😀 시리즈가 업데이트 되었습니다.');
@@ -146,7 +136,7 @@ class Series extends React.Component<Props, State> {
 
     async onPostsRemoveInSeries(url: string) {
         if (confirm('😮 이 포스트를 시리즈에서 제거할까요?')) {
-            const { data } = await API.putPost(url, 'series');
+            const { data } = await API.putAnUserPosts('@' + this.props.series.owner, url, 'series');
             if (data.status === 'DONE') {
                 let { seriesPosts } = this.state;
                 seriesPosts = seriesPosts.filter(post => (
@@ -169,7 +159,7 @@ class Series extends React.Component<Props, State> {
             seriesPosts
         } = this.state;
 
-        const SereisModal = this.props.series.author == this.state.username ? (
+        const SereisModal = this.props.series.owner == this.state.username ? (
             <Modal title="시리즈 수정" isOpen={this.state.isSeriesModalOpen} close={() => this.onCloseModal('isSeriesModalOpen')}>
                 <ModalContent>
                     <>
@@ -220,7 +210,7 @@ class Series extends React.Component<Props, State> {
         return (
             <>
                 <Head>
-                    <title>{this.props.series.author} — '{this.props.series.title}' 시리즈</title>
+                    <title>{this.props.series.owner} — '{this.props.series.name}' 시리즈</title>
                 </Head>
 
                 {SereisModal}
@@ -234,17 +224,20 @@ class Series extends React.Component<Props, State> {
                             <h2 className="noto font-weight-bold">
                                 '{seriesTitle}' 시리즈
                             </h2>
-                            <Link href="/[author]" as={`/@${this.props.series.author}`}>
+                            <Link href="/[author]" as={`/@${this.props.series.owner}`}>
                                 <a className="post-series deep-dark noto font-weight-bold mb-3">
-                                    Created by {this.props.series.author}
+                                    Created by {this.props.series.owner}
                                 </a>
                             </Link>
-                            {this.props.series.author == this.state.username ? (
+                            {this.props.series.owner == this.state.username ? (
                                 <div className="mb-3">
                                     <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSeriesModalOpen')}>시리즈 수정</div>
                                 </div>
                             ) : ''}
-                            <SeriesDesc {...this.props.series} description={this.state.seriesDescription}/>
+                            <SeriesDesc
+                                {...this.props.series}
+                                description={this.state.seriesDescription}
+                            />
                             <div className="mt-5 mb-3 text-right">
                                 <div className="btn btn-dark noto m-1" onClick={() => Global.setState({
                                     isSortOldFirst: !isSortOldFirst
@@ -264,14 +257,14 @@ class Series extends React.Component<Props, State> {
                                 <ArticleCard
                                     key={idx}
                                     idx={idx}
-                                    author={this.props.series.author}
+                                    author={this.props.series.owner}
                                     {...post}
                                 />
                             )) : seriesPosts.map((post, idx) => (
                                 <ArticleCard
                                     key={idx}
                                     idx={idx}
-                                    author={this.props.series.author}
+                                    author={this.props.series.owner}
                                     {...post}
                                 />
                             )).reverse()}

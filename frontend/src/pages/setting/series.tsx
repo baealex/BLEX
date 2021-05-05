@@ -36,10 +36,10 @@ export default function Setting(props: Props) {
             toast('😅 시리즈의 이름을 입력하세요.');
             return;
         }
-        const { data } = await API.postSeries('@' + props.username, newSeries);
+        const { data } = await API.postUserSeries('@' + props.username, newSeries);
         toast('😀 시리즈가 생성되었습니다.');
         setSeries([{
-            url: data,
+            url: data.body.url,
             title: newSeries,
             totalPosts: 0
         }, ...series]);
@@ -47,8 +47,8 @@ export default function Setting(props: Props) {
 
     const onSeriesDelete = async (url: string) => {
         if(confirm('😮 정말 이 시리즈를 삭제할까요?')) {
-            const { data } = await API.deleteSeries('@' + props.username, url);
-            if(data == 'DONE') {
+            const { data } = await API.deleteUserSeries('@' + props.username, url);
+            if(data.status === 'DONE') {
                 setSeries([...series.filter(series => (
                     series.url !== url
                 ))]);

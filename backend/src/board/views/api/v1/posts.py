@@ -1,148 +1,117 @@
-import os
-import re
-import json
-import time
-import traceback
-
-from itertools import chain
-from django.conf import settings
-from django.contrib import auth
-from django.core.cache import cache
-from django.core.files import File
-from django.core.mail import send_mail
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
-from django.http import HttpResponse, Http404, QueryDict
+from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import slugify
-from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
 from board.models import *
-from board.module.subtask import sub_task_manager
-from board.module.telegram import TelegramBot
 from board.module.response import StatusDone, StatusError
 from board.module.analytics import view_count
 from board.views import function as fn
 
-def posts(request, url=None):
-    if not url:
-        if request.method == 'GET':
-            sort = request.GET.get('sort', 'trendy')
-            posts = fn.get_posts(sort)
+def temp_posts(request):
+    if not request.user.is_active:
+        return HttpResponse('error:NL')
 
-            page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 21)
-            fn.page_check(page, paginator)
-            posts = paginator.get_page(page)
+    if request.method == 'GET':
+        token = request.GET.get('token')
+        if token:
+            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
             return StatusDone({
-                'posts': list(map(lambda post: {
-                    'url': post.url,
-                    'title': post.title,
-                    'image': post.get_thumbnail(),
-                    'description': post.description(),
-                    'read_time': post.read_time(),
-                    'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
-                    'author_image': post.author.profile.get_thumbnail(),
-                    'author': post.author.username,
-                }, posts)),
-                'last_page': posts.paginator.num_pages
+                'title': temp_posts.title,
+                'token': temp_posts.token,
+                'text_md': temp_posts.text_md,
+                'tag': temp_posts.tag,
+                'created_date': timesince(temp_posts.created_date),
             })
 
-        if request.method == 'POST':
-            if not request.user.is_active:
-                return StatusError('NL')
-
-            post = Post()
-            post.title = request.POST.get('title', '')
-            post.author = request.user
-            post.text_md = request.POST.get('text_md', '')
-            post.text_html = request.POST.get('text_html', '')
-            post.hide = True if request.POST.get('is_hide', '') == 'true' else False
-            post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
-
-            try:
-                series_url = request.POST.get('series', '')
-                if series_url:
-                    series = Series.objects.get(owner=request.user, url=series_url)
-                    post.series = series
-            except:
-                pass
-
-            try:
-                post.image = request.FILES['image']
-            except:
-                pass
-            
-            post.tag = fn.get_clean_tag(request.POST.get('tag', ''))[:50]
-            post.url = slugify(post.title, allow_unicode=True)
-            if post.url == '':
-                post.url = randstr(15)
-            i = 1
-            while True:
-                try:
-                    post.save()
-                    break
-                except:
-                    post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
-                    i += 1
-
-            token = request.POST.get('token')
-            if token:
-                try:
-                    TempPosts.objects.get(token=token, author=request.user).delete()
-                except:
-                    pass
+        if request.GET.get('get') == 'list':
+            temps = TempPosts.objects.filter(author=request.user)
             return StatusDone({
-                'url': post.url,
+                'temps': list(map(lambda temp: {
+                    'token': temp.token,
+                    'title': temp.title,
+                    'created_date': timesince(temp.created_date)
+                }, temps)),
             })
-    
-    if url:
-        post = get_object_or_404(Post, url=url)
-        if request.method == 'GET':
-            if request.GET.get('mode') == 'edit':
-                fn.compere_user(request.user, post.author, give_404_if='different')
-                return StatusDone({
-                    'image': post.get_thumbnail(),
-                    'title': post.title,
-                    'series': post.series.url if post.series else None,
-                    'text_md': post.text_md,
-                    'tag': post.tag,
-                    'is_hide': post.hide,
-                    'is_advertise': post.advertise
-                })
-
-            if request.GET.get('mode') == 'view':
-                if post.hide and request.user != post.author:
-                    raise Http404
-                
-                return StatusDone({
-                    'url': post.url,
-                    'title': post.title,
-                    'image': post.get_thumbnail(),
-                    'description': post.description_tag(),
-                    'read_time': post.read_time(),
-                    'series': post.series.url if post.series else None,
-                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
-                    'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
-                    'author_image': post.author.profile.get_thumbnail(),
-                    'author': post.author.username,
-                    'text_html': post.text_html,
-                    'total_likes': post.total_likes(),
-                    'total_comment': post.total_comment(),
-                    'tag': post.tag,
-                    'is_liked': post.likes.filter(user__id=request.user.id).exists()
-                })
 
     if request.method == 'POST':
-        fn.compere_user(request.user, post.author, give_404_if='different')
+        temps = TempPosts.objects.filter(author=request.user).count()
+        if temps >= 20:
+            return HttpResponse('error:OF')
+        
+        body = QueryDict(request.body)
+
+        token = randstr(25)
+        has_token = TempPosts.objects.filter(token=token, author=request.user)
+        while len(has_token) > 0:
+            token = randstr(25)
+            has_token = TempPosts.objects.filter(token=token, author=request.user)
+        
+        temp_posts = TempPosts(token=token, author=request.user)
+        temp_posts.title = body.get('title')
+        temp_posts.text_md = body.get('text_md')
+        temp_posts.tag = body.get('tag')
+        temp_posts.save()
+
+        return StatusDone({
+            'token': token
+        })
+    
+    if request.method == 'PUT':
+        body = QueryDict(request.body)
+        token = body.get('token')
+        temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
+        temp_posts.title = body.get('title')
+        temp_posts.text_md = body.get('text_md')
+        temp_posts.tag = body.get('tag')
+        temp_posts.save()
+        return StatusDone()
+    
+    if request.method == 'DELETE':
+        body = QueryDict(request.body)
+        token = body.get('token')
+        temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
+        temp_posts.delete()
+        return StatusDone()
+
+    raise Http404
+
+def posts(request):
+    if request.method == 'GET':
+        sort = request.GET.get('sort', 'trendy')
+        posts = fn.get_posts(sort)
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(posts, 21)
+        fn.page_check(page, paginator)
+        posts = paginator.get_page(page)
+        return StatusDone({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'image': post.get_thumbnail(),
+                'description': post.description(),
+                'read_time': post.read_time(),
+                'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                'author_image': post.author.profile.get_thumbnail(),
+                'author': post.author.username,
+            }, posts)),
+            'last_page': posts.paginator.num_pages
+        })
+    
+    if request.method == 'POST':
+        if not request.user.is_active:
+            return StatusError('NL')
+
+        post = Post()
         post.title = request.POST.get('title', '')
+        post.author = request.user
         post.text_md = request.POST.get('text_md', '')
         post.text_html = request.POST.get('text_html', '')
         post.hide = True if request.POST.get('is_hide', '') == 'true' else False
         post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
-        post.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
 
         try:
             series_url = request.POST.get('series', '')
@@ -151,60 +120,79 @@ def posts(request, url=None):
                 post.series = series
         except:
             pass
-        
+
         try:
             post.image = request.FILES['image']
         except:
             pass
+        
+        post.tag = fn.get_clean_tag(request.POST.get('tag', ''))[:50]
+        post.url = slugify(post.title, allow_unicode=True)
+        if post.url == '':
+            post.url = randstr(15)
+        i = 1
+        while True:
+            try:
+                post.save()
+                break
+            except:
+                post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
+                i += 1
 
-        post.tag = fn.get_clean_tag(request.POST.get('tag', ''))
-        post.save()
-        return StatusDone()
+        token = request.POST.get('token')
+        if token:
+            try:
+                TempPosts.objects.get(token=token, author=request.user).delete()
+            except:
+                pass
+        return StatusDone({
+            'url': post.url,
+        })
 
-    if request.method == 'PUT':
-        put = QueryDict(request.body)
-        if request.GET.get('like', ''):
-            if not request.user.is_active:
-                return StatusError('NL')
-            if request.user == post.author:
-                return StatusError('SU')
-            user = User.objects.get(username=request.user)
-            post_like = post.likes.filter(user=user)
-            if post_like.exists():
-                post_like.delete()
-            else:
-                PostLikes(post=post, user=user).save()
-                send_notify_content = '\''+ post.title +'\'글을 @'+ user.username +'님께서 추천했습니다.'
-                fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
-            return StatusDone({
-                'total_likes': post.total_likes()
-            })
-        if request.GET.get('hide', ''):
-            fn.compere_user(request.user, post.author, give_404_if='different')
-            post.hide = not post.hide
-            post.save()
-            return StatusDone({
-                'is_hide': post.hide
-            })
-        if request.GET.get('tag', ''):
-            fn.compere_user(request.user, post.author, give_404_if='different')
-            post.tag = fn.get_clean_tag(put.get('tag'))
-            post.save()
-            return StatusDone({
-                'tag': post.tag
-            })
-        if request.GET.get('series', ''):
-            fn.compere_user(request.user, post.author, give_404_if='different')
-            post.series = None
-            post.save()
-            return StatusDone()
-    
-    if request.method == 'DELETE':
-        fn.compere_user(request.user, post.author, give_404_if='different')
-        post.delete()
-        return StatusDone()
-    
     raise Http404
+
+def feature_posts(request, tag=None):
+    if not tag:
+        username = request.GET.get('username', '')
+        if '@' in username:
+            username = username.replace('@', '')
+        if not username:
+            raise Http404('require username.')
+        
+        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, author__username=username)
+        exclude = request.GET.get('exclude', '')
+        if exclude:
+            posts = posts.exclude(url=exclude)
+        posts = posts.order_by('?')[:3]
+        return StatusDone({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'image': post.get_thumbnail(),
+                'read_time': post.read_time(),
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'author_image': post.author.profile.get_thumbnail(),
+                'author': post.author.username,
+            }, posts))
+        })
+
+    if tag:
+        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag)
+        exclude = request.GET.get('exclude', '')
+        if exclude:
+            posts = posts.exclude(url=exclude)
+        posts = posts.order_by('?')[:3]
+        return StatusDone({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'image': post.get_thumbnail(),
+                'read_time': post.read_time(),
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'author_image': post.author.profile.get_thumbnail(),
+                'author': post.author.username,
+            }, posts))
+        })
 
 def posts_comments(request, url):
     post = get_object_or_404(Post, url=url)
@@ -259,3 +247,140 @@ def posts_analytics(request, url):
         view_count(post, request, ip, user_agent, referer)
         
         return StatusDone()
+
+def user_posts(request, username, url=None):
+    if not url:
+        if request.method == 'GET':
+            posts = Post.objects.filter(created_date__lte=timezone.now(), author__username=username, hide=False)
+            all_count = posts.count()
+            tag = request.GET.get('tag', '')
+            if tag:
+                posts = posts.filter(tag__iregex=r'\b%s\b' % tag)
+            posts = posts.order_by('-created_date')
+            
+            page = request.GET.get('page', 1)
+            paginator = Paginator(posts, 10)
+            fn.page_check(page, paginator)
+            posts = paginator.get_page(page)
+            return StatusDone({
+                'all_count': all_count,
+                'posts': list(map(lambda post: {
+                    'url': post.url,
+                    'title': post.title,
+                    'image': post.get_thumbnail(),
+                    'read_time': post.read_time(),
+                    'description': post.description(35),
+                    'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                    'author_image': post.author.profile.get_thumbnail(),
+                    'author': post.author.username,
+                    'tag': post.tag,
+                }, posts)),
+                'last_page': posts.paginator.num_pages
+            })
+    if url:
+        post = get_object_or_404(Post, author__username=username, url=url)
+        if request.method == 'GET':
+            if request.GET.get('mode') == 'edit':
+                fn.compere_user(request.user, post.author, give_404_if='different')
+                return StatusDone({
+                    'image': post.get_thumbnail(),
+                    'title': post.title,
+                    'series': post.series.url if post.series else None,
+                    'text_md': post.text_md,
+                    'tag': post.tag,
+                    'is_hide': post.hide,
+                    'is_advertise': post.advertise
+                })
+
+            if request.GET.get('mode') == 'view':
+                if post.hide and request.user != post.author:
+                    raise Http404
+                
+                return StatusDone({
+                    'url': post.url,
+                    'title': post.title,
+                    'image': post.get_thumbnail(),
+                    'description': post.description_tag(),
+                    'read_time': post.read_time(),
+                    'series': post.series.url if post.series else None,
+                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
+                    'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
+                    'author_image': post.author.profile.get_thumbnail(),
+                    'author': post.author.username,
+                    'text_html': post.text_html,
+                    'total_likes': post.total_likes(),
+                    'total_comment': post.total_comment(),
+                    'tag': post.tag,
+                    'is_liked': post.likes.filter(user__id=request.user.id).exists()
+                })
+
+        if request.method == 'POST':
+            fn.compere_user(request.user, post.author, give_404_if='different')
+            post.title = request.POST.get('title', '')
+            post.text_md = request.POST.get('text_md', '')
+            post.text_html = request.POST.get('text_html', '')
+            post.hide = True if request.POST.get('is_hide', '') == 'true' else False
+            post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
+            post.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+
+            try:
+                series_url = request.POST.get('series', '')
+                if series_url:
+                    series = Series.objects.get(owner=request.user, url=series_url)
+                    post.series = series
+            except:
+                pass
+            
+            try:
+                post.image = request.FILES['image']
+            except:
+                pass
+
+            post.tag = fn.get_clean_tag(request.POST.get('tag', ''))
+            post.save()
+            return StatusDone()
+
+        if request.method == 'PUT':
+            put = QueryDict(request.body)
+            if request.GET.get('like', ''):
+                if not request.user.is_active:
+                    return StatusError('NL')
+                if request.user == post.author:
+                    return StatusError('SU')
+                user = User.objects.get(username=request.user)
+                post_like = post.likes.filter(user=user)
+                if post_like.exists():
+                    post_like.delete()
+                else:
+                    PostLikes(post=post, user=user).save()
+                    send_notify_content = '\''+ post.title +'\'글을 @'+ user.username +'님께서 추천했습니다.'
+                    fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+                return StatusDone({
+                    'total_likes': post.total_likes()
+                })
+            if request.GET.get('hide', ''):
+                fn.compere_user(request.user, post.author, give_404_if='different')
+                post.hide = not post.hide
+                post.save()
+                return StatusDone({
+                    'is_hide': post.hide
+                })
+            if request.GET.get('tag', ''):
+                fn.compere_user(request.user, post.author, give_404_if='different')
+                post.tag = fn.get_clean_tag(put.get('tag'))
+                post.save()
+                return StatusDone({
+                    'tag': post.tag
+                })
+            if request.GET.get('series', ''):
+                fn.compere_user(request.user, post.author, give_404_if='different')
+                post.series = None
+                post.save()
+                return StatusDone()
+        
+        if request.method == 'DELETE':
+            fn.compere_user(request.user, post.author, give_404_if='different')
+            post.delete()
+            return StatusDone()
+    
+    raise Http404
