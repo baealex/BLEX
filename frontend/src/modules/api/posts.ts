@@ -244,15 +244,17 @@ export async function getFeaturePosts(username: string, exclude: string) {
 }
 
 export interface GetFeaturePostsData {
-    posts: {
-        url: string;
-        title: string;
-        image: string;
-        readTime: number;
-        createdDate: string;
-        authorImage: string;
-        author: string;
-    }[];
+    posts: GetFeaturePostsDataPosts[];
+}
+
+export interface GetFeaturePostsDataPosts {
+    url: string;
+    title: string;
+    image: string;
+    readTime: number;
+    createdDate: string;
+    authorImage: string;
+    author: string;
 }
 
 export async function getFeatureTagPosts(tag: string, exclude: string) {

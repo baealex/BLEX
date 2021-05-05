@@ -14,12 +14,14 @@ import * as API from '@modules/api';
 import Global from '@modules/global';
 import blexer from '@modules/blexer';
 import {
-    lazyLoadResource
+    lazyLoadResource,
+    lazyIntersection
 } from '@modules/lazy';
 
 export interface CommentProps {
     author: string;
     url: string;
+    totalComment: number;
 }
 
 interface Comment extends API.GetPostCommentDataComment {
@@ -45,6 +47,7 @@ export function Comment(props: CommentProps) {
             textMarkdown: '',
             ...data.body
         }));
+        lazyLoadResource();
     };
 
     const handleEdit = async (pk: number) => {
@@ -131,6 +134,7 @@ export function Comment(props: CommentProps) {
                 }) : comment
             )));
             toast('😀 댓글이 수정되었습니다.');
+            lazyLoadResource();
         }
     }
 
@@ -144,68 +148,81 @@ export function Comment(props: CommentProps) {
     }
 
     useEffect(() => {
-        API.getPostComments(props.url).then((response) => {
-            setComments(response.data.body.comments.map(comment => ({
-                ...comment,
-                isEdit: false,
-                textMarkdown: '',
-            })));
-            lazyLoadResource();
-        });
-
         Global.appendUpdater('Comment', () => {
             setIsLogin(Global.state.isLogin);
             setUsername(Global.state.username);
         });
 
-        return () => Global.popUpdater('Comment');
+        if (props.totalComment > 0) {
+            const observer = lazyIntersection('.bg-comment', () => {
+                API.getPostComments(props.url).then((response) => {
+                    setComments(response.data.body.comments.map(comment => ({
+                        ...comment,
+                        isEdit: false,
+                        textMarkdown: '',
+                    })));
+                    lazyLoadResource();
+                });
+            });
+    
+            return () => {
+                observer?.disconnect();
+                Global.popUpdater('Comment');
+            }
+        }
+
+        return () => {
+            Global.popUpdater('Comment');
+        }
     }, [props.url]);
 
     return (
-        <div className="container">
-            <div className="col-lg-8 mx-auto px-0">
-                {comments && comments.length > 0 ? comments.map((comment, idx: number) => (
-                    comment.isEdit ? (
-                        <CommentEdit
-                            key={comment.pk}
-                            pk={comment.pk}
-                            content={comment.textMarkdown}
-                            onSubmit={handleEditSubmit}
-                            onCancle={handleEditCancle}
+        <div className="py-5 bg-comment">
+            <div className="container">
+                <div className="col-lg-8 mx-auto px-0">
+                    {comments && comments.length > 0 ? comments.map((comment, idx: number) => (
+                        comment.isEdit ? (
+                            <CommentEdit
+                                key={comment.pk}
+                                pk={comment.pk}
+                                content={comment.textMarkdown}
+                                onSubmit={handleEditSubmit}
+                                onCancle={handleEditCancle}
+                            />
+                        ) : (
+                            <CommentItem
+                                key={idx}
+                                pk={comment.pk}
+                                author={comment.author}
+                                authorImage={comment.authorImage}
+                                timeSince={comment.timeSince}
+                                html={comment.textHtml}
+                                isEdited={comment.isEdited}
+                                isOwner={username === comment.author}
+                                totalLikes={comment.totalLikes}
+                                isLiked={comment.isLiked}
+                                onEdit={handleEdit}
+                                onDelete={handleDelte}
+                                onLike={handleLike}
+                                onTag={handleTag}
+                            />
+                        )
+                    )) : <CommentAlert
+                            text={'😥 작성된 댓글이 없습니다!'}
+                        />
+                    }
+                    {isLogin ? (
+                        <CommentForm
+                            content={commentText}
+                            onChange={setCommentText}
+                            onSubmit={handleSubmit}
                         />
                     ) : (
-                        <CommentItem
-                            key={idx}
-                            pk={comment.pk}
-                            author={comment.author}
-                            authorImage={comment.authorImage}
-                            timeSince={comment.timeSince}
-                            html={comment.textHtml}
-                            isEdited={comment.isEdited}
-                            isOwner={username === comment.author}
-                            totalLikes={comment.totalLikes}
-                            isLiked={comment.isLiked}
-                            onEdit={handleEdit}
-                            onDelete={handleDelte}
-                            onLike={handleLike}
-                            onTag={handleTag}
-                        />
-                    )
-                )) : <CommentAlert
-                        text={'😥 작성된 댓글이 없습니다!'}
-                    />
-                }
-                {isLogin ? (
-                    <CommentForm
-                        content={commentText}
-                        onChange={setCommentText}
-                        onSubmit={handleSubmit}
-                    />
-                ) : (
-                    <div className="noto alert alert-warning s-shadow c-pointer" onClick={() => Global.onOpenModal('isLoginModalOpen')}>
-                        댓글을 작성하기 위해 로그인이 필요합니다.
-                    </div>
-                )}
+                        <div className="noto alert alert-warning s-shadow c-pointer" onClick={() => Global.onOpenModal('isLoginModalOpen')}>
+                            댓글을 작성하기 위해 로그인이 필요합니다.
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

@@ -1,9 +1,10 @@
 import React from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 import Router from 'next/router';
 
-import ArticleCard from '@components/article/ArticleCard';
+import {
+    FeatureArticle
+} from '@components/article/feature-article';
 import ArticleAuthor from '@components/article/ArticleAuthor';
 import ArticleContent from '@components/article/ArticleContent';
 import ArticleSereis from '@components/article/ArticleSeries';
@@ -18,8 +19,7 @@ import { toast } from 'react-toastify';
 import Prism from '@modules/library/prism';
 import * as API from '@modules/api';
 import {
-    lazyLoadResource,
-    lazyIntersection
+    lazyLoadResource
 } from '@modules/lazy';
 import Global from '@modules/global';
 
@@ -139,7 +139,6 @@ class PostDetail extends React.Component<Props, State> {
         Prism.highlightAll();
         lazyLoadResource();
         this.makeHeaderNav();
-        this.getFeatureArticle();
     }
 
     componentDidUpdate(prevProps: Props) {
@@ -156,14 +155,6 @@ class PostDetail extends React.Component<Props, State> {
                 totalLikes: this.props.post.totalLikes
             });
             needSyntaxUpdate = true;
-
-            lazyIntersection('.bg-comment', async () => {
-                await this.getComments();
-            });
-            lazyIntersection('.page-footer', async () => {
-                await this.getFeatureArticle();
-            });
-
             this.makeHeaderNav();
         }
 
@@ -218,20 +209,6 @@ class PostDetail extends React.Component<Props, State> {
                 headerNav
             });
         }
-    }
-
-    async getComments() {
-        if(this.props.post.totalComment > 0) {
-
-        }
-    }
-
-    async getFeatureArticle() {
-        const { author, url } = this.props.post;
-        const { data } = await API.getFeaturePosts(author, url);
-        this.setState({
-            featurePosts: data.body
-        });
     }
 
     async onClickLike() {
@@ -412,26 +389,17 @@ class PostDetail extends React.Component<Props, State> {
                         )}
                     </div>
                 </div>
-                <div className="py-5 bg-comment">
-                    <Comment
+                <Comment
+                    author={this.props.post.author}
+                    url={this.props.post.url}
+                    totalComment={this.props.post.totalComment}
+                />
+                <Footer bgdark>
+                    <FeatureArticle
                         author={this.props.post.author}
+                        realname={this.props.profile.profile.realname}
                         url={this.props.post.url}
                     />
-                </div>
-                <Footer bgdark>
-                    <div className="container pt-5 reverse-color">
-                        <p className="noto">
-                            <Link href={`/@${this.props.post.author}`}>
-                                <a className="font-weight-bold deep-dark">
-                                    {this.props.profile.profile.realname}
-                                </a>
-                            </Link>님이 작성한 다른 글</p>
-                        <div className="row">
-                            {this.state.featurePosts?.posts.map((item, idx) => (
-                                <ArticleCard key={idx} {...item}/>
-                            ))}
-                        </div>
-                    </div>
                 </Footer>
             </>
         )
