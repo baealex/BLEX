@@ -30,21 +30,7 @@ import { FeaturePostsData } from '@modules/api';
 
 interface Props {
     profile: ArticleAuthorProps,
-    post: {
-        url: string;
-        title: string;
-        image: string;
-        author: string;
-        authorImage: string;
-        isLiked: boolean;
-        totalLikes: number;
-        totalComment: number;
-        description: string;
-        createdDate: string;
-        updatedDate: string;
-        tag: string;
-        textHtml: string;
-    },
+    post: API.GetPostData,
     series: {
         url: string;
         title: string;
@@ -61,26 +47,11 @@ interface State {
     isLiked: boolean;
     username: string;
     totalLikes: number;
-    comments: Comment[];
-    commentForm: string;
     selectedTag?: string;
     headerNav: string[][];
     headerNow: string;
     isOpenSideIndex: boolean;
     featurePosts?: FeaturePostsData;
-}
-
-interface Comment {
-    pk: number;
-    author: string;
-    authorImage: string;
-    isEdit: boolean;
-    isEdited: boolean;
-    timeSince: string;
-    textHtml: string;
-    textMarkdown: string;
-    totalLikes: number;
-    isLiked: boolean;
 }
 
 interface SeriesPosts {
@@ -92,6 +63,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
     Global.configInject(cookies);
 
+    const { req } = context;
     const { author = '', posturl = '' } = context.query;
     
     if(!author.includes('@') || !posturl) {
@@ -103,13 +75,23 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookie } = context.req.headers;
 
     try {
-        const post = await API.getPost(author as string, posturl as string, 'view', cookie);
+        const post = await API.getPost(posturl as string, 'view', cookie);
 
-        const { referer } = context.req.headers;
-        if (referer) {
-            API.postAnalytics(author as string, posturl as string, {
-                referer
-            });
+        if ('@' + post.data.body.author !== author) {
+            return {
+                notFound: true
+            };
+        }
+
+        try {
+            API.postPostAnalytics(posturl as string, {
+                user_agent: req.headers["user-agent"],
+                referer: req.headers.referer ? req.headers.referer : '',
+                ip: req.socket.remoteAddress,
+                time: new Date().getTime(),
+            }, cookie);
+        } catch (e) {
+
         }
 
         const profile = await API.getUserProfile(author as string, [
@@ -117,15 +99,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'social'
         ]);
         
-        if (post.data.series) {
-            let series = await API.getSeries(author as string, post.data.series);
+        if (post.data.body.series) {
+            let series = await API.getSeries(author as string, post.data.body.series);
             const sereisLength = series.data.posts.length;
             const activeSeries = series.data.posts.findIndex(
-                (item: SeriesPosts) => item.title == post.data.title
+                (item: SeriesPosts) => item.title == post.data.body.title
             );
             return { props: {
                 hasSeries: true,
-                post: post.data,
+                post: post.data.body,
                 profile: profile.data,
                 activeSeries,
                 sereisLength,
@@ -134,7 +116,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         }
         return { props: {
             hasSeries: false,
-            post: post.data,
+            post: post.data.body,
             profile: profile.data
         }};
     } catch(error) {
@@ -155,10 +137,8 @@ class PostDetail extends React.Component<Props, State> {
             username: Global.state.username,
             totalLikes: props.post.totalLikes,
             isOpenSideIndex: false,
-            commentForm: '',
             headerNav: [],
-            headerNow: '',
-            comments: []
+            headerNow: ''
         };
         Global.appendUpdater('PostDetail', () => this.setState({
             isLogin: Global.state.isLogin,
@@ -169,18 +149,14 @@ class PostDetail extends React.Component<Props, State> {
     componentDidMount() {
         Prism.highlightAll();
         lazyLoadResource();
-        lazyIntersection('.bg-comment', async () => {
-            await this.getComments();
-        });
         lazyIntersection('.page-footer', async () => {
             await this.getFeatureArticle();
         });
 
-        this.onViewUp();
         this.makeHeaderNav();
     }
 
-    componentDidUpdate(prevProps: Props, prevState: State) {
+    componentDidUpdate(prevProps: Props) {
         let needSyntaxUpdate = false;
 
         if (
@@ -191,8 +167,7 @@ class PostDetail extends React.Component<Props, State> {
         ) {
             this.setState({
                 isLiked: this.props.post.isLiked,
-                totalLikes: this.props.post.totalLikes,
-                comments: []
+                totalLikes: this.props.post.totalLikes
             });
             needSyntaxUpdate = true;
 
@@ -203,12 +178,7 @@ class PostDetail extends React.Component<Props, State> {
                 await this.getFeatureArticle();
             });
 
-            this.onViewUp();
             this.makeHeaderNav();
-        }
-
-        if(prevState.comments !== this.state.comments) {
-            needSyntaxUpdate = true;
         }
 
         if(needSyntaxUpdate) {
@@ -279,26 +249,27 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     async onClickLike() {
-        const { author, url } = this.props.post;
-        const { data } = await API.putPost('@' + author, url, 'like');
-        if(typeof data == 'number') {
-            this.setState({
-                isLiked: !this.state.isLiked,
-                totalLikes: data
-            });
+        const { url } = this.props.post;
+        const { data } = await API.putPost(url, 'like');
+        if (data.status === 'DONE') {
+            if (data.body.totalLikes) {
+                this.setState({
+                    isLiked: !this.state.isLiked,
+                    totalLikes: data.body.totalLikes
+                });
+            }
         }
-        else if(data.includes('error')) {
-            switch(data.split(':')[1]) {
-                case 'NL':
-                    toast('😅 로그인이 필요합니다.', {
-                        onClick:() => {
-                            Global.onOpenModal('isLoginModalOpen');
-                        }
-                    });
-                    break;
-                case 'SU':
-                    toast('😅 자신의 글은 추천할 수 없습니다.');
-                    break;
+        console.log(data);
+        if (data.status === 'ERROR') {
+            if (data.errorCode === API.ERROR.NOT_LOGIN) {
+                toast('😅 로그인이 필요합니다.', {
+                    onClick:() => {
+                        Global.onOpenModal('isLoginModalOpen');
+                    }
+                });
+            }
+            if (data.errorCode === API.ERROR.SAME_USER) {
+                toast('😅 자신의 글은 추천할 수 없습니다.');
             }
         }
     }
@@ -330,13 +301,6 @@ class PostDetail extends React.Component<Props, State> {
         window.open(href, `${sns}-share`, size);
     }
 
-    onViewUp() {
-        const { author, url } = this.props.post;
-        API.postAnalytics('@' + author, url, {
-            viewonly: Math.random()
-        });
-    }
-
     onEdit() {
         const { author, url } = this.props.post;
         Router.push(`/@${author}/${url}/edit`);
@@ -344,9 +308,9 @@ class PostDetail extends React.Component<Props, State> {
 
     async onDelete() {
         if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { author, url } = this.props.post;
-            const { data } = await API.deletePost('@' + author, url);
-            if(data == 'DONE') {
+            const { url } = this.props.post;
+            const { data } = await API.deletePost(url);
+            if(data.status === 'DONE') {
                 toast('😀 포스트가 삭제되었습니다.');
             }   
         }
@@ -425,7 +389,10 @@ class PostDetail extends React.Component<Props, State> {
                                 />
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>
-                            <TagList author={this.props.post.author} tag={this.props.post.tag.split(',')}/>
+                            <TagList
+                                author={this.props.post.author}
+                                tag={this.props.post.tag.split(',')}
+                            />
                             {this.props.hasSeries ? (
                                 <ArticleSereis
                                     url={this.props.series.url}
@@ -470,7 +437,7 @@ class PostDetail extends React.Component<Props, State> {
                         url={this.props.post.url}
                     />
                 </div>
-                <Footer bgdark={true}>
+                <Footer bgdark>
                     <div className="container pt-5 reverse-color">
                         <p className="noto">
                             <Link href={`/@${this.props.post.author}`}>

@@ -25,13 +25,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     try {
         const cookie = req.headers.cookie;
         
-        const posts = (await API.getPost(author as string, posturl as string, 'edit', cookie)).data;
+        const posts = (await API.getPost(posturl as string, 'edit', cookie)).data;
     
         return {
             props: {
                 posturl: posturl,
                 username: author,
-                ...posts
+                ...posts.body
             }
         };
     } catch(error) {
@@ -76,20 +76,17 @@ export default function Edit(props: Props) {
             return;
         }
         try {
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('text_md', content);
-            formData.append('text_html', blexer(content));
-            if(imageFile) {
-                formData.append('image', imageFile);
-            }
-            formData.append('tag', tags);
-            formData.append('series', series);
-            formData.append('is_hide', JSON.stringify(isHide));
-            formData.append('is_advertise', JSON.stringify(isAdvertise));
-
-            const { data } = await API.editPost(props.username, props.posturl, formData);
-            if(data == 'DONE') {
+            const { data } = await API.postPost(props.posturl, {
+                title: title,
+                text_md: content,
+                text_html: blexer(content),
+                image: imageFile,
+                tag: tags,
+                series,
+                is_hide: JSON.stringify(isHide),
+                is_advertise: JSON.stringify(isAdvertise),
+            });
+            if(data.status === 'DONE') {
                 Router.push('/[author]/[posturl]', `/${props.username}/${props.posturl}`);
             }
         } catch(e) {

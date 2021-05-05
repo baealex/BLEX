@@ -16,7 +16,7 @@ from board.module.telegram import TelegramBot
 from board.module.response import StatusDone, StatusError
 from board.views import function as fn
 
-def next_auth_step(request, user):
+def common_auth(request, user):
     if user.config.has_two_factor_auth():
         def create_auth_token():
             token = randnum(6)
@@ -55,7 +55,7 @@ def login(request):
 
             if user is not None:
                 if user.is_active:
-                    return next_auth_step(request, user)
+                    return common_auth(request, user)
             return StatusError('DU')
     raise Http404
 
@@ -126,7 +126,7 @@ def sign_social(request, social):
                     node_id = state['user'].get('node_id')
                     try:
                         user = User.objects.get(last_name='github:' + str(node_id))
-                        return next_auth_step(request, user)
+                        return common_auth(request, user)
                     except:
                         pass
                         
@@ -172,7 +172,7 @@ def sign_social(request, social):
                     node_id = state['user'].get('id')
                     try:
                         user = User.objects.get(last_name='google:' + str(node_id))
-                        next_auth_step(request, user)
+                        common_auth(request, user)
                     except:
                         pass
                     

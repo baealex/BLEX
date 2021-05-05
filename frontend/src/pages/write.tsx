@@ -161,21 +161,18 @@ class Write extends React.Component<Props, State> {
             return;
         }
         try {
-            const formData = new FormData();
-            formData.append('title', this.state.title);
-            formData.append('text_md', this.state.content);
-            formData.append('text_html', blexer(this.state.content));
-            if(this.state.image) {
-                formData.append('image', this.state.image);
-            }
-            formData.append('tag', this.state.tags);
-            formData.append('series', this.state.series);
-            formData.append('token', this.state.token);
-            formData.append('is_hide', JSON.stringify(this.state.isHide));
-            formData.append('is_advertise', JSON.stringify(this.state.isAdvertise));
-
-            const { data } = await API.postPost('@' + this.state.username, formData);
-            Router.push('/[author]/[posturl]', `/@${this.state.username}/${data}`);
+            const { data } = await API.postPosts({
+                token: this.state.token,
+                title: this.state.title,
+                text_md: this.state.content,
+                text_html: blexer(this.state.content),
+                image: this.state.image,
+                tag: this.state.tags,
+                series: this.state.series,
+                is_hide: JSON.stringify(this.state.isHide),
+                is_advertise: JSON.stringify(this.state.isAdvertise),
+            });
+            Router.push('/[author]/[posturl]', `/@${this.state.username}/${data.body.url}`);
         } catch(e) {
             toast('😥 글 작성중 오류가 발생했습니다.');
         }

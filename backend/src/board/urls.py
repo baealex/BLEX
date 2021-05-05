@@ -1,4 +1,3 @@
-from django.contrib.auth import views as auth_views
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 from django.views.generic import TemplateView
@@ -38,14 +37,14 @@ urlpatterns = [
     path('v1/tags', api_v1.tags, name='tags_api_v1'),
     path('v1/tags/<tag>', api_v1.tags, name='tags_api_v1'),
     path('v1/posts/temp', api_v1.temp_posts, name='temp_posts_api_v1'),
-    path('v1/posts/<sort>', api_v1.posts, name='posts_api_v1'),
+    path('v1/posts', api_v1.posts, name='posts_api_v1'),
+    path('v1/posts/<url>', api_v1.posts, name='posts_api_v1'),
+    path('v1/posts/<url>/comments', api_v1.posts_comments, name='posts_api_v1'),
+    path('v1/posts/<url>/analytics', api_v1.posts_analytics, name='posts_api_v1'),
     path('v1/comments', api_v1.comment, name='comment_api_v1'),
     path('v1/comments/<int:pk>', api_v1.comment, name='comment_api_v1'),
     path('v1/users/@<username>', api_v1.users, name='users_api_v1'),
     path('v1/users/@<username>/posts', api_v1.user_posts, name='post_api_v1'),
-    path('v1/users/@<username>/posts/<url>', api_v1.user_posts, name='post_api_v1'),
-    path('v1/users/@<username>/posts/<url>/comments', api_v1.user_posts_comments, name='post_comments_api_v1'),
-    path('v1/users/@<username>/posts/<url>/analytics', api_v1.user_posts_analytics, name='post_analytics_api_v1'),
     path('v1/users/@<username>/series', api_v1.user_series, name='series_api_v1'),
     path('v1/users/@<username>/series/<url>', api_v1.user_series, name='series_api_v1'),
     path('v1/feature/posts', api_v1.feature_posts, name="feature_posts_api_v1"),

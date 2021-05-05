@@ -37,49 +37,53 @@ export function Comment(props: CommentProps) {
 
     const handleSubmit = async (content: string) => {
         const html = blexer(content);
-        const { data } = await API.postComment(props.url, content, html);
+        const { data } = await API.postComments(props.url, content, html);
         if(data.status !== 'DONE') {
             toast('😅 댓글 작성중 오류가 발생했습니다!');
             return;
         }
-        setComments(comments.concat(data.element));
+        setComments(comments.concat({
+            isEdit: false,
+            textMarkdown: '',
+            ...data.body
+        }));
     };
 
     const handleEdit = async (pk: number) => {
-        const { data } = await API.getCommentMd(pk);
+        const { data } = await API.getComment(pk);
         setComments(comments.map(comment => (
             comment.pk === pk ? ({
                 ...comment,
                 isEdit: true,
-                textMarkdown: data
+                textMarkdown: data.body.textMd
             }) : comment
         )));
     }
 
     const handleLike = async (pk: number) => {
-        const { data } = await API.likeComment(pk);
-        if(data === API.ERROR.NOT_LOGIN) {
-            toast('😅 로그인이 필요합니다.', {
-                onClick:() => {
-                    Global.onOpenModal('isLoginModalOpen');
-                }
-            });
-            return;
+        const { data } = await API.putCommentLike(pk);
+        if (data.status === 'ERROR') {
+            switch (data.errorCode) {
+                case API.ERROR.NOT_LOGIN:
+                    toast('😅 로그인이 필요합니다.', {
+                        onClick:() => {
+                            Global.onOpenModal('isLoginModalOpen');
+                        }
+                    });
+                    return;
+                case API.ERROR.SAME_USER:
+                    toast('😅 자신의 댓글은 추천할 수 없습니다.');
+                    return;
+                case API.ERROR.REJECT:
+                    toast('😅 삭제된 댓글은 추천할 수 없습니다.');
+                    return;
+            }
         }
-        if(data === API.ERROR.SAME_USER) {
-            toast('😅 자신의 댓글은 추천할 수 없습니다.');
-            return;
-        }
-        if(data === API.ERROR.REJECT) {
-            toast('😅 삭제된 댓글은 추천할 수 없습니다.');
-            return;
-        }
-
         setComments(comments.map(comment => (
             comment.pk === pk ? ({
                 ...comment,
                 isLiked: !comment.isLiked,
-                totalLikes: data,
+                totalLikes: data.body.totalLikes,
             }) : comment
         )));
     }
@@ -87,9 +91,12 @@ export function Comment(props: CommentProps) {
     const handleDelte = async (pk: number) => {
         if(confirm('😮 정말 이 댓글을 삭제할까요?')) {
             const { data } = await API.deleteComment(pk);
-            if(data == 'DONE') {
-                setComments(comments.filter(comment => (
-                    comment.pk !== pk
+            if(data.status === 'DONE') {
+                setComments(comments.map(comment => (
+                    comment.pk === pk ? ({
+                        ...comment,
+                        ...data.body
+                    }) : comment
                 )));
                 toast('😀 댓글이 삭제되었습니다.');
             }
@@ -116,7 +123,7 @@ export function Comment(props: CommentProps) {
     const handleEditSubmit = async (pk: number, content: string) => {
         const html = blexer(content);
         const { data } = await API.putComment(pk, content, html);
-        if(data == 'DONE') {
+        if(data.status === 'DONE') {
             setComments(comments.map(comment => (
                 comment.pk === pk ? ({
                     ...comment,
@@ -139,8 +146,8 @@ export function Comment(props: CommentProps) {
     }
 
     useEffect(() => {
-        API.getPostComments('@' + props.author, props.url).then((response) => {
-            setComments(response.data.comments.map(comment => ({
+        API.getPostComments(props.url).then((response) => {
+            setComments(response.data.body.comments.map(comment => ({
                 ...comment,
                 isEdit: false,
                 textMarkdown: '',

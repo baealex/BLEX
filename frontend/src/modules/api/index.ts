@@ -1,4 +1,6 @@
 export * from './auth';
+export * from './comments';
+export * from './posts';
 export * from './setting';
 export * from './tags';
 
@@ -46,11 +48,14 @@ export function serializeObject(obj: {
     }, '').slice(0, -1);
 }
 
-export async function getAllPosts(sort: string, page: number) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/posts/${sort}?page=${page}`,
-        method: 'GET',
+export function objectToForm(obj: {
+    [key: string]: any
+}) {
+    const form = new FormData();
+    Object.keys(obj).forEach((item) => {
+        form.append(item, obj[item]);
     });
+    return form;
 }
 
 export async function getAllTempPosts() {
@@ -120,96 +125,6 @@ export async function getUserPosts(author: string, page: number, tag='') {
     return await axios({
         url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
         method: 'GET',
-    });
-}
-
-export async function getPost(author: string, url: string, mode: string, cookie?: string) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?mode=${mode}`,
-        method: 'GET',
-        headers: cookie ? { cookie } : undefined
-    });
-}
-
-export async function getPostComments(author: string, url: string) {
-    return await axios.request<GetPostCommentData>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/comments`,
-        method: 'GET',
-    });
-}
-
-export interface GetPostCommentData {
-    comments: GetPostCommentDataComment[];
-};
-
-export interface GetPostCommentDataComment {
-    pk: number;
-    author: string;
-    authorImage: string;
-    isEdited: boolean;
-    timeSince: string;
-    textHtml: string;
-    totalLikes: number;
-    isLiked: boolean;
-}
-
-export async function postPost(author: string, data: FormData) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data,
-        withCredentials: true,
-    });
-}
-
-export async function editPost(author: string, url: string, data: FormData) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data,
-        withCredentials: true,
-    });
-}
-
-export async function putPost(author: string, url: string, item='', data={}) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${serializeObject({[item]: item})}`,
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject(data),
-        withCredentials: true,
-    });
-}
-
-export async function deletePost(author: string, url: string) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
-        method: 'DELETE',
-        withCredentials: true,
-    });
-}
-
-export async function getAnalytics(author: string, url: string) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
-        method: 'GET'
-    });
-}
-
-export async function postAnalytics(author: string, url: string, data: {}) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}/analytics`,
-        method: 'POST',
-        data: serializeObject(data),
-        withCredentials: true,
     });
 }
 
@@ -309,99 +224,6 @@ export async function putAbout(author: string, aboutMarkdown: string, aboutMarku
                 about_md: aboutMarkdown,
                 about_html: aboutMarkup
             }),
-            withCredentials: true,
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
-}
-
-export async function postComment(url: string, content: string, contentMarkup: string) {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/comments?url=${url}`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                comment_html: contentMarkup,
-                comment_md: content
-            }),
-            withCredentials: true,
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
-}
-
-export async function likeComment(pk: number) {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/comments/${pk}`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                like: pk
-            }),
-            withCredentials: true,
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
-}
-
-export async function getCommentMd(pk: number) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/comments/${pk}`,
-        method: 'GET'
-    });
-}
-
-export async function putComment(pk: number, content: string, commentMarkup: string) {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/comments/${pk}`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                comment: 'comment',
-                comment_md: content,
-                comment_html: commentMarkup,
-            }),
-            withCredentials: true,
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
-}
-
-
-export async function deleteComment(pk: number) {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/comments/${pk}`,
-            method: 'DELETE',
             withCredentials: true,
         });
         NProgress.done();

@@ -93,7 +93,7 @@ class Comment(models.Model):
     
     def get_text_html(self):
         if self.author == None:
-            return '삭제된 댓글입니다.'
+            return '<p>삭제된 댓글입니다.</p>'
         return self.text_html
 
     def get_thumbnail(self):

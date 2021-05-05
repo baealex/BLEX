@@ -86,16 +86,16 @@ export default function Setting(props: Props) {
     const postsAnalytics = async (url: string) => {
         setApNow(url);
         if(!analytics[url]) {
-            const { data } = await API.getAnalytics('@' + props.username, url);
+            const { data } = await API.getPostAnalytics(url);
             const dates = [];
             const counts = [];
-            for(const item of data.items) {
+            for(const item of data.body.items) {
                 dates.push(item.date.slice(-2) + 'th');
                 counts.push(item.count);
             }
             dates.reverse();
             counts.reverse();
-            const { referers } = data;
+            const { referers } = data.body;
             setAnalytics({
                 ...analytics,
                 [url]: {
@@ -110,8 +110,8 @@ export default function Setting(props: Props) {
 
     const onPostsDelete = async (url: string) => {
         if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { data } = await API.deletePost('@' + props.username, url);
-            if(data == 'DONE') {
+            const { data } = await API.deletePost(url);
+            if(data.status === 'DONE') {
                 setPosts([...posts.filter(post => (
                     post.url !== url
                 ))]);
@@ -121,11 +121,11 @@ export default function Setting(props: Props) {
     };
 
     const onPostsHide = async (url: string) => {
-        const { data } = await API.putPost('@' + props.username, url, 'hide');
+        const { data } = await API.putPost(url, 'hide');
         setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
-                isHide: data.isHide
+                isHide: data.body.isHide as boolean,
             }) : post
         ))]);
     };
@@ -139,16 +139,16 @@ export default function Setting(props: Props) {
         ))]);
     };
 
-    const onTagSubmit = async (author: string, url: string) => {
+    const onTagSubmit = async (url: string) => {
         const thisPost = posts.find(post => post.url == url);
-        const { data } = await API.putPost('@' + author, url, 'tag', {
+        const { data } = await API.putPost(url, 'tag', {
             tag: thisPost?.tag
         });
         setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
-                tag: data.tag,
-                fixedTag: data.tag
+                tag: data.body.tag  as string,
+                fixedTag: data.body.tag as string
             }) : post
         ))]);
         toast('😀 태그가 수정되었습니다.');
@@ -249,7 +249,7 @@ export default function Setting(props: Props) {
                                 maxLength={255}
                             />
                             <div className="input-group-prepend">
-                                <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(props.username, post.url)}>
+                                <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(post.url)}>
                                     <i className="fas fa-sign-in-alt"></i>
                                 </button>
                             </div>

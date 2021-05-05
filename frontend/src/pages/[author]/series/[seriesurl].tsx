@@ -145,9 +145,9 @@ class Series extends React.Component<Props, State> {
     }
 
     async onPostsRemoveInSeries(url: string) {
-        if(confirm('😮 이 포스트를 시리즈에서 제거할까요?')) {
-            const { data } = await API.putPost('@' + this.state.username, url, 'series');
-            if(data == 'DONE') {
+        if (confirm('😮 이 포스트를 시리즈에서 제거할까요?')) {
+            const { data } = await API.putPost(url, 'series');
+            if (data.status === 'DONE') {
                 let { seriesPosts } = this.state;
                 seriesPosts = seriesPosts.filter(post => (
                     post.url !== url

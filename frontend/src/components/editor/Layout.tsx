@@ -127,7 +127,6 @@ export default function Layout(props: Props) {
     const onSubmit = async () => {
         setIsSubmit(true);
         await props.onSubmit();
-        setIsSubmit(false);
     }
 
     const onFetchForm = async (id: number) => {

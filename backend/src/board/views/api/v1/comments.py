@@ -1,0 +1,114 @@
+import os
+import re
+import json
+import time
+import traceback
+
+from django.http import Http404, QueryDict
+from django.shortcuts import get_object_or_404
+from django.utils.html import strip_tags
+from django.utils.timesince import timesince
+
+from board.forms import *
+from board.models import *
+from board.module.subtask import sub_task_manager
+from board.module.telegram import TelegramBot
+from board.module.response import StatusDone, StatusError
+from board.views import function as fn
+
+def comment(request, pk=None):
+    if not pk:
+        if request.method == 'POST':
+            post = get_object_or_404(Post, url=request.GET.get('url'))
+            body = QueryDict(request.body)
+            comment = Comment(
+                post=post,
+                author=request.user,
+                text_md=body.get('comment_md'),
+                text_html=body.get('comment_html')
+            )
+            comment.save()
+            comment.refresh_from_db()
+
+            content = strip_tags(body.get('comment_html'))[:50]
+            if not comment.author == post.author:
+                send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다. > ' + content + ' …'
+                fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+            
+            regex = re.compile(r'\`\@([a-zA-Z0-9\.]*)\`\s?')
+            if regex.search(comment.text_md):
+                tag_user_list = regex.findall(comment.text_md)
+                tag_user_list = set(tag_user_list)
+
+                commentors = Comment.objects.filter(post=post).values_list('author__username')
+                commentors = set(map(lambda instance: instance[0], commentors))
+
+                for tag_user in tag_user_list:
+                    if tag_user in commentors:
+                        _user = User.objects.get(username=tag_user)
+                        if not _user == request.user:
+                            send_notify_content = '\''+ post.title + '\'글에서 @' + request.user.username + '님이 회원님을 태그했습니다. #' + str(comment.pk)
+                            fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
+            
+            return StatusDone({
+                'pk': comment.pk,
+                'author': comment.author.username,
+                'author_image': comment.author.profile.get_thumbnail(),
+                'is_edited': comment.edited,
+                'text_html': comment.text_html,
+                'time_since': timesince(comment.created_date),
+                'total_likes': 0,
+                'is_liked': False,
+            })
+    
+    if pk:
+        comment = get_object_or_404(Comment, pk=pk)
+
+        if request.method == 'GET':
+            return StatusDone({
+                'text_md': comment.text_md,
+            })
+
+        if request.method == 'PUT':
+            put = QueryDict(request.body)
+            if put.get('like'):
+                if not request.user.is_active:
+                    return StatusError('NL')
+                if request.user == comment.author:
+                    return StatusError('SU')
+                if comment.author == None:
+                    return StatusError('RJ')
+                user = User.objects.get(username=request.user)
+                if comment.likes.filter(id=user.id).exists():
+                    comment.likes.remove(user)
+                    comment.save()
+                else:
+                    comment.likes.add(user)
+                    comment.save()
+                    send_notify_content = '\''+ comment.post.title +'\'글에 작성한 회원님의 #' + str(comment.pk) + ' 댓글을 @'+ user.username +'님께서 추천했습니다.'
+                    fn.create_notify(user=comment.author, url=comment.post.get_absolute_url(), infomation=send_notify_content)
+                return StatusDone({
+                    'total_likes': comment.total_likes()
+                })
+            
+            if put.get('comment'):
+                if not request.user == comment.author:
+                    return StatusError('DU')
+                comment.text_md = put.get('comment_md')
+                comment.text_html = put.get('comment_html')
+                comment.edited = True
+                comment.save()
+                return StatusDone()
+        
+        if request.method == 'DELETE':
+            if not request.user == comment.author:
+                return StatusError('DU')
+            comment.author = None
+            comment.save()
+            return StatusDone({
+                'author': comment.author_username(),
+                'author_image': comment.author_thumbnail(),
+                'text_html': comment.get_text_html(),
+            })
+    
+    raise Http404
