@@ -169,6 +169,10 @@ export function Comment(props: CommentProps) {
                 observer?.disconnect();
                 Global.popUpdater('Comment');
             }
+        } else {
+            if (comments) {
+                setComments([]);
+            }
         }
 
         return () => {
