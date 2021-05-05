@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './setting';
+export * from './tags';
 
 import axios from 'axios';
 
@@ -316,20 +317,6 @@ export async function putAbout(author: string, aboutMarkdown: string, aboutMarku
         NProgress.done();
         return e;
     }
-}
-
-export async function getAllTags(page: number) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/tags?page=${page}`,
-        method: 'GET'
-    });
-}
-
-export async function getTag(tag: string, page: number) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
-        method: 'GET'
-    });
 }
 
 export async function postComment(url: string, content: string, contentMarkup: string) {

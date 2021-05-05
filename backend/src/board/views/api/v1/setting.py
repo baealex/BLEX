@@ -8,10 +8,7 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
-from board.forms import *
 from board.models import *
-from board.module.subtask import sub_task_manager
-from board.module.telegram import TelegramBot
 from board.module.response import StatusDone, StatusError
 from board.views import function as fn
 
