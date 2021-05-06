@@ -237,7 +237,7 @@ def image_upload(request):
                         ext = 'mp4'
                     except:
                         return HttpResponse('이미지 업로드를 실패했습니다.')
-                if ext == 'png':
+                elif ext == 'png':
                     try:
                         resize_image = Image.open(upload_path + '/' + file_name + '.' + ext)
                         resize_image = resize_image.convert('RGB')
