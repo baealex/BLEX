@@ -1,6 +1,10 @@
 import cookie from '@modules/cookie';
 
+type Theme = 'default' | 'dark' | 'deep-dark' | 'neon';
+
 interface GlobalState {
+    theme: Theme;
+    isFirstVisit: boolean;
     isLogin: boolean;
     username: string;
     isAutoSave: boolean;
@@ -12,9 +16,23 @@ interface GlobalState {
     isTwoFactorAuthModalOpen: boolean;
 }
 
+interface GlobalSetState {
+    theme?: Theme;
+    isFirstVisit?: boolean;
+    isLogin?: boolean;
+    username?: string;
+    isAutoSave?: boolean;
+    isNightMode?: boolean;
+    isOpenNewTab?: boolean;
+    isSortOldFirst?: boolean;
+    isLoginModalOpen?: boolean;
+    isSignupModalOpen?: boolean;
+    isTwoFactorAuthModalOpen?: boolean;
+}
+
 type ModalName = 'isLoginModalOpen' |  'isSignupModalOpen' | 'isTwoFactorAuthModalOpen';
 
-type ConfigName = 'isAutoSave' | 'isNightMode' | 'isOpenNewTab' | 'isSortOldFirst';
+type ConfigName = 'theme' | 'isAutoSave' | 'isNightMode' | 'isOpenNewTab' | 'isSortOldFirst';
 
 class Global {
     init: boolean = false;
@@ -23,6 +41,8 @@ class Global {
 
     constructor() {
         this.state = {
+            theme: 'default',
+            isFirstVisit: true,
             isLogin: false,
             username: '',
             isAutoSave: true,
@@ -40,9 +60,7 @@ class Global {
         }
     }
 
-    setState(newState: {
-        [key: string]: any;
-    }) {
+    setState(newState: GlobalSetState) {
         Object.assign(this.state, newState);
         Object.keys(this.updater).forEach(key => {
             try {
@@ -54,12 +72,16 @@ class Global {
         if (this.init) {
             Object.keys(newState).forEach(key => {
                 if(
+                    key === 'theme' ||
                     key === 'isAutoSave' ||
                     key === 'isNightMode' ||
                     key === 'isOpenNewTab' ||
                     key === 'isSortOldFirst'
                 ) {
-                    this.configSave(key, JSON.stringify(newState[key]));
+                    this.configSave(key,
+                        typeof newState[key] === 'string'
+                            ? newState[key] as string
+                            : JSON.stringify(newState[key]));
                 }
             });
         }
@@ -90,11 +112,15 @@ class Global {
     }
 
     configInit() {
+        const theme = cookie.get('theme');
+        const isFirstVisit = !theme ? true : false;
         const isAutoSave = cookie.get('isAutoSave') === 'false' ? false : true;
         const isOpenNewTab = cookie.get('isOpenNewTab') === 'true' ? true : false;
         const isSortOldFirst = cookie.get('isSortOldFirst') === 'false' ? false : true;
         
         this.setState({
+            theme: theme as Theme || 'default',
+            isFirstVisit,
             isAutoSave,
             isOpenNewTab,
             isSortOldFirst
@@ -104,11 +130,13 @@ class Global {
     configInject(cookies: {
         [key: string]: string;
     }) {
+        const theme = cookies['theme'] || 'default';
         const isAutoSave = cookies['isAutoSave'] === 'false' ? false : true;
         const isOpenNewTab = cookies['isOpenNewTab'] === 'true' ? true : false;
         const isSortOldFirst = cookies['isSortOldFirst'] === 'false' ? false : true;
         
         this.setState({
+            theme: theme as Theme,
             isAutoSave,
             isOpenNewTab,
             isSortOldFirst

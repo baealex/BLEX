@@ -1,0 +1,29 @@
+.accordian {
+    transition: height 1s;
+    overflow: hidden;
+    position: relative;
+
+    div {
+        display: block;
+    }
+
+    button {
+        background: none;
+        color: #ccc;
+        border: none;
+        outline: none;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+
+        i {
+            transition: transform 0.5s;
+            transform: rotateZ(-180deg);
+
+            &.isOpen {
+                transform: rotateZ(0deg);
+            }
+        }
+    }
+}

@@ -1,0 +1,42 @@
+.content {
+    width: 100%;
+    height: auto;
+    border: none;
+    font-size: 1.028em;
+    line-height: 2;
+    background: none;
+    display: block;
+    overflow: hidden;
+    resize: none;
+
+    &:focus {
+        outline: none;    
+    }
+
+    :global(body.dark) & {
+        color: #ccc;
+    }
+}
+
+.title {
+    width: 100%;
+    border: none;
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    background: none;
+    color: #000;
+
+    &:focus {
+        outline: none;
+    }
+
+    &::placeholder {
+        color: #ccc;
+    }
+
+    :global(body.dark) & {
+        color: #fff;
+    }
+}

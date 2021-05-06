@@ -7,7 +7,7 @@ import Modal from '@components/modal/Modal';
 import ModalContent from '@components/modal/Content';
 import SettingLayout from '@components/setting/layout';
 import {
-    Arcodian
+    Accordian
 } from '@components/integrated'
 
 import * as API from '@modules/api';
@@ -158,7 +158,7 @@ export default function Setting(props: Props) {
         <>
             <SettingLayout tabname="posts" sticky={false} sideChildren={(
                 <div className="noto blex-card my-3">
-                    <Arcodian>
+                    <Accordian>
                         <ul className="nav d-block">
                             <li className="nav-item">
                                 <span
@@ -179,7 +179,7 @@ export default function Setting(props: Props) {
                                 </li>
                             ))}
                         </ul>
-                    </Arcodian>
+                    </Accordian>
                 </div>
             )}>
                 <ul className="tag-list mb-0">

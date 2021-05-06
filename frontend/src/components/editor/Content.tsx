@@ -1,3 +1,5 @@
+import styles from './styles.module.scss';
+
 import React from 'react';
 
 import blexer from '@modules/blexer';
@@ -45,33 +47,12 @@ class EditorContent extends React.Component<Props> {
                 {this.props.isEditMode ? (
                     <>
                         <textarea
-                            id="teatarea"
+                            className={styles.content}
                             ref={el => this.textarea = el}
                             value={this.props.value}
                             placeholder="마크다운으로 글을 작성하세요."
                             onChange={(e) => this.props.onChange(e)}
                         />
-                        <style jsx>{`
-                            textarea {
-                                width: 100%;
-                                height: auto;
-                                border: none;
-                                font-size: 1.028em;
-                                line-height: 2;
-                                background: none;
-                                display: block;
-                                overflow: hidden;
-                                resize: none;
-
-                                &:focus {
-                                    outline: none;    
-                                }
-
-                                @media (prefers-color-scheme: dark) {
-                                    color: #ccc;
-                                }
-                            }
-                        `}</style>
                     </>
                 ) : (
                     <>

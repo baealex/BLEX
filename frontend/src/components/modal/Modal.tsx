@@ -1,3 +1,5 @@
+import styles from './styles.module.scss';
+
 import React from 'react';
 
 import Overlay from '@components/modal/Overlay';
@@ -37,29 +39,11 @@ class Modal extends React.Component<Props> {
                     <>
                         <Overlay onClick={() => this.onClose()}/>
                         <>
-                            <div>
+                            <div className={styles.modal}>
                                 <Title text={this.props.title}/>
                                 <CloseButton onClick={() => this.props.close()}/>
                                 {this.props.children}
                             </div>
-                            <style jsx>{`
-                                div {
-                                    z-index: 1000;
-                                    position: fixed;
-                                    top: 50%;
-                                    left: 50%;
-                                    transform: translate(-50%, -50%);
-                                    width: 500px;
-                                    max-width: calc(100% - 16px);
-                                    border-radius: 5px;
-                                    background-color: #fff;
-                                    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.45);
-
-                                    @media (prefers-color-scheme: dark) {
-                                        background-color: #000;
-                                    }
-                                }    
-                            `}</style>
                         </>
                     </>
                 ) : (

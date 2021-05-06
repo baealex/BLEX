@@ -46,25 +46,35 @@ class TopNavigation extends React.Component {
     }
 
     async componentDidMount(){
-        const body = document.querySelector('body');
-
-        const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-        if(systemDark.matches) {
-            body?.classList.add('dark');
-            Global.setState({
-                isNightMode: true,
-            });
+        Global.configInit();
+        if (Global.state.isFirstVisit) {
+            const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+            if(systemDark.matches) {
+                document.body.classList.add('dark');
+                Global.setState({
+                    theme: 'dark',
+                    isNightMode: true,
+                });
+            }
+        } else {
+            document.body.classList.add(Global.state.theme);
         }
 
         window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (Global.state.theme === 'default' || Global.state.theme === 'dark')
             if(e.matches) {
-                body?.classList.add('dark');
+                document.body.classList.add('dark');
+                Global.setState({
+                    theme: 'dark',
+                    isNightMode: true,
+                });
             } else {
-                body?.classList.remove('dark');
+                document.body.classList.remove('dark');
+                Global.setState({
+                    theme: 'default',
+                    isNightMode: false,
+                });
             }
-            Global.setState({
-                isNightMode: e.matches,
-            });
         });
 
         const { data } = await API.getLogin();
@@ -87,6 +97,22 @@ class TopNavigation extends React.Component {
                 onNav: false
             });
         });
+    }
+
+    onClickNightMode() {
+        if (document.body.classList.contains('dark')) {
+            document.body.classList.remove('dark');
+            Global.setState({
+                theme: 'default',
+                isNightMode: false,
+            });
+        } else {
+            document.body.classList.add('dark');
+            Global.setState({
+                theme: 'dark',
+                isNightMode: true,
+            });
+        }
     }
 
     onClickNavigation() {
@@ -166,6 +192,11 @@ class TopNavigation extends React.Component {
                             <></>
                         )}
                         <ul className="menu-footer-item">
+                            <li>
+                                <a onClick={() => this.onClickNightMode()}>
+                                    <i className={`fas fa-${this.state.isNightMode ? 'sun' : 'moon'}`}></i>
+                                </a>
+                            </li>
                             {this.state.isLogin ? (
                                 <>
                                     <li>
