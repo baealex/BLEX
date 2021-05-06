@@ -166,7 +166,7 @@ def bot_check(user_agent):
         'seznam',
         'blex',
         'yandex',
-        'zoominfo'
+        'zoominfo',
         'dot',
         'cocolyze',
         'bnf',
