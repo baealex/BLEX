@@ -1,18 +1,13 @@
 import io
 import os
-import re
-import html
-import urllib
 import base64
 import hashlib
 import requests
 
-from itertools import chain
 from django.http import Http404
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.utils.text import slugify
-from django.utils.html import strip_tags
 from django.core.cache import cache
 from django.conf import settings
 

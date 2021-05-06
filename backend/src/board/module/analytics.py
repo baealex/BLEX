@@ -1,6 +1,10 @@
 import base64
 import datetime
 import hashlib
+import html
+import re
+import requests
+import urllib
 
 from django.conf import settings
 from django.utils import timezone
