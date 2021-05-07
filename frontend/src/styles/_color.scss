@@ -1,43 +1,30 @@
-$vivid-purple: #8c00ff;
-$smooth-purple: #b181da;
-$live-purple: #9c56d4;
-
-$vivid-purple-complementary: #03c0e4;
-$smooth-purple-complementary: #328899;
-
-$deep-dark: rgba(0, 0, 0, 0.839);
-$shallow-dark: rgba(0, 0, 0, 0.541);
-$gray-dark:rgba(160, 160, 160, 0.541);
-
-$dark-mode-body-bg: #252525;
-
 /* Text */
 .vivid-purple {
-    color: $vivid-purple;
+    color: $COLOR_DEFAULT_PRIMARY;
 
     body.dark & {
-        color: $vivid-purple-complementary;
+        color: $COLOR_DARK_PRIMARY;
     }
 
     &:hover {
-        color: $vivid-purple;
+        color: $COLOR_DEFAULT_PRIMARY;
         text-decoration: none;
 
         body.dark & {
-            color: $vivid-purple-complementary;
+            color: $COLOR_DARK_PRIMARY;
         }
     }
 }
 
 .deep-dark {
-    color: $deep-dark;
+    color: $COLOR_DEFAULT_DARK;
 
     body.dark &, .reverse-color & {
         color: #e0e0e0;
     }
 
     &:hover {
-        color: $deep-dark;
+        color: $COLOR_DEFAULT_DARK;
         text-decoration: none;
         
         body.dark &, .reverse-color & {
@@ -47,14 +34,14 @@ $dark-mode-body-bg: #252525;
 }
 
 .shallow-dark {
-    color: $shallow-dark;
+    color: $COLOR_DEFAULT_ASHGRAY;
 
     body.dark &, .reverse-color & {
         color: #a7a7a7;
     }
 
     &:hover {
-        color: $shallow-dark;
+        color: $COLOR_DEFAULT_ASHGRAY;
         text-decoration: none;
 
         body.dark &, .reverse-color & {
@@ -64,23 +51,23 @@ $dark-mode-body-bg: #252525;
 }
 
 .gray-dark {
-    color: $gray-dark;
+    color: $COLOR_DEFAULT_ASHGRAY;
 
     &:hover {
-        color: $gray-dark;
+        color: $COLOR_DEFAULT_ASHGRAY;
         text-decoration: none;
     }
 }
 
 /* Backgound */
 body.dark {
-    background-color: $dark-mode-body-bg;
+    background-color: $COLOR_DARK_BACKGROUND;
     color: #d6d6d6;
 }
 
 .color-dark {
-    background: rgba(0,0,0,.84);
-    color: #fff;
+    background: $COLOR_DEFAULT_DARK;
+    color: #ffffff;
 }
 
 .bg-rlight {
@@ -113,9 +100,9 @@ body.dark {
 
 .bg-border-purple {
     border-radius: 5px;
-    border: 1px solid $vivid-purple;
+    border: 1px solid $COLOR_DEFAULT_PRIMARY;
     
     body.dark & {
-        border: 1px solid $vivid-purple-complementary;
+        border: 1px solid $COLOR_DARK_PRIMARY;
     }
 }

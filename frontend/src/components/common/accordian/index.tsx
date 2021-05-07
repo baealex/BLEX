@@ -1,4 +1,5 @@
-import styles from './styles.module.scss';
+import styles from './accordian.module.scss';
+import classNames from 'classnames';
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -36,7 +37,10 @@ export function Accordian(props: ArcodianProps) {
                     {props.children}
                 </div>
                 <button onClick={() => setIsOpen(!isOpen)}>
-                    <i className={`fas fa-chevron-up ${isOpen ? styles.isOpen : ''}`}></i>
+                    <i className={classNames(
+                        'fas fa-chevron-up',
+                        isOpen && styles.isOpen
+                    )}></i>
                 </button>
             </div>
         </>

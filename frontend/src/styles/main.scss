@@ -1,3 +1,4 @@
+@import 'var';
 @import 'animation';
 @import 'fonts';
 @import 'color';
@@ -30,11 +31,11 @@
     a {
         &::before {
             content: '#';
-            color: $vivid-purple;
+            color: $COLOR_DEFAULT_PRIMARY;
             font-weight: bold;
 
             body.dark & {
-                color: $vivid-purple-complementary;
+                color: $COLOR_DARK_PRIMARY;
             }
         }
 
@@ -60,11 +61,11 @@
 // 태그 클라우드 디자인
 .tag-card .title::before {
     content: '#';
-    color: $smooth-purple;
+    color: $COLOR_DEFAULT_POINT;
     font-weight: bold;
 
     body.dark & {
-        color: $smooth-purple-complementary;
+        color: $COLOR_DARK_SECONDARY;
     }
 }
 
@@ -91,11 +92,11 @@
         }
 
         &:hover {
-            color: $vivid-purple;
+            color: $COLOR_DEFAULT_PRIMARY;
             text-decoration: none;
 
             body.dark & {
-                color: $vivid-purple-complementary
+                color: $COLOR_DARK_PRIMARY
             }
         }
     }
@@ -111,7 +112,7 @@
             width: 50px;
 
             body.dark & {
-                border: 1px solid $vivid-purple-complementary;
+                border: 1px solid $COLOR_DARK_PRIMARY;
             }
         }
 
@@ -132,7 +133,7 @@
         border-radius: 100%;
 
         body.dark & {
-            border: 2px solid $vivid-purple-complementary;
+            border: 2px solid $COLOR_DARK_PRIMARY;
         }
     }
 
@@ -156,7 +157,7 @@
     background: #fff;
 
     body.dark {
-        background: $dark-mode-body-bg;
+        background: $COLOR_DARK_BACKGROUND;
     }
 }
 .list-thumb {
@@ -220,7 +221,7 @@
 
 .blex-editor {
     .button {
-        font-family: $serif;
+        font-family: $FONT_SERIF;
         font-weight: bold;
         margin: 5px;
         font-size: 1em;
@@ -507,14 +508,14 @@ footer {
 /* ------------------------------ */
 /* POSTS : DETAIL : NONE TITLE IMAGE */
 .post-headline {
-    font-family: $gothic;
+    font-family: $FONT_GOTHIC;
     font-weight: bold;
     letter-spacing: -1px;
     font-variant: petite-caps;
     font-size: 2.2rem;
 }
 .post-date {
-    font-family: $gothic;
+    font-family: $FONT_GOTHIC;
     font-size: 0.8rem;
 }
 .post-series {
@@ -580,7 +581,7 @@ footer {
         font-size: 1.8rem;
         padding: 2em 0 0.5em;
         font-weight: bold;
-        font-family: $gothic;
+        font-family: $FONT_GOTHIC;
         font-variant: petite-caps;
         letter-spacing: -1px;
     }
@@ -614,10 +615,10 @@ footer {
 
     a {
         text-decoration: none;
-        color: $vivid-purple;
+        color: $COLOR_DEFAULT_PRIMARY;
 
         body.dark & {
-            color: $vivid-purple-complementary;
+            color: $COLOR_DARK_PRIMARY;
         }
     }
 
@@ -724,7 +725,7 @@ footer {
 /* ------------------------------ */
 /* POSTS : DETAIL : ARTICLE NAVIGATION */
 .article-nav {
-    font-family: $gothic;
+    font-family: $FONT_GOTHIC;
     top: 15px;
     margin: 15px 0;
     max-height: calc(100vh - 30px);
@@ -799,11 +800,11 @@ footer {
     }
 
     .comment-content {
-        font-family: $gothic;
+        font-family: $FONT_GOTHIC;
     
         h1, h2, h3, h4, h5, h6 {
             font-size: 1.2em;
-            font-family: $serif;
+            font-family: $FONT_SERIF;
             font-weight: 600;    
         }
         
@@ -821,8 +822,8 @@ footer {
             padding: 10px;
     
             body.dark & {
-                border-left: 4px solid $smooth-purple-complementary;
-                background: $dark-mode-body-bg;
+                border-left: 4px solid $COLOR_DARK_SECONDARY;
+                background: $COLOR_DARK_BACKGROUND;
             }
     
             p {
@@ -835,7 +836,7 @@ footer {
         }
     
         code {
-            font-family: $gothic;
+            font-family: $FONT_GOTHIC;
             font-weight: 300;
             color: #000;
             background-color: #eee;
@@ -1331,10 +1332,10 @@ footer {
     }
 
     &.closed {
-        color: $vivid-purple;
+        color: $COLOR_DEFAULT_PRIMARY;
 
         body.dark & {
-            color: $vivid-purple-complementary;
+            color: $COLOR_DARK_PRIMARY;
         }
     }
 }
@@ -1406,15 +1407,15 @@ footer {
                     color: #c99cff;
     
                     body.dark & {
-                        color: $smooth-purple-complementary;
+                        color: $COLOR_DARK_SECONDARY;
                     }
                 }
     
                 &.active {
-                    color: $vivid-purple;
+                    color: $COLOR_DEFAULT_PRIMARY;
     
                     body.dark & {
-                        color: $vivid-purple-complementary;
+                        color: $COLOR_DARK_PRIMARY;
                     }
                 }
             }
@@ -1458,7 +1459,6 @@ footer {
     body.dark & {
         box-shadow: none;
         border: 1px solid #444;
-        background-color: $dark-mode-body-bg;
     }
 }
 .setting-body {
@@ -1616,11 +1616,11 @@ footer {
             line-height: 2;
 
             &:hover {
-                color: $smooth-purple;
+                color: $COLOR_DEFAULT_POINT;
                 text-decoration: none;
 
                 body.dark & {
-                    color: $smooth-purple-complementary;
+                    color: $COLOR_DARK_SECONDARY;
                 }
             }
         }
@@ -1652,14 +1652,14 @@ footer {
     color: #000;
 }
 .description {
-    border-left: 4px solid $live-purple;
+    border-left: 4px solid $COLOR_DEFAULT_SECONDARY;
     background: #f8f8f8;
     padding: 10px;
     font-size: 1.023em;
     line-height: 1.75;
 
     body.dark & {
-        border-left: 4px solid $vivid-purple-complementary;
+        border-left: 4px solid $COLOR_DARK_PRIMARY;
         background: #000;
     }
 
@@ -1677,7 +1677,7 @@ footer {
 
     .author {
         margin-left: 5px;
-        color: $vivid-purple;
+        color: $COLOR_DEFAULT_PRIMARY;
     }
 }
 /* ------------------------------ */
@@ -1726,7 +1726,7 @@ body.dark .post-list {
 }
 
 body.dark .post-mask {
-    background-color: $dark-mode-body-bg;
+    background-color: $COLOR_DARK_BACKGROUND;
 }
 
 body.dark .post-mask:hover {
@@ -1776,20 +1776,20 @@ body.dark .btn {
 
 #nprogress {
     .bar {
-        background: $vivid-purple !important;
+        background: $COLOR_DEFAULT_PRIMARY !important;
 
         body.dark & {
-            background: $vivid-purple-complementary !important;
+            background: $COLOR_DARK_PRIMARY !important;
         }
     }
 
     .spinner-icon {
-        border-top-color: $vivid-purple !important;
-        border-left-color: $vivid-purple !important;
+        border-top-color: $COLOR_DEFAULT_PRIMARY !important;
+        border-left-color: $COLOR_DEFAULT_PRIMARY !important;
 
         body.dark & {
-            border-top-color: $vivid-purple-complementary !important;
-            border-left-color: $vivid-purple-complementary !important;
+            border-top-color: $COLOR_DARK_PRIMARY !important;
+            border-left-color: $COLOR_DARK_PRIMARY !important;
         }
     }
 }
@@ -1809,10 +1809,10 @@ body.dark .btn {
 }
 
 .Toastify__progress-bar--default {
-    background: $vivid-purple !important;
+    background: $COLOR_DEFAULT_PRIMARY !important;
 
     body.dark & {
-        background: $vivid-purple-complementary !important;
+        background: $COLOR_DARK_PRIMARY !important;
     }
 }
 

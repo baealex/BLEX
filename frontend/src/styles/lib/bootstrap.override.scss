@@ -1,7 +1,12 @@
 .custom-control-input:checked~.custom-control-label::before {
     color: #fff;
-    border-color: $vivid-purple;
-    background-color: $vivid-purple;
+    border-color: $COLOR_DEFAULT_PRIMARY;
+    background-color: $COLOR_DEFAULT_PRIMARY;
+
+    body.dark & {
+        border-color: $COLOR_DARK_PRIMARY;
+        background-color: $COLOR_DARK_PRIMARY;
+    }
 }
 
 .jumbotron {
@@ -71,12 +76,6 @@
 }
 
 body.dark {
-    .custom-control-input:checked~.custom-control-label::before {
-        color: #fff;
-        border-color: $vivid-purple-complementary;
-        background-color: $vivid-purple-complementary;
-    }
-
     .modal-content {
         border: none;
     }

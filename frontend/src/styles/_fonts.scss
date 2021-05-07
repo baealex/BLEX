@@ -1,6 +1,3 @@
-$serif: 'Noto Serif KR', serif;
-$gothic: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-serif;
-
 @font-face {
     font-family: 'Spoqa Han Sans Neo';
     font-weight: 700;
@@ -21,16 +18,18 @@ $gothic: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-serif;
 
 /* Style */
 .serif {
-    font-family: $serif;
+    font-family: $FONT_SERIF;
 }
+
 .noto {
-    font-family: $gothic;
+    font-family: $FONT_GOTHIC;
 }
 
 /* Size */
 .ns {
 	font-size: 14px;
 }
+
 .vs {
 	font-size: 10px;
 }

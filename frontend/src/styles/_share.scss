@@ -28,18 +28,18 @@
                 font-size: 20px;
                 
                 &.fa-heart.fas {
-                    color: $vivid-purple;
+                    color: $COLOR_DEFAULT_PRIMARY;
 
                     body.dark & {
-                        color: $vivid-purple-complementary;
+                        color: $COLOR_DARK_PRIMARY;
                     }
                 }
 
                 &:hover {
-                    color: $vivid-purple;
+                    color: $COLOR_DEFAULT_PRIMARY;
 
                     body.dark & {
-                        color: $vivid-purple-complementary;
+                        color: $COLOR_DARK_PRIMARY;
                     }
                 }
 
