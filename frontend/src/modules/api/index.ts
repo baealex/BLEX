@@ -4,6 +4,7 @@ export * from './posts';
 export * from './series';
 export * from './setting';
 export * from './tags';
+export * from './users';
 
 import axios from 'axios';
 
@@ -57,112 +58,6 @@ export function objectToForm(obj: {
         form.append(item, obj[item]);
     });
     return form;
-}
-
-/* PROFILE */
-
-export async function getUserProfile(author: string, includes: string[]) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
-        method: 'GET'
-    });
-}
-
-export interface ProfileData {
-    profile: {
-        image: string;
-        username: string;
-        realname: string;
-        bio: string;
-    },
-    social?: {
-        username: string;
-        github?: string;
-        twitter?: string;
-        youtube?: string;
-        facebook?: string;
-        instagram?: string;
-    },
-    heatmap?: {
-        [key: string]: number;
-    };
-    tags?: {
-        name: string;
-        count: number;
-    }[],
-    view?: {
-        today: number;
-        yesterday: number;
-        total: number;
-    },
-    most?: {
-        url: string;
-        title: string;
-        image: string;
-        readTime: number;
-        createdDate: string;
-        authorImage: string;
-        author: string;
-    }[],
-    recent?: {
-        type: string;
-        text: string;
-        url: string;
-    }[],
-}
-
-export async function getUserData(author: string, get: string, fields: string[]) {
-    return await axios({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?get=${get}&fields=${fields.join(',')}`,
-        method: 'GET'
-    });
-}
-
-export async function putUsername(username: string, newUsername: string) {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/users/@${encodeURIComponent(username)}`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                username: username,
-                new_username: newUsername
-            }),
-            withCredentials: true,
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
-}
-
-export async function putAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
-    NProgress.start();
-    try {
-        const response = await axios({
-            url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: serializeObject({
-                about: author,
-                about_md: aboutMarkdown,
-                about_html: aboutMarkup
-            }),
-            withCredentials: true,
-        });
-        NProgress.done();
-        return response;
-    } catch(e) {
-        NProgress.done();
-        return e;
-    }
 }
 
 export async function telegram(parameter: 'unsync' | 'makeToken') {

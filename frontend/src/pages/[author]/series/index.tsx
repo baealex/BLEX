@@ -30,8 +30,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         return {
             props: {
                 page,
-                profile: data,
-                series: series.data.body
+                ...data.body,
+                ...series.data.body,
             }
         }
     } catch(error) {
@@ -41,33 +41,34 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 }
 
-interface Props {
+
+interface Props extends API.GetUserProfileData {};
+
+interface Props extends API.GetUserProfileData, API.GetUserSeriesData {
     page: number,
-    profile: API.ProfileData,
-    series: API.GetUserSeriesData,
 }
 
 export default function UserSeries(props: Props) {
     return (
         <>
             <Head>
-                <title>{props.profile.profile.username} ({props.profile.profile.realname}) —  Series</title>
+                <title>{props.profile.username} ({props.profile.realname}) —  Series</title>
             </Head>
 
             <Profile
                 active="series"
-                profile={props.profile.profile}
-                social={props.profile.social!}
+                profile={props.profile}
+                social={props.social!}
             />
-            <SeriesCard series={props.series.series}>
+            <SeriesCard series={props.series}>
                 <div className="container">
                     <div className="col-lg-8 mx-auto">
-                        {props.series.series.length > 0 ? '' : (
+                        {props.series.length > 0 ? '' : (
                             <PurpleBorder text="아직 생성된 시리즈가 없습니다."/>
                         )}
                         <PageNav
                             page={props.page}
-                            last={props.series.lastPage}
+                            last={props.lastPage}
                         />
                     </div>
                 </div>

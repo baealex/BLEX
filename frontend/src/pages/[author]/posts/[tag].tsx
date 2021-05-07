@@ -37,8 +37,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             props: {
                 page,
                 tag,
-                profile: data,
-                posts: posts.data.body
+                ...data.body,
+                ...posts.data.body
             }
         }
     } catch(error) {
@@ -48,11 +48,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 }
 
-interface Props {
+interface Props extends API.GetUserProfileData, API.GetUserPostsData {
     page: number;
     tag: string;
-    profile: API.ProfileData;
-    posts: API.GetUserPostsData;
 }
 
 
@@ -60,24 +58,24 @@ export default function UserTagPosts(props: Props) {
     return (
         <>
             <Head>
-                <title>{props.profile.profile.username} ({props.profile.profile.realname}) —  Posts</title>
+                <title>{props.profile.username} ({props.profile.realname}) —  Posts</title>
             </Head>
 
             <Profile
                 active="posts"
-                profile={props.profile.profile}
-                social={props.profile.social!}
+                profile={props.profile}
+                social={props.social!}
             />
             <div className="container">
                 <PostsComponent
-                    allCount={props.posts.allCount}
+                    allCount={props.allCount}
                     active={props.tag}
-                    author={props.profile.profile.username}
-                    tags={props.profile.tags!}
-                    posts={props.posts.posts}>
+                    author={props.profile.username}
+                    tags={props.tags!}
+                    posts={props.posts}>
                     <PageNav
                         page={props.page}
-                        last={props.posts.lastPage}
+                        last={props.lastPage}
                     />
                 </PostsComponent>
             </div>

@@ -11,12 +11,10 @@ import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
 
-interface Props {
-    profile: API.ProfileData
-}
-
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const { author = '' } = context.query;
+    const {
+        author = ''
+    } = context.query;
     
     if(!author.includes('@')) {
         return {
@@ -32,9 +30,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'most',
             'recent'
         ]);
+        console.log(data);
         return {
             props: {
-                profile: data
+                ...data.body,
             }
         }
     } catch(error) {
@@ -43,6 +42,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
     }
 }
+
+interface Props extends API.GetUserProfileData {};
 
 export default function Overview(props: Props) {
     const [ isNightMode, setIsNightMode ] = useState(Global.state.isNightMode);
@@ -58,22 +59,22 @@ export default function Overview(props: Props) {
     return (
         <>
             <Head>
-                <title>{props.profile.profile.username} ({props.profile.profile.realname})</title>
+                <title>{props.profile.username} ({props.profile.realname})</title>
             </Head>
 
             <Profile
                 active="overview"
-                profile={props.profile.profile}
-                social={props.profile.social!}
+                profile={props.profile}
+                social={props.social!}
             />
             <div className="container mb-4">
                 <div className="col-lg-8 mx-auto p-0">
                     <Heatmap
                         isNightMode={isNightMode}
-                        data={props.profile.heatmap}
+                        data={props.heatmap}
                     />
-                    <FeatureArticle articles={props.profile.most!}/>
-                    <RecentActivity data={props.profile.recent!}/>
+                    <FeatureArticle articles={props.most!}/>
+                    <RecentActivity data={props.recent!}/>
                 </div>
             </div>
         </>
