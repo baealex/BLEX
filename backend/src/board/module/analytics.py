@@ -155,12 +155,14 @@ def bot_check(user_agent):
         return ''
     
     bot_types = [
+        'apple',
         'google',
         'bing',
         'commoncrawl',
         'petal',
         'notion',
         'naver',
+        'neeva',
         'kakao',
         'slack',
         'twitter',
