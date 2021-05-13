@@ -17,6 +17,9 @@ import Global from '@modules/global';
 import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+    const { cookies } = context.req;
+    Global.configInject(cookies);
+    
     const { author = '', seriesurl = '' } = context.query;
 
     if(!author.includes('@')) {
