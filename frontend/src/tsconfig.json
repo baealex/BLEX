@@ -4,8 +4,12 @@
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "paths": {
-            "@components/*": ["./components/*"],
-            "@modules/*": ["./modules/*"]
+            "@components/*": [
+                "./components/*"
+            ],
+            "@modules/*": [
+                "./modules/*"
+            ]
         },
         "jsx": "preserve",
         "lib": [
