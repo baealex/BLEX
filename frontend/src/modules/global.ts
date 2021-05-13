@@ -112,7 +112,8 @@ class Global {
     }
 
     configInit() {
-        const theme = cookie.get('theme');
+        const theme = cookie.get('theme') || 'default';
+        const isNightMode = theme === 'dark' ? true : false;
         const isFirstVisit = !theme ? true : false;
         const isAutoSave = cookie.get('isAutoSave') === 'false' ? false : true;
         const isOpenNewTab = cookie.get('isOpenNewTab') === 'true' ? true : false;
@@ -120,6 +121,7 @@ class Global {
         
         this.setState({
             theme: theme as Theme || 'default',
+            isNightMode,
             isFirstVisit,
             isAutoSave,
             isOpenNewTab,
@@ -131,12 +133,14 @@ class Global {
         [key: string]: string;
     }) {
         const theme = cookies['theme'] || 'default';
+        const isNightMode = theme === 'dark' ? true : false;
         const isAutoSave = cookies['isAutoSave'] === 'false' ? false : true;
         const isOpenNewTab = cookies['isOpenNewTab'] === 'true' ? true : false;
         const isSortOldFirst = cookies['isSortOldFirst'] === 'false' ? false : true;
         
         this.setState({
             theme: theme as Theme,
+            isNightMode,
             isAutoSave,
             isOpenNewTab,
             isSortOldFirst
