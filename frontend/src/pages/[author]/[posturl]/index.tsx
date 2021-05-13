@@ -24,10 +24,9 @@ import {
 import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
-import { ArticleAuthorProps } from '@components/article/ArticleAuthor';
 
 interface Props {
-    profile: ArticleAuthorProps,
+    profile: API.GetUserProfileData,
     post: API.GetAnUserPostsViewData,
     series: API.GetAnUserSeriesData,
     hasSeries: boolean;
@@ -97,7 +96,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             return { props: {
                 hasSeries: true,
                 post: post.data.body,
-                profile: profile.data,
+                profile: profile.data.body,
                 activeSeries,
                 sereisLength,
                 series: series.data.body
@@ -106,7 +105,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         return { props: {
             hasSeries: false,
             post: post.data.body,
-            profile: profile.data
+            profile: profile.data.body
         }};
     } catch(error) {
         return {
