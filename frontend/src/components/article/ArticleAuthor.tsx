@@ -8,7 +8,7 @@ export interface ArticleAuthorProps {
         image: string;
         bio: string;
     };
-    social: SocialProps;
+    social?: SocialProps;
 };
 
 export default function ArticleAuthor(props: ArticleAuthorProps) {
@@ -23,7 +23,7 @@ export default function ArticleAuthor(props: ArticleAuthorProps) {
                 <h4 className="noto">{props.profile.realname}</h4>
                 <h5 className="noto">@{props.profile.username}</h5>
                 <p className="author-description mb-2">{props.profile.bio}</p>
-                <Social {...props.social}/>
+                <Social {...props.social!}/>
             </div>
         </div>
     )
