@@ -41,7 +41,7 @@ export default function ArticleContent(props: {
                 }
             });
         }
-    }, [isOpenNewTab]);
+    }, [isOpenNewTab, props.html]);
 
     return (
         <div
