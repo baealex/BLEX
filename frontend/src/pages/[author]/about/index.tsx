@@ -49,7 +49,7 @@ interface Props {
 export default function UserAbout(props: Props) {
     const [ isEdit, setIsEdit ] = useState(false);
     const [ aboutHTML, setAboutHTML ] = useState(props.profile.about);
-    const [ aboutMd, setAboutMd ] = useState('');
+    const [ aboutMd, setAboutMd ] = useState<string | undefined>(undefined);
     const [ username, setUsername ] = useState(Global.state.username);
 
     useEffect(() => {
@@ -63,7 +63,7 @@ export default function UserAbout(props: Props) {
     const handleClickEdit = async () => {
         if (!isEdit) {
             // 편집버튼 누른 상태
-            if(aboutMd == undefined) {
+            if(aboutMd === undefined) {
                 const { data } = await API.getUserAbout('@' + username);
                 setAboutMd(data.body.aboutMd);
             }
@@ -72,7 +72,7 @@ export default function UserAbout(props: Props) {
             const aboutMarkup = blexer(aboutMd);
             const { data } = await API.putUserAbout(
                 '@' + username,
-                aboutMd,
+                aboutMd || '',
                 aboutMarkup,
             );
             if (data.status === 'DONE') {
