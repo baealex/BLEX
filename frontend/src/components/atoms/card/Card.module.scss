@@ -1,0 +1,14 @@
+.card {
+    box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.1);
+    width: 100%;
+    display: block;
+
+    &.isRounded {
+        border-radius: 8px;
+    }
+
+    :global(body.dark) & {
+        box-shadow: none;
+        border: 1px solid #444;
+    }
+}

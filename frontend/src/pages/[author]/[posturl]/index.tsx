@@ -1,11 +1,12 @@
 import React from 'react';
+import Image from 'next/image';
 import Head from 'next/head';
 import Router from 'next/router';
 
 import {
-    FeatureArticles
-} from '@components/article/features';
-import ArticleAuthor from '@components/article/ArticleAuthor';
+    ArticleAuthor,
+    FeatureArticles,
+} from '@components/article';
 import ArticleContent from '@components/article/ArticleContent';
 import ArticleSereis from '@components/article/ArticleSeries';
 import { Comment } from '@components/comment';
@@ -42,7 +43,6 @@ interface State {
     selectedTag?: string;
     headerNav: string[][];
     headerNow: string;
-    isOpenSideIndex: boolean;
     featurePosts?: API.GetFeaturePostsData;
 }
 
@@ -124,7 +124,6 @@ class PostDetail extends React.Component<Props, State> {
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             totalLikes: props.post.totalLikes,
-            isOpenSideIndex: false,
             headerNav: [],
             headerNow: ''
         };
@@ -279,10 +278,6 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     render() {
-        const {
-            isOpenSideIndex
-        } = this.state;
-
         return (
             <>
                 <Head>
@@ -297,6 +292,36 @@ class PostDetail extends React.Component<Props, State> {
                     isArticle={true}
                 />
                 <div className="container">
+                    <div className="row justify-content-center">
+                        <div className="col-lg-8">
+                            <h1 className="post-headline">
+                                {this.props.hasSeries ? (
+                                    <span className="post-series">'{this.props.series.name}' 시리즈</span>
+                                ) : ''}
+                                {this.props.post.title}
+                            </h1>
+                            <time className="post-date">
+                                {this.props.post.createdDate}
+                                {this.props.post.createdDate !== this.props.post.updatedDate && ` (Updated: ${this.props.post.updatedDate})`}
+                            </time>
+                            {this.props.post.author == this.state.username && (
+                                <div className="mt-3">
+                                    <div className="btn btn-dark noto m-1" onClick={() => this.onEdit()}>포스트 수정</div>
+                                    <div className="btn btn-dark noto m-1" onClick={() => this.onDelete()}>포스트 삭제</div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {!this.props.post.image.includes('default') && (
+                        <div className="my-5 mx-fit">
+                            <Image
+                                className="fit-cover"
+                                width={1600}
+                                height={900}
+                                src={this.props.post.image.replace('.minify.jpg', '')}
+                            />
+                        </div>
+                    )}
                     <div className="row">
                         <div className="col-lg-2">
                             <div className="sticky-top sticky-top-200 sticky-margin-top-40">
@@ -324,20 +349,7 @@ class PostDetail extends React.Component<Props, State> {
                             </div>
                         </div>
                         <div className="col-lg-8">
-                            <h1 className="post-headline">
-                                {this.props.hasSeries ? (
-                                    <span className="post-series">'{this.props.series.name}' 시리즈</span>
-                                ) : ''}
-                                {this.props.post.title}
-                            </h1>
-                            <time className="post-date">{this.props.post.createdDate}{this.props.post.createdDate !== this.props.post.updatedDate ? ` (Updated: ${this.props.post.updatedDate})` : ''}</time>
                             <ArticleAuthor {...this.props.profile}/>
-                            {this.props.post.author == this.state.username ? (
-                                <div className="mb-3 text-right">
-                                    <div className="btn btn-dark noto m-1" onClick={() => this.onEdit()}>포스트 수정</div>
-                                    <div className="btn btn-dark noto m-1" onClick={() => this.onDelete()}>포스트 삭제</div>
-                                </div>
-                            ) : ''}
                             <div className="my-3">
                                 <Toggle
                                     label="링크를 새탭에서 여세요."
@@ -370,22 +382,6 @@ class PostDetail extends React.Component<Props, State> {
                                 ))}
                             </div>
                         </div>
-                        {this.state.headerNav.length > 0 && (
-                            <div className="pc-disable">
-                                <div className={`thread-menu ${isOpenSideIndex ? 'closed' : ''}`} onClick={() => this.setState({isOpenSideIndex: !isOpenSideIndex})}>
-                                    <i className="fas fa-rocket"/>
-                                </div>
-                                <div className={`thread-sidebar ${isOpenSideIndex ? '' : 'closed'}`}>
-                                    <ul className="none-drag">
-                                        {this.state.headerNav.map((item, idx) => (
-                                            <li className={`story-read ml-${item[0]}`} key={idx}>
-                                                <a className={this.state.headerNow == item[1] ? 'active' : ''} href={`#${item[1]}`}>{item[2]}</a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
                 <Comment

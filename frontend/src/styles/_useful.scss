@@ -42,6 +42,11 @@ a {
     }
 }
 
+.mx-fit {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
 .fit-cover {
     object-fit: cover;
 }
@@ -80,7 +85,7 @@ a {
     }
 
     @media only screen and (max-width: 991px) {
-        margin-top: 60px;
+        margin-top: 80px;
 
         .post-title-image > img {
             margin-top: -60px;

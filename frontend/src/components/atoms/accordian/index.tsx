@@ -1,4 +1,4 @@
-import styles from './accordian.module.scss';
+import styles from './Accordian.module.scss';
 import classNames from 'classnames';
 
 import { useEffect, useRef, useState } from 'react';

@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import Link from 'next/link';
 import Image from 'next/image';
 
+import { Card } from '@components/atoms';
+
 export interface ArticleCardProps {
     author: string;
     url: string;
@@ -18,7 +20,7 @@ export interface ArticleCardProps {
 export function ArticleCard(props: ArticleCardProps) {
     return (
         <div className="col-lg-4 col-md-6 mt-4">
-            <div className="blex-card">
+            <Card isRounded>
                 <div className={classNames(
                     styles.posts
                 )}>
@@ -58,7 +60,7 @@ export function ArticleCard(props: ArticleCardProps) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </Card>
         </div>
     )
 }

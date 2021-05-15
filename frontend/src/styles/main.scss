@@ -161,17 +161,6 @@
         background: $COLOR_DARK_BACKGROUND;
     }
 }
-.list-thumb {
-    width: 30px;
-    height: 30px;
-    margin-right: 10px;
-}
-.author-thumb {
-    width: 130px;
-    height: 130px;
-    margin-right:25px;
-    margin-bottom:25px;
-}
 .comment-thumb {
     width: 50px;
     height: 50px;
@@ -387,30 +376,6 @@ footer {
     .sticky-margin-top-40 {
         margin-top:150px;
         margin-bottom:90px;
-    }
-}
-
-.author-info {
-    a {
-        color: #000;
-
-        &:hover {
-            color: #444;
-        }
-    }
-
-    p {
-        margin-bottom: 0px;    
-    }
-    
-    h4 {
-        font-weight: bold;
-        font-size: 24px;
-    }
-
-    h5 {
-        color: #777;
-        font-size: 17px;
     }
 }
 
