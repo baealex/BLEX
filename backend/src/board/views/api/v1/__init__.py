@@ -1,6 +1,7 @@
 # export
 from .auth import *
 from .comments import *
+from .forms import *
 from .posts import *
 from .series import *
 from .setting import *
@@ -29,7 +30,6 @@ from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 from PIL import Image, ImageFilter
 
-from board.forms import *
 from board.models import *
 from board.module.subtask import sub_task_manager
 from board.module.telegram import TelegramBot
@@ -172,49 +172,5 @@ def telegram(request, parameter):
                     telegramsync.delete()
                     return HttpResponse('DONE')
             return HttpResponse('error:AU')
-    
-    raise Http404
-
-def forms(request, pk=None):
-    if not pk:
-        if request.method == 'GET':
-            user_forms = Form.objects.filter(user=request.user)
-            return CamelizeJsonResponse({
-                'forms': list(map(lambda form: {
-                    'id': form.id,
-                    'title': form.title,
-                    'created_date': form.created_date,
-                }, user_forms))
-            })
-
-        if request.method == 'POST':
-            new_from = Form(
-                user=request.user,
-                title=request.POST.get('title', ''),
-                content=request.POST.get('content', '')
-            )
-            new_from.save()
-            return HttpResponse(str(new_from.id))
-    
-    else:
-        if request.method == 'GET':
-            form = get_object_or_404(Form, pk=pk)
-            return CamelizeJsonResponse({
-                'title': form.title,
-                'content': form.content
-            })
-        
-        if request.method == 'PUT':
-            body = QueryDict(request.body)
-            form = get_object_or_404(Form, pk=pk)
-            form.title = body.get('title', '')
-            form.content = body.get('content', '')
-            form.save()
-            return HttpResponse('DONE')
-        
-        if request.method == 'DELETE':
-            form = get_object_or_404(Form, pk=pk)
-            form.delete()
-            return HttpResponse('DONE')
     
     raise Http404

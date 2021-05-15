@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './comments';
+export * from './forms';
 export * from './posts';
 export * from './series';
 export * from './setting';
@@ -39,8 +40,6 @@ export interface ResponseData<T> {
     errorCode?: ErrorCode,
     body: T
 }
-
-type DoneOrFail = 'DONE' | 'FAIL';
 
 export function serializeObject(obj: {
     [key: string]: any
@@ -93,34 +92,4 @@ export async function uploadImage(file: File) {
         NProgress.done();
         return e;
     }
-}
-
-export async function postForms(title: string, content: string) {
-    return axios.request({
-        url: `${Config.API_SERVER}/v1/forms`,
-        method: 'POST',
-        data: serializeObject({
-            title,
-            content,
-        })
-    })
-};
-
-export async function deleteForms(id: number) {
-    return axios.request<DoneOrFail>({
-        url: `${Config.API_SERVER}/v1/forms/${id}`,
-        method: 'DELETE',
-    })
-};
-
-export async function getForm(id: number) {
-    return axios.request<GetFormData>({
-        url: `${Config.API_SERVER}/v1/forms/${id}`,
-        method: 'GET',
-    })
-}
-
-export interface GetFormData {
-    title: string;
-    content: string;
 }

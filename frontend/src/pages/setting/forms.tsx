@@ -46,7 +46,7 @@ export default function Setting(props: Props) {
         }
         const { data } = await API.postForms(title, content);
         setForms([...forms, {
-            id: data,
+            id: data.body.id,
             title,
             createdDate: '',
         }]);
@@ -58,7 +58,7 @@ export default function Setting(props: Props) {
     const onDelete = async (id: number) => {
         if (confirm('😮 정말 이 서식을 삭제할까요?')) {
             const { data } = await API.deleteForms(id);
-            if (data === 'DONE') {
+            if (data.status === 'DONE') {
                 setForms(forms.filter(item => item.id !== id));
                 toast('😀 서식이 삭제되었습니다.');
             }
