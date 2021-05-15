@@ -51,10 +51,9 @@
 }
 
 .gray-dark {
-    color: $COLOR_DEFAULT_ASHGRAY;
+    color: $COLOR_DEFAULT_GRAY;
 
     &:hover {
-        color: $COLOR_DEFAULT_ASHGRAY;
         text-decoration: none;
     }
 }

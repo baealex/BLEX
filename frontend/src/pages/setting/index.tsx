@@ -38,18 +38,24 @@ export default function Setting(props: Props) {
     const makeToken = async () => {
         setModalOpen(true);
         if(!telegramToken) {
-            const { data } = await API.telegram('makeToken');
-            setTelegramToken(data);
+            const { data } = await API.postTelegram('makeToken');
+            if (data.status === 'ERROR') {
+                toast(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+                return;
+            }
+            setTelegramToken(data.body.token || '');
         }
     };
 
     const unsync = async () => {
         if(confirm('😥 정말 연동을 해제할까요?')) {
-            const { data } = await API.telegram('unsync');
-            if(data == 'DONE') {
-                toast('😀 텔레그램과 연동이 해제되었습니다.');
-                setSync(false);
+            const { data } = await API.postTelegram('unsync');
+            if (data.status === 'ERROR') {
+                toast(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+                return;
             }
+            toast('😀 텔레그램과 연동이 해제되었습니다.');
+            setSync(false);
         }
     }
 

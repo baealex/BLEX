@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.http import Http404
 from django.utils import timezone
 
-from board.models import *
+from board.models import Post
 from board.module.subtask import sub_task_manager
 from board.module.telegram import TelegramBot
 from board.module.response import StatusDone

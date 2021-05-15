@@ -1,8 +1,10 @@
 import { toast } from 'react-toastify';
 
+import NProgress from 'nprogress';
+
 import * as API from './api';
 
-export function isImage(file) {
+export function isImage(file: File) {
     const validTypes = [
         'image/jpeg',
         'image/jpg',
@@ -15,7 +17,7 @@ export function isImage(file) {
     return true;
 }
 
-export async function dropImage(e) {
+export async function dropImage(e: any) {
     e.stopPropagation();
     e.preventDefault();
     const { files } = e.dataTransfer;
@@ -27,21 +29,30 @@ export async function dropImage(e) {
     return uploadImage(file);
 }
 
-export async function uploadImage(file) {
+export async function uploadImage(file: File) {
     if (!isImage(file)) {
         toast('🤔 이미지 파일이 아닙니다.');
         return;
     }
     try {
-        const { data } = await API.uploadImage(file);
-        return data;
+        NProgress.start();
+        const { data } = await API.postImage(file);
+        NProgress.done();
+        if (data.status === 'ERROR') {
+            toast(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+            return;
+        }
+        return data.body.url;
     } catch(error) {
+        NProgress.done();
         const { status } = error.response;
         if(status == 404) {
-            return '로그인이 필요합니다';
+            toast('🤔 로그인이 필요합니다.');
+            return;
         }
         if(status > 500) {
-            return '서버 장애가 발생했습니다';
+            toast('🤔 이미지 파일이 아닙니다.');
+            return;
         }
     }
 }

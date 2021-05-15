@@ -49,9 +49,9 @@ urlpatterns = [
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts, name='post_api_v1'),
     path('v1/users/@<username>/series', api_v1.user_series, name='series_api_v1'),
     path('v1/users/@<username>/series/<url>', api_v1.user_series, name='series_api_v1'),
-    path('v1/image/upload', api_v1.image_upload, name='image_upload_v1'),
-    path('v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
+    path('v1/image', api_v1.image, name='image_api_v1'),
     path('v1/forms', api_v1.forms, name='forms_api_v1'),
     path('v1/forms/<pk>', api_v1.forms, name='forms_api_v1'),
+    path('v1/telegram/<parameter>', api_v1.telegram, name='telegram_api_v1'),
     # ------------------------------------------------------------ API V1 End
 ]

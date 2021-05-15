@@ -133,8 +133,8 @@ export default function Layout(props: Props) {
 
     const onFetchForm = async (id: number) => {
         const { data } = await API.getForm(id);
-        if (data.content) {
-            appendTextOnCursor(data.content);
+        if (data.body.content) {
+            appendTextOnCursor(data.body.content);
         }
     }
 
