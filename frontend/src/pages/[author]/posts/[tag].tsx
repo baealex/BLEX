@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 
-import PageNav from '@components/common/PageNav';
+import { Pagination } from '@components/common';
 import Profile from '@components/profile/Profile';
 import PostsComponent from '@components/profile/Posts';
 
@@ -73,7 +73,7 @@ export default function UserTagPosts(props: Props) {
                     author={props.profile.username}
                     tags={props.tags!}
                     posts={props.posts}>
-                    <PageNav
+                    <Pagination
                         page={props.page}
                         last={props.lastPage}
                     />

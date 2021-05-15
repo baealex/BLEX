@@ -2,7 +2,8 @@ import Head from 'next/head';
 import React from 'react';
 
 import { ArticleCard } from '@components/article';
-import PageNav from '@components/common/PageNav';
+import { Pagination } from '@components/common';
+import Footer from '@components/common/Footer';
 import TopicsDesc from '@components/tag/TagDesc';
 import Title from '@components/common/Title';
 
@@ -53,11 +54,13 @@ export default function Tag(props: Props) {
                     ))}
                 </div>
 
-                <PageNav
+                <Pagination
+                    hasBorder
                     page={props.page}
                     last={props.lastPage}
                 />
             </div>
+            <Footer/>
         </>
     )
 }

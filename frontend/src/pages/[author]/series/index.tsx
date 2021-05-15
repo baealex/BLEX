@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 
-import PageNav from '@components/common/PageNav';
+import { Pagination } from '@components/common';
 import Profile from '@components/profile/Profile';
 import SeriesCard from '@components/profile/Series/SeriesCard';
 import PurpleBorder from '@components/common/PurpleBorder';
@@ -66,7 +66,7 @@ export default function UserSeries(props: Props) {
                         {props.series.length > 0 ? '' : (
                             <PurpleBorder text="아직 생성된 시리즈가 없습니다."/>
                         )}
-                        <PageNav
+                        <Pagination
                             page={props.page}
                             last={props.lastPage}
                         />

@@ -2,7 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 
 import { ArticleCard } from '@components/article';
-import PageNav from '@components/common/PageNav';
+import { Pagination } from '@components/common';
 import Footer from '@components/common/Footer';
 
 import * as API from '@modules/api';
@@ -48,7 +48,8 @@ export default function NewestArticles(props: Props) {
                         ))}
                     </div>
 
-                    <PageNav
+                    <Pagination
+                        hasBorder
                         page={props.page}
                         last={props.lastPage}
                     />

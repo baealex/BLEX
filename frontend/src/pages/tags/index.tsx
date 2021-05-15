@@ -2,7 +2,8 @@ import React from 'react';
 import Head from 'next/head';
 
 import TagItem from '@components/tag/TagItem';
-import PageNav from '@components/common/PageNav';
+import { Pagination } from '@components/common';
+import Footer from '@components/common/Footer';
 
 import * as API from '@modules/api';
 
@@ -41,11 +42,13 @@ export default function Tags(props: Props) {
                     ))}
                 </div>
 
-                <PageNav
+                <Pagination
+                    hasBorder
                     page={props.page}
                     last={props.lastPage}
                 />
             </div>
+            <Footer/>
         </>
     )
 }
