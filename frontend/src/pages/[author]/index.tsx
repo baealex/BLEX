@@ -73,8 +73,8 @@ export default function Overview(props: Props) {
                         isNightMode={isNightMode}
                         data={props.heatmap}
                     />
-                    <FeatureArticle articles={props.most!}/>
                     <RecentActivity data={props.recent!}/>
+                    <FeatureArticle articles={props.most!}/>
                 </div>
             </div>
         </>

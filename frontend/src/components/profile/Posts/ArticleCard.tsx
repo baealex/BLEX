@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 import TagList from '../../tag/TagList';
 
@@ -18,7 +19,13 @@ export default function ArticleCard(props: ArticelCardProps) {
         <div className="profile-post">
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                 <a>
-                    {!props.image.includes('default') && <img src={props.image}/>}
+                    {!props.image.includes('default') && (
+                        <Image
+                            src={props.image}
+                            width="800"
+                            height="400"
+                        />
+                    )}
                 </a>
             </Link>
             <h4 className="card-title noto font-weight-bold mt-3">

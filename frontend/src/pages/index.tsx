@@ -1,6 +1,6 @@
 import Head from 'next/head';
 
-import ArticleCard from '@components/article/ArticleCard';
+import { ArticleCard } from '@components/article';
 import PageNav from '@components/common/PageNav';
 import Footer from '@components/common/Footer';
 

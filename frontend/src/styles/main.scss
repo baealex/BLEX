@@ -7,9 +7,10 @@
 @import 'useful';
 @import 'profile';
 
-@import 'lib/bootstrap.min';
-@import 'lib/bootstrap.override';
-@import 'lib/three-dots.min';
+@import 'bootstrap';
+@import 'bootstrap.override';
+
+@import 'three-dots/sass/three-dots.scss';
 
 // 태그 목록 디자인
 .tag-list {
@@ -262,6 +263,7 @@
 }
 
 .card-title {
+    font-weight: 600;
     letter-spacing: -1px;
     font-variant: petite-caps;
 }
@@ -323,47 +325,6 @@
     width: 100vw;
     height: 100vh;
 }
-
-
-
-// 포스트 목록(메인 페이지) 디자인
-.list-image {
-    object-fit: cover;
-    width: 100%;
-    height: 250px;
-    float: initial;
-    margin-left: 0;
-    background-color: #fff;
-
-    @media only screen and (max-width: 991px) {
-        width: 150px;
-        height: 150px;
-        float: right;
-        margin-left: 20px;
-    }
-
-    @media only screen and (max-width: 402px) {
-        width: 110px;
-        height: 135px;
-        float: right;
-        margin-left: 15px;
-    }
-
-    @media only screen and (max-width: 360px) {
-        display: none;
-    }
-}
-
-.feature-image {
-    object-fit: cover;
-    width: 100%;
-    height: 150px;
-
-    @media only screen and (max-width: 991px) {
-        height: 200px;
-    }
-}
-
 
 
 /* ------------------------------ */
@@ -1452,7 +1413,8 @@ footer {
     margin: 5px;
 }
 .blex-card {
-    box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
+    box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.1);
+    border-radius: 8px;
     width: 100%;
     display: block;
 

@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-import ArticleCard from '@components/article/ArticleCard';
+import { ArticleCard } from '@components/article';
 
 import * as API from '@modules/api';
 import {
     lazyIntersection
 } from '@modules/lazy';
 
-export interface FeatureArticleProps {
+export interface FeatureArticlesProps {
     author: string;
     url: string;
     realname: string;
 }
 
-export function FeatureArticle(props: FeatureArticleProps) {
+export function FeatureArticles(props: FeatureArticlesProps) {
     const [ posts, setPosts ] = useState<API.GetFeaturePostsDataPosts[]>([]);
 
     useEffect(() => {

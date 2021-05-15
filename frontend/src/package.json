@@ -28,6 +28,7 @@
         "react-toastify": "^6.2.0",
         "remarkable": "^2.0.1",
         "styled-jsx-plugin-sass": "^1.0.0",
+        "three-dots": "^0.2.1",
         "typescript": "^4.2.3"
     }
 }

@@ -15,7 +15,9 @@ interface ActivityItemProps {
 export default function RecentActivity(props: RecentActivityProps) {
     return (
         <>
-            <div className="h5 noto font-weight-bold mt-5">Recent Activity</div>
+            <div className="h5 noto font-weight-bold mt-5">
+                최근 활동
+            </div>
             {props.data.length > 0 ? (
                 <ul className="profile-activity p-0 noto mt-4">
                     {props.data.map((item: ActivityItemProps, idx: number) => (

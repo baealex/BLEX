@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import React from 'react';
 
-import ArticleCard from '@components/article/ArticleCard';
+import { ArticleCard } from '@components/article';
 import PageNav from '@components/common/PageNav';
 import TopicsDesc from '@components/tag/TagDesc';
 import Title from '@components/common/Title';

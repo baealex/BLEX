@@ -3,8 +3,8 @@ import Head from 'next/head';
 import Router from 'next/router';
 
 import {
-    FeatureArticle
-} from '@components/article/feature-article';
+    FeatureArticles
+} from '@components/article/features';
 import ArticleAuthor from '@components/article/ArticleAuthor';
 import ArticleContent from '@components/article/ArticleContent';
 import ArticleSereis from '@components/article/ArticleSeries';
@@ -394,7 +394,7 @@ class PostDetail extends React.Component<Props, State> {
                     totalComment={this.props.post.totalComment}
                 />
                 <Footer bgdark>
-                    <FeatureArticle
+                    <FeatureArticles
                         author={this.props.post.author}
                         realname={this.props.profile.profile.realname}
                         url={this.props.post.url}

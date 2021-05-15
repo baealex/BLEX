@@ -84,7 +84,7 @@ def posts(request):
         posts = fn.get_posts(sort)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(posts, 21)
+        paginator = Paginator(posts, 24)
         fn.page_check(page, paginator)
         posts = paginator.get_page(page)
         return StatusDone({

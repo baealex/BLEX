@@ -16,7 +16,7 @@ def StatusDone(body={}):
         'body': body,
     })
 
-def StatusError(code: str, message: str):
+def StatusError(code: str, message=''):
     return CamelizeJsonResponse({
         'status': 'ERROR',
         'error_code': 'error:' + code,
