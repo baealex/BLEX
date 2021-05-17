@@ -1,0 +1,28 @@
+@import 'var';
+
+.footer { 
+    color: #ccc;
+    
+    a {
+        color: #999;
+        
+        &:hover {
+            color: #000;
+            text-decoration: none;
+
+            :global(body.dark) & {
+                color: #fff;
+            }
+        }
+    }
+
+    &.bgDark {
+        background: #000;
+        
+        a {
+            &:hover {
+                color: #fff;
+            }
+        }
+    }
+}

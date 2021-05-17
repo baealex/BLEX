@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 
 import { ArticleCard } from '@components/article';
@@ -15,10 +15,11 @@ export interface FeatureArticlesProps {
 }
 
 export function FeatureArticles(props: FeatureArticlesProps) {
+    const element = useRef<HTMLDivElement>(null);
     const [ posts, setPosts ] = useState<API.GetFeaturePostsDataPosts[]>([]);
 
     useEffect(() => {
-        const observer = lazyIntersection('.page-footer', async () => {
+        const observer = lazyIntersection('.feature-articles', async () => {
             const { author, url } = props;
             const { data } = await API.getFeaturePosts('@'+ author, url);
             setPosts(data.body.posts);
@@ -28,7 +29,7 @@ export function FeatureArticles(props: FeatureArticlesProps) {
     }, [props.url]);
 
     return (
-        <div className="container pt-5 reverse-color">
+        <div ref={element} className="feature-articles container pt-5 reverse-color">
             <p className="noto">
                 <Link href={`/@${props.author}`}>
                     <a className="font-weight-bold deep-dark">

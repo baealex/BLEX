@@ -2,8 +2,10 @@ import Head from 'next/head';
 import React from 'react';
 
 import { ArticleCard } from '@components/article';
-import { Pagination } from '@components/common';
-import Footer from '@components/common/Footer';
+import {
+    Footer,
+    Pagination
+} from '@components/common';
 import TopicsDesc from '@components/tag/TagDesc';
 import Title from '@components/common/Title';
 

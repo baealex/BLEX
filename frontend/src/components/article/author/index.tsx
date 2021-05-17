@@ -18,7 +18,7 @@ export interface ArticleAuthorProps {
 
 export function ArticleAuthor(props: ArticleAuthorProps) {
     return (
-        <div className="d-flex align-items-center my-5">
+        <div className="d-flex align-items-center mb-5">
             <div>
             <Link href="/[author]" as={`/@${props.profile.username}`}>
                 <a>

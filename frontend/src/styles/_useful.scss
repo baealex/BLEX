@@ -72,28 +72,15 @@ a {
     }
 }
 
+.hide {
+    display: none;
+}
+
 .content {
     margin-top: 120px;
-    word-break:break-all;
-
-    .post-title-image > img {
-        margin-top: -120px;
-    }
-
-    .blex-editor {
-        margin-top: -60px;
-    }
+    word-break: break-all;
 
     @media only screen and (max-width: 991px) {
         margin-top: 80px;
-
-        .post-title-image > img {
-            margin-top: -60px;
-            margin-bottom: 60px;
-        }
-
-        .blex-editor {
-            margin-top: 0;
-        }
     }
 }

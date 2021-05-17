@@ -2,8 +2,10 @@ import React from 'react';
 import Head from 'next/head';
 
 import { ArticleCard } from '@components/article';
-import { Pagination } from '@components/common';
-import Footer from '@components/common/Footer';
+import {
+    Footer,
+    Pagination
+} from '@components/common';
 
 import * as API from '@modules/api';
 

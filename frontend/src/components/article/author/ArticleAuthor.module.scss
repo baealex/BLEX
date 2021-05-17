@@ -26,5 +26,9 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+
+        :global(body.dark) & {
+            color: #a7a7a7;
+        }
     }
 }

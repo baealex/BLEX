@@ -12,8 +12,8 @@ import ArticleSereis from '@components/article/ArticleSeries';
 import { Comment } from '@components/comment';
 import TagList from '@components/tag/TagList';
 import Toggle from '@components/atoms/toggle';
-import Footer from '@components/common/Footer';
 import SEO from '@components/seo';
+import { Footer } from '@components/common';
 
 import { toast } from 'react-toastify';
 
@@ -292,7 +292,7 @@ class PostDetail extends React.Component<Props, State> {
                     isArticle={true}
                 />
                 <div className="container">
-                    <div className="row justify-content-center">
+                    <div className="row justify-content-center mb-5">
                         <div className="col-lg-8">
                             <h1 className="post-headline">
                                 {this.props.hasSeries ? (
@@ -313,7 +313,7 @@ class PostDetail extends React.Component<Props, State> {
                         </div>
                     </div>
                     {!this.props.post.image.includes('default') && (
-                        <div className="my-5 mx-fit">
+                        <div className="mb-5 mx-fit">
                             <Image
                                 className="fit-cover"
                                 width={1600}
@@ -324,7 +324,7 @@ class PostDetail extends React.Component<Props, State> {
                     )}
                     <div className="row">
                         <div className="col-lg-2">
-                            <div className="sticky-top sticky-top-200 sticky-margin-top-40">
+                            <div className="sticky-top sticky-top-200 mb-5">
                                 <div className="share">
                                     <ul className="px-3">
                                         <li className="mx-3 mx-lg-4" onClick={() => this.onClickLike()}>
