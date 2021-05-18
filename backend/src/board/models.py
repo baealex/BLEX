@@ -115,8 +115,6 @@ class Config(models.Model):
     user           = models.OneToOneField(User, on_delete=models.CASCADE)
     agree_email    = models.BooleanField(default=False)
     agree_history  = models.BooleanField(default=False)
-    telegram_token = models.CharField(max_length=8, blank=True) # deprecate
-    telegram_id    = models.CharField(max_length=15, blank=True) # deprecate
     password_qna   = models.TextField(blank=True)
 
     def has_telegram_id(self):
