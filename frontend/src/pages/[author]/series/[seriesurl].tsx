@@ -220,54 +220,56 @@ class Series extends React.Component<Props, State> {
                         <div className="fade-mask"></div>
                     </div>
                     <div className="series-list">
-                        <div className="col-lg-8 mx-auto">
-                            <h2 className="noto font-weight-bold">
-                                '{seriesTitle}' 시리즈
-                            </h2>
-                            <Link href="/[author]" as={`/@${this.props.series.owner}`}>
-                                <a className="post-series deep-dark noto font-weight-bold mb-3">
-                                    Created by {this.props.series.owner}
-                                </a>
-                            </Link>
-                            {this.props.series.owner == this.state.username ? (
-                                <div className="mb-3">
-                                    <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSeriesModalOpen')}>시리즈 수정</div>
+                        <div className="row">
+                            <div className="col-lg-8 mx-auto">
+                                <h2 className="noto font-weight-bold">
+                                    '{seriesTitle}' 시리즈
+                                </h2>
+                                <Link href="/[author]" as={`/@${this.props.series.owner}`}>
+                                    <a className="post-series deep-dark noto font-weight-bold mb-3">
+                                        Created by {this.props.series.owner}
+                                    </a>
+                                </Link>
+                                {this.props.series.owner == this.state.username ? (
+                                    <div className="mb-3">
+                                        <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSeriesModalOpen')}>시리즈 수정</div>
+                                    </div>
+                                ) : ''}
+                                <SeriesDesc
+                                    {...this.props.series}
+                                    description={this.state.seriesDescription}
+                                />
+                                <div className="mt-5 mb-3 text-right">
+                                    <div className="btn btn-dark noto m-1" onClick={() => Global.setState({
+                                        isSortOldFirst: !isSortOldFirst
+                                    })}>
+                                        {isSortOldFirst ? (
+                                            <>
+                                                <i className="fas fa-sort-up"/> 과거부터
+                                            </>
+                                        ) : (
+                                            <>
+                                                <i className="fas fa-sort-down"/> 최근부터
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
-                            ) : ''}
-                            <SeriesDesc
-                                {...this.props.series}
-                                description={this.state.seriesDescription}
-                            />
-                            <div className="mt-5 mb-3 text-right">
-                                <div className="btn btn-dark noto m-1" onClick={() => Global.setState({
-                                    isSortOldFirst: !isSortOldFirst
-                                })}>
-                                    {isSortOldFirst ? (
-                                        <>
-                                            <i className="fas fa-sort-up"/> 과거부터
-                                        </>
-                                    ) : (
-                                        <>
-                                            <i className="fas fa-sort-down"/> 최근부터
-                                        </>
-                                    )}
-                                </div>
+                                {isSortOldFirst ? seriesPosts.map((post, idx) => (
+                                    <ArticleCard
+                                        key={idx}
+                                        idx={idx}
+                                        author={this.props.series.owner}
+                                        {...post}
+                                    />
+                                )) : seriesPosts.map((post, idx) => (
+                                    <ArticleCard
+                                        key={idx}
+                                        idx={idx}
+                                        author={this.props.series.owner}
+                                        {...post}
+                                    />
+                                )).reverse()}
                             </div>
-                            {isSortOldFirst ? seriesPosts.map((post, idx) => (
-                                <ArticleCard
-                                    key={idx}
-                                    idx={idx}
-                                    author={this.props.series.owner}
-                                    {...post}
-                                />
-                            )) : seriesPosts.map((post, idx) => (
-                                <ArticleCard
-                                    key={idx}
-                                    idx={idx}
-                                    author={this.props.series.owner}
-                                    {...post}
-                                />
-                            )).reverse()}
                         </div>
                     </div>
                 </div>
