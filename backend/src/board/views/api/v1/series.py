@@ -64,7 +64,7 @@ def user_series(request, username, url=None):
                     'posts': list(map(lambda post: {
                         'url': post.url,
                         'title': post.title,
-                        'read_time': post.read_time(),
+                        'read_time': post.read_time,
                         'description': post.description(),
                         'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일')
                     }, posts))

@@ -66,9 +66,6 @@ class PostAdmin(admin.ModelAdmin):
     list_display_links = ['title']
     list_filter = ['author']
     list_per_page = 30
-    
-    def read_time(self, obj):
-        return str(obj.read_time()) + ' min read'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['author']

@@ -52,7 +52,7 @@ def users(request, username):
                         'url': post.url,
                         'title': post.title,
                         'image': post.get_thumbnail(),
-                        'read_time': post.read_time(),
+                        'read_time': post.read_time,
                         'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                         'author_image': post.author.profile.get_thumbnail(),
                         'author': post.author.username,

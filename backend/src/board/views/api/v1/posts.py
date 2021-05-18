@@ -93,7 +93,7 @@ def posts(request):
                 'title': post.title,
                 'image': post.get_thumbnail(),
                 'description': post.description(),
-                'read_time': post.read_time(),
+                'read_time': post.read_time,
                 'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
                 'author_image': post.author.profile.get_thumbnail(),
                 'author': post.author.username,
@@ -112,6 +112,7 @@ def posts(request):
         post.text_html = request.POST.get('text_html', '')
         post.hide = True if request.POST.get('is_hide', '') == 'true' else False
         post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
+        post.read_time = calc_read_time(post.text_html)
 
         try:
             series_url = request.POST.get('series', '')
@@ -169,7 +170,7 @@ def feature_posts(request, tag=None):
                 'url': post.url,
                 'title': post.title,
                 'image': post.get_thumbnail(),
-                'read_time': post.read_time(),
+                'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author.profile.get_thumbnail(),
                 'author': post.author.username,
@@ -187,7 +188,7 @@ def feature_posts(request, tag=None):
                 'url': post.url,
                 'title': post.title,
                 'image': post.get_thumbnail(),
-                'read_time': post.read_time(),
+                'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author.profile.get_thumbnail(),
                 'author': post.author.username,
@@ -268,7 +269,7 @@ def user_posts(request, username, url=None):
                     'url': post.url,
                     'title': post.title,
                     'image': post.get_thumbnail(),
-                    'read_time': post.read_time(),
+                    'read_time': post.read_time,
                     'description': post.description(35),
                     'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
                     'author_image': post.author.profile.get_thumbnail(),
@@ -301,7 +302,7 @@ def user_posts(request, username, url=None):
                     'title': post.title,
                     'image': post.get_thumbnail(),
                     'description': post.description_tag(),
-                    'read_time': post.read_time(),
+                    'read_time': post.read_time,
                     'series': post.series.url if post.series else None,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
@@ -322,6 +323,7 @@ def user_posts(request, username, url=None):
             post.hide = True if request.POST.get('is_hide', '') == 'true' else False
             post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
             post.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+            post.read_time = calc_read_time(post.text_html)
 
             try:
                 series_url = request.POST.get('series', '')

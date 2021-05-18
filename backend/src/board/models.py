@@ -10,11 +10,14 @@ from django.template.loader import render_to_string
 from django.template.defaultfilters import linebreaks, truncatewords
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import escape, strip_tags
+from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 from django.conf import settings
 
 from PIL import Image
+
+def calc_read_time(html):
+    return int(len(strip_tags(html))/500)
 
 def convert_to_localtime(utctime):
     utc = utctime.replace(tzinfo=pytz.UTC)
@@ -204,6 +207,7 @@ class Post(models.Model):
     notice        = models.BooleanField(default=False)
     advertise     = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
+    read_time     = models.IntegerField(default=0)
     tag           = models.CharField(max_length=50)
     created_date  = models.DateTimeField(default=timezone.now)
     updated_date  = models.DateTimeField(default=timezone.now)
@@ -234,9 +238,6 @@ class Post(models.Model):
         if not description:
             description = '이 포스트는 이미지 혹은 영상으로만 구성되어 있습니다.'
         return description
-    
-    def read_time(self):
-        return int(len(strip_tags(self.text_html))/500)
     
     def today(self):
         count = 0
