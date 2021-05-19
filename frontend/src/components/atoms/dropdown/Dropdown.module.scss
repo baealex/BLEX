@@ -1,0 +1,35 @@
+.menu {
+    display: none;
+    position: absolute;
+    background: #fff;
+    transform: translateX(-100%);
+    border: 1px solid #eee;
+    min-width: 100px;
+    border-radius: 5px;
+    z-index: 5;
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+
+        li {
+            padding: 8px 12px;
+            width: 100%;
+            cursor: pointer;
+
+            border-bottom: 1px solid #f7f7f7;
+            
+            &:hover {
+                background: #eee;
+            }
+        }
+    }
+
+    &.isOpen {
+        display: block;
+    }
+}
+
+.button {
+    cursor: pointer;
+}

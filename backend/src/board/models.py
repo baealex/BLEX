@@ -243,7 +243,7 @@ class Post(models.Model):
         count = 0
         try:
             today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
-            count = PostAnalytics.objects.get(created_date=today, posts=self).table.count()
+            count = self.analytics.get(created_date=today).table.count()
         except:
             pass
         return count
@@ -252,7 +252,7 @@ class Post(models.Model):
         count = 0
         try:
             yesterday = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
-            count = PostAnalytics.objects.get(created_date=yesterday, posts=self).table.count()
+            count = self.analytics.get(created_date=yesterday).table.count()
         except:
             pass
         return count
@@ -319,7 +319,7 @@ class Post(models.Model):
             make_thumbnail(self, size=1920, quality=85)
 
 class PostAnalytics(models.Model):
-    posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    posts        = models.ForeignKey('board.Post', related_name='analytics', on_delete=models.CASCADE)
     table        = models.ManyToManyField(History, blank=True)
     created_date = models.DateField(default=timezone.now)
 

@@ -1,4 +1,7 @@
 import SideNavigation from '@components/setting/navigation';
+import {
+    Footer
+} from '@components/common';
 
 interface Props {
     tabname: string;
@@ -15,14 +18,15 @@ export default function SettingLayout({
 }: Props) {
     return (
         <>
-            <div className="container">
+            <div className="container noto">
                 <div className="row">
                     <div className="col-lg-3">
                         <SideNavigation tabname={tabname} sticky={sticky}/>
                         {sideChildren}
                     </div>
-                    <div className="col-lg-8 noto">
+                    <div className="col-lg-8">
                         {children}
+                        <Footer />
                     </div>
                 </div>
             </div>

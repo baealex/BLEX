@@ -25,16 +25,16 @@ const NAVIGATION_ITEMS = [
         url: '/setting/profile',
     },
     {
-        title: '시리즈',
-        icon: 'fas fa-book',
-        name: 'series',
-        url: '/setting/series',
-    },
-    {
         title: '포스트',
         icon: 'fas fa-pencil-alt',
         name: 'posts',
         url: '/setting/posts',
+    },
+    {
+        title: '시리즈',
+        icon: 'fas fa-book',
+        name: 'series',
+        url: '/setting/series',
     },
     {
         title: '서식',
@@ -54,7 +54,7 @@ export default function(props: Props) {
     const stickyClass = props.sticky ? 'sticky-top-100 sticky-top' : ''
 
     return (
-        <ul className={`nav noto ${stickyClass} blex-card`}>
+        <ul className={`nav noto ${stickyClass} blex-card mb-3`}>
             {NAVIGATION_ITEMS.map((item, idx) => (
                 <li key={idx} className="nav-item">
                     <Link href={item.url}>

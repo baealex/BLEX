@@ -70,9 +70,9 @@ export interface GetSettingProfileData {
     instagram: string;
 }
 
-export async function getSettingPosts(cookie: string | undefined) {
+export async function getSettingPosts(cookie: string | undefined, order: string, page: number) {
     return await axios.request<ResponseData<GetSettingPostsData>>({
-        url: `${Config.API_SERVER}/v1/setting/posts`,
+        url: `${Config.API_SERVER}/v1/setting/posts?order=${order}&page=${page}`,
         headers: {
             cookie
         },
@@ -90,11 +90,12 @@ export interface GetSettingPostsData {
         isHide: boolean;
         totalLikes: number;
         totalComments: number;
-        today: number;
-        yesterday: number;
+        todayCount: number;
+        readTime: number;
+        yesterdayCount: number;
         tag: string;
-        fixedTag: string;
     }[];
+    lastPage: number;
 }
 
 export async function getSettingSeries(cookie: string | undefined) {

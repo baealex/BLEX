@@ -59,6 +59,57 @@ def setting(request, item):
         
         if item == 'posts':
             posts = Post.objects.filter(author=user).order_by('-created_date')
+            
+            vaild_orders = [
+                'title',
+                'read_time',
+                'created_date',
+                'updated_date',
+                'tag',
+                'total_like_count',
+                'total_comment_count',
+                'hide',
+                'today_count',
+                'yesterday_count',
+            ]
+            order = request.GET.get('order', '')
+            if order:
+                is_vaild = False
+                for vaild_order in vaild_orders:
+                    if order == vaild_order or order == '-' + vaild_order:
+                        is_vaild = True
+                if not is_vaild:
+                    raise Http404
+
+                if 'today_count' in order:
+                    today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+                    posts = posts.annotate(today_count=Count(
+                        'analytics__table',
+                        filter=Q(analytics__created_date=today),
+                        distinct=True,
+                    ))
+                if 'yesterday_count' in order:
+                    yesterday = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+                    posts = posts.annotate(yesterday_count=Count(
+                        'analytics__table',
+                        filter=Q(analytics__created_date=yesterday),
+                        distinct=True,
+                    ))
+                if 'total_like_count' in order:
+                    posts = posts.annotate(total_like_count=Count('likes', distinct=True))
+                if 'total_comment_count' in order:
+                    posts = posts.annotate(total_comment_count=Count('comments', distinct=True))
+                
+                try:
+                    posts = posts.order_by(order)
+                except:
+                    pass
+
+            page = request.GET.get('page', 1)
+            paginator = Paginator(posts, 10)
+            fn.page_check(page, paginator)
+            posts = paginator.get_page(page)
+
             return StatusDone({
                 'username': request.user.username,
                 'posts': list(map(lambda post: {
@@ -69,11 +120,12 @@ def setting(request, item):
                     'is_hide': post.hide,
                     'total_likes': post.total_likes(),
                     'total_comments': post.total_comment(),
-                    'today': post.today(),
-                    'yesterday': post.yesterday(),
+                    'today_count': post.today(),
+                    'read_time': post.read_time,
+                    'yesterday_count': post.yesterday(),
                     'tag': post.tag,
-                    'fixed_tag': post.tag
-                }, posts))
+                }, posts)),
+                'last_page': posts.paginator.num_pages,
             })
         
         if item == 'series':
