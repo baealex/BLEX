@@ -6,7 +6,7 @@ import requests
 
 from django.http import Http404
 from django.utils import timezone
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.utils.text import slugify
 from django.core.cache import cache
 from django.conf import settings
@@ -16,6 +16,10 @@ from board.module.subtask import sub_task_manager
 from board.module.telegram import TelegramBot
 
 def get_posts(sort, user=None):
+    posts = Post.objects.filter(created_date__lte=timezone.now()).annotate(
+        author_username=F('author__username'),
+        author_image=F('author__profile__avatar')
+    )
     if sort == 'trendy':
         cache_key = 'sort_' + sort
         if user:
@@ -23,19 +27,16 @@ def get_posts(sort, user=None):
         elements = cache.get(cache_key)
         if not elements:
             cache_time = 7200
-            posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+            posts = posts.filter(notice=False, hide=False)
             if user:
                 posts = posts.filter(author=user)
             elements = sorted(posts, key=lambda instance: instance.trendy(), reverse=True)
             cache.set(cache_key, elements, cache_time)
         return elements
     if sort == 'newest':
-        posts = Post.objects.filter(created_date__lte=timezone.now(), notice=False, hide=False)
+        posts = posts.filter(notice=False, hide=False)
         if user:
             posts = posts.filter(author=user)
-        return posts.order_by('-created_date')
-    if sort == 'notice':
-        posts = Post.objects.filter(notice=True)
         return posts.order_by('-created_date')
 
 def get_view_count(user, date=None):

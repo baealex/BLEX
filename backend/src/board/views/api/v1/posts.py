@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.db.models import F, Q
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -91,12 +92,12 @@ def posts(request):
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
-                'image': post.get_thumbnail(),
+                'image': str(post.image),
                 'description': post.description(),
                 'read_time': post.read_time,
                 'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
-                'author_image': post.author.profile.get_thumbnail(),
-                'author': post.author.username,
+                'author_image': post.author_image,
+                'author': post.author_username,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -160,7 +161,14 @@ def feature_posts(request, tag=None):
         if not username:
             raise Http404('require username.')
         
-        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, author__username=username)
+        posts = Post.objects.filter(
+            created_date__lte=timezone.now(),
+            hide=False,
+            author__username=username
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        )
         exclude = request.GET.get('exclude', '')
         if exclude:
             posts = posts.exclude(url=exclude)
@@ -169,16 +177,23 @@ def feature_posts(request, tag=None):
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
-                'image': post.get_thumbnail(),
+                'image': str(post.image),
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author.profile.get_thumbnail(),
-                'author': post.author.username,
+                'author_image': post.author_image,
+                'author': post.author_username,
             }, posts))
         })
 
     if tag:
-        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag)
+        posts = Post.objects.filter(
+            created_date__lte=timezone.now(),
+            tag__iregex=r'\b%s\b' % tag,
+            hide=False,
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        )
         exclude = request.GET.get('exclude', '')
         if exclude:
             posts = posts.exclude(url=exclude)
@@ -187,11 +202,11 @@ def feature_posts(request, tag=None):
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
-                'image': post.get_thumbnail(),
+                'image': str(post.image),
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author.profile.get_thumbnail(),
-                'author': post.author.username,
+                'author_image': post.author_image,
+                'author': post.author_username,
             }, posts))
         })
 
@@ -252,7 +267,14 @@ def posts_analytics(request, url):
 def user_posts(request, username, url=None):
     if not url:
         if request.method == 'GET':
-            posts = Post.objects.filter(created_date__lte=timezone.now(), author__username=username, hide=False)
+            posts = Post.objects.filter(
+                created_date__lte=timezone.now(),
+                author__username=username,
+                hide=False
+            ).annotate(
+                author_username=F('author__username'),
+                author_image=F('author__profile__avatar')
+            )
             all_count = posts.count()
             tag = request.GET.get('tag', '')
             if tag:
@@ -268,12 +290,12 @@ def user_posts(request, username, url=None):
                 'posts': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
-                    'image': post.get_thumbnail(),
+                    'image': str(post.image),
                     'read_time': post.read_time,
                     'description': post.description(35),
                     'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
-                    'author_image': post.author.profile.get_thumbnail(),
-                    'author': post.author.username,
+                    'author_image': post.author_username,
+                    'author': post.author_image,
                     'tag': post.tag,
                 }, posts)),
                 'last_page': posts.paginator.num_pages
@@ -300,13 +322,13 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'url': post.url,
                     'title': post.title,
-                    'image': post.get_thumbnail(),
+                    'image': str(post.image),
                     'description': post.description_tag(),
                     'read_time': post.read_time,
                     'series': post.series.url if post.series else None,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
-                    'author_image': post.author.profile.get_thumbnail(),
+                    'author_image': str(post.author.profile.avatar),
                     'author': post.author.username,
                     'text_html': post.text_html,
                     'total_likes': post.total_likes(),

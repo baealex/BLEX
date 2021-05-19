@@ -5,6 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 import { Card } from '@components/atoms';
+import {
+    getPostsImage,
+    getUserImage,
+} from '@modules/image';
 
 export interface ArticleCardProps {
     author: string;
@@ -28,7 +32,7 @@ export function ArticleCard(props: ArticleCardProps) {
                         <a>
                             <Image
                                 className={styles.postsImage}
-                                src={props.image}
+                                src={getPostsImage(props.image)}
                                 width="600"
                                 height="400"
                             />
@@ -49,7 +53,7 @@ export function ArticleCard(props: ArticleCardProps) {
                             <a>
                                 <Image
                                     className="fit-cover rounded"
-                                    src={props.authorImage}
+                                    src={getUserImage(props.authorImage)}
                                     width="35"
                                     height="35"
                                 />

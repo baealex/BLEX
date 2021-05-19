@@ -3,6 +3,11 @@ import Image from 'next/image';
 
 import TagList from '../../tag/TagList';
 
+import {
+    getPostsImage,
+    getUserImage,
+} from '@modules/image';
+
 export interface ArticelCardProps {
     url: string;
     title: string;
@@ -21,7 +26,7 @@ export default function ArticleCard(props: ArticelCardProps) {
                 <a>
                     {!props.image.includes('default') && (
                         <Image
-                            src={props.image}
+                            src={getPostsImage(props.image)}
                             width="800"
                             height="400"
                         />

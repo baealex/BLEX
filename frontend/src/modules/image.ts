@@ -4,6 +4,26 @@ import NProgress from 'nprogress';
 
 import * as API from './api';
 
+import Config from '@modules/config.json';
+
+export function getImage(path: string) {
+    return `https://${Config.STATIC_SERVER}/${path}`;
+}
+
+export function getPostsImage(path: string) {
+    if (path !== '') {
+        return getImage(path);
+    }
+    return getImage('assets/images/default-post.png');
+}
+
+export function getUserImage(path: string) {
+    if (path !== '') {
+        return getImage(path);
+    }
+    return getImage('assets/images/default-avatar.png');
+}
+
 export function isImage(file: File) {
     const validTypes = [
         'image/jpeg',
