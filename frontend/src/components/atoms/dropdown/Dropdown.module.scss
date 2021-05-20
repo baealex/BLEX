@@ -1,35 +1,64 @@
+@import 'var';
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.5) translate(-100%, -50%);
+    }
+  
+    to {
+        opacity: 1;
+        transform: scale(1) translate(-100%, 0);
+    }
+}
+
 .menu {
-    display: none;
     position: absolute;
-    background: #fff;
+    min-width: 120px;
+    animation: fade-in 0.2s ease-in;
     transform: translateX(-100%);
-    border: 1px solid #eee;
-    min-width: 100px;
-    border-radius: 5px;
     z-index: 5;
+    
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.1);
+
+    :global(body.dark) & {
+        background-color: $COLOR_DARK_BACKGROUND;
+        box-shadow: none;
+    }
 
     ul {
         list-style: none;
         padding-left: 0;
 
+        :not(:last-child) {
+            border-bottom: 1px solid #f7f7f7;
+
+            :global(body.dark) & {
+                border-bottom: 1px solid #525252;
+            }
+        }
+
         li {
             padding: 8px 12px;
             width: 100%;
             cursor: pointer;
-
-            border-bottom: 1px solid #f7f7f7;
             
             &:hover {
-                background: #eee;
+                background-color: #eee;
+
+                :global(body.dark) & {
+                    background-color: #666;
+                }
             }
         }
-    }
-
-    &.isOpen {
-        display: block;
     }
 }
 
 .button {
+    display: block;
+    min-width: 20px;
+    text-align: center;
     cursor: pointer;
 }

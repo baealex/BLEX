@@ -20,20 +20,19 @@ export function Dropdown(props: DropdownProps) {
                 <span className={cn('button')}>
                     {props.button}
                 </span>
-                <div className={cn(
-                    'menu',
-                    { isOpen }
-                )}>
-                    <ul>
-                        {props.menus.map((menu, idx) => (
-                            <li key={idx} onClick={menu.onClick}>
-                                <a>
-                                    {menu.name}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                {isOpen && (
+                    <div className={cn('menu')}>
+                        <ul>
+                            {props.menus.map((menu, idx) => (
+                                <li key={idx} onClick={menu.onClick}>
+                                    <a>
+                                        {menu.name}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
         </>
     )
