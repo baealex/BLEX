@@ -207,16 +207,21 @@ export default function Setting(props: Props) {
                 {posts.map((post, idx) => (
                     <li key={idx} className="blex-card p-3 mb-3">
                         {post.readTime > 30 && (
-                            <div className="alert alert-danger mt-3">
+                            <div className="alert alert-danger">
                                 이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
                             </div>
                         )}
-                        <div className="d-flex justify-content-between">
-                            <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
-                                <a className="deep-dark">
-                                    <b>{post.title}</b>
+                        <div className="d-flex justify-content-between mb-1">
+                            <span>
+                                <a onClick={() => onPostsHide(post.url)} className="element-lock c-pointer mr-2">
+                                    {post.isHide ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>}
                                 </a>
-                            </Link>
+                                <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
+                                    <a className="deep-dark">
+                                        {post.title}
+                                    </a>
+                                </Link>
+                            </span>
                             <Dropdown
                                 button={
                                     <i className="fas fa-ellipsis-v"></i>
@@ -237,13 +242,12 @@ export default function Setting(props: Props) {
                                 ]}
                             />
                         </div>
-                        <time className="post-date">
-                            {post.createdDate}
-                            {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
-                        </time>
-                        <ul className="setting-list-info">
-                            <li onClick={() => onPostsHide(post.url)} className="element-lock c-pointer">
-                                {post.isHide ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>}
+                        <ul className="setting-list-info shallow-dark ns">
+                            <li>
+                                <i className="far fa-eye"></i>
+                                <span>
+                                    ( Today : {post.todayCount}, Yesterday : {post.yesterdayCount} )
+                                </span>
                             </li>
                             <li>
                                 <i className="far fa-heart"></i> {post.totalLikes}
@@ -251,10 +255,13 @@ export default function Setting(props: Props) {
                             <li>
                                 <i className="far fa-comment"></i> {post.totalComments}
                             </li>
-                            <li>
-                                <i className="far fa-eye"></i> <span className="ns">(Today : {post.todayCount}, Yesterday : {post.yesterdayCount})</span>
-                            </li>
                         </ul>
+                        <div className="mb-1">
+                            <time className="post-date gray-dark">
+                                {post.createdDate}
+                                {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
+                            </time>
+                        </div>
                         <div className="input-group mt-2 mr-sm-2">
                             <div className="input-group-prepend">
                                 <div className="input-group-text">#</div>
