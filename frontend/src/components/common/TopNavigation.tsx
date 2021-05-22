@@ -13,7 +13,7 @@ import TwoFactorAuthModal from '@components/modal/set/TwoFactorAuth';
 
 interface State {
     onNav: boolean;
-    isNightMode: boolean;
+    theme: string;
     isLogin: boolean;
     username: string;
     isLoginModalOpen: boolean;
@@ -28,17 +28,16 @@ class TopNavigation extends React.Component {
         super(props);
         this.state = {
             onNav: false,
-            isNightMode: false,
+            theme: Global.state.theme,
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             isLoginModalOpen: Global.state.isLoginModalOpen,
             isSignupModalOpen: Global.state.isSignupModalOpen,
             isTwoFactorAuthModalOpen: Global.state.isTwoFactorAuthModalOpen,
         };
-        Global.appendUpdater('TopNavigation', () => this.setState({
+        Global.appendUpdater(() => this.setState({
             isLogin: Global.state.isLogin,
             username: Global.state.username,
-            isNightMode: Global.state.isNightMode,
             isLoginModalOpen: Global.state.isLoginModalOpen,
             isSignupModalOpen: Global.state.isSignupModalOpen,
             isTwoFactorAuthModalOpen: Global.state.isTwoFactorAuthModalOpen,
@@ -53,7 +52,6 @@ class TopNavigation extends React.Component {
                 document.body.classList.add('dark');
                 Global.setState({
                     theme: 'dark',
-                    isNightMode: true,
                 });
             }
         } else {
@@ -66,13 +64,11 @@ class TopNavigation extends React.Component {
                 document.body.classList.add('dark');
                 Global.setState({
                     theme: 'dark',
-                    isNightMode: true,
                 });
             } else {
                 document.body.classList.remove('dark');
                 Global.setState({
                     theme: 'default',
-                    isNightMode: false,
                 });
             }
         });
@@ -104,13 +100,11 @@ class TopNavigation extends React.Component {
             document.body.classList.remove('dark');
             Global.setState({
                 theme: 'default',
-                isNightMode: false,
             });
         } else {
             document.body.classList.add('dark');
             Global.setState({
                 theme: 'dark',
-                isNightMode: true,
             });
         }
     }
@@ -194,7 +188,7 @@ class TopNavigation extends React.Component {
                         <ul className="menu-footer-item">
                             <li>
                                 <a onClick={() => this.onClickNightMode()}>
-                                    <i className={`fas fa-${this.state.isNightMode ? 'sun' : 'moon'}`}></i>
+                                    <i className={`fas fa-${this.state.theme !== 'dark' ? 'sun' : 'moon'}`}></i>
                                 </a>
                             </li>
                             {this.state.isLogin ? (
