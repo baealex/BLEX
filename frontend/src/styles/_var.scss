@@ -17,11 +17,6 @@ $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-seri
 @mixin MAIN_SHADOW {
     box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.1);
 
-    body.dark & {
-        box-shadow: none;
-        border: 1px solid #333;
-    }
-
     :global(body.dark) & {
         box-shadow: none;
         border: 1px solid #333;
@@ -30,11 +25,6 @@ $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-seri
 
 @mixin SUB_SHADOW {
     box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
-
-    body.dark & {
-        box-shadow: none;
-        border: 1px solid #3a3a3a;
-    }
 
     :global(body.dark) & {
         box-shadow: none;
