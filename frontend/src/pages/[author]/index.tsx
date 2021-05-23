@@ -46,14 +46,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface Props extends API.GetUserProfileData {};
 
 export default function Overview(props: Props) {
-    const [ isNightMode, setIsNightMode ] = useState(Global.state.isNightMode);
+    const [ isNightMode, setIsNightMode ] = useState(Global.state.theme === 'dark');
 
     useEffect(() => {
-        Global.appendUpdater('Overview', () => {
-            setIsNightMode(Global.state.isNightMode);
+        const updateKey = Global.appendUpdater(() => {
+            setIsNightMode(Global.state.theme === 'dark');
         });
 
-        return () => Global.popUpdater('Overview');
+        return () => Global.popUpdater(updateKey);
     }, []);
 
     return (

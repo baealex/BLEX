@@ -1,8 +1,7 @@
 import React from 'react';
 import Router from 'next/router';
 
-import Modal from '@components/modal/Modal';
-import ModalContent from '@components/modal/Content';
+import { Modal } from '@components/common';
 
 import { toast } from 'react-toastify';
 
@@ -20,16 +19,22 @@ interface State {
     password: string;
 }
 
-class LoginModal extends React.Component<Props, State> {
+export class LoginModal extends React.Component<Props, State> {
+    private updateKey: string;
+
     constructor(props: Props) {
         super(props);
         this.state = {
             username: Global.state.username,
             password: ''
         }
-        Global.appendUpdater('LoginModal', () => this.setState({
+        this.updateKey = Global.appendUpdater(() => this.setState({
             username: Global.state.username,
         }));
+    }
+
+    componentWillUnmount() {
+        Global.popUpdater(this.updateKey);
     }
 
     onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -98,44 +103,44 @@ class LoginModal extends React.Component<Props, State> {
     
     render() {
         return (
-            <Modal title='로그인' isOpen={this.props.isOpen} close={() => this.props.onClose()}>
-                <ModalContent>
-                    <input
-                        className="login-form"
-                        name="username"
-                        placeholder="아이디"
-                        onChange={(e) => this.onInputChange(e)}
-                        value={this.state.username}
-                        onKeyPress={(e) => this.onEnterLogin(e)}
-                    />
-                    <input
-                        className="login-form"
-                        name="password"
-                        type="password"
-                        placeholder="패스워드"
-                        onChange={(e) => this.onInputChange(e)}
-                        value={this.state.password}
-                        onKeyPress={(e) => this.onEnterLogin(e)}
-                    />
-                    <button
-                        className="login-button"
-                        onClick={() => this.onSubmitLogin()}>
-                        기존 사용자 로그인
-                    </button>
-                    <button
-                        className="login-button google"
-                        onClick={() => oauth("google")}>
-                        <i className="fab fa-google"></i> Google 계정으로 로그인
-                    </button>
-                    <button
-                        className="login-button github"
-                        onClick={() => oauth("github")}>
-                        <i className="fab fa-github"></i> GitHub 계정으로 로그인
-                    </button>
-                </ModalContent>
+            <Modal
+                title="로그인"
+                isOpen={this.props.isOpen}
+                onClose={() => this.props.onClose()}
+            >
+                <input
+                    className="login-form"
+                    name="username"
+                    placeholder="아이디"
+                    onChange={(e) => this.onInputChange(e)}
+                    value={this.state.username}
+                    onKeyPress={(e) => this.onEnterLogin(e)}
+                />
+                <input
+                    className="login-form"
+                    name="password"
+                    type="password"
+                    placeholder="패스워드"
+                    onChange={(e) => this.onInputChange(e)}
+                    value={this.state.password}
+                    onKeyPress={(e) => this.onEnterLogin(e)}
+                />
+                <button
+                    className="login-button"
+                    onClick={() => this.onSubmitLogin()}>
+                    기존 사용자 로그인
+                </button>
+                <button
+                    className="login-button google"
+                    onClick={() => oauth("google")}>
+                    <i className="fab fa-google"></i> Google 계정으로 로그인
+                </button>
+                <button
+                    className="login-button github"
+                    onClick={() => oauth("github")}>
+                    <i className="fab fa-github"></i> GitHub 계정으로 로그인
+                </button>
             </Modal>
         );
     }
 }
-
-export default LoginModal;

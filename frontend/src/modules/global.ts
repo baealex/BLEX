@@ -2,13 +2,19 @@ import cookie from '@modules/cookie';
 
 type Theme = 'default' | 'dark' | 'deep-dark' | 'neon';
 
+function createUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 interface GlobalState {
     theme: Theme;
     isFirstVisit: boolean;
     isLogin: boolean;
     username: string;
     isAutoSave: boolean;
-    isNightMode: boolean;
     isOpenNewTab: boolean;
     isSortOldFirst: boolean;
     isLoginModalOpen: boolean;
@@ -22,7 +28,6 @@ interface GlobalSetState {
     isLogin?: boolean;
     username?: string;
     isAutoSave?: boolean;
-    isNightMode?: boolean;
     isOpenNewTab?: boolean;
     isSortOldFirst?: boolean;
     isLoginModalOpen?: boolean;
@@ -32,12 +37,12 @@ interface GlobalSetState {
 
 type ModalName = 'isLoginModalOpen' |  'isSignupModalOpen' | 'isTwoFactorAuthModalOpen';
 
-type ConfigName = 'theme' | 'isAutoSave' | 'isNightMode' | 'isOpenNewTab' | 'isSortOldFirst';
+type ConfigName = 'theme' | 'isAutoSave' | 'isOpenNewTab' | 'isSortOldFirst';
 
 class Global {
     init: boolean = false;
     state: GlobalState;
-    private updater: any;
+    private updater: Map<string, Function>;
 
     constructor() {
         this.state = {
@@ -46,14 +51,13 @@ class Global {
             isLogin: false,
             username: '',
             isAutoSave: true,
-            isNightMode: false,
             isOpenNewTab: false,
             isSortOldFirst: false,
             isLoginModalOpen: false,
             isSignupModalOpen: false,
             isTwoFactorAuthModalOpen: false,
         }
-        this.updater = {};
+        this.updater = new Map();
         if(typeof window !== "undefined") {
             this.configInit();
             this.init = true;
@@ -62,19 +66,18 @@ class Global {
 
     setState(newState: GlobalSetState) {
         Object.assign(this.state, newState);
-        Object.keys(this.updater).forEach(key => {
+        this.updater.forEach((fn, key) => {
             try {
-                this.runUpdater(key);
+                fn();
             } catch(e) {
-                this.popUpdater(key);
+                this.updater.delete(key);
             }
         });
         if (this.init) {
             Object.keys(newState).forEach(key => {
-                if(
+                if (
                     key === 'theme' ||
                     key === 'isAutoSave' ||
-                    key === 'isNightMode' ||
                     key === 'isOpenNewTab' ||
                     key === 'isSortOldFirst'
                 ) {
@@ -87,16 +90,14 @@ class Global {
         }
     }
 
-    appendUpdater(name: string, fn: Function) {
-        this.updater[name] = fn;
-    }
-
-    runUpdater(key: string) {
-        this.updater[key]();
+    appendUpdater(fn: Function): string {
+        const key = createUUID();
+        this.updater.set(key, fn);
+        return key;
     }
 
     popUpdater(key: string) {
-        delete this.updater[key];
+        this.updater.delete(key);
     }
 
     onOpenModal(modalName: ModalName) {
@@ -113,7 +114,6 @@ class Global {
 
     configInit() {
         const theme = cookie.get('theme') || 'default';
-        const isNightMode = theme === 'dark' ? true : false;
         const isFirstVisit = !theme ? true : false;
         const isAutoSave = cookie.get('isAutoSave') === 'false' ? false : true;
         const isOpenNewTab = cookie.get('isOpenNewTab') === 'true' ? true : false;
@@ -121,7 +121,6 @@ class Global {
         
         this.setState({
             theme: theme as Theme || 'default',
-            isNightMode,
             isFirstVisit,
             isAutoSave,
             isOpenNewTab,
@@ -133,14 +132,12 @@ class Global {
         [key: string]: string;
     }) {
         const theme = cookies['theme'] || 'default';
-        const isNightMode = theme === 'dark' ? true : false;
         const isAutoSave = cookies['isAutoSave'] === 'false' ? false : true;
         const isOpenNewTab = cookies['isOpenNewTab'] === 'true' ? true : false;
         const isSortOldFirst = cookies['isSortOldFirst'] === 'false' ? false : true;
         
         this.setState({
             theme: theme as Theme,
-            isNightMode,
             isAutoSave,
             isOpenNewTab,
             isSortOldFirst

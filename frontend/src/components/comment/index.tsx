@@ -148,7 +148,7 @@ export function Comment(props: CommentProps) {
     }
 
     useEffect(() => {
-        Global.appendUpdater('Comment', () => {
+        const updateKey = Global.appendUpdater(() => {
             setIsLogin(Global.state.isLogin);
             setUsername(Global.state.username);
         });
@@ -176,7 +176,7 @@ export function Comment(props: CommentProps) {
         }
 
         return () => {
-            Global.popUpdater('Comment');
+            Global.popUpdater(updateKey);
         }
     }, [props.url]);
 

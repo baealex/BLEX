@@ -3,11 +3,11 @@ import Router from 'next/router'
 
 import { toast } from 'react-toastify';
 
-import Modal from '@components/modal/Modal';
-import ModalButton from '@components/modal/Button';
-import ModalContent from '@components/modal/Content';
+import {
+    CheckBox,
+    Modal,
+} from '@components/integrated';
 import SettingLayout from '@components/setting/layout';
-import CheckBox from '@components/atoms/check-box';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';
@@ -271,38 +271,42 @@ export default function Setting(props: Props) {
                     `}</style>
                 </>
             </SettingLayout>
-            <Modal title="정말 탈퇴 하시겠습니까?" isOpen={isSignDeleteModalOpen} close={() => setSignDeleteModalOpen(false)}>
-                <ModalContent>
-                    <>
-                        유저님의 회원정보와 작성한 모든 데이터가 즉시 삭제되며 이 작업은 되돌릴 수 없습니다.
-                    </>
-                </ModalContent>
-                <ModalButton text="네 탈퇴하겠습니다." onClick={() => onSignOut()}/>
+            <Modal
+                title="정말 탈퇴 하시겠습니까?"
+                isOpen={isSignDeleteModalOpen}
+                onClose={() => setSignDeleteModalOpen(false)}
+                submitText="네 탈퇴하겠습니다."
+                onSubmit={() => onSignOut()}
+            >
+                유저님의 회원정보와 작성한 모든 데이터가 즉시 삭제되며 이 작업은 되돌릴 수 없습니다.
             </Modal>
 
-            <Modal title="2차 인증을 사용할까요?" isOpen={isCreateTwoFactorAuthModalOpen} close={() => setCreateTwoFactorAuthModalOpen(false)}>
-                <ModalContent>
-                    <>
-                        다음과 같은 요구사항이 필요합니다.
-                        <ul>
-                            <li>
-                                계정에 등록된 이메일이 유효해야 합니다.
-                                등록된 이메일로 복구키를 전송하며
-                                복구키는 핸드폰을 소지하지 않았거나
-                                기술적인 문제로 인증코드가 전달되지 않았을 때
-                                사용할 수 있습니다.
-                            </li>
-                            <li>
-                                텔레그램 연동이 필요합니다.
-                                별도의 어플리케이션이 존재하지 않으므로
-                                텔레그램을 활용하고 있으며
-                                텔레그램은 '알림'탭에서 연동할 수 있습니다.
-                            </li>
-                        </ul>
-                        연동 후 최소 하루동안 유지해야 하므로 신중하게 연동하여 주십시오.
-                    </>
-                </ModalContent>
-                <ModalButton text="네 사용하겠습니다." onClick={() => onCreateTwoFactorAuth()}/>
+            <Modal
+                title="2차 인증을 사용할까요?"
+                isOpen={isCreateTwoFactorAuthModalOpen}
+                onClose={() => setCreateTwoFactorAuthModalOpen(false)}
+                submitText="네 사용하겠습니다."
+                onSubmit={() => onCreateTwoFactorAuth()}
+            >
+                <>
+                    다음과 같은 요구사항이 필요합니다.
+                    <ul>
+                        <li>
+                            계정에 등록된 이메일이 유효해야 합니다.
+                            등록된 이메일로 복구키를 전송하며
+                            복구키는 핸드폰을 소지하지 않았거나
+                            기술적인 문제로 인증코드가 전달되지 않았을 때
+                            사용할 수 있습니다.
+                        </li>
+                        <li>
+                            텔레그램 연동이 필요합니다.
+                            별도의 어플리케이션이 존재하지 않으므로
+                            텔레그램을 활용하고 있으며
+                            텔레그램은 '알림'탭에서 연동할 수 있습니다.
+                        </li>
+                    </ul>
+                    연동 후 최소 하루동안 유지해야 하므로 신중하게 연동하여 주십시오.
+                </>
             </Modal>
         </>
     );

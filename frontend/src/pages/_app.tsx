@@ -16,7 +16,7 @@ Router.events.on('routeChangeError', () => NProgress.done());
 
 import SEO from '@components/seo';
 import LibHead from '@components/common/LibHead';
-import TopNavagation from '@components/common/TopNavigation';
+import { TopNavigation } from '@components/common';
 
 class Main extends App<AppProps> {
     constructor(props: AppProps) {
@@ -55,7 +55,7 @@ class Main extends App<AppProps> {
                 />
                 <LibHead/>
 
-                <TopNavagation/>
+                <TopNavigation/>
 
                 <ToastContainer/>
 

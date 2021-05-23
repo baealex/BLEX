@@ -59,6 +59,7 @@ interface State {
 
 class Write extends React.Component<Props, State> {
     private saveTimer: any;
+    private updateKey: string;
 
     constructor(props: Props) {
         super(props);
@@ -77,7 +78,7 @@ class Write extends React.Component<Props, State> {
             tempPosts: [],
             tempPostsCache: {}
         };
-        Global.appendUpdater('Write', () => {
+        this.updateKey = Global.appendUpdater(() => {
             this.setState({
                 username: Global.state.username,
                 isAutoSave: Global.state.isAutoSave,
@@ -86,6 +87,10 @@ class Write extends React.Component<Props, State> {
     }
 
     /* Component Method */
+
+    componentWillUnmount() {
+        Global.popUpdater(this.updateKey);
+    }
 
     async componentDidMount() {
         const { data } = await API.getTempPosts();

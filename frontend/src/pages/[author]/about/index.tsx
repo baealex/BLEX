@@ -53,11 +53,11 @@ export default function UserAbout(props: Props) {
     const [ username, setUsername ] = useState(Global.state.username);
 
     useEffect(() => {
-        Global.appendUpdater('UserAbout', () => {
+        const updateKey = Global.appendUpdater(() => {
             setUsername(Global.state.username);
-        })
+        });
 
-        return () => Global.popUpdater('UserAbout');
+        return () => Global.popUpdater(updateKey);
     }, []);
 
     const handleClickEdit = async () => {

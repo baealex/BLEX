@@ -3,9 +3,9 @@ import Head from 'next/head';
 import React from 'react';
 import Router from 'next/router';
 
-import Modal from '@components/modal/Modal';
-import ModalContent from '@components/modal/Content';
-import ModalButton from '@components/modal/Button';
+import {
+    Modal,
+} from '@components/integrated';
 import SeriesDesc from '@components/series/SeriesDesc';
 import ArticleCard from '@components/profile/Series/ArticleCard';
 
@@ -60,6 +60,8 @@ interface State {
 };
 
 class Series extends React.Component<Props, State> {
+    private updateKey: string;
+
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -71,11 +73,15 @@ class Series extends React.Component<Props, State> {
             isSeriesModalOpen: false,
             isSortOldFirst: Global.state.isSortOldFirst,
         }
-        Global.appendUpdater('AuthorSeriesDetail', () => this.setState({
+        this.updateKey = Global.appendUpdater(() => this.setState({
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             isSortOldFirst: Global.state.isSortOldFirst
         }));
+    }
+
+    componentWillUnmount() {
+        Global.popUpdater(this.updateKey);
     }
 
     componentDidUpdate(prevProps: Props) {
@@ -160,46 +166,49 @@ class Series extends React.Component<Props, State> {
         } = this.state;
 
         const SereisModal = this.props.series.owner == this.state.username ? (
-            <Modal title="시리즈 수정" isOpen={this.state.isSeriesModalOpen} close={() => this.onCloseModal('isSeriesModalOpen')}>
-                <ModalContent>
-                    <>
-                        <div className="input-group mb-3 mr-sm-2 mt-3">
-                            <div className="input-group-prepend">
-                                <div className="input-group-text">시리즈명</div>
-                            </div>
-                            <input
-                                type="text"
-                                name="seriesTitle"
-                                value={seriesTitle}
-                                placeholder="시리즈의 이름"
-                                className="form-control"
-                                maxLength={50}
-                                required
-                                onChange={(e) => this.onInputChange(e)}
-                            />
+            <Modal
+                title="시리즈 수정"
+                isOpen={this.state.isSeriesModalOpen}
+                onClose={() => this.onCloseModal('isSeriesModalOpen')}
+                submitText="시리즈를 수정합니다"
+                onSubmit={() => this.seriesUpdate()}
+            >
+                <>
+                    <div className="input-group mb-3 mr-sm-2 mt-3">
+                        <div className="input-group-prepend">
+                            <div className="input-group-text">시리즈명</div>
                         </div>
-                        <textarea
-                            name="seriesDescription"
-                            cols={40}
-                            rows={5}
-                            placeholder="설명을 작성하세요."
+                        <input
+                            type="text"
+                            name="seriesTitle"
+                            value={seriesTitle}
+                            placeholder="시리즈의 이름"
                             className="form-control"
+                            maxLength={50}
+                            required
                             onChange={(e) => this.onInputChange(e)}
-                            value={seriesDescription}
                         />
-                        {seriesPosts.map((post, idx) => (
-                            <div key={idx} className="blex-card p-3 mt-3 noto d-flex justify-content-between">
-                                <span className="deep-dark">
-                                    {idx + 1}. {post.title}
-                                </span>
-                                <a onClick={() => this.onPostsRemoveInSeries(post.url)}>
-                                    <i className="fas fa-times"></i>
-                                </a>
-                            </div>
-                        ))}
-                    </>
-                </ModalContent>
-                <ModalButton text="시리즈를 수정합니다" onClick={() => this.seriesUpdate()}/>
+                    </div>
+                    <textarea
+                        name="seriesDescription"
+                        cols={40}
+                        rows={5}
+                        placeholder="설명을 작성하세요."
+                        className="form-control"
+                        onChange={(e) => this.onInputChange(e)}
+                        value={seriesDescription}
+                    />
+                    {seriesPosts.map((post, idx) => (
+                        <div key={idx} className="blex-card p-3 mt-3 noto d-flex justify-content-between">
+                            <span className="deep-dark">
+                                {idx + 1}. {post.title}
+                            </span>
+                            <a onClick={() => this.onPostsRemoveInSeries(post.url)}>
+                                <i className="fas fa-times"></i>
+                            </a>
+                        </div>
+                    ))}
+                </>
             </Modal>
         ) : '';
 

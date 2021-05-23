@@ -22,11 +22,11 @@ export default function ArticleContent(props: {
     const [ isOpenNewTab, setIsOpenNewTab ] = useState(Global.state.isOpenNewTab);
 
     useEffect(() => {
-        Global.appendUpdater('ArticleContentIsOpenNewTab', () => {
+        const updateKey = Global.appendUpdater(() => {
             setIsOpenNewTab(Global.state.isOpenNewTab);
         });
 
-        return () => Global.popUpdater('ArticleContentIsOpenNewTab');
+        return () => Global.popUpdater(updateKey);
     }, []);
 
     useEffect(() => {
