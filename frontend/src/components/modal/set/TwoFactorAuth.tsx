@@ -1,8 +1,9 @@
 import React from 'react';
 import Router from 'next/router';
 
-import Modal from '@components/modal/Modal';
-import ModalContent from '@components/modal/Content';
+import {
+    Modal,
+ } from '@components/integrated';
 
 import { toast } from 'react-toastify';
 
@@ -102,27 +103,29 @@ class LoginModal extends React.Component<Props, State> {
         const remainSecond = this.state.timer % 60;
         const remainTime = `${remainMinute}:${remainSecond >= 10 ? remainSecond : `0${remainSecond}`}`
         return (
-            <Modal title='2차 인증' isOpen={this.props.isOpen} close={() => {}}>
-                <ModalContent>
-                    <p>
-                        텔레그램으로 전송된 2차 인증 코드를 입력하세요.
-                        코드를 받을 수 없다면 복구키를 입력해 주십시오.
-                        인증 코드 유효시간 {remainTime}
-                    </p>
-                    <input
-                        className="login-form"
-                        name="code"
-                        placeholder="코드"
-                        onChange={(e) => this.onInputChange(e)}
-                        value={this.state.code}
-                        onKeyPress={(e) => this.onEnterLogin(e)}
-                    />
-                    <button
-                        className="login-button"
-                        onClick={() => this.onSubmitLogin()}>
-                        인증
-                    </button>
-                </ModalContent>
+            <Modal
+                title="2차 인증"
+                isOpen={this.props.isOpen}
+                onClose={() => {}}
+            >
+                <p>
+                    텔레그램으로 전송된 2차 인증 코드를 입력하세요.
+                    코드를 받을 수 없다면 복구키를 입력해 주십시오.
+                    인증 코드 유효시간 {remainTime}
+                </p>
+                <input
+                    className="login-form"
+                    name="code"
+                    placeholder="코드"
+                    onChange={(e) => this.onInputChange(e)}
+                    value={this.state.code}
+                    onKeyPress={(e) => this.onEnterLogin(e)}
+                />
+                <button
+                    className="login-button"
+                    onClick={() => this.onSubmitLogin()}>
+                    인증
+                </button>
             </Modal>
         );
     }

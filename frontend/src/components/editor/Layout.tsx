@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import Modal from '@components/modal/Modal';
-import ModalContent from '@components/modal/Content';
-import ModalButton from '@components/modal/Button';
+import {
+    CheckBox,
+    Modal,
+} from '@components/integrated';
 
-import CheckBox from '@components/atoms/check-box';
 import ImageForm from '@components/form/ImageForm';
 import InputForm from '@components/form/InputForm';
 import SelectForm from '@components/form/SelectForm';
@@ -177,67 +177,70 @@ export default function Layout(props: Props) {
                     </div>
                 </div>
 
-                <Modal title={props.publish.title} isOpen={isOepnPublishModal} close={() => setIsOpenPublishModal(false)}>
-                    <ModalContent>
-                        <ImageForm
-                            title="포스트 썸네일"
-                            name="image"
-                            imageName={imageName}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                const { files } = e.target;
+                <Modal
+                    title={props.publish.title}
+                    isOpen={isOepnPublishModal}
+                    onClose={() => setIsOpenPublishModal(false)}
+                    submitText={props.publish.buttonText}
+                    onSubmit={() => onSubmit()}
+                >
+                    <ImageForm
+                        title="포스트 썸네일"
+                        name="image"
+                        imageName={imageName}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const { files } = e.target;
 
-                                if(files) {
-                                    const image = files[0];
-                                    props.image.onChange(image);
+                            if(files) {
+                                const image = files[0];
+                                props.image.onChange(image);
 
-                                    const reader = new FileReader();
+                                const reader = new FileReader();
 
-                                    reader.onload = (e) => 
-                                        setImagePreview(e.target?.result as string);
+                                reader.onload = (e) => 
+                                    setImagePreview(e.target?.result as string);
 
-                                    reader.readAsDataURL(image);
-                                    setImageName(image.name);
-                                }
-                            }}
-                        />
-                        <img src={imagePreview} className="w-100"/>
-                        <SelectForm
-                            name="series"
-                            title="시리즈"
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.series.onChange(e.target.value)}>
-                            <>
-                                <option value="">선택하지 않음</option>
-                                {series?.map((item, idx) => (
-                                    <option
-                                        key={idx}
-                                        value={item.url}
-                                        selected={props.series.value == item.url ? true : false}>
-                                        {item.title}
-                                    </option>
-                                ))}
-                            </>
-                        </SelectForm>
-                        <InputForm
-                            title="키워드"
-                            type="text"
-                            name="tags"
-                            maxLength={50}
-                            value={props.tags.value}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.tags.onChange(e.target.value)}
-                            placeholder="띄어쓰기 혹은 반점으로 구분하세요."
-                        />
-                        <CheckBox
-                            label="포스트를 숨깁니다."
-                            defaultChecked={props.isHide.value}
-                            onClick={(value: boolean) => props.isHide.onChange(value)}
-                        />
-                        <CheckBox
-                            label="포스트에 광고가 있습니다."
-                            defaultChecked={props.isAdvertise.value}
-                            onClick={(value: boolean) => props.isAdvertise.onChange(value)}
-                        />
-                    </ModalContent>
-                    <ModalButton text={props.publish.buttonText} onClick={() => onSubmit()}/>
+                                reader.readAsDataURL(image);
+                                setImageName(image.name);
+                            }
+                        }}
+                    />
+                    <img src={imagePreview} className="w-100"/>
+                    <SelectForm
+                        name="series"
+                        title="시리즈"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.series.onChange(e.target.value)}>
+                        <>
+                            <option value="">선택하지 않음</option>
+                            {series?.map((item, idx) => (
+                                <option
+                                    key={idx}
+                                    value={item.url}
+                                    selected={props.series.value == item.url ? true : false}>
+                                    {item.title}
+                                </option>
+                            ))}
+                        </>
+                    </SelectForm>
+                    <InputForm
+                        title="키워드"
+                        type="text"
+                        name="tags"
+                        maxLength={50}
+                        value={props.tags.value}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.tags.onChange(e.target.value)}
+                        placeholder="띄어쓰기 혹은 반점으로 구분하세요."
+                    />
+                    <CheckBox
+                        label="포스트를 숨깁니다."
+                        defaultChecked={props.isHide.value}
+                        onClick={(value: boolean) => props.isHide.onChange(value)}
+                    />
+                    <CheckBox
+                        label="포스트에 광고가 있습니다."
+                        defaultChecked={props.isAdvertise.value}
+                        onClick={(value: boolean) => props.isAdvertise.onChange(value)}
+                    />
                 </Modal>
 
                 <EditorImageModal

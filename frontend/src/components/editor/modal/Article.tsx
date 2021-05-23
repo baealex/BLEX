@@ -1,8 +1,7 @@
-import Modal from '@components/modal/Modal';
-import ModalContent from '@components/modal/Content';
-import ModalButton from '@components/modal/Button';
-
-import Toggle from '@components/atoms/toggle';
+import {
+    Modal,
+    Toggle,
+} from '@components/integrated';
 
 import * as API from '@modules/api';
 
@@ -20,32 +19,35 @@ interface Props {
 
 export default function TempArticleModal(props: Props) {
     return (
-        <Modal title='임시 저장된 글' isOpen={props.isOpen} close={() => props.close()}>
-            <ModalContent>
-                <>
-                    {props.tempPosts.map((item, idx) => (
-                        <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
-                            <span onClick={() => props.onFecth(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
-                                {item.title} <span className="vs">{item.createdDate}전</span>
-                            </span>
-                            <a onClick={() => props.onDelete(item.token)}>
-                                <i className="fas fa-times"></i>
-                            </a>
-                        </div>
-                    ))}
-                </>
-                <div className="blex-card p-3 mb-3 d-flex justify-content-between">
-                    <span onClick={() => props.onFecth('')} className={`c-pointer ${props.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
-                        새 글 쓰기
-                    </span>
-                </div>
-                <Toggle
-                    label="포스트 자동 저장"
-                    defaultChecked={props.isAutoSave}
-                    onClick={(checked: boolean) => props.onCheckAutoSave(checked)}
-                />
-            </ModalContent>
-            <ModalButton text="현재 글 임시저장" onClick={() => props.onSave()}/>
+        <Modal
+            title="임시 저장된 글"
+            isOpen={props.isOpen}
+            onClose={() => props.close()}
+            submitText="현재 글 임시저장"
+            onSubmit={() => props.onSave()}
+        >
+            <>
+                {props.tempPosts.map((item, idx) => (
+                    <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
+                        <span onClick={() => props.onFecth(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
+                            {item.title} <span className="vs">{item.createdDate}전</span>
+                        </span>
+                        <a onClick={() => props.onDelete(item.token)}>
+                            <i className="fas fa-times"></i>
+                        </a>
+                    </div>
+                ))}
+            </>
+            <div className="blex-card p-3 mb-3 d-flex justify-content-between">
+                <span onClick={() => props.onFecth('')} className={`c-pointer ${props.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
+                    새 글 쓰기
+                </span>
+            </div>
+            <Toggle
+                label="포스트 자동 저장"
+                defaultChecked={props.isAutoSave}
+                onClick={(checked: boolean) => props.onCheckAutoSave(checked)}
+            />
         </Modal>
     );
 }

@@ -1,12 +1,12 @@
 import { useRef } from 'react';
 
-interface Props {
+export interface CheckBoxProps {
     label: string;
     onClick: (value: boolean) => void;
     defaultChecked: boolean;
 };
 
-export default function CheckBox(props: Props) {
+export function CheckBox(props: CheckBoxProps) {
     const checkbox = useRef<HTMLInputElement>(null);
 
     const onClickCheckbox = () => {

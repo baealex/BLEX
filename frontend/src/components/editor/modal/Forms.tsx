@@ -1,5 +1,6 @@
-import Modal from '@components/modal/Modal';
-import ModalContent from '@components/modal/Content';
+import {
+    Modal,
+} from '@components/integrated';
 
 import * as API from '@modules/api';
 
@@ -16,18 +17,20 @@ export default function FormsModal(props: Props) {
     } = props;
 
     return (
-        <Modal title='서식' isOpen={props.isOpen} close={() => props.close()}>
-            <ModalContent>
-                <>
-                    {forms.map((item, idx) => (
-                        <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
-                            <span onClick={() => props.onFetch(item.id)} className="c-pointer">
-                                {item.title}
-                            </span>
-                        </div>
-                    ))}
-                </>
-            </ModalContent>
+        <Modal
+            title="서식"
+            isOpen={props.isOpen}
+            onClose={() => props.close()}
+        >
+            <>
+                {forms.map((item, idx) => (
+                    <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
+                        <span onClick={() => props.onFetch(item.id)} className="c-pointer">
+                            {item.title}
+                        </span>
+                    </div>
+                ))}
+            </>
         </Modal>
     );
 }

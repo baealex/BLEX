@@ -1,12 +1,12 @@
 import { useRef } from 'react';
 
-interface Props {
+export interface ToggleProps {
     label: string;
     onClick: (value: boolean) => void;
     defaultChecked?: boolean;
 };
 
-export default function Toggle(props: Props) {
+export function Toggle(props: ToggleProps) {
     const checkbox = useRef<HTMLInputElement>(null);
 
     const onClickCheckbox = () => {

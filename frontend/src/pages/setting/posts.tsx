@@ -5,8 +5,9 @@ import { useRouter } from 'next/router';
 import ReactFrappeChart from 'react-frappe-charts';
 import { toast } from 'react-toastify';
 
-import Modal from '@components/modal/Modal';
-import ModalContent from '@components/modal/Content';
+import {
+    Modal,
+} from '@components/integrated';
 import SettingLayout from '@components/setting/layout';
 import {
     Pagination
@@ -288,34 +289,36 @@ export default function Setting(props: Props) {
                     last={props.lastPage}
                 />
             </SettingLayout>
-            <Modal title="포스트 분석" isOpen={isModalOpen} close={() => setModalOpen(false)}>
-                <ModalContent>
-                    <>
-                        {analytics[apNow] ? (
-                            <>
-                                <ReactFrappeChart
-                                    type="axis-mixed"
-                                    data={{
-                                        labels: analytics[apNow].dates,
-                                        datasets: [
-                                            {
-                                                name: 'View',
-                                                values: analytics[apNow].counts,
-                                                chartType: 'line'
-                                            }
-                                        ]
-                                    }}
-                                    colors={['purple']}
-                                />
-                                <ul>
-                                    {analytics[apNow].referers.map((item: any, idx: number) => (
-                                        <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a></li>
-                                    ))}
-                                </ul>
-                            </>
-                        ) : ''}
-                    </>
-                </ModalContent>
+            <Modal
+                title="포스트 분석"
+                isOpen={isModalOpen}
+                onClose={() => setModalOpen(false)}
+            >
+                <>
+                    {analytics[apNow] ? (
+                        <>
+                            <ReactFrappeChart
+                                type="axis-mixed"
+                                data={{
+                                    labels: analytics[apNow].dates,
+                                    datasets: [
+                                        {
+                                            name: 'View',
+                                            values: analytics[apNow].counts,
+                                            chartType: 'line'
+                                        }
+                                    ]
+                                }}
+                                colors={['purple']}
+                            />
+                            <ul>
+                                {analytics[apNow].referers.map((item: any, idx: number) => (
+                                    <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a></li>
+                                ))}
+                            </ul>
+                        </>
+                    ) : ''}
+                </>
             </Modal>
         </>
     );
