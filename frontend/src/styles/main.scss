@@ -683,19 +683,23 @@
 }
 /* ------------------------------ */
 /* SETTING */
-.element-lock .fa-lock {
-    color: #b00;
-}
-.element-lock .fa-lock-open {
-    color: #0b0;
-}
-.setting-list-info {
-    list-style: none;
-    padding-left: 0px;
-}
-.setting-list-info li {
-    display: inline-block;
-    margin-right: 5px;
+.setting-info {
+    background-color: #fafafa;
+    border-radius: 0px 0px 5px 5px;
+
+    body.dark & {
+        background-color: #2a2a2a;
+    }
+
+    .element-lock {
+        .fa-lock {
+            color: #b00;
+        }
+
+        .fa-lock-open {
+            color: #0b0;
+        }
+    }
 }
 .blex-card {
     box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.1);

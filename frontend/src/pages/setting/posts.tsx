@@ -205,79 +205,87 @@ export default function Setting(props: Props) {
                 </ul>
                 <ul className="list-group">
                 {posts.map((post, idx) => (
-                    <li key={idx} className="blex-card p-3 mb-3">
-                        {post.readTime > 30 && (
-                            <div className="alert alert-danger">
-                                이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
-                            </div>
-                        )}
-                        <div className="d-flex justify-content-between mb-1">
-                            <span>
-                                <a onClick={() => onPostsHide(post.url)} className="element-lock c-pointer mr-2">
-                                    {post.isHide ? <i className="fas fa-lock"></i> : <i className="fas fa-lock-open"></i>}
-                                </a>
-                                <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
-                                    <a className="deep-dark">
-                                        {post.title}
-                                    </a>
-                                </Link>
-                            </span>
-                            <Dropdown
-                                button={
-                                    <i className="fas fa-ellipsis-v"></i>
-                                }
-                                menus={[
-                                    {
-                                        name: '수정',
-                                        onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
-                                    },
-                                    {
-                                        name: '삭제',
-                                        onClick: () => onPostsDelete(post.url)
-                                    },
-                                    {
-                                        name: '분석',
-                                        onClick: () => postsAnalytics(post.url)
-                                    },
-                                ]}
-                            />
-                        </div>
-                        <ul className="setting-list-info shallow-dark ns">
-                            <li>
-                                <i className="far fa-eye"></i>
+                    <li key={idx} className="blex-card mb-3">
+                        <div className="p-3 mb-1">
+                            {post.readTime > 30 && (
+                                <div className="alert alert-danger">
+                                    이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
+                                </div>
+                            )}
+                            <div className="d-flex justify-content-between mb-1">
                                 <span>
-                                    ( Today : {post.todayCount}, Yesterday : {post.yesterdayCount} )
+                                    <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
+                                        <a className="deep-dark">
+                                            {post.title}
+                                        </a>
+                                    </Link>
                                 </span>
-                            </li>
-                            <li>
-                                <i className="far fa-heart"></i> {post.totalLikes}
-                            </li>
-                            <li>
-                                <i className="far fa-comment"></i> {post.totalComments}
-                            </li>
-                        </ul>
-                        <div className="mb-1">
-                            <time className="post-date gray-dark">
-                                {post.createdDate}
-                                {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
-                            </time>
-                        </div>
-                        <div className="input-group mt-2 mr-sm-2">
-                            <div className="input-group-prepend">
-                                <div className="input-group-text">#</div>
+                                <Dropdown
+                                    button={
+                                        <i className="fas fa-ellipsis-v"></i>
+                                    }
+                                    menus={[
+                                        {
+                                            name: '수정',
+                                            onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
+                                        },
+                                        {
+                                            name: '삭제',
+                                            onClick: () => onPostsDelete(post.url)
+                                        },
+                                        {
+                                            name: '분석',
+                                            onClick: () => postsAnalytics(post.url)
+                                        },
+                                    ]}
+                                />
                             </div>
-                            <input
-                                type="text"
-                                name="tag"
-                                value={post.tag}
-                                onChange={(e) => onTagChange(post.url, e.target.value)}
-                                className="form-control"
-                                maxLength={255}
-                            />
-                            <div className="input-group-prepend">
-                                <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(post.url)}>
-                                    <i className="fas fa-sign-in-alt"></i>
-                                </button>
+                            <div className="mb-1">
+                                <time className="post-date shallow-dark">
+                                    {post.createdDate}
+                                    {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
+                                </time>
+                            </div>
+                            <div className="input-group mt-2 mr-sm-2">
+                                <div className="input-group-prepend">
+                                    <div className="input-group-text">#</div>
+                                </div>
+                                <input
+                                    type="text"
+                                    name="tag"
+                                    value={post.tag}
+                                    onChange={(e) => onTagChange(post.url, e.target.value)}
+                                    className="form-control"
+                                    maxLength={255}
+                                />
+                                <div className="input-group-prepend">
+                                    <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(post.url)}>
+                                        변경
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="setting-info p-3">
+                            <div className="d-flex justify-content-between shallow-dark ns">
+                                <ul className="none-list">
+                                    <li>
+                                        <a onClick={() => onPostsHide(post.url)} className="element-lock c-pointer">
+                                            {post.isHide
+                                                ? <i className="fas fa-lock"/>
+                                                : <i className="fas fa-lock-open"/>
+                                            }
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <i className="far fa-heart"></i> {post.totalLikes}
+                                    </li>
+                                    <li>
+                                        <i className="far fa-comment"></i> {post.totalComments}
+                                    </li>
+                                </ul>
+                                <span>
+                                    오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
+                                </span>
                             </div>
                         </div>
                     </li>

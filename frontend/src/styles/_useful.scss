@@ -38,6 +38,9 @@ a {
     display: inline;
 
     li {
+        &:not(:last-child) {
+            margin-right: 8px;
+        }
         display: inline-block;
     }
 }
