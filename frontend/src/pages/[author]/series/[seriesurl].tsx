@@ -60,6 +60,8 @@ interface State {
 };
 
 class Series extends React.Component<Props, State> {
+    private updateKey: string;
+
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -71,11 +73,15 @@ class Series extends React.Component<Props, State> {
             isSeriesModalOpen: false,
             isSortOldFirst: Global.state.isSortOldFirst,
         }
-        Global.appendUpdater(() => this.setState({
+        this.updateKey = Global.appendUpdater(() => this.setState({
             isLogin: Global.state.isLogin,
             username: Global.state.username,
             isSortOldFirst: Global.state.isSortOldFirst
         }));
+    }
+
+    componentWillUnmount() {
+        Global.popUpdater(this.updateKey);
     }
 
     componentDidUpdate(prevProps: Props) {

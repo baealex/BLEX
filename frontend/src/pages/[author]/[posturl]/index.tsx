@@ -11,9 +11,11 @@ import ArticleContent from '@components/article/ArticleContent';
 import ArticleSereis from '@components/article/ArticleSeries';
 import { Comment } from '@components/comment';
 import TagList from '@components/tag/TagList';
-import Toggle from '@components/atoms/toggle';
 import SEO from '@components/seo';
-import { Footer } from '@components/common';
+import {
+    Footer,
+    Toggle,
+} from '@components/integrated';
 
 import { toast } from 'react-toastify';
 
@@ -115,7 +117,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 class PostDetail extends React.Component<Props, State> {
-    state: State;
+    private updateKey: string;
 
     constructor(props: Props) {
         super(props);
@@ -127,10 +129,14 @@ class PostDetail extends React.Component<Props, State> {
             headerNav: [],
             headerNow: ''
         };
-        Global.appendUpdater('PostDetail', () => this.setState({
+        this.updateKey = Global.appendUpdater(() => this.setState({
             isLogin: Global.state.isLogin,
             username: Global.state.username
         }));
+    }
+
+    componentWillUnmount() {
+        Global.popUpdater(this.updateKey);
     }
 
     componentDidMount() {
