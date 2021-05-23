@@ -23,6 +23,7 @@ export default function FeautreArticleCard(props: FeautreArticleCardProps) {
                             src={props.image}
                             width="600"
                             height="400"
+                            layout="responsive"
                         />
                         <div className="p-3">
                             <div>

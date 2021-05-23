@@ -31,6 +31,7 @@
     ul {
         list-style: none;
         padding-left: 0;
+        margin-bottom: 0;
 
         :not(:last-child) {
             border-bottom: 1px solid #f7f7f7;

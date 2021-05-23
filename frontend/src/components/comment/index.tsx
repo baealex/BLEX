@@ -1,3 +1,7 @@
+import styles from './Comment.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
+
 import {
     useState,
     useEffect,
@@ -6,7 +10,6 @@ import {
 import CommentItem from '@components/comment/CommentItem';
 import CommentEdit from '@components/comment/CommentEdit';
 import CommentForm from '@components/comment/CommentForm';
-import CommentAlert from '@components/comment/CommentAlert';
 
 import { toast } from 'react-toastify';
 
@@ -104,7 +107,7 @@ export function Comment(props: CommentProps) {
         }
     }
 
-    const handleTag = async (username: string) => {
+    const handleTag = async (tagUsername: string) => {
         if(!username) {
             toast('😅 로그인이 필요합니다.', {
                 onClick: () => Global.onOpenModal('isLoginModalOpen')
@@ -112,13 +115,13 @@ export function Comment(props: CommentProps) {
             return;
         }
 
-        if(commentText.includes(`\`@${username}\``)) {
-            toast(`😅 이미 ${username}님을 태그했습니다.`);
+        if(commentText.includes(`\`@${tagUsername}\``)) {
+            toast(`😅 이미 ${tagUsername}님을 태그했습니다.`);
             return; 
         }
 
-        setCommentText(commentText + ` \`@${username}\``);
-        toast(`😀 ${username}님을 태그했습니다.`);
+        setCommentText(commentText + ` \`@${tagUsername}\``);
+        toast(`😀 ${tagUsername}님을 태그했습니다.`);
     }
 
     const handleEditSubmit = async (pk: number, content: string) => {
@@ -154,7 +157,7 @@ export function Comment(props: CommentProps) {
         });
 
         if (props.totalComment > 0) {
-            const observer = lazyIntersection('.bg-comment', () => {
+            const observer = lazyIntersection(cn('background'), () => {
                 API.getPostComments(props.url).then((response) => {
                     setComments(response.data.body.comments.map(comment => ({
                         ...comment,
@@ -181,7 +184,7 @@ export function Comment(props: CommentProps) {
     }, [props.url]);
 
     return (
-        <div className="py-5 bg-comment">
+        <div className={`comments ${cn('background')} py-5`}>
             <div className="container">
                 <div className="col-lg-8 mx-auto px-0">
                     {comments && comments.length > 0 ? comments.map((comment, idx: number) => (
@@ -211,9 +214,11 @@ export function Comment(props: CommentProps) {
                                 onTag={handleTag}
                             />
                         )
-                    )) : <CommentAlert
-                            text={'😥 작성된 댓글이 없습니다!'}
-                        />
+                    )) : (
+                        <div className="noto alert alert-warning s-shadow">
+                            작성된 댓글이 없습니다. 첫 댓글을 달아보세요!
+                        </div>
+                    )
                     }
                     {isLogin ? (
                         <CommentForm
@@ -222,7 +227,10 @@ export function Comment(props: CommentProps) {
                             onSubmit={handleSubmit}
                         />
                     ) : (
-                        <div className="noto alert alert-warning s-shadow c-pointer" onClick={() => Global.onOpenModal('isLoginModalOpen')}>
+                        <div
+                            className="noto alert alert-warning s-shadow c-pointer"
+                            onClick={() => Global.onOpenModal('isLoginModalOpen')}
+                        >
                             댓글을 작성하기 위해 로그인이 필요합니다.
                         </div>
                     )}

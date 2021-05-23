@@ -5,7 +5,7 @@ $COLOR_DEFAULT_BACKGROUND: #ffffff;
 
 $COLOR_DARK_PRIMARY: #03c0e4;
 $COLOR_DARK_SECONDARY: #328899;
-$COLOR_DARK_BACKGROUND: #252525;
+$COLOR_DARK_BACKGROUND: #222222;
 
 $COLOR_DEFAULT_DARK: rgba(0, 0, 0, 0.839);
 $COLOR_DEFAULT_ASHGRAY: rgba(0, 0, 0, 0.541);
@@ -13,3 +13,36 @@ $COLOR_DEFAULT_GRAY: rgba(160, 160, 160, 0.541);
 
 $FONT_SERIF: 'Noto Serif KR', serif;
 $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-serif;
+
+@mixin MAIN_SHADOW {
+    box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.1);
+
+    body.dark & {
+        box-shadow: none;
+        border: 1px solid #333;
+    }
+
+    :global(body.dark) & {
+        box-shadow: none;
+        border: 1px solid #333;
+    }
+}
+
+@mixin SUB_SHADOW {
+    box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
+
+    body.dark & {
+        box-shadow: none;
+        border: 1px solid #3a3a3a;
+    }
+
+    :global(body.dark) & {
+        box-shadow: none;
+        border: 1px solid #3a3a3a;
+    }
+}
+
+@mixin CARD {
+    @include MAIN_SHADOW;
+    border-radius: 8px;
+}

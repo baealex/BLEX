@@ -6,17 +6,15 @@ import ReactFrappeChart from 'react-frappe-charts';
 import { toast } from 'react-toastify';
 
 import {
+    Dropdown,
+    Pagination,
     Modal,
 } from '@components/integrated';
 import SettingLayout from '@components/setting/layout';
-import {
-    Pagination
-} from '@components/common'
 
 import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
-import { Dropdown } from '@components/atoms';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {

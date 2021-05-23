@@ -31,6 +31,7 @@ export function ArticleCard(props: ArticleCardProps) {
                                 src={props.image}
                                 width="600"
                                 height="400"
+                                layout="responsive"
                             />
                         </a>
                     </Link>

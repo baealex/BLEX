@@ -24,6 +24,7 @@ export default function ArticleCard(props: ArticelCardProps) {
                             src={props.image}
                             width="800"
                             height="400"
+                            layout="responsive"
                         />
                     )}
                 </a>

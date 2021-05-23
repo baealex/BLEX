@@ -1,4 +1,6 @@
-import React from 'react';
+import styles from './Comment.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
 
 import { toast } from 'react-toastify';
 
@@ -47,11 +49,11 @@ export default function CommentForm(props: Props) {
     }
 
     return (
-        <div className="comment-form mb-3">
+        <div className="mb-3">
             <textarea
                 ref={el => input = el}
                 rows={5}
-                className="form-control noto"
+                className={`${cn('form')} form-control noto`}
                 onChange={(e) => props.onChange(e.target.value)}
                 onDrop={(e) => onDrop(e)}
                 placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."

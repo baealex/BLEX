@@ -226,7 +226,6 @@ class PostDetail extends React.Component<Props, State> {
                 });
             }
         }
-        console.log(data);
         if (data.status === 'ERROR') {
             if (data.errorCode === API.ERROR.NOT_LOGIN) {
                 toast('😅 로그인이 필요합니다.', {
@@ -243,7 +242,7 @@ class PostDetail extends React.Component<Props, State> {
 
     onClickComment() {
         window.scrollTo({
-            top: window.pageYOffset + document.querySelector('.bg-comment')!.getBoundingClientRect().top - 15,
+            top: window.pageYOffset + document.querySelector('.comments')!.getBoundingClientRect().top - 15,
             behavior: 'smooth'
         });
     }
