@@ -7,9 +7,9 @@ import { toast } from 'react-toastify';
 import * as API from '@modules/api';
 import Global from '@modules/global';
 import Search from '@components/common/Search';
-import LoginModal from '@components/modal/set/Login';
-import SignupModal from '@components/modal/set/Signup';
-import TwoFactorAuthModal from '@components/modal/set/TwoFactorAuth';
+import { LoginModal } from './login-modal';
+import { SignupModal } from './signup-modal';
+import { AuthModal } from './auth-modal';
 
 export function TopNavigation() {
     const [state, setState] = useState({
@@ -137,7 +137,7 @@ export function TopNavigation() {
                 isOpen={state.isSignupModalOpen}
                 onClose={() => Global.onCloseModal('isSignupModalOpen')}
             />
-            <TwoFactorAuthModal
+            <AuthModal
                 isOpen={state.isTwoFactorAuthModalOpen}
                 onClose={() => Global.onCloseModal('isTwoFactorAuthModalOpen')}
             />

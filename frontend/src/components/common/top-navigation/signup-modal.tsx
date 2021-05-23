@@ -21,7 +21,7 @@ interface State {
     isDone: boolean;
 }
 
-class SignupModal extends React.Component<Props, State> {
+export class SignupModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -176,5 +176,3 @@ class SignupModal extends React.Component<Props, State> {
         );
     }
 }
-
-export default SignupModal;

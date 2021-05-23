@@ -20,7 +20,7 @@ interface State {
     timer: number;
 }
 
-class LoginModal extends React.Component<Props, State> {
+export class AuthModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -130,5 +130,3 @@ class LoginModal extends React.Component<Props, State> {
         );
     }
 }
-
-export default LoginModal;

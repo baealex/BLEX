@@ -19,16 +19,22 @@ interface State {
     password: string;
 }
 
-class LoginModal extends React.Component<Props, State> {
+export class LoginModal extends React.Component<Props, State> {
+    private updateKey: string;
+
     constructor(props: Props) {
         super(props);
         this.state = {
             username: Global.state.username,
             password: ''
         }
-        Global.appendUpdater(() => this.setState({
+        this.updateKey = Global.appendUpdater(() => this.setState({
             username: Global.state.username,
         }));
+    }
+
+    componentWillUnmount() {
+        Global.popUpdater(this.updateKey);
     }
 
     onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -138,5 +144,3 @@ class LoginModal extends React.Component<Props, State> {
         );
     }
 }
-
-export default LoginModal;
