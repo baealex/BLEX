@@ -8,6 +8,7 @@ import SettingLayout from '@components/setting/layout';
 import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
+import { Card } from '@components/atoms';
 
 interface Props extends API.GetSettingSeriesData {}
 
@@ -75,16 +76,18 @@ export default function Setting(props: Props) {
                 </div>
                 <>
                     {series.map((item, idx) => (
-                        <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
-                            <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
-                                <a className="deep-dark">
-                                    {item.title} <span className="vs">{item.totalPosts}</span>
+                        <Card key={idx} isRounded className="p-3 mb-3">
+                            <div className="d-flex justify-content-between">
+                                <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
+                                    <a className="deep-dark">
+                                        {item.title} <span className="vs">{item.totalPosts}</span>
+                                    </a>
+                                </Link>
+                                <a onClick={() => onSeriesDelete(item.url)}>
+                                    <i className="fas fa-times"></i>
                                 </a>
-                            </Link>
-                            <a onClick={() => onSeriesDelete(item.url)}>
-                                <i className="fas fa-times"></i>
-                            </a>
-                        </div>
+                            </div>
+                        </Card>
                     ))}
                 </>
             </SettingLayout>

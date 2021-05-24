@@ -601,11 +601,6 @@
         }
     }
 }
-.blex-card {
-    @include CARD;
-    width: 100%;
-    display: block;
-}
 .setting-body {
     padding-top: 45px;
     background: #f3f3f3;
@@ -621,26 +616,6 @@
 }
 /* ------------------------------ */
 /* LOGIN PAGE */
-.login-form {
-    margin: 4px 0;
-    color: #000;
-    border: none;
-    font-size: 0.9em;
-    width: 100%;
-    border-radius: 5px;
-    padding: 15px 20px;
-    background: #e6e6e6;
-
-    body.dark & {
-        color: #fff;
-        background: #363636;
-    }
-}
-
-.login-form:focus {
-    outline: none;
-}
-
 .login-button {
     margin: 4px 0;
     color: #fff;

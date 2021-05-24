@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 
 import {
+    Card,
     Modal,
 } from '@components/integrated';
 import SettingLayout from '@components/setting/layout';
@@ -86,13 +87,17 @@ export default function Setting(props: Props) {
                         </div>
                     )}
                     {notify.length == 0 ? (
-                        <div className="blex-card p-3 mt-3">
+                        <Card isRounded className="mt-3 p-3">
                             최근 생성된 알림이 없습니다.
-                        </div>
+                        </Card>
                     ) : notify.map((item, idx) => (
                         <Link key={idx} href={item.url}>
                             <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => onReadNotify(item.pk)}>
-                                <div className="blex-card p-3 mt-3">{item.content} <span className="ns shallow-dark">{item.createdDate}전</span></div>
+                                <Card isRounded className="p-3 mt-3">
+                                    <>
+                                        {item.content} <span className="ns shallow-dark">{item.createdDate}전</span>
+                                    </>
+                                </Card>
                             </a>
                         </Link>
                     ))}

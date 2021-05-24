@@ -1,3 +1,4 @@
+import { Card } from '@components/atoms';
 import {
     Modal,
     Toggle,
@@ -28,21 +29,25 @@ export default function TempArticleModal(props: Props) {
         >
             <>
                 {props.tempPosts.map((item, idx) => (
-                    <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
-                        <span onClick={() => props.onFecth(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
-                            {item.title} <span className="vs">{item.createdDate}전</span>
-                        </span>
-                        <a onClick={() => props.onDelete(item.token)}>
-                            <i className="fas fa-times"></i>
-                        </a>
-                    </div>
+                    <Card isRounded className="p-3 mb-3">
+                        <div key={idx} className="d-flex justify-content-between">
+                            <span onClick={() => props.onFecth(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
+                                {item.title} <span className="vs">{item.createdDate}전</span>
+                            </span>
+                            <a onClick={() => props.onDelete(item.token)}>
+                                <i className="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </Card>
                 ))}
             </>
-            <div className="blex-card p-3 mb-3 d-flex justify-content-between">
-                <span onClick={() => props.onFecth('')} className={`c-pointer ${props.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
-                    새 글 쓰기
-                </span>
-            </div>
+            <Card isRounded className="p-3 mb-3">
+                <div className="d-flex justify-content-between">
+                    <span onClick={() => props.onFecth('')} className={`c-pointer ${props.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
+                        새 글 쓰기
+                    </span>
+                </div>
+            </Card>
             <Toggle
                 label="포스트 자동 저장"
                 defaultChecked={props.isAutoSave}

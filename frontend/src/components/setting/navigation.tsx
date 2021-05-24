@@ -1,3 +1,4 @@
+import { Card } from '@components/atoms';
 import Link from 'next/link';
 
 interface Props { 
@@ -54,19 +55,21 @@ export default function(props: Props) {
     const stickyClass = props.sticky ? 'sticky-top-100 sticky-top' : ''
 
     return (
-        <ul className={`nav noto ${stickyClass} blex-card mb-3`}>
-            {NAVIGATION_ITEMS.map((item, idx) => (
-                <li key={idx} className="nav-item">
-                    <Link href={item.url}>
-                        <a className={`nav-link ${
-                            props.tabname == item.name
-                                ? 'deep'
-                                : 'shallow'}-dark`}>
-                            <i className={item.icon}/> {item.title}
-                        </a>
-                    </Link>
-                </li>
-            ))}
-        </ul>
+        <Card isRounded className="mb-3">
+            <ul className={`nav noto ${stickyClass} d-block`}>
+                {NAVIGATION_ITEMS.map((item, idx) => (
+                    <li key={idx} className="nav-item">
+                        <Link href={item.url}>
+                            <a className={`nav-link ${
+                                props.tabname == item.name
+                                    ? 'deep'
+                                    : 'shallow'}-dark`}>
+                                <i className={item.icon}/> {item.title}
+                            </a>
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+        </Card>
     );
 }

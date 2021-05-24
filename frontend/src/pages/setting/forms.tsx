@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import SettingLayout from '@components/setting/layout';
 
 import * as API from '@modules/api';
+import { Card } from '@components/atoms';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
@@ -92,14 +93,16 @@ export default function Setting(props: Props) {
                 </button>
                 <div className="mt-3">
                 {forms.map((item, idx) => (
-                    <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
-                        <a className="deep-dark">
-                            {item.title}
-                        </a>
-                        <a onClick={() => onDelete(item.id)}>
-                            <i className="fas fa-times"></i>
-                        </a>
-                    </div>
+                    <Card isRounded className="p-3 mb-3">
+                        <div key={idx} className="d-flex justify-content-between">
+                            <a className="deep-dark">
+                                {item.title}
+                            </a>
+                            <a onClick={() => onDelete(item.id)}>
+                                <i className="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </Card>
                 ))}
                 </div>
             </SettingLayout>

@@ -1,3 +1,4 @@
+import { Card } from '@components/atoms';
 import Link from 'next/link';
 
 import PurpleBorder from "../common/PurpleBorder";
@@ -34,8 +35,8 @@ export default function FeatureContent(props: FeautreContentProps) {
 
 function FeatureCard(props: FeatureCardProps) {
     return (
-        <div className="col-md-4 mt-3">
-            <div className="blex-card noto">
+        <div className="col-md-4 mt-3 noto">
+            <Card isRounded>
                 <Link href="/[author]/[posturl]" as={`@${props.author}/${props.url}`}>
                     <a className="deep-dark">
                         <img className="feature-image" src={props.image}/>
@@ -45,7 +46,7 @@ function FeatureCard(props: FeatureCardProps) {
                         </div>
                     </a>
                 </Link>
-            </div>
+            </Card>
         </div>
     )
 }

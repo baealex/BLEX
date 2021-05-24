@@ -16,7 +16,7 @@ export default function Profile(props: ProfileProps) {
         <>
             <div className="col-md-12">
                 <div className="user-profile">
-                    <img className="user-avatar blur-off" src={props.profile.image}/>
+                    <img className="user-avatar" src={props.profile.image}/>
                     <h4 className="noto username">{props.profile.realname}</h4>
                     <h5 className="noto">@{props.profile.username}</h5>
                     <Social {...props.social}/>

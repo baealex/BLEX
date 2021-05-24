@@ -1,3 +1,4 @@
+import { Card } from '@components/atoms';
 import Link from 'next/link';
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 
 export default function ArticleCard(props: Props) {
     return (
-        <div className="mb-4 blex-card">
+        <Card isRounded className="mb-4">
             <div className="p-3">
                 <h5 className="card-title noto font-weight-bold">
                     <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
@@ -26,6 +27,6 @@ export default function ArticleCard(props: Props) {
                 </p>
                 <p className="vs noto">{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span></p>
             </div>
-        </div>
+        </Card>
     )
 }

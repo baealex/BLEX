@@ -8,6 +8,7 @@ import SettingLayout from '@components/setting/layout';
 import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
+import { Card } from '@components/atoms';
 
 interface Props extends API.GetSettingViewData, API.GetSettingRefererData {}
 
@@ -45,7 +46,7 @@ export default function Setting(props: Props) {
     return (
         <>
             <SettingLayout tabname="analytics">
-                <div className="blex-card p-3">
+                <Card isRounded className="p-3">
                     <ReactFrappeChart
                         type="axis-mixed"
                         data={{
@@ -60,17 +61,19 @@ export default function Setting(props: Props) {
                         }}
                         colors={['purple']}
                     />
-                </div>
-                <div className="blex-card p-3 my-3">
+                </Card>
+                <Card isRounded className="p-3 my-3">
                     <ul>
                         {referers.map((item: any, idx: number) => (
                             <li key={idx}>{item.time} - <a className="shallow-dark" href={item.url} target="blank">{item.title ? item.title : item.url}</a></li>
                         ))}
                     </ul>
-                </div>
-                <div className={`blex-card p-3 my-3 text-center ${lastPage - page != 0 ? 'deep-dark c-pointer' : 'shallow-dark'}`} onClick={async () => getReferer()}>
-                    {`더 보기 (${lastPage - page})`}
-                </div>
+                </Card>
+                <a onClick={() => getReferer()}> 
+                    <Card isRounded className={`p-3 my-3 text-center ${lastPage - page != 0 ? 'deep-dark c-pointer' : 'shallow-dark'}`}>
+                        {`더 보기 (${lastPage - page})`}
+                    </Card>
+                </a>
             </SettingLayout>
         </>
     );

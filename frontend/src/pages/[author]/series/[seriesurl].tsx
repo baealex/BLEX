@@ -4,6 +4,7 @@ import React from 'react';
 import Router from 'next/router';
 
 import {
+    Card,
     Modal,
 } from '@components/integrated';
 import SeriesDesc from '@components/series/SeriesDesc';
@@ -199,14 +200,16 @@ class Series extends React.Component<Props, State> {
                         value={seriesDescription}
                     />
                     {seriesPosts.map((post, idx) => (
-                        <div key={idx} className="blex-card p-3 mt-3 noto d-flex justify-content-between">
-                            <span className="deep-dark">
-                                {idx + 1}. {post.title}
-                            </span>
-                            <a onClick={() => this.onPostsRemoveInSeries(post.url)}>
-                                <i className="fas fa-times"></i>
-                            </a>
-                        </div>
+                        <Card isRounded className="p-3 mt-3">
+                            <div key={idx} className=" noto d-flex justify-content-between">
+                                <span className="deep-dark">
+                                    {idx + 1}. {post.title}
+                                </span>
+                                <a onClick={() => this.onPostsRemoveInSeries(post.url)}>
+                                    <i className="fas fa-times"></i>
+                                </a>
+                            </div>
+                        </Card>
                     ))}
                 </>
             </Modal>
@@ -239,11 +242,13 @@ class Series extends React.Component<Props, State> {
                                         Created by {this.props.series.owner}
                                     </a>
                                 </Link>
-                                {this.props.series.owner == this.state.username ? (
+                                {this.props.series.owner == this.state.username && (
                                     <div className="mb-3">
-                                        <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSeriesModalOpen')}>시리즈 수정</div>
+                                        <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSeriesModalOpen')}>
+                                            시리즈 수정
+                                        </div>
                                     </div>
-                                ) : ''}
+                                )}
                                 <SeriesDesc
                                     {...this.props.series}
                                     description={this.state.seriesDescription}

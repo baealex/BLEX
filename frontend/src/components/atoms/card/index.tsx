@@ -5,18 +5,21 @@ const cn = classNames.bind(styles);
 
 export interface CardProps {
     isRounded?: boolean;
-    children?: JSX.Element | JSX.Element[];
+    children?: string | JSX.Element | JSX.Element[];
+    className?: string;
 }
 
 export function Card(props: CardProps) {
     const {
         isRounded = false,
+        className = '',
     } = props;
 
     return (
         <div className={cn(
             'card',
-            { isRounded }
+            { isRounded },
+            className,
         )}>
             {props.children}
         </div>

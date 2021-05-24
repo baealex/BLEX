@@ -2,6 +2,7 @@ import styles from './FeatureArticleCard.module.scss';
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { Card } from '@components/atoms';
 
 export interface FeautreArticleCardProps {
     author: string;
@@ -14,8 +15,8 @@ export interface FeautreArticleCardProps {
 
 export default function FeautreArticleCard(props: FeautreArticleCardProps) {
     return (
-        <div className="col-md-4 mt-3">
-            <div className="blex-card noto">
+        <div className="col-md-4 mt-3 noto">
+            <Card isRounded>
                 <Link href="/[author]/[posturl]" as={`@${props.author}/${props.url}`}>
                     <a className="deep-dark">
                         <Image
@@ -35,7 +36,7 @@ export default function FeautreArticleCard(props: FeautreArticleCardProps) {
                         </div>
                     </a>
                 </Link>
-            </div>
+            </Card>
         </div>
     )
 }

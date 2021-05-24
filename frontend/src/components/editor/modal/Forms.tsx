@@ -1,3 +1,4 @@
+import { Card } from '@components/atoms';
 import {
     Modal,
 } from '@components/integrated';
@@ -24,11 +25,13 @@ export default function FormsModal(props: Props) {
         >
             <>
                 {forms.map((item, idx) => (
-                    <div key={idx} className="blex-card p-3 mb-3 d-flex justify-content-between">
-                        <span onClick={() => props.onFetch(item.id)} className="c-pointer">
-                            {item.title}
-                        </span>
-                    </div>
+                    <Card isRounded className="p-3 mb-3">
+                        <div key={idx} className="d-flex justify-content-between">
+                            <span onClick={() => props.onFetch(item.id)} className="c-pointer">
+                                {item.title}
+                            </span>
+                        </div>
+                    </Card>
                 ))}
             </>
         </Modal>
