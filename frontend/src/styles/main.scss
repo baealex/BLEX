@@ -347,7 +347,12 @@
     background: #fff;
     border: 1px solid #ccc;
     margin: 15px;
-    object-fit: cover
+    object-fit: cover;
+
+    body.dark & {
+        background: #000;
+        border: 1px solid #333;
+    }
 }
 .user-profile {
     margin: 0 auto;
@@ -802,21 +807,9 @@
 }
 /* ------------------------------ */
 /* DARK THEME MODE */
-body.dark .author-info a {
-    color: #dadada;
-}
-
-body.dark #heart .fas {
-    color: #fff;
-}
 
 body.dark .form-control::placeholder {
     color: #ccc;
-}
-
-body.dark .user-avatar {
-    background: #000;
-    border: 1px solid #333;
 }
 
 body.dark .profile-post{
@@ -831,10 +824,6 @@ body.dark .alert-dark {
 
 body.dark .bg-light, body.dark .btn-dark {
     background-color: #3f3f3f !important;
-}
-
-body.dark .foot-deco-active {
-    border-bottom: 2px solid #fff;
 }
 
 body.dark .post-list > a {
