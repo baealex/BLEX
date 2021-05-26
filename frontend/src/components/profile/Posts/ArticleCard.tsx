@@ -5,7 +5,6 @@ import TagList from '../../tag/TagList';
 
 import {
     getPostsImage,
-    getUserImage,
 } from '@modules/image';
 
 export interface ArticelCardProps {
