@@ -21,7 +21,7 @@ export function getUserImage(path: string) {
     if (path !== '') {
         return getImage(path);
     }
-    return getImage('assets/images/default-avatar.png');
+    return getImage('assets/images/default-avatar.jpg');
 }
 
 export function isImage(file: File) {
