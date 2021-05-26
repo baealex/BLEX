@@ -54,8 +54,8 @@ def users(request, username):
                         'image': post.get_thumbnail(),
                         'read_time': post.read_time,
                         'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                        'author_image': post.author.profile.get_thumbnail(),
-                        'author': post.author.username,
+                        'author_image': post.author_image,
+                        'author': post.author_username,
                     }, fn.get_posts('trendy', user)[:6]))
                 
                 elif include == 'recent':

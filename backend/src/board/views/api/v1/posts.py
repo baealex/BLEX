@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.db.models import F, Q, Case, When, Value
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -91,12 +92,12 @@ def posts(request):
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
-                'image': post.get_thumbnail(),
+                'image': str(post.image),
                 'description': post.description(),
                 'read_time': post.read_time,
                 'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
-                'author_image': post.author.profile.get_thumbnail(),
-                'author': post.author.username,
+                'author_image': post.author_image,
+                'author': post.author_username,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -160,7 +161,14 @@ def feature_posts(request, tag=None):
         if not username:
             raise Http404('require username.')
         
-        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, author__username=username)
+        posts = Post.objects.filter(
+            created_date__lte=timezone.now(),
+            hide=False,
+            author__username=username
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        )
         exclude = request.GET.get('exclude', '')
         if exclude:
             posts = posts.exclude(url=exclude)
@@ -169,16 +177,23 @@ def feature_posts(request, tag=None):
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
-                'image': post.get_thumbnail(),
+                'image': str(post.image),
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author.profile.get_thumbnail(),
-                'author': post.author.username,
+                'author_image': post.author_image,
+                'author': post.author_username,
             }, posts))
         })
 
     if tag:
-        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag)
+        posts = Post.objects.filter(
+            created_date__lte=timezone.now(),
+            tag__iregex=r'\b%s\b' % tag,
+            hide=False,
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        )
         exclude = request.GET.get('exclude', '')
         if exclude:
             posts = posts.exclude(url=exclude)
@@ -187,18 +202,30 @@ def feature_posts(request, tag=None):
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
-                'image': post.get_thumbnail(),
+                'image': str(post.image),
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author.profile.get_thumbnail(),
-                'author': post.author.username,
+                'author_image': post.author_image,
+                'author': post.author_username,
             }, posts))
         })
 
 def posts_comments(request, url):
-    post = get_object_or_404(Post, url=url)
     if request.method == 'GET':
-        comments = Comment.objects.filter(post=post).order_by('created_date')
+        comments = Comment.objects.select_related(
+            'author',
+            'author__profile'
+        ).annotate(
+            total_likes=Count('likes'),
+            is_liked=Case(
+                When(
+                    likes__id=request.user.id if request.user.id else -1,
+                    then=Value(True)
+                ),
+                default=Value(False),
+            )
+        ).filter(post__url=url).order_by('created_date')
+        
         return StatusDone({
             'comments': list(map(lambda comment: {
                 'pk': comment.pk,
@@ -207,11 +234,12 @@ def posts_comments(request, url):
                 'is_edited': comment.edited,
                 'text_html': comment.get_text_html(),
                 'time_since': timesince(comment.created_date),
-                'total_likes': comment.total_likes(),
-                'is_liked': comment.likes.filter(id=request.user.id).exists(),
+                'total_likes': comment.total_likes,
+                'is_liked': comment.is_liked,
             }, comments))
         })
-
+from board.module.query import query_debugger
+@query_debugger
 def posts_analytics(request, url):
     post = get_object_or_404(Post, url=url)
     if request.method == 'GET':
@@ -219,8 +247,18 @@ def posts_analytics(request, url):
             raise Http404
         
         seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
-        posts_analytics = PostAnalytics.objects.filter(posts__id=post.pk, created_date__gt=seven_days_ago).order_by('-created_date')
-        posts_referers = Referer.objects.filter(posts__posts__id=post.pk, created_date__gt=seven_days_ago).order_by('-created_date')[:30]
+        posts_analytics = PostAnalytics.objects.filter(
+            posts__id=post.pk,
+            created_date__gt=seven_days_ago
+        ).annotate(
+            table_count=Count('table')
+        ).order_by('-created_date')
+        posts_referers = Referer.objects.filter(
+            posts__posts__id=post.pk,
+            created_date__gt=seven_days_ago
+        ).select_related(
+            'referer_from'
+        ).order_by('-created_date')[:30]
 
         data = {
             'items': [],
@@ -229,7 +267,7 @@ def posts_analytics(request, url):
         for item in posts_analytics:
             data['items'].append({
                 'date': item.created_date,
-                'count': item.table.count()
+                'count': item.table_count
             })
         for referer in posts_referers:
             data['referers'].append({
@@ -252,7 +290,14 @@ def posts_analytics(request, url):
 def user_posts(request, username, url=None):
     if not url:
         if request.method == 'GET':
-            posts = Post.objects.filter(created_date__lte=timezone.now(), author__username=username, hide=False)
+            posts = Post.objects.filter(
+                created_date__lte=timezone.now(),
+                author__username=username,
+                hide=False
+            ).annotate(
+                author_username=F('author__username'),
+                author_image=F('author__profile__avatar')
+            )
             all_count = posts.count()
             tag = request.GET.get('tag', '')
             if tag:
@@ -268,18 +313,21 @@ def user_posts(request, username, url=None):
                 'posts': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
-                    'image': post.get_thumbnail(),
+                    'image': str(post.image),
                     'read_time': post.read_time,
                     'description': post.description(35),
                     'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
-                    'author_image': post.author.profile.get_thumbnail(),
-                    'author': post.author.username,
+                    'author_image': post.author_username,
+                    'author': post.author_image,
                     'tag': post.tag,
                 }, posts)),
                 'last_page': posts.paginator.num_pages
             })
     if url:
-        post = get_object_or_404(Post, author__username=username, url=url)
+        post = get_object_or_404(Post.objects.annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        ), author__username=username, url=url)
         if request.method == 'GET':
             if request.GET.get('mode') == 'edit':
                 fn.compere_user(request.user, post.author, give_404_if='different')
@@ -300,14 +348,14 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'url': post.url,
                     'title': post.title,
-                    'image': post.get_thumbnail(),
+                    'image': str(post.image),
                     'description': post.description_tag(),
                     'read_time': post.read_time,
                     'series': post.series.url if post.series else None,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
-                    'author_image': post.author.profile.get_thumbnail(),
-                    'author': post.author.username,
+                    'author_image': str(post.author_image),
+                    'author': post.author_username,
                     'text_html': post.text_html,
                     'total_likes': post.total_likes(),
                     'total_comment': post.total_comment(),

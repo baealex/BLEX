@@ -27,6 +27,7 @@ import {
 import Global from '@modules/global';
 
 import { GetServerSidePropsContext } from 'next';
+import { getPostsImage } from '@modules/image';
 
 interface Props {
     profile: API.GetUserProfileData,
@@ -293,7 +294,7 @@ class PostDetail extends React.Component<Props, State> {
                     description={this.props.post.description}
                     author={this.props.post.author}
                     keywords={this.props.post.tag}
-                    image={this.props.post.image}
+                    image={getPostsImage(this.props.post.image)}
                     isArticle={true}
                 />
                 <div className="container">
@@ -317,13 +318,13 @@ class PostDetail extends React.Component<Props, State> {
                             )}
                         </div>
                     </div>
-                    {!this.props.post.image.includes('default') && (
+                    {this.props.post.image !== '' && (
                         <div className="mb-5 mx-fit">
                             <Image
                                 className="fit-cover"
                                 width={1600}
                                 height={900}
-                                src={this.props.post.image.replace('.minify.jpg', '')}
+                                src={getPostsImage(this.props.post.image.replace('.minify.jpg', ''))}
                             />
                         </div>
                     )}

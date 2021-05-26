@@ -13,6 +13,63 @@ from board.models import (
     History, PostAnalytics, Referer, RefererFrom, convert_to_localtime)
 from board.module.subtask import sub_task_manager
 
+UNVAILD_REFERERS = [
+    settings.SITE_URL,
+    'in-vm',
+    'AND',
+    'OR',
+    'IF',
+    'CASE',
+    'SELECT',
+    '127.0.0.1'
+]
+
+NONE_HUMANS = [
+    'facebookexternalhit',
+    'headless',
+    'requests',
+    'crawler',
+    'parser',
+    'embed',
+    'scrap',
+    'java',
+    'curl',
+    'wget',
+    'yeti',
+    'bot',
+]
+
+BOT_TYPES = [
+    'applebot',
+    'google',
+    'bing',
+    'commoncrawl',
+    'petal',
+    'notion',
+    'naver',
+    'neeva',
+    'kakao',
+    'slack',
+    'twitter',
+    'telegram',
+    'semrush',
+    'mj12',
+    'seznam',
+    'blex',
+    'yandex',
+    'zoominfo',
+    'dot',
+    'cocolyze',
+    'bnf',
+    'ads',
+    'linkdex',
+    'similartech',
+    'coccoc',
+    'ahrefs',
+    'baidu',
+    'facebook'
+]
+
 def get_ip(request):
     ip_addr = request.META.get('REMOTE_ADDR')
     if not ip_addr:
@@ -79,20 +136,10 @@ def create_referer(posts, referer):
     ).save()
 
 def has_vaild_referer(referer):
-    exclude_items = [
-        settings.SITE_URL,
-        'in-vm',
-        'AND',
-        'OR',
-        'IF',
-        'CASE',
-        'SELECT',
-        '127.0.0.1'
-    ]
-    for item in exclude_items:
+    for item in UNVAILD_REFERERS:
         if item in referer:
             return False
-    return True 
+    return True
 
 def create_viewer(posts, ip, user_agent):
     history = None
@@ -134,18 +181,7 @@ def create_viewer(posts, ip, user_agent):
 
 def has_bot_keyword(user_agent):
     user_agent_lower = user_agent.lower()
-    include_items = [
-        'facebookexternalhit',
-        'headless',
-        'requests',
-        'crawler',
-        'parser',
-        'embed',
-        'scrap',
-        'yeti',
-        'bot',
-    ]
-    for item in include_items:
+    for item in NONE_HUMANS:
         if item in user_agent_lower:
             return True
     return False
@@ -154,37 +190,7 @@ def bot_check(user_agent):
     if not has_bot_keyword(user_agent):
         return ''
     
-    bot_types = [
-        'apple',
-        'google',
-        'bing',
-        'commoncrawl',
-        'petal',
-        'notion',
-        'naver',
-        'neeva',
-        'kakao',
-        'slack',
-        'twitter',
-        'telegram',
-        'semrush',
-        'mj12',
-        'seznam',
-        'blex',
-        'yandex',
-        'zoominfo',
-        'dot',
-        'cocolyze',
-        'bnf',
-        'ads',
-        'linkdex',
-        'similartech',
-        'coccoc',
-        'ahrefs',
-        'baidu',
-        'facebook'
-    ]
-    for bot_type in bot_types:
+    for bot_type in BOT_TYPES:
         if bot_type in user_agent.lower():
             return bot_type + '-bot'
     return 'temp-bot'

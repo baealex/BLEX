@@ -1,6 +1,7 @@
 
 from django.core.cache import cache
 from django.core.paginator import Paginator
+from django.db.models import F
 from django.http import Http404
 from django.utils import timezone
 
@@ -34,19 +35,29 @@ def tags(request, tag=None):
     
     if tag:
         if request.method == 'GET':
-            posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False, tag__iregex=r'\b%s\b' % tag).order_by('-created_date')
+            posts = Post.objects.filter(
+                created_date__lte=timezone.now(),
+                hide=False, tag__iregex=r'\b%s\b' % tag
+            ).annotate(
+                author_username=F('author__username'),
+                author_image=F('author__profile__avatar')
+            ).order_by('-created_date')
+            
             if len(posts) == 0:
                 raise Http404()
+            
             page = request.GET.get('page', 1)
             paginator = Paginator(posts, 21)
             fn.page_check(page, paginator)
             posts = paginator.get_page(page)
             desc_object = dict()
             try:
-                article = Post.objects.get(url=tag, hide=False)
+                article = Post.objects.get(url=tag, hide=False).annotate(
+                    author_username=F('author__username')
+                )
                 desc_object = {
                     'url': article.url,
-                    'author': article.author.username,
+                    'author': author_username,
                     'description': article.description(80)
                 }
             except:
@@ -59,11 +70,11 @@ def tags(request, tag=None):
                 'posts': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
-                    'image': post.get_thumbnail(),
+                    'image': str(post.image),
                     'read_time': post.read_time,
                     'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
-                    'author_image': post.author.profile.get_thumbnail(),
-                    'author': post.author.username,
+                    'author_image': post.author_image,
+                    'author': post.author_username,
                 }, posts))
             })
         

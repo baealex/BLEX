@@ -1,7 +1,7 @@
 import time
 
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count, Case, When
 from django.http import JsonResponse, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -16,7 +16,10 @@ def setting(request, item):
     if not request.user.is_active:
         return StatusError('NL')
 
-    user = get_object_or_404(User, username=request.user)
+    user = get_object_or_404(
+        User.objects.select_related('config'),
+        username=request.user
+    )
     
     if request.method == 'GET':
         if item == 'notify':
@@ -84,16 +87,22 @@ def setting(request, item):
                 if 'today_count' in order:
                     today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
                     posts = posts.annotate(today_count=Count(
-                        'analytics__table',
-                        filter=Q(analytics__created_date=today),
-                        distinct=True,
+                        Case(
+                            When(
+                                analytics__created_date=today,
+                                then='analytics__table'
+                            )
+                        )
                     ))
                 if 'yesterday_count' in order:
                     yesterday = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
                     posts = posts.annotate(yesterday_count=Count(
-                        'analytics__table',
-                        filter=Q(analytics__created_date=yesterday),
-                        distinct=True,
+                        Case(
+                            When(
+                                analytics__created_date=yesterday,
+                                then='analytics__table'
+                            )
+                        )
                     ))
                 if 'total_like_count' in order:
                     posts = posts.annotate(total_like_count=Count('likes', distinct=True))
@@ -131,7 +140,7 @@ def setting(request, item):
         if item == 'series':
             series = Series.objects.filter(owner=user).order_by('-created_date')
             return StatusDone({
-                'username': request.user.username,
+                'username': user.username,
                 'series': list(map(lambda item: {
                     'url': item.url,
                     'title': item.name,
@@ -141,12 +150,12 @@ def setting(request, item):
         
         if item == 'view':
             data = {
-                'username': request.user.username,
+                'username': user.username,
                 'views': [],
             }
             for days_ago in range(7):
                 date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=days_ago)))
-                count = fn.get_view_count(request.user, date)
+                count = fn.get_view_count(user, date)
                 data['views'].append({
                     'date': str(date)[:10],
                     'count': count
@@ -154,7 +163,11 @@ def setting(request, item):
             return StatusDone(data)
         
         if item == 'referer':
-            referers = Referer.objects.filter(posts__posts__author=request.user).order_by('-created_date')
+            referers = Referer.objects.filter(
+                posts__posts__author=user
+            ).select_related(
+                'referer_from'
+            ).order_by('-created_date')
 
             page = request.GET.get('page', 1)
             paginator = Paginator(referers, 30)
