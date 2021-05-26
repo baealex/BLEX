@@ -7,7 +7,7 @@ import datetime
 
 from itertools import chain
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 CONTENT_IMAGE_DIR = BASE_DIR + '/static/images/content'
 TITLE_IMAGE_DIR   = BASE_DIR + '/static/images/title'
