@@ -23,7 +23,7 @@ export default function ArticleCard(props: ArticelCardProps) {
         <div className="profile-post">
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                 <a>
-                    {!props.image.includes('default') && (
+                    {props.image && (
                         <Image
                             src={getPostsImage(props.image)}
                             width="800"
