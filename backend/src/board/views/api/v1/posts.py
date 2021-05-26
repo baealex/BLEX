@@ -316,8 +316,8 @@ def user_posts(request, username, url=None):
                     'read_time': post.read_time,
                     'description': post.description(35),
                     'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
-                    'author_image': post.author_username,
-                    'author': post.author_image,
+                    'author_image': post.author_image,
+                    'author': post.author_username,
                     'tag': post.tag,
                 }, posts)),
                 'last_page': posts.paginator.num_pages
