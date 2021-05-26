@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import F, Q, Case, When, Value
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -211,9 +211,21 @@ def feature_posts(request, tag=None):
         })
 
 def posts_comments(request, url):
-    post = get_object_or_404(Post, url=url)
     if request.method == 'GET':
-        comments = Comment.objects.filter(post=post).order_by('created_date')
+        comments = Comment.objects.select_related(
+            'author',
+            'author__profile'
+        ).annotate(
+            total_likes=Count('likes'),
+            is_liked=Case(
+                When(
+                    likes__id=request.user.id if request.user.id else -1,
+                    then=Value(True)
+                ),
+                default=Value(False),
+            )
+        ).filter(post__url=url).order_by('created_date')
+        
         return StatusDone({
             'comments': list(map(lambda comment: {
                 'pk': comment.pk,
@@ -222,11 +234,12 @@ def posts_comments(request, url):
                 'is_edited': comment.edited,
                 'text_html': comment.get_text_html(),
                 'time_since': timesince(comment.created_date),
-                'total_likes': comment.total_likes(),
-                'is_liked': comment.likes.filter(id=request.user.id).exists(),
+                'total_likes': comment.total_likes,
+                'is_liked': comment.is_liked,
             }, comments))
         })
-
+from board.module.query import query_debugger
+@query_debugger
 def posts_analytics(request, url):
     post = get_object_or_404(Post, url=url)
     if request.method == 'GET':
@@ -234,8 +247,18 @@ def posts_analytics(request, url):
             raise Http404
         
         seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
-        posts_analytics = PostAnalytics.objects.filter(posts__id=post.pk, created_date__gt=seven_days_ago).order_by('-created_date')
-        posts_referers = Referer.objects.filter(posts__posts__id=post.pk, created_date__gt=seven_days_ago).order_by('-created_date')[:30]
+        posts_analytics = PostAnalytics.objects.filter(
+            posts__id=post.pk,
+            created_date__gt=seven_days_ago
+        ).annotate(
+            table_count=Count('table')
+        ).order_by('-created_date')
+        posts_referers = Referer.objects.filter(
+            posts__posts__id=post.pk,
+            created_date__gt=seven_days_ago
+        ).select_related(
+            'referer_from'
+        ).order_by('-created_date')[:30]
 
         data = {
             'items': [],
@@ -244,7 +267,7 @@ def posts_analytics(request, url):
         for item in posts_analytics:
             data['items'].append({
                 'date': item.created_date,
-                'count': item.table.count()
+                'count': item.table_count
             })
         for referer in posts_referers:
             data['referers'].append({
@@ -301,7 +324,10 @@ def user_posts(request, username, url=None):
                 'last_page': posts.paginator.num_pages
             })
     if url:
-        post = get_object_or_404(Post, author__username=username, url=url)
+        post = get_object_or_404(Post.objects.annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        ), author__username=username, url=url)
         if request.method == 'GET':
             if request.GET.get('mode') == 'edit':
                 fn.compere_user(request.user, post.author, give_404_if='different')
@@ -328,8 +354,8 @@ def user_posts(request, username, url=None):
                     'series': post.series.url if post.series else None,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
-                    'author_image': str(post.author.profile.avatar),
-                    'author': post.author.username,
+                    'author_image': str(post.author_image),
+                    'author': post.author_username,
                     'text_html': post.text_html,
                     'total_likes': post.total_likes(),
                     'total_comment': post.total_comment(),
