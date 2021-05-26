@@ -238,8 +238,7 @@ def posts_comments(request, url):
                 'is_liked': comment.is_liked,
             }, comments))
         })
-from board.module.query import query_debugger
-@query_debugger
+
 def posts_analytics(request, url):
     post = get_object_or_404(Post, url=url)
     if request.method == 'GET':
