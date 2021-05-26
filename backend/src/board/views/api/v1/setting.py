@@ -96,7 +96,7 @@ def setting(request, item):
                     ))
                 if 'yesterday_count' in order:
                     yesterday = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
-                    posts = posts.annotate(yesterday_count=Sum(
+                    posts = posts.annotate(yesterday_count=Count(
                         Case(
                             When(
                                 analytics__created_date=yesterday,
