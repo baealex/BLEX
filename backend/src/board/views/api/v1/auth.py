@@ -17,17 +17,18 @@ from board.module.response import StatusDone, StatusError
 from board.views import function as fn
 
 def common_auth(request, user):
-    if user.config.has_two_factor_auth():
-        def create_auth_token():
-            token = randnum(6)
-            user.twofactorauth.create_token(token)
-            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            bot.send_message(user.telegramsync.tid, f'2차 인증 코드입니다 : {token}')
-        sub_task_manager.append_task(create_auth_token)
-        return StatusDone({
-            'username': user.username,
-            'security': True,
-        })
+    if not settings.DEBUG:
+        if user.config.has_two_factor_auth():
+            def create_auth_token():
+                token = randnum(6)
+                user.twofactorauth.create_token(token)
+                bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+                bot.send_message(user.telegramsync.tid, f'2차 인증 코드입니다 : {token}')
+            sub_task_manager.append_task(create_auth_token)
+            return StatusDone({
+                'username': user.username,
+                'security': True,
+            })
     auth.login(request, user)
     notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
     return StatusDone({
