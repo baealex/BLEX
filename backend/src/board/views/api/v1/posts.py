@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from django.db.models import F, Q, Case, When, Value
+from django.db.models import F, Q, Case, Exists, When, Value, OuterRef
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -219,7 +219,12 @@ def posts_comments(request, url):
             total_likes=Count('likes'),
             is_liked=Case(
                 When(
-                    likes__id=request.user.id if request.user.id else -1,
+                    Exists(
+                        Comment.objects.filter(
+                            id=OuterRef('id'),
+                            likes__id=request.user.id
+                        )
+                    ),
                     then=Value(True)
                 ),
                 default=Value(False),
