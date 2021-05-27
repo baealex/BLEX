@@ -418,8 +418,8 @@ class RefererFrom(models.Model):
         if created_date == updated_date:
             return True
         
-        one_month_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=30)))
-        if self.updated_date < one_month_ago:
+        three_month_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=90)))
+        if self.updated_date < three_month_ago:
             return True
         
         return False

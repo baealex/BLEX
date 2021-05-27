@@ -1,10 +1,6 @@
 import base64
 import datetime
 import hashlib
-import html
-import re
-import requests
-import urllib
 
 from django.conf import settings
 from django.utils import timezone
@@ -12,6 +8,7 @@ from django.utils import timezone
 from board.models import (
     History, PostAnalytics, Referer, RefererFrom, convert_to_localtime)
 from board.module.subtask import sub_task_manager
+from board.module.scrap import page_parser
 
 UNVAILD_REFERERS = [
     settings.SITE_URL,
@@ -40,10 +37,14 @@ NONE_HUMANS = [
 ]
 
 BOT_TYPES = [
+    'amazonbot',
     'applebot',
-    'google',
-    'bing',
+    'bingbot',
+    'bitlybot',
     'commoncrawl',
+    'datagnionbot',
+    'embedly',
+    'google',
     'petal',
     'notion',
     'naver',
@@ -114,22 +115,12 @@ def create_referer(posts, referer):
         referer_from.save()
         referer_from.refresh_from_db()
     if referer_from.should_update():
-        def get_title():
-            try:
-                response = requests.get(referer)
-                title = re.search(r'<title.*?>(.+?)</title>', response.text)
-                if title:
-                    title = title.group(1)
-                    title = html.unescape(title)
-                    title = urllib.parse.unquote(title)
-                    if not 'http://' in title and not 'https://' in title:
-                        referer_from.title = title
-            except:
-                pass
-            if not referer_from.title:
-                referer_from.title = referer.split('//')[1].split('/')[0]
+        def _lambda():
+            data = page_parser(referer)
+            referer_from.title = data['title']
             referer_from.update()
-        sub_task_manager.append_task(get_title)
+            print('00')
+        sub_task_manager.append_task(_lambda)
     Referer(
         posts = today_analytics,
         referer_from = referer_from
@@ -143,6 +134,7 @@ def has_vaild_referer(referer):
 
 def create_viewer(posts, ip, user_agent):
     history = None
+    print(user_agent)
     key = get_hash_key((ip).encode())
     try:
         history = History.objects.get(key=key)
