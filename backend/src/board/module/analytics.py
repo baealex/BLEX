@@ -117,9 +117,13 @@ def create_referer(posts, referer):
     if referer_from.should_update():
         def _lambda():
             data = page_parser(referer)
-            referer_from.title = data['title']
+            if data['title']:
+                referer_from.title = data['title']
+            if data['image']:
+                referer_from.image = data['image']
+            if data['description']:
+                referer_from.description = data['description']
             referer_from.update()
-            print('00')
         sub_task_manager.append_task(_lambda)
     Referer(
         posts = today_analytics,

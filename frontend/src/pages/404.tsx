@@ -1,9 +1,15 @@
-import { Card } from '@components/atoms'
-import Router from 'next/router'
+import Head from 'next/head';
+import Router from 'next/router';
+
+import { Card } from '@components/atoms';
 
 export default function NotFound() {
     return (
         <>
+            <Head>
+                <title>404 Not Found</title>
+            </Head>
+            
             <div className="container">
                 <div className="row justify-content-center">
                     <div className="col-lg-8 text-center noto">
