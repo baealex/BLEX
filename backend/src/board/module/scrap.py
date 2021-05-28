@@ -31,12 +31,13 @@ def page_parser(url):
         
         if og_image:
             data['image'] = og_image[1].replace('\'', '').replace('\"', '')
-            if not 'http://' in data['image'] and not 'https://' in data['image']:
+            if not '//' in data['image']:
                 data['image'] = origin + '/' + data['image']
         
         if og_description:
-            data['description'] = og_description[1].replace('\'', '').replace('\"', '')[:200] + ' (' + str(round(len(response.text) / 1024)) + 'kb)'
-        
+            data['description'] = og_description[1].replace('\'', '').replace('\"', '')[:200] + ' '
+        data['description'] += '(' + str(round(len(response.text) / 1024)) + 'kb)'
+
         if not data['title']:
             title = re.search(r'<title.*?>(.+?)</title>', response.text)
             if title:

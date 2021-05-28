@@ -18,7 +18,7 @@ from django.conf import settings
 from board.models import *
 from board.module.scrap import page_parser
 
-referer_froms = RefererFrom.objects.filter(image='')
+referer_froms = RefererFrom.objects.exclude(description__contains='kb)')
 
 if __name__ == '__main__':
     for referer_from in referer_froms:
@@ -31,4 +31,4 @@ if __name__ == '__main__':
         if data['description']:
             referer_from.description = data['description']
         referer_from.update()
-        time.sleep(10)
+        time.sleep(5)
