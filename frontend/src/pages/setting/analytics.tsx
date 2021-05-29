@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactFrappeChart from 'react-frappe-charts';
 
 // import { toast } from 'react-toastify';
@@ -29,23 +29,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 export default function Setting(props: Props) {
-    const [ referers, setReferers ] = useState(props.referers);
-    const [ page, setPage ] = useState(2);
-    const lastPage = props.lastPage < 10 ? props.lastPage : 10;
-
-    const getReferer = async () => {
-        if(page < lastPage) {
-            const { data } = await API.getSettingReferrers(undefined, page);
-            if (data.body) {
-                setReferers(referers.concat(data.body.referers));
-            }
-            setPage(page + 1);   
-        }
-    };
-
     return (
         <>
             <SettingLayout tabname="analytics">
+                <div className="h5 noto font-weight-bold mb-3">
+                    조회수 추이
+                </div>
                 <Card isRounded className="p-3">
                     <ReactFrappeChart
                         type="axis-mixed"
@@ -61,19 +50,47 @@ export default function Setting(props: Props) {
                         }}
                         colors={['purple']}
                     />
+                    <div className="ns shallow-dark text-right">
+                        총 조회수 : {props.total}
+                    </div>
                 </Card>
-                <Card isRounded className="p-3 my-3">
-                    <ul>
-                        {referers.map((item: any, idx: number) => (
-                            <li key={idx}>{item.time} - <a className="shallow-dark" href={item.url} target="blank">{item.title ? item.title : item.url}</a></li>
-                        ))}
-                    </ul>
-                </Card>
-                <a onClick={() => getReferer()}> 
-                    <Card isRounded className={`p-3 my-3 text-center ${lastPage - page != 0 ? 'deep-dark c-pointer' : 'shallow-dark'}`}>
-                        {`더 보기 (${lastPage - page})`}
-                    </Card>
-                </a>
+                <div className="h5 noto font-weight-bold mt-5 mb-3">
+                    신규 유입 경로
+                </div>
+                <div className="row">
+                    {props.referers.map((item, idx: number) => (
+                        <div className="col-lg-4 col-md-6">
+                            <Card key={idx} isRounded className="my-3">
+                                <>
+                                    {item.image && (
+                                        <div>
+                                            <a className="deep-dark" href={item.url} target="blank">
+                                                <img className="w-100 h-150 fit-cover" src={item.image}/>
+                                            </a>
+                                        </div>
+                                    )}
+                                    <div className="p-3">
+                                        <div>
+                                            <a className="deep-dark" href={item.url} target="blank">
+                                                {item.title ? item.title : item.url}
+                                            </a>
+                                        </div>
+                                        {item.description && (
+                                            <div className="ns">
+                                                <a className="shallow-dark" href={item.url} target="blank">
+                                                    {item.description}
+                                                </a>
+                                            </div>
+                                        )}
+                                        <div className="ns gray-dark">
+                                            {item.time}
+                                        </div>
+                                    </div>
+                                </>
+                            </Card>
+                        </div>
+                    ))}
+                </div>
             </SettingLayout>
         </>
     );

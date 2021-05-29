@@ -135,6 +135,7 @@ export async function getSettingView(cookie: string | undefined) {
 
 export interface GetSettingViewData {
     username: string;
+    total: number;
     views: {
         date: string;
         count: number;
@@ -156,8 +157,9 @@ export interface GetSettingRefererData {
         time: string;
         url: string;
         title: string;
+        image: string;
+        description: string;
     }[];
-    lastPage: number;
 }
 
 export async function getSettingForms(cookie: string | undefined) {

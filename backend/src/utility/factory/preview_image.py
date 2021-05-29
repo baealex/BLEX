@@ -29,3 +29,15 @@ if __name__ == '__main__':
                     preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
                     preview_image.save(preview_path, quality=50)
                     print(preview_path)
+    
+    for (path, dir, files) in os.walk(TITLE_IMAGE_DIR):
+        for filename in files:
+            if not 'preview.jpg' in filename and not 'minify' in filename:
+                if not os.path.isfile(path + '/' + filename + '.preview.jpg'):
+                    image_path = path + '/' + filename
+                    preview_path = path + '/' + filename + '.preview.jpg'
+
+                    convert_image = Image.open(image_path).convert('RGB')
+                    preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
+                    preview_image.save(preview_path, quality=50)
+                    print(preview_path)

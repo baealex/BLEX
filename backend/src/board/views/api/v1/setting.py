@@ -1,7 +1,7 @@
 import time
 
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, Case, When
+from django.db.models import Q, F, Count, Case, When
 from django.http import JsonResponse, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -149,44 +149,48 @@ def setting(request, item):
             })
         
         if item == 'view':
-            data = {
-                'username': user.username,
-                'views': [],
-            }
-            for days_ago in range(7):
-                date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=days_ago)))
-                count = fn.get_view_count(user, date)
-                data['views'].append({
-                    'date': str(date)[:10],
-                    'count': count
-                })
-            return StatusDone(data)
-        
-        if item == 'referer':
-            referers = Referer.objects.filter(
-                posts__posts__author=user
-            ).select_related(
-                'referer_from'
+            seven_days_ago = convert_to_localtime(timezone.make_aware(
+                datetime.datetime.now() - datetime.timedelta(days=7)
+            ))
+
+            posts_analytics = PostAnalytics.objects.values(
+                'created_date',
+            ).annotate(
+                table_count=Count('table'),
+            ).filter(
+                posts__author=user,
+                created_date__gt=seven_days_ago,
             ).order_by('-created_date')
 
-            page = request.GET.get('page', 1)
-            paginator = Paginator(referers, 30)
-            fn.page_check(page, paginator)
-            if int(page) >= 10:
-                raise Http404
-            referers = paginator.get_page(page)
+            total = PostAnalytics.objects.filter(
+                posts__author=user
+            ).annotate(
+                table_count=Count('table'),
+            ).aggregate(sum=Sum('table_count'))['sum']
 
-            data = {
-                'referers': [],
-                'last_page': referers.paginator.num_pages
-            }
-            for referer in referers:
-                data['referers'].append({
+            return StatusDone({
+                'username': user.username,
+                'views': list(map(lambda item: {
+                    'date': str(item['created_date'])[:10],
+                    'count': item['table_count']
+                }, posts_analytics)),
+                'total': total
+            })
+        
+        if item == 'referer':
+            referers = RefererFrom.objects.filter(
+                referers__posts__posts__author=user
+            ).order_by('-created_date')[:12]
+
+            return StatusDone({
+                'referers': list(map(lambda referer: {
                     'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
-                    'url': referer.referer_from.location,
-                    'title': referer.referer_from.title
-                })
-            return StatusDone(data)
+                    'title': referer.title,
+                    'url': referer.location,
+                    'image': referer.image,
+                    'description': referer.description,
+                }, referers))
+            })
         
         if item == 'forms':
             user_forms = Form.objects.filter(user=request.user)

@@ -9,18 +9,21 @@ headers = {
 }
 
 def page_parser(url):
+    protocol = url.split('://')[0]
+    host     = url.split('://')[1].split('/')[0]
+    origin   = f'{protocol}://{host}'
+
     data = {
-        'title': '',
+        'title': host,
         'image': '',
         'description': '',
     }
 
-    protocol = url.split('://')[0]
-    host = url.split('://')[1].split('/')[0]
-    origin = f'{protocol}://{host}'
+    if not protocol == 'http' or not protocol == 'https':
+        return data
 
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
         
         og_title = re.search(r'<meta(?=\s|>)(?=(?:[^>=]|=\'[^\']*\'|=\"[^"]*\"|=[^\'\"][^\s>]*)*?\sproperty=(?:\'og:title|\"og:title\"|og:title))(?=(?:[^>=]|=\'[^\']*\'|=\"[^\"]*\"|=[^\'\"][^\s>]*)*?\scontent=(\'[^\']*\'|\"[^\"]*\"|[^\'\"][^\s>]*))(?:[^\'\">=]*|=\'[^\']*\'|="[^\"]*\"|=[^\'\"][^\s>]*)*>', response.text)
         og_image = re.search(r'<meta(?=\s|>)(?=(?:[^>=]|=\'[^\']*\'|=\"[^"]*\"|=[^\'\"][^\s>]*)*?\sproperty=(?:\'og:image|\"og:image\"|og:image))(?=(?:[^>=]|=\'[^\']*\'|=\"[^\"]*\"|=[^\'\"][^\s>]*)*?\scontent=(\'[^\']*\'|\"[^\"]*\"|[^\'\"][^\s>]*))(?:[^\'\">=]*|=\'[^\']*\'|="[^\"]*\"|=[^\'\"][^\s>]*)*>', response.text)
@@ -44,9 +47,6 @@ def page_parser(url):
                 title = title.group(1)
                 if not f'{protocol}://' in title:
                     data['title'] = title
-        
-        if not data['title']:
-            data['title'] = host
 
         for name in ['title', 'description']:
             if data[name]:
