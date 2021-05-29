@@ -19,17 +19,19 @@
 
 ***"예쁘고 유니크한 블로그 없을까요?"*** 🙋‍♂️ [여기 있습니다!](https://blex.me) 블렉스는 가입형 블로그로 회원이라면 누구나 글을 자유롭게 작성할 수 있습니다. ~~무엇보다 쓰는 사람이 없어서 매우 유니크합니다!~~ 블렉스는 미니멀한 디자인과 신기술을 응용한 빠른 웹사이트를 지향하며 `AD-Free`, 3세대 블로그를 과감히 꿈꿉니다. 연락은 [baealex@hey.com](mailto:baealex@hey.com)으로 부탁드리며 의견은 [discussions](https://github.com/baealex/BLEX/discussions)에 남겨주세요!
 
-![홈 화면](https://user-images.githubusercontent.com/35596687/113148293-a9556000-926c-11eb-9474-d6ebc7adc621.PNG)
+![1](https://user-images.githubusercontent.com/35596687/120072037-bce64100-c0cc-11eb-95d3-900608dfd7ad.png)
 
-![본문](https://user-images.githubusercontent.com/35596687/113148900-621b9f00-926d-11eb-8fb5-dac7b845b722.PNG)
+![2](https://user-images.githubusercontent.com/35596687/120072041-beb00480-c0cc-11eb-8b0a-c051fe5d071b.png)
 
-![본문_다크모드](https://user-images.githubusercontent.com/35596687/113149204-b888dd80-926d-11eb-9026-b9d2aab59a46.PNG)
+![3](https://user-images.githubusercontent.com/35596687/120072042-bfe13180-c0cc-11eb-8bb3-3a1415339a53.png)
 
-![프로필](https://user-images.githubusercontent.com/35596687/113148911-63e56280-926d-11eb-9630-44e7ea2eaf73.PNG)
+![4](https://user-images.githubusercontent.com/35596687/120072044-c079c800-c0cc-11eb-9aef-33b33343a869.png)
 
-![시리즈](https://user-images.githubusercontent.com/35596687/113148916-65af2600-926d-11eb-9a1c-ecaa79818fee.PNG)
+![5](https://user-images.githubusercontent.com/35596687/120072045-c2438b80-c0cc-11eb-820e-22bbf7174743.png)
 
-![분석](https://user-images.githubusercontent.com/35596687/113148921-68118000-926d-11eb-98ce-b7b0c9ae70da.PNG)
+![6](https://user-images.githubusercontent.com/35596687/120072046-c2438b80-c0cc-11eb-857d-684c56b21bfd.png)
+
+
 
 ## Features
 
