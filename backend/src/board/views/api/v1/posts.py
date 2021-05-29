@@ -251,12 +251,14 @@ def posts_analytics(request, url):
             raise Http404
         
         seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
+        
         posts_analytics = PostAnalytics.objects.filter(
             posts__id=post.pk,
             created_date__gt=seven_days_ago
         ).annotate(
             table_count=Count('table')
         ).order_by('-created_date')
+
         posts_referers = Referer.objects.filter(
             posts__posts__id=post.pk,
             created_date__gt=seven_days_ago

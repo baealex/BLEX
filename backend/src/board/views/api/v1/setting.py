@@ -180,7 +180,7 @@ def setting(request, item):
         if item == 'referer':
             referers = RefererFrom.objects.filter(
                 referers__posts__posts__author=user
-            ).order_by('-created_date')[:12]
+            ).order_by('-created_date').distinct()[:12]
 
             return StatusDone({
                 'referers': list(map(lambda referer: {
