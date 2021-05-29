@@ -19,7 +19,7 @@ def page_parser(url):
         'description': '',
     }
 
-    if not protocol == 'http' or not protocol == 'https':
+    if not protocol == 'http' and not protocol == 'https':
         return data
 
     try:
