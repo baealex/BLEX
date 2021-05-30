@@ -30,8 +30,8 @@ function SeriesCard(props: SereisCardProps) {
             <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <a className="post-title">
                     <div className="post-mask">
-                        <h3 className="noto">'{props.name}' 시리즈</h3>
-                        <span className="date">{props.createdDate}</span>
+                        <div className="h5 font-weight-bold noto">‘{props.name}’ 시리즈</div>
+                        <span className="ns noto">{props.createdDate}</span>
                     </div>
                 </a>
             </Link>
