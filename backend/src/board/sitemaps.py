@@ -83,5 +83,4 @@ sitemaps = {
     'posts_sitemap': PostsSitemap,
     'series_sitemap': SeriesSitemap,
     'user_sitemap': UserSitemap,
-    'user_topic_sitemap': UserTopicSitemap,
 }

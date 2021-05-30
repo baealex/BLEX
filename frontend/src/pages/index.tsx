@@ -50,7 +50,6 @@ export default function TrendyArticles(props: Props) {
                     </div>
 
                     <Pagination
-                        hasBorder
                         page={props.page}
                         last={props.lastPage}
                     />

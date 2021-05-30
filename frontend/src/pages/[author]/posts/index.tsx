@@ -12,6 +12,7 @@ import { GetServerSidePropsContext } from 'next';
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
         author = '',
+        tag = '',
         page = 1,
     } = context.query;
 
@@ -30,11 +31,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         
         const posts = await API.getUserPosts(
             author as string, 
-            Number(page)
+            Number(page),
+            tag as string,
         );
         return {
             props: {
                 page,
+                tag: tag ? tag : 'all',
                 ...data.body,
                 ...posts.data.body
             }
@@ -48,6 +51,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 interface Props extends API.GetUserProfileData, API.GetUserPostsData {
     page: number;
+    tag: string;
 }
 
 export default function UserPosts(props: Props) {
@@ -65,7 +69,7 @@ export default function UserPosts(props: Props) {
             <div className="container">
                 <PostsComponent
                     allCount={props.allCount}
-                    active="all"
+                    active={props.tag}
                     author={props.profile.username}
                     tags={props.tags!}
                     posts={props.posts}>

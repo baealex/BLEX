@@ -51,7 +51,6 @@ export default function NewestArticles(props: Props) {
                     </div>
 
                     <Pagination
-                        hasBorder
                         page={props.page}
                         last={props.lastPage}
                     />

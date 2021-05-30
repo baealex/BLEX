@@ -45,7 +45,6 @@ export default function Tags(props: Props) {
                 </div>
 
                 <Pagination
-                    hasBorder
                     page={props.page}
                     last={props.lastPage}
                 />

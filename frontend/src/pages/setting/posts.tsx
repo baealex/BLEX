@@ -180,15 +180,18 @@ export default function Setting(props: Props) {
                 <ul className="tag-list mb-3">
                     {POSTS_ORDER.map((item, idx) => (
                         <li key={idx}>
-                            <Link href={{
-                                query: {
-                                    ...router.query,
-                                    order: router.query.order === item.order
-                                        ? item.order.replace('-' , '')
-                                        : item.order,
-                                    page: 1,
-                                }
-                            }}>
+                            <Link
+                                href={{
+                                    query: {
+                                        ...router.query,
+                                        order: router.query.order === item.order
+                                            ? item.order.replace('-' , '')
+                                            : item.order,
+                                        page: 1,
+                                    }
+                                }}
+                                scroll={false}
+                            >
                                 <a>
                                     {item.name}&nbsp;
                                     {router.query.order?.includes(item.order.replace('-' , '')) && (

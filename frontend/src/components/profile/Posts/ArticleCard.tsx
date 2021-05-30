@@ -27,7 +27,7 @@ export default function ArticleCard(props: ArticelCardProps) {
                         <Image
                             src={getPostsImage(props.image)}
                             width="800"
-                            height="400"
+                            height="350"
                             layout="responsive"
                         />
                     )}

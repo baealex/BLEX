@@ -57,7 +57,10 @@ export function Pagination(props: Props) {
                             <div className={cn('item')}>
                                 <Link href={{
                                     pathname: router.pathname,
-                                    query: { ...router.query, page: page - 1 }
+                                    query: {
+                                        ...router.query,
+                                        page: page - 1
+                                    }
                                 }}>
                                     <a className={cn('link')}>
                                         <i className="fas fa-arrow-left"></i>
