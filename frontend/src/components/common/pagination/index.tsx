@@ -3,21 +3,17 @@ import classNames from 'classnames/bind';
 
 const cn = classNames.bind(styles);
 
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 import { useRouter } from 'next/router';
 
 export interface Props {
     page: Number,
-    last: Number,
-    hasBorder?: boolean,
+    last: Number
 }
 
 export function Pagination(props: Props) {
-    const {
-        hasBorder = false,
-    } = props;
-
     const router = useRouter();
     
     const pageRange = [];
@@ -44,66 +40,125 @@ export function Pagination(props: Props) {
         }
     }
 
+    const [ inputPage, setInputPage ] = useState('');
+
+    const getPageRange = (num: number) => {
+        if(num < 1)    return 1;
+        if(num > last) return last;
+        return num;
+    };
+
     return (
         <>
-            <nav className={'none-drag ' + cn('nav', { hasBorder })}>
-                <div>
+            <nav className={`${cn('nav')} noto`}>
+                <div className={cn('pages')}>
                     {page != 1 ? (
-                        <Link href={{
-                            query: { ...router.query, page: page - 1 }
-                        }}>
-                            <a className={cn('arrowBox')}>
-                                <i className="fas fa-arrow-left"/>
-                                <div className={cn('arrowText')}>
-                                    prev
-                                </div>
-                            </a>
-                        </Link>
-                    ) : (
-                        <a className={cn('arrowBox', 'disable')}>
-                            <i className="fas fa-arrow-left"/>
-                            <div className={cn('arrowText')}>
-                                prev
-                            </div>
-                        </a>
-                    )}
-                </div>
-                <div className={cn('center')}>
-                    <ul className={`none-list ${cn('pages')}`}>
-                        {pageRange.map((item, idx) => (
-                            <li key={idx} className={page == item ? cn('active') : undefined}>
+                        <>
+                            <div className={cn('item')}>
                                 <Link href={{
-                                    query: { ...router.query, page: item }
+                                    pathname: router.pathname,
+                                    query: { ...router.query, page: page - 1 }
                                 }}>
-                                    <a className="pl">
-                                        {item}
+                                    <a className={cn('link')}>
+                                        <i className="fas fa-arrow-left"></i>
                                     </a>
                                 </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className={cn('end')}>
-                    {page != last ? (
-                        <Link href={{
-                            pathname: router.pathname,
-                            query: { ...router.query, page: page + 1 }
-                        }}>
-                            <a className={cn('arrowBox')}>
-                                <div className={cn('arrowText')}>
-                                    next
-                                </div>
-                                <i className="fas fa-arrow-right"/>
-                            </a>
-                        </Link>
-                    ) : (
-                        <a className={cn('arrowBox', 'disable')}>
-                            <div className={cn('arrowText')}>
-                                next
                             </div>
-                            <i className="fas fa-arrow-right"/>
-                        </a>
+                            <div className={cn('item')}>
+                                <Link href={{
+                                    pathname: router.pathname,
+                                    query: { ...router.query, page: 1 }
+                                }}>
+                                    <a className={cn('link')}>
+                                        <i className="fa fa-angle-double-left"></i>
+                                    </a>
+                                </Link>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className={cn('item', 'disabled')}>
+                                <a className={cn('link')}>
+                                    <i className="fas fa-arrow-left"></i>
+                                </a>
+                            </div>
+                            <div className={cn('item', 'disabled')}>
+                                <a className={cn('link')}>
+                                    <i className="fa fa-angle-double-left"></i>
+                                </a>
+                            </div>
+                        </>
                     )}
+                    {pageRange.map((item, idx) => (
+                        <div key={idx} className={cn('item', { active: page == item})}>
+                            <Link href={{
+                                pathname: router.pathname,
+                                query: { ...router.query, page: item }
+                            }}>
+                                <a className={cn('link')}>
+                                    {item}
+                                </a>
+                            </Link>
+                        </div>
+                    ))}
+                    {page != last ? (
+                        <>
+                            <div className={cn('item')}>
+                                <Link href={{
+                                    pathname: router.pathname,
+                                    query: { ...router.query, page: last }
+                                }}>
+                                    <a className={cn('link')}>
+                                        <i className="fa fa-angle-double-right"></i>
+                                    </a>
+                                </Link>
+                            </div>
+                            <div className={cn('item')}>
+                                <Link href={{
+                                    pathname: router.pathname,
+                                    query: { ...router.query, page: page + 1 }
+                                }}>
+                                    <a className={cn('link')}>
+                                        <i className="fas fa-arrow-right"></i>
+                                    </a>
+                                </Link>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className={cn('item', 'disabled')}>
+                                <a className={cn('link')}>
+                                    <i className="fa fa-angle-double-right"></i>
+                                </a>
+                            </div>
+                            <div className={cn('item', 'disabled')}>    
+                                <a className={cn('link')}>
+                                    <i className="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </>
+                    )}
+                </div>
+                <div className={`${cn('search')}`}>
+                    <span className="vs shallow-dark mr-2">
+                        Go to page
+                    </span>
+                    <input
+                        className={cn('num')}
+                        type="number"
+                        min={1}
+                        max={last}
+                        value={inputPage}
+                        onChange={(e) => setInputPage(getPageRange(parseInt(e.target.value)).toString())}
+                    />
+                    <Link href={{
+                        pathname: router.pathname,
+                        query: { ...router.query, page: inputPage === '' ? page : inputPage }
+                    }}>
+                        <button className={cn('go')}>
+                            Go <i className="fas fa-chevron-right"></i>
+                        </button>
+                    </Link>
                 </div>
             </nav>
         </>
