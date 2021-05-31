@@ -5,6 +5,7 @@ import { ArticleCard } from '@components/article';
 
 import * as API from '@modules/api';
 import {
+    lazyLoadResource,
     lazyIntersection
 } from '@modules/lazy';
 
@@ -23,6 +24,7 @@ export function FeatureArticles(props: FeatureArticlesProps) {
             const { author, url } = props;
             const { data } = await API.getFeaturePosts('@'+ author, url);
             setPosts(data.body.posts);
+            lazyLoadResource();
         });
 
         return () => observer?.disconnect();

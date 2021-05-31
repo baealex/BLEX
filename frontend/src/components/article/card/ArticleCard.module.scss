@@ -5,20 +5,6 @@
     float: initial;
     margin-left: 0;
     background-color: #fff;
-
-    @media only screen and (max-width: 991px) {
-        width: 150px;
-        height: 150px;
-        float: right;
-        margin-left: 20px;
-    }
-
-    @media only screen and (max-width: 402px) {
-        width: 110px;
-        height: 135px;
-        float: right;
-        margin-left: 15px;
-    }
 }
 
 .postsTitle {

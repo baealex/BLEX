@@ -2,7 +2,6 @@ import styles from './ArticleAuthor.module.scss';
 import classNames from 'classnames';
 
 import Link from 'next/link';
-import Image from 'next/image';
 
 import Social, { SocialProps } from '@components/profile/Social';
 
@@ -22,7 +21,7 @@ export function ArticleAuthor(props: ArticleAuthorProps) {
             <div>
             <Link href="/[author]" as={`/@${props.profile.username}`}>
                 <a>
-                    <Image
+                    <img
                         className={styles.image}
                         src={props.profile.image}
                         width="130"

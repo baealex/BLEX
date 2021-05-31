@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import Head from 'next/head';
 import Router from 'next/router';
 
@@ -320,10 +319,9 @@ class PostDetail extends React.Component<Props, State> {
                     </div>
                     {this.props.post.image !== '' && (
                         <div className="mb-5 mx-fit">
-                            <Image
-                                className="fit-cover"
-                                width={1600}
-                                height={900}
+                            <img
+                                className="fit-cover w-100"
+                                height={700}
                                 src={getPostsImage(this.props.post.image.replace('.minify.jpg', ''))}
                             />
                         </div>

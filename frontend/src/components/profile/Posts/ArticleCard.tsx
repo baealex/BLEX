@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 import TagList from '../../tag/TagList';
 
@@ -24,11 +23,11 @@ export default function ArticleCard(props: ArticelCardProps) {
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                 <a>
                     {props.image && (
-                        <Image
-                            src={getPostsImage(props.image)}
-                            width="800"
-                            height="350"
-                            layout="responsive"
+                        <img
+                            className="lazy"
+                            src={getPostsImage(props.image) + '.preview.jpg'}
+                            data-src={getPostsImage(props.image)}
+                            height="400"
                         />
                     )}
                 </a>

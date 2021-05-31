@@ -1,7 +1,7 @@
 import styles from './FeatureArticleCard.module.scss';
+import classNames from 'classnames';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Card } from '@components/atoms';
 
 export interface FeautreArticleCardProps {
@@ -19,12 +19,14 @@ export default function FeautreArticleCard(props: FeautreArticleCardProps) {
             <Card isRounded>
                 <Link href="/[author]/[posturl]" as={`@${props.author}/${props.url}`}>
                     <a className="deep-dark">
-                        <Image
-                            className={styles.image}
-                            src={props.image}
-                            width="600"
+                        <img
+                            className={classNames(
+                                styles.image,
+                                'lazy'
+                            )}
+                            src={props.image + '.preview.jpg'}
+                            data-src={props.image}
                             height="400"
-                            layout="responsive"
                         />
                         <div className="p-3">
                             <div>

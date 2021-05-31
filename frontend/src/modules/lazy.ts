@@ -34,7 +34,7 @@ export function lazyLoadResource() {
                 if (entry.isIntersecting) {
                     let lazyImage: any = entry.target;
                     lazyImage.src = lazyImage.dataset.src;
-                    lazyImage.classList.remove("lazy");
+                    // lazyImage.classList.remove("lazy");
                     lazyImageObserver.unobserve(lazyImage);
                 }
             });
@@ -60,7 +60,7 @@ export function lazyLoadResource() {
                         }
                     }
                     video.target.load();
-                    video.target.classList.remove("lazy");
+                    // video.target.classList.remove("lazy");
                     lazyVideoObserver.unobserve(video.target);
                 }
             });

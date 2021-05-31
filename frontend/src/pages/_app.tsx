@@ -10,8 +10,15 @@ import 'react-toastify/dist/ReactToastify.css';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
+import {
+    lazyLoadResource
+} from '@modules/lazy';
+
 Router.events.on('routeChangeStart', () => NProgress.start());
-Router.events.on('routeChangeComplete', () => NProgress.done());
+Router.events.on('routeChangeComplete', () => {
+    NProgress.done();
+    lazyLoadResource();
+});
 Router.events.on('routeChangeError', () => NProgress.done());
 
 import SEO from '@components/seo';
@@ -21,6 +28,10 @@ import { TopNavigation } from '@components/common';
 class Main extends App<AppProps> {
     constructor(props: AppProps) {
         super(props);
+    }
+
+    componentDidMount() {
+        lazyLoadResource();
     }
 
     render() {

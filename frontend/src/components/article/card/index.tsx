@@ -2,7 +2,6 @@ import styles from './ArticleCard.module.scss';
 import classNames from 'classnames';
 
 import Link from 'next/link';
-import Image from 'next/image';
 
 import { Card } from '@components/atoms';
 import {
@@ -22,6 +21,7 @@ export interface ArticleCardProps {
 }
 
 export function ArticleCard(props: ArticleCardProps) {
+
     return (
         <div className="col-lg-4 col-md-6 mt-4">
             <Card isRounded>
@@ -29,13 +29,14 @@ export function ArticleCard(props: ArticleCardProps) {
                     styles.posts
                 )}>
                     <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                        <a>
-                            <Image
-                                className={styles.postsImage}
-                                src={getPostsImage(props.image)}
-                                width="600"
-                                height="400"
-                                layout="responsive"
+                        <a> 
+                            <img
+                                className={classNames(
+                                    styles.postsImage,
+                                    'lazy'
+                                )}
+                                src={getPostsImage(props.image) + '.preview.jpg'}
+                                data-src={getPostsImage(props.image)}
                             />
                         </a>
                     </Link>
@@ -52,7 +53,7 @@ export function ArticleCard(props: ArticleCardProps) {
                     <div className="d-flex">
                         <Link href="/[author]" as={`/@${props.author}`}>
                             <a>
-                                <Image
+                                <img
                                     className="fit-cover rounded"
                                     src={getUserImage(props.authorImage)}
                                     width="35"
