@@ -30,7 +30,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'most',
             'recent'
         ]);
-        console.log(data);
         return {
             props: {
                 ...data.body,

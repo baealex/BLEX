@@ -138,7 +138,6 @@ def has_vaild_referer(referer):
 
 def create_viewer(posts, ip, user_agent):
     history = None
-    print(user_agent)
     key = get_hash_key((ip).encode())
     try:
         history = History.objects.get(key=key)
