@@ -14,12 +14,13 @@ def page_parser(url):
     origin   = f'{protocol}://{host}'
 
     data = {
-        'title': host,
+        'title': '',
         'image': '',
         'description': '',
     }
 
     if not protocol == 'http' and not protocol == 'https':
+        data['title'] = host
         return data
 
     try:
@@ -47,6 +48,9 @@ def page_parser(url):
                 title = title.group(1)
                 if not f'{protocol}://' in title:
                     data['title'] = title
+        
+        if not data['title']:
+            data['title'] = host
 
         for name in ['title', 'description']:
             if data[name]:
