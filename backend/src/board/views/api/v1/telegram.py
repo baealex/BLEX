@@ -5,7 +5,7 @@ from django.http import Http404
 from django.utils import timezone
 from PIL import Image, ImageFilter
 
-from board.models import TelegramSync
+from board.models import TelegramSync, randstr
 from board.module.subtask import sub_task_manager
 from board.module.telegram import TelegramBot
 from board.module.response import StatusDone, StatusError
