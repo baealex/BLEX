@@ -45,12 +45,17 @@
 - [x] 깃허브와 구글 아이디로 빠른 시작
 - [x] 음...또 뭐가있지? 개발자가 착함 😅
 
-## Notes
+## Links
 
-- [기술스택](https://www.notion.so/676c4c14c9804d6e9c5bba6eb68059eb)
-- [개발 플래닝](https://www.notion.so/9b8b5cac32d947aa9396d9f57f2410be)
-- [아키택쳐 구조](ARCHITECTURE.md)
+#### For Developer
+
+- [사용하는 기술들](https://www.notion.so/676c4c14c9804d6e9c5bba6eb68059eb)
+- [소스코드 아키택쳐 구조](ARCHITECTURE.md)
 - [아키택쳐 의사결정 기록](https://www.notion.so/3610dd49ba1f4403b154e0a27bcc3753)
+
+#### For Customer
+
+- [앞으로 추가할 기능들](https://www.notion.so/9b8b5cac32d947aa9396d9f57f2410be)
 
 ## Contributors
 
