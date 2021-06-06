@@ -35,18 +35,34 @@
 
 ## Features
 
-- [x] 마크다운으로 글 및 댓글 작성 ✍
-- [x] 유튜브 영상 삽입 등 커스텀 문법 제공
+- [x] 마크다운으로 글 · 댓글 작성 ✍️
 - [x] 텔레그램으로 날아오는 알림 🚀
 - [x] 텔레그램 2차 인증으로 강력한 보안 🔒
-- [x] 잔디로 정리되는 블로그 기록들 ☘
+- [x] 잔디로 정리되는 블로그의 기록들 🌿
 - [x] 포스트의 유입경로와 조회수 제공 📈
 - [x] 여러분 눈 건강을 위한 나이트 모드 😉❤
-- [x] 깃허브와 구글 아이디로 빠른 시작
+- [x] 구글 · 네이버에서 검색순위 올라가고 있는 중 ✈️
+- [x] 구글 · 깃허브 아이디로 빠른 시작 ✨
 - [x] 음...또 뭐가있지? 개발자가 착함 😅
 
-## Notes
+## Links
 
-- [기술스택](https://www.notion.so/676c4c14c9804d6e9c5bba6eb68059eb)
-- [개발 플래닝](https://www.notion.so/9b8b5cac32d947aa9396d9f57f2410be)
+#### For Developer
+
+- [사용하는 기술들](https://www.notion.so/676c4c14c9804d6e9c5bba6eb68059eb)
+- [소스코드 아키택쳐 구조](ARCHITECTURE.md)
 - [아키택쳐 의사결정 기록](https://www.notion.so/3610dd49ba1f4403b154e0a27bcc3753)
+
+#### For Customer
+
+- [앞으로 추가할 기능들](https://www.notion.so/9b8b5cac32d947aa9396d9f57f2410be)
+
+## Contributors
+
+<a href="https://github.com/baealex/BLEX/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=baealex/BLEX" />
+</a>
+
+## License
+
+This is released under the MIT license. See [LICENSE](LICENSE) for details.
