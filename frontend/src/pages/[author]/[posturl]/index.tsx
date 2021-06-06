@@ -320,8 +320,7 @@ class PostDetail extends React.Component<Props, State> {
                     {this.props.post.image !== '' && (
                         <div className="mb-5 mx-fit">
                             <img
-                                className="fit-cover w-100"
-                                height={700}
+                                className="fit-cover w-100 posts-title-image"
                                 src={getPostsImage(this.props.post.image.replace('.minify.jpg', ''))}
                             />
                         </div>
