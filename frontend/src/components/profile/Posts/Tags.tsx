@@ -42,7 +42,7 @@ export default function Tags(props: TagsProps) {
                     </div>
                     <Dropdown
                         button={
-                            <i className="fas fa-ellipsis-v"></i>
+                            <i className="fas fa-exchange-alt fa-rotate-90"></i>
                         }
                         menus={[
                             {

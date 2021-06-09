@@ -1,0 +1,7 @@
+$rotates: 45, 90, 180, 270;
+
+@each $rotate in $rotates {
+    .fa-rotate-#{$rotate} {
+        transform: rotate(#{$rotate}deg);
+    }
+}
