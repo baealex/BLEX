@@ -215,9 +215,19 @@ export function Comment(props: CommentProps) {
                             />
                         )
                     )) : (
-                        <div className="noto alert alert-warning s-shadow">
-                            작성된 댓글이 없습니다. 첫 댓글을 달아보세요!
-                        </div>
+                        <CommentItem
+                            pk={-1}
+                            author="Ghost"
+                            authorImage="https://static.blex.me/assets//images/ghost.png"
+                            timeSince="0분"
+                            html="작성된 댓글이 없습니다. 첫 댓글을 달아보세요!"
+                            isEdited={false}
+                            isOwner={false}
+                            totalLikes={0}
+                            isLiked={false}
+                            onEdit={() => {}}
+                            onDelete={() => {}}
+                        />
                     )
                     }
                     {isLogin ? (

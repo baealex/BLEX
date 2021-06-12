@@ -16,10 +16,10 @@ interface Props {
     isLiked: boolean;
     isEdited: boolean;
     isOwner: boolean;
-    onLike: (pk: number) => void;
+    onLike?: (pk: number) => void;
     onEdit: (pk: number) => void;
     onDelete: (pk: number) => void;
-    onTag: (username: string) => void;
+    onTag?: (username: string) => void;
     html: string;
     totalLikes: number;
 };
@@ -75,16 +75,18 @@ export default function Comment(props: Props) {
                 />
                 <div className="my-2">
                     <ul className={`${cn('sub-item')} none-list noto ns`}>
-                        <li onClick={() => props.onLike(props.pk)}>
-                            {props.isLiked ? (
-                                <i className="fas fa-heart"/>
-                            ) : (
-                                <i className="far fa-heart"/>
-                            )} {props.totalLikes}
-                        </li>
-                        {!props.isOwner && (
+                        {props.onLike && (
+                            <li onClick={() => props.onLike && props.onLike(props.pk)}>
+                                {props.isLiked ? (
+                                    <i className="fas fa-heart"/>
+                                ) : (
+                                    <i className="far fa-heart"/>
+                                )} {props.totalLikes}
+                            </li>
+                        )}
+                        {props.onTag && !props.isOwner && (
                             <>
-                                <li className="float-right" onClick={() => props.onTag(props.author)}>
+                                <li className="float-right" onClick={() => props.onTag && props.onTag(props.author)}>
                                     <i className="fas fa-reply"/> 사용자 태그
                                 </li>
                             </>

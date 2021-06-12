@@ -222,7 +222,7 @@ def posts_comments(request, url):
                     Exists(
                         Comment.objects.filter(
                             id=OuterRef('id'),
-                            likes__id=request.user.id
+                            likes__id=request.user.id if request.user.id else -1
                         )
                     ),
                     then=Value(True)
