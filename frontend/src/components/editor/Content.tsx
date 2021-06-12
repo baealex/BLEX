@@ -1,4 +1,6 @@
 import styles from './styles.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
 
 import React from 'react';
 
@@ -42,23 +44,33 @@ class EditorContent extends React.Component<Props> {
     }
 
     render() {
+        const {
+            isEditMode
+        } = this.props;
+
         return (
             <>
-                {this.props.isEditMode ? (
-                    <>
-                        <textarea
-                            className={styles.content}
-                            ref={el => this.textarea = el}
-                            value={this.props.value}
-                            placeholder="마크다운으로 글을 작성하세요."
-                            onChange={(e) => this.props.onChange(e)}
+                <div className={styles.contentLayout}>
+                    <textarea
+                        className={cn(
+                            'content',
+                            { isEditMode }
+                        )}
+                        ref={el => this.textarea = el}
+                        value={this.props.value}
+                        placeholder="마크다운으로 글을 작성하세요."
+                        onChange={(e) => this.props.onChange(e)}
+                    />
+                    <div className={cn(
+                        'preview',
+                        { isEditMode }
+                    )}>
+                        <ArticleContent
+                            isEdit
+                            html={blexer(this.props.value)}
                         />
-                    </>
-                ) : (
-                    <>
-                        <ArticleContent isEdit html={blexer(this.props.value)}/>
-                    </>
-                )}
+                    </div>
+                </div>
             </>
         )
     }

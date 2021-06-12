@@ -1,6 +1,11 @@
+.contentLayout {
+    position: relative;
+}
+
 .content {
+    transition: opacity 0.5s;
     width: 100%;
-    height: auto;
+    height: 100%;
     border: none;
     font-size: 1.028em;
     line-height: 2;
@@ -8,13 +13,35 @@
     display: block;
     overflow: hidden;
     resize: none;
+    position: absolute;
+    top: 0;
+    left: 0;
 
     &:focus {
         outline: none;    
     }
 
+    opacity: 0;
+    pointer-events: none;
+
+    &.isEditMode {
+        opacity: 1;
+        pointer-events: initial;
+    }
+
     :global(body.dark) & {
         color: #ccc;
+    }
+}
+
+.preview {
+    transition: opacity 0.5s;
+    opacity: 1;
+    pointer-events: initial;
+
+    &.isEditMode {
+        opacity: 0;
+        pointer-events: none;
     }
 }
 
