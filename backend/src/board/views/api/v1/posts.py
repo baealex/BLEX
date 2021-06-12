@@ -231,6 +231,9 @@ def posts_comments(request, url):
             )
         ).filter(post__url=url).order_by('created_date')
         
+        if not request.user.is_active:
+            comments = comments[:1]
+        
         return StatusDone({
             'comments': list(map(lambda comment: {
                 'pk': comment.pk,
