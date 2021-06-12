@@ -736,36 +736,32 @@
     ul.menu-item {
         padding-bottom: 15px;
         margin-bottom: 15px;
-        border-bottom: 1px solid #666;
+        border-bottom: 1px solid #333;
 
         a {
-            color: #eee;
+            color: #ccc;
             font-size: 16px;
             line-height: 2;
 
             &:hover {
-                color: $COLOR_DEFAULT_POINT;
+                color: #fff;
                 text-decoration: none;
-
-                body.dark & {
-                    color: $COLOR_DARK_SECONDARY;
-                }
             }
         }
     }
     
     ul.menu-footer-item {
-        padding-top: 15px;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #333;
         display: flex;
         flex-direction: row;
         justify-content: space-around;
         
         li {
-            color: #aaa;
-
             a {
                 cursor: pointer;
-                color: #aaa;
+                color: #ccc;
                 transition: all 0.5s;
 
                 &:hover {
