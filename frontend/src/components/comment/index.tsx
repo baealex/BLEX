@@ -210,8 +210,8 @@ export function Comment(props: CommentProps) {
                                 isLiked={comment.isLiked}
                                 onEdit={handleEdit}
                                 onDelete={handleDelte}
-                                onLike={handleLike}
-                                onTag={handleTag}
+                                onLike={comment.author !== 'Ghost' ? handleLike : undefined}
+                                onTag={comment.author !== 'Ghost' ? handleTag : undefined}
                             />
                         )
                     )) : (
