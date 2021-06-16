@@ -240,15 +240,7 @@ export function Comment(props: CommentProps) {
                             className="noto alert alert-warning s-shadow c-pointer"
                             onClick={() => Global.onOpenModal('isLoginModalOpen')}
                         >
-                            {props.totalComment > comments.length ? (
-                                <>
-                                    로그인 후 {props.totalComment - 1}개의 댓글 더보기
-                                </>
-                            ) : (
-                                <>
-                                    댓글을 작성하기 위해 로그인이 필요합니다.
-                                </>
-                            )}
+                            댓글을 작성하기 위해 로그인이 필요합니다.
                         </div>
                     )}
                 </div>
