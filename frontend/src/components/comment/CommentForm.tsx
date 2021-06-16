@@ -2,7 +2,14 @@ import styles from './Comment.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
+import {
+    useRef,
+    useState,
+} from 'react';
+
 import { toast } from 'react-toastify';
+
+import { Card } from '@components/atoms';
 
 import { dropImage } from '@modules/image';
 
@@ -13,10 +20,12 @@ interface Props {
 };
 
 export default function CommentForm(props: Props) {
-    let input: HTMLTextAreaElement | null;
+    const input = useRef<HTMLTextAreaElement>(null);
+
+    const [isOpen, setIsOpen] = useState(false);
 
     const onDrop = async (e: React.DragEvent<HTMLTextAreaElement>) => {
-        const cursorPos = input?.selectionStart;
+        const cursorPos = input.current?.selectionStart;
         const textBefore = props.content.substring(0,  cursorPos);
         const textAfter  = props.content.substring(cursorPos || 0, props.content.length);
 
@@ -39,33 +48,57 @@ export default function CommentForm(props: Props) {
         }
     }
 
-    const onSubmit = () => {
+    const handleSubmit = () => {
         if(props.content == '') {
             toast('😅 댓글의 내용을 입력해주세요.');
             return;
         }
         props.onSubmit(props.content);
         props.onChange('');
+        setIsOpen(false);
     }
 
     return (
-        <div className="mb-3">
-            <textarea
-                ref={el => input = el}
-                rows={5}
-                className={`${cn('form')} form-control noto`}
-                onChange={(e) => props.onChange(e.target.value)}
-                onDrop={(e) => onDrop(e)}
-                placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
-                maxLength={300}
-                value={props.content}>
-            </textarea>
-            <button
-                type="button"
-                onClick={() => onSubmit()}
-                className="btn btn-dark btn-block noto">
-                댓글 작성
-            </button>
-        </div>
-    );
+        <>
+            <div
+                className={cn(
+                    'form',
+                    { isOpen }
+                )}
+                onClick={() => {
+                    !isOpen && setIsOpen(true);
+                    input.current?.focus();
+                }}
+            >
+                <Card
+                    isRounded
+                    className={`p-3 mb-3 noto ${cn(
+                        'card',
+                        { isOpen }
+                    )}`}
+                >
+                    <>
+                        <textarea
+                            ref={input}
+                            rows={5}
+                            className={`noto ${cn({ isOpen })}`}
+                            onChange={(e) => props.onChange(e.target.value)}
+                            onDrop={(e) => onDrop(e)}
+                            placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
+                            maxLength={300}
+                            value={props.content}>
+                        </textarea>
+                        <div
+                            className={cn('submit', { isOpen })}
+                            onClick={() => {
+                                isOpen && handleSubmit()
+                            }}
+                        >
+                            <i className="fas fa-pencil-alt"/> 댓글 작성
+                        </div>
+                    </>
+                </Card>
+            </div>
+        </>
+    )
 }

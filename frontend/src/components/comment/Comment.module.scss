@@ -118,3 +118,54 @@
         }
     }
 }
+
+.form {
+    position: relative;
+
+    textarea {
+        transition: all 0.5s ease;
+        height: 0px;
+        width: 100%;
+        display: block;
+        outline: none;
+        border: none;
+        resize: none;
+        overflow-y: hidden;
+        padding: 0;
+        margin: 0;
+
+        &.isOpen {
+            overflow-y: auto;
+            height: 150px;
+        }
+    }
+
+    .card {
+        transition: all 0.5s ease;
+        background-color: #fff;
+        
+        &:hover {
+            cursor: text;
+            box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
+
+            &.isOpen {
+                cursor: initial;
+                background-color: #fff;
+            }
+        }
+    }
+
+    .submit {
+        transition: all 0.5s ease;
+        left: 0;
+
+        &.isOpen {
+            right: 0;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 8px 16px;
+            background-color: #000;
+            color: #fff;
+        }
+    }
+}
