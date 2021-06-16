@@ -129,7 +129,7 @@ def sign_social(request, social):
                         user = User.objects.get(last_name='github:' + str(node_id))
                         return common_auth(request, user)
                     except:
-                        pass
+                        traceback.print_exc()
                         
                     counter = 0
                     username = state['user'].get('login')
@@ -173,9 +173,9 @@ def sign_social(request, social):
                     node_id = state['user'].get('id')
                     try:
                         user = User.objects.get(last_name='google:' + str(node_id))
-                        common_auth(request, user)
+                        return common_auth(request, user)
                     except:
-                        pass
+                        traceback.print_exc()
                     
                     counter = 0
                     username = state['user'].get('email').split('@')[0]
