@@ -3,9 +3,11 @@ import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
 import {
+    useEffect,
     useRef,
     useState,
 } from 'react';
+import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
@@ -57,6 +59,16 @@ export default function CommentForm(props: Props) {
         props.onChange('');
         setIsOpen(false);
     }
+
+    useEffect(() => {
+        const routerChange = () => {
+            props.onChange('');
+            setIsOpen(false);
+        };
+        Router.events.on('routeChangeStart', routerChange);
+        return () => 
+            Router.events.off('routeChangeStart', routerChange);
+    }, []);
 
     return (
         <>
