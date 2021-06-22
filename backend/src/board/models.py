@@ -71,7 +71,6 @@ def timestamp(date, kind=''):
     timestamp = timestamp + '0' * (16 - len(timestamp))
     return timestamp
 
-
 # Models
 
 class Comment(models.Model):

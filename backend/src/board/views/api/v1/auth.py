@@ -24,7 +24,7 @@ def common_auth(request, user):
                 user.twofactorauth.create_token(token)
                 bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
                 bot.send_message(user.telegramsync.tid, f'2차 인증 코드입니다 : {token}')
-            sub_task_manager.append_task(create_auth_token)
+            sub_task_manager.append(create_auth_token)
             return StatusDone({
                 'username': user.username,
                 'security': True,
@@ -103,7 +103,7 @@ def sign(request):
         new_user.is_active = False
         new_user.save()
 
-        sub_task_manager.append_task(lambda: send_mail(
+        sub_task_manager.append(lambda: send_mail(
             subject = '[ BLEX ] 이메일을 인증해 주세요!',
             message = settings.SITE_URL + '/verify?token=' + token,
             from_email = 'im@baejino.com',
@@ -267,7 +267,7 @@ def security(request):
 
         recovery_key = randstr(45)
 
-        sub_task_manager.append_task(lambda: send_mail(
+        sub_task_manager.append(lambda: send_mail(
             subject='[ BLEX ] 2차 인증 복구키',
             message=f'핸드폰을 사용할 수 없다면 이 복구키를 사용하여 로그인 하십시오.\n\n{recovery_key}',
             from_email='im@baejino.com',

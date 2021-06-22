@@ -245,7 +245,7 @@ def create_notify(user, url, infomation):
         tid = user.telegramsync.tid
         if not tid == '':
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            sub_task_manager.append_task(lambda: bot.send_messages(tid, [
+            sub_task_manager.append(lambda: bot.send_messages(tid, [
                 settings.SITE_URL + str(url),
                 infomation
             ]))

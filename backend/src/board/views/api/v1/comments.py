@@ -32,8 +32,14 @@ def comment(request, pk=None):
 
             content = strip_tags(body.get('comment_html'))[:50]
             if not comment.author == post.author:
-                send_notify_content = '\''+ post.title +'\'글에 @'+ comment.author.username +'님이 댓글을 남겼습니다. > ' + content + ' …'
-                fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+                send_notify_content = (
+                    f"'{post.title}'글에 "
+                    f"@{comment.author.username}님이 댓글을 남겼습니다. "
+                    f"> {content} …")
+                fn.create_notify(
+                    user=post.author,
+                    url=post.get_absolute_url(),
+                    infomation=send_notify_content)
             
             regex = re.compile(r'\`\@([a-zA-Z0-9\.]*)\`\s?')
             if regex.search(comment.text_md):
@@ -47,8 +53,14 @@ def comment(request, pk=None):
                     if tag_user in commentors:
                         _user = User.objects.get(username=tag_user)
                         if not _user == request.user:
-                            send_notify_content = '\''+ post.title + '\'글에서 @' + request.user.username + '님이 회원님을 태그했습니다. #' + str(comment.pk)
-                            fn.create_notify(user=_user, url=post.get_absolute_url(), infomation=send_notify_content)
+                            send_notify_content = (
+                                f"'{post.title}' 글에서 "
+                                f"@{request.user.username}님이 "
+                                f"회원님을 태그했습니다. #{comment.pk}")
+                            fn.create_notify(
+                                user=_user,
+                                url=post.get_absolute_url(),
+                                infomation=send_notify_content)
             
             return StatusDone({
                 'pk': comment.pk,
@@ -85,8 +97,14 @@ def comment(request, pk=None):
                 else:
                     comment.likes.add(user)
                     comment.save()
-                    send_notify_content = '\''+ comment.post.title +'\'글에 작성한 회원님의 #' + str(comment.pk) + ' 댓글을 @'+ user.username +'님께서 추천했습니다.'
-                    fn.create_notify(user=comment.author, url=comment.post.get_absolute_url(), infomation=send_notify_content)
+                    send_notify_content = (
+                        f"'{comment.post.title}'글에 작성한 "
+                        f"회원님의 #{comment.pk} 댓글을 "
+                        f"@{user.username}님께서 추천했습니다.")
+                    fn.create_notify(
+                        user=comment.author,
+                        url=comment.post.get_absolute_url(),
+                        infomation=send_notify_content)
                 return StatusDone({
                     'total_likes': comment.total_likes()
                 })

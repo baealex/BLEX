@@ -1,32 +1,40 @@
+import asyncio
 import time
-import threading
 import traceback
 
-from collections import deque
+from functools import wraps, partial
+from threading import Thread
 
-class SubTaskManager:
+def asynchronously(func):
+    @wraps(func)
+    async def coro(*args, loop=None, executor=None, **kwargs):
+        if loop is None:
+            loop = asyncio.get_event_loop()
+        partial_func = partial(func, *args, **kwargs)
+        return await loop.run_in_executor(executor, partial_func)
+    return coro
+
+class AsyncLoopThread(Thread):
     def __init__(self):
-        self.is_running = False
-        self.task_queue = deque([])
+        super().__init__(daemon=True)
+        self.loop = asyncio.new_event_loop()
 
-    def _do_task(self):
-        self.is_running = True
-        while len(self.task_queue) > 0:
-            task = self.task_queue.popleft()
-            try:
-                task()
-            except Exception:
-                traceback.print_exc()
-        self.is_running = False
+    def run(self):
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_forever()
+        return self.loop
     
-    def append_task(self, fn):
-        if not 'function' in str(type(fn)):
-            return
-        self.task_queue.append(fn)
+    def append(self, func):
+        coro = asynchronously(func)
+        self.append_async(coro())
+    
+    def append_async(self, coro):
+        async def decorator():
+            try:
+                await coro
+            except:
+                traceback.print_exc()
+        asyncio.run_coroutine_threadsafe(decorator(), self.loop)
 
-        if not self.is_running:
-            t = threading.Thread(target=self._do_task)
-            t.setDaemon(True)
-            t.start()
-
-sub_task_manager = SubTaskManager()
+sub_task_manager = AsyncLoopThread()
+sub_task_manager.start()
