@@ -61,7 +61,7 @@ class Main extends App<AppProps> {
                 
                 <SEO
                     title={'BLOG EXPRESS ME'}
-                    description={'온라인 창작자를 위한 블로그'}
+                    description={'경험이 글을 만들고 글이 나를 만든다. 나를 표현하는 블렉스'}
                     image={'https://static.blex.me/assets/images/default-post.png'}
                 />
                 <LibHead/>
