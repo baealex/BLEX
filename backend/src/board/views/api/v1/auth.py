@@ -104,10 +104,10 @@ def sign(request):
         new_user.save()
 
         sub_task_manager.append(lambda: send_mail(
-            subject = '[ BLEX ] 이메일을 인증해 주세요!',
-            message = settings.SITE_URL + '/verify?token=' + token,
-            from_email = 'im@baejino.com',
-            recipient_list = [new_user.email],
+            subject='[ BLEX ] 이메일을 인증해 주세요!',
+            message=f'{settings.SITE_URL}/verify?token={token}',
+            from_email='im@baejino.com',
+            recipient_list=[new_user.email],
         ))
         return StatusDone()
     
@@ -156,9 +156,15 @@ def sign_social(request, social):
                     config = Config(user=new_user)
                     config.save()
 
-                    fn.create_notify(user=new_user, url='/notion', infomation=new_user.first_name + (
-                        '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
-
+                    fn.create_notify(
+                        user=new_user,
+                        url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
+                        infomation=(
+                            f'{new_user.first_name}님의 가입을 진심으로 환영합니다! '
+                            f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
+                            f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
+                        )
+                    )
                     auth.login(request, new_user)
                     return StatusDone({
                         'username': username,
@@ -201,8 +207,15 @@ def sign_social(request, social):
                     config = Config(user=new_user)
                     config.save()
 
-                    fn.create_notify(user=new_user, url='/notion', infomation=new_user.first_name + (
-                        '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
+                    fn.create_notify(
+                        user=new_user,
+                        url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
+                        infomation=(
+                            f'{new_user.first_name}님의 가입을 진심으로 환영합니다! '
+                            f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
+                            f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
+                        )
+                    )
 
                     auth.login(request, new_user)
                     return StatusDone({
@@ -244,8 +257,15 @@ def email_verify(request, token):
         config = Config(user=user)
         config.save()
         
-        fn.create_notify(user=user, url='/notion', infomation=user.first_name + (
-            '님의 가입을 진심으로 환영합니다! 블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 \'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'))
+        fn.create_notify(
+            user=user,
+            url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
+            infomation=(
+                f'{user.first_name}님의 가입을 진심으로 환영합니다! '
+                f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
+                f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
+            )
+        )
 
         auth.login(request, user)
         return StatusDone({
