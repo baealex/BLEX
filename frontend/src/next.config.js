@@ -1,5 +1,7 @@
 const path = require('path');
-const withTM = require('next-transpile-modules')(['frappe-charts']);
+const withTM = require('next-transpile-modules')(
+    ['react-frappe-charts', 'frappe-charts']
+);
 
 module.exports = withTM({
     experimental: {
