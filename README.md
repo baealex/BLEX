@@ -49,13 +49,13 @@
 
 #### For Developer
 
-- [사용하는 기술들](https://www.notion.so/676c4c14c9804d6e9c5bba6eb68059eb)
-- [소스코드 아키택쳐 구조](ARCHITECTURE.md)
-- [아키택쳐 의사결정 기록](https://www.notion.so/3610dd49ba1f4403b154e0a27bcc3753)
+- [사용하는 기술들](docs/Tech-Stack.md)
+- [소스코드 아키택쳐 구조](docs/Architecture.md)
+- [아키택쳐 의사결정 기록](docs/Architecture-Decision-Records.md)
 
-#### For Customer
+#### For User
 
-- [앞으로 추가할 기능들](https://www.notion.so/9b8b5cac32d947aa9396d9f57f2410be)
+- [블렉스 노션](https://blex.me/notion)
 
 ## Contributors
 
