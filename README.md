@@ -49,9 +49,9 @@
 
 #### For Developer
 
-- [사용하는 기술들](docs/Tech-Stack.md)
-- [소스코드 아키택쳐 구조](docs/Architecture.md)
-- [아키택쳐 의사결정 기록](docs/Architecture-Decision-Records.md)
+- [사용하는 기술들](documents/Tech-Stack.md)
+- [소스코드 아키택쳐 구조](documents/Architecture.md)
+- [아키택쳐 의사결정 기록](documents/Architecture-Decision-Records.md)
 
 #### For User
 
