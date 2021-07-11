@@ -220,18 +220,13 @@ export function TopNavigation() {
                     </ul>
                     <ul className="menu-item">
                         <li>
-                            <a target="_blank" href="https://www.notion.so/9b8b5cac32d947aa9396d9f57f2410be">
-                                <i className="far fa-calendar-check"></i> 업데이트 플랜
+                            <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
+                                <i className="fas fa-book"></i> 서비스 안내서
                             </a>
                         </li>
                         <li>
                             <a target="_blank" href="mailto:im@baejino.com">
-                                <i className="fas fa-at"></i> 웹마스터에게 연락
-                            </a>
-                        </li>
-                        <li>
-                            <a target="_blank" href="https://discord.gg/d4vCnB3CSr">
-                                <i className="fab fa-discord"></i> 디스코드 커뮤니티 참여
+                                <i className="fas fa-at"></i> 이메일 보내기
                             </a>
                         </li>
                     </ul>
