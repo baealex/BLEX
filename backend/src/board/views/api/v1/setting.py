@@ -150,8 +150,7 @@ def setting(request, item):
         
         if item == 'view':
             seven_days_ago = timezone.make_aware(
-                datetime.datetime.now() - datetime.timedelta(days=7)
-            )
+                datetime.datetime.now() - datetime.timedelta(days=7))
 
             posts_analytics = PostAnalytics.objects.values(
                 'created_date',
@@ -162,6 +161,17 @@ def setting(request, item):
                 created_date__gt=seven_days_ago,
             ).order_by('-created_date')
 
+            date_dict = dict()
+            for i in range(7):
+                key = str(timezone.make_aware(
+                    datetime.datetime.now() - datetime.timedelta(days=i)
+                ))[:10]
+                date_dict[key] = 0
+            
+            for item in posts_analytics:
+                key = str(item['created_date'])[:10]
+                date_dict[key] = item['table_count']
+            
             total = PostAnalytics.objects.filter(
                 posts__author=user
             ).annotate(
@@ -171,9 +181,9 @@ def setting(request, item):
             return StatusDone({
                 'username': user.username,
                 'views': list(map(lambda item: {
-                    'date': str(item['created_date'])[:10],
-                    'count': item['table_count']
-                }, posts_analytics)),
+                    'date': item,
+                    'count': date_dict[item]
+                }, date_dict)),
                 'total': total
             })
         

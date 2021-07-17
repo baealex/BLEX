@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactFrappeChart from 'react-frappe-charts';
 
-// import { toast } from 'react-toastify';
-
 import SettingLayout from '@components/setting/layout';
 
 import * as API from '@modules/api';
@@ -36,6 +34,9 @@ export default function Setting(props: Props) {
                     조회수 추이
                 </div>
                 <Card isRounded className="p-3">
+                    <div className="ns shallow-dark text-right">
+                        총 조회수 : {props.total.toLocaleString()}
+                    </div>
                     <ReactFrappeChart
                         type="axis-mixed"
                         data={{
@@ -50,17 +51,14 @@ export default function Setting(props: Props) {
                         }}
                         colors={['purple']}
                     />
-                    <div className="ns shallow-dark text-right">
-                        총 조회수 : {props.total}
-                    </div>
                 </Card>
                 <div className="h5 noto font-weight-bold mt-5 mb-3">
                     신규 유입 경로
                 </div>
                 <div className="row">
                     {props.referers.map((item, idx: number) => (
-                        <div className="col-lg-4 col-md-6">
-                            <Card key={idx} isRounded className="my-3">
+                        <div key={idx} className="col-lg-4 col-md-6">
+                            <Card isRounded className="my-3">
                                 <>
                                     {item.image && (
                                         <div>
