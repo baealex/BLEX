@@ -16,7 +16,7 @@ django.setup()
 from django.conf import settings
 
 from board.models import *
-from board.module.scrap import page_parser
+from modules.scrap import page_parser
 
 referer_froms = RefererFrom.objects.exclude(description__contains='kb)')
 

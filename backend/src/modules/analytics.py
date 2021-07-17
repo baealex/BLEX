@@ -7,8 +7,8 @@ from django.utils import timezone
 
 from board.models import (
     History, PostAnalytics, Referer, RefererFrom, convert_to_localtime)
-from board.module.subtask import sub_task_manager
-from board.module.scrap import page_parser
+from modules.subtask import sub_task_manager
+from modules.scrap import page_parser
 
 UNVAILD_REFERERS = [
     settings.SITE_URL,

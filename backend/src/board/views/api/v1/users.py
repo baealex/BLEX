@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.models import *
-from board.module.response import StatusDone, StatusError
+from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def users(request, username):

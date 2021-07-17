@@ -12,7 +12,7 @@ django.setup()
 from django.conf import settings
 
 from board.models import *
-from board.module.analytics import NONE_HUMANS, BOT_TYPES
+from modules.analytics import NONE_HUMANS, BOT_TYPES
 
 if __name__ == '__main__':
     humans = History.objects.exclude(category__contains='bot')

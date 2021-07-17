@@ -12,8 +12,8 @@ from django.core.cache import cache
 from django.conf import settings
 
 from board.models import *
-from board.module.subtask import sub_task_manager
-from board.module.telegram import TelegramBot
+from modules.subtask import sub_task_manager
+from modules.telegram import TelegramBot
 
 def get_posts(sort, user=None):
     posts = Post.objects.filter(created_date__lte=timezone.now()).annotate(

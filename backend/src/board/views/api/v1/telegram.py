@@ -6,9 +6,9 @@ from django.utils import timezone
 from PIL import Image, ImageFilter
 
 from board.models import TelegramSync, randstr
-from board.module.subtask import sub_task_manager
-from board.module.telegram import TelegramBot
-from board.module.response import StatusDone, StatusError
+from modules.subtask import sub_task_manager
+from modules.telegram import TelegramBot
+from modules.response import StatusDone, StatusError
 
 def telegram(request, parameter):
     if parameter == 'webHook':

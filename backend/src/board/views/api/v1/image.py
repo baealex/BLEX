@@ -6,7 +6,7 @@ from django.http import Http404
 from PIL import Image, ImageFilter
 
 from board.models import ImageCache, randstr
-from board.module.response import StatusDone, StatusError
+from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def image(request):

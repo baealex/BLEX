@@ -9,7 +9,7 @@ from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
 from board.models import *
-from board.module.response import StatusDone, StatusError
+from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def setting(request, item):

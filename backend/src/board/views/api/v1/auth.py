@@ -11,9 +11,9 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.models import *
-from board.module.subtask import sub_task_manager
-from board.module.telegram import TelegramBot
-from board.module.response import StatusDone, StatusError
+from modules.subtask import sub_task_manager
+from modules.telegram import TelegramBot
+from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def common_auth(request, user):

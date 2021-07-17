@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from board.models import *
-from board.module.response import StatusDone, StatusError
+from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def user_series(request, username, url=None):

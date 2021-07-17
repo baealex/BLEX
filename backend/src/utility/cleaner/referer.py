@@ -12,7 +12,7 @@ django.setup()
 from django.conf import settings
 
 from board.models import *
-from board.module.analytics import UNVAILD_REFERERS
+from modules.analytics import UNVAILD_REFERERS
 
 if __name__ == '__main__':
     for item in UNVAILD_REFERERS:
