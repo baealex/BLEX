@@ -3,7 +3,7 @@ import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
-import FullLoading from '@components/common/FullLoading';
+import FullLoading from '@components/shared/FullLoading';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';

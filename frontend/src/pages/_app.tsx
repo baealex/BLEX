@@ -22,8 +22,8 @@ Router.events.on('routeChangeComplete', () => {
 Router.events.on('routeChangeError', () => NProgress.done());
 
 import SEO from '@components/seo';
-import LibHead from '@components/common/LibHead';
-import { TopNavigation } from '@components/common';
+import LibHead from '@components/shared/LibHead';
+import { TopNavigation } from '@components/shared';
 
 class Main extends App<AppProps> {
     constructor(props: AppProps) {

@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';
-import Search from '@components/common/Search';
+import Search from '@components/shared/Search';
 import { LoginModal } from './login-modal';
 import { SignupModal } from './signup-modal';
 import { AuthModal } from './auth-modal';

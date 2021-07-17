@@ -1,7 +1,7 @@
-import { Card } from '@components/atoms';
 import Link from 'next/link';
 
-import PurpleBorder from "../common/PurpleBorder";
+import { Card } from '@components/atoms';
+import PurpleBorder from '@components/shared/PurpleBorder';
 
 interface FeautreContentProps {
     articles: FeatureCardProps[];

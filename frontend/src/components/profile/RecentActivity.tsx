@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import PurpleBorder from "../common/PurpleBorder";
+import PurpleBorder from '@components/shared/PurpleBorder';
 
 interface RecentActivityProps {
     data: ActivityItemProps[];

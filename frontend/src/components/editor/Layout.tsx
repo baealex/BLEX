@@ -8,7 +8,7 @@ import {
 import ImageForm from '@components/form/ImageForm';
 import InputForm from '@components/form/InputForm';
 import SelectForm from '@components/form/SelectForm';
-import FullLoading from '@components/common/FullLoading';
+import FullLoading from '@components/shared/FullLoading';
 
 import EditorTitle from '@components/editor/Title';
 import EditorContent from '@components/editor/Content';

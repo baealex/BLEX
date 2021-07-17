@@ -1,10 +1,10 @@
 import React from 'react';
 import Head from 'next/head';
 
-import { Pagination } from '@components/common';
+import { Pagination } from '@components/shared';
 import Profile from '@components/profile/Profile';
 import SeriesCard from '@components/profile/Series/SeriesCard';
-import PurpleBorder from '@components/common/PurpleBorder';
+import PurpleBorder from '@components/shared/PurpleBorder';
 
 import * as API from '@modules/api'
 import { GetServerSidePropsContext } from 'next';

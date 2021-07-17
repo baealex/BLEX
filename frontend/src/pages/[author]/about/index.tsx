@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 import Profile from '@components/profile/Profile';
 import ArticleContent from '@components/article/ArticleContent';
-import PurpleBorder from '@components/common/PurpleBorder';
+import PurpleBorder from '@components/shared/PurpleBorder';
 
 import { toast } from 'react-toastify';
 

@@ -1,7 +1,7 @@
 import SideNavigation from '@components/setting/navigation';
 import {
     Footer
-} from '@components/common';
+} from '@components/shared';
 
 interface Props {
     tabname: string;

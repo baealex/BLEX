@@ -1,2 +1,2 @@
 export * from './atoms';
-export * from './common';
+export * from './shared';

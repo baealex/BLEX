@@ -1,7 +1,7 @@
 import React from 'react';
 import Router from 'next/router';
 
-import { Modal } from '@components/common';
+import { Modal } from '@components/shared';
 
 import { toast } from 'react-toastify';
 

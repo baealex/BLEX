@@ -5,9 +5,9 @@ import { ArticleCard } from '@components/article';
 import {
     Footer,
     Pagination
-} from '@components/common';
+} from '@components/shared';
 import TopicsDesc from '@components/tag/TagDesc';
-import Title from '@components/common/Title';
+import Title from '@components/shared/Title';
 
 import * as API from '@modules/api';
 

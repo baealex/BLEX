@@ -4,7 +4,7 @@ import { ArticleCard } from '@components/article';
 import {
     Footer,
     Pagination
-} from '@components/common';
+} from '@components/shared';
 
 import * as API from '@modules/api';
 

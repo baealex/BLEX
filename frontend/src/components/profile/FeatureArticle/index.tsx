@@ -1,4 +1,4 @@
-import PurpleBorder from "../../common/PurpleBorder";
+import PurpleBorder from '@components/shared/PurpleBorder';
 import FeautreArticleCard, { FeautreArticleCardProps } from './Card';
 
 interface FeatureArticleProps {

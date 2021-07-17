@@ -19,7 +19,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
 }
 
-export default function () {
+export default function Tag() {
     return (
         <></>
     )

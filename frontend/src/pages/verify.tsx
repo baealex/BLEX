@@ -1,7 +1,7 @@
 import React from 'react';
 import Router from 'next/router';
 
-import { Footer } from '@components/common';
+import { Footer } from '@components/shared';
 import Config from '@modules/config.json';
 
 import { toast } from 'react-toastify';

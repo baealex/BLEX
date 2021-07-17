@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Modal } from '@components/common';
+import { Modal } from '@components/shared';
 
 import { toast } from 'react-toastify';
 
