@@ -20,6 +20,7 @@ import {
     lazyLoadResource,
     lazyIntersection
 } from '@modules/lazy';
+import { Alert } from '@components/atoms';
 
 export interface CommentProps {
     author: string;
@@ -236,12 +237,12 @@ export function Comment(props: CommentProps) {
                             onSubmit={handleSubmit}
                         />
                     ) : (
-                        <div
-                            className="noto alert alert-warning s-shadow c-pointer"
+                        <Alert
+                            type="warning"
                             onClick={() => Global.onOpenModal('isLoginModalOpen')}
                         >
-                            댓글을 작성하기 위해 로그인이 필요합니다.
-                        </div>
+                            댓글을 작성하려면 로그인이 필요합니다.
+                        </Alert>
                     )}
                 </div>
             </div>

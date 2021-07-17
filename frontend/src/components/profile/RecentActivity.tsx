@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import PurpleBorder from '@components/shared/PurpleBorder';
+import { Alert } from '@components/atoms';
 
 interface RecentActivityProps {
     data: ActivityItemProps[];
@@ -25,7 +25,9 @@ export default function RecentActivity(props: RecentActivityProps) {
                     ))}
                 </ul>
             ) : (
-                <PurpleBorder text="최근 활동이 없습니다"/>
+                <Alert className="mt-3">
+                    최근 활동이 없습니다.
+                </Alert>
             )}
         </>
     )

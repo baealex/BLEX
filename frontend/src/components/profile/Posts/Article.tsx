@@ -1,4 +1,4 @@
-import PurpleBorder from '@components/shared/PurpleBorder';
+import { Alert } from '@components/atoms';
 
 import ArticleCard, { ArticelCardProps } from './ArticleCard';
 
@@ -13,7 +13,7 @@ export default function Articles(props: ArticlesProps) {
             {props.posts.length > 0 ? props.posts.map((item: ArticelCardProps, idx: number) => (
                 <ArticleCard key={idx} {...item}/>
             )) : (
-                <PurpleBorder text="아직 작성한 포스트가 없습니다."/>
+                <Alert>아직 작성한 포스트가 없습니다.</Alert>
             )}
             {props.children}
         </div>

@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 import Profile from '@components/profile/Profile';
 import ArticleContent from '@components/article/ArticleContent';
-import PurpleBorder from '@components/shared/PurpleBorder';
+import { Alert } from '@components/atoms';
 
 import { toast } from 'react-toastify';
 
@@ -108,7 +108,9 @@ export default function UserAbout(props: Props) {
                         (aboutHTML || '').length > 0 ? (
                             <ArticleContent html={aboutHTML || ''}/>
                         ) : (
-                            <PurpleBorder text="아직 작성된 소개가 없습니다."/>
+                            <Alert>
+                                아직 작성된 소개가 없습니다.
+                            </Alert>
                         )
                     )}
                     {props.profile.profile.username == username ? (

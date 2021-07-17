@@ -1,10 +1,10 @@
 import React from 'react';
 import Head from 'next/head';
 
+import { Alert } from '@components/atoms';
 import { Pagination } from '@components/shared';
 import Profile from '@components/profile/Profile';
 import SeriesCard from '@components/profile/Series/SeriesCard';
-import PurpleBorder from '@components/shared/PurpleBorder';
 
 import * as API from '@modules/api'
 import { GetServerSidePropsContext } from 'next';
@@ -64,7 +64,9 @@ export default function UserSeries(props: Props) {
                 <div className="container">
                     <div className="col-lg-8 mx-auto">
                         {props.series.length > 0 ? '' : (
-                            <PurpleBorder text="아직 생성된 시리즈가 없습니다."/>
+                            <Alert className="mt-4">
+                                아직 생성된 시리즈가 없습니다.
+                            </Alert>
                         )}
                         <Pagination
                             page={props.page}

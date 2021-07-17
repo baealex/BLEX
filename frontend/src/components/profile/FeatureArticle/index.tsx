@@ -1,4 +1,4 @@
-import PurpleBorder from '@components/shared/PurpleBorder';
+import { Alert } from '@components/atoms';
 import FeautreArticleCard, { FeautreArticleCardProps } from './Card';
 
 interface FeatureArticleProps {
@@ -18,7 +18,9 @@ export default function FeatureArticle(props: FeatureArticleProps) {
                     ))}
                 </div>
             ) : (
-                <PurpleBorder text="아직 작성한 포스트가 없습니다."/>
+                <Alert className="mt-3">
+                    아직 작성한 포스트가 없습니다.
+                </Alert>
             )}
         </>
     )

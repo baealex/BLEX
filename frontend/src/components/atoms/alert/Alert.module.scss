@@ -1,0 +1,40 @@
+@import 'var';
+
+.alert {
+    padding: 1rem;
+    font-family: $FONT_GOTHIC;
+    color: #8c00ff;
+    background-color: #eef;
+    border-left: 5px solid #9c56d4;
+
+    :global(body.dark) & {
+        color: #eef;
+        background-color: #403846;
+    }
+
+    &.canClick {
+        cursor: pointer;
+    }
+
+    &.warning {
+        color: #856404;
+        background-color: #fff3cd;
+        border-left: 5px solid #ffc405;
+
+        :global(body.dark) & {
+            color: #fff3cd;
+            background-color: #413103;
+        }
+    }
+
+    &.danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-left: 5px solid #ff5656;
+        
+        :global(body.dark) & {
+            color: #f8d7da;
+            background-color: #471419;
+        }
+    }
+}
