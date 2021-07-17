@@ -518,7 +518,7 @@ class TwoFactorAuth(models.Model):
         self.save()
 
     def is_token_expire(self):
-        five_minute_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(minutes=5)))
+        five_minute_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(minutes=5))
         if self.one_pass_token_exp < five_minute_ago:
             return True
         return False
