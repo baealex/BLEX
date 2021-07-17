@@ -133,6 +133,12 @@
         overflow-y: hidden;
         padding: 0;
         margin: 0;
+        background-color: $COLOR_DEFAULT_BACKGROUND;
+
+        :global(body.dark) & {
+            color: #ccc;
+            background-color: rgba(0, 0, 0, 0);
+        }
 
         &.isOpen {
             overflow-y: auto;
@@ -142,7 +148,11 @@
 
     .card {
         transition: all 0.5s ease;
-        background-color: #fff;
+        background-color: $COLOR_DEFAULT_BACKGROUND;
+        
+        :global(body.dark) & {
+            background-color: rgba(0, 0, 0, 0);
+        }
         
         &:hover {
             cursor: text;
@@ -150,7 +160,6 @@
 
             &.isOpen {
                 cursor: initial;
-                background-color: #fff;
             }
         }
     }
