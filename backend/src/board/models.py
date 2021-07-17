@@ -20,9 +20,10 @@ def calc_read_time(html):
     return int(len(strip_tags(html))/500)
 
 def convert_to_localtime(utctime):
-    utc = utctime.replace(tzinfo=pytz.UTC)
-    localtz = utc.astimezone(timezone.get_current_timezone())
-    return localtz
+    # utc = utctime.replace(tzinfo=pytz.UTC)
+    # localtz = utc.astimezone(timezone.get_current_timezone())
+    # return localtz
+    return utctime
 
 def randnum(length):
     rstr = '0123456789'
@@ -518,7 +519,7 @@ class TwoFactorAuth(models.Model):
         self.save()
 
     def is_token_expire(self):
-        five_minute_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(minutes=5))
+        five_minute_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(minutes=5)))
         if self.one_pass_token_exp < five_minute_ago:
             return True
         return False
