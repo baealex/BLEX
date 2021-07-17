@@ -250,7 +250,7 @@ def posts_analytics(request, url):
         if request.user != post.author:
             raise Http404
         
-        seven_days_ago  = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
+        seven_days_ago  = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
         
         posts_analytics = PostAnalytics.objects.filter(
             posts__id=post.pk,
@@ -376,7 +376,7 @@ def user_posts(request, username, url=None):
             post.text_html = request.POST.get('text_html', '')
             post.hide = True if request.POST.get('is_hide', '') == 'true' else False
             post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
-            post.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+            post.updated_date = timezone.make_aware(datetime.datetime.now())
             post.read_time = calc_read_time(post.text_html)
 
             try:

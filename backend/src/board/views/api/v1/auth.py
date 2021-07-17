@@ -17,7 +17,7 @@ from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def common_auth(request, user):
-    if not settings.DEBUG:
+    if settings.DEBUG:
         if user.config.has_two_factor_auth():
             def create_auth_token():
                 token = randnum(6)

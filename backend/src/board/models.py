@@ -20,10 +20,9 @@ def calc_read_time(html):
     return int(len(strip_tags(html))/500)
 
 def convert_to_localtime(utctime):
-    # utc = utctime.replace(tzinfo=pytz.UTC)
-    # localtz = utc.astimezone(timezone.get_current_timezone())
-    # return localtz
-    return utctime
+    utc = utctime.replace(tzinfo=pytz.UTC)
+    localtz = utc.astimezone(timezone.get_current_timezone())
+    return localtz
 
 def randnum(length):
     rstr = '0123456789'
@@ -242,7 +241,7 @@ class Post(models.Model):
     def today(self):
         count = 0
         try:
-            today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+            today = timezone.make_aware(datetime.datetime.now())
             count = self.analytics.get(created_date=today).table.count()
         except:
             pass
@@ -251,7 +250,7 @@ class Post(models.Model):
     def yesterday(self):
         count = 0
         try:
-            yesterday = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+            yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
             count = self.analytics.get(created_date=yesterday).table.count()
         except:
             pass
@@ -265,8 +264,8 @@ class Post(models.Model):
             return 0
         
     def trendy(self):
-        seven_days_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6)))
-        today          = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
+        today          = timezone.make_aware(datetime.datetime.now())
         counts = PostAnalytics.objects.filter(created_date__range=[seven_days_ago, today], posts=self).values_list('created_date', Count('table'))
         trendy = 0
         for count in counts:
@@ -418,14 +417,14 @@ class RefererFrom(models.Model):
         if created_date == updated_date:
             return True
         
-        three_month_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=90)))
+        three_month_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=90))
         if self.updated_date < three_month_ago:
             return True
         
         return False
     
     def update(self):
-        self.updated_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() + datetime.timedelta(minutes=1)))
+        self.updated_date = timezone.make_aware(datetime.datetime.now() + datetime.timedelta(minutes=1))
         self.save()
     
     def __str__(self):
@@ -487,7 +486,7 @@ class TelegramSync(models.Model):
     created_date   = models.DateTimeField(default=timezone.now)
 
     def is_token_expire(self):
-        one_day_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+        one_day_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
         if self.auth_token_exp < one_day_ago:
             return True
         return False
@@ -519,13 +518,13 @@ class TwoFactorAuth(models.Model):
         self.save()
 
     def is_token_expire(self):
-        five_minute_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(minutes=5)))
+        five_minute_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(minutes=5))
         if self.one_pass_token_exp < five_minute_ago:
             return True
         return False
     
     def has_been_a_day(self):
-        one_day_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1)))
+        one_day_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
         if self.created_date < one_day_ago:
             return True
         return False

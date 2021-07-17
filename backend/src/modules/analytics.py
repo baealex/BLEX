@@ -94,7 +94,7 @@ def create_referer(posts, referer):
     if not has_vaild_referer(referer):
         return
     
-    today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+    today = timezone.make_aware(datetime.datetime.now())
     today_analytics = None
     try:
         today_analytics = PostAnalytics.objects.get(created_date=today, posts=posts)
@@ -161,7 +161,7 @@ def create_viewer(posts, ip, user_agent):
         history.refresh_from_db()
     
     if not 'bot' in history.category:
-        today = convert_to_localtime(timezone.make_aware(datetime.datetime.now()))
+        today = timezone.make_aware(datetime.datetime.now())
         today_analytics = None
         try:
             today_analytics = PostAnalytics.objects.get(created_date=today, posts=posts)

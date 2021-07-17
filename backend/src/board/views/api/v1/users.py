@@ -29,7 +29,7 @@ def users(request, username):
                     data[include]['username'] = user.username
 
                 elif include == 'heatmap':
-                    standard_date = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=365)))
+                    standard_date = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=365))
                     posts = Post.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, hide=False)
                     series = Series.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), owner=user)
                     comments = Comment.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, post__hide=False)
@@ -59,7 +59,7 @@ def users(request, username):
                     }, fn.get_posts('trendy', user)[:6]))
                 
                 elif include == 'recent':
-                    seven_days_ago = convert_to_localtime(timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7)))
+                    seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
                     posts = Post.objects.filter(created_date__gte=seven_days_ago, author=user, hide=False).order_by('-created_date')
                     series = Series.objects.filter(created_date__gte=seven_days_ago, owner=user, hide=False).order_by('-created_date')
                     comments = Comment.objects.filter(created_date__gte=seven_days_ago, author=user, post__hide=False).order_by('-created_date')
