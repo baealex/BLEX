@@ -23,7 +23,7 @@ def setting(request, item):
     
     if request.method == 'GET':
         if item == 'notify':
-            seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=7))
+            seven_days_ago = timezone.now() - datetime.timedelta(days=7)
             notify = Notify.objects.filter(user=user).filter(Q(created_date__gt=seven_days_ago) | Q(is_read=False)).order_by('-created_date')
             
             return StatusDone({
@@ -85,7 +85,7 @@ def setting(request, item):
                     raise Http404
 
                 if 'today_count' in order:
-                    today = timezone.make_aware(datetime.datetime.now())
+                    today = timezone.now()
                     posts = posts.annotate(today_count=Count(
                         Case(
                             When(
@@ -95,7 +95,7 @@ def setting(request, item):
                         )
                     ))
                 if 'yesterday_count' in order:
-                    yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+                    yesterday = timezone.now() - datetime.timedelta(days=1)
                     posts = posts.annotate(yesterday_count=Count(
                         Case(
                             When(
@@ -149,8 +149,7 @@ def setting(request, item):
             })
         
         if item == 'view':
-            seven_days_ago = timezone.make_aware(
-                datetime.datetime.now() - datetime.timedelta(days=7))
+            seven_days_ago = timezone.now() - datetime.timedelta(days=7)
 
             posts_analytics = PostAnalytics.objects.values(
                 'created_date',
@@ -163,9 +162,7 @@ def setting(request, item):
 
             date_dict = dict()
             for i in range(7):
-                key = str(timezone.make_aware(
-                    datetime.datetime.now() - datetime.timedelta(days=i)
-                ))[:10]
+                key = str(timezone.now() - datetime.timedelta(days=i))[:10]
                 date_dict[key] = 0
             
             for item in posts_analytics:

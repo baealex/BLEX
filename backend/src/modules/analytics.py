@@ -94,7 +94,7 @@ def create_referer(posts, referer):
     if not has_vaild_referer(referer):
         return
     
-    today = timezone.make_aware(datetime.datetime.now())
+    today = timezone.now()
     today_analytics = None
     try:
         today_analytics = PostAnalytics.objects.get(created_date=today, posts=posts)

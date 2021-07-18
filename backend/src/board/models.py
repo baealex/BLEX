@@ -241,7 +241,7 @@ class Post(models.Model):
     def today(self):
         count = 0
         try:
-            today = timezone.make_aware(datetime.datetime.now())
+            today = timezone.now()
             count = self.analytics.get(created_date=today).table.count()
         except:
             pass
@@ -250,7 +250,7 @@ class Post(models.Model):
     def yesterday(self):
         count = 0
         try:
-            yesterday = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+            yesterday = timezone.now() - datetime.timedelta(days=1)
             count = self.analytics.get(created_date=yesterday).table.count()
         except:
             pass
@@ -264,8 +264,8 @@ class Post(models.Model):
             return 0
         
     def trendy(self):
-        seven_days_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=6))
-        today          = timezone.make_aware(datetime.datetime.now())
+        today = timezone.now()
+        seven_days_ago = timezone.now() - datetime.timedelta(days=7)
         counts = PostAnalytics.objects.filter(created_date__range=[seven_days_ago, today], posts=self).values_list('created_date', Count('table'))
         trendy = 0
         for count in counts:
@@ -417,14 +417,14 @@ class RefererFrom(models.Model):
         if created_date == updated_date:
             return True
         
-        three_month_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=90))
+        three_month_ago = timezone.now() - datetime.timedelta(months=3)
         if self.updated_date < three_month_ago:
             return True
         
         return False
     
     def update(self):
-        self.updated_date = timezone.make_aware(datetime.datetime.now() + datetime.timedelta(minutes=1))
+        self.updated_date = timezone.now() + datetime.timedelta(minutes=1)
         self.save()
     
     def __str__(self):
@@ -486,7 +486,7 @@ class TelegramSync(models.Model):
     created_date   = models.DateTimeField(default=timezone.now)
 
     def is_token_expire(self):
-        one_day_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+        one_day_ago = timezone.now() - datetime.timedelta(days=1)
         if self.auth_token_exp < one_day_ago:
             return True
         return False
@@ -518,13 +518,13 @@ class TwoFactorAuth(models.Model):
         self.save()
 
     def is_token_expire(self):
-        five_minute_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(minutes=5))
+        five_minute_ago = timezone.now() - datetime.timedelta(minutes=5)
         if self.one_pass_token_exp < five_minute_ago:
             return True
         return False
     
     def has_been_a_day(self):
-        one_day_ago = timezone.make_aware(datetime.datetime.now() - datetime.timedelta(days=1))
+        one_day_ago = timezone.now() - datetime.timedelta(days=1)
         if self.created_date < one_day_ago:
             return True
         return False
