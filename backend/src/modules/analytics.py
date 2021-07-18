@@ -161,7 +161,7 @@ def create_viewer(posts, ip, user_agent):
         history.refresh_from_db()
     
     if not 'bot' in history.category:
-        today = timezone.make_aware(datetime.datetime.now())
+        today = timezone.now()
         today_analytics = None
         try:
             today_analytics = PostAnalytics.objects.get(created_date=today, posts=posts)
