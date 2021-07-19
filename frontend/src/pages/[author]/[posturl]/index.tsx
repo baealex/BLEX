@@ -4,16 +4,16 @@ import Router from 'next/router';
 
 import {
     ArticleAuthor,
-    FeatureArticles,
+    ArticleContent,
+    ArticleSeries,
+    Related,
 } from '@components/article';
-import ArticleContent from '@components/article/ArticleContent';
-import ArticleSereis from '@components/article/ArticleSeries';
 import { Comment } from '@components/comment';
-import TagList from '@components/tag/TagList';
-import SEO from '@components/seo';
+import { TagBadge } from '@components/tag';
 import {
     Footer,
     Toggle,
+    SEO,
 } from '@components/integrated';
 
 import { toast } from 'react-toastify';
@@ -366,12 +366,12 @@ class PostDetail extends React.Component<Props, State> {
                                 />
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>
-                            <TagList
+                            <TagBadge
                                 author={this.props.post.author}
-                                tag={this.props.post.tag.split(',')}
+                                tags={this.props.post.tag.split(',')}
                             />
                             {this.props.hasSeries ? (
-                                <ArticleSereis
+                                <ArticleSeries
                                     {...this.props.series}
                                     activeSeries={this.props.activeSeries}
                                     sereisLength={this.props.sereisLength}
@@ -393,7 +393,7 @@ class PostDetail extends React.Component<Props, State> {
                     totalComment={this.props.post.totalComment}
                 />
                 <Footer bgdark>
-                    <FeatureArticles
+                    <Related
                         author={this.props.post.author}
                         realname={this.props.profile.profile.realname}
                         url={this.props.post.url}

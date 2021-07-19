@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import NProgress from 'nprogress';
 
-import SettingLayout from '@components/setting/layout';
+import { Layout } from '@components/setting';
 import { ImageInput } from '@components/integrated';
 
 import * as API from '@modules/api';
@@ -27,7 +27,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
 }
 
-export default function Setting(props: Props) {
+export default function ProfileSetting(props: Props) {
     const [ avatar, setAvatar ] = useState(props.avatar);
     const [ bio, setBio ] = useState(props.bio);
     const [ homepage, setHomepage ] = useState(props.homepage);
@@ -56,7 +56,7 @@ export default function Setting(props: Props) {
     
     return (
         <>
-            <SettingLayout tabname="profile">
+            <Layout tabname="profile">
                 <label>Avatar : </label>
                 <div className="mb-3">
                     <ImageInput
@@ -163,7 +163,7 @@ export default function Setting(props: Props) {
                     type="button"
                     className="btn btn-block btn-dark"
                     onClick={() => onSubmit()}>프로필 변경</button>
-            </SettingLayout>
+            </Layout>
         </>
     );
 }

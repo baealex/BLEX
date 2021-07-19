@@ -1,5 +1,6 @@
 import styles from './Accordian.module.scss';
-import classNames from 'classnames';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -26,7 +27,7 @@ export function Accordian(props: ArcodianProps) {
     return (
         <>
             <div
-                className={styles.accordian}
+                className={cn('accordian')}
                 style={{
                     height: isOpen 
                         ? `${maxHeight}px`
@@ -39,7 +40,7 @@ export function Accordian(props: ArcodianProps) {
                 <button onClick={() => setIsOpen(!isOpen)}>
                     <i className={classNames(
                         'fas fa-chevron-up',
-                        isOpen && styles.isOpen
+                        cn({ isOpen })
                     )}></i>
                 </button>
             </div>

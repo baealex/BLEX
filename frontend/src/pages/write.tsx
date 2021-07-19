@@ -2,8 +2,7 @@ import React from 'react';
 import Router from 'next/router';
 import { toast } from 'react-toastify';
 
-import EditorLayout from '@components/editor/Layout';
-import EditorArticleModal from '@components/editor/modal/Article';
+import { Layout, TempArticleModal } from '@components/editor';
 
 import * as API from '@modules/api';
 import blexer from '@modules/blexer';
@@ -263,7 +262,7 @@ class Write extends React.Component<Props, State> {
 
         return (
             <>
-                <EditorLayout
+                <Layout
                     title={{
                         value: this.state.title,
                         onChange: (value: string) => this.setState({title: value}),
@@ -323,7 +322,7 @@ class Write extends React.Component<Props, State> {
                         ),
                         modal: (
                             <>
-                                <EditorArticleModal
+                                <TempArticleModal
                                     token={this.state.token}
                                     isOpen={this.state.isOpenArticleModal}
                                     close={() => this.setState({isOpenArticleModal: false})}
@@ -340,7 +339,7 @@ class Write extends React.Component<Props, State> {
                             </>
                         )
                     }}
-                ></EditorLayout>
+                ></Layout>
             </>
         )
     }

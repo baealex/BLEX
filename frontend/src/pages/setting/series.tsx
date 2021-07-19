@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import { toast } from 'react-toastify';
 
-import SettingLayout from '@components/setting/layout';
+import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
 
@@ -28,7 +28,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
 }
 
-export default function Setting(props: Props) {
+export default function SeriesSetting(props: Props) {
     const [ newSeries, setNewSeries ] = useState('');
     const [ series, setSeries ] = useState(props.series);
 
@@ -60,7 +60,7 @@ export default function Setting(props: Props) {
 
     return (
         <>
-            <SettingLayout tabname="series">
+            <Layout tabname="series">
                 <div className="input-group mb-3">
                     <input
                         type="text"
@@ -90,7 +90,7 @@ export default function Setting(props: Props) {
                         </Card>
                     ))}
                 </>
-            </SettingLayout>
+            </Layout>
         </>
     );
 }

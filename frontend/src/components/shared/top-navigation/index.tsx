@@ -1,3 +1,7 @@
+import styles from './TopNavigation.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
+
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Router from 'next/router'
@@ -6,10 +10,12 @@ import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';
-import Search from '@components/shared/Search';
-import { LoginModal } from './login-modal';
-import { SignupModal } from './signup-modal';
-import { AuthModal } from './auth-modal';
+import { Search } from './search';
+import {
+    LoginModal,
+    SignupModal,
+    AuthModal,
+} from './modals';
 
 export function TopNavigation() {
     const [state, setState] = useState({
@@ -142,16 +148,15 @@ export function TopNavigation() {
                 isOpen={state.isTwoFactorAuthModalOpen}
                 onClose={() => Global.onCloseModal('isTwoFactorAuthModalOpen')}
             />
-            <div
-                className={`side-menu noto ${state.onNav ? 'on' : 'off' }`}>
+            <div className={cn('outer', { on : state.onNav })}>
                 <nav
                     onClick={() => onClickNavigation()}
-                    className={`menu ${state.onNav ? 'on' : 'off' }`}>
+                    className={cn('button', { on : state.onNav })}>
                     <img src="/logo32.png" alt="logo"/>
                 </nav>
-                <div className="inner">
+                <div className={cn('inner')}>
                     <Search/>
-                    <ul className="menu-item">
+                    <ul className={cn('items')}>
                         <li>
                             <Link href="/">
                                 <a>인기 포스트</a>
@@ -169,7 +174,7 @@ export function TopNavigation() {
                         </li>
                     </ul>
                     {state.isLogin ? (
-                        <ul className="menu-item">
+                        <ul className={cn('items')}>
                             <li>
                                 <Link href={`/[author]`} as={`/@${state.username}`}>
                                     <a><i className="fas fa-user"></i> 내 블로그</a>
@@ -184,7 +189,7 @@ export function TopNavigation() {
                     ) : (
                         <></>
                     )}
-                    <ul className="menu-footer-item">
+                    <ul className={cn('footer')}>
                         <li>
                             <a onClick={() => onClickNightMode()}>
                                 <i className={`fas fa-${state.theme !== 'dark' ? 'sun' : 'moon'}`}></i>
@@ -218,7 +223,7 @@ export function TopNavigation() {
                             </>
                         )}
                     </ul>
-                    <ul className="menu-item">
+                    <ul className={cn('items')}>
                         <li>
                             <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
                                 <i className="fas fa-book"></i> 서비스 안내서

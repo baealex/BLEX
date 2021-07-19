@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 
-import Profile from '@components/profile/Profile';
-import Heatmap from '@components/profile/Heatmap';
-import RecentActivity from '@components/profile/RecentActivity';
-import FeatureArticle from '@components/profile/FeatureArticle';
+import { Heatmap } from '@components/shared';
+import {
+    Featured,
+    Layout,
+    RecentActivity,
+} from '@components/profile';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';
@@ -61,14 +63,14 @@ export default function Overview(props: Props) {
                 <title>{props.profile.username} ({props.profile.realname})</title>
             </Head>
 
-            <Profile
+            <Layout
                 active="overview"
                 profile={props.profile}
                 social={props.social!}
             />
             <div className="container mb-4">
                 <div className="col-lg-8 mx-auto p-0">
-                    <FeatureArticle articles={props.most!}/>
+                    <Featured articles={props.most!}/>
                     <Heatmap
                         isNightMode={isNightMode}
                         data={props.heatmap}

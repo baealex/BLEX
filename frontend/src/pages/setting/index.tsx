@@ -7,7 +7,7 @@ import {
     Card,
     Modal,
 } from '@components/integrated';
-import SettingLayout from '@components/setting/layout';
+import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
 
@@ -31,7 +31,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
 }
 
-export default function Setting(props: Props) {
+export default function NotifySetting(props: Props) {
     const [ isSync, setSync ] = useState(props.isTelegramSync);
     const [ isModalOpen, setModalOpen ] = useState(false);
     const [ notify, setNotify ] = useState(props.notify);
@@ -75,7 +75,7 @@ export default function Setting(props: Props) {
 
     return (
         <>
-            <SettingLayout tabname="notify">
+            <Layout tabname="notify">
                 <>
                     {isSync ? (
                         <div className="p-3 btn-primary c-pointer" onClick={() => unsync()}>
@@ -102,7 +102,7 @@ export default function Setting(props: Props) {
                         </Link>
                     ))}
                 </>
-            </SettingLayout>
+            </Layout>
             <Modal
                 title="텔레그램 연동"
                 isOpen={isModalOpen}

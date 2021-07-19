@@ -1,0 +1,31 @@
+@import 'var';
+
+.description {
+    border-left: 4px solid $COLOR_DEFAULT_SECONDARY;
+    background: #f8f8f8;
+    padding: 10px;
+    font-size: 1.023em;
+    line-height: 1.75;
+
+    :global(body.dark) & {
+        border-left: 4px solid $COLOR_DARK_PRIMARY;
+        background: #000;
+    }
+
+    a {
+        color: #555;
+
+        body.dark & {
+            color: #ccc;
+        }
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+
+    .author {
+        margin-left: 5px;
+        color: $COLOR_DEFAULT_PRIMARY;
+    }
+}

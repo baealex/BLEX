@@ -1,0 +1,49 @@
+.tags {
+    @media only screen and (max-width: 991px) {
+        overflow-x: scroll;
+    }
+
+    & > ul {
+        list-style: none;
+        padding-left: 0;
+
+        @media only screen and (max-width: 991px) {
+            white-space: nowrap;
+        }
+
+        div.category {
+            margin: 10px 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+
+            @media only screen and (max-width: 991px) {
+                display: none !important;
+            }
+        }
+
+        & > li {
+            margin: 5px;
+
+            @media only screen and (max-width: 991px) {
+                display: inline-block;
+            }
+
+            a {
+                color: #b1b1b1;
+                text-decoration: none;
+    
+                body.dark & {
+                    color: #727272;
+                }
+    
+                &.active {
+                    color: #000000;
+    
+                    body.dark & {
+                        color: #eee;
+                    }
+                }
+            }
+        }
+    }
+}

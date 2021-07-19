@@ -1,6 +1,5 @@
 import styles from './Pagination.module.scss';
 import classNames from 'classnames/bind';
-
 const cn = classNames.bind(styles);
 
 import React, { useState } from 'react';
@@ -158,7 +157,7 @@ export function Pagination(props: Props) {
                         pathname: router.pathname,
                         query: { ...router.query, page: inputPage === '' ? page : inputPage }
                     }}>
-                        <button className={cn('go')}>
+                        <button className={`${cn('go')} shallow-dark`}>
                             Go <i className="fas fa-chevron-right"></i>
                         </button>
                     </Link>

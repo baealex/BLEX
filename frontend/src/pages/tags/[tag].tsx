@@ -6,8 +6,7 @@ import {
     Footer,
     Pagination
 } from '@components/shared';
-import TopicsDesc from '@components/tag/TagDesc';
-import Title from '@components/shared/Title';
+import { TagWiki } from '@components/tag';
 
 import * as API from '@modules/api';
 
@@ -46,9 +45,11 @@ export default function Tag(props: Props) {
             </Head>
 
             <div className="container">
-                <Title text={props.tag}/>
+                <h1 className="h4 noto font-weight-bold pt-5">
+                    — {props.tag} —
+                </h1>
                 {props.descPosts.url && (
-                    <TopicsDesc {...props.descPosts}/>
+                    <TagWiki {...props.descPosts}/>
                 )}
                 <div className="row">
                     {props.posts.map((item, idx) => (

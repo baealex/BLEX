@@ -1,0 +1,39 @@
+.user {
+    margin: 0 auto;
+    text-align: center;
+    max-width: 400px;
+
+    .avatar {
+        width: 250px; height: 250px;
+        background: #fff;
+        border-radius: 100%;
+        margin: 16px;
+        object-fit: cover;
+    
+        body.dark & {
+            background: #000;
+            border: 1px solid #333;
+        }
+    }
+
+    .realname {
+        font-weight: bold;
+        font-size: 24px;
+
+        &::before {
+            content: "";
+            color: rgb(88,43,116);
+        }
+
+        &::after {
+            content: "";
+            color: rgb(28,121,96);
+        }
+    }
+
+    .username {
+        color: #777;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+}

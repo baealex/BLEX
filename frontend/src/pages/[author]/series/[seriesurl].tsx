@@ -6,9 +6,9 @@ import Router from 'next/router';
 import {
     Card,
     Modal,
+    SpeechBubble,
 } from '@components/integrated';
-import SeriesDesc from '@components/series/SeriesDesc';
-import ArticleCard from '@components/profile/Series/ArticleCard';
+import { SeriesArticleCard } from '@components/series';
 
 import { toast } from 'react-toastify';
 
@@ -249,10 +249,12 @@ class Series extends React.Component<Props, State> {
                                         </div>
                                     </div>
                                 )}
-                                <SeriesDesc
-                                    {...this.props.series}
-                                    description={this.state.seriesDescription}
-                                />
+                                <SpeechBubble
+                                    username={this.props.series.owner}
+                                    userImage={this.props.series.ownerImage}
+                                >
+                                    {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
+                                </SpeechBubble>
                                 <div className="mt-5 mb-3 text-right">
                                     <div className="btn btn-dark noto m-1" onClick={() => Global.setState({
                                         isSortOldFirst: !isSortOldFirst
@@ -269,14 +271,14 @@ class Series extends React.Component<Props, State> {
                                     </div>
                                 </div>
                                 {isSortOldFirst ? seriesPosts.map((post, idx) => (
-                                    <ArticleCard
+                                    <SeriesArticleCard
                                         key={idx}
                                         idx={idx}
                                         author={this.props.series.owner}
                                         {...post}
                                     />
                                 )) : seriesPosts.map((post, idx) => (
-                                    <ArticleCard
+                                    <SeriesArticleCard
                                         key={idx}
                                         idx={idx}
                                         author={this.props.series.owner}

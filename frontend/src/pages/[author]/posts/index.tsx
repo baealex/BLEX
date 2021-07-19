@@ -2,8 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 
 import { Pagination } from '@components/shared';
-import Profile from '@components/profile/Profile';
-import PostsComponent from '@components/profile/Posts';
+import { Layout, UserArticles } from '@components/profile';
 
 import * as API from '@modules/api';
 
@@ -61,13 +60,13 @@ export default function UserPosts(props: Props) {
                 <title>{props.profile.username} ({props.profile.realname}) —  Posts</title>
             </Head>
 
-            <Profile
+            <Layout
                 active="posts"
                 profile={props.profile}
                 social={props.social!}
             />
             <div className="container">
-                <PostsComponent
+                <UserArticles
                     allCount={props.allCount}
                     active={props.tag}
                     author={props.profile.username}
@@ -77,7 +76,7 @@ export default function UserPosts(props: Props) {
                         page={props.page}
                         last={props.lastPage}
                     />
-                </PostsComponent>
+                </UserArticles>
             </div>
         </>
     )

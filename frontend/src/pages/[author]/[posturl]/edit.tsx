@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Router from 'next/router';
 import { toast } from 'react-toastify';
 
-import EditorLayout from '@components/editor/Layout';
+import { Layout } from '@components/editor';
 
 import * as API from '@modules/api';
 import blexer from '@modules/blexer'
@@ -92,7 +92,7 @@ export default function Edit(props: Props) {
     }
     
     return (
-        <EditorLayout
+        <Layout
             title={{
                 value: title,
                 onChange: (value) => setTitle(value),

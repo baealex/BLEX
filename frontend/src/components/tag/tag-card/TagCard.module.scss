@@ -1,0 +1,13 @@
+@import 'var';
+
+.card {
+    .title::before {
+        content: '#';
+        color: $COLOR_DEFAULT_POINT;
+        font-weight: bold;
+
+        :global(body.dark) & {
+            color: $COLOR_DARK_SECONDARY;
+        }
+    }
+}

@@ -3,8 +3,10 @@ import Head from 'next/head';
 
 import { Alert } from '@components/atoms';
 import { Pagination } from '@components/shared';
-import Profile from '@components/profile/Profile';
-import SeriesCard from '@components/profile/Series/SeriesCard';
+import {
+    Layout,
+    UserSeries,
+} from '@components/profile';
 
 import * as API from '@modules/api'
 import { GetServerSidePropsContext } from 'next';
@@ -48,19 +50,19 @@ interface Props extends API.GetUserProfileData, API.GetUserSeriesData {
     page: number,
 }
 
-export default function UserSeries(props: Props) {
+export default function SeriesProfile(props: Props) {
     return (
         <>
             <Head>
                 <title>{props.profile.username} ({props.profile.realname}) —  Series</title>
             </Head>
 
-            <Profile
+            <Layout
                 active="series"
                 profile={props.profile}
                 social={props.social!}
             />
-            <SeriesCard series={props.series}>
+            <UserSeries series={props.series}>
                 <div className="container">
                     <div className="col-lg-8 mx-auto">
                         {props.series.length > 0 ? '' : (
@@ -74,7 +76,7 @@ export default function UserSeries(props: Props) {
                         />
                     </div>
                 </div>
-            </SeriesCard>
+            </UserSeries>
         </>
     )
 }

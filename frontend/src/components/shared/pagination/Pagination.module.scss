@@ -78,6 +78,7 @@
             width: 50px;
 
             :global(body.dark) & {
+                color: #fff;
                 border: 1px solid $COLOR_DARK_PRIMARY;
             }
         }

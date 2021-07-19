@@ -3,7 +3,7 @@ import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
-import FullLoading from '@components/shared/FullLoading';
+import { Loading } from '@components/shared';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';
@@ -78,5 +78,5 @@ export default function SocialLogin(props: Props) {
             : Router.replace('/');
     }, []);
 
-    return <FullLoading/>;
+    return <Loading/>;
 }

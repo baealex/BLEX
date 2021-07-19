@@ -11,7 +11,7 @@ import {
     Modal,
     Card,
 } from '@components/integrated';
-import SettingLayout from '@components/setting/layout';
+import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
 
@@ -92,7 +92,7 @@ interface Props extends API.GetSettingPostsData {
     page: number;
 }
 
-export default function Setting(props: Props) {
+export default function PostsSetting(props: Props) {
     const [ isModalOpen, setModalOpen ] = useState(false);
     const [ posts, setPosts ] = useState(props.posts);
 
@@ -176,7 +176,7 @@ export default function Setting(props: Props) {
 
     return (
         <>
-            <SettingLayout tabname="posts" sticky={false}>
+            <Layout tabname="posts" sticky={false}>
                 <ul className="tag-list mb-3">
                     {POSTS_ORDER.map((item, idx) => (
                         <li key={idx}>
@@ -298,7 +298,7 @@ export default function Setting(props: Props) {
                     page={props.page}
                     last={props.lastPage}
                 />
-            </SettingLayout>
+            </Layout>
             <Modal
                 title="포스트 분석"
                 isOpen={isModalOpen}

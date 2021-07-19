@@ -9,6 +9,9 @@
             ],
             "@modules/*": [
                 "./modules/*"
+            ],
+            "@state/*": [
+                "./state/*"
             ]
         },
         "jsx": "preserve",

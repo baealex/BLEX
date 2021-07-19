@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 
-import Profile from '@components/profile/Profile';
-import ArticleContent from '@components/article/ArticleContent';
+import { Layout } from '@components/profile';
+import { ArticleContent } from '@components/article';
 import { Alert } from '@components/atoms';
 
 import { toast } from 'react-toastify';
@@ -88,7 +88,7 @@ export default function UserAbout(props: Props) {
             <Head>
                 <title>{props.profile.profile.username} ({props.profile.profile.realname}) —  About</title>
             </Head>
-            <Profile
+            <Layout
                 active="about"
                 profile={props.profile.profile}
                 social={props.profile.social!}

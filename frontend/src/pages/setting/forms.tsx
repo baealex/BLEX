@@ -2,10 +2,10 @@ import { GetServerSidePropsContext } from 'next';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import SettingLayout from '@components/setting/layout';
+import { Card } from '@components/atoms';
+import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
-import { Card } from '@components/atoms';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
@@ -31,7 +31,7 @@ interface Props {
     }[];
 };
 
-export default function Setting(props: Props) {
+export default function FormsSetting(props: Props) {
     const [ title, setTitle ] = useState('');
     const [ content, setContent ] = useState('');
     const [ forms, setForms ] = useState(props.forms);
@@ -68,7 +68,7 @@ export default function Setting(props: Props) {
 
     return (
         <>
-            <SettingLayout tabname="forms">
+            <Layout tabname="forms">
                 <input
                     type="text"
                     placeholder="서식의 제목"
@@ -105,7 +105,7 @@ export default function Setting(props: Props) {
                     </Card>
                 ))}
                 </div>
-            </SettingLayout>
+            </Layout>
         </>
     );
 }

@@ -7,9 +7,9 @@ import {
     useEffect,
 } from 'react';
 
-import CommentItem from '@components/comment/CommentItem';
-import CommentEdit from '@components/comment/CommentEdit';
-import CommentForm from '@components/comment/CommentForm';
+import { CommentCard } from './comment-card';
+import { CommentEditor } from './comment-editor';
+import { CommentForm } from './comment-form';
 
 import { toast } from 'react-toastify';
 
@@ -158,7 +158,7 @@ export function Comment(props: CommentProps) {
         });
 
         if (props.totalComment > 0) {
-            const observer = lazyIntersection(cn('background'), () => {
+            const observer = lazyIntersection('.comments', () => {
                 API.getPostComments(props.url).then((response) => {
                     setComments(response.data.body.comments.map(comment => ({
                         ...comment,
@@ -190,7 +190,7 @@ export function Comment(props: CommentProps) {
                 <div className="col-lg-8 mx-auto px-0">
                     {comments && comments.length > 0 ? comments.map((comment, idx: number) => (
                         comment.isEdit ? (
-                            <CommentEdit
+                            <CommentEditor
                                 key={comment.pk}
                                 pk={comment.pk}
                                 content={comment.textMarkdown}
@@ -198,7 +198,7 @@ export function Comment(props: CommentProps) {
                                 onCancle={handleEditCancle}
                             />
                         ) : (
-                            <CommentItem
+                            <CommentCard
                                 key={idx}
                                 pk={comment.pk}
                                 author={comment.author}
@@ -216,7 +216,7 @@ export function Comment(props: CommentProps) {
                             />
                         )
                     )) : (
-                        <CommentItem
+                        <CommentCard
                             pk={-1}
                             author="Ghost"
                             authorImage="https://static.blex.me/assets//images/ghost.png"

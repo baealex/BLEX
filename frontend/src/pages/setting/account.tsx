@@ -7,7 +7,7 @@ import {
     CheckBox,
     Modal,
 } from '@components/integrated';
-import SettingLayout from '@components/setting/layout';
+import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
 import Global from '@modules/global';
@@ -32,7 +32,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
 }
 
-export default function Setting(props: Props) {
+export default function AccountSetting(props: Props) {
     const [ isSignDeleteModalOpen, setSignDeleteModalOpen ] = useState(false);
     const [ isCreateTwoFactorAuthModalOpen, setCreateTwoFactorAuthModalOpen ] = useState(false);
     const [ isChangeUsername, setChangeUsername ] = useState(false);
@@ -160,7 +160,7 @@ export default function Setting(props: Props) {
 
     return (
         <>
-            <SettingLayout tabname="account">
+            <Layout tabname="account">
                 <>
                     {isChangeUsername ? (
                         <div className="input-group mb-3">
@@ -270,7 +270,7 @@ export default function Setting(props: Props) {
                         }
                     `}</style>
                 </>
-            </SettingLayout>
+            </Layout>
             <Modal
                 title="정말 탈퇴 하시겠습니까?"
                 isOpen={isSignDeleteModalOpen}

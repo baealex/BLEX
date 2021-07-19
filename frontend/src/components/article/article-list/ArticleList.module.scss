@@ -1,0 +1,19 @@
+.list {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #eee;
+
+    :global(body.dark) & {
+        border-bottom: 2px solid #555;
+    }
+
+    img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+    }
+
+    p {
+        word-break: break-all;
+    }
+}

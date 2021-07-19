@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactFrappeChart from 'react-frappe-charts';
 
-import SettingLayout from '@components/setting/layout';
+import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
 
@@ -26,10 +26,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
 }
 
-export default function Setting(props: Props) {
+export default function AnalyticsSetting(props: Props) {
     return (
         <>
-            <SettingLayout tabname="analytics">
+            <Layout tabname="analytics">
                 <div className="h5 noto font-weight-bold mb-3">
                     조회수 추이
                 </div>
@@ -89,7 +89,7 @@ export default function Setting(props: Props) {
                         </div>
                     ))}
                 </div>
-            </SettingLayout>
+            </Layout>
         </>
     );
 }

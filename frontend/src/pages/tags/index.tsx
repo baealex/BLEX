@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 
-import TagItem from '@components/tag/TagItem';
+import { TagCard } from '@components/tag';
 import {
     Footer,
     Pagination
@@ -40,7 +40,7 @@ export default function Tags(props: Props) {
             <div className="container">
                 <div className="row">
                     {props.tags.map((item, idx) => (
-                        <TagItem key={idx} {...item}/>
+                        <TagCard key={idx} {...item}/>
                     ))}
                 </div>
 

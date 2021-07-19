@@ -14,7 +14,7 @@ export function getPostsImage(path: string) {
     if (path !== '') {
         return getImage(path);
     }
-    return getImage('assets/images/default-post.png');
+    return getImage('assets/images/default-post.minify.png');
 }
 
 export function getUserImage(path: string) {
