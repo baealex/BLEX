@@ -40,7 +40,11 @@ export function Related(props: RelatedProps) {
                 </Link>님이 작성한 다른 글</p>
             <div className="row">
                 {posts.map((item, idx) => (
-                    <ArticleCard key={idx} {...item}/>
+                    <ArticleCard
+                        key={idx}
+                        className="col-lg-4 col-md-6 mt-4"
+                        {...item}
+                    />
                 ))}
             </div>
         </div>
