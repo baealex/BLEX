@@ -99,7 +99,7 @@ def setting(request, item):
                     posts = posts.annotate(yesterday_count=Count(
                         Case(
                             When(
-                                analytics__created_date=yesterday,
+                                 analytics__created_date=yesterday,
                                 then='analytics__table'
                             )
                         )

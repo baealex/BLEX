@@ -34,6 +34,7 @@ urlpatterns = [
     path('v1/auth/security', api_v1.security, name='security_api_v1'),
     path('v1/auth/security/send', api_v1.security_send, name='security_send_api_v1'),
     path('v1/setting/<item>', api_v1.setting, name='setting_api_v1'),
+    path('v1/search', api_v1.search, name='search_api_v1'),
     path('v1/tags', api_v1.tags, name='tags_api_v1'),
     path('v1/tags/<tag>', api_v1.tags, name='tags_api_v1'),
     path('v1/posts/temp', api_v1.temp_posts, name='temp_posts_api_v1'),
