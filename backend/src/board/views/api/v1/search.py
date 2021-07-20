@@ -55,10 +55,10 @@ def search(request):
 
     start_time = time.time()
     for post in posts.iterator():
-        score = 0
         max_score = 0
 
         for search_word in search_words:
+            score = 0
             if search_word in post.title.lower():
                 score += 100
             if search_word in post.tag:
@@ -97,6 +97,5 @@ def search(request):
             'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
             'author_image': post.author_image,
             'author': post.author_username,
-            'tag': post.tag,
         }, results)),
     })

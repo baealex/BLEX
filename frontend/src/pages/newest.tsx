@@ -46,10 +46,13 @@ export default function NewestArticles(props: Props) {
                 <div className="container">
                     <div className="row">
                         {props.posts.map((item, idx) => (
-                            <ArticleCard key={idx} {...item}/>
+                            <ArticleCard
+                                key={idx}
+                                className="col-lg-4 col-md-6 mt-4"
+                                {...item}
+                            />
                         ))}
                     </div>
-
                     <Pagination
                         page={props.page}
                         last={props.lastPage}

@@ -9,7 +9,7 @@ export interface SearchBoxProps {
     placeholder?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onClick?: () => void;
-    buttonText: string;
+    button: any;
 }
 
 export function SearchBox(props: SearchBoxProps) {
@@ -28,7 +28,7 @@ export function SearchBox(props: SearchBoxProps) {
                 onKeyPress={(e) => e.key === 'Enter' && handleClick()}
             />
             <button className={cn({'show' : props.value})} onClick={handleClick}>
-                {props.buttonText}
+                {props.button}
             </button>
         </div>
     )

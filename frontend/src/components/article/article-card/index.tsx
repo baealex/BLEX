@@ -18,12 +18,13 @@ export interface ArticleCardProps {
     authorImage: string;
     createdDate: string;
     readTime: number;
+    className?: string;
 }
 
 export function ArticleCard(props: ArticleCardProps) {
 
     return (
-        <div className="col-lg-4 col-md-6 mt-4">
+        <div className={props.className}>
             <Card isRounded>
                 <div className={classNames(
                     styles.posts

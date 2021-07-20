@@ -29,6 +29,5 @@ export interface GetSearchData {
         createdDate: string;
         authorImage: string;
         author: string;
-        tag: string;
     }[];
 }

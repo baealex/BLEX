@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { ArticleList } from '@components/article';
+import { ArticleCard } from '@components/article';
 import {
     Alert,
     Footer,
@@ -64,13 +64,13 @@ export default function Search(props: Props) {
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-lg-8">
-                            <div className="mb-3">
+                            <div className="mb-4">
                                 <SearchBox
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     onClick={handleClickSearch}
                                     placeholder="검색어를 입력하세요."
-                                    buttonText="Search"
+                                    button={<i className="fas fa-search"/>}
                                 />
                             </div>
                             {response?.status == 'ERROR' ? (
@@ -79,16 +79,18 @@ export default function Search(props: Props) {
                                 </Alert>
                             ) : (
                                 <>
-                                    <div className="mb-3 shallow-dark">
+                                    <div className="shallow-dark text-right">
                                         {response?.body.totalSize}건의 결과 ({response?.body.elapsedTime}초)
                                     </div>
                                     {response?.body.results.map((item, idx) => (
-                                        <ArticleList key={idx} {...item}/>
+                                        <ArticleCard key={idx} className="mt-4" {...item}/>
                                     ))}
-                                    <Pagination
-                                        page={props.page}
-                                        last={response?.body.lastPage || 0}
-                                    />
+                                    {response?.body.lastPage ? (
+                                        <Pagination
+                                            page={props.page}
+                                            last={response?.body.lastPage}
+                                        />
+                                    ) : ''}
                                 </>
                             )}
                         </div>
