@@ -16,7 +16,7 @@ export interface ArticleCardSmallProps {
 
 export function ArticleCardSmall(props: ArticleCardSmallProps) {
     return (
-        <div className="col-md-4 mt-3 noto">
+        <div className="col-md-4 mt-3">
             <Card isRounded>
                 <Link href="/[author]/[posturl]" as={`@${props.author}/${props.url}`}>
                     <a className="deep-dark">
@@ -33,7 +33,7 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
                             <div>
                                 {props.title}
                             </div>
-                            <div className="vs noto mt-2">
+                            <div className="vs mt-2">
                                 {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
                             </div>
                         </div>

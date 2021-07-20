@@ -28,7 +28,7 @@ export function CommentEditor(props: CommentEditorProps) {
         <div className="mb-3">
             <textarea
                 rows={5}
-                className="form-control noto"
+                className="form-control"
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
                 maxLength={300}
@@ -37,7 +37,7 @@ export function CommentEditor(props: CommentEditorProps) {
             <button
                 type="button"
                 onClick={() => onSubmit()}
-                className="btn btn-dark btn-block noto">
+                className="btn btn-dark btn-block">
                 완료
             </button>
         </div>

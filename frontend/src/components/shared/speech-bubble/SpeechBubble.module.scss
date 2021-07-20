@@ -11,6 +11,10 @@
         background: #f8f8f8;
         box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.3);
 
+        :global(body.dark) & {
+            background: #333;
+        }
+
         &::after {
             position: absolute;
             right: 0.8em;
@@ -22,6 +26,10 @@
             border-style: solid;
             border-color: #f8f8f8 transparent transparent transparent;
             filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.3));
+
+            :global(body.dark) & {
+                border-color: #333 transparent transparent transparent;
+            }
         }
     }
 

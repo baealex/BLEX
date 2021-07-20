@@ -3,6 +3,7 @@ export * from './heatmap';
 export * from './loading'
 export * from './modal';
 export * from './pagination';
+export * from './search-box';
 export * from './seo';
 export * from './social';
 export * from './speech-bubble';

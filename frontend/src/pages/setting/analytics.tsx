@@ -30,7 +30,7 @@ export default function AnalyticsSetting(props: Props) {
     return (
         <>
             <Layout tabname="analytics">
-                <div className="h5 noto font-weight-bold mb-3">
+                <div className="h5 font-weight-bold mb-3">
                     조회수 추이
                 </div>
                 <Card isRounded className="p-3">
@@ -52,7 +52,7 @@ export default function AnalyticsSetting(props: Props) {
                         colors={['purple']}
                     />
                 </Card>
-                <div className="h5 noto font-weight-bold mt-5 mb-3">
+                <div className="h5 font-weight-bold mt-5 mb-3">
                     신규 유입 경로
                 </div>
                 <div className="row">

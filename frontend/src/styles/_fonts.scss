@@ -17,16 +17,8 @@
 }
 
 /* Style */
-.serif {
-    font-family: $FONT_SERIF;
-}
-
-.gothic {
-    font-family: $FONT_GOTHIC;
-}
-
-.noto {
-    font-family: $FONT_GOTHIC;
+body {
+    font-family: $FONT_GOTHIC !important;
 }
 
 /* Size */

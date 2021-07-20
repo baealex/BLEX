@@ -14,7 +14,7 @@ export function Toggle(props: ToggleProps) {
     };
 
     return (
-        <div className="d-flex align-items-center custom-control custom-switch noto">
+        <div className="d-flex align-items-center custom-control custom-switch">
             <input
                 ref={checkbox}
                 onClick={(e: any) => props.onClick(e.target.checked)}

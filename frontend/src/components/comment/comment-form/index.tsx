@@ -84,7 +84,7 @@ export function CommentForm(props: CommentFormProps) {
             >
                 <Card
                     isRounded
-                    className={`p-3 mb-3 noto ${cn(
+                    className={`p-3 mb-3 ${cn(
                         'card',
                         { isOpen }
                     )}`}
@@ -93,7 +93,7 @@ export function CommentForm(props: CommentFormProps) {
                         <textarea
                             ref={input}
                             rows={5}
-                            className={`noto ${cn({ isOpen })}`}
+                            className={cn({ isOpen })}
                             onChange={(e) => props.onChange(e.target.value)}
                             onDrop={(e) => onDrop(e)}
                             placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."

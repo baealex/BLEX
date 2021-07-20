@@ -201,7 +201,7 @@ class Series extends React.Component<Props, State> {
                     />
                     {seriesPosts.map((post, idx) => (
                         <Card isRounded className="p-3 mt-3">
-                            <div key={idx} className=" noto d-flex justify-content-between">
+                            <div key={idx} className="d-flex justify-content-between">
                                 <span className="deep-dark">
                                     {idx + 1}. {post.title}
                                 </span>
@@ -234,17 +234,17 @@ class Series extends React.Component<Props, State> {
                     <div className="series-list">
                         <div className="row">
                             <div className="col-lg-8 mx-auto">
-                                <h2 className="noto font-weight-bold">
+                                <h2 className="font-weight-bold">
                                     '{seriesTitle}' 시리즈
                                 </h2>
                                 <Link href="/[author]" as={`/@${this.props.series.owner}`}>
-                                    <a className="post-series deep-dark noto font-weight-bold mb-3">
+                                    <a className="post-series deep-dark font-weight-bold mb-3">
                                         Created by {this.props.series.owner}
                                     </a>
                                 </Link>
                                 {this.props.series.owner == this.state.username && (
                                     <div className="mb-3">
-                                        <div className="btn btn-block btn-dark noto" onClick={() => this.onOpenModal('isSeriesModalOpen')}>
+                                        <div className="btn btn-block btn-dark" onClick={() => this.onOpenModal('isSeriesModalOpen')}>
                                             시리즈 수정
                                         </div>
                                     </div>
@@ -256,7 +256,7 @@ class Series extends React.Component<Props, State> {
                                     {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
                                 </SpeechBubble>
                                 <div className="mt-5 mb-3 text-right">
-                                    <div className="btn btn-dark noto m-1" onClick={() => Global.setState({
+                                    <div className="btn btn-dark m-1" onClick={() => Global.setState({
                                         isSortOldFirst: !isSortOldFirst
                                     })}>
                                         {isSortOldFirst ? (

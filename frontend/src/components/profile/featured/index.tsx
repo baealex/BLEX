@@ -12,7 +12,7 @@ export interface FeaturedProps {
 export function Featured(props: FeaturedProps) {
     return (
         <>
-            <div className="h5 noto font-weight-bold mt-5">
+            <div className="h5 font-weight-bold mt-5">
                 인기 컨텐츠
             </div>
             {props.articles.length > 0 ? (

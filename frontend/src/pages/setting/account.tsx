@@ -190,7 +190,7 @@ export default function AccountSetting(props: Props) {
                         </div>
                     ) : (
                         <div className="d-flex justify-content-between">
-                            <h3 className="noto font-weight-bold">
+                            <h3 className="font-weight-bold">
                                 @{username}
                             </h3>
                             <button

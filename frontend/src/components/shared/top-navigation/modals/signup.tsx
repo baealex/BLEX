@@ -102,7 +102,7 @@ export class SignupModal extends React.Component<Props, State> {
         return (
             <Modal title='회원가입' isOpen={this.props.isOpen} onClose={() => this.props.onClose()}>
                 {this.state.isDone ? (
-                    <div className="mx-auto noto bg-border-purple p-3 bg-light deep-dark">
+                    <div className="mx-auto bg-border-purple p-3 bg-light deep-dark">
                         {this.state.realname}님의 회원가입을 진심으로 환영합니다! 💜
                         입력하신 '{this.state.email}'로 메일을 발송하겠습니다! 🚀
                         보내는 메일은 'im@baejino.com'이며 유사 메일에 유의하시길 바랍니다.

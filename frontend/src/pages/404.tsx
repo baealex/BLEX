@@ -12,7 +12,7 @@ export default function NotFound() {
             
             <div className="container">
                 <div className="row justify-content-center">
-                    <div className="col-lg-8 text-center noto">
+                    <div className="col-lg-8 text-center">
                         <img
                             src="https://static.blex.me/assets/sticker/blank.svg"
                             className="w-75 my-3"

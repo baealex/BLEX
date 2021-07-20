@@ -56,7 +56,7 @@ export function Navigation(props: NavigationProps) {
 
     return (
         <Card isRounded className="mb-3">
-            <ul className={`nav noto ${stickyClass} d-block`}>
+            <ul className={`nav ${stickyClass} d-block`}>
                 {NAVIGATION_ITEMS.map((item, idx) => (
                     <li key={idx} className="nav-item">
                         <Link href={item.url}>

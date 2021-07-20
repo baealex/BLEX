@@ -19,10 +19,10 @@ export interface ArticleSeriesProps {
 
 export function ArticleSeries(props: ArticleSeriesProps) {
     return (
-        <div className="my-5 noto posts-sereis">
+        <div className="my-5 posts-sereis">
             <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <a className="deep-dark">
-                    <h4 className="noto font-weight-bold mb-3">
+                    <h4 className="font-weight-bold mb-3">
                         '{props.name}' 시리즈
                     </h4>
                 </a>

@@ -45,7 +45,7 @@ export function ArticleContent(props: {
 
     return (
         <div
-            className="article noto"
+            className="article"
             dangerouslySetInnerHTML={{ __html: props.html }}>
         </div>
     )

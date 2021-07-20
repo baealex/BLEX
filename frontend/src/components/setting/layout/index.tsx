@@ -18,7 +18,7 @@ export function Layout({
 }: LayoutProps) {
     return (
         <>
-            <div className="container noto">
+            <div className="container">
                 <div className="row">
                     <div className="col-lg-3">
                         <Navigation tabname={tabname} sticky={sticky}/>

@@ -31,7 +31,7 @@ export function Navigation(props: NavigationProps) {
     return (
         <div className={`${cn('navigation')} back-image mt-5`}>
             <div className={cn('mask')}>
-                <ul className="noto">
+                <ul>
                     {TAB_ITEMS.map((item, idx) => (
                         <li key={idx} className={cn(
                             { active: props.active === item.active }

@@ -13,7 +13,7 @@ export interface RecentActivityProps {
 export function RecentActivity(props: RecentActivityProps) {
     return (
         <>
-            <div className="h5 noto font-weight-bold mt-5">
+            <div className="h5 font-weight-bold mt-5">
                 최근 활동
             </div>
             {props.data.length > 0 ? (

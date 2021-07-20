@@ -44,10 +44,10 @@ export function ArticleCard(props: ArticleCardProps) {
                 <div className="p-2">
                     <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                         <a className="deep-dark">
-                            <div className={`${styles.postsTitle} noto mt-3`}>
+                            <div className={`${styles.postsTitle} mt-3`}>
                                 {props.title}
                             </div>
-                            <p className="noto">{props.description}</p>
+                            <p>{props.description}</p>
                         </a>
                     </Link>
                     <div className="d-flex">
@@ -61,7 +61,7 @@ export function ArticleCard(props: ArticleCardProps) {
                                 />
                             </a>
                         </Link>
-                        <div className="vs noto mx-2">
+                        <div className="vs mx-2">
                             <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
                         </div>
                     </div>

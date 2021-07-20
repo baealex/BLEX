@@ -3,6 +3,7 @@ export * from './comments';
 export * from './forms';
 export * from './image';
 export * from './posts';
+export * from './search';
 export * from './series';
 export * from './setting';
 export * from './tags';

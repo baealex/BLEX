@@ -30,10 +30,7 @@ export function ArticleAuthor(props: ArticleAuthorProps) {
                 </a>
             </Link>
             </div>
-            <div className={classNames(
-                styles.info,
-                'noto',
-            )}>
+            <div className={classNames(styles.info)}>
                 <div className={styles.realname}>
                     {props.profile.realname}
                 </div>

@@ -18,10 +18,10 @@ export function SeriesList(props: SeriesListProps) {
             <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <a className={cn('title')}>
                     <div className={cn('mask')}>
-                        <div className="h5 font-weight-bold noto">
+                        <div className="h5 font-weight-bold">
                             ‘{props.name}’ 시리즈
                         </div>
-                        <span className="ns noto">
+                        <span className="ns">
                             {props.createdDate}
                         </span>
                     </div>

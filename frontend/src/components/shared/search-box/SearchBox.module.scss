@@ -1,0 +1,46 @@
+@import 'var';
+
+.input-group {
+    @include MAIN_SHADOW;
+
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 100px;
+    padding: 8px 8px 8px 16px;
+    background: #fff;
+
+    :global(body.dark) & {
+        background: $COLOR_DARK_BACKGROUND;
+    }
+
+    input {
+        flex: 1;
+        border: none;
+        outline: none;
+
+        :global(body.dark) & {
+            color: #fff;
+            background: $COLOR_DARK_BACKGROUND;
+        }
+    }
+
+    button {
+        transition: opacity 0.5s;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 100px;
+        opacity: 0;
+        border: none;
+        outline: none;
+        background-color: $COLOR_DEFAULT_SECONDARY;
+
+        :global(body.dark) & {
+            background-color: $COLOR_DARK_SECONDARY;
+        }
+
+        &.show {
+            opacity: 1;
+        }
+    }
+}

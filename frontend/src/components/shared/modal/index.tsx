@@ -31,13 +31,13 @@ export function Modal(props: Props) {
                     <div className={styles.overlay} onClick={() => props.onClose()}/>
                     <>
                         <div className={styles.modal}>
-                            <div className={`noto font-weight-bold ${styles.title}`}>
+                            <div className={`font-weight-bold ${styles.title}`}>
                                 {props.title}
                             </div>
                             <div className={styles.close} onClick={() => props.onClose()}>
                                 <i className="fas fa-times"></i>
                             </div>
-                            <div className={`noto ${styles.content}`}>
+                            <div className={styles.content}>
                                 {props.children}
                             </div>
                             {props.submitText && (

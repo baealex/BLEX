@@ -45,7 +45,7 @@ export default function Tag(props: Props) {
             </Head>
 
             <div className="container">
-                <h1 className="h4 noto font-weight-bold pt-5">
+                <h1 className="h4 font-weight-bold pt-5">
                     — {props.tag} —
                 </h1>
                 {props.descPosts.url && (

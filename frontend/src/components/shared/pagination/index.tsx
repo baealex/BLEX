@@ -49,7 +49,7 @@ export function Pagination(props: Props) {
 
     return (
         <>
-            <nav className={`${cn('nav')} noto`}>
+            <nav className={cn('nav')}>
                 <div className={cn('pages')}>
                     {page != 1 ? (
                         <>

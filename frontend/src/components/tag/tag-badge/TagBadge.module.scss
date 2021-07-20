@@ -29,7 +29,7 @@
 
         color: #777;
 
-        body.dark & {
+        :global(body.dark) & {
             color: #ccc;
         }
 

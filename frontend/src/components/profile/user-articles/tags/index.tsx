@@ -40,12 +40,12 @@ export function Tags(props: TagsProps) {
             cn('tags'),
             'col-lg-3',
         )}>
-            <ul className="mt-4 noto">
+            <ul className="mt-4">
                 <div className={classNames(
                     'd-flex justify-content-between',
                     cn('category'),
                 )}>
-                    <div className="h6 noto font-weight-bold">
+                    <div className="h6 font-weight-bold">
                         카테고리
                     </div>
                     <Dropdown

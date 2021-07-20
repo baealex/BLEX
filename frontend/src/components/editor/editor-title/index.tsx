@@ -10,7 +10,7 @@ export function EditorTitle(props: EditorTitleProps) {
         <>
             <input
                 name="title"
-                className={`noto ${styles.title}`}
+                className={styles.title}
                 placeholder="제목을 입력하세요."
                 maxLength={50}
                 value={props.value}

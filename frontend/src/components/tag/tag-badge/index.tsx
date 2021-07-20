@@ -15,7 +15,7 @@ export function TagBadge(props: TagBadgeProps) {
             {props.tags.map((item, idx) => (
                 item != '' && (
                     <li key={idx}>
-                        <Link href="/[author]/posts/[tag]" as={`/@${props.author}/posts/${item}`}>
+                        <Link href={`/@${props.author}/posts?tag=${item}`}>
                             <a>{item}</a>
                         </Link>
                     </li>

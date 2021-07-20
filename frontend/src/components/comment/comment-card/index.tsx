@@ -27,7 +27,7 @@ export interface CommentCardProps {
 export function CommentCard(props: CommentCardProps) {
     return (
         <>
-            <div className={`${cn('card')} noto mb-3`}>
+            <div className={`${cn('card')} mb-3`}>
                 <div className="d-flex justify-content-between">
                     <div className="d-flex">
                         <Link href={`/@${props.author}`}>
@@ -74,7 +74,7 @@ export function CommentCard(props: CommentCardProps) {
                     dangerouslySetInnerHTML={{ __html: props.html }}
                 />
                 <div className="my-2">
-                    <ul className={`${cn('interactive')} none-list noto ns`}>
+                    <ul className={`${cn('interactive')} none-list ns`}>
                         {props.onLike && (
                             <li onClick={() => props.onLike && props.onLike(props.pk)}>
                                 {props.isLiked ? (

@@ -311,8 +311,8 @@ class PostDetail extends React.Component<Props, State> {
                             </time>
                             {this.props.post.author == this.state.username && (
                                 <div className="mt-3">
-                                    <div className="btn btn-dark noto m-1" onClick={() => this.onEdit()}>포스트 수정</div>
-                                    <div className="btn btn-dark noto m-1" onClick={() => this.onDelete()}>포스트 삭제</div>
+                                    <div className="btn btn-dark m-1" onClick={() => this.onEdit()}>포스트 수정</div>
+                                    <div className="btn btn-dark m-1" onClick={() => this.onDelete()}>포스트 삭제</div>
                                 </div>
                             )}
                         </div>

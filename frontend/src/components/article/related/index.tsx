@@ -32,7 +32,7 @@ export function Related(props: RelatedProps) {
 
     return (
         <div ref={element} className="feature-articles container pt-5 reverse-color">
-            <p className="noto">
+            <p>
                 <Link href={`/@${props.author}`}>
                     <a className="font-weight-bold deep-dark">
                         {props.realname}

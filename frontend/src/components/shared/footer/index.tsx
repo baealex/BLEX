@@ -15,7 +15,6 @@ export function Footer(props: FooterProps) {
         <footer
             className={classNames(
                 styles.footer,
-                'noto',
                 bgdark && styles.bgDark,
             )}
         >

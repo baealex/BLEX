@@ -20,7 +20,7 @@ export function TagCard(props: TagCardProps) {
                     </Link>
                 </div>
                 {props.description ? (
-                    <div className="noto ns">
+                    <div className="ns">
                         <Link href="/tags/[tag]" as={`/tags/${props.name}`}>
                             <a className="gray-dark">{props.description}</a>
                         </Link>

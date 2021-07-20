@@ -14,7 +14,7 @@ export function SpeechBubble(props: SpeechBubbleProps) {
     return (
         <>
             <div className={classNames(cn('bubble'), 'mb-3')}>
-                <blockquote className="noto">
+                <blockquote>
                     {props.children && props.children}
                 </blockquote>
                 <div className={cn('user')}>

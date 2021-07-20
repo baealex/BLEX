@@ -71,14 +71,14 @@ export default function Verify(props: Props) {
     return (
         <>
             <div className="text-center display-center">
-                <div className="h5 noto mb-4">{props.username}님이 맞으십니까?</div>
+                <div className="h5 mb-4">{props.username}님이 맞으십니까?</div>
                 {Config.HCAPTCHA_SITE_KEY ? (
                     <HCaptcha
                         sitekey={Config.HCAPTCHA_SITE_KEY}
                         onVerify={(token) => onSubmit(token)}
                     />
                 ) : (
-                    <button className="active-button noto" onClick={() => onSubmit()}>
+                    <button className="active-button" onClick={() => onSubmit()}>
                         이메일 인증 완료
                     </button>
                 )}
