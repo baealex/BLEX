@@ -447,7 +447,7 @@ class Search(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.search_value.vlue
+        return self.search_value.value
 
 class SearchValue(models.Model):
     value   = models.CharField(max_length=50, unique=True)

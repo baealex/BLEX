@@ -136,8 +136,7 @@ def has_vaild_referer(referer):
             return False
     return True
 
-def create_viewer(posts, ip, user_agent):
-    history = None
+def create_history(ip, user_agent):
     key = get_hash_key((ip).encode())
     try:
         history = History.objects.get(key=key)
@@ -159,6 +158,10 @@ def create_viewer(posts, ip, user_agent):
         history.category = bot_check(user_agent)
         history.save()
         history.refresh_from_db()
+    return history
+
+def create_viewer(posts, ip, user_agent):
+    history = create_history(ip, user_agent)
     
     if not 'bot' in history.category:
         today = timezone.now()

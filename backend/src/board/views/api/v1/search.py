@@ -1,3 +1,4 @@
+import datetime
 import math
 import time
 
@@ -7,9 +8,11 @@ from django.db.models import F, Q
 from django.http import Http404
 from django.utils import timezone
 
-from board.models import Post
+from board.models import Post, Search, SearchValue, History
 from board.views import function as fn
+from modules.analytics import create_history
 from modules.response import StatusDone, StatusError
+from modules.subtask import sub_task_manager
 
 SIMILAR_KEYWORDS = [
     ('android', '안드로이드'),
@@ -26,6 +29,12 @@ SIMILAR_KEYWORDS = [
     ('ubuntu', '우분투'),
     ('windows', '윈도우'),
 ]
+
+def get_network_addr(request):
+    ip_addr = request.META.get('REMOTE_ADDR')
+    if not ip_addr:
+        ip_addr = request.META.get('HTTP_X_FORWARDED_FOR')
+    return ip_addr
 
 def search(request):
     query = request.GET.get('q', '')[:10].lower()
@@ -88,6 +97,42 @@ def search(request):
         raise Http404
     
     results = list(map(lambda x: x[0], results))
+
+    if total_size > 0:
+        def save_search_query():
+            user_addr = get_network_addr(request)
+            user_agent = request.META['HTTP_USER_AGENT']
+            history = create_history(user_addr, user_agent)
+
+            search_value = None
+            try:
+                search_value = SearchValue.objects.get(value=query)
+            except:
+                search_value = SearchValue(value=query)
+                search_value.save()
+                search_value.refresh_from_db()
+
+            recent = timezone.now() - datetime.timedelta(hours=1)
+            has_search = Search.objects.filter(
+                searcher=history,
+                search_value=search_value,
+                created_date__gt=recent,
+            ).exists()
+            
+            if not has_search:
+                if request.user.id:
+                    Search(
+                        user=request.user,
+                        searcher=history,
+                        search_value=search_value,
+                    ).save()
+                else:
+                    Search(
+                        searcher=history,
+                        search_value=search_value,
+                    ).save()
+        
+        sub_task_manager.append(save_search_query)
 
     return StatusDone({
         'elapsed_time': elapsed_time,

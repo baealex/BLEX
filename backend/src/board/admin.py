@@ -134,7 +134,7 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(Search)
 class SearchAdmin(admin.ModelAdmin):
-    list_display = ['search_value', 'created_date']
+    list_display = ['user', 'search_value', 'created_date']
 
 admin.site.register(SearchValue)
 
