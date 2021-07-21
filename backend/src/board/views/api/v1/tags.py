@@ -51,12 +51,12 @@ def tags(request, tag=None):
             posts = paginator.get_page(page)
             desc_object = dict()
             try:
-                article = Post.objects.get(url=tag, hide=False).annotate(
+                article = Post.objects.filter(url=tag, hide=False).annotate(
                     author_username=F('author__username')
-                )
+                ).first()
                 desc_object = {
                     'url': article.url,
-                    'author': author_username,
+                    'author': article.author_username,
                     'description': article.description(80)
                 }
             except:
