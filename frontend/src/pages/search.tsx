@@ -41,11 +41,13 @@ export default function Search(props: Props) {
     const [ response, setResponse ] = useState<API.ResponseData<API.GetSearchData>>();
 
     useEffect(() => {
-        API.getSearch(props.query, props.page).then(({data}) => {
-            setResponse(data);
-            lazyLoadResource();
-        })
-        setSearch(props.query);
+        if (props.query !== '') {
+            API.getSearch(props.query, props.page).then(({data}) => {
+                setResponse(data);
+                lazyLoadResource();
+            });
+            setSearch(props.query);
+        }
     }, [props.page, props.query]);
 
     const handleClickSearch = () => {
@@ -67,10 +69,11 @@ export default function Search(props: Props) {
                             <div className="mb-4">
                                 <SearchBox
                                     value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    onClick={handleClickSearch}
+                                    maxLength={10}
                                     placeholder="검색어를 입력하세요."
+                                    onChange={(e) => setSearch(e.target.value)}
                                     button={<i className="fas fa-search"/>}
+                                    onClick={handleClickSearch}
                                 />
                             </div>
                             {response?.status == 'ERROR' ? (

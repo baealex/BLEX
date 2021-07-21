@@ -8,8 +8,9 @@ export interface SearchBoxProps {
     value: string;
     placeholder?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onClick?: () => void;
     button: any;
+    onClick?: () => void;
+    maxLength?: number;
 }
 
 export function SearchBox(props: SearchBoxProps) {
@@ -24,6 +25,7 @@ export function SearchBox(props: SearchBoxProps) {
             <input
                 value={props.value}
                 placeholder={props.placeholder}
+                maxLength={props.maxLength}
                 onChange={props.onChange}
                 onKeyPress={(e) => e.key === 'Enter' && handleClick()}
             />
