@@ -220,7 +220,7 @@ class PostDetail extends React.Component<Props, State> {
         const { author, url } = this.props.post;
         const { data } = await API.putAnUserPosts('@' + author, url, 'like');
         if (data.status === 'DONE') {
-            if (data.body.totalLikes) {
+            if (typeof data.body.totalLikes === 'number') {
                 this.setState({
                     isLiked: !this.state.isLiked,
                     totalLikes: data.body.totalLikes
