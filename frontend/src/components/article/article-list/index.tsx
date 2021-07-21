@@ -48,8 +48,14 @@ export function ArticleList(props: ArticleListProps) {
                     </a>
                 </Link>
             </p>
-            <p className="vs">{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span></p>
-            <TagBadge author={props.author} tags={props.tag.split(',')}/>
+            <p className="vs">
+                {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
+            </p>
+            <TagBadge items={props.tag.split(',').map(item => (
+                <Link href={`/@${props.author}/posts?tag=${item}`}>
+                    <a>{item}</a>
+                </Link>
+            ))}/>
         </div>
     )
 }

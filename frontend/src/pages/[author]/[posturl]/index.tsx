@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import Head from 'next/head';
 import Router from 'next/router';
 
@@ -366,10 +367,11 @@ class PostDetail extends React.Component<Props, State> {
                                 />
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>
-                            <TagBadge
-                                author={this.props.post.author}
-                                tags={this.props.post.tag.split(',')}
-                            />
+                            <TagBadge items={this.props.post.tag.split(',').map(item => (
+                                <Link href={`/@${this.props.post.author}/posts?tag=${item}`}>
+                                    <a>{item}</a>
+                                </Link>
+                            ))}/>
                             {this.props.hasSeries ? (
                                 <ArticleSeries
                                     {...this.props.series}

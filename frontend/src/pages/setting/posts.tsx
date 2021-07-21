@@ -12,6 +12,7 @@ import {
     Card,
 } from '@components/integrated';
 import { Layout } from '@components/setting';
+import { TagBadge } from '@components/tag';
 
 import * as API from '@modules/api';
 
@@ -177,35 +178,31 @@ export default function PostsSetting(props: Props) {
     return (
         <>
             <Layout tabname="posts" sticky={false}>
-                <ul className="tag-list mb-3">
-                    {POSTS_ORDER.map((item, idx) => (
-                        <li key={idx}>
-                            <Link
-                                href={{
-                                    query: {
-                                        ...router.query,
-                                        order: router.query.order === item.order
-                                            ? item.order.replace('-' , '')
-                                            : item.order,
-                                        page: 1,
-                                    }
-                                }}
-                                scroll={false}
-                            >
-                                <a>
-                                    {item.name}&nbsp;
-                                    {router.query.order?.includes(item.order.replace('-' , '')) && (
-                                        router.query.order?.includes('-') ? (
-                                            <i className="fas fa-sort-up"/>
-                                        ) : (
-                                            <i className="fas fa-sort-down"/>
-                                        )
-                                    )}
-                                </a>
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
+                <TagBadge items={POSTS_ORDER.map((item) => (
+                    <Link
+                        href={{
+                            query: {
+                                ...router.query,
+                                order: router.query.order === item.order
+                                    ? item.order.replace('-' , '')
+                                    : item.order,
+                                page: 1,
+                            }
+                        }}
+                        scroll={false}
+                    >
+                        <a>
+                            {item.name}&nbsp;
+                            {router.query.order?.includes(item.order.replace('-' , '')) && (
+                                router.query.order?.includes('-') ? (
+                                    <i className="fas fa-sort-up"/>
+                                ) : (
+                                    <i className="fas fa-sort-down"/>
+                                )
+                            )}
+                        </a>
+                    </Link>
+                ))}/>
                 <>
                     {posts.map((post, idx) => (
                         <Card key={idx} isRounded className="mb-3">
