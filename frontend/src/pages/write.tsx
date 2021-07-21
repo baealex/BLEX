@@ -163,6 +163,9 @@ class Write extends React.Component<Props, State> {
             return;
         }
         try {
+            if (this.saveTimer) {
+                clearTimeout(this.saveTimer);
+            }
             const { data } = await API.postPosts({
                 token: this.state.token,
                 title: this.state.title,
