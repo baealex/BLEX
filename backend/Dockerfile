@@ -1,5 +1,8 @@
 FROM ubuntu:18.04
 
+ENV PYTHON_VERSION=3.8.5
+ENV PYTHONIOENCODING=utf-8
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
@@ -19,14 +22,14 @@ ENV LANG="C.UTF-8" \
     PYENV_SHELL="bash"
 
 RUN git clone https://github.com/pyenv/pyenv.git $PYENV_ROOT \
-    && pyenv install 3.8.5 \
-    && pyenv global 3.8.5
+    && pyenv install $PYTHON_VERSION \
+    && pyenv global $PYTHON_VERSION
 
-ENV PYTHONIOENCODING utf-8
 
 COPY ./src/requirements.txt /app/
 
 WORKDIR /app
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY ./src /app
