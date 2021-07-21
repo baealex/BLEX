@@ -12,14 +12,19 @@ from board.views import function as fn
 from modules.response import StatusDone, StatusError
 
 SIMILAR_KEYWORDS = [
+    ('android', '안드로이드'),
+    ('debian', '데비안'),
     ('django', '장고'),
     ('flask', '플라스크'),
     ('javascript', '자바스크립트'),
+    ('linux', '리눅스'),
     ('pythonic', '파이써닉'),
     ('python', '파이썬'),
     ('react', '리액트'),
     ('rust', '러스트'),
     ('typescript', '타입스크립트'),
+    ('ubuntu', '우분투'),
+    ('windows', '윈도우'),
 ]
 
 def search(request):
