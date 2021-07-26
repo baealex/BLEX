@@ -47,7 +47,7 @@ export default function Search(props: Props) {
             setHistory(data);
             lazyLoadResource();
         });
-    })
+    }, []);
 
     useEffect(() => {
         if (props.query !== '') {

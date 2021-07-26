@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 export interface TagBadgeProps {
     items: any[];
-    disableSharp: boolean;
+    disableSharp?: boolean;
 }
 
 export function TagBadge(props: TagBadgeProps) {
