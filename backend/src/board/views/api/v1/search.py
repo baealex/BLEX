@@ -73,12 +73,20 @@ def search(request):
 
         for search_word in search_words:
             score = 0
-            if search_word in post.title.lower():
-                score += 100
-            if search_word in post.tag:
-                score += 50
+
+            post_title_lower = post.title.lower()
+            if search_word in post_title_lower:
+                score += 3
+                word_pos = post_title_lower.find(search_word)
+                if word_pos == 0 or post_title_lower[word_pos-1] == ' ':
+                    score += 2
+            
+            if search_word in post.tag.split(','):
+                score += 2
+            
             if search_word in post.text_md.lower():
-                score += 10    
+                score += 1
+            
             if score > max_score:
                 max_score = score
         
