@@ -71,7 +71,7 @@ BOT_TYPES = [
     'facebook'
 ]
 
-def get_ip(request):
+def get_network_addr(request):
     ip_addr = request.META.get('REMOTE_ADDR')
     if not ip_addr:
         ip_addr = request.META.get('HTTP_X_FORWARDED_FOR')
