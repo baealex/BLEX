@@ -40,14 +40,27 @@ export default function Search(props: Props) {
 
     const [ search, setSearch ] = useState(props.query);
     const [ response, setResponse ] = useState<API.ResponseData<API.GetSearchData>>();
-    const [ history, setHistory ] = useState<API.ResponseData<API.GetSearchHistoryData>>();
+    const [ history, setHistory ] = useState<API.GetSearchHistorySearch[]>([]);
 
     useEffect(() => {
         API.getSearchHistory().then(({data}) => {
-            setHistory(data);
-            lazyLoadResource();
+            setHistory(data.body.searches);
         });
     }, []);
+
+    useEffect(() => {
+        if (props.query !== '') {
+            API.getSearch(props.query, props.page).then(({data}) => {
+                setResponse(data);
+                lazyLoadResource();
+
+                API.getSearchHistory().then(({data}) => {
+                    setHistory(data.body.searches);
+                });
+            });
+            setSearch(props.query);
+        }
+    }, [props.query]);
 
     useEffect(() => {
         if (props.query !== '') {
@@ -57,7 +70,7 @@ export default function Search(props: Props) {
             });
             setSearch(props.query);
         }
-    }, [props.page, props.query]);
+    }, [props.page]);
 
     const handleClickSearch = () => {
         if (search != props.query) {
@@ -69,7 +82,9 @@ export default function Search(props: Props) {
         if (confirm('😥 정말 검색 기록을 삭제할까요?')) {
             const { data } = await API.deleteSearchHistory(pk);
             if (data.status === 'DONE') {
-                router.replace('');
+                API.getSearchHistory().then(({data}) => {
+                    setHistory(data.body.searches);
+                });
             }
         }
     }
@@ -97,9 +112,9 @@ export default function Search(props: Props) {
                                     button={<i className="fas fa-search"/>}
                                     onClick={handleClickSearch}
                                 />
-                                {history?.body && (
+                                {history && (
                                     <div className="mt-3">
-                                        <TagBadge disableSharp items={history?.body.searches.map(item => (
+                                        <TagBadge disableSharp items={history.map(item => (
                                             <span className="mt-3">
                                                 <a className="mr-2" onClick={() => searching(item.value)}>
                                                     {item.value}

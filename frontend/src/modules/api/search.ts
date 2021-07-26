@@ -33,10 +33,12 @@ export async function getSearchHistory() {
 }
 
 export interface GetSearchHistoryData {
-    searches: {
-        pk: number,
-        value: string,
-    }[];
+    searches: GetSearchHistorySearch[];
+}
+
+export interface GetSearchHistorySearch {
+    pk: number,
+    value: string,
 }
 
 export async function deleteSearchHistory(pk: number) {
