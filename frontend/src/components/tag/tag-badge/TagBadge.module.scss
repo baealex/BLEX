@@ -8,7 +8,7 @@
         display: inline-block;
         background-color:#f8f9fa;
         border-radius: 3px;
-        padding: 4px;
+        padding: 8px 12px;
         margin: 4px;
 
         :global(body.dark) & {
@@ -39,6 +39,14 @@
 
             :global(body.dark) & {
                 color: #fff;
+            }
+        }
+    }
+
+    &.disableSharp {
+        a {
+            &::before {
+                content: '',
             }
         }
     }

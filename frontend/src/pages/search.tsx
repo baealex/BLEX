@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import { ArticleCard } from '@components/article';
+import { TagBadge } from '@components/tag';
 import {
     Alert,
     Footer,
@@ -39,6 +40,14 @@ export default function Search(props: Props) {
 
     const [ search, setSearch ] = useState(props.query);
     const [ response, setResponse ] = useState<API.ResponseData<API.GetSearchData>>();
+    const [ history, setHistory ] = useState<API.ResponseData<API.GetSearchHistoryData>>();
+
+    useEffect(() => {
+        API.getSearchHistory().then(({data}) => {
+            setHistory(data);
+            lazyLoadResource();
+        });
+    })
 
     useEffect(() => {
         if (props.query !== '') {
@@ -52,8 +61,21 @@ export default function Search(props: Props) {
 
     const handleClickSearch = () => {
         if (search != props.query) {
-            router.push('/search?q=' + search);
+            searching(search);
         }
+    }
+
+    const handleRemoveHistory = async (pk: number) => {
+        if (confirm('😥 정말 검색 기록을 삭제할까요?')) {
+            const { data } = await API.deleteSearchHistory(pk);
+            if (data.status === 'DONE') {
+                router.replace('');
+            }
+        }
+    }
+
+    const searching = (keyword: string) => {
+        router.push('/search?q=' + keyword);
     }
 
     return (
@@ -75,6 +97,20 @@ export default function Search(props: Props) {
                                     button={<i className="fas fa-search"/>}
                                     onClick={handleClickSearch}
                                 />
+                                {history?.body && (
+                                    <div className="mt-3">
+                                        <TagBadge disableSharp items={history?.body.searches.map(item => (
+                                            <span className="mt-3">
+                                                <a className="mr-2" onClick={() => searching(item.value)}>
+                                                    {item.value}
+                                                </a>
+                                                <a onClick={() => handleRemoveHistory(item.pk)}>
+                                                    <i className="fas fa-times"/>
+                                                </a>
+                                            </span>
+                                        )) || []}/>
+                                    </div>
+                                )}
                             </div>
                             {response?.status == 'ERROR' ? (
                                 <Alert>

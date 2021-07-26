@@ -24,3 +24,24 @@ export interface GetSearchData {
         author: string;
     }[];
 }
+
+export async function getSearchHistory() {
+    return await axios.request<ResponseData<GetSearchHistoryData>>({
+        url: '/v1/search/history',
+        method: 'GET',
+    });
+}
+
+export interface GetSearchHistoryData {
+    searches: {
+        pk: number,
+        value: string,
+    }[];
+}
+
+export async function deleteSearchHistory(pk: number) {
+    return await axios.request<ResponseData<any>>({
+        url: `/v1/search/history/${pk}`,
+        method: 'DELETE',
+    });
+}
