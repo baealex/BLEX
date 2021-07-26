@@ -45,32 +45,38 @@ export function TopNavigation() {
     useEffect(() => {
         Global.configInit();
 
-        if (Global.state.isFirstVisit) {
+        try {
             const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-            if(systemDark.matches) {
-                document.body.classList.add('dark');
-                Global.setState({
-                    theme: 'dark',
-                });
+
+            if (systemDark && Global.state.isFirstVisit) {
+                if(systemDark.matches) {
+                    document.body.classList.add('dark');
+                    Global.setState({
+                        theme: 'dark',
+                    });
+                }
+            } else {
+                document.body.classList.add(Global.state.theme);
             }
-        } else {
+
+            systemDark.addEventListener('change', e => {
+                if (Global.state.theme === 'default' || Global.state.theme === 'dark') {
+                    if (e.matches) {
+                        document.body.classList.add('dark');
+                        Global.setState({
+                            theme: 'dark',
+                        });
+                    } else {
+                        document.body.classList.remove('dark');
+                        Global.setState({
+                            theme: 'default',
+                        });
+                    }
+                }
+            });
+        } catch(e) {
             document.body.classList.add(Global.state.theme);
         }
-
-        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            if (Global.state.theme === 'default' || Global.state.theme === 'dark')
-            if(e.matches) {
-                document.body.classList.add('dark');
-                Global.setState({
-                    theme: 'dark',
-                });
-            } else {
-                document.body.classList.remove('dark');
-                Global.setState({
-                    theme: 'default',
-                });
-            }
-        });
     }, []);
 
     useEffect(() => {

@@ -44,7 +44,10 @@ export function lazyLoadResource() {
             lazyImageObserver.observe(lazyImage);
         });
     } else {
-
+        lazyImages.forEach((entry) => {
+            let lazyImage: any = entry;
+            lazyImage.src = lazyImage.dataset.src;
+        });
     }
 
     var lazyVideos = Array.from(document.querySelectorAll("video.lazy"));
@@ -70,6 +73,9 @@ export function lazyLoadResource() {
             lazyVideoObserver.observe(lazyVideo);
         });
     } else {
-        
+        lazyVideos.forEach((entry) => {
+            let lazyVideo: any = entry;
+            lazyVideo.src = lazyVideo.dataset.src;
+        });
     }
 }
