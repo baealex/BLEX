@@ -1,17 +1,11 @@
-import axios from 'axios';
-
-axios.defaults.withCredentials = true;
-
-import Config from '../config.json';
-
-import {
+import axios, {
     ResponseData,
     serializeObject,
 } from './index';
 
 export async function getUserProfile(author: string, includes: GetUserProfileInclude[]) {
     return await axios.request<ResponseData<GetUserProfileData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
+        url: `/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
         method: 'GET'
     });
 }
@@ -64,7 +58,7 @@ export interface GetUserProfileData {
 
 export async function getUserAbout(author: string) {
     return await axios.request<ResponseData<GetUserAboutData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}?get=about`,
+        url: `/v1/users/${encodeURIComponent(author)}?get=about`,
         method: 'GET'
     });
 }
@@ -75,7 +69,7 @@ export interface GetUserAboutData {
 
 export async function putUserAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
     return await axios.request<ResponseData<any>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}`,
+        url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -85,13 +79,12 @@ export async function putUserAbout(author: string, aboutMarkdown: string, aboutM
             about_md: aboutMarkdown,
             about_html: aboutMarkup
         }),
-        withCredentials: true,
     });
 }
 
 export async function putUsername(username: string, newUsername: string) {
     return await axios.request<ResponseData<any>>({
-        url: `${Config.API_SERVER}/v1/users/@${encodeURIComponent(username)}`,
+        url: `/v1/users/@${encodeURIComponent(username)}`,
         method: 'PUT',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -100,6 +93,5 @@ export async function putUsername(username: string, newUsername: string) {
             username: username,
             new_username: newUsername
         }),
-        withCredentials: true,
     });
 }

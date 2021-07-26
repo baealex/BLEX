@@ -1,4 +1,4 @@
-frontend/src/modules/config.json
+frontend/src/modules/settings.ts
 
 backend/src/board/telegram_token.py
 backend/src/main/settings.py

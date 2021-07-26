@@ -1,17 +1,11 @@
-import axios from 'axios';
-
-axios.defaults.withCredentials = true;
-
-import Config from '../config.json';
-
-import {
+import axios, {
     ResponseData,
     serializeObject,
 } from './index';
 
 export async function getSettingNotify(cookie: string | undefined) {
     return await axios.request<ResponseData<GetSettingNotifyData>>({
-        url: `${Config.API_SERVER}/v1/setting/notify`,
+        url: `/v1/setting/notify`,
         headers: {
             cookie
         },
@@ -32,7 +26,7 @@ export interface GetSettingNotifyData {
 
 export async function getSettingAcount(cookie: string | undefined) {
     return await axios.request<ResponseData<GetSettingAccountData>>({
-        url: `${Config.API_SERVER}/v1/setting/account`,
+        url: `/v1/setting/account`,
         headers: {
             cookie
         },
@@ -51,7 +45,7 @@ export interface GetSettingAccountData {
 
 export async function getSettingProfile(cookie: string | undefined) {
     return await axios.request<ResponseData<GetSettingProfileData>>({
-        url: `${Config.API_SERVER}/v1/setting/profile`,
+        url: `/v1/setting/profile`,
         headers: {
             cookie
         },
@@ -72,7 +66,7 @@ export interface GetSettingProfileData {
 
 export async function getSettingPosts(cookie: string | undefined, order: string, page: number) {
     return await axios.request<ResponseData<GetSettingPostsData>>({
-        url: `${Config.API_SERVER}/v1/setting/posts?order=${order}&page=${page}`,
+        url: `/v1/setting/posts?order=${order}&page=${page}`,
         headers: {
             cookie
         },
@@ -100,7 +94,7 @@ export interface GetSettingPostsData {
 
 export async function getSettingSeries(cookie: string | undefined) {
     return await axios.request<ResponseData<GetSettingSeriesData>>({
-        url: `${Config.API_SERVER}/v1/setting/series`,
+        url: `/v1/setting/series`,
         headers: {
             cookie
         },
@@ -125,7 +119,7 @@ export interface GetSettingSeriesDataSeries {
 
 export async function getSettingView(cookie: string | undefined) {
     return await axios.request<ResponseData<GetSettingViewData>>({
-        url: `${Config.API_SERVER}/v1/setting/view`,
+        url: `/v1/setting/view`,
         headers: {
             cookie
         },
@@ -144,7 +138,7 @@ export interface GetSettingViewData {
 
 export async function getSettingReferrers(cookie: string | undefined, page: number) {
     return await axios.request<ResponseData<GetSettingRefererData>>({
-        url: `${Config.API_SERVER}/v1/setting/referer?page=${page}`,
+        url: `/v1/setting/referer?page=${page}`,
         headers: cookie ? {
             cookie
         } : {},
@@ -164,7 +158,7 @@ export interface GetSettingRefererData {
 
 export async function getSettingForms(cookie: string | undefined) {
     return await axios.request<ResponseData<GetSettingFormsData>>({
-        url: `${Config.API_SERVER}/v1/setting/forms`,
+        url: `/v1/setting/forms`,
         headers: cookie ? {
             cookie
         } : {},
@@ -184,22 +178,20 @@ export interface GetSettingFormsDataForms {
 
 export async function putSetting(item: string, data: object) {
     return await axios.request<ResponseData<any>>({
-        url: `${Config.API_SERVER}/v1/setting/${item}`,
+        url: `/v1/setting/${item}`,
         method: 'PUT',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         data: serializeObject(data),
-        withCredentials: true,
     });
 }
 
 export async function postSettingAvatar(data: FormData) {
     return await axios.request<ResponseData<PostSettingAvatarData>>({
-        url: `${Config.API_SERVER}/v1/setting/avatar`,
+        url: `/v1/setting/avatar`,
         method: 'POST',
         data: data,
-        withCredentials: true,
     });
 }
 

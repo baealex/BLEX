@@ -1,14 +1,8 @@
-import axios from 'axios';
-
-axios.defaults.withCredentials = true;
-
-import Config from '../config.json';
-
-import { ResponseData } from './index';
+import axios, { ResponseData } from './index';
 
 export async function getTags(page: number) {
     return await axios.request<ResponseData<GetTagsData>>({
-        url: `${Config.API_SERVER}/v1/tags?page=${page}`,
+        url: `/v1/tags?page=${page}`,
         method: 'GET'
     });
 }
@@ -24,7 +18,7 @@ export interface GetTagsData {
 
 export async function getTag(tag: string, page: number) {
     return await axios.request<ResponseData<GetTagData>>({
-        url: `${Config.API_SERVER}/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
+        url: `/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
         method: 'GET'
     });
 }

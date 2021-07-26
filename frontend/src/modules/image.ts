@@ -2,12 +2,11 @@ import { toast } from 'react-toastify';
 
 import NProgress from 'nprogress';
 
-import * as API from './api';
-
-import Config from '@modules/config.json';
+import * as API from '@modules/api';
+import { CONFIG } from '@modules/settings';
 
 export function getImage(path: string) {
-    return `https://${Config.STATIC_SERVER}/${path}`;
+    return `https://${CONFIG.STATIC_SERVER}/${path}`;
 }
 
 export function getPostsImage(path: string) {

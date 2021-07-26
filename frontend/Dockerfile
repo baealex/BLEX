@@ -8,7 +8,7 @@ RUN npm i
 
 COPY ./src/ /app/
 
-RUN [ ! -f modules/config.json ] && cp modules/config_1.json modules/config.json ; exit 0
+RUN [ ! -f modules/settings.ts ] && cp modules/settings_1.ts modules/settings.ts ; exit 0
 
 RUN npm run build
 

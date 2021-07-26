@@ -1,17 +1,11 @@
-import axios from 'axios';
-
-axios.defaults.withCredentials = true;
-
-import Config from '../config.json';
-
-import {
-    ResponseData,
+import axios, {
     objectToForm,
+    ResponseData,
 } from './index';
 
 export async function postImage(file: File) {
     return await axios.request<ResponseData<PostImageData>>({
-        url: `${Config.API_SERVER}/v1/image`,
+        url: `/v1/image`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -19,7 +13,6 @@ export async function postImage(file: File) {
         data: objectToForm({
             image: file
         }),
-        withCredentials: true,
     });
 }
 

@@ -2,7 +2,6 @@ import React from 'react';
 import Router from 'next/router';
 
 import { Footer } from '@components/shared';
-import Config from '@modules/config.json';
 
 import { toast } from 'react-toastify';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
@@ -10,6 +9,7 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { GetServerSidePropsContext } from 'next';
 
 import * as API from '@modules/api';
+import { CONFIG } from '@modules/settings';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { token } = context.query;
@@ -36,7 +36,7 @@ interface Props {
 
 export default function Verify(props: Props) {
     const onSubmit = async (hctoken?: string) => {
-        if(Config.HCAPTCHA_SITE_KEY) {
+        if(CONFIG.HCAPTCHA_SITE_KEY) {
             if(!hctoken) {
                 toast('😅 체크박스를 눌러주세요!');
                 return;
@@ -72,9 +72,9 @@ export default function Verify(props: Props) {
         <>
             <div className="text-center display-center">
                 <div className="h5 mb-4">{props.username}님이 맞으십니까?</div>
-                {Config.HCAPTCHA_SITE_KEY ? (
+                {CONFIG.HCAPTCHA_SITE_KEY ? (
                     <HCaptcha
-                        sitekey={Config.HCAPTCHA_SITE_KEY}
+                        sitekey={CONFIG.HCAPTCHA_SITE_KEY}
                         onVerify={(token) => onSubmit(token)}
                     />
                 ) : (

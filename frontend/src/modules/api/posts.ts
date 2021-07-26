@@ -1,20 +1,13 @@
-import axios from 'axios';
-
-axios.defaults.withCredentials = true;
-
-import Config from '../config.json';
-
-import {
+import axios, {
+    objectToForm,
     ResponseData,
     serializeObject,
-    objectToForm,
 } from './index';
 
 export async function getTempPosts() {
     return await axios.request<ResponseData<GetTempPostsData>>({
-        url: `${Config.API_SERVER}/v1/posts/temp?get=list`,
+        url: `/v1/posts/temp?get=list`,
         method: 'GET',
-        withCredentials: true,
     });
 }
 
@@ -30,9 +23,8 @@ export interface GetTempPostsDataTemp {
 
 export async function getAnTempPosts(token: string) {
     return await axios.request<ResponseData<GetAnTempPostsData>>({
-        url: `${Config.API_SERVER}/v1/posts/temp?token=${token}`,
+        url: `/v1/posts/temp?token=${token}`,
         method: 'GET',
-        withCredentials: true,
     });
 }
 
@@ -46,7 +38,7 @@ export interface GetAnTempPostsData {
 
 export async function postTempPosts(title: string, text_md: string, tag: string) {
     return await axios.request<ResponseData<PostTempPostsData>>({
-        url: `${Config.API_SERVER}/v1/posts/temp`,
+        url: `/v1/posts/temp`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -56,7 +48,6 @@ export async function postTempPosts(title: string, text_md: string, tag: string)
             text_md,
             tag
         }),
-        withCredentials: true,
     });
 }
 
@@ -66,7 +57,7 @@ export interface PostTempPostsData {
 
 export async function putTempPosts(token: string, title: string, text_md: string, tag: string) {
     return await axios.request<ResponseData<any>>({
-        url: `${Config.API_SERVER}/v1/posts/temp`,
+        url: `/v1/posts/temp`,
         method: 'PUT',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -77,13 +68,12 @@ export async function putTempPosts(token: string, title: string, text_md: string
             text_md,
             tag
         }),
-        withCredentials: true,
     });
 }
 
 export async function deleteTempPosts(token: string) {
     return await axios.request<ResponseData<any>>({
-        url: `${Config.API_SERVER}/v1/posts/temp`,
+        url: `/v1/posts/temp`,
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -91,13 +81,12 @@ export async function deleteTempPosts(token: string) {
         data: serializeObject({
             token
         }),
-        withCredentials: true,
     });
 }
 
 export async function getPosts(sort: string, page: number) {
     return await axios.request<ResponseData<GetPostsData>>({
-        url: `${Config.API_SERVER}/v1/posts?sort=${sort}&page=${page}`,
+        url: `/v1/posts?sort=${sort}&page=${page}`,
         method: 'GET',
     });
 }
@@ -118,13 +107,12 @@ export interface GetPostsData {
 
 export async function postPosts(data: {}) {
     return await axios.request<ResponseData<GetPostPosts>>({
-        url: `${Config.API_SERVER}/v1/posts`,
+        url: `/v1/posts`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         data: objectToForm(data),
-        withCredentials: true,
     });
 }
 
@@ -134,7 +122,7 @@ interface GetPostPosts {
 
 export async function getUserPosts(author: string, page: number, tag='') {
     return await axios.request<ResponseData<GetUserPostsData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
+        url: `/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
         method: 'GET',
     });
 }
@@ -159,7 +147,7 @@ export interface GetUserPostsDataPosts {
 
 export async function getAnUserPostsView(username: string, url: string, cookie?: string) {
     return await axios.request<ResponseData<GetAnUserPostsViewData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=view`,
+        url: `/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=view`,
         method: 'GET',
         headers: cookie ? { cookie } : undefined
     });
@@ -185,7 +173,7 @@ export interface GetAnUserPostsViewData {
 
 export async function getAnUserPostsEdit(username: string, url: string, cookie?: string) {
     return await axios.request<ResponseData<GetAnUserPostsEditData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=edit`,
+        url: `/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=edit`,
         method: 'GET',
         headers: cookie ? { cookie } : undefined
     });
@@ -203,21 +191,20 @@ export interface GetAnUserPostsEditData {
 
 export async function postAnUserPosts(author: string, url: string, data: {}) {
     return await axios.request<ResponseData<any>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
+        url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         data: objectToForm(data),
-        withCredentials: true,
     });
 }
 
 export async function putAnUserPosts(author: string, url: string, item: string, data = {}) {
     return await axios.request<ResponseData<PutAnUserPostsData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${item}=${item}`,
+        url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${item}=${item}`,
         method: 'PUT',
-        withCredentials: true,
+        
         data: serializeObject(data),
     });
 }
@@ -230,15 +217,14 @@ export interface PutAnUserPostsData {
 
 export async function deleteAnUserPosts(author: string, url: string) {
     return await axios.request<ResponseData<any>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
+        url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
         method: 'DELETE',
-        withCredentials: true,
     });
 }
 
 export async function getFeaturePosts(username: string, exclude: string) {
     return await axios.request<ResponseData<GetFeaturePostsData>>({
-        url: `${Config.API_SERVER}/v1/posts/feature?${serializeObject({username, exclude})}`,
+        url: `/v1/posts/feature?${serializeObject({username, exclude})}`,
         method: 'GET',
     });
 }
@@ -259,7 +245,7 @@ export interface GetFeaturePostsDataPosts {
 
 export async function getFeatureTagPosts(tag: string, exclude: string) {
     return await axios.request<ResponseData<GetFeatureTagPostsData>>({
-        url: `${Config.API_SERVER}/v1/posts/feature/${tag}?${serializeObject({exclude})}`,
+        url: `/v1/posts/feature/${tag}?${serializeObject({exclude})}`,
         method: 'GET',
     });
 }
@@ -278,7 +264,7 @@ export interface GetFeatureTagPostsData {
 
 export async function getPostComments(url: string) {
     return await axios.request<ResponseData<GetPostCommentData>>({
-        url: `${Config.API_SERVER}/v1/posts/${encodeURIComponent(url)}/comments`,
+        url: `/v1/posts/${encodeURIComponent(url)}/comments`,
         method: 'GET',
     });
 }
@@ -300,7 +286,7 @@ export interface GetPostCommentDataComment {
 
 export async function getPostAnalytics(url: string) {
     return await axios.request<ResponseData<GetPostAnalytics>>({
-        url: `${Config.API_SERVER}/v1/posts/${encodeURIComponent(url)}/analytics`,
+        url: `/v1/posts/${encodeURIComponent(url)}/analytics`,
         method: 'GET'
     });
 }
@@ -319,11 +305,10 @@ export interface GetPostAnalytics {
 
 export async function postPostAnalytics(url: string, data: {}, cookie?: string) {
     return await axios.request<ResponseData<PostPostAnalyticsData>>({
-        url: `${Config.API_SERVER}/v1/posts/${encodeURIComponent(url)}/analytics`,
+        url: `/v1/posts/${encodeURIComponent(url)}/analytics`,
         method: 'POST',
         headers: cookie ? { cookie } : undefined,
         data: serializeObject(data),
-        withCredentials: true,
     });
 }
 

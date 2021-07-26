@@ -1,3 +1,11 @@
+import axios from 'axios'
+import { CONFIG } from '@modules/settings';
+
+export default axios.create({
+    baseURL: CONFIG.API_SERVER,
+    withCredentials: true,
+});
+
 export * from './auth';
 export * from './comments';
 export * from './forms';

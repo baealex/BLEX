@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
-import Config from '@modules/config.json';
+import { CONFIG } from '@modules/settings';
 import {
     lazyLoadResource
 } from '@modules/lazy';
@@ -69,7 +69,7 @@ class Main extends App<AppProps> {
                         href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
                         integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
                         crossOrigin="anonymous"/>
-                    {Config.GOOGLE_ANALYTICS_V4 && (
+                    {CONFIG.GOOGLE_ANALYTICS_V4 && (
                         <>
                             <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>
                             <script dangerouslySetInnerHTML={{ __html: minify(`
@@ -78,11 +78,11 @@ class Main extends App<AppProps> {
                                     dataLayer.push(arguments);
                                 }
                                 gtag('js', new Date());
-                                gtag('config', '${Config.GOOGLE_ANALYTICS_V4}');
+                                gtag('config', '${CONFIG.GOOGLE_ANALYTICS_V4}');
                             `)}}/>
                         </>
                     )}
-                    {Config.MICROSOFT_CLARITY && (
+                    {CONFIG.MICROSOFT_CLARITY && (
                         <script dangerouslySetInnerHTML={{ __html: minify(`
                             (function(c, l, a, r, i, t, y) {
                                 c[a] = c[a] || function() {
@@ -93,7 +93,7 @@ class Main extends App<AppProps> {
                                 t.src = "https://www.clarity.ms/tag/" + i;
                                 y = l.getElementsByTagName(r)[0];
                                 y.parentNode.insertBefore(t,y);
-                            })(window, document, "clarity", "script", "${Config.MICROSOFT_CLARITY}");
+                            })(window, document, "clarity", "script", "${CONFIG.MICROSOFT_CLARITY}");
                         `)}}/>
                     )}
                 </Head>

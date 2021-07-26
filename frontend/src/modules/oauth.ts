@@ -1,5 +1,5 @@
 import Cookie from '@modules/cookie';
-import Config from '@modules/config.json';
+import { CONFIG } from '@modules/settings';
 
 export function oauth(social: 'google' | 'github') {
     Cookie.set('oauth_redirect', location.href, {
@@ -10,7 +10,7 @@ export function oauth(social: 'google' | 'github') {
     switch(social) {
         case 'google':
             url += 'https://accounts.google.com/o/oauth2/auth';
-            url += `?client_id=${Config.GOOGLE_OAUTH_CLIENT_ID}.apps.googleusercontent.com`;
+            url += `?client_id=${CONFIG.GOOGLE_OAUTH_CLIENT_ID}.apps.googleusercontent.com`;
             url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/google`;
             url += '&response_type=code';
             url += '&scope=openid profile email'
@@ -19,7 +19,7 @@ export function oauth(social: 'google' | 'github') {
             break;
         case 'github':
             url += 'https://github.com/login/oauth/authorize';
-            url += `?client_id=${Config.GITHUB_OAUTH_CLIENT_ID}`;
+            url += `?client_id=${CONFIG.GITHUB_OAUTH_CLIENT_ID}`;
             url += `&redirect_uri=${window.location.protocol}//${window.location.hostname}/login/callback/github`;
             break;
     }

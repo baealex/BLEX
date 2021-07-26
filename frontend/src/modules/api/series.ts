@@ -1,17 +1,11 @@
-import axios from 'axios';
-
-axios.defaults.withCredentials = true;
-
-import Config from '../config.json';
-
-import {
+import axios, {
     ResponseData,
     serializeObject,
 } from './index';
 
 export async function getUserSeries(author: string, page: number) {
     return await axios.request<ResponseData<GetUserSeriesData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
+        url: `/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
         method: 'GET'
     });
 }
@@ -29,7 +23,7 @@ export interface GetUserSeriesData {
 
 export async function postUserSeries(author: string, title: string) {
     return await axios.request<ResponseData<PostUserSeriesData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series`,
+        url: `/v1/users/${encodeURIComponent(author)}/series`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -37,7 +31,6 @@ export async function postUserSeries(author: string, title: string) {
         data: serializeObject({
             title
         }),
-        withCredentials: true,
     });
 }
 
@@ -47,7 +40,7 @@ export interface PostUserSeriesData {
 
 export async function getAnUserSeries(author: string, url: string) {
     return await axios.request<ResponseData<GetAnUserSeriesData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+        url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
         method: 'GET'
     });
 }
@@ -72,13 +65,12 @@ export interface GetAnUserSeriesDataPosts {
 
 export async function putUserSeries(author: string, url: string, data: object) {
     return await axios.request<ResponseData<putUserSeriesData>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+        url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
         method: 'PUT',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         data: serializeObject(data),
-        withCredentials: true,
     });
 }
 
@@ -88,8 +80,7 @@ export interface putUserSeriesData {
 
 export async function deleteUserSeries(author: string, url: string) {
     return await axios.request<ResponseData<any>>({
-        url: `${Config.API_SERVER}/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+        url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
         method: 'DELETE',
-        withCredentials: true,
     });
 }
