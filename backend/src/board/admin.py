@@ -134,7 +134,11 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(Search)
 class SearchAdmin(admin.ModelAdmin):
-    list_display = ['user', 'search_value', 'created_date']
+    list_display = ['search_value', 'user', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['search_value', 'user', 'searcher']
+        return super().get_form(request, obj, **kwargs)
 
 admin.site.register(SearchValue)
 
