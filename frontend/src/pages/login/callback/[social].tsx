@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
 import Router from 'next/router';
+import { GetServerSidePropsContext } from 'next';
 
 import { toast } from 'react-toastify';
 
 import { Loading } from '@components/shared';
 
 import * as API from '@modules/api';
-import Global from '@modules/global';
 import Cookie from '@modules/cookie';
 
-import { GetServerSidePropsContext } from 'next';
+import { authContext } from '@state/auth';
+import { modalContext } from '@state/modal';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -37,7 +38,7 @@ export default function SocialLogin(props: Props) {
         if (data.status === 'DONE') {
             if (data.body.security) {
                 toast('😃 2차 인증 코드를 입력해 주세요.');
-                Global.onOpenModal('isTwoFactorAuthModalOpen');
+                modalContext.onOpenModal('isTwoFactorAuthModalOpen');
                 return;
             }
             toast(`😃 로그인 되었습니다.`);
@@ -49,7 +50,7 @@ export default function SocialLogin(props: Props) {
                 });
             }
 
-            Global.setState({
+            authContext.setState({
                 isLogin: true,
                 username: data.body.username
             });

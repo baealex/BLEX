@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
+import { GetServerSidePropsContext } from 'next';
 
 import { Layout } from '@components/profile';
 import { ArticleContent } from '@components/article';
@@ -8,10 +9,9 @@ import { Alert } from '@components/atoms';
 import { toast } from 'react-toastify';
 
 import * as API from '@modules/api'
-import Global from '@modules/global';
 import blexer from '@modules/blexer';
 
-import { GetServerSidePropsContext } from 'next';
+import { authContext } from '@state/auth';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -50,14 +50,14 @@ export default function UserAbout(props: Props) {
     const [ isEdit, setIsEdit ] = useState(false);
     const [ aboutHTML, setAboutHTML ] = useState(props.profile.about);
     const [ aboutMd, setAboutMd ] = useState<string | undefined>(undefined);
-    const [ username, setUsername ] = useState(Global.state.username);
+    const [ username, setUsername ] = useState(authContext.state.username);
 
     useEffect(() => {
-        const updateKey = Global.appendUpdater(() => {
-            setUsername(Global.state.username);
+        const updateKey = authContext.appendUpdater((state) => {
+            setUsername(state.username);
         });
 
-        return () => Global.popUpdater(updateKey);
+        return () => authContext.popUpdater(updateKey);
     }, []);
 
     const handleClickEdit = async () => {

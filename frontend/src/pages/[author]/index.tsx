@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import { GetServerSidePropsContext } from 'next';
 
 import { Heatmap } from '@components/shared';
 import {
@@ -9,9 +10,8 @@ import {
 } from '@components/profile';
 
 import * as API from '@modules/api';
-import Global from '@modules/global';
 
-import { GetServerSidePropsContext } from 'next';
+import { configContext } from '@state/config';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -47,14 +47,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface Props extends API.GetUserProfileData {};
 
 export default function Overview(props: Props) {
-    const [ isNightMode, setIsNightMode ] = useState(Global.state.theme === 'dark');
+    const [ isNightMode, setIsNightMode ] = useState(configContext.state.theme === 'dark');
 
     useEffect(() => {
-        const updateKey = Global.appendUpdater(() => {
-            setIsNightMode(Global.state.theme === 'dark');
+        const updateKey = configContext.appendUpdater((state) => {
+            setIsNightMode(state.theme === 'dark');
         });
 
-        return () => Global.popUpdater(updateKey);
+        return () => configContext.popUpdater(updateKey);
     }, []);
 
     return (

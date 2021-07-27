@@ -1,4 +1,5 @@
 import React from 'react';
+import { GetServerSidePropsContext } from 'next';
 import Router from 'next/router';
 import { toast } from 'react-toastify';
 
@@ -6,13 +7,13 @@ import { Layout, TempArticleModal } from '@components/editor';
 
 import * as API from '@modules/api';
 import blexer from '@modules/blexer';
-import Global from '@modules/global';
 
-import { GetServerSidePropsContext } from 'next';
+import { configContext } from '@state/config';
+import { authContext } from '@state/auth';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
-    Global.configInject(cookies);
+    configContext.serverSideInject(cookies);
 
     const { cookie } = context.req.headers;
     const { data } = await API.getLogin(cookie);
@@ -58,7 +59,8 @@ interface State {
 
 class Write extends React.Component<Props, State> {
     private saveTimer: any;
-    private updateKey: string;
+    private authUpdateKey: string;
+    private configUpdateKey: string;
 
     constructor(props: Props) {
         super(props);
@@ -72,15 +74,19 @@ class Write extends React.Component<Props, State> {
             isHide: false,
             isAdvertise: false,
             image: undefined,
-            isAutoSave: Global.state.isAutoSave,
+            isAutoSave: configContext.state.isAutoSave,
             isOpenArticleModal: false,
             tempPosts: [],
             tempPostsCache: {}
         };
-        this.updateKey = Global.appendUpdater(() => {
+        this.authUpdateKey = authContext.appendUpdater((state) => {
             this.setState({
-                username: Global.state.username,
-                isAutoSave: Global.state.isAutoSave,
+                username: state.username,
+            });
+        });
+        this.configUpdateKey = configContext.appendUpdater((state) => {
+            this.setState({
+                isAutoSave: state.isAutoSave,
             });
         });
     }
@@ -88,7 +94,8 @@ class Write extends React.Component<Props, State> {
     /* Component Method */
 
     componentWillUnmount() {
-        Global.popUpdater(this.updateKey);
+        configContext.popUpdater(this.configUpdateKey);
+        authContext.popUpdater(this.authUpdateKey);
     }
 
     async componentDidMount() {
@@ -253,9 +260,10 @@ class Write extends React.Component<Props, State> {
 
     onCheckAutoSave(checked: boolean) {
         !checked && clearTimeout(this.saveTimer);
-        Global.setState({
+        configContext.setState((state) => ({
+            ...state,
             isAutoSave: checked
-        });
+        }));
     }
 
     render() {

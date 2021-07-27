@@ -14,13 +14,15 @@ import { CommentForm } from './comment-form';
 import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
-import Global from '@modules/global';
 import blexer from '@modules/blexer';
 import {
     lazyLoadResource,
     lazyIntersection
 } from '@modules/lazy';
 import { Alert } from '@components/atoms';
+
+import { authContext } from '@state/auth';
+import { modalContext } from '@state/modal';
 
 export interface CommentProps {
     author: string;
@@ -34,8 +36,8 @@ interface Comment extends API.GetPostCommentDataComment {
 }
 
 export function Comment(props: CommentProps) {
-    const [ isLogin, setIsLogin ] = useState(Global.state.isLogin);
-    const [ username, setUsername ] = useState(Global.state.username);
+    const [ isLogin, setIsLogin ] = useState(authContext.state.isLogin);
+    const [ username, setUsername ] = useState(authContext.state.username);
     const [ comments, setComments ] = useState<Comment[]>([]);
     const [ commentText, setCommentText ] = useState('');
 
@@ -72,7 +74,7 @@ export function Comment(props: CommentProps) {
                 case API.ERROR.NOT_LOGIN:
                     toast('😅 로그인이 필요합니다.', {
                         onClick:() => {
-                            Global.onOpenModal('isLoginModalOpen');
+                            modalContext.onOpenModal('isLoginModalOpen');
                         }
                     });
                     return;
@@ -111,7 +113,7 @@ export function Comment(props: CommentProps) {
     const handleTag = async (tagUsername: string) => {
         if(!username) {
             toast('😅 로그인이 필요합니다.', {
-                onClick: () => Global.onOpenModal('isLoginModalOpen')
+                onClick: () => modalContext.onOpenModal('isLoginModalOpen')
             });
             return;
         }
@@ -152,9 +154,9 @@ export function Comment(props: CommentProps) {
     }
 
     useEffect(() => {
-        const updateKey = Global.appendUpdater(() => {
-            setIsLogin(Global.state.isLogin);
-            setUsername(Global.state.username);
+        const updateKey = authContext.appendUpdater((state) => {
+            setIsLogin(state.isLogin);
+            setUsername(state.username);
         });
 
         if (props.totalComment > 0) {
@@ -171,7 +173,7 @@ export function Comment(props: CommentProps) {
     
             return () => {
                 observer?.disconnect();
-                Global.popUpdater('Comment');
+                authContext.popUpdater('Comment');
             }
         } else {
             if (comments.length > 0) {
@@ -180,7 +182,7 @@ export function Comment(props: CommentProps) {
         }
 
         return () => {
-            Global.popUpdater(updateKey);
+            authContext.popUpdater(updateKey);
         }
     }, [props.url, username]);
 
@@ -239,7 +241,7 @@ export function Comment(props: CommentProps) {
                     ) : (
                         <Alert
                             type="warning"
-                            onClick={() => Global.onOpenModal('isLoginModalOpen')}
+                            onClick={() => modalContext.onOpenModal('isLoginModalOpen')}
                         >
                             댓글을 작성하려면 로그인이 필요합니다.
                         </Alert>

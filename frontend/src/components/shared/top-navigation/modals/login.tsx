@@ -6,8 +6,10 @@ import { Modal } from '@components/shared';
 import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
-import Global from '@modules/global';
 import { oauth } from '@modules/oauth';
+
+import { authContext } from '@state/auth';
+import { modalContext } from '@state/modal';
 
 interface Props {
     isOpen: boolean;
@@ -25,16 +27,16 @@ export class LoginModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            username: Global.state.username,
+            username: authContext.state.username,
             password: ''
         }
-        this.updateKey = Global.appendUpdater(() => this.setState({
-            username: Global.state.username,
+        this.updateKey = authContext.appendUpdater((state) => this.setState({
+            username: state.username,
         }));
     }
 
     componentWillUnmount() {
-        Global.popUpdater(this.updateKey);
+        authContext.popUpdater(this.updateKey);
     }
 
     onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -76,13 +78,13 @@ export class LoginModal extends React.Component<Props, State> {
         if (data.status === 'DONE') {
             if (data.body.security) {
                 toast('😃 2차 인증 코드를 입력해 주세요.');
-                Global.onOpenModal('isTwoFactorAuthModalOpen');
+                modalContext.onOpenModal('isTwoFactorAuthModalOpen');
                 this.props.onClose();
                 return;
             }
 
             toast(`😃 로그인 되었습니다.`);
-            Global.setState({
+            authContext.setState({
                 isLogin: true,
                 username: data.body.username
             });

@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import Router from 'next/router';
+import { GetServerSidePropsContext } from 'next';
 
 import {
     ArticleAuthor,
@@ -24,10 +25,11 @@ import * as API from '@modules/api';
 import {
     lazyLoadResource
 } from '@modules/lazy';
-import Global from '@modules/global';
-
-import { GetServerSidePropsContext } from 'next';
 import { getPostsImage } from '@modules/image';
+
+import { authContext } from '@state/auth';
+import { configContext } from '@state/config';
+import { modalContext } from '@state/modal';
 
 interface Props {
     profile: API.GetUserProfileData,
@@ -51,7 +53,7 @@ interface State {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
-    Global.configInject(cookies);
+    configContext.serverSideInject(cookies);
 
     const { req } = context;
     const { author = '', posturl = '' } = context.query;
@@ -124,20 +126,20 @@ class PostDetail extends React.Component<Props, State> {
         super(props);
         this.state = {
             isLiked: props.post.isLiked,
-            isLogin: Global.state.isLogin,
-            username: Global.state.username,
+            isLogin: authContext.state.isLogin,
+            username: authContext.state.username,
             totalLikes: props.post.totalLikes,
             headerNav: [],
             headerNow: ''
         };
-        this.updateKey = Global.appendUpdater(() => this.setState({
-            isLogin: Global.state.isLogin,
-            username: Global.state.username
+        this.updateKey = authContext.appendUpdater(() => this.setState({
+            isLogin: authContext.state.isLogin,
+            username: authContext.state.username
         }));
     }
 
     componentWillUnmount() {
-        Global.popUpdater(this.updateKey);
+        authContext.popUpdater(this.updateKey);
     }
 
     componentDidMount() {
@@ -231,7 +233,7 @@ class PostDetail extends React.Component<Props, State> {
             if (data.errorCode === API.ERROR.NOT_LOGIN) {
                 toast('😅 로그인이 필요합니다.', {
                     onClick:() => {
-                        Global.onOpenModal('isLoginModalOpen');
+                        modalContext.onOpenModal('isLoginModalOpen');
                     }
                 });
             }
@@ -358,12 +360,13 @@ class PostDetail extends React.Component<Props, State> {
                                 <Toggle
                                     label="링크를 새탭에서 여세요."
                                     onClick={() => {
-                                        const { isOpenNewTab } = Global.state;
-                                        Global.setState({
+                                        const { isOpenNewTab } = configContext.state;
+                                        configContext.setState((prevState) => ({
+                                            ...prevState,
                                             isOpenNewTab: !isOpenNewTab,
-                                        });
+                                        }));
                                     }}
-                                    defaultChecked={Global.state.isOpenNewTab}
+                                    defaultChecked={configContext.state.isOpenNewTab}
                                 />
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>

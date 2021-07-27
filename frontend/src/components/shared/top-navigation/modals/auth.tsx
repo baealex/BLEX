@@ -8,7 +8,8 @@ import {
 import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
-import Global from '@modules/global';
+
+import { authContext } from '@state/auth';
 
 interface Props {
     isOpen: boolean;
@@ -82,7 +83,7 @@ export class AuthModal extends React.Component<Props, State> {
 
         if (data.status == 'DONE') {
             toast(`😃 로그인 되었습니다.`);
-            Global.setState({
+            authContext.setState({
                 isLogin: true,
                 username: data.body.username
             });

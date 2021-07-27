@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import Router from 'next/router'
+import { GetServerSidePropsContext } from 'next';
+import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
@@ -10,9 +11,8 @@ import {
 import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
-import Global from '@modules/global';
 
-import { GetServerSidePropsContext } from 'next';
+import { authContext } from '@state/auth';
 
 interface Props extends API.GetSettingAccountData {}
 
@@ -46,7 +46,7 @@ export default function AccountSetting(props: Props) {
 
     const onChangeUsername = async () => {
         const { data } = await API.putUsername(
-            Global.state.username,
+            authContext.state.username,
             username
         );
         if (data.status === 'ERROR') {
@@ -63,9 +63,10 @@ export default function AccountSetting(props: Props) {
         }
         if (data.status === 'DONE') {
             toast('😀 아이디가 변경되었습니다.');
-            Global.setState({
-                username: username
-            });
+            authContext.setState((state) => ({
+                ...state,
+                username: username,
+            }));
             setChangeUsername(false);
         }
     };
@@ -103,8 +104,9 @@ export default function AccountSetting(props: Props) {
     const onSignOut = async () => {
         const { data } = await API.deleteSign();
         if (data.status === 'DONE') {
-            Global.setState({
-                isLogin: false
+            authContext.setState({
+                username: '',
+                isLogin: false,
             });
             toast('😀 계정이 삭제되었습니다.');
             Router.push('/');

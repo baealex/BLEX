@@ -9,7 +9,6 @@ import Router from 'next/router'
 import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
-import Global from '@modules/global';
 import { Search } from './search';
 import {
     LoginModal,
@@ -17,71 +16,86 @@ import {
     AuthModal,
 } from './modals';
 
+import { authContext } from '@state/auth';
+import { configContext } from '@state/config';
+import { modalContext } from '@state/modal';
+
 export function TopNavigation() {
     const [state, setState] = useState({
         onNav: false,
-        theme: Global.state.theme,
-        isLogin: Global.state.isLogin,
-        username: Global.state.username,
-        isLoginModalOpen: Global.state.isLoginModalOpen,
-        isSignupModalOpen: Global.state.isSignupModalOpen,
-        isTwoFactorAuthModalOpen: Global.state.isTwoFactorAuthModalOpen,
+        theme: configContext.state.theme,
+        isLogin: authContext.state.isLogin,
+        username: authContext.state.username,
+        isLoginModalOpen: modalContext.state.isLoginModalOpen,
+        isSignupModalOpen: modalContext.state.isSignupModalOpen,
+        isTwoFactorAuthModalOpen: modalContext.state.isTwoFactorAuthModalOpen,
     });
 
     useEffect(() => {
-        const updateKey = Global.appendUpdater(() => setState((prevState) => ({
-            ...prevState,
-            theme: Global.state.theme,
-            isLogin: Global.state.isLogin,
-            username: Global.state.username,
-            isLoginModalOpen: Global.state.isLoginModalOpen,
-            isSignupModalOpen: Global.state.isSignupModalOpen,
-            isTwoFactorAuthModalOpen: Global.state.isTwoFactorAuthModalOpen,
-        })));
+        const authUpdateKey = authContext.appendUpdater((nextState) => {
+            setState((prevState) => ({
+                ...prevState,
+                isLogin: nextState.isLogin,
+                username: nextState.username,
+            }));
+        });
+        const modalUpdateKey = modalContext.appendUpdater((nextState) => {
+            setState((prevState) => ({
+                ...prevState,
+                isLoginModalOpen: nextState.isLoginModalOpen,
+                isSignupModalOpen: nextState.isSignupModalOpen,
+                isTwoFactorAuthModalOpen: nextState.isTwoFactorAuthModalOpen,
+            }));
+        });
 
-        return () => Global.popUpdater(updateKey);
+        return () => {
+            authContext.popUpdater(authUpdateKey);
+            modalContext.popUpdater(modalUpdateKey);
+        }
     }, []);
 
     useEffect(() => {
-        Global.configInit();
-
         try {
+            const isFirstVisit = configContext.isFirstVisit();
             const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
 
-            if (systemDark && Global.state.isFirstVisit) {
+            if (systemDark && isFirstVisit) {
                 if(systemDark.matches) {
                     document.body.classList.add('dark');
-                    Global.setState({
+                    configContext.setState((state) => ({
+                        ...state,
                         theme: 'dark',
-                    });
+                    }));
                 }
             } else {
-                document.body.classList.add(Global.state.theme);
+                document.body.classList.add(configContext.state.theme);
             }
 
             systemDark.addEventListener('change', e => {
-                if (Global.state.theme === 'default' || Global.state.theme === 'dark') {
+                if (configContext.state.theme === 'default' || configContext.state.theme === 'dark') {
                     if (e.matches) {
                         document.body.classList.add('dark');
-                        Global.setState({
+                        configContext.setState((prevState) => ({
+                            ...prevState,
                             theme: 'dark',
-                        });
+                        }));
                     } else {
                         document.body.classList.remove('dark');
-                        Global.setState({
+                        configContext.setState((prevState) => ({
+                            ...prevState,
                             theme: 'default',
-                        });
+                        }));
                     }
                 }
             });
         } catch(e) {
-            document.body.classList.add(Global.state.theme);
+            document.body.classList.add(configContext.state.theme);
         }
     }, []);
 
     useEffect(() => {
         API.getLogin().then(({data}) => {
-            Global.setState({
+            authContext.setState({
                 isLogin: data.status === 'DONE' ? true : false,
                 username: data.status === 'DONE' ? data.body.username : '',
             });
@@ -109,14 +123,16 @@ export function TopNavigation() {
     const onClickNightMode = () => {
         if (document.body.classList.contains('dark')) {
             document.body.classList.remove('dark');
-            Global.setState({
+            configContext.setState((prevState) => ({
+                ...prevState,
                 theme: 'default',
-            });
+            }));
         } else {
             document.body.classList.add('dark');
-            Global.setState({
+            configContext.setState((prevState) => ({
+                ...prevState,
                 theme: 'dark',
-            });
+            }));
         }
     }
 
@@ -131,7 +147,7 @@ export function TopNavigation() {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
             const { data } = await API.postLogout();
             if(data.status === 'DONE') {
-                Global.setState({
+                authContext.setState({
                     isLogin: false,
                     username: ''
                 });
@@ -144,15 +160,15 @@ export function TopNavigation() {
         <>
             <LoginModal
                 isOpen={state.isLoginModalOpen}
-                onClose={() => Global.onCloseModal('isLoginModalOpen')}
+                onClose={() => modalContext.onCloseModal('isLoginModalOpen')}
             />
             <SignupModal
                 isOpen={state.isSignupModalOpen}
-                onClose={() => Global.onCloseModal('isSignupModalOpen')}
+                onClose={() => modalContext.onCloseModal('isSignupModalOpen')}
             />
             <AuthModal
                 isOpen={state.isTwoFactorAuthModalOpen}
-                onClose={() => Global.onCloseModal('isTwoFactorAuthModalOpen')}
+                onClose={() => modalContext.onCloseModal('isTwoFactorAuthModalOpen')}
             />
             <div className={cn('outer', { on : state.onNav })}>
                 <nav
@@ -217,12 +233,12 @@ export function TopNavigation() {
                         ) : (
                             <>
                                 <li>
-                                    <a onClick={() => Global.onOpenModal('isLoginModalOpen')}>
+                                    <a onClick={() => modalContext.onOpenModal('isLoginModalOpen')}>
                                         <i className="fas fa-sign-in-alt"></i> 로그인
                                     </a>
                                 </li>
                                 <li>
-                                    <a onClick={() => Global.onOpenModal('isSignupModalOpen')}>
+                                    <a onClick={() => modalContext.onOpenModal('isSignupModalOpen')}>
                                         <i className="fas fa-users"></i> 회원가입
                                     </a>
                                 </li>

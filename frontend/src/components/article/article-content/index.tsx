@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Router from 'next/router';
 
-import Global from '@modules/global'
+import { configContext } from '@state/config';
 
 function onInnerLinkClickEvent(this: HTMLAnchorElement, e: any) {
     if(this.href.includes(`${location.protocol}//${location.host}/`)) {
@@ -19,14 +19,14 @@ export function ArticleContent(props: {
     html: string;
     isEdit?: boolean;
 }) {
-    const [ isOpenNewTab, setIsOpenNewTab ] = useState(Global.state.isOpenNewTab);
+    const [ isOpenNewTab, setIsOpenNewTab ] = useState(configContext.state.isOpenNewTab);
 
     useEffect(() => {
-        const updateKey = Global.appendUpdater(() => {
-            setIsOpenNewTab(Global.state.isOpenNewTab);
+        const updateKey = configContext.appendUpdater((state) => {
+            setIsOpenNewTab(state.isOpenNewTab);
         });
 
-        return () => Global.popUpdater(updateKey);
+        return () => configContext.popUpdater(updateKey);
     }, []);
 
     useEffect(() => {

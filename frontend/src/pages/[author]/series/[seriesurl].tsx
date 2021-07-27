@@ -1,7 +1,9 @@
-import Link from 'next/link';
+import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import React from 'react';
+import Link from 'next/link';
 import Router from 'next/router';
+import React from 'react';
+import { toast } from 'react-toastify';
 
 import {
     Card,
@@ -10,16 +12,14 @@ import {
 } from '@components/integrated';
 import { SeriesArticleCard } from '@components/series';
 
-import { toast } from 'react-toastify';
-
 import * as API from '@modules/api';
-import Global from '@modules/global';
 
-import { GetServerSidePropsContext } from 'next';
+import { authContext } from '@state/auth';
+import { configContext } from '@state/config';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
-    Global.configInject(cookies);
+    configContext.serverSideInject(cookies);
     
     const { author = '', seriesurl = '' } = context.query;
 
@@ -61,28 +61,32 @@ interface State {
 };
 
 class Series extends React.Component<Props, State> {
-    private updateKey: string;
+    private authUpdateKey: string;
+    private configUpdateKey: string;
 
     constructor(props: Props) {
         super(props);
         this.state = {
-            isLogin: Global.state.isLogin,
-            username: Global.state.username,
+            isLogin: authContext.state.isLogin,
+            username: authContext.state.username,
             seriesTitle: props.series.name,
             seriesDescription: props.series.description,
             seriesPosts: props.series.posts,
             isSeriesModalOpen: false,
-            isSortOldFirst: Global.state.isSortOldFirst,
+            isSortOldFirst: configContext.state.isSortOldFirst,
         }
-        this.updateKey = Global.appendUpdater(() => this.setState({
-            isLogin: Global.state.isLogin,
-            username: Global.state.username,
-            isSortOldFirst: Global.state.isSortOldFirst
+        this.authUpdateKey = authContext.appendUpdater((state) => this.setState({
+            isLogin: state.isLogin,
+            username: state.username,
+        }));
+        this.configUpdateKey = configContext.appendUpdater((state) => this.setState({
+            isSortOldFirst: state.isSortOldFirst,
         }));
     }
 
     componentWillUnmount() {
-        Global.popUpdater(this.updateKey);
+        authContext.popUpdater(this.authUpdateKey);
+        configContext.popUpdater(this.configUpdateKey);
     }
 
     componentDidUpdate(prevProps: Props) {
@@ -256,9 +260,10 @@ class Series extends React.Component<Props, State> {
                                     {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
                                 </SpeechBubble>
                                 <div className="mt-5 mb-3 text-right">
-                                    <div className="btn btn-dark m-1" onClick={() => Global.setState({
+                                    <div className="btn btn-dark m-1" onClick={() => configContext.setState((prevState) => ({
+                                        ...prevState,
                                         isSortOldFirst: !isSortOldFirst
-                                    })}>
+                                    }))}>
                                         {isSortOldFirst ? (
                                             <>
                                                 <i className="fas fa-sort-up"/> 과거부터
