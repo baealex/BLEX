@@ -9,7 +9,6 @@ import Router from 'next/router'
 import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
-import { Search } from './search';
 import {
     LoginModal,
     SignupModal,
@@ -19,6 +18,7 @@ import {
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';
 import { modalContext } from '@state/modal';
+// import { Dropdown } from '@components/atoms';
 
 export function TopNavigation() {
     const [state, setState] = useState({
@@ -120,22 +120,6 @@ export function TopNavigation() {
         });
     }, []);
 
-    const onClickNightMode = () => {
-        if (document.body.classList.contains('dark')) {
-            document.body.classList.remove('dark');
-            configContext.setState((prevState) => ({
-                ...prevState,
-                theme: 'default',
-            }));
-        } else {
-            document.body.classList.add('dark');
-            configContext.setState((prevState) => ({
-                ...prevState,
-                theme: 'dark',
-            }));
-        }
-    }
-
     const onClickNavigation = () => {
         setState((prevState) => ({
             ...prevState,
@@ -170,14 +154,53 @@ export function TopNavigation() {
                 isOpen={state.isTwoFactorAuthModalOpen}
                 onClose={() => modalContext.onCloseModal('isTwoFactorAuthModalOpen')}
             />
+            <nav
+                onClick={() => onClickNavigation()}
+                className={cn('button', { on : state.onNav })}
+            >
+                <i className="fas fa-stream"/>
+            </nav>
+            {/*
+            <div className={cn('theme')}>
+                <Dropdown
+                    button={<i className="fas fa-palette"/>}
+                    menus={[
+                        {
+                            name: '밝은',
+                            onClick: () => configContext.setTheme('default'),
+                        },
+                        {
+                            name: '어두운',
+                            onClick: () => configContext.setTheme('dark'),
+                        },
+                        {
+                            name: '깜깜한',
+                            onClick: () => {},
+                            disable: true,
+                        },
+                        {
+                            name: '네온',
+                            onClick: () => {},
+                            disable: true,
+                        },
+                        {
+                            name: '파스텔',
+                            onClick: () => {},
+                            disable: true,
+                        }
+                    ]}
+                />
+            </div>
+            */}
+            <div className={cn('search')}>
+                <Link href="/search">
+                    <a>
+                        <i className="fas fa-search"/>
+                    </a>
+                </Link>
+            </div>
             <div className={cn('outer', { on : state.onNav })}>
-                <nav
-                    onClick={() => onClickNavigation()}
-                    className={cn('button', { on : state.onNav })}>
-                    <img src="/logo32.png" alt="logo"/>
-                </nav>
                 <div className={cn('inner')}>
-                    <Search/>
                     <ul className={cn('items')}>
                         <li>
                             <Link href="/">
@@ -212,11 +235,6 @@ export function TopNavigation() {
                         <></>
                     )}
                     <ul className={cn('footer')}>
-                        <li>
-                            <a onClick={() => onClickNightMode()}>
-                                <i className={`fas fa-${state.theme !== 'dark' ? 'sun' : 'moon'}`}></i>
-                            </a>
-                        </li>
                         {state.isLogin ? (
                             <>
                                 <li>

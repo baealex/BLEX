@@ -65,6 +65,15 @@ class ConfigContext extends SharedState<ConfigContextState> {
         });
     }
 
+    setTheme(theme: Theme) {
+        document.body.className = '';
+        document.body.classList.add(theme);
+        this.setState({
+            ...this.state,
+            theme: theme,
+        });
+    }
+
     afterStateChange() {
         if (this.init) {
             this.configSave();
