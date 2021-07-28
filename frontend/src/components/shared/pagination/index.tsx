@@ -47,6 +47,39 @@ export function Pagination(props: Props) {
         return num;
     };
 
+    const gotoPage = (num: number) => {
+        const visibleQueries = [
+            'q',
+        ];
+
+        const asQuery = visibleQueries.reduce((acc, cur) => {
+            if (router.query[cur]) {
+                return {
+                    ...acc,
+                    [cur]: router.query[cur]
+                };
+            }
+            return acc;
+        }, {});
+
+        return {
+            as: {
+                pathname: router.asPath.split('?')[0],
+                query: {
+                    ...asQuery,
+                    page: num,
+                }
+            },
+            href: {
+                pathname: router.pathname,
+                query: {
+                    ...router.query,
+                    page: num,
+                },
+            }
+        }
+    }
+
     return (
         <>
             <nav className={cn('nav')}>
@@ -54,23 +87,14 @@ export function Pagination(props: Props) {
                     {page != 1 ? (
                         <>
                             <div className={cn('item')}>
-                                <Link href={{
-                                    pathname: router.pathname,
-                                    query: {
-                                        ...router.query,
-                                        page: page - 1
-                                    }
-                                }}>
+                                <Link {...gotoPage(page - 1)}>
                                     <a className={cn('link')}>
                                         <i className="fas fa-arrow-left"></i>
                                     </a>
                                 </Link>
                             </div>
                             <div className={cn('item')}>
-                                <Link href={{
-                                    pathname: router.pathname,
-                                    query: { ...router.query, page: 1 }
-                                }}>
+                                <Link {...gotoPage(1)}>
                                     <a className={cn('link')}>
                                         <i className="fa fa-angle-double-left"></i>
                                     </a>
@@ -93,10 +117,7 @@ export function Pagination(props: Props) {
                     )}
                     {pageRange.map((item, idx) => (
                         <div key={idx} className={cn('item', { active: page == item})}>
-                            <Link href={{
-                                pathname: router.pathname,
-                                query: { ...router.query, page: item }
-                            }}>
+                            <Link {...gotoPage(item)}>
                                 <a className={cn('link')}>
                                     {item}
                                 </a>
@@ -106,20 +127,14 @@ export function Pagination(props: Props) {
                     {page != last ? (
                         <>
                             <div className={cn('item')}>
-                                <Link href={{
-                                    pathname: router.pathname,
-                                    query: { ...router.query, page: last }
-                                }}>
+                                <Link {...gotoPage(last)}>
                                     <a className={cn('link')}>
                                         <i className="fa fa-angle-double-right"></i>
                                     </a>
                                 </Link>
                             </div>
                             <div className={cn('item')}>
-                                <Link href={{
-                                    pathname: router.pathname,
-                                    query: { ...router.query, page: page + 1 }
-                                }}>
+                                <Link {...gotoPage(page + 1)}>
                                     <a className={cn('link')}>
                                         <i className="fas fa-arrow-right"></i>
                                     </a>
@@ -153,10 +168,7 @@ export function Pagination(props: Props) {
                         value={inputPage}
                         onChange={(e) => setInputPage(getPageRange(parseInt(e.target.value)).toString())}
                     />
-                    <Link href={{
-                        pathname: router.pathname,
-                        query: { ...router.query, page: inputPage === '' ? page : inputPage }
-                    }}>
+                    <Link {...gotoPage(inputPage === '' ? page : Number(inputPage))}>
                         <button className={`${cn('go')} shallow-dark`}>
                             Go <i className="fas fa-chevron-right"></i>
                         </button>
