@@ -39,10 +39,6 @@
     z-index: 998;
     box-sizing: border-box;
     max-width: 280px;
-    top: 15px;
-    left: 15px;
-    width: 35px;
-    height: 35px;
     transition: transform 0.5s ease;
 
     .bottom {
@@ -50,15 +46,15 @@
     }
 
     top: 0;
-    left: 0;
+    left: -280px;
     width: 100%;
     height: 100%;
     padding: 65px 15px;
 
-    transform: translate(-100%, 0);
+    transform: translateX(0%);
 
     &.on {
-        transform: translate(0, 0);
+        transform: translateX(100%);
     }
 
     ul {
