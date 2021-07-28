@@ -2,18 +2,24 @@ import App, { AppProps } from 'next/app';
 import Head from 'next/head';
 import Router from 'next/router';
 
-import '../styles/main.scss';
-
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
+import {
+    TopNavigation,
+    SEO,
+} from '@components/shared';
+
 import { CONFIG } from '@modules/settings';
+
 import {
     lazyLoadResource
 } from '@modules/lazy';
+
+import '../styles/main.scss';
 
 function minify(str: string) {
     str = str.replace(/\s/g, '');
@@ -30,8 +36,6 @@ Router.events.on('routeChangeComplete', () => {
 });
 Router.events.on('routeChangeError', () => NProgress.done());
 
-import { SEO, TopNavigation } from '@components/shared';
-
 class Main extends App<AppProps> {
     constructor(props: AppProps) {
         super(props);
@@ -42,33 +46,19 @@ class Main extends App<AppProps> {
     }
 
     render() {
-        const {Component, pageProps} = this.props;
+        const { Component, pageProps } = this.props;
+        
+        const getLayout = (page: JSX.Element, props: Object) => {
+            if ((Component as any).pageLayout) {
+                return (Component as any).pageLayout(page, props);
+            }
+            return page;
+        };
 
         return (
             <>
                 <Head>
                     <title>BLOG EXPRESS ME</title>
-                    <link rel="icon" href="/favicon.ico"/>
-                    <link rel="apple-touch-icon" sizes="57x57" href="/logo57.png"/>
-                    <link rel="apple-touch-icon" sizes="72x72" href="/logo72.png"/>
-                    <link rel="apple-touch-icon" sizes="76x76" href="/logo76.png"/>
-                    <link rel="apple-touch-icon" sizes="114x114" href="/logo114.png"/>
-                    <link rel="apple-touch-icon" sizes="120x120" href="/logo120.png"/>
-                    <link rel="apple-touch-icon" sizes="144x144" href="/logo144.png"/>
-                    <link rel="apple-touch-icon" sizes="152x152" href="/logo152.png"/>
-                    <link rel="icon" type="image/png" sizes="16x16" href="/logo16.png"/>
-                    <link rel="icon" type="image/png" sizes="32x32" href="/logo32.png"/>
-                    <link rel="icon" type="image/png" sizes="96x96" href="/logo96.png"/>
-                    <link rel="icon" type="image/png" sizes="192x192" href="/logo192.png"/>
-                    <meta name="theme-color" content="#000"/>
-                    <meta name="application-name" content="BLEX"/>
-                    <meta name="msapplication-TileImage" content="/logo144.png"/>
-                    <meta name="msapplication-TileColor" content="#000"/>
-                    <link
-                        rel="stylesheet"
-                        href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
-                        integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
-                        crossOrigin="anonymous"/>
                     {CONFIG.GOOGLE_ANALYTICS_V4 && (
                         <>
                             <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>
@@ -97,7 +87,6 @@ class Main extends App<AppProps> {
                         `)}}/>
                     )}
                 </Head>
-                
                 <SEO
                     title={'BLOG EXPRESS ME'}
                     description={'경험이 글을 만들고 글이 나를 만든다. 나를 표현하는 블렉스'}
@@ -107,7 +96,7 @@ class Main extends App<AppProps> {
                 <TopNavigation/>
                 
                 <div className="content">
-                    <Component {...pageProps}/>
+                    {getLayout(<Component {...pageProps}/>, pageProps)}
                 </div>
 
                 <ToastContainer/>
