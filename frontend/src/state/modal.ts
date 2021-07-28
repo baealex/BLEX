@@ -1,14 +1,14 @@
-import { ShareState } from './share-state';
+import SharedState from 'bstate';
 
-export interface ModalState {
+export interface ModalContextState {
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
     isTwoFactorAuthModalOpen: boolean;
 }
 
-type ModalName = 'isLoginModalOpen' |  'isSignupModalOpen' | 'isTwoFactorAuthModalOpen';
+type ModalName = keyof ModalContextState;
 
-class ModalContext extends ShareState<ModalState> {
+class ModalContext extends SharedState<ModalContextState> {
     state = {
         isLoginModalOpen: false,
         isSignupModalOpen: false,

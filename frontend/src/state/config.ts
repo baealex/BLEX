@@ -1,17 +1,17 @@
 import cookie from '@modules/cookie';
 
-import { ShareState } from './share-state';
+import SharedState from 'bstate';
 
 type Theme = 'default' | 'dark' | 'black' | 'neon' | 'pastel';
 
-export interface ConfigState {
+export interface ConfigContextState {
     theme: Theme;
     isAutoSave: boolean;
     isOpenNewTab: boolean;
     isSortOldFirst: boolean;
 }
 
-class ConfigContext extends ShareState<ConfigState> {
+class ConfigContext extends SharedState<ConfigContextState> {
     init: boolean = false;
     state = {
         theme: 'default' as Theme,
@@ -65,7 +65,7 @@ class ConfigContext extends ShareState<ConfigState> {
         });
     }
 
-    afterChangeState() {
+    afterStateChange() {
         if (this.init) {
             this.configSave();
         }

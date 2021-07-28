@@ -1,11 +1,11 @@
-import { ShareState } from './share-state';
+import SharedState from 'bstate';
 
-export interface AuthState {
+export interface AuthContextState {
     isLogin: boolean;
     username: string;
 }
 
-class AuthContext extends ShareState<AuthState> {
+class AuthContext extends SharedState<AuthContextState> {
     state = {
         isLogin: false,
         username: '',
