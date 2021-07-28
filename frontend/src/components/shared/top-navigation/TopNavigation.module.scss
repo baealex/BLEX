@@ -3,35 +3,38 @@
 @mixin ACTION_BUTTON {
     position: fixed;
     z-index: 999;
-    left: 15px;
     top: 15px;
     cursor: pointer;
 
-    @include SUB_SHADOW;
     border-radius: 3px;
     width: 35px;
     height: 35px;
-    font-size: 18px;
-    background-color: #222;
+    background-color: #000;
 
     i {
-        color: #fff;
+        font-size: 18px;
+        color: #eee;
     }
 }
 
 .button {
     @include ACTION_BUTTON;
     @include FLEX_CENTER;
+    left: 15px;
 }
 
 .search {
     @include ACTION_BUTTON;
     @include FLEX_CENTER;
     left: 15px + 35px + 15px;
+
+    a {
+        display: flex;
+    }
 }
 
 .outer {
-    background-color: #222;
+    background-color: #000;
     position: fixed;
     z-index: 998;
     box-sizing: border-box;

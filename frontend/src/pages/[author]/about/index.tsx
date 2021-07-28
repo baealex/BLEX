@@ -83,11 +83,6 @@ export default function UserAbout(props: Props) {
             <Head>
                 <title>{props.profile.username} ({props.profile.realname}) —  About</title>
             </Head>
-            <Layout
-                active="about"
-                profile={props.profile}
-                social={props.social!}
-            />
             <div className="container">
                 <div className="col-lg-9 mx-auto p-0 my-4">
                     {isEdit ? (

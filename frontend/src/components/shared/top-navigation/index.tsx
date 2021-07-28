@@ -18,7 +18,7 @@ import {
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';
 import { modalContext } from '@state/modal';
-// import { Dropdown } from '@components/atoms';
+import { Dropdown } from '@components/atoms';
 
 export function TopNavigation() {
     const [state, setState] = useState({
@@ -160,46 +160,14 @@ export function TopNavigation() {
             >
                 <i className="fas fa-stream"/>
             </nav>
-            {/*
-            <div className={cn('theme')}>
-                <Dropdown
-                    button={<i className="fas fa-palette"/>}
-                    menus={[
-                        {
-                            name: '밝은',
-                            onClick: () => configContext.setTheme('default'),
-                        },
-                        {
-                            name: '어두운',
-                            onClick: () => configContext.setTheme('dark'),
-                        },
-                        {
-                            name: '깜깜한',
-                            onClick: () => {},
-                            disable: true,
-                        },
-                        {
-                            name: '네온',
-                            onClick: () => {},
-                            disable: true,
-                        },
-                        {
-                            name: '파스텔',
-                            onClick: () => {},
-                            disable: true,
-                        }
-                    ]}
-                />
-            </div>
-            */}
-            <div className={cn('search')}>
-                <Link href="/search">
-                    <a>
-                        <i className="fas fa-search"/>
-                    </a>
-                </Link>
-            </div>
             <div className={cn('outer', { on : state.onNav })}>
+                <div className={cn('search')}>
+                    <Link href="/search">
+                        <a>
+                            <i className="fas fa-search"/>
+                        </a>
+                    </Link>
+                </div>
                 <div className={cn('inner')}>
                     <ul className={cn('items')}>
                         <li>
@@ -235,6 +203,39 @@ export function TopNavigation() {
                         <></>
                     )}
                     <ul className={cn('footer')}>
+                        <li>
+                            <a>
+                                <Dropdown
+                                    position="right"
+                                    button={<i className="fas fa-palette"/>}
+                                    menus={[
+                                        {
+                                            name: '밝은',
+                                            onClick: () => configContext.setTheme('default'),
+                                        },
+                                        {
+                                            name: '어두운',
+                                            onClick: () => configContext.setTheme('dark'),
+                                        },
+                                        {
+                                            name: '깜깜한',
+                                            onClick: () => {},
+                                            disable: true,
+                                        },
+                                        {
+                                            name: '네온',
+                                            onClick: () => {},
+                                            disable: true,
+                                        },
+                                        {
+                                            name: '파스텔',
+                                            onClick: () => {},
+                                            disable: true,
+                                        }
+                                    ]}
+                                />
+                            </a>
+                        </li>
                         {state.isLogin ? (
                             <>
                                 <li>

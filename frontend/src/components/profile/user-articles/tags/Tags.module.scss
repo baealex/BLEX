@@ -32,14 +32,14 @@
                 color: #b1b1b1;
                 text-decoration: none;
     
-                body.dark & {
+                :global(body.dark) & {
                     color: #727272;
                 }
     
                 &.active {
                     color: #000000;
     
-                    body.dark & {
+                    :global(body.dark) & {
                         color: #eee;
                     }
                 }
