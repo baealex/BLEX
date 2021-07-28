@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 export interface DropdownProps {
+    position?: 'left' | 'right';
     button: JSX.Element;
     menus: {
         name: string;
@@ -18,6 +19,10 @@ export interface DropdownProps {
 }
 
 export function Dropdown(props: DropdownProps) {
+    const {
+        position = 'left'
+    } = props;
+
     const box = useRef<HTMLDivElement>(null);
     const toggle = useRef<HTMLSpanElement>(null);
 
@@ -49,7 +54,7 @@ export function Dropdown(props: DropdownProps) {
                 </span>
                 <div ref={box}>
                     {isOpen && (
-                        <div className={cn('menu')}>
+                        <div className={cn('menu', position)}>
                             <ul>
                                 {props.menus.map((menu, idx) => (
                                     <li key={idx} onClick={menu.onClick} className={cn({ disable: menu.disable })}>

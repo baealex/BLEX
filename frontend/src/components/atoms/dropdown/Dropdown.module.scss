@@ -1,9 +1,9 @@
 @import 'var';
 
-@keyframes fade-in {
+@keyframes left-in {
     from {
         opacity: 0;
-        transform: scale(0.5) translate(-100%, -50%);
+        transform: scale(0) translate(-100%, -50%);
     }
   
     to {
@@ -12,12 +12,32 @@
     }
 }
 
+@keyframes right-in {
+    from {
+        opacity: 0;
+        transform: scale(0) translate(10%, -50%);
+    }
+  
+    to {
+        opacity: 1;
+        transform: scale(1) translate(10%, 0);
+    }
+}
+
 .menu {
     position: absolute;
     min-width: 120px;
-    animation: fade-in 0.2s ease-in;
-    transform: translateX(-100%);
     z-index: 5;
+
+    &.left {
+        transform: translateX(-100%);
+        animation: left-in 0.2s ease-in;
+    }
+
+    &.right {
+        transform: translateX(10%);
+        animation: right-in 0.2s ease-in;
+    }
     
     border-radius: 5px;
     background-color: #fff;
@@ -45,9 +65,24 @@
             padding: 8px 12px;
             width: 100%;
             cursor: pointer;
+            a {
+                color: #333 !important;
+
+                :global(body.dark) & {
+                    color: #eee !important;
+                }
+            }
 
             &.disable {
                 opacity: 0.3;
+            }
+
+            &:first-child {
+                border-radius: 5px 5px 0 0;
+            }
+
+            &:last-child {
+                border-radius: 0 0 5px 5px;
             }
             
             &:hover {
