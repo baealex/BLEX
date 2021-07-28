@@ -11,6 +11,7 @@ import { GetServerSidePropsContext } from 'next';
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
         author = '',
+        tag = '',
         page = 1,
     } = context.query;
 
@@ -28,12 +29,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         const userPosts = await API.getUserPosts(
             author as string, 
             Number(page),
+            tag as string,
         );
 
         return {
             props: {
                 page,
-                tag: 'all',
+                tag: tag ? tag : 'all',
                 ...userProfile.data.body,
                 ...userPosts.data.body
             }
@@ -54,7 +56,7 @@ export default function UserPosts(props: Props) {
     return (
         <>
             <Head>
-                <title>{props.profile.username} ({props.profile.realname}) —  Posts</title>
+                <title>{props.profile.username}'s {props.tag}</title>
             </Head>
 
             <Pagination

@@ -18,22 +18,19 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         author = ''
     } = context.query;
 
-    if(!author.includes('@')) {
-        return {
-            notFound: true
-        };
-    }
-
     try {
-        const { data } = await API.getUserProfile(author as string, [
+        if(!author.includes('@')) {
+            throw 'invalid author';
+        }
+
+        const userProfile = await API.getUserProfile(author as string, [
             'profile',
             'social',
             'about'
         ]);
+
         return {
-            props: {
-                profile: data.body
-            }
+            props: userProfile.data.body
         }
     } catch(error) {
         return {
@@ -42,13 +39,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 }
 
-interface Props {
-    profile: API.GetUserProfileData;
-}
+interface Props extends API.GetUserProfileData {}
 
 export default function UserAbout(props: Props) {
     const [ isEdit, setIsEdit ] = useState(false);
-    const [ aboutHTML, setAboutHTML ] = useState(props.profile.about);
+    const [ aboutHTML, setAboutHTML ] = useState(props.about);
     const [ aboutMd, setAboutMd ] = useState<string | undefined>(undefined);
     const [ username, setUsername ] = useState(authContext.state.username);
 
@@ -86,12 +81,12 @@ export default function UserAbout(props: Props) {
     return (
         <>
             <Head>
-                <title>{props.profile.profile.username} ({props.profile.profile.realname}) —  About</title>
+                <title>{props.profile.username} ({props.profile.realname}) —  About</title>
             </Head>
             <Layout
                 active="about"
-                profile={props.profile.profile}
-                social={props.profile.social!}
+                profile={props.profile}
+                social={props.social!}
             />
             <div className="container">
                 <div className="col-lg-9 mx-auto p-0 my-4">
@@ -113,7 +108,7 @@ export default function UserAbout(props: Props) {
                             </Alert>
                         )
                     )}
-                    {props.profile.profile.username == username ? (
+                    {props.profile.username == username ? (
                         <button
                             className="btn btn-dark btn-block mt-3 edit"
                             onClick={() => handleClickEdit()}>
@@ -125,3 +120,13 @@ export default function UserAbout(props: Props) {
         </>
     )
 }
+
+UserAbout.pageLayout = (page: JSX.Element, props: Props) => (
+    <Layout
+        active="about"
+        profile={props.profile}
+        social={props.social!}
+    >
+        {page}
+    </Layout>
+)

@@ -13,6 +13,7 @@ export interface LayoutProps {
     },
     social: SocialProps;
     active: string;
+    children?: JSX.Element;
 };
 
 export function Layout(props: LayoutProps) {
@@ -30,6 +31,7 @@ export function Layout(props: LayoutProps) {
                 active={props.active}
                 username={props.profile.username}
             />
+            {props.children}
         </>
     )
 }

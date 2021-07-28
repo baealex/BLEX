@@ -4,7 +4,6 @@ const cn = classNames.bind(styles);
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 
 import { Dropdown } from '@components/integrated';
 
@@ -32,8 +31,6 @@ function sorted(key: string, list: any) {
 
 export function Tags(props: TagsProps) {
     const [tags, setTags] = useState(props.tags);
-
-    const router = useRouter();
 
     return (
         <div className={classNames(
@@ -82,13 +79,8 @@ export function Tags(props: TagsProps) {
                 {tags.map((item, idx) => (
                     <Link
                         key={idx}
-                        href={{
-                            query: {
-                                ...router.query,
-                                tag: item.name,
-                                page: 1,
-                            }
-                        }}
+                        href="/[author]/posts/[tag]"
+                        as={`/@${props.author}/posts/${item.name}`} 
                         scroll={false}
                     >
                         <li>

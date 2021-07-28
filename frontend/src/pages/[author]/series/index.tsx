@@ -17,23 +17,26 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         page = 1,
     } = context.query;
 
-    if(!author.includes('@')) {
-        return {
-            notFound: true
-        };
-    }
-
     try {
-        const { data } = await API.getUserProfile(author as string, [
+        if(!author.includes('@')) {
+            throw 'invalid author';
+        }
+
+        const userProfile = await API.getUserProfile(author as string, [
             'profile',
             'social',
         ]);
-        const series = await API.getUserSeries(author as string, Number(page));
+
+        const userSeries = await API.getUserSeries(
+            author as string,
+            Number(page)
+        );
+        
         return {
             props: {
                 page,
-                ...data.body,
-                ...series.data.body,
+                ...userProfile.data.body,
+                ...userSeries.data.body,
             }
         }
     } catch(error) {
@@ -57,11 +60,6 @@ export default function SeriesProfile(props: Props) {
                 <title>{props.profile.username} ({props.profile.realname}) —  Series</title>
             </Head>
 
-            <Layout
-                active="series"
-                profile={props.profile}
-                social={props.social!}
-            />
             <UserSeries series={props.series}>
                 <div className="container">
                     <div className="col-lg-8 mx-auto">
@@ -80,3 +78,13 @@ export default function SeriesProfile(props: Props) {
         </>
     )
 }
+
+SeriesProfile.pageLayout = (page: JSX.Element, props: Props) => (
+    <Layout
+        active="series"
+        profile={props.profile}
+        social={props.social!}
+    >
+        {page}
+    </Layout>
+)

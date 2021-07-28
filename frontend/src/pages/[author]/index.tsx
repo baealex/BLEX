@@ -63,11 +63,6 @@ export default function Overview(props: Props) {
                 <title>{props.profile.username} ({props.profile.realname})</title>
             </Head>
 
-            <Layout
-                active="overview"
-                profile={props.profile}
-                social={props.social!}
-            />
             <div className="container mb-4">
                 <div className="col-lg-8 mx-auto p-0">
                     <Featured articles={props.most!}/>
@@ -81,3 +76,13 @@ export default function Overview(props: Props) {
         </>
     )
 }
+
+Overview.pageLayout = (page: JSX.Element, props: Props) => (
+    <Layout
+        active="overview"
+        profile={props.profile}
+        social={props.social!}
+    >
+        {page}
+    </Layout>
+)
