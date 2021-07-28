@@ -68,44 +68,48 @@ export default function FormsSetting(props: Props) {
 
     return (
         <>
-            <Layout tabname="forms">
-                <input
-                    type="text"
-                    placeholder="서식의 제목"
-                    className="form-control mb-3"
-                    maxLength={50}
-                    onChange={(e) => setTitle(e.target.value)}
-                    value={title}
-                />
-                <textarea
-                    cols={40}
-                    rows={4}
-                    placeholder="서식의 내용을 입력하세요."
-                    className="form-control mb-3"
-                    onChange={(e) => setContent(e.target.value)}
-                    value={content}
-                />
-                <button
-                    type="button"
-                    className="btn btn-block btn-dark"
-                    onClick={() => onSubmit()}>
-                    서식 등록
-                </button>
-                <div className="mt-3">
-                {forms.map((item, idx) => (
-                    <Card isRounded className="p-3 mb-3">
-                        <div key={idx} className="d-flex justify-content-between">
-                            <a className="deep-dark">
-                                {item.title}
-                            </a>
-                            <a onClick={() => onDelete(item.id)}>
-                                <i className="fas fa-times"></i>
-                            </a>
-                        </div>
-                    </Card>
-                ))}
-                </div>
-            </Layout>
+            <input
+                type="text"
+                placeholder="서식의 제목"
+                className="form-control mb-3"
+                maxLength={50}
+                onChange={(e) => setTitle(e.target.value)}
+                value={title}
+            />
+            <textarea
+                cols={40}
+                rows={4}
+                placeholder="서식의 내용을 입력하세요."
+                className="form-control mb-3"
+                onChange={(e) => setContent(e.target.value)}
+                value={content}
+            />
+            <button
+                type="button"
+                className="btn btn-block btn-dark"
+                onClick={() => onSubmit()}>
+                서식 등록
+            </button>
+            <div className="mt-3">
+            {forms.map((item, idx) => (
+                <Card isRounded className="p-3 mb-3">
+                    <div key={idx} className="d-flex justify-content-between">
+                        <a className="deep-dark">
+                            {item.title}
+                        </a>
+                        <a onClick={() => onDelete(item.id)}>
+                            <i className="fas fa-times"></i>
+                        </a>
+                    </div>
+                </Card>
+            ))}
+            </div>
         </>
     );
 }
+
+FormsSetting.pageLayout = (page: JSX.Element) => (
+    <Layout tabname="forms">
+        {page}
+    </Layout>
+)

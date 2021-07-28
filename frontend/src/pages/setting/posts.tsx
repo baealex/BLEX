@@ -177,125 +177,123 @@ export default function PostsSetting(props: Props) {
 
     return (
         <>
-            <Layout tabname="posts" sticky={false}>
-                <TagBadge items={POSTS_ORDER.map((item) => (
-                    <Link
-                        href={{
-                            query: {
-                                ...router.query,
-                                order: router.query.order === item.order
-                                    ? item.order.replace('-' , '')
-                                    : item.order,
-                                page: 1,
-                            }
-                        }}
-                        scroll={false}
-                    >
-                        <a>
-                            {item.name}&nbsp;
-                            {router.query.order?.includes(item.order.replace('-' , '')) && (
-                                router.query.order?.includes('-') ? (
-                                    <i className="fas fa-sort-up"/>
-                                ) : (
-                                    <i className="fas fa-sort-down"/>
-                                )
+            <TagBadge items={POSTS_ORDER.map((item) => (
+                <Link
+                    href={{
+                        query: {
+                            ...router.query,
+                            order: router.query.order === item.order
+                                ? item.order.replace('-' , '')
+                                : item.order,
+                            page: 1,
+                        }
+                    }}
+                    scroll={false}
+                >
+                    <a>
+                        {item.name}&nbsp;
+                        {router.query.order?.includes(item.order.replace('-' , '')) && (
+                            router.query.order?.includes('-') ? (
+                                <i className="fas fa-sort-up"/>
+                            ) : (
+                                <i className="fas fa-sort-down"/>
+                            )
+                        )}
+                    </a>
+                </Link>
+            ))}/>
+            <>
+                {posts.map((post, idx) => (
+                    <Card key={idx} isRounded className="mb-3">
+                        <div className="p-3 mb-1">
+                            {post.readTime > 30 && (
+                                <div className="alert alert-danger">
+                                    이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
+                                </div>
                             )}
-                        </a>
-                    </Link>
-                ))}/>
-                <>
-                    {posts.map((post, idx) => (
-                        <Card key={idx} isRounded className="mb-3">
-                            <div className="p-3 mb-1">
-                                {post.readTime > 30 && (
-                                    <div className="alert alert-danger">
-                                        이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
-                                    </div>
-                                )}
-                                <div className="d-flex justify-content-between mb-1">
-                                    <span>
-                                        <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
-                                            <a className="deep-dark">
-                                                {post.title}
-                                            </a>
-                                        </Link>
-                                    </span>
-                                    <Dropdown
-                                        button={
-                                            <i className="fas fa-ellipsis-v"></i>
-                                        }
-                                        menus={[
-                                            {
-                                                name: '수정',
-                                                onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
-                                            },
-                                            {
-                                                name: '삭제',
-                                                onClick: () => onPostsDelete(post.url)
-                                            },
-                                            {
-                                                name: '분석',
-                                                onClick: () => postsAnalytics(post.url)
-                                            },
-                                        ]}
-                                    />
+                            <div className="d-flex justify-content-between mb-1">
+                                <span>
+                                    <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
+                                        <a className="deep-dark">
+                                            {post.title}
+                                        </a>
+                                    </Link>
+                                </span>
+                                <Dropdown
+                                    button={
+                                        <i className="fas fa-ellipsis-v"></i>
+                                    }
+                                    menus={[
+                                        {
+                                            name: '수정',
+                                            onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
+                                        },
+                                        {
+                                            name: '삭제',
+                                            onClick: () => onPostsDelete(post.url)
+                                        },
+                                        {
+                                            name: '분석',
+                                            onClick: () => postsAnalytics(post.url)
+                                        },
+                                    ]}
+                                />
+                            </div>
+                            <div className="mb-1">
+                                <time className="post-date shallow-dark">
+                                    {post.createdDate}
+                                    {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
+                                </time>
+                            </div>
+                            <div className="input-group mt-2 mr-sm-2">
+                                <div className="input-group-prepend">
+                                    <div className="input-group-text">#</div>
                                 </div>
-                                <div className="mb-1">
-                                    <time className="post-date shallow-dark">
-                                        {post.createdDate}
-                                        {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
-                                    </time>
-                                </div>
-                                <div className="input-group mt-2 mr-sm-2">
-                                    <div className="input-group-prepend">
-                                        <div className="input-group-text">#</div>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        name="tag"
-                                        value={post.tag}
-                                        onChange={(e) => onTagChange(post.url, e.target.value)}
-                                        className="form-control"
-                                        maxLength={255}
-                                    />
-                                    <div className="input-group-prepend">
-                                        <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(post.url)}>
-                                            변경
-                                        </button>
-                                    </div>
+                                <input
+                                    type="text"
+                                    name="tag"
+                                    value={post.tag}
+                                    onChange={(e) => onTagChange(post.url, e.target.value)}
+                                    className="form-control"
+                                    maxLength={255}
+                                />
+                                <div className="input-group-prepend">
+                                    <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(post.url)}>
+                                        변경
+                                    </button>
                                 </div>
                             </div>
-                            <div className="setting-info p-3">
-                                <div className="d-flex justify-content-between align-items-center shallow-dark ns">
-                                    <ul className="none-list mb-0">
-                                        <li>
-                                            <a onClick={() => onPostsHide(post.url)} className="element-lock c-pointer">
-                                                {post.isHide
-                                                    ? <i className="fas fa-lock"/>
-                                                    : <i className="fas fa-lock-open"/>
-                                                }
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <i className="far fa-heart"></i> {post.totalLikes}
-                                        </li>
-                                        <li>
-                                            <i className="far fa-comment"></i> {post.totalComments}
-                                        </li>
-                                    </ul>
-                                    <span>
-                                        오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
-                                    </span>
-                                </div>
+                        </div>
+                        <div className="setting-info p-3">
+                            <div className="d-flex justify-content-between align-items-center shallow-dark ns">
+                                <ul className="none-list mb-0">
+                                    <li>
+                                        <a onClick={() => onPostsHide(post.url)} className="element-lock c-pointer">
+                                            {post.isHide
+                                                ? <i className="fas fa-lock"/>
+                                                : <i className="fas fa-lock-open"/>
+                                            }
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <i className="far fa-heart"></i> {post.totalLikes}
+                                    </li>
+                                    <li>
+                                        <i className="far fa-comment"></i> {post.totalComments}
+                                    </li>
+                                </ul>
+                                <span>
+                                    오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
+                                </span>
                             </div>
-                        </Card>
-                    ))}
-                </>
-                <Pagination
-                    page={props.page}
-                    last={props.lastPage}
-                />
-            </Layout>
+                        </div>
+                    </Card>
+                ))}
+            </>
+            <Pagination
+                page={props.page}
+                last={props.lastPage}
+            />
             <Modal
                 title="포스트 분석"
                 isOpen={isModalOpen}
@@ -330,3 +328,9 @@ export default function PostsSetting(props: Props) {
         </>
     );
 }
+
+PostsSetting.pageLayout = (page: JSX.Element) => (
+    <Layout tabname="posts" sticky={false}>
+        {page}
+    </Layout>
+)

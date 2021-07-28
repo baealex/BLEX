@@ -56,114 +56,118 @@ export default function ProfileSetting(props: Props) {
     
     return (
         <>
-            <Layout tabname="profile">
-                <label>Avatar : </label>
-                <div className="mb-3">
-                    <ImageInput
-                        url={avatar}
-                        label="아바타 선택"
-                        onChange={async (file) => {
-                            NProgress.start();
-                            const formData = new FormData();
-                            formData.append('avatar', file);
-                            const { data } = await API.postSettingAvatar(formData);
-                            setAvatar(data.body.url);
-                            NProgress.done()
-                        }}
-                    />
-                </div>
-                <label>Bio : </label>
-                <textarea
-                    cols={40}
-                    rows={4}
-                    placeholder="자신을 간단히 설명하세요."
-                    className="form-control mb-3"
-                    onChange={(e) => setBio(e.target.value)}
-                    value={bio}
+            <label>Avatar : </label>
+            <div className="mb-3">
+                <ImageInput
+                    url={avatar}
+                    label="아바타 선택"
+                    onChange={async (file) => {
+                        NProgress.start();
+                        const formData = new FormData();
+                        formData.append('avatar', file);
+                        const { data } = await API.postSettingAvatar(formData);
+                        setAvatar(data.body.url);
+                        NProgress.done()
+                    }}
                 />
-                <label>Homepage : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://</span>
-                    </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={homepage}
-                        onChange={(e) => setHomepage(e.target.value)}
-                    />
+            </div>
+            <label>Bio : </label>
+            <textarea
+                cols={40}
+                rows={4}
+                placeholder="자신을 간단히 설명하세요."
+                className="form-control mb-3"
+                onChange={(e) => setBio(e.target.value)}
+                value={bio}
+            />
+            <label>Homepage : </label>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">https://</span>
                 </div>
-                <label>GitHub : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://github.com/</span>
-                    </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={github}
-                        onChange={(e) => setGithub(e.target.value)}
-                    />
+                <input
+                    type="text"
+                    className="form-control"
+                    maxLength={100}
+                    value={homepage}
+                    onChange={(e) => setHomepage(e.target.value)}
+                />
+            </div>
+            <label>GitHub : </label>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">https://github.com/</span>
                 </div>
-                <label>Twitter : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://twitter.com/</span>
-                    </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={twitter}
-                        onChange={(e) => setTwitter(e.target.value)}
-                    />
+                <input
+                    type="text"
+                    className="form-control"
+                    maxLength={100}
+                    value={github}
+                    onChange={(e) => setGithub(e.target.value)}
+                />
+            </div>
+            <label>Twitter : </label>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">https://twitter.com/</span>
                 </div>
-                <label>Facebook : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://facebook.com/</span>
-                    </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={facebook}
-                        onChange={(e) => setFacebook(e.target.value)}
-                    />
+                <input
+                    type="text"
+                    className="form-control"
+                    maxLength={100}
+                    value={twitter}
+                    onChange={(e) => setTwitter(e.target.value)}
+                />
+            </div>
+            <label>Facebook : </label>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">https://facebook.com/</span>
                 </div>
-                <label>Instagram : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://instagram.com/</span>
-                    </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={instagram}
-                        onChange={(e) => setInstagram(e.target.value)}
-                    />
+                <input
+                    type="text"
+                    className="form-control"
+                    maxLength={100}
+                    value={facebook}
+                    onChange={(e) => setFacebook(e.target.value)}
+                />
+            </div>
+            <label>Instagram : </label>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">https://instagram.com/</span>
                 </div>
-                <label>YouTube : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://youtube.com/channel/</span>
-                    </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={youtube}
-                        onChange={(e) => setYoutube(e.target.value)}
-                    />
+                <input
+                    type="text"
+                    className="form-control"
+                    maxLength={100}
+                    value={instagram}
+                    onChange={(e) => setInstagram(e.target.value)}
+                />
+            </div>
+            <label>YouTube : </label>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">https://youtube.com/channel/</span>
                 </div>
-                <button
-                    type="button"
-                    className="btn btn-block btn-dark"
-                    onClick={() => onSubmit()}>프로필 변경</button>
-            </Layout>
+                <input
+                    type="text"
+                    className="form-control"
+                    maxLength={100}
+                    value={youtube}
+                    onChange={(e) => setYoutube(e.target.value)}
+                />
+            </div>
+            <button
+                type="button"
+                className="btn btn-block btn-dark"
+                onClick={() => onSubmit()}>프로필 변경</button>
         </>
     );
 }
+
+ProfileSetting.pageLayout = (page: JSX.Element) => (
+    <Layout tabname="profile">
+        {page}
+    </Layout>
+)

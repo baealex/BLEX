@@ -60,37 +60,41 @@ export default function SeriesSetting(props: Props) {
 
     return (
         <>
-            <Layout tabname="series">
-                <div className="input-group mb-3">
-                    <input
-                        type="text"
-                        placeholder="시리즈의 이름"
-                        className="form-control"
-                        maxLength={50}
-                        onChange={(e) => setNewSeries(e.target.value)}
-                        value={newSeries}
-                    />
-                    <div className="input-group-prepend">
-                        <button type="button" className="btn btn-dark" onClick={() => onSeriesCreate()}>새 시리즈 만들기</button>
-                    </div>
+            <div className="input-group mb-3">
+                <input
+                    type="text"
+                    placeholder="시리즈의 이름"
+                    className="form-control"
+                    maxLength={50}
+                    onChange={(e) => setNewSeries(e.target.value)}
+                    value={newSeries}
+                />
+                <div className="input-group-prepend">
+                    <button type="button" className="btn btn-dark" onClick={() => onSeriesCreate()}>새 시리즈 만들기</button>
                 </div>
-                <>
-                    {series.map((item, idx) => (
-                        <Card key={idx} isRounded className="p-3 mb-3">
-                            <div className="d-flex justify-content-between">
-                                <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
-                                    <a className="deep-dark">
-                                        {item.title} <span className="vs">{item.totalPosts}</span>
-                                    </a>
-                                </Link>
-                                <a onClick={() => onSeriesDelete(item.url)}>
-                                    <i className="fas fa-times"></i>
+            </div>
+            <>
+                {series.map((item, idx) => (
+                    <Card key={idx} isRounded className="p-3 mb-3">
+                        <div className="d-flex justify-content-between">
+                            <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
+                                <a className="deep-dark">
+                                    {item.title} <span className="vs">{item.totalPosts}</span>
                                 </a>
-                            </div>
-                        </Card>
-                    ))}
-                </>
-            </Layout>
+                            </Link>
+                            <a onClick={() => onSeriesDelete(item.url)}>
+                                <i className="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </Card>
+                ))}
+            </>
         </>
     );
 }
+
+SeriesSetting.pageLayout = (page: JSX.Element) => (
+    <Layout tabname="series">
+        {page}
+    </Layout>
+)

@@ -162,117 +162,115 @@ export default function AccountSetting(props: Props) {
 
     return (
         <>
-            <Layout tabname="account">
-                <>
-                    {isChangeUsername ? (
-                        <div className="input-group mb-3">
-                            <input
-                                type="text"
-                                placeholder="아이디"
-                                className="form-control"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}/>
-                            <div className="input-group-prepend">
-                                <button
-                                    type="button"
-                                    className="btn btn-dark"
-                                    onClick={() => onChangeUsername()}>
-                                    변경
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-dark"
-                                    onClick={() => {
-                                        setChangeUsername(false);
-                                        setUsername(props.username);
-                                    }}>
-                                    취소
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="d-flex justify-content-between">
-                            <h3 className="font-weight-bold">
-                                @{username}
-                            </h3>
+            <>
+                {isChangeUsername ? (
+                    <div className="input-group mb-3">
+                        <input
+                            type="text"
+                            placeholder="아이디"
+                            className="form-control"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}/>
+                        <div className="input-group-prepend">
                             <button
                                 type="button"
                                 className="btn btn-dark"
-                                onClick={() => setChangeUsername(true)}>
-                                아이디 변경
+                                onClick={() => onChangeUsername()}>
+                                변경
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-dark"
+                                onClick={() => {
+                                    setChangeUsername(false);
+                                    setUsername(props.username);
+                                }}>
+                                취소
                             </button>
                         </div>
-                    )}
-                    <p>
-                        {props.createdDate}
-                    </p>
-                    <input
-                        type="text"
-                        value={realname}
-                        placeholder="이름"
-                        className="form-control"
-                        maxLength={30}
-                        onChange={(e) => setRealname(e.target.value)}
-                    />
-                    <input
-                        type="password"
-                        value={password}
-                        placeholder="새 비밀번호"
-                        className="form-control"
-                        maxLength={200}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <input
-                        type="password"
-                        value={passwordCheck}
-                        placeholder="비밀번호 확인"
-                        className="form-control"
-                        maxLength={200}
-                        onChange={(e) => setPasswordCheck(e.target.value)}
-                    />
-                    <CheckBox
-                        label="이메일 전송에 동의합니다."
-                        defaultChecked={agreeEmail}
-                        onClick={(value: boolean) => setAgreeEmail(value)}
-                    />
-                    <CheckBox
-                        label="활동 내역 수집에 동의합니다."
-                        defaultChecked={agreeHistory}
-                        onClick={(value: boolean) => setAgreeHistory(value)}
-                    />
-                    <button
-                        type="button"
-                        className="btn btn-dark"
-                        onClick={() => onSubmit()}>정보 변경
-                    </button>
-                    {hasTwoFactorAuth ? (
+                    </div>
+                ) : (
+                    <div className="d-flex justify-content-between">
+                        <h3 className="font-weight-bold">
+                            @{username}
+                        </h3>
                         <button
                             type="button"
                             className="btn btn-dark"
-                            onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') ? onDeleteTwoFactorAuth() : ''}>2차 인증 중지
+                            onClick={() => setChangeUsername(true)}>
+                            아이디 변경
                         </button>
-                    ) : (
-                        <button
-                            type="button"
-                            className="btn btn-dark"
-                            onClick={() => setCreateTwoFactorAuthModalOpen(true)}>2차 인증 등록
-                        </button>
-                    )}
+                    </div>
+                )}
+                <p>
+                    {props.createdDate}
+                </p>
+                <input
+                    type="text"
+                    value={realname}
+                    placeholder="이름"
+                    className="form-control"
+                    maxLength={30}
+                    onChange={(e) => setRealname(e.target.value)}
+                />
+                <input
+                    type="password"
+                    value={password}
+                    placeholder="새 비밀번호"
+                    className="form-control"
+                    maxLength={200}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <input
+                    type="password"
+                    value={passwordCheck}
+                    placeholder="비밀번호 확인"
+                    className="form-control"
+                    maxLength={200}
+                    onChange={(e) => setPasswordCheck(e.target.value)}
+                />
+                <CheckBox
+                    label="이메일 전송에 동의합니다."
+                    defaultChecked={agreeEmail}
+                    onClick={(value: boolean) => setAgreeEmail(value)}
+                />
+                <CheckBox
+                    label="활동 내역 수집에 동의합니다."
+                    defaultChecked={agreeHistory}
+                    onClick={(value: boolean) => setAgreeHistory(value)}
+                />
+                <button
+                    type="button"
+                    className="btn btn-dark"
+                    onClick={() => onSubmit()}>정보 변경
+                </button>
+                {hasTwoFactorAuth ? (
                     <button
                         type="button"
                         className="btn btn-dark"
-                        onClick={() => setSignDeleteModalOpen(true)}>회원 탈퇴
+                        onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') ? onDeleteTwoFactorAuth() : ''}>2차 인증 중지
                     </button>
-                    <style jsx>{`
-                        input {
-                            margin-bottom: 15px;
-                        }
-                        button {
-                            margin-right: 5px;
-                        }
-                    `}</style>
-                </>
-            </Layout>
+                ) : (
+                    <button
+                        type="button"
+                        className="btn btn-dark"
+                        onClick={() => setCreateTwoFactorAuthModalOpen(true)}>2차 인증 등록
+                    </button>
+                )}
+                <button
+                    type="button"
+                    className="btn btn-dark"
+                    onClick={() => setSignDeleteModalOpen(true)}>회원 탈퇴
+                </button>
+                <style jsx>{`
+                    input {
+                        margin-bottom: 15px;
+                    }
+                    button {
+                        margin-right: 5px;
+                    }
+                `}</style>
+            </>
             <Modal
                 title="정말 탈퇴 하시겠습니까?"
                 isOpen={isSignDeleteModalOpen}
@@ -313,3 +311,9 @@ export default function AccountSetting(props: Props) {
         </>
     );
 }
+
+AccountSetting.pageLayout = (page: JSX.Element) => (
+    <Layout tabname="account">
+        {page}
+    </Layout>
+)

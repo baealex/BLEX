@@ -29,67 +29,71 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 export default function AnalyticsSetting(props: Props) {
     return (
         <>
-            <Layout tabname="analytics">
-                <div className="h5 font-weight-bold mb-3">
-                    조회수 추이
+            <div className="h5 font-weight-bold mb-3">
+                조회수 추이
+            </div>
+            <Card isRounded className="p-3">
+                <div className="ns shallow-dark text-right">
+                    총 조회수 : {props.total.toLocaleString()}
                 </div>
-                <Card isRounded className="p-3">
-                    <div className="ns shallow-dark text-right">
-                        총 조회수 : {props.total.toLocaleString()}
-                    </div>
-                    <ReactFrappeChart
-                        type="axis-mixed"
-                        data={{
-                            labels: props.views.map(item => item.date).reverse(),
-                            datasets: [
-                                {
-                                    name: 'View',
-                                    values: props.views.map(item => item.count).reverse(),
-                                    chartType: 'line'
-                                }
-                            ]
-                        }}
-                        colors={['purple']}
-                    />
-                </Card>
-                <div className="h5 font-weight-bold mt-5 mb-3">
-                    신규 유입 경로
-                </div>
-                <div className="row">
-                    {props.referers.map((item, idx: number) => (
-                        <div key={idx} className="col-lg-4 col-md-6">
-                            <Card isRounded className="my-3">
-                                <>
-                                    {item.image && (
-                                        <div>
-                                            <a className="deep-dark" href={item.url} target="blank">
-                                                <img className="w-100 h-150 fit-cover" src={item.image}/>
+                <ReactFrappeChart
+                    type="axis-mixed"
+                    data={{
+                        labels: props.views.map(item => item.date).reverse(),
+                        datasets: [
+                            {
+                                name: 'View',
+                                values: props.views.map(item => item.count).reverse(),
+                                chartType: 'line'
+                            }
+                        ]
+                    }}
+                    colors={['purple']}
+                />
+            </Card>
+            <div className="h5 font-weight-bold mt-5 mb-3">
+                신규 유입 경로
+            </div>
+            <div className="row">
+                {props.referers.map((item, idx: number) => (
+                    <div key={idx} className="col-lg-4 col-md-6">
+                        <Card isRounded className="my-3">
+                            <>
+                                {item.image && (
+                                    <div>
+                                        <a className="deep-dark" href={item.url} target="blank">
+                                            <img className="w-100 h-150 fit-cover" src={item.image}/>
+                                        </a>
+                                    </div>
+                                )}
+                                <div className="p-3">
+                                    <div>
+                                        <a className="deep-dark" href={item.url} target="blank">
+                                            {item.title ? item.title : item.url}
+                                        </a>
+                                    </div>
+                                    {item.description && (
+                                        <div className="ns">
+                                            <a className="shallow-dark" href={item.url} target="blank">
+                                                {item.description}
                                             </a>
                                         </div>
                                     )}
-                                    <div className="p-3">
-                                        <div>
-                                            <a className="deep-dark" href={item.url} target="blank">
-                                                {item.title ? item.title : item.url}
-                                            </a>
-                                        </div>
-                                        {item.description && (
-                                            <div className="ns">
-                                                <a className="shallow-dark" href={item.url} target="blank">
-                                                    {item.description}
-                                                </a>
-                                            </div>
-                                        )}
-                                        <div className="ns gray-dark">
-                                            {item.time}
-                                        </div>
+                                    <div className="ns gray-dark">
+                                        {item.time}
                                     </div>
-                                </>
-                            </Card>
-                        </div>
-                    ))}
-                </div>
-            </Layout>
+                                </div>
+                            </>
+                        </Card>
+                    </div>
+                ))}
+            </div>
         </>
     );
 }
+
+AnalyticsSetting.pageLayout = (page: JSX.Element) => (
+    <Layout tabname="analytics">
+        {page}
+    </Layout>
+)

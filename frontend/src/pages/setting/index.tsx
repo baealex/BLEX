@@ -75,34 +75,32 @@ export default function NotifySetting(props: Props) {
 
     return (
         <>
-            <Layout tabname="notify">
-                <>
-                    {isSync ? (
-                        <div className="p-3 btn-primary c-pointer" onClick={() => unsync()}>
-                            <i className="fab fa-telegram-plane"></i> 텔레그램과 연동을 해제할까요?
-                        </div>
-                    ) : (
-                        <div className="p-3 btn-primary c-pointer" onClick={() => makeToken()}>
-                            <i className="fab fa-telegram-plane"></i> 텔레그램으로 실시간 알림받기
-                        </div>
-                    )}
-                    {notify.length == 0 ? (
-                        <Card isRounded className="mt-3 p-3">
-                            최근 생성된 알림이 없습니다.
-                        </Card>
-                    ) : notify.map((item, idx) => (
-                        <Link key={idx} href={item.url}>
-                            <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => onReadNotify(item.pk)}>
-                                <Card isRounded className="p-3 mt-3">
-                                    <>
-                                        {item.content} <span className="ns shallow-dark">{item.createdDate}전</span>
-                                    </>
-                                </Card>
-                            </a>
-                        </Link>
-                    ))}
-                </>
-            </Layout>
+            <>
+                {isSync ? (
+                    <div className="p-3 btn-primary c-pointer" onClick={() => unsync()}>
+                        <i className="fab fa-telegram-plane"></i> 텔레그램과 연동을 해제할까요?
+                    </div>
+                ) : (
+                    <div className="p-3 btn-primary c-pointer" onClick={() => makeToken()}>
+                        <i className="fab fa-telegram-plane"></i> 텔레그램으로 실시간 알림받기
+                    </div>
+                )}
+                {notify.length == 0 ? (
+                    <Card isRounded className="mt-3 p-3">
+                        최근 생성된 알림이 없습니다.
+                    </Card>
+                ) : notify.map((item, idx) => (
+                    <Link key={idx} href={item.url}>
+                        <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => onReadNotify(item.pk)}>
+                            <Card isRounded className="p-3 mt-3">
+                                <>
+                                    {item.content} <span className="ns shallow-dark">{item.createdDate}전</span>
+                                </>
+                            </Card>
+                        </a>
+                    </Link>
+                ))}
+            </>
             <Modal
                 title="텔레그램 연동"
                 isOpen={isModalOpen}
@@ -125,3 +123,9 @@ export default function NotifySetting(props: Props) {
         </>
     );
 }
+
+NotifySetting.pageLayout = (page: JSX.Element) => (
+    <Layout tabname="notify">
+        {page}
+    </Layout>
+)
