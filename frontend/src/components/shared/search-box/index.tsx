@@ -2,7 +2,7 @@ import styles from './SearchBox.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 export interface SearchBoxProps {
     value: string;
@@ -14,6 +14,12 @@ export interface SearchBoxProps {
 }
 
 export function SearchBox(props: SearchBoxProps) {
+    const input = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        input.current?.focus();
+    }, []);
+
     const handleClick = useCallback(() => {
         if (props.onClick) {
             props.onClick();
@@ -23,6 +29,7 @@ export function SearchBox(props: SearchBoxProps) {
     return (
         <div className={cn('input-group')}>
             <input
+                ref={input}
                 value={props.value}
                 placeholder={props.placeholder}
                 maxLength={props.maxLength}

@@ -73,7 +73,7 @@ export default function Search(props: Props) {
     }, [props.page]);
 
     const handleClickSearch = () => {
-        if (search != props.query) {
+        if (search && search != props.query) {
             searching(search);
         }
     }
@@ -97,7 +97,11 @@ export default function Search(props: Props) {
         <>
             <>
                 <Head>
-                    <title>'{props.query}' 검색 결과</title>
+                    {props.query ? (
+                        <title>'{props.query}' 검색 결과</title>
+                    ) : (
+                        <title>검색어를 입력하세요.</title>
+                    )}
                 </Head>
 
                 <div className="container">
@@ -133,18 +137,22 @@ export default function Search(props: Props) {
                                 </Alert>
                             ) : (
                                 <>
-                                    <div className="shallow-dark text-right">
-                                        {response?.body.totalSize}건의 결과 ({response?.body.elapsedTime}초)
-                                    </div>
-                                    {response?.body.results.map((item, idx) => (
-                                        <ArticleCard key={idx} className="mt-4" {...item}/>
-                                    ))}
-                                    {response?.body.lastPage ? (
-                                        <Pagination
-                                            page={props.page}
-                                            last={response?.body.lastPage}
-                                        />
-                                    ) : ''}
+                                    {response?.body.results && (
+                                        <>
+                                            <div className="shallow-dark text-right">
+                                                {response?.body.totalSize}건의 결과 ({response?.body.elapsedTime}초)
+                                            </div>
+                                            {response?.body.results.map((item, idx) => (
+                                                <ArticleCard key={idx} className="mt-4" {...item}/>
+                                            ))}
+                                            {response?.body.lastPage ? (
+                                                <Pagination
+                                                    page={props.page}
+                                                    last={response?.body.lastPage}
+                                                />
+                                            ) : ''}
+                                        </>
+                                    )}
                                 </>
                             )}
                         </div>

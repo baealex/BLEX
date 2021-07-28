@@ -30,9 +30,10 @@
         color: #fff;
         padding: 8px 16px;
         border-radius: 100px;
-        opacity: 0;
+        opacity: 0.3;
         border: none;
         outline: none;
+        cursor: default !important;
         background-color: $COLOR_DEFAULT_SECONDARY;
 
         :global(body.dark) & {
@@ -40,7 +41,12 @@
         }
 
         &.show {
+            cursor: pointer !important;
             opacity: 1;
+        }
+
+        &:focus {
+            outline: none;
         }
     }
 }
