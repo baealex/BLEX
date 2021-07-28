@@ -13,6 +13,7 @@ export interface DropdownProps {
     menus: {
         name: string;
         onClick: (event: React.MouseEvent) => void;
+        disable?: boolean;
     }[];
 }
 
@@ -51,7 +52,7 @@ export function Dropdown(props: DropdownProps) {
                         <div className={cn('menu')}>
                             <ul>
                                 {props.menus.map((menu, idx) => (
-                                    <li key={idx} onClick={menu.onClick}>
+                                    <li key={idx} onClick={menu.onClick} className={cn({ disable: menu.disable })}>
                                         <a>
                                             {menu.name}
                                         </a>

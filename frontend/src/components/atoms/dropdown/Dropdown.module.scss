@@ -45,6 +45,10 @@
             padding: 8px 12px;
             width: 100%;
             cursor: pointer;
+
+            &.disable {
+                opacity: 0.3;
+            }
             
             &:hover {
                 background-color: #eee;
