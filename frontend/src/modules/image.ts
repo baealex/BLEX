@@ -1,9 +1,9 @@
 import { toast } from 'react-toastify';
 
-import NProgress from 'nprogress';
-
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
+
+import { loadingContext } from '@state/loading';
 
 export function getImage(path: string) {
     return `https://${CONFIG.STATIC_SERVER}/${path}`;
@@ -54,16 +54,22 @@ export async function uploadImage(file: File) {
         return;
     }
     try {
-        NProgress.start();
+        loadingContext.setState({
+            isLoading: true,
+        })
         const { data } = await API.postImage(file);
-        NProgress.done();
+        loadingContext.setState({
+            isLoading: false,
+        })
         if (data.status === 'ERROR') {
             toast(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
             return;
         }
         return data.body.url;
     } catch(error) {
-        NProgress.done();
+        loadingContext.setState({
+            isLoading: false,
+        })
         const { status } = error.response;
         if(status == 404) {
             toast('🤔 로그인이 필요합니다.');

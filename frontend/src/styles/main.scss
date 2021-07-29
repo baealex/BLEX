@@ -13,6 +13,10 @@
 
 @import 'three-dots/sass/three-dots.scss';
 
+input, textarea, select {
+    font-size: 16px;
+}
+
 // 각종 섬네일 클랴스 정의
 .thumb {
     float: left;
@@ -280,7 +284,6 @@
     margin: 4px 0;
     color: #000;
     border: none;
-    font-size: 0.9em;
     width: 100%;
     border-radius: 5px;
     padding: 15px 20px;
@@ -358,26 +361,6 @@ body.dark .card-body {
 
 body.dark .btn {
     color: #fff;
-}
-
-#nprogress {
-    .bar {
-        background: $COLOR_DEFAULT_PRIMARY !important;
-
-        body.dark & {
-            background: $COLOR_DARK_PRIMARY !important;
-        }
-    }
-
-    .spinner-icon {
-        border-top-color: $COLOR_DEFAULT_PRIMARY !important;
-        border-left-color: $COLOR_DEFAULT_PRIMARY !important;
-
-        body.dark & {
-            border-top-color: $COLOR_DARK_PRIMARY !important;
-            border-left-color: $COLOR_DARK_PRIMARY !important;
-        }
-    }
 }
 
 .Toastify__toast--default {

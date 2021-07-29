@@ -1,13 +1,13 @@
+import { GetServerSidePropsContext } from 'next';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import NProgress from 'nprogress';
 
 import { Layout } from '@components/setting';
 import { ImageInput } from '@components/integrated';
 
 import * as API from '@modules/api';
 
-import { GetServerSidePropsContext } from 'next';
+import { loadingContext } from '@state/loading'
 
 interface Props extends API.GetSettingProfileData {}
 
@@ -62,12 +62,16 @@ export default function ProfileSetting(props: Props) {
                     url={avatar}
                     label="아바타 선택"
                     onChange={async (file) => {
-                        NProgress.start();
+                        loadingContext.setState({
+                            isLoading: true,
+                        })
                         const formData = new FormData();
                         formData.append('avatar', file);
                         const { data } = await API.postSettingAvatar(formData);
                         setAvatar(data.body.url);
-                        NProgress.done()
+                        loadingContext.setState({
+                            isLoading: false,
+                        })
                     }}
                 />
             </div>

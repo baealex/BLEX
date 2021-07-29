@@ -5,19 +5,18 @@ import Router from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import NProgress from 'nprogress';
-import 'nprogress/nprogress.css';
-
 import {
-    TopNavigation,
     SEO,
+    CornerLoading,
+    TopNavigation,
 } from '@components/shared';
 
 import { CONFIG } from '@modules/settings';
-
 import {
     lazyLoadResource
 } from '@modules/lazy';
+
+import { loadingContext } from '@state/loading';
 
 import '../styles/main.scss';
 
@@ -29,16 +28,35 @@ function minify(str: string) {
     return str;
 }
 
-Router.events.on('routeChangeStart', () => NProgress.start());
-Router.events.on('routeChangeComplete', () => {
-    NProgress.done();
-    lazyLoadResource();
+Router.events.on('routeChangeStart', () => {
+    loadingContext.setState({
+        isLoading: true,
+    });
 });
-Router.events.on('routeChangeError', () => NProgress.done());
+Router.events.on('routeChangeComplete', () => {
+    lazyLoadResource();
+    loadingContext.setState({
+        isLoading: false,
+    });
+});
+Router.events.on('routeChangeError', () => {
+    loadingContext.setState({
+        isLoading: false,
+    });
+});
 
 class Main extends App<AppProps> {
+    state = {
+        isLoading: loadingContext.state.isLoading,
+    }
+
     constructor(props: AppProps) {
         super(props);
+        loadingContext.appendUpdater((state) => {
+            this.setState({
+                isLoading: state.isLoading,
+            });
+        })
     }
 
     componentDidMount() {
@@ -94,6 +112,7 @@ class Main extends App<AppProps> {
                 />
 
                 <TopNavigation/>
+                <CornerLoading/>
                 
                 <div className="content">
                     {getLayout(<Component {...pageProps}/>, pageProps)}
