@@ -5,7 +5,7 @@ from django.db.models import F
 from django.http import Http404
 from django.utils import timezone
 
-from board.models import Post
+from board.models import Post, convert_to_localtime
 from modules.telegram import TelegramBot
 from modules.response import StatusDone
 from board.views import function as fn
@@ -17,16 +17,17 @@ def tags(request, tag=None):
             tags = cache.get(cache_key)
             if not tags:
                 tags = sorted(fn.get_clean_all_tags(desc=True), key=lambda instance:instance['count'], reverse=True)
-                cache_time = 3600
+                cache_time = 7200
                 cache.set(cache_key, tags, cache_time)
             page = request.GET.get('page', 1)
-            paginator = Paginator(tags, (3 * 2) * 15)
+            paginator = Paginator(tags, 24)
             fn.page_check(page, paginator)
             tags = paginator.get_page(page)
             return StatusDone({
                 'tags': list(map(lambda tag: {
                     'name': tag['name'],
                     'count': tag['count'],
+                    'image': tag['image'],
                     'description': tag['desc']
                 }, tags)),
                 'last_page': tags.paginator.num_pages
@@ -46,7 +47,7 @@ def tags(request, tag=None):
                 raise Http404()
             
             page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 21)
+            paginator = Paginator(posts, 24)
             fn.page_check(page, paginator)
             posts = paginator.get_page(page)
             desc_object = dict()
@@ -70,8 +71,9 @@ def tags(request, tag=None):
                     'url': post.url,
                     'title': post.title,
                     'image': str(post.image),
+                    'description': post.description(),
                     'read_time': post.read_time,
-                    'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                    'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                     'author_image': post.author_image,
                     'author': post.author_username,
                 }, posts))

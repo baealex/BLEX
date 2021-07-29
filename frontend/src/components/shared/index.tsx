@@ -1,3 +1,4 @@
+export * from './corner-loading';
 export * from './footer';
 export * from './heatmap';
 export * from './loading'

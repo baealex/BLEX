@@ -1,32 +1,52 @@
 import styles from './TagCard.module.scss';
 import classNames from 'classnames/bind';
-const cn = classNames.bind(styles);
 
 import Link from 'next/link'
+
+import { Card } from '@components/integrated';
+import {
+    getPostsImage,
+} from '@modules/image';
 
 export interface TagCardProps {
     name: string;
     count: number;
-    description: string;
+    image?: string;
+    description?: string;
 }
 
 export function TagCard(props: TagCardProps) {
+    const {
+        image = '',
+    } = props;
+    
     return (
-        <div className="col-12 col-md-6 col-lg-4 mt-5">
-            <div className={cn('card')}>
-                <div className={classNames(cn('title'), 'gothic')}>
-                    <Link href="/tags/[tag]" as={`/tags/${props.name}`}>
-                        <a className="shallow-dark">{props.name} ({props.count})</a>
-                    </Link>
-                </div>
-                {props.description ? (
-                    <div className="ns">
-                        <Link href="/tags/[tag]" as={`/tags/${props.name}`}>
-                            <a className="gray-dark">{props.description}</a>
-                        </Link>
-                    </div>
-                ) : ''}
-            </div>
+        <div className="col-lg-4 col-md-6 mt-4">
+            <Card isRounded>
+                <Link href={`/tags/${props.name}`}>
+                    <a className="deep-dark">
+                        <img
+                            className={classNames(
+                                styles.image,
+                                'lazy'
+                            )}
+                            src={getPostsImage(image) + '.preview.jpg'}
+                            data-src={getPostsImage(image)}
+                            height="400"
+                        />
+                        <div className="p-3">
+                            <div className={styles.title}>
+                                {props.name} ({props.count})
+                            </div>
+                            {props.description && (
+                                <p className={styles.description}>
+                                    {props.description}
+                                </p>  
+                            )}
+                        </div>
+                    </a>
+                </Link>
+            </Card>
         </div>
     )
 }

@@ -83,14 +83,17 @@ def get_clean_all_tags(user=None, count=True, desc=False, include='posts'):
         posts = Post.objects.filter(hide=False)
         for post in posts:
             descriptions[post.url] = {
+                'image': str(post.image),
                 'desc': post.description(),
             }
 
         for i in range(len(all_tags_dict)):
             try:
+                all_tags_dict[i]['image'] = descriptions[all_tags_dict[i]['name']]['image']
                 all_tags_dict[i]['desc'] = descriptions[all_tags_dict[i]['name']]['desc']
             except:
-                all_tags_dict[i]['desc'] = None
+                all_tags_dict[i]['image'] = ''
+                all_tags_dict[i]['desc'] = ''
             
         return all_tags_dict
 
