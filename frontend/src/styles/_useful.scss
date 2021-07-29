@@ -33,15 +33,12 @@ a {
 }
 
 .none-list {
-    list-style: none;
-    padding-left: 0;
-    display: inline;
+    @include NONE_LIST;
 
     li {
         &:not(:last-child) {
             margin-right: 8px;
         }
-        display: inline-block;
     }
 }
 

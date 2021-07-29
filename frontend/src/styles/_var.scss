@@ -42,3 +42,13 @@ $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-seri
     align-items: center;
     justify-content: center;
 }
+
+@mixin NONE_LIST {
+    list-style: none;
+    padding-left: 0;
+    display: inline;
+
+    li {
+        display: inline-block;
+    }
+}

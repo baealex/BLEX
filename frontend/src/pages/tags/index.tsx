@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 
+import { Layout } from '@components/article/collection';
 import { TagCard } from '@components/tag';
 import {
     Footer,
@@ -36,20 +37,22 @@ export default function Tags(props: Props) {
             <Head>
                 <title>태그 클라우드 — BLEX</title>
             </Head>
-
-            <div className="container">
-                <div className="row">
-                    {props.tags.map((item, idx) => (
-                        <TagCard key={idx} {...item}/>
-                    ))}
-                </div>
-
-                <Pagination
-                    page={props.page}
-                    last={props.lastPage}
-                />
+            <div className="row">
+                {props.tags.map((item, idx) => (
+                    <TagCard key={idx} {...item}/>
+                ))}
             </div>
+            <Pagination
+                page={props.page}
+                last={props.lastPage}
+            />
             <Footer/>
         </>
     )
 }
+
+Tags.pageLayout = (page: JSX.Element, props: Props) => (
+    <Layout active="태그 클라우드" {...props}>
+        {page}
+    </Layout>
+)

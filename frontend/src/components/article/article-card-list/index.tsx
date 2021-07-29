@@ -1,4 +1,4 @@
-import styles from './ArticleList.module.scss';
+import styles from './ArticleCardList.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
@@ -8,7 +8,7 @@ import { TagBadge } from '@components/tag';
 
 import { getPostsImage } from '@modules/image';
 
-export interface ArticleListProps {
+export interface ArticleCardListProps {
     url: string;
     title: string;
     image: string;
@@ -19,7 +19,7 @@ export interface ArticleListProps {
     tag: string;
 }
 
-export function ArticleList(props: ArticleListProps) {
+export function ArticleCardList(props: ArticleCardListProps) {
     return (
         <div className={cn('list')}>
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>

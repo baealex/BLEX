@@ -1,6 +1,7 @@
 import Head from 'next/head';
 
 import { ArticleCard } from '@components/article';
+import { Layout } from '@components/article/collection';
 import {
     Footer,
     Pagination
@@ -39,27 +40,29 @@ export default function TrendyArticles(props: Props) {
         <>
             <>
                 <Head>
-                    <title>BLOG EXPRESS ME</title>
+                    <title>인기 포스트 — BLEX</title>
                 </Head>
-
-                <div className="container">
-                    <div className="row">
-                        {props.posts.map((item, idx) => (
-                            <ArticleCard
-                                key={idx}
-                                className="col-lg-4 col-md-6 mt-4"
-                                {...item}
-                            />
-                        ))}
-                    </div>
-
-                    <Pagination
-                        page={props.page}
-                        last={props.lastPage}
-                    />
+                <div className="row">
+                    {props.posts.map((item, idx) => (
+                        <ArticleCard
+                            key={idx}
+                            className="col-lg-4 col-md-6 mt-4"
+                            {...item}
+                        />
+                    ))}
                 </div>
+                <Pagination
+                    page={props.page}
+                    last={props.lastPage}
+                />
                 <Footer/>
             </>
         </>
     )
 }
+
+TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
+    <Layout active="인기 포스트" {...props}>
+        {page}
+    </Layout>
+)
