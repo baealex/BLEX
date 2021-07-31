@@ -7,7 +7,6 @@ import {
     useRef,
     useState,
 } from 'react';
-import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
