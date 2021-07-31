@@ -171,7 +171,7 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     makeHeaderNav() {
-        const headersTags = document.querySelectorAll('.article h1, .article h2, .article h3, .article h4, .article h5, .article h6');
+        const headersTags = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
         if ("IntersectionObserver" in window) {
             const headerNav: string[][] = [];
             
