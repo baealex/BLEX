@@ -14,11 +14,7 @@
 
     a {
         text-decoration: none;
-        color: #000;
-
-        :global(body.dark) & {
-            color: #fff;
-        }
+        @include COLOR_DARK;
 
         &:hover {
             color: #fff;

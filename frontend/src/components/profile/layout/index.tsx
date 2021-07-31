@@ -2,6 +2,8 @@ import styles from './Layout.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
+import { Footer } from '@components/shared';
+
 import { Social, SocialProps } from '../../shared/social';
 import { Navigation } from '../navigation';
 
@@ -32,6 +34,7 @@ export function Layout(props: LayoutProps) {
                 username={props.profile.username}
             />
             {props.children}
+            <Footer/>
         </>
     )
 }

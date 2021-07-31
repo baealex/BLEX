@@ -1,3 +1,5 @@
+@import 'var';
+
 .social {
     list-style: none;
     padding-inline-start: 0px;
@@ -6,8 +8,12 @@
         display: inline;
         margin: 2px;
 
+        a {
+            @include COLOR_DARK;
+        }
+
         i {
-            font-size: 25px;
+            font-size: 24px;
         }
     }
 }

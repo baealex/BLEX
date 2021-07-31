@@ -23,7 +23,11 @@ a {
 }
 
 .fade-mask {
-    background:linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(255, 255, 255, 1))
+    background:linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(255, 255, 255, 1));
+
+    body.dark & {
+        background: linear-gradient(to bottom, rgba(0,0,0,0), $COLOR_DARK_BACKGROUND);
+    }
 }
 
 .fade-mask, .thick-mask {

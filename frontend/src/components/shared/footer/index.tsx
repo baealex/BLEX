@@ -19,7 +19,7 @@ export function Footer(props: FooterProps) {
             )}
         >
             {props.children}
-            <div className="text-center py-3">
+            <div className={`text-center ${styles.copy}`}>
                 Copyright 2021 &copy; <a href="https://baejino.com">BaeJino</a>.
             </div>
         </footer>

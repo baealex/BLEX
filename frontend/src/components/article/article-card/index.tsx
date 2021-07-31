@@ -26,30 +26,26 @@ export function ArticleCard(props: ArticleCardProps) {
 
     return (
         <div className={props.className}>
-            <Card isRounded>
-                <div className={classNames(
-                    styles.posts
-                )}>
-                    <Link href={url}>
-                        <a> 
-                            <img
-                                className={classNames(
-                                    styles.postsImage,
-                                    'lazy'
-                                )}
-                                src={getPostsImage(props.image) + '.preview.jpg'}
-                                data-src={getPostsImage(props.image)}
-                            />
-                        </a>
-                    </Link>
-                </div>
+            <Card isRounded className={styles.posts}>
+                <Link href={url}>
+                    <a> 
+                        <img
+                            className={classNames(
+                                styles.image,
+                                'lazy'
+                            )}
+                            src={getPostsImage(props.image) + '.preview.jpg'}
+                            data-src={getPostsImage(props.image)}
+                        />
+                    </a>
+                </Link>
                 <div className="p-2">
                     <Link href={url}>
-                        <a className="deep-dark">
-                            <div className={`${styles.postsTitle} mt-3`}>
+                        <a>
+                            <div className={`${styles.title} mt-3 deep-dark`}>
                                 {props.title}
                             </div>
-                            <p>{props.description}</p>
+                            <p className="shallow-dark">{props.description}</p>
                         </a>
                     </Link>
                     {props.author && (

@@ -1,4 +1,10 @@
-.postsImage {
+.posts {
+    a {
+        text-decoration: none;
+    }
+}
+
+.image {
     object-fit: cover;
     width: 100%;
     height: 250px;
@@ -7,7 +13,7 @@
     background-color: #fff;
 }
 
-.postsTitle {
+.title {
     font-weight: 600;
     margin-bottom: 8px;
 }

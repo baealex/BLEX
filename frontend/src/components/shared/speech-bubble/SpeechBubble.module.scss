@@ -8,11 +8,12 @@
         padding: 1em 1.5em;
         line-height: 1.7;
         border-radius: 0.3em;
-        background: #f8f8f8;
-        box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.3);
+        background: #fafafa;
+        box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
 
         :global(body.dark) & {
-            background: #333;
+            background: #272727;
+            box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.5);
         }
 
         &::after {
@@ -24,11 +25,12 @@
             content: '';
             border-width: 10px 10px 0 10px;
             border-style: solid;
-            border-color: #f8f8f8 transparent transparent transparent;
-            filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.3));
+            border-color: #fafafa transparent transparent transparent;
+            filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.1));
 
             :global(body.dark) & {
-                border-color: #333 transparent transparent transparent;
+                border-color: #272727 transparent transparent transparent;
+                filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.5));
             }
         }
     }

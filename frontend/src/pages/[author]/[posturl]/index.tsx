@@ -85,8 +85,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         }
 
         const profile = await API.getUserProfile(author as string, [
-            'profile',
-            'social'
+            'profile'
         ]);
         
         if (post.data.body.series) {

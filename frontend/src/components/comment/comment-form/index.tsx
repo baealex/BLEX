@@ -22,6 +22,7 @@ export interface CommentFormProps {
 };
 
 export function CommentForm(props: CommentFormProps) {
+    const box = useRef<HTMLDivElement>(null);
     const input = useRef<HTMLTextAreaElement>(null);
 
     const [isOpen, setIsOpen] = useState(false);
@@ -61,18 +62,24 @@ export function CommentForm(props: CommentFormProps) {
     }
 
     useEffect(() => {
-        const routerChange = () => {
-            props.onChange('');
-            setIsOpen(false);
+        const handleClick = (e: MouseEvent) => {
+            const path = e.composedPath && e.composedPath();
+
+            if (!path.includes(box.current as EventTarget)) {
+                setIsOpen(false);
+            }
         };
-        Router.events.on('routeChangeStart', routerChange);
-        return () => 
-            Router.events.off('routeChangeStart', routerChange);
+
+        document.addEventListener('click', handleClick);
+        return () => {
+            document.removeEventListener('click', handleClick);
+        }
     }, []);
 
     return (
         <>
             <div
+                ref={box}
                 className={cn(
                     'form',
                     { isOpen }

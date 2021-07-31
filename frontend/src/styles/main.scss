@@ -17,6 +17,12 @@ input, textarea, select {
     font-size: 16px;
 }
 
+body.dark {
+    img, video {
+        filter: brightness(.8) contrast(1.2);
+    }
+}
+
 // 각종 섬네일 클랴스 정의
 .thumb {
     float: left;
@@ -340,10 +346,6 @@ body.dark .series-desc blockquote {
 
 body.dark .series-desc blockquote::after {
     border-color: #1e1e1e transparent transparent transparent;
-}
-
-body.dark .fade-mask {
-    background: linear-gradient(to bottom, rgba(0,0,0,0), #292929);
 }
 
 body.dark .card {

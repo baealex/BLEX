@@ -1,3 +1,5 @@
+import styles from './ArticleContent.module.scss';
+
 import { useState, useEffect } from 'react';
 import Router from 'next/router';
 
@@ -45,7 +47,7 @@ export function ArticleContent(props: {
 
     return (
         <div
-            className="article"
+            className={styles.article}
             dangerouslySetInnerHTML={{ __html: props.html }}>
         </div>
     )

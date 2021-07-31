@@ -1,3 +1,5 @@
+@import 'var';
+
 .user {
     margin: 0 auto;
     text-align: center;
@@ -32,7 +34,7 @@
     }
 
     .username {
-        color: #777;
+        @include COLOR_ASHGRAY;
         font-size: 16px;
         margin-bottom: 8px;
     }

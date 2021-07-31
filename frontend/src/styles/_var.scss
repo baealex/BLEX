@@ -1,11 +1,12 @@
-$COLOR_DEFAULT_PRIMARY: #8c00ff;
-$COLOR_DEFAULT_SECONDARY: #9c56d4;
-$COLOR_DEFAULT_POINT: #b181da;
-$COLOR_DEFAULT_BACKGROUND: #ffffff;
+$COLOR_DEFAULT_PRIMARY: #8C00FF;
+$COLOR_DEFAULT_SECONDARY: scale-color($COLOR_DEFAULT_PRIMARY, $lightness: +50%);
+$COLOR_DEFAULT_POINT: #E71FA3;
+$COLOR_DEFAULT_BACKGROUND: #FFFFFF;
 
-$COLOR_DARK_PRIMARY: #03c0e4;
-$COLOR_DARK_SECONDARY: #328899;
-$COLOR_DARK_BACKGROUND: #222222;
+$COLOR_DARK_PRIMARY: scale-color($COLOR_DEFAULT_PRIMARY, $lightness: +50%);
+$COLOR_DARK_SECONDARY: #AAAAAA;
+$COLOR_DARK_POINT: scale-color($COLOR_DEFAULT_PRIMARY, $lightness: +80%);
+$COLOR_DARK_BACKGROUND: #1E1E1E;
 
 $COLOR_DEFAULT_DARK: rgba(0, 0, 0, 0.839);
 $COLOR_DEFAULT_ASHGRAY: rgba(0, 0, 0, 0.541);
@@ -17,11 +18,27 @@ $COLOR_DARK_ASHGRAY: rgba(255, 255, 255, 0.541);
 $FONT_SERIF: 'Noto Serif KR', serif;
 $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-serif;
 
+@mixin BACKGROUND {
+    background: $COLOR_DEFAULT_BACKGROUND;
+
+    :global(body.dark) & {
+        background: $COLOR_DARK_BACKGROUND;
+    }
+}
+
 @mixin COLOR_PRIMARY {
     color: $COLOR_DEFAULT_PRIMARY;
 
     :global(body.dark) & {
         color: $COLOR_DARK_PRIMARY;
+    }
+}
+
+@mixin COLOR_SECONDARY {
+    color: $COLOR_DEFAULT_SECONDARY;
+
+    :global(body.dark) & {
+        color: $COLOR_DARK_SECONDARY;
     }
 }
 
@@ -45,8 +62,8 @@ $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-seri
     box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.1);
 
     :global(body.dark) & {
-        box-shadow: none;
-        border: 1px solid #333;
+        background: rgba(255, 255, 255, 0.025);
+        box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.5);
     }
 }
 
@@ -54,8 +71,8 @@ $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-seri
     box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.1);
 
     :global(body.dark) & {
-        box-shadow: none;
-        border: 1px solid #3a3a3a;
+        background: rgba(255, 255, 255, 0.025);
+        box-shadow: 0 2px 6px 0 hsla(0, 0%, 0%, 0.5);
     }
 }
 

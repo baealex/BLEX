@@ -3,8 +3,6 @@ import classNames from 'classnames';
 
 import Link from 'next/link';
 
-import { Social, SocialProps } from '@components/shared';
-
 export interface ArticleAuthorProps {
     profile: {
         username: string;
@@ -12,35 +10,38 @@ export interface ArticleAuthorProps {
         image: string;
         bio: string;
     };
-    social?: SocialProps;
 };
 
 export function ArticleAuthor(props: ArticleAuthorProps) {
     return (
         <div className="d-flex align-items-center mb-5">
             <div>
-            <Link href="/[author]" as={`/@${props.profile.username}`}>
-                <a>
-                    <img
-                        className={styles.image}
-                        src={props.profile.image}
-                        width="130"
-                        height="130"
-                    />
-                </a>
-            </Link>
+                <Link href="/[author]" as={`/@${props.profile.username}`}>
+                    <a>
+                        <img
+                            className={styles.image}
+                            src={props.profile.image}
+                            width="100"
+                            height="100"
+                        />
+                    </a>
+                </Link>
             </div>
             <div className={classNames(styles.info)}>
-                <div className={styles.realname}>
-                    {props.profile.realname}
-                </div>
                 <div className={styles.username}>
-                    @{props.profile.username}
+                    <Link href={`/@${props.profile.username}`}>
+                        <a>
+                            {props.profile.realname} (@{props.profile.username})
+                        </a>
+                    </Link>
                 </div>
                 <div className={styles.bio}>
-                    {props.profile.bio}
+                    <Link href={`/@${props.profile.username}/about`}>
+                        <a>
+                            {props.profile.bio}
+                        </a>
+                    </Link>
                 </div>
-                <Social {...props.social!}/>
             </div>
         </div>
     )

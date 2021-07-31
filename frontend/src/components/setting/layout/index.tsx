@@ -1,7 +1,5 @@
 import { Navigation } from '@components/setting/navigation';
-import {
-    Footer
-} from '@components/shared';
+import { Footer } from '@components/shared';
 
 export interface LayoutProps {
     tabname: string;

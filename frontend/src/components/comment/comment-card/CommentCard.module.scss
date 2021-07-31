@@ -1,15 +1,11 @@
 @import 'var';
 
 .card {
+    @include BACKGROUND;
     @include MAIN_SHADOW;
     word-break: break-word;
-    background: #fff;
     border-radius: 8px;
     padding: 30px 15px 10px 15px;
-
-    :global(body.dark) & {
-        background: #1f1f1f;
-    }
 
     .interactive {
         li {
