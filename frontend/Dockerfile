@@ -1,12 +1,13 @@
 FROM node:14.16.0
 
-COPY ./src/package.json /app/
-
 WORKDIR /app
+
+COPY ./src/package.json ./
+COPY ./src/package-lock.json ./
 
 RUN npm i
 
-COPY ./src/ /app/
+COPY ./src/ ./
 
 RUN [ ! -f modules/settings.ts ] && cp modules/settings_1.ts modules/settings.ts ; exit 0
 
