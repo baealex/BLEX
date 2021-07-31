@@ -11,6 +11,7 @@ export interface GetTagsData {
     tags: {
         name: string;
         count: number;
+        image: string;
         description: string;
     }[];
     lastPage: number;

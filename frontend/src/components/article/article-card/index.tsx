@@ -10,18 +10,19 @@ import {
 } from '@modules/image';
 
 export interface ArticleCardProps {
-    author: string;
+    author?: string;
     url: string;
     image: string;
     title: string;
     description?: string;
-    authorImage: string;
-    createdDate: string;
-    readTime: number;
+    authorImage?: string;
+    createdDate?: string;
+    readTime?: number;
     className?: string;
 }
 
 export function ArticleCard(props: ArticleCardProps) {
+    const url = props.author ? `/@${props.author}/${props.url}` : props.url;
 
     return (
         <div className={props.className}>
@@ -29,7 +30,7 @@ export function ArticleCard(props: ArticleCardProps) {
                 <div className={classNames(
                     styles.posts
                 )}>
-                    <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                    <Link href={url}>
                         <a> 
                             <img
                                 className={classNames(
@@ -43,7 +44,7 @@ export function ArticleCard(props: ArticleCardProps) {
                     </Link>
                 </div>
                 <div className="p-2">
-                    <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                    <Link href={url}>
                         <a className="deep-dark">
                             <div className={`${styles.postsTitle} mt-3`}>
                                 {props.title}
@@ -51,21 +52,23 @@ export function ArticleCard(props: ArticleCardProps) {
                             <p>{props.description}</p>
                         </a>
                     </Link>
-                    <div className="d-flex">
-                        <Link href="/[author]" as={`/@${props.author}`}>
-                            <a>
-                                <img
-                                    className="fit-cover rounded"
-                                    src={getUserImage(props.authorImage)}
-                                    width="35"
-                                    height="35"
-                                />
-                            </a>
-                        </Link>
-                        <div className="vs mx-2">
-                            <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
+                    {props.author && (
+                        <div className="d-flex">
+                            <Link href="/[author]" as={`/@${props.author}`}>
+                                <a>
+                                    <img
+                                        className="fit-cover rounded"
+                                        src={getUserImage(props.authorImage || '')}
+                                        width="35"
+                                        height="35"
+                                    />
+                                </a>
+                            </Link>
+                            <div className="vs mx-2">
+                                <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </Card>
         </div>

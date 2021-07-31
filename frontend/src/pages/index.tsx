@@ -42,15 +42,6 @@ export default function TrendyArticles(props: Props) {
                 <Head>
                     <title>인기 포스트 — BLEX</title>
                 </Head>
-                <div className="row">
-                    {props.posts.map((item, idx) => (
-                        <ArticleCard
-                            key={idx}
-                            className="col-lg-4 col-md-6 mt-4"
-                            {...item}
-                        />
-                    ))}
-                </div>
                 <Pagination
                     page={props.page}
                     last={props.lastPage}
@@ -63,6 +54,17 @@ export default function TrendyArticles(props: Props) {
 
 TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
     <Layout active="인기 포스트" {...props}>
-        {page}
+        <>
+            <div className="row">
+                {props.posts.map((item, idx) => (
+                    <ArticleCard
+                        key={idx}
+                        className="col-lg-4 col-md-6 mt-4"
+                        {...item}
+                    />
+                ))}
+            </div>
+            {page}
+        </>
     </Layout>
 )

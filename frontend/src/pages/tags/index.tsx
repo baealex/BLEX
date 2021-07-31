@@ -2,7 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 
 import { Layout } from '@components/article/collection';
-import { TagCard } from '@components/tag';
+import { ArticleCard } from '@components/article';
 import {
     Footer,
     Pagination
@@ -37,11 +37,6 @@ export default function Tags(props: Props) {
             <Head>
                 <title>태그 클라우드 — BLEX</title>
             </Head>
-            <div className="row">
-                {props.tags.map((item, idx) => (
-                    <TagCard key={idx} {...item}/>
-                ))}
-            </div>
             <Pagination
                 page={props.page}
                 last={props.lastPage}
@@ -53,6 +48,19 @@ export default function Tags(props: Props) {
 
 Tags.pageLayout = (page: JSX.Element, props: Props) => (
     <Layout active="태그 클라우드" {...props}>
-        {page}
+        <>
+            <div className="row">
+                {props.tags.map((item, idx) => (
+                    <ArticleCard
+                        key={idx}
+                        className="col-lg-4 col-md-6 mt-4"
+                        title={`${item.name} (${item.count})`}
+                        url={`/tags/${item.name}`}
+                        {...item}
+                    />
+                ))}
+            </div>
+            {page}
+        </>
     </Layout>
 )
