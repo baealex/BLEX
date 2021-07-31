@@ -16,11 +16,11 @@
         font-weight: bold;
 
         &.active a {
-            color: $COLOR_DEFAULT_PRIMARY;
+            @include COLOR_PRIMARY;
         }
 
         a {
-            color: rgba(0, 0, 0, 0.541);
+            @include COLOR_DARK;
             text-decoration: none;
         }
     }
@@ -32,10 +32,17 @@
         width: 100px;
         height: 2px;
         pointer-events: none;
-        border: 1px solid #fff;
-        border-width: 0 40px;
-        background: $COLOR_DEFAULT_PRIMARY;
         transition: transform 0.5s;
         transition-timing-function: cubic-bezier(1, 0.01, 0, 1.22);
+        
+        background: $COLOR_DEFAULT_PRIMARY;
+        border: 1px solid $COLOR_DEFAULT_BACKGROUND;
+        border-width: 0 40px;
+
+        :global(body.dark) & {
+            background: $COLOR_DARK_PRIMARY;
+            border: 1px solid $COLOR_DARK_BACKGROUND;
+            border-width: 0 40px;
+        }
     }
 }

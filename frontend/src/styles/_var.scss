@@ -11,8 +11,35 @@ $COLOR_DEFAULT_DARK: rgba(0, 0, 0, 0.839);
 $COLOR_DEFAULT_ASHGRAY: rgba(0, 0, 0, 0.541);
 $COLOR_DEFAULT_GRAY: rgba(160, 160, 160, 0.541);
 
+$COLOR_DARK_DARK: rgba(255, 255, 255, 0.839);
+$COLOR_DARK_ASHGRAY: rgba(255, 255, 255, 0.541);
+
 $FONT_SERIF: 'Noto Serif KR', serif;
 $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-serif;
+
+@mixin COLOR_PRIMARY {
+    color: $COLOR_DEFAULT_PRIMARY;
+
+    :global(body.dark) & {
+        color: $COLOR_DARK_PRIMARY;
+    }
+}
+
+@mixin COLOR_DARK {
+    color: $COLOR_DEFAULT_DARK;
+
+    :global(body.dark) & {
+        color: $COLOR_DARK_DARK;
+    }
+}
+
+@mixin COLOR_ASHGRAY {
+    color: $COLOR_DEFAULT_ASHGRAY;
+
+    :global(body.dark) & {
+        color: $COLOR_DARK_ASHGRAY;
+    }
+}
 
 @mixin MAIN_SHADOW {
     box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.1);
