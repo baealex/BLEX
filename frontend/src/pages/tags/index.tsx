@@ -5,7 +5,8 @@ import { Layout } from '@components/article/collection';
 import { ArticleCard } from '@components/article';
 import {
     Footer,
-    Pagination
+    Pagination,
+    SEO
 } from '@components/shared';
 
 import * as API from '@modules/api';
@@ -37,6 +38,11 @@ export default function Tags(props: Props) {
             <Head>
                 <title>태그 클라우드 — BLEX</title>
             </Head>
+            <SEO
+                title="태그 클라우드 — BLEX"
+                image="https://static.blex.me/assets/images/default-post.png"
+                description="블렉스에 존재하는 모든 태그를 한눈에 살펴보세요."
+            />
             <Pagination
                 page={props.page}
                 last={props.lastPage}

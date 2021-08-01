@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import {
     Card,
     Modal,
+    SEO,
     SpeechBubble,
 } from '@components/integrated';
 import { SeriesArticleCard } from '@components/series';
@@ -226,8 +227,12 @@ class Series extends React.Component<Props, State> {
         return (
             <>
                 <Head>
-                    <title>{this.props.series.owner} — '{this.props.series.name}' 시리즈</title>
+                    <title>'{this.props.series.name}' 시리즈 — {this.props.series.owner}</title>
                 </Head>
+                <SEO
+                    title={`'${this.props.series.name}' 시리즈 — ${this.props.series.owner}`}
+                    image={this.props.series.image}
+                />
 
                 {SereisModal}
                 

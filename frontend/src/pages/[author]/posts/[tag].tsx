@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 
-import { Pagination } from '@components/shared';
+import { Pagination, SEO } from '@components/shared';
 import { Layout, UserArticles } from '@components/profile';
 
 import * as API from '@modules/api';
@@ -58,6 +58,11 @@ export default function UserPosts(props: Props) {
             <Head>
                 <title>{props.profile.username}'s {props.tag}</title>
             </Head>
+            <SEO
+                title={`${props.profile.username}'s ${props.tag}`}
+                image={props.profile.image}
+                description={`${props.profile.realname}님이 '${props.tag}' 주제로 작성한 포스트를 만나보세요.`}
+            />
 
             <Pagination
                 page={props.page}

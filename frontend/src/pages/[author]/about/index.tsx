@@ -12,6 +12,7 @@ import * as API from '@modules/api'
 import blexer from '@modules/blexer';
 
 import { authContext } from '@state/auth';
+import { SEO } from '@components/shared';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -83,6 +84,11 @@ export default function UserAbout(props: Props) {
             <Head>
                 <title>{props.profile.username} ({props.profile.realname}) —  About</title>
             </Head>
+            <SEO
+                title={`${props.profile.username} (${props.profile.realname}) —  About`}
+                image={props.profile.image}
+                description={props.profile.bio}
+            />
             <div className="container">
                 <div className="col-lg-9 mx-auto p-0 my-4">
                     {isEdit ? (

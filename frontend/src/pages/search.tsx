@@ -8,7 +8,7 @@ import {
     Alert,
     Footer,
     Pagination,
-    SearchBox
+    SearchBox,
 } from '@components/integrated';
 
 import * as API from '@modules/api';
@@ -102,6 +102,7 @@ export default function Search(props: Props) {
                     ) : (
                         <title>검색어를 입력하세요.</title>
                     )}
+                    <meta name="robots" content="noindex"/>
                 </Head>
 
                 <div className="container">

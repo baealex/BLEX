@@ -12,6 +12,7 @@ export interface LayoutProps {
         image: string;
         realname: string;
         username: string;
+        bio: string;
     },
     social: SocialProps;
     active: string;

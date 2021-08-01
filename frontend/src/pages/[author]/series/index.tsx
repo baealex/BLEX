@@ -2,7 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 
 import { Alert } from '@components/atoms';
-import { Pagination } from '@components/shared';
+import { Pagination, SEO } from '@components/shared';
 import {
     Layout,
     UserSeries,
@@ -59,6 +59,11 @@ export default function SeriesProfile(props: Props) {
             <Head>
                 <title>{props.profile.username} ({props.profile.realname}) —  Series</title>
             </Head>
+            <SEO
+                title={`${props.profile.username} (${props.profile.realname}) —  Series`}
+                image={props.profile.image}
+                description={`${props.profile.realname}님이 생성한 모든 시리즈를 만나보세요.`}
+            />
 
             <UserSeries series={props.series}>
                 <div className="container">

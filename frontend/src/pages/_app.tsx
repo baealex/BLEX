@@ -106,9 +106,9 @@ class Main extends App<AppProps> {
                     )}
                 </Head>
                 <SEO
-                    title={'BLOG EXPRESS ME'}
-                    description={'경험이 글을 만들고 글이 나를 만든다. 나를 표현하는 블렉스'}
-                    image={'https://static.blex.me/assets/images/default-post.png'}
+                    title="BLOG EXPRESS ME"
+                    image="https://static.blex.me/assets/images/default-post.png"
+                    description="경험이 글을 만들고 글이 나를 만든다. 나를 표현하는 블렉스"
                 />
 
                 <TopNavigation/>

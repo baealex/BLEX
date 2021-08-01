@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { GetServerSidePropsContext } from 'next';
 
-import { Heatmap } from '@components/shared';
+import { Heatmap, SEO } from '@components/shared';
 import {
     Featured,
     Layout,
@@ -62,6 +62,11 @@ export default function Overview(props: Props) {
             <Head>
                 <title>{props.profile.username} ({props.profile.realname})</title>
             </Head>
+            <SEO
+                title={`${props.profile.username} (${props.profile.realname}) — BLEX`}
+                image={props.profile.image}
+                description={props.profile.bio}
+            />
 
             <div className="container mb-4">
                 <div className="col-lg-8 mx-auto p-0">
