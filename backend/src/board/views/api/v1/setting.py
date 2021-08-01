@@ -32,7 +32,7 @@ def setting(request, item):
                     'url': item.url,
                     'is_read': item.is_read,
                     'content': item.infomation,
-                    'created_date': timesince(convert_to_localtime(item.created_date))
+                    'created_date': timesince(item.created_date)
                 }, notify)),
                 'is_telegram_sync': request.user.config.has_telegram_id()
             })
@@ -41,7 +41,7 @@ def setting(request, item):
             return StatusDone({
                 'username': user.username,
                 'realname': user.first_name,
-                'created_date': user.date_joined.strftime('%Y년 %m월 %d일'),
+                'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
                 'has_two_factor_auth': user.config.has_two_factor_auth(),
                 'agree_email': user.config.agree_email,
                 'agree_history': user.config.agree_history
@@ -124,8 +124,8 @@ def setting(request, item):
                 'posts': list(map(lambda post: {
                     'url': post.url,
                     'title': post.title,
-                    'created_date': post.created_date.strftime('%Y-%m-%d'),
-                    'updated_date': post.updated_date.strftime('%Y-%m-%d'),
+                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
+                    'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
                     'is_hide': post.hide,
                     'total_likes': post.total_likes(),
                     'total_comments': post.total_comment(),
@@ -205,7 +205,7 @@ def setting(request, item):
                 'forms': list(map(lambda form: {
                     'id': form.id,
                     'title': form.title,
-                    'created_date': form.created_date,
+                    'created_date': convert_to_localtime(form.created_date),
                 }, user_forms))
             })
      

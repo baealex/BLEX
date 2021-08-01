@@ -9,7 +9,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.models import Post, Search, SearchValue, History
+from board.models import Post, Search, SearchValue, History, convert_to_localtime
 from board.views import function as fn
 from modules.analytics import create_history, get_network_addr
 from modules.response import StatusDone, StatusError
@@ -145,7 +145,7 @@ def search(request):
                 'image': str(post.image),
                 'description': post.description(),
                 'read_time': post.read_time,
-                'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
             }, results)),

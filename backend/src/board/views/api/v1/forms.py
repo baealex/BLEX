@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from board.models import Form
+from board.models import Form, convert_to_localtime
 from modules.response import StatusDone, StatusError
 
 def forms(request, pk=None):
@@ -14,7 +14,7 @@ def forms(request, pk=None):
                 'forms': list(map(lambda form: {
                     'id': form.id,
                     'title': form.title,
-                    'created_date': form.created_date,
+                    'created_date': convert_to_localtime(form.created_date),
                 }, user_forms))
             })
 

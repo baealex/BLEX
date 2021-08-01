@@ -24,7 +24,7 @@ def temp_posts(request):
                 'token': temp_posts.token,
                 'text_md': temp_posts.text_md,
                 'tag': temp_posts.tag,
-                'created_date': timesince(convert_to_localtime(temp_posts.created_date)),
+                'created_date': timesince(temp_posts.created_date),
             })
 
         if request.GET.get('get') == 'list':
@@ -33,7 +33,7 @@ def temp_posts(request):
                 'temps': list(map(lambda temp: {
                     'token': temp.token,
                     'title': temp.title,
-                    'created_date': timesince(convert_to_localtime(temp.created_date))
+                    'created_date': timesince(temp.created_date)
                 }, temps)),
             })
 
@@ -322,7 +322,7 @@ def user_posts(request, username, url=None):
                     'image': str(post.image),
                     'read_time': post.read_time,
                     'description': post.description(35),
-                    'created_date': post.created_date.strftime('%Y년 %m월 %d일'),
+                    'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                     'author_image': post.author_image,
                     'author': post.author_username,
                     'tag': post.tag,

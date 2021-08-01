@@ -284,22 +284,6 @@ class Post(models.Model):
     
     def __str__(self):
         return self.title
-    
-    def to_dict_for_analytics(self):
-        return {
-            'pk': self.pk,
-            'author': self.author.username,
-            'title': self.title,
-            'data': self.created_date,
-            'today': self.today(),
-            'yesterday': self.yesterday(),
-            'total': self.total(),
-            'hide': self.hide,
-            'total_comment': self.comments.count(),
-            'total_likes': self.total_likes(),
-            'tag': self.tag,
-            'url': self.get_absolute_url(),
-        }
 
     def save(self, *args, **kwargs):
         will_make_thumbnail = False
