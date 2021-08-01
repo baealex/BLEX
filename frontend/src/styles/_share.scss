@@ -1,5 +1,18 @@
+@keyframes like-it {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.5);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 .share {
     text-align:center;
+    user-select: none;
 
     p {
         font-size: 0.95rem;
@@ -24,6 +37,7 @@
                 font-size: 20px;
                 
                 &.fa-heart.fas {
+                    animation: like-it 0.5s ease-out 1;
                     color: $COLOR_DEFAULT_PRIMARY;
 
                     body.dark & {
@@ -40,15 +54,15 @@
                 }
 
                 &.fa-facebook:hover {
-                    color: #3b5998;
+                    color: #3b5998 !important;
                 }
 
                 &.fa-twitter:hover {
-                    color: #00acee;
+                    color: #00acee !important;
                 }
 
                 &.fa-pinterest:hover {
-                    color: #c51f26;
+                    color: #c51f26 !important;
                 }
             }
 
