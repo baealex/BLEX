@@ -44,7 +44,7 @@ export default function TrendyArticles(props: Props) {
                     <title>인기 포스트 — BLEX</title>
                 </Head>
                 <SEO
-                    title="인기 포스트 — BLEX"
+                    title="인기 포스트"
                     image="https://static.blex.me/assets/images/default-post.png"
                     description="블렉스에서 일주일 동안 가장 많은 관심을 받은 포스트들을 만나보세요."
                 />

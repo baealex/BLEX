@@ -45,7 +45,7 @@ export default function Tag(props: Props) {
                 <title>{props.tag} —  BLEX</title>
             </Head>
             <SEO
-                title={`${props.tag} —  BLEX`}
+                title={props.tag}
                 image="https://static.blex.me/assets/images/default-post.png"
                 description={`블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}
             />

@@ -45,7 +45,7 @@ export default function NewestArticles(props: Props) {
                     <title>최신 포스트 — BLEX</title>
                 </Head>
                 <SEO
-                    title="최신 포스트 — BLEX"
+                    title="최신 포스트"
                     image="https://static.blex.me/assets/images/default-post.png"
                     description="블렉스에서 지금 막 작성된 따끈한 포스트들을 만나보세요."
                 />

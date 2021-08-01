@@ -63,7 +63,7 @@ export default function Overview(props: Props) {
                 <title>{props.profile.username} ({props.profile.realname})</title>
             </Head>
             <SEO
-                title={`${props.profile.username} (${props.profile.realname}) — BLEX`}
+                title={`${props.profile.username} (${props.profile.realname})`}
                 image={props.profile.image}
                 description={props.profile.bio}
             />

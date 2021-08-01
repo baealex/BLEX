@@ -39,7 +39,7 @@ export default function Tags(props: Props) {
                 <title>태그 클라우드 — BLEX</title>
             </Head>
             <SEO
-                title="태그 클라우드 — BLEX"
+                title="태그 클라우드"
                 image="https://static.blex.me/assets/images/default-post.png"
                 description="블렉스에 존재하는 모든 태그를 한눈에 살펴보세요."
             />
