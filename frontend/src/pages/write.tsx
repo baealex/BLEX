@@ -10,6 +10,7 @@ import blexer from '@modules/blexer';
 
 import { configContext } from '@state/config';
 import { authContext } from '@state/auth';
+import { PopOver } from '@components/atoms';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
@@ -320,14 +321,18 @@ class Write extends React.Component<Props, State> {
                         sideButton: (
                             <>
                                 <li className="mx-3 mx-lg-4" onClick={() => this.setState({isOpenArticleModal: true})}>
-                                    <i className="far fa-save"></i>
+                                    <PopOver text="임시 저장된 글">
+                                        <i className="far fa-save"/>
+                                    </PopOver>
                                 </li>
                                 <li className="mx-3 mx-lg-4" onClick={() => {
                                     if(confirm('🤔 이 링크는 노션으로 연결됩니다. 연결하시겠습니까?')) {
                                         window.open('about:blank')!.location.href = '//notion.so/b3901e0837ec40e3983d16589314b59a';
                                     }
                                 }}>
-                                    <i className="fas fa-question"></i>
+                                    <PopOver text="도움말 보기">
+                                        <i className="fas fa-question"></i>
+                                    </PopOver>
                                 </li>
                             </>
                         ),

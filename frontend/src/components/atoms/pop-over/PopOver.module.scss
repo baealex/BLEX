@@ -1,0 +1,30 @@
+.popover {
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    position: absolute;
+    padding: 4px;
+    width: 120px;
+    color: #ccc;
+    background: #000;
+    border-radius: 4px;
+    transform: translate(-110%, -8px);
+
+    &.hover {
+        opacity: 1;
+    }
+
+    &::after {
+        position: absolute;
+        transform: rotate(-90deg);
+        right: -16px;
+        bottom: 4px;
+        width: 0;
+        height: 0;
+        content: '';
+        border-width: 10px 10px 10px 10px;
+        border-style: solid;
+        border-color: #000 transparent transparent transparent;
+        filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.1));
+    }
+}

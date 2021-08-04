@@ -4,6 +4,7 @@ import {
     CheckBox,
     Modal,
     Loading,
+    PopOver,
 } from '@components/integrated';
 
 import { EditorTitle } from '../editor-title';
@@ -161,18 +162,30 @@ export function Layout(props: Props) {
                         <div className="share">
                             <ul className="px-3">
                                 <li className="mx-3 mx-lg-4" onClick={() => setIsOpenImageModal(true)}>
-                                    <i className="far fa-image"/>
+                                    <PopOver text="이미지 업로드">
+                                        <i className="far fa-image"/>
+                                    </PopOver>
                                 </li>
                                 <li className="mx-3 mx-lg-4" onClick={() => setIsOpenYoutubeModal(true)}>
-                                    <i className="fab fa-youtube"/>
+                                    <PopOver text="유튜브 영상">
+                                        <i className="fab fa-youtube"/>
+                                    </PopOver>
                                 </li>
                                 <li className="mx-3 mx-lg-4" onClick={() => setIsEditMode(isEditMode => !isEditMode)}>
-                                    {isEditMode ?
-                                        <i className="far fa-eye-slash"/> :
-                                        <i className="far fa-eye"/>}
+                                        {isEditMode ? (
+                                            <PopOver text="편집모드">
+                                                <i className="far fa-eye-slash"/>
+                                            </PopOver>
+                                        ) : (
+                                            <PopOver text="미리보기">
+                                                <i className="far fa-eye"/>
+                                            </PopOver>
+                                        )}
                                 </li>
                                 <li className="mx-3 mx-lg-4" onClick={() => setIsOpenFormsModal(true)}>
-                                    <i className="fab fa-wpforms"></i>
+                                    <PopOver text="서식 불러오기">
+                                        <i className="fab fa-wpforms"></i>
+                                    </PopOver>
                                 </li>
                                 {props.addon?.sideButton}
                             </ul>
