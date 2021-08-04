@@ -2,7 +2,10 @@ import styles from './EditorContent.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
-import React from 'react';
+import React, {
+    useEffect,
+    useRef,
+} from 'react';
 
 import { ArticleContent } from '@components/article';
 
@@ -15,62 +18,55 @@ export interface EditorContentProps {
     isEditMode: boolean;
 }
 
-export class EditorContent extends React.Component<EditorContentProps> {
-    public textarea: HTMLTextAreaElement | null;
+export function EditorContent(props: EditorContentProps) {
+    const {
+        isEditMode
+    } = props;
 
-    constructor(props: EditorContentProps) {
-        super(props);
-        this.textarea = null;
-    }
+    const textarea = useRef<HTMLTextAreaElement>(null);
+    const preview = useRef<HTMLDivElement>(null);
 
-    componentDidMount() {
-        const init = setInterval(() => {
-            if(this.textarea) {
-                this.textarea.style.height = this.textarea.scrollHeight + 'px';
-                clearInterval(init);
-            }
-        }, 100);
-    }
+    useEffect(() => {
+        if (textarea.current && preview.current) {
+            const textareaHeight = textarea.current.scrollHeight;
+            const previewHeight = preview.current.offsetHeight;
+            const maxHeight = textareaHeight > previewHeight
+                ? textareaHeight
+                : previewHeight;
 
-    componentDidUpdate() {
-        if(this.textarea) {
-            this.textarea.style.height = this.textarea.scrollHeight + 'px';
+            textarea.current.style.height = maxHeight + 'px';
+            preview.current.style.height = maxHeight + 'px';
         }
+    }, [props.value]);
 
-        if(!this.props.isEditMode) {
-            lazyLoadResource();
-        }
-    }
+    useEffect(() => {
+        if (isEditMode) lazyLoadResource();
+    }, [isEditMode]);
 
-    render() {
-        const {
-            isEditMode
-        } = this.props;
-
-        return (
-            <>
-                <div className={styles.layout}>
-                    <textarea
-                        className={cn(
-                            'content',
-                            { isEditMode }
-                        )}
-                        ref={el => this.textarea = el}
-                        value={this.props.value}
-                        placeholder="마크다운으로 글을 작성하세요."
-                        onChange={(e) => this.props.onChange(e)}
-                    />
-                    <div className={cn(
-                        'preview',
-                        { isEditMode }
-                    )}>
-                        <ArticleContent
-                            isEdit
-                            html={blexer(this.props.value)}
-                        />
-                    </div>
-                </div>
-            </>
-        )
-    }
+    return (
+        <div className={styles.layout}>
+            <textarea
+                ref={textarea}
+                className={cn(
+                    'content',
+                    { isEditMode }
+                )}
+                value={props.value}
+                placeholder="마크다운으로 글을 작성하세요."
+                onChange={(e) => props.onChange(e)}
+            />
+            <div
+                ref={preview}
+                className={cn(
+                    'preview',
+                    { isEditMode }
+                )}
+            >
+                <ArticleContent
+                    isEdit
+                    html={blexer(props.value)}
+                />
+            </div>
+        </div>
+    )
 }
