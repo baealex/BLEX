@@ -61,7 +61,7 @@ interface Props {
     }
 }
 
-let contentInput: EditorContent | null;
+let contentInput: HTMLTextAreaElement | null;
 
 export function Layout(props: Props) {
     const [ imageName, setImageName ] = useState('');
@@ -94,7 +94,7 @@ export function Layout(props: Props) {
 
     const appendTextOnCursor = (val: string) => {
         const text = props.content.value;
-        const cursorPos = contentInput?.textarea?.selectionStart;
+        const cursorPos = contentInput?.selectionStart;
         if(cursorPos) {
             const preText = text.substr(0, cursorPos);
             const endText = text.substr(cursorPos, text.length - 1);
@@ -150,7 +150,7 @@ export function Layout(props: Props) {
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.title.onChange(e.target.value)}
                     />
                     <EditorContent
-                        ref={el => contentInput = el}
+                        refer={el => contentInput = el}
                         isEditMode={isEditMode}
                         value={props.content.value}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => props.content.onChange(e.target.value)}

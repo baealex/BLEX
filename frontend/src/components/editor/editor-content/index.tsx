@@ -13,6 +13,7 @@ import blexer from '@modules/blexer';
 import { lazyLoadResource } from '@modules/lazy';
 
 export interface EditorContentProps {
+    refer: (el: HTMLTextAreaElement | null) => void;
     value: string;
     onChange: Function;
     isEditMode: boolean;
@@ -25,6 +26,10 @@ export function EditorContent(props: EditorContentProps) {
 
     const textarea = useRef<HTMLTextAreaElement>(null);
     const preview = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        props.refer(textarea.current);
+    }, [textarea.current])
 
     useEffect(() => {
         if (textarea.current && preview.current) {
