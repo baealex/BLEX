@@ -1,6 +1,7 @@
 import React from 'react';
 import Router from 'next/router';
 
+import { SplitLine } from '@components/atoms';
 import { Modal } from '@components/shared';
 
 import { toast } from 'react-toastify';
@@ -130,8 +131,9 @@ export class LoginModal extends React.Component<Props, State> {
                 <button
                     className="login-button"
                     onClick={() => this.onSubmitLogin()}>
-                    기존 사용자 로그인
+                    회원 로그인
                 </button>
+                <SplitLine/>
                 <button
                     className="login-button google"
                     onClick={() => oauth("google")}>

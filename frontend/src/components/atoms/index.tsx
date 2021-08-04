@@ -5,4 +5,5 @@ export * from './check-box';
 export * from './dropdown';
 export * from './image-input';
 export * from './pop-over';
+export * from './split-line';
 export * from './toggle';

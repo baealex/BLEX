@@ -18,12 +18,12 @@ export function PopOver(props: PopOverProps) {
                 <div className={cn('popover', { hover })}>
                     {props.text}
                 </div>
-                <span
+                <div
                     onMouseOver={() => setHover(true)}
                     onMouseLeave={() => setHover(false)}
                 >
                     {props.children}
-                </span>
+                </div>
             </>
         </>
     )

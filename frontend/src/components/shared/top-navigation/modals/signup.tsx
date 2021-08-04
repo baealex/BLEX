@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { SplitLine } from '@components/atoms';
 import { Modal } from '@components/shared';
 
 import { toast } from 'react-toastify';
@@ -103,7 +104,7 @@ export class SignupModal extends React.Component<Props, State> {
             <Modal title='회원가입' isOpen={this.props.isOpen} onClose={() => this.props.onClose()}>
                 {this.state.isDone ? (
                     <div className="mx-auto bg-border-purple p-3 bg-light deep-dark">
-                        {this.state.realname}님의 회원가입을 진심으로 환영합니다! 💜
+                        {this.state.realname}님의 가입을 진심으로 환영합니다! 💜
                         입력하신 '{this.state.email}'로 메일을 발송하겠습니다! 🚀
                         보내는 메일은 'im@baejino.com'이며 유사 메일에 유의하시길 바랍니다.
                         메일 발송의 지연을 막기 위해서 간소한 형식으로 인증 메일을 발송하고 있으니 양해 부탁드립니다. 😁
@@ -158,17 +159,18 @@ export class SignupModal extends React.Component<Props, State> {
                     <button
                         className="login-button"
                         onClick={() => this.onSubmitLogin()}>
-                        완료 및 이메일 인증
+                        등록 후 이메일 인증
                     </button>
+                    <SplitLine/>
                     <button
                         className="login-button google"
                         onClick={() => oauth("google")}>
-                        <i className="fab fa-google"></i> Google 계정으로 시작하기
+                        <i className="fab fa-google"></i> Google 계정으로 시작
                     </button>
                     <button
                         className="login-button github"
                         onClick={() => oauth("github")}>
-                        <i className="fab fa-github"></i> GitHub 계정으로 시작하기
+                        <i className="fab fa-github"></i> GitHub 계정으로 시작
                     </button>
                     </>
                 )}
