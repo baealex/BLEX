@@ -370,7 +370,7 @@ class PostDetail extends React.Component<Props, State> {
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>
                             <TagBadge items={this.props.post.tag.split(',').map(item => (
-                                <Link href={`/@${this.props.post.author}/posts?tag=${item}`}>
+                                <Link href={`/@${this.props.post.author}/posts/${item}`}>
                                     <a>{item}</a>
                                 </Link>
                             ))}/>

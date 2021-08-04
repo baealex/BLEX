@@ -52,7 +52,7 @@ export function ArticleCardList(props: ArticleCardListProps) {
                 {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
             </p>
             <TagBadge items={props.tag.split(',').map(item => (
-                <Link href={`/@${props.author}/posts?tag=${item}`}>
+                <Link href={`/@${props.author}/posts/${item}`}>
                     <a>{item}</a>
                 </Link>
             ))}/>
