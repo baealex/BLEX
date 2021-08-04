@@ -15,7 +15,7 @@
     a {
         color: #555;
 
-        body.dark & {
+        :global(body.dark) & {
             color: #ccc;
         }
 
@@ -26,6 +26,6 @@
 
     .author {
         margin-left: 5px;
-        color: $COLOR_DEFAULT_PRIMARY;
+        @include COLOR_PRIMARY;
     }
 }
