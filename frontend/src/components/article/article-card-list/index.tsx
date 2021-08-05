@@ -27,8 +27,8 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     {props.image && (
                         <img
                             className="lazy"
-                            src={getPostsImage(props.image) + '.preview.jpg'}
-                            data-src={getPostsImage(props.image)}
+                            src={getPostsImage(props.image, { preview: true })}
+                            data-src={getPostsImage(props.image, { minify: true })}
                             height="400"
                         />
                     )}

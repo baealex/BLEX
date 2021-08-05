@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import Link from 'next/link';
 
 import { Card } from '@components/atoms';
+
 import {
     getPostsImage,
     getUserImage,
@@ -34,8 +35,8 @@ export function ArticleCard(props: ArticleCardProps) {
                                 styles.image,
                                 'lazy'
                             )}
-                            src={getPostsImage(props.image) + '.preview.jpg'}
-                            data-src={getPostsImage(props.image)}
+                            src={getPostsImage(props.image, { preview: true })}
+                            data-src={getPostsImage(props.image, { minify: true })}
                         />
                     </a>
                 </Link>

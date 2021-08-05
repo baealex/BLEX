@@ -51,7 +51,7 @@ def users(request, username):
                     data[include] = list(map(lambda post: {
                         'url': post.url,
                         'title': post.title,
-                        'image': post.get_thumbnail(),
+                        'image': str(post.image),
                         'read_time': post.read_time,
                         'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                         'author_image': post.author_image,

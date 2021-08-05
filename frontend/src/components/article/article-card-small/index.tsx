@@ -5,6 +5,10 @@ import Link from 'next/link';
 
 import { Card } from '@components/atoms';
 
+import {
+    getPostsImage,
+} from '@modules/image';
+
 export interface ArticleCardSmallProps {
     author: string;
     url: string;
@@ -25,9 +29,8 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
                                 styles.image,
                                 'lazy'
                             )}
-                            src={props.image + '.preview.jpg'}
-                            data-src={props.image}
-                            height="400"
+                            src={getPostsImage(props.image, { preview: true })}
+                            data-src={getPostsImage(props.image, { minify: true })}
                         />
                         <div className="p-3">
                             <div>

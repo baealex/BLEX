@@ -9,8 +9,20 @@ export function getImage(path: string) {
     return `https://${CONFIG.STATIC_SERVER}/${path}`;
 }
 
-export function getPostsImage(path: string) {
+interface GetPostsImageOptions {
+    preview?: boolean;
+    minify?: boolean;
+}
+
+export function getPostsImage(path: string, options?: GetPostsImageOptions) {
     if (path !== '') {
+        const [ ext ] = path.split('.').slice(-1);
+        if (options?.preview) {
+            return getImage(path) + '.preview.jpg';
+        }
+        if (options?.minify) {
+            return getImage(path) + '.minify.' + ext;
+        }
         return getImage(path);
     }
     return getImage('assets/images/default-post.png');
