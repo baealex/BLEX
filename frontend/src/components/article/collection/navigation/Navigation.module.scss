@@ -44,5 +44,15 @@
             border: 1px solid $COLOR_DARK_BACKGROUND;
             border-width: 0 40px;
         }
+
+        @for $i from 0 to 3 {
+            &.active-#{$i} {
+                transform: translate3d($i * 100%, 0, 0);
+            }
+        }
+
+        @media only screen and (max-width: 346px) {
+            display: none;
+        }
     }
 }

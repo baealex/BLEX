@@ -1,3 +1,4 @@
+export * from './article-action';
 export * from './article-author';
 export * from './article-card';
 export * from './article-card-small';

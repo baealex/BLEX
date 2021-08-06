@@ -34,14 +34,7 @@ export function Navigation(props: NavigationProps) {
     return (
         <>
             <ul className={cn('nav')}>
-                <>
-                    <span className={cn('line')}/>
-                    <style jsx>{`
-                        .${cn('line')} {
-                            transform: translate3d(${`${active * 100}%`}, 0, 0);
-                        }
-                    `}</style>
-                </>
+                <span className={cn('line', 'active-' + active)}/>
                 {NAVIGATION_ITEMS.map((item, idx) => (
                     <li key={idx} className={cn({
                         active: item.name === props.active

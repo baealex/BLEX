@@ -1,10 +1,12 @@
 import React from 'react';
-import Link from 'next/link';
+import { toast } from 'react-toastify';
 import Head from 'next/head';
 import Router from 'next/router';
+import Link from 'next/link';
 import { GetServerSidePropsContext } from 'next';
 
 import {
+    ArticleAction,
     ArticleAuthor,
     ArticleContent,
     ArticleCover,
@@ -19,8 +21,6 @@ import {
     SEO,
 } from '@components/integrated';
 
-import { toast } from 'react-toastify';
-
 import prism from '@modules/library/prism';
 import * as API from '@modules/api';
 import {
@@ -30,7 +30,6 @@ import { getPostsImage } from '@modules/image';
 
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';
-import { modalContext } from '@state/modal';
 
 interface Props {
     profile: API.GetUserProfileData,
@@ -218,58 +217,6 @@ class PostDetail extends React.Component<Props, State> {
         }
     }
 
-    async onClickLike() {
-        const { author, url } = this.props.post;
-        const { data } = await API.putAnUserPosts('@' + author, url, 'like');
-        if (data.status === 'DONE') {
-            if (typeof data.body.totalLikes === 'number') {
-                this.setState({
-                    isLiked: !this.state.isLiked,
-                    totalLikes: data.body.totalLikes
-                });
-            }
-        }
-        if (data.status === 'ERROR') {
-            if (data.errorCode === API.ERROR.NOT_LOGIN) {
-                toast('😅 로그인이 필요합니다.', {
-                    onClick:() => {
-                        modalContext.onOpenModal('isLoginModalOpen');
-                    }
-                });
-            }
-            if (data.errorCode === API.ERROR.SAME_USER) {
-                toast('😅 자신의 글은 추천할 수 없습니다.');
-            }
-        }
-    }
-
-    onClickComment() {
-        window.scrollTo({
-            top: window.pageYOffset + document.querySelector('.comments')!.getBoundingClientRect().top - 15,
-            behavior: 'smooth'
-        });
-    }
-
-    onClickShare(sns: 'twitter' | 'facebook' | 'pinterest') {
-        let href = '';
-        let size = '';
-        switch(sns) {
-            case 'twitter':
-                href = `https://twitter.com/intent/tweet?text=${this.props.post.title}&url=${window.location.href}`;
-                size = 'width=550,height=235';
-                break;
-            case 'facebook':
-                href = `https://facebook.com/sharer.php?u=${window.location.href}`;
-                size = 'width=550,height=435';
-                break;
-            case 'pinterest':
-                href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${this.props.post.image}&description=${this.props.post.description}`
-                size = 'width=650,height=500';
-                break;
-        }
-        window.open(href, `${sns}-share`, size);
-    }
-
     onEdit() {
         const { author, url } = this.props.post;
         Router.push(`/@${author}/${url}/edit`);
@@ -299,27 +246,6 @@ class PostDetail extends React.Component<Props, State> {
                     image={getPostsImage(this.props.post.image)}
                     isArticle={true}
                 />
-                {/*
-                    <div className={`post-top ${this.props.post.image !== '' ? '' : 'none-image'}`}>
-                        {this.props.post.image !== '' && (
-                            <div className="post-image">
-                                <img
-                                    className="fit-cover w-100 posts-title-image"
-                                    src={getPostsImage(this.props.post.image.replace('.minify.jpg', ''))}
-                                />
-                            </div>
-                        )}
-                        <div className="post-title">
-                            <h1 className="post-headline">
-                                {this.props.post.title}
-                            </h1>
-                            <time className="post-date">
-                                {this.props.post.createdDate}
-                                {this.props.post.createdDate !== this.props.post.updatedDate && ` (Updated: ${this.props.post.updatedDate})`}
-                            </time>
-                        </div>
-                    </div>
-                */}
                 <ArticleCover
                     series={this.props.series?.name!}
                     image={this.props.post.image}
@@ -330,29 +256,7 @@ class PostDetail extends React.Component<Props, State> {
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-2">
-                            <div className="sticky-top sticky-top-200 mb-5">
-                                <div className="share">
-                                    <ul className="px-3">
-                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickLike()}>
-                                            <i className={`${this.state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
-                                            <span>{this.state.totalLikes}</span>
-                                        </li>
-                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickComment()}>
-                                            <i className="far fa-comment"></i>
-                                            <span>{this.props.post.totalComment}</span>
-                                        </li>
-                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickShare('twitter')}>
-                                            <i className="fab fa-twitter"></i>
-                                        </li>
-                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickShare('facebook')}>
-                                            <i className="fab fa-facebook"></i>
-                                        </li>
-                                        <li className="mx-3 mx-lg-4" onClick={() => this.onClickShare('pinterest')}>
-                                            <i className="fab fa-pinterest"></i>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <ArticleAction {...this.props.post}/>
                         </div>
                         <div className="col-lg-8">
                             {this.props.post.author == this.state.username && (

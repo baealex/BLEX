@@ -1,3 +1,5 @@
+@import 'var';
+
 @keyframes like-it {
     0% {
         transform: scale(0);
@@ -7,6 +9,22 @@
     }
     100% {
         transform: scale(1);
+    }
+}
+
+.pc {
+    display: none;
+
+    @media only screen and (min-width: 991px) {
+        display: block;
+    }
+}
+
+.m {
+    display: block;
+
+    @media only screen and (min-width: 991px) {
+        display: none;
     }
 }
 
@@ -28,7 +46,7 @@
             color: rgba(0,0,0,.33);
             cursor: pointer;
 
-            body.dark & {
+            :global(body.dark) & {
                 color: #aaa;
             }
 
@@ -36,11 +54,11 @@
                 transition: color 0.2s;
                 font-size: 20px;
                 
-                &.fa-heart.fas {
+                &:global(.fa-heart.fas) {
                     animation: like-it 0.5s ease-out 1;
                     color: $COLOR_DEFAULT_PRIMARY;
 
-                    body.dark & {
+                    :global(body.dark) & {
                         color: $COLOR_DARK_PRIMARY;
                     }
                 }
@@ -48,20 +66,20 @@
                 &:hover {
                     color: $COLOR_DEFAULT_PRIMARY;
 
-                    body.dark & {
+                    :global(body.dark) & {
                         color: $COLOR_DARK_PRIMARY;
                     }
                 }
 
-                &.fa-facebook:hover {
+                &:global(.fa-facebook:hover) {
                     color: #3b5998 !important;
                 }
 
-                &.fa-twitter:hover {
+                &:global(.fa-twitter:hover) {
                     color: #00acee !important;
                 }
 
-                &.fa-pinterest:hover {
+                &:global(.fa-pinterest:hover) {
                     color: #c51f26 !important;
                 }
             }
@@ -73,6 +91,46 @@
                     display: block;
                 }
             }
+        }
+    }
+}
+
+.bottom-nav {
+    user-select: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    backdrop-filter: blur(10px);
+    background: rgba(240, 240, 240, 0.77);
+    box-shadow: 0 -4px 12px 0 rgba(0, 0, 0, 0.05);
+
+    :global(body.dark) & {
+        background: rgba(15, 15, 15, 0.77);
+        box-shadow: 0 -4px 12px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .isScrollDown {
+        transform: translateY(0px);
+    }
+
+    .item {
+        padding: 15px;
+        font-size: 16px;
+        cursor: pointer;
+
+        i {
+            transition: color 0.2s;
+            
+            &:global(.fa-heart.fas) {
+                animation: like-it 0.5s ease-out 1;
+                color: #eb457c;
+            }
+        }
+
+        span {
+            margin-left: 5px;
         }
     }
 }
