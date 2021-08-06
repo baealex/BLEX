@@ -30,6 +30,7 @@ export function SearchBox(props: SearchBoxProps) {
         <div className={cn('input-group')}>
             <input
                 ref={input}
+                type="search"
                 value={props.value}
                 placeholder={props.placeholder}
                 maxLength={props.maxLength}

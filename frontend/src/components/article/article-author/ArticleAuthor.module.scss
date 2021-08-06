@@ -20,9 +20,6 @@
         text-decoration: none;
         @include COLOR_ASHGRAY;
         margin-bottom: 8px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
     }
 
     ul {

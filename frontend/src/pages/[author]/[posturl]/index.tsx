@@ -7,6 +7,7 @@ import { GetServerSidePropsContext } from 'next';
 import {
     ArticleAuthor,
     ArticleContent,
+    ArticleCover,
     ArticleSeries,
     Related,
 } from '@components/article';
@@ -298,35 +299,35 @@ class PostDetail extends React.Component<Props, State> {
                     image={getPostsImage(this.props.post.image)}
                     isArticle={true}
                 />
-                <div className="container">
-                    <div className="row justify-content-center mb-5">
-                        <div className="col-lg-8">
+                {/*
+                    <div className={`post-top ${this.props.post.image !== '' ? '' : 'none-image'}`}>
+                        {this.props.post.image !== '' && (
+                            <div className="post-image">
+                                <img
+                                    className="fit-cover w-100 posts-title-image"
+                                    src={getPostsImage(this.props.post.image.replace('.minify.jpg', ''))}
+                                />
+                            </div>
+                        )}
+                        <div className="post-title">
                             <h1 className="post-headline">
-                                {this.props.hasSeries ? (
-                                    <span className="post-series">'{this.props.series.name}' 시리즈</span>
-                                ) : ''}
                                 {this.props.post.title}
                             </h1>
                             <time className="post-date">
                                 {this.props.post.createdDate}
                                 {this.props.post.createdDate !== this.props.post.updatedDate && ` (Updated: ${this.props.post.updatedDate})`}
                             </time>
-                            {this.props.post.author == this.state.username && (
-                                <div className="mt-3">
-                                    <div className="btn btn-dark m-1" onClick={() => this.onEdit()}>포스트 수정</div>
-                                    <div className="btn btn-dark m-1" onClick={() => this.onDelete()}>포스트 삭제</div>
-                                </div>
-                            )}
                         </div>
                     </div>
-                    {this.props.post.image !== '' && (
-                        <div className="mb-5 mx-fit">
-                            <img
-                                className="fit-cover w-100 posts-title-image"
-                                src={getPostsImage(this.props.post.image.replace('.minify.jpg', ''))}
-                            />
-                        </div>
-                    )}
+                */}
+                <ArticleCover
+                    series={this.props.series?.name!}
+                    image={this.props.post.image}
+                    title={this.props.post.title}
+                    createdDate={this.props.post.createdDate}
+                    updatedDate={this.props.post.updatedDate}
+                />
+                <div className="container">
                     <div className="row">
                         <div className="col-lg-2">
                             <div className="sticky-top sticky-top-200 mb-5">
@@ -354,6 +355,12 @@ class PostDetail extends React.Component<Props, State> {
                             </div>
                         </div>
                         <div className="col-lg-8">
+                            {this.props.post.author == this.state.username && (
+                                <div className="mb-3">
+                                    <div className="btn btn-dark m-1" onClick={() => this.onEdit()}>포스트 수정</div>
+                                    <div className="btn btn-dark m-1" onClick={() => this.onDelete()}>포스트 삭제</div>
+                                </div>
+                            )}
                             <ArticleAuthor {...this.props.profile}/>
                             <div className="my-3">
                                 <Toggle
