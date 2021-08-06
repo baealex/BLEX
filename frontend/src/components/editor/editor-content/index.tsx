@@ -9,6 +9,7 @@ import React, {
 
 import { ArticleContent } from '@components/article';
 
+import prism from '@modules/library/prism';
 import blexer from '@modules/blexer';
 import { lazyLoadResource } from '@modules/lazy';
 
@@ -45,7 +46,10 @@ export function EditorContent(props: EditorContentProps) {
     }, [props.value]);
 
     useEffect(() => {
-        if (isEditMode) lazyLoadResource();
+        if (!isEditMode) {
+            prism.highlightAll();
+            lazyLoadResource();
+        }
     }, [isEditMode]);
 
     return (

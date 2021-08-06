@@ -21,7 +21,7 @@ import {
 
 import { toast } from 'react-toastify';
 
-import Prism from '@modules/library/prism';
+import prism from '@modules/library/prism';
 import * as API from '@modules/api';
 import {
     lazyLoadResource
@@ -143,7 +143,7 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        Prism.highlightAll();
+        prism.highlightAll();
         lazyLoadResource();
         this.makeHeaderNav();
     }
@@ -166,7 +166,7 @@ class PostDetail extends React.Component<Props, State> {
         }
 
         if(needSyntaxUpdate) {
-            Prism.highlightAll();
+            prism.highlightAll();
             lazyLoadResource();
         }
     }
