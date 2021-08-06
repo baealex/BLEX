@@ -1,3 +1,7 @@
+import styles from './Layout.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
+
 import { useEffect, useState } from 'react';
 
 import {
@@ -159,7 +163,7 @@ export function Layout(props: Props) {
                 </div>
                 <div className="col-lg-2">
                     <div className="sticky-top sticky-top-100">
-                        <div className="share">
+                        <div className={cn('tools')}>
                             <ul className="px-3">
                                 <li className="mx-3 mx-lg-4" onClick={() => setIsOpenImageModal(true)}>
                                     <PopOver text="이미지 업로드">

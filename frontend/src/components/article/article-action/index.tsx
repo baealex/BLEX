@@ -83,8 +83,8 @@ export function ArticleAction(props: ArticleActionProps) {
 
     return (
         <>
-            <div className={cn('pc') + " sticky-top sticky-top-200 mb-5"}>
-                <div className={cn('share')}>
+            <div className={classNames(cn('pc'), 'sticky-top sticky-top-200 mb-5')}>
+                <div className={cn('actions')}>
                     <ul className="px-3">
                         <li className="mx-3 mx-lg-4" onClick={() => onClickLike()}>
                             <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
