@@ -33,7 +33,7 @@ export function ArticleContent(props: {
 
     useEffect(() => {
         if(typeof window !== "undefined") {
-            Array.from(document.querySelectorAll('.article a')).forEach(element => {
+            Array.from(document.querySelectorAll(`.${styles.article} a`)).forEach(element => {
                 if(isOpenNewTab || props.isEdit) {
                     element.removeEventListener('click', onInnerLinkClickEvent);
                     element.addEventListener('click', onNewTabLinkClickEvent);
