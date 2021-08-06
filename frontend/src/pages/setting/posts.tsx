@@ -10,6 +10,7 @@ import {
     Pagination,
     Modal,
     Card,
+    Alert,
 } from '@components/integrated';
 import { Layout } from '@components/setting';
 import { TagBadge } from '@components/tag';
@@ -206,11 +207,6 @@ export default function PostsSetting(props: Props) {
                 {posts.map((post, idx) => (
                     <Card key={idx} isRounded className="mb-3">
                         <div className="p-3 mb-1">
-                            {post.readTime > 30 && (
-                                <div className="alert alert-danger">
-                                    이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
-                                </div>
-                            )}
                             <div className="d-flex justify-content-between mb-1">
                                 <span>
                                     <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
@@ -264,6 +260,13 @@ export default function PostsSetting(props: Props) {
                                 </div>
                             </div>
                         </div>
+                        <>
+                            {post.readTime > 30 && (
+                                <Alert type="danger">
+                                    이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
+                                </Alert>
+                            )}
+                        </>
                         <div className="setting-info p-3">
                             <div className="d-flex justify-content-between align-items-center shallow-dark ns">
                                 <ul className="none-list mb-0">
