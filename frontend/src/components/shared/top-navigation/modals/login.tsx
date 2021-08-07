@@ -136,14 +136,26 @@ export class LoginModal extends React.Component<Props, State> {
                 <SplitLine/>
                 <button
                     className="login-button google"
-                    onClick={() => oauth("google")}>
+                    onClick={() => oauth("google")}
+                >
                     <i className="fab fa-google"></i> Google 계정으로 로그인
                 </button>
                 <button
                     className="login-button github"
-                    onClick={() => oauth("github")}>
+                    onClick={() => oauth("github")}
+                >
                     <i className="fab fa-github"></i> GitHub 계정으로 로그인
                 </button>
+                <div className="login-hint">
+                    <button
+                        onClick={async () => {
+                            await modalContext.onCloseModal('isLoginModalOpen');
+                            await modalContext.onOpenModal('isSignupModalOpen');
+                        }}
+                    >
+                        아직 회원이 아니세요?
+                    </button>
+                </div>
             </Modal>
         );
     }

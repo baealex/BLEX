@@ -38,7 +38,7 @@
             font-family: $FONT_GOTHIC;
             font-weight: bold;
             letter-spacing: -2px;
-            font-size: 5rem;
+            font-size: 4rem;
             max-width: 700px;
 
             @media only screen and (max-width: 991px) {
@@ -55,7 +55,7 @@
                 width: 80px;
                 height: 2px;
                 background: $COLOR_DEFAULT_POINT;
-                margin: 20px 0 15px 0;
+                margin: 15px 0 10px 0;
             }
         }
     }

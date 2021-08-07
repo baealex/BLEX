@@ -90,8 +90,12 @@ body.dark {
 
     .custom-file-label {
         color: #ccc;
-        border: 1px solid #1d1d1d;
-        background-color: #1d1d1d;
+        border: 1px solid #000;
+        background-color: #000;
+    }
+    
+    .custom-file-label::after {
+        content: '파일 찾기';
     }
 
     .custom-file-label::after,

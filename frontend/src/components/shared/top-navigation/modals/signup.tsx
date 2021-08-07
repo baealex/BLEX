@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 import { oauth } from '@modules/oauth';
 import * as API from '@modules/api';
 
+import { modalContext } from '@state/modal';
+
 interface Props {
     isOpen: boolean;
     onClose: Function;
@@ -172,6 +174,16 @@ export class SignupModal extends React.Component<Props, State> {
                         onClick={() => oauth("github")}>
                         <i className="fab fa-github"></i> GitHub 계정으로 시작
                     </button>
+                    <div className="login-hint">
+                        <button
+                            onClick={async () => {
+                                await modalContext.onCloseModal('isSignupModalOpen');
+                                await modalContext.onOpenModal('isLoginModalOpen');
+                            }}
+                        >
+                            이미 회원이신가요?
+                        </button>
+                    </div>
                     </>
                 )}
             </Modal>

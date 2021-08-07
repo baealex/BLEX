@@ -302,12 +302,35 @@ html,
     padding: 15px 0;
     background-color: #000;
 
+    &:focus {
+        outline: none;
+    }
+
     &.google {
         background-color: rgb(46, 119, 255);
     }
 
     &.github {
         background-color: rgb(72, 31, 94);
+    }
+}
+
+.login-hint {
+    padding: 0;
+    margin: 15px 0 4px 0;
+    font-size: 0.9em;
+    text-align: center;
+
+    button {
+        background: none;
+        outline: none;
+        border: none;
+
+        color: $COLOR_DEFAULT_ASHGRAY;
+
+        body.dark & {
+            color: $COLOR_DARK_ASHGRAY;
+        }
     }
 }
 /* ------------------------------ */

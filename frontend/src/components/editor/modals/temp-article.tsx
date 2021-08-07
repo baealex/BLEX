@@ -24,7 +24,14 @@ export function TempArticleModal(props: Props) {
             title="임시 저장된 글"
             isOpen={props.isOpen}
             onClose={() => props.close()}
-            submitText="현재 글 임시저장"
+            footer={[
+                <Toggle
+                    label="자동 저장"
+                    defaultChecked={props.isAutoSave}
+                    onClick={(checked: boolean) => props.onCheckAutoSave(checked)}
+                />
+            ]}
+            submitText="현재 글을 저장합니다"
             onSubmit={() => props.onSave()}
         >
             <>
@@ -48,11 +55,6 @@ export function TempArticleModal(props: Props) {
                     </span>
                 </div>
             </Card>
-            <Toggle
-                label="포스트 자동 저장"
-                defaultChecked={props.isAutoSave}
-                onClick={(checked: boolean) => props.onCheckAutoSave(checked)}
-            />
         </Modal>
     );
 }

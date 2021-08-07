@@ -23,7 +23,7 @@ export function ImageModal(props: Props) {
             title="이미지 업로드"
             isOpen={props.isOpen}
             onClose={() => props.close()}
-            submitText="등록"
+            submitText="이미지를 추가합니다"
             onSubmit={() => {
                 props.onUpload(image);
                 props.close();

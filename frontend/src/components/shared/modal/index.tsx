@@ -9,6 +9,7 @@ interface Props {
     submitText?: string;
     onSubmit?: Function;
     children: string | JSX.Element | JSX.Element[];
+    footer?: JSX.Element[];
 }
 
 export function Modal(props: Props) {
@@ -31,18 +32,27 @@ export function Modal(props: Props) {
                     <div className={styles.overlay} onClick={() => props.onClose()}/>
                     <>
                         <div className={styles.modal}>
-                            <div className={`font-weight-bold ${styles.title}`}>
-                                {props.title}
-                            </div>
-                            <div className={styles.close} onClick={() => props.onClose()}>
-                                <i className="fas fa-times"></i>
+                            <div className={styles.headline}>
+                                <div className={`font-weight-bold ${styles.title}`}>
+                                    {props.title}
+                                </div>
+                                <div className={styles.close} onClick={() => props.onClose()}>
+                                    <i className="fas fa-times"></i>
+                                </div>
                             </div>
                             <div className={styles.content}>
                                 {props.children}
                             </div>
-                            {props.submitText && (
-                                <div className={styles.button} onClick={() => props.onSubmit && props.onSubmit()}>
-                                    <button>{props.submitText}</button>
+                            {(props.submitText || props.footer) && (
+                                <div className={styles.footer}>
+                                    <div>
+                                        {props.footer}
+                                    </div>
+                                    {props.submitText && (
+                                        <div className={styles.button} onClick={() => props.onSubmit && props.onSubmit()}>
+                                            <button>{props.submitText}</button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

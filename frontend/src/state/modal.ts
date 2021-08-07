@@ -15,14 +15,14 @@ class ModalContext extends SharedState<ModalContextState> {
         isTwoFactorAuthModalOpen: false,
     }
 
-    onOpenModal(modalName: ModalName) {
-        this.setState(<any>{
+    async onOpenModal(modalName: ModalName) {
+        await this.setState(<any>{
             [modalName]: true
         });
     }
 
-    onCloseModal(modalName: ModalName) {
-        this.setState(<any>{
+    async onCloseModal(modalName: ModalName) {
+        await this.setState(<any>{
             [modalName]: false
         });
     }

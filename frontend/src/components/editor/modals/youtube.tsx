@@ -21,7 +21,7 @@ export function YoutubeModal(props: Props) {
             title="유튜브 영상"
             isOpen={props.isOpen}
             onClose={() => props.close()}
-            submitText="추가"
+            submitText="영상을 추가합니다"
             onSubmit={() => {
                 props.onUpload(id);
                 props.close();
