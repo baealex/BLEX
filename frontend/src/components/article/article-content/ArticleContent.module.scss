@@ -14,7 +14,6 @@
         padding: 0.5em 0 0.2em 0;
         font-family: $FONT_GOTHIC;
         letter-spacing: -1px;
-        word-break: keep-all;
         position: relative;
         font-weight: bold;
     }
@@ -105,7 +104,6 @@
         border-left: 3px solid #000;
         background-color: #f5f5f5;
         color: #777;
-        word-break: keep-all;
 
         p {
             margin-bottom: 0;
