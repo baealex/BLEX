@@ -48,7 +48,7 @@ export default function AnalyticsSetting(props: Props) {
                             }
                         ]
                     }}
-                    colors={['purple']}
+                    colors={['#A076F1']}
                 />
             </Card>
             <div className="h5 font-weight-bold mt-5 mb-3">

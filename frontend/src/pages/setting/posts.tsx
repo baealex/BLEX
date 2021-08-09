@@ -114,7 +114,7 @@ export default function PostsSetting(props: Props) {
             const dates = [];
             const counts = [];
             for(const item of data.body.items) {
-                dates.push(item.date.slice(-2) + 'th');
+                dates.push(item.date.slice(-2));
                 counts.push(item.count);
             }
             dates.reverse();
@@ -317,7 +317,7 @@ export default function PostsSetting(props: Props) {
                                         }
                                     ]
                                 }}
-                                colors={['purple']}
+                                colors={['#A076F1']}
                             />
                             <ul>
                                 {analytics[apNow].referers.map((item: any, idx: number) => (
