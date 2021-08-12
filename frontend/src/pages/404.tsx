@@ -1,31 +1,42 @@
 import Head from 'next/head';
-import Router from 'next/router';
+import Link from 'next/link';
+import { useMemo } from 'react';
 
-import { Card } from '@components/atoms';
+import {
+    GlitchText
+} from '@components/integrated';
 
 export default function NotFound() {
+    const letters = useMemo(() => '404페이지를찾을수없습니다PAGENOTFOUND!@#$'.split(''), []);
+
     return (
         <>
             <Head>
                 <title>404 Not Found</title>
             </Head>
             
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-lg-8 text-center">
-                        <img
-                            src="https://static.blex.me/assets/sticker/blank.svg"
-                            className="w-75 my-3"
-                        />
-                        <Card className="p-3 my-3">
-                            👀 요청하신 자료는 존재하지 않습니다.
-                        </Card>
-                        <div className="btn-dark p-3 my-3 c-pointer" onClick={() => Router.push('/')}>
-                            👍 집으로 갈까요?
+            <div className="container h-100">
+                <div className="d-flex justify-content-center align-items-center flex-wrap h-100">
+                    <div className="text-center">
+                        <GlitchText letters={letters}/>
+                        <p>찾으시는 페이지는 삭제되어 존재하지 않습니다.</p>
+                        <div>
+                            <Link href="/search">
+                                <button className="btn btn-dark m-1">컨텐츠 검색</button>
+                            </Link>
+                            <Link href="/">
+                                <button className="btn btn-dark m-1">메인 홈</button>
+                            </Link>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <style jsx>{`
+                :global(.content) {
+                    margin-top: 0 !important;
+                }
+            `}</style>
         </>
     )
 }

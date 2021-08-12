@@ -1,5 +1,6 @@
 export * from './corner-loading';
 export * from './footer';
+export * from './glitch-text'
 export * from './heatmap';
 export * from './loading'
 export * from './modal';
