@@ -8,5 +8,6 @@ export const CONFIG = {
     "GITHUB_OAUTH_CLIENT_ID": "",
     "GOOGLE_ANALYTICS_V4": "",
     "MICROSOFT_CLARITY": "",
-    "HCAPTCHA_SITE_KEY": ""
+    "HCAPTCHA_SITE_KEY": "",
+    "GOOGLE_ADSENSE_CLIENT_ID": "",
 }

@@ -28,7 +28,7 @@ body.dark {
     border-radius: 100%;
     background: #fff;
 
-    body.dark {
+    body.dark & {
         background: $COLOR_DARK_BACKGROUND;
     }
 }
@@ -36,14 +36,6 @@ body.dark {
     width: 50px;
     height: 50px;
     margin-right: 15px;
-}
-
-body,
-html,
-#__next,
-.content {
-    width: 100%;
-    height: 100%;
 }
 
 // 글쓰기
