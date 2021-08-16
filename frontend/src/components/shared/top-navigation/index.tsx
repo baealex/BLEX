@@ -172,11 +172,6 @@ export function TopNavigation() {
                     <ul className={cn('items')}>
                         <li>
                             <Link href="/">
-                                <a>인기 포스트</a>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/newest">
                                 <a>최신 포스트</a>
                             </Link>
                         </li>

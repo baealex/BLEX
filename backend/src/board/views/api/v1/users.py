@@ -1,4 +1,6 @@
 from itertools import chain
+from django.core.cache import cache
+from django.db.models import F
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -48,6 +50,20 @@ def users(request, username):
                     data[include] = fn.get_user_topics(user=user, include='posts')
                 
                 elif include == 'most':
+                    cache_key = user.username + '_most_trendy'
+                    posts = cache.get(cache_key)
+                    if not posts:
+                        posts = Post.objects.filter(
+                            created_date__lte=timezone.now(),
+                            author=user,
+                            notice=False,
+                            hide=False,
+                        ).annotate(
+                            author_username=F('author__username'),
+                            author_image=F('author__profile__avatar')
+                        )
+                        posts = sorted(posts, key=lambda instance: instance.trendy(), reverse=True)[:6]
+                        cache.set(cache_key, posts, 7200)
                     data[include] = list(map(lambda post: {
                         'url': post.url,
                         'title': post.title,
@@ -56,7 +72,7 @@ def users(request, username):
                         'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                         'author_image': post.author_image,
                         'author': post.author_username,
-                    }, fn.get_posts('trendy', user)[:6]))
+                    }, posts))
                 
                 elif include == 'recent':
                     seven_days_ago = timezone.now() - datetime.timedelta(days=7)

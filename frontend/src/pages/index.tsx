@@ -1,9 +1,7 @@
-import Head from 'next/head';
-
 import { ArticleCard } from '@components/article';
 import { Layout } from '@components/article/collection';
 import {
-    SEO,
+    PageNavigation,
     Footer,
     Pagination
 } from '@components/shared';
@@ -18,7 +16,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     } = context.query;
     
     try {
-        const { data } = await API.getPosts('trendy', Number(page));
+        const { data } = await API.getPosts('newest', Number(page));
+
+        if (page === 1) {
+            const trendy = await API.getTrendyTopPosts();
+            return {
+                props: {
+                    trendy: trendy.data.body,
+                    ...data.body,
+                    page
+                }
+            }
+        }
         return {
             props: {
                 ...data.body,
@@ -33,6 +42,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 interface Props extends API.GetPostsData {
+    trendy?: API.GetPostsData,
     page: number;
 }
 
@@ -40,14 +50,6 @@ export default function TrendyArticles(props: Props) {
     return (
         <>
             <>
-                <Head>
-                    <title>BLEX</title>
-                </Head>
-                <SEO
-                    title="BLEX"
-                    image="https://static.blex.me/assets/images/default-post.png"
-                    description="블렉스에서 일주일 동안 가장 많은 관심을 받은 포스트들을 만나보세요."
-                />
                 <Pagination
                     page={props.page}
                     last={props.lastPage}
@@ -59,18 +61,41 @@ export default function TrendyArticles(props: Props) {
 }
 
 TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
-    <Layout active="인기 포스트" {...props}>
-        <>
-            <div className="row">
-                {props.posts.map((item, idx) => (
-                    <ArticleCard
-                        key={idx}
-                        className="col-lg-4 col-md-6 mt-4"
-                        {...item}
-                    />
-                ))}
+    <>
+        {props.trendy && props.trendy.posts.length > 0 && (
+            <div className="container mb-5">
+                <PageNavigation
+                    disableLink
+                    items={[{name: '주간 트랜드'}]}
+                    active="주간 트랜드"
+                />
+                <div className="row">
+                    {props.trendy.posts.map((item, idx) => (
+                        <ArticleCard
+                            key={idx}
+                            number={idx + 1}
+                            hasShadow={false}
+                            className="col-lg-4 col-md-6 mt-4"
+                            {...item}
+                            title={item.title}
+                        />
+                    ))}
+                </div>
             </div>
-            {page}
-        </>
-    </Layout>
+        )}
+        <Layout active="최신 포스트" {...props}>
+            <>
+                <div className="row">
+                    {props.posts.map((item, idx) => (
+                        <ArticleCard
+                            key={idx}
+                            className="col-lg-4 col-md-6 mt-4"
+                            {...item}
+                        />
+                    ))}
+                </div>
+                {page}
+            </>
+        </Layout>
+    </>
 )

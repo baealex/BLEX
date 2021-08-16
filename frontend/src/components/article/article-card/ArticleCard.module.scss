@@ -1,3 +1,5 @@
+@import 'var';
+
 .posts {
     a {
         text-decoration: none;
@@ -10,7 +12,7 @@
     height: 250px;
     float: initial;
     margin-left: 0;
-    background-color: #fff;
+    @include BACKGROUND;
 }
 
 .title {
@@ -19,4 +21,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.number {
+    font-size: 1.4rem;
+    font-weight: bold;
+    @include COLOR_GRAY;
 }

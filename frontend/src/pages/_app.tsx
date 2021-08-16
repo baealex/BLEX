@@ -108,7 +108,7 @@ class Main extends App<AppProps> {
                 <SEO
                     title="BLEX"
                     image="https://static.blex.me/assets/images/default-post.png"
-                    description="경험이 글을 만들고 글이 나를 만든다. 나를 표현하는 블렉스"
+                    description="경험은 글이 되고 글은 나를 표현한다. 나를 표현하는 블렉스"
                 />
 
                 <TopNavigation/>

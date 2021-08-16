@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import F, Q, Case, Exists, When, Value, OuterRef
 from django.http import Http404, QueryDict
@@ -79,12 +80,54 @@ def temp_posts(request):
 
     raise Http404
 
+def top_trendy(request):
+    if request.method == 'GET':
+        seven_days_ago  = timezone.now() - datetime.timedelta(days=7)
+
+        cache_key = 'top_trendy'
+        posts = cache.get(cache_key)
+        if not posts:
+            posts = Post.objects.filter(
+                created_date__gte=seven_days_ago,
+                created_date__lte=timezone.now(),
+                notice=False,
+                hide=False,
+            ).annotate(
+                author_username=F('author__username'),
+                author_image=F('author__profile__avatar')
+            )
+            posts = sorted(posts, key=lambda instance: instance.trendy(), reverse=True)[:6]
+            cache.set(cache_key, posts, 7200)
+
+        return StatusDone({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'read_time': post.read_time,
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'author_image': post.author_image,
+                'author': post.author_username,
+            }, posts))
+        })
+    raise Http404
+
 def posts(request):
     if request.method == 'GET':
-        sort = request.GET.get('sort', 'trendy')
-        posts = fn.get_posts(sort)
-
+        sort = request.GET.get('sort', 'newest')
         page = request.GET.get('page', 1)
+
+        posts = Post.objects.filter(
+            created_date__lte=timezone.now(),
+            notice=False,
+            hide=False,
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        )
+
+        if sort == 'newest':
+            posts = posts.order_by('-created_date')
+
         paginator = Paginator(posts, 24)
         fn.page_check(page, paginator)
         posts = paginator.get_page(page)

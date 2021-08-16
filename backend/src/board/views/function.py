@@ -15,30 +15,6 @@ from board.models import *
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 
-def get_posts(sort, user=None):
-    posts = Post.objects.filter(created_date__lte=timezone.now()).annotate(
-        author_username=F('author__username'),
-        author_image=F('author__profile__avatar')
-    )
-    if sort == 'trendy':
-        cache_key = 'sort_' + sort
-        if user:
-            cache_key += '_' + user.username
-        elements = cache.get(cache_key)
-        if not elements:
-            cache_time = 7200
-            posts = posts.filter(notice=False, hide=False)
-            if user:
-                posts = posts.filter(author=user)
-            elements = sorted(posts, key=lambda instance: instance.trendy(), reverse=True)
-            cache.set(cache_key, elements, cache_time)
-        return elements
-    if sort == 'newest':
-        posts = posts.filter(notice=False, hide=False)
-        if user:
-            posts = posts.filter(author=user)
-        return posts.order_by('-created_date')
-
 def get_view_count(user, date=None):
     posts = PostAnalytics.objects.annotate(table_count=Count('table')).filter(posts__author=user)
     if date:

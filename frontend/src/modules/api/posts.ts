@@ -105,6 +105,24 @@ export interface GetPostsData {
     lastPage: number;
 }
 
+export async function getTrendyTopPosts() {
+    return await axios.request<ResponseData<GetTopTrendyPostsData>>({
+        url: `/v1/posts/top-trendy`,
+        method: 'GET',
+    });
+}
+
+export interface GetTopTrendyPostsData {
+    posts: {
+        url: string;
+        title: string;
+        readTime: number;
+        createdDate: string;
+        author: string;
+        authorImage: string;
+    }[];
+}
+
 export async function postPosts(data: {}) {
     return await axios.request<ResponseData<GetPostPosts>>({
         url: `/v1/posts`,

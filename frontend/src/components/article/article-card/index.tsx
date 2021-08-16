@@ -12,6 +12,7 @@ import {
 } from '@modules/image';
 
 export interface ArticleCardProps {
+    number?: number;
     author?: string;
     url: string;
     image?: string;
@@ -50,6 +51,11 @@ export function ArticleCard(props: ArticleCardProps) {
                         </Link>
                     )}
                     <div className="p-2">
+                        {props.number && (
+                            <div className={cn('number')}>
+                                {`${('0' + props.number).slice(-2)}.`}
+                            </div>
+                        )}
                         <Link href={url}>
                             <a>
                                 <div className={cn(
@@ -59,7 +65,11 @@ export function ArticleCard(props: ArticleCardProps) {
                                 )}>
                                     {props.title}
                                 </div>
-                                <p className="shallow-dark">{props.description}</p>
+                                {props.description && (
+                                    <p className="shallow-dark">
+                                        {props.description}
+                                    </p>
+                                )}
                             </a>
                         </Link>
                         {props.author && (
