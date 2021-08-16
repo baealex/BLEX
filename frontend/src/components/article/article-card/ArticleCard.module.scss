@@ -16,4 +16,7 @@
 .title {
     font-weight: 600;
     margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

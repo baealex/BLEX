@@ -92,7 +92,7 @@ export default function FormsSetting(props: Props) {
             </button>
             <div className="mt-3">
             {forms.map((item, idx) => (
-                <Card isRounded className="p-3 mb-3">
+                <Card hasShadow isRounded className="p-3 mb-3">
                     <div key={idx} className="d-flex justify-content-between">
                         <a className="deep-dark">
                             {item.title}

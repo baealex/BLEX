@@ -58,6 +58,10 @@ $FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-seri
     }
 }
 
+@mixin COLOR_GRAY {
+    color: $COLOR_DEFAULT_GRAY;
+}
+
 @mixin MAIN_SHADOW {
     box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.1);
 

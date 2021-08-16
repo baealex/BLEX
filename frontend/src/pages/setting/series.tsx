@@ -75,7 +75,7 @@ export default function SeriesSetting(props: Props) {
             </div>
             <>
                 {series.map((item, idx) => (
-                    <Card key={idx} isRounded className="p-3 mb-3">
+                    <Card key={idx} hasShadow isRounded className="p-3 mb-3">
                         <div className="d-flex justify-content-between">
                             <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
                                 <a className="deep-dark">

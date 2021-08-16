@@ -4,6 +4,7 @@ import React from 'react';
 import { ArticleCard } from '@components/article';
 import {
     Footer,
+    PageNavigation,
     Pagination,
     SEO
 } from '@components/shared';
@@ -52,9 +53,13 @@ export default function Tag(props: Props) {
             
 
             <div className="container">
-                <h1 className="h4 font-weight-bold pt-5">
-                    — {props.tag} —
-                </h1>
+                <PageNavigation
+                    disableLink
+                    items={[{
+                        name: props.tag
+                    }]}
+                    active={props.tag}
+                />
                 {props.descPosts.url && (
                     <TagWiki {...props.descPosts}/>
                 )}

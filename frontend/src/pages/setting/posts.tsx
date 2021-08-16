@@ -205,7 +205,7 @@ export default function PostsSetting(props: Props) {
             ))}/>
             <>
                 {posts.map((post, idx) => (
-                    <Card key={idx} isRounded className="mb-3">
+                    <Card key={idx} hasShadow isRounded className="mb-3">
                         <div className="p-3 mb-1">
                             <div className="d-flex justify-content-between mb-1">
                                 <span>

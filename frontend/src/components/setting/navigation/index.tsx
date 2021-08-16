@@ -55,7 +55,7 @@ export function Navigation(props: NavigationProps) {
     const stickyClass = props.sticky ? 'sticky-top-100 sticky-top' : ''
 
     return (
-        <Card isRounded className="mb-3">
+        <Card hasShadow isRounded className="mb-3">
             <ul className={`nav ${stickyClass} d-block`}>
                 {NAVIGATION_ITEMS.map((item, idx) => (
                     <li key={idx} className="nav-item">

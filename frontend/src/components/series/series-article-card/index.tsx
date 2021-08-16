@@ -13,7 +13,7 @@ export interface SeriesArticleCardProps {
 
 export function SeriesArticleCard(props: SeriesArticleCardProps) {
     return (
-        <Card isRounded className="mb-4">
+        <Card hasShadow isRounded className="mb-4">
             <div className="p-3">
                 <h5 className="card-title font-weight-bold">
                     <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>

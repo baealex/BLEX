@@ -205,7 +205,7 @@ class Series extends React.Component<Props, State> {
                         value={seriesDescription}
                     />
                     {seriesPosts.map((post, idx) => (
-                        <Card isRounded className="p-3 mt-3">
+                        <Card hasShadow isRounded className="p-3 mt-3">
                             <div key={idx} className="d-flex justify-content-between">
                                 <span className="deep-dark">
                                     {idx + 1}. {post.title}

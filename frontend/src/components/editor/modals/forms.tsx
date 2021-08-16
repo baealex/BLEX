@@ -25,7 +25,7 @@ export function FormsModal(props: Props) {
         >
             <>
                 {forms.map((item, idx) => (
-                    <Card isRounded className="p-3 mb-3">
+                    <Card hasShadow isRounded className="p-3 mb-3">
                         <div key={idx} className="d-flex justify-content-between">
                             <span onClick={() => props.onFetch(item.id)} className="c-pointer">
                                 {item.title}

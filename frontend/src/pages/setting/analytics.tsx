@@ -32,7 +32,7 @@ export default function AnalyticsSetting(props: Props) {
             <div className="h5 font-weight-bold mb-3">
                 조회수 추이
             </div>
-            <Card isRounded className="p-3">
+            <Card hasShadow isRounded className="p-3">
                 <div className="ns shallow-dark text-right">
                     총 조회수 : {props.total.toLocaleString()}
                 </div>
@@ -57,7 +57,7 @@ export default function AnalyticsSetting(props: Props) {
             <div className="row">
                 {props.referers.map((item, idx: number) => (
                     <div key={idx} className="col-lg-4 col-md-6">
-                        <Card isRounded className="my-3">
+                        <Card hasShadow isRounded className="my-3">
                             <>
                                 {item.image && (
                                     <div>

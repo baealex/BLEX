@@ -86,13 +86,13 @@ export default function NotifySetting(props: Props) {
                     </div>
                 )}
                 {notify.length == 0 ? (
-                    <Card isRounded className="mt-3 p-3">
+                    <Card hasShadow isRounded className="mt-3 p-3">
                         최근 생성된 알림이 없습니다.
                     </Card>
                 ) : notify.map((item, idx) => (
                     <Link key={idx} href={item.url}>
                         <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => onReadNotify(item.pk)}>
-                            <Card isRounded className="p-3 mt-3">
+                            <Card hasShadow isRounded className="p-3 mt-3">
                                 <>
                                     {item.content} <span className="ns shallow-dark">{item.createdDate}전</span>
                                 </>

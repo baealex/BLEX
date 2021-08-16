@@ -1,9 +1,12 @@
 @import 'var';
 
 .card {
-    @include MAIN_SHADOW;
     width: 100%;
     display: block;
+
+    &.hasShadow {
+        @include MAIN_SHADOW;
+    }
 
     &.isRounded {
         border-radius: 8px;

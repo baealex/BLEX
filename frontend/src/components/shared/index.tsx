@@ -4,6 +4,7 @@ export * from './glitch-text'
 export * from './heatmap';
 export * from './loading'
 export * from './modal';
+export * from './page-navigation';
 export * from './pagination';
 export * from './search-box';
 export * from './seo';
