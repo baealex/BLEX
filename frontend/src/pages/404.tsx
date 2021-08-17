@@ -35,6 +35,7 @@ export default function NotFound() {
             <style jsx>{`
                 :global(.content) {
                     margin-top: 0 !important;
+                    height: 100vh;
                 }
             `}</style>
         </>
