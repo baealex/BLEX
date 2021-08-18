@@ -1,5 +1,4 @@
 import React from 'react';
-import Router from 'next/router';
 
 import { SplitLine } from '@components/atoms';
 import { Modal } from '@components/shared';
@@ -87,16 +86,9 @@ export class LoginModal extends React.Component<Props, State> {
             toast(`😃 로그인 되었습니다.`);
             authContext.setState({
                 isLogin: true,
-                username: data.body.username
+                ...data.body,
             });
 
-            if(data.body.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.body.notifyCount}개 있습니다.`, {
-                    onClick:() => {
-                        Router.push('/setting');
-                    }
-                })
-            }
             this.props.onClose();
         }
         this.setState({

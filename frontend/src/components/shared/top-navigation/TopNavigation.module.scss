@@ -1,109 +1,73 @@
 @import 'var';
 
-@mixin ACTION_BUTTON {
-    position: fixed;
+.top-nav {
     z-index: 999;
-    top: 15px;
-    cursor: pointer;
-
-    border-radius: 3px;
-    width: 35px;
-    height: 35px;
-    background-color: #000;
-
-    i {
-        font-size: 18px;
-        color: #eee;
-    }
-}
-
-.button {
-    @include ACTION_BUTTON;
-    @include FLEX_CENTER;
-    left: 15px;
-}
-
-.search {
-    @include ACTION_BUTTON;
-    @include FLEX_CENTER;
-    left: 15px + 35px + 15px;
-
-    a {
-        display: flex;
-    }
-}
-
-.outer {
-    background-color: #000;
     position: fixed;
-    z-index: 998;
-    box-sizing: border-box;
-    max-width: 280px;
-    transition: transform 0.5s ease;
-
-    .bottom {
-        position: absolute;
-    }
-
     top: 0;
-    left: -280px;
+    left: 0;
     width: 100%;
-    height: 100%;
-    padding: 65px 15px;
+    height: 72px;
+    @include MAIN_SHADOW;
+    @include BACKGROUND;
+    transition: transform 0.4s ease;
+    transform: translate(0, 0);
 
-    transform: translateX(0%);
-
-    &.on {
-        transform: translateX(100%);
+    &.isRollup {
+        transform: translate(0, -100%);
     }
 
-    ul {
-        list-style: none;
-        padding-left: 0;
-    }
-
-    a {
-        color: #000;
+    .logo img {
+        width: 30px;
     }
 
     ul.items {
-        padding-bottom: 15px;
-        margin-bottom: 15px;
-        border-bottom: 1px solid #333;
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
 
-        li {
-            a {
+        & > li {
+            display: inline-block;
+            margin-left: 20px;
+            cursor: pointer;
+            color: #555;
+
+            :global(body.dark) & {
                 color: #ccc;
-                font-size: 16px;
-                line-height: 2;
-    
-                &:hover {
-                    color: #fff;
-                    text-decoration: none;
-                }
             }
         }
-    }
-    
-    ul.footer {
-        padding-bottom: 15px;
-        margin-bottom: 15px;
-        border-bottom: 1px solid #333;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        
-        li {
-            a {
-                cursor: pointer;
-                color: #ccc;
-                transition: all 0.5s;
 
-                &:hover {
-                    color: #fff;
-                    text-decoration: none;
-                }
+        & > li.profile {
+            img {
+                height: 30px;
+                width: 30px;
+                border-radius: 100%;
+                object-fit: cover;
+                margin-right: 5px;
             }
+        }
+
+        & > li.notify {
+            position: relative;
+
+            & > span {
+                position: absolute;
+                bottom: 0;
+                right: -4px;
+                background: crimson;
+                border-radius: 100%;
+                padding: 0 4px;
+                font-size: 8px;
+                color: #fff;
+            }
+        }
+
+        & > li.get-start {
+            background: $COLOR_DEFAULT_SECONDARY;
+            border-radius: 100px;
+            padding: 4px 12px;
+            color: #fff !important;
         }
     }
 }

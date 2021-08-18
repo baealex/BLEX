@@ -10,6 +10,7 @@ import { GetServerSidePropsContext } from 'next';
 
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
+import { authContext } from '@state/auth';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { token } = context.query;
@@ -56,13 +57,10 @@ export default function Verify(props: Props) {
         }
         if(data.status === 'DONE') {
             toast(`😆 ${props.username}님! 환영합니다 🎉`);
-            if(data.body.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.body.notifyCount}개 있습니다.`, {
-                    onClick:() => {
-                        Router.push('/setting');
-                    }
-                });
-            }
+            authContext.setState({
+                isLogin: true,
+                ...data.body,
+            })
             Router.replace('/');
         }
         return;

@@ -103,7 +103,7 @@ export class SignupModal extends React.Component<Props, State> {
     
     render() {
         return (
-            <Modal title='회원가입' isOpen={this.props.isOpen} onClose={() => this.props.onClose()}>
+            <Modal title='회원등록' isOpen={this.props.isOpen} onClose={() => this.props.onClose()}>
                 {this.state.isDone ? (
                     <div className="mx-auto bg-border-purple p-3 bg-light deep-dark">
                         {this.state.realname}님의 가입을 진심으로 환영합니다! 💜

@@ -1,15 +1,18 @@
 import SharedState from 'bstate';
 
-export interface AuthContextState {
+import { GetLoginData } from '@modules/api';
+
+export interface AuthContextState extends GetLoginData {
     isLogin: boolean;
-    username: string;
 }
 
 class AuthContext extends SharedState<AuthContextState> {
     state = {
         isLogin: false,
         username: '',
-    }
+        avatar: '',
+        notify: [],
+    } as AuthContextState
 }
 
 export const authContext = new AuthContext();

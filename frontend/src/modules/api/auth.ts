@@ -15,7 +15,14 @@ export async function getLogin(cookie='') {
 
 export interface GetLoginData {
     username: string;
-    notifyCount: number;
+    avatar: string;
+    notify: {
+        pk: number;
+        url: string;
+        isRead: boolean;
+        content: string;
+        createdDate: string;
+    }[];
 }
 
 export async function postLogin(username: string, password: string) {
@@ -32,10 +39,8 @@ export async function postLogin(username: string, password: string) {
     });
 }
 
-export interface PostLoginData {
-    username: string;
+export interface PostLoginData extends GetLoginData {
     security?: boolean;
-    notifyCount?: number;
 }
 
 export async function postLogout() {

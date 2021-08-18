@@ -2,7 +2,7 @@
 
 .card {
     @include BACKGROUND;
-    @include MAIN_SHADOW;
+    @include SUB_SHADOW;
     word-break: break-word;
     border-radius: 8px;
     padding: 30px 15px 10px 15px;

@@ -294,7 +294,7 @@ class PostDetail extends React.Component<Props, State> {
                             ) : <></>}
                         </div>
                         <div className="col-lg-2 mobile-disable">
-                            <div className="sticky-top article-nav none-drag">
+                            <div className="sticky-top sticky-top-100 article-nav none-drag">
                                 {this.state.headerNav.map((item, idx) => (
                                     <a className={`title-${item[0]} ${this.state.headerNow == item[1] ? 'nav-now' : ''}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
                                 ))}

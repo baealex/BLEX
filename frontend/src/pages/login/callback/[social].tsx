@@ -42,17 +42,10 @@ export default function SocialLogin(props: Props) {
                 return;
             }
             toast(`😃 로그인 되었습니다.`);
-            if(data.body.notifyCount != 0) {
-                toast(`😲 읽지 않은 알림이 ${data.body.notifyCount}개 있습니다.`, {
-                    onClick:() => {
-                        Router.push('/setting');
-                    }
-                });
-            }
 
             authContext.setState({
                 isLogin: true,
-                username: data.body.username
+                ...data.body
             });
         } else {
             toast('😥 인증이 실패했습니다.');

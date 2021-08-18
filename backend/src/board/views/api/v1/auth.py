@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import auth
 from django.core.files import File
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -15,6 +16,26 @@ from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 from modules.response import StatusDone, StatusError
 from board.views import function as fn
+
+def login_response(user):
+    username = user.username
+    avatar = str(user.profile.avatar)
+
+    seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+    notify = Notify.objects.filter(user=user)
+    notify = notify.filter(Q(created_date__gt=seven_days_ago) | Q(is_read=False)).order_by('-created_date')
+
+    return StatusDone({
+        'username': user.username,
+        'avatar': avatar,
+        'notify': list(map(lambda item: {
+            'pk': item.pk,
+            'url': item.url,
+            'is_read': item.is_read,
+            'content': item.infomation,
+            'created_date': timesince(item.created_date)
+        }, notify)),
+    })
 
 def common_auth(request, user):
     if not settings.DEBUG:
@@ -30,20 +51,12 @@ def common_auth(request, user):
                 'security': True,
             })
     auth.login(request, user)
-    notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
-    return StatusDone({
-        'username': user.username,
-        'notify_count': notify.count()
-    })
+    return login_response(request.user)
 
 def login(request):
     if request.method == 'GET':
         if request.user.is_active:
-            notify = Notify.objects.filter(user=request.user, is_read=False).order_by('-created_date')
-            return StatusDone({
-                'username': request.user.username,
-                'notify_count': notify.count(),
-            })
+            return login_response(request.user)
         return StatusError('NL')
     
     if request.method == 'POST':
@@ -166,10 +179,7 @@ def sign_social(request, social):
                         )
                     )
                     auth.login(request, new_user)
-                    return StatusDone({
-                        'username': username,
-                        'notify_count': 1
-                    })
+                    return login_response(request.user)
                 return StatusError('RJ')
         
         if social == 'google':
@@ -218,10 +228,7 @@ def sign_social(request, social):
                     )
 
                     auth.login(request, new_user)
-                    return StatusDone({
-                        'username': username,
-                        'notify_count': 1
-                    })
+                    return login_response(request.user)
                 return StatusError('RJ')
     raise Http404
 
@@ -268,10 +275,7 @@ def email_verify(request, token):
         )
 
         auth.login(request, user)
-        return StatusDone({
-            'username': user.username,
-            'notify_count': 1
-        })
+        return login_response(request.user)
     raise Http404
 
 def security(request):
@@ -325,11 +329,7 @@ def security_send(request):
                     two_factor_auth.one_pass_token = ''
                     two_factor_auth.save()
                     auth.login(request, user)
-                    notify = Notify.objects.filter(user=user, is_read=False).order_by('-created_date')
-                    return StatusDone({
-                        'username': request.user.username,
-                        'notify_count': notify.count(),
-                    })
+                    return login_response(request.user)
             else:
                 two_factor_auth = TwoFactorAuth.objects.get(recovery_key=auth_token)
                 if two_factor_auth:
@@ -337,11 +337,7 @@ def security_send(request):
                     two_factor_auth.one_pass_token = ''
                     two_factor_auth.save()
                     auth.login(request, user)
-                    notify = Notify.objects.filter(user=user, is_read=False).order_by('-created_date')
-                    return StatusDone({
-                        'username': request.user.username,
-                        'notify_count': notify.count(),
-                    })
+                    return login_response(request.user)
         except:
             traceback.print_exc()
 

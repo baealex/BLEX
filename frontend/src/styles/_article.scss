@@ -2,9 +2,8 @@
 /* POSTS : DETAIL : ARTICLE NAVIGATION */
 .article-nav {
     font-family: $FONT_GOTHIC;
-    top: 15px;
     margin: 15px 0;
-    max-height: calc(100vh - 30px);
+    max-height: calc(100vh - 100px);
     overflow-x: hidden;
     overflow-y: auto;
 

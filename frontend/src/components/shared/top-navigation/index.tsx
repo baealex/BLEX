@@ -2,13 +2,14 @@ import styles from './TopNavigation.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import Router from 'next/router'
+import Router from 'next/router';
 
 import { toast } from 'react-toastify';
 
 import * as API from '@modules/api';
+import { getUserImage } from '@modules/image';
 import {
     LoginModal,
     SignupModal,
@@ -21,11 +22,13 @@ import { modalContext } from '@state/modal';
 import { Dropdown } from '@components/atoms';
 
 export function TopNavigation() {
+    const [isRollup, setIsRollup] = useState(false);
     const [state, setState] = useState({
-        onNav: false,
         theme: configContext.state.theme,
         isLogin: authContext.state.isLogin,
         username: authContext.state.username,
+        avatar: authContext.state.avatar,
+        notify: authContext.state.notify,
         isLoginModalOpen: modalContext.state.isLoginModalOpen,
         isSignupModalOpen: modalContext.state.isSignupModalOpen,
         isTwoFactorAuthModalOpen: modalContext.state.isTwoFactorAuthModalOpen,
@@ -37,7 +40,15 @@ export function TopNavigation() {
                 ...prevState,
                 isLogin: nextState.isLogin,
                 username: nextState.username,
+                avatar: nextState.avatar,
+                notify: nextState.notify,
             }));
+        });
+        const configUpdateKey = configContext.appendUpdater((nextState) => {
+            setState((prevState) => ({
+                ...prevState,
+                theme: nextState.theme,
+            }))
         });
         const modalUpdateKey = modalContext.appendUpdater((nextState) => {
             setState((prevState) => ({
@@ -50,6 +61,7 @@ export function TopNavigation() {
 
         return () => {
             authContext.popUpdater(authUpdateKey);
+            configContext.popUpdater(configUpdateKey);
             modalContext.popUpdater(modalUpdateKey);
         }
     }, []);
@@ -95,37 +107,40 @@ export function TopNavigation() {
 
     useEffect(() => {
         API.getLogin().then(({data}) => {
-            authContext.setState({
-                isLogin: data.status === 'DONE' ? true : false,
-                username: data.status === 'DONE' ? data.body.username : '',
-            });
-            if(data.status === 'DONE') {
-                if(data.body.notifyCount != 0) {
-                    toast(`😲 읽지 않은 알림이 ${data.body.notifyCount}개 있습니다.`, {
-                        onClick:() => {
-                            Router.push('/setting');
-                        }
-                    });
-                }
+            if (data.status === 'DONE') {
+                authContext.setState({
+                    isLogin: true,
+                    ...data.body,
+                });
             }
         });
     }, []);
 
     useEffect(() => {
-        Router.events.on('routeChangeStart', () => {
-            setState((prevState) => ({
-                ...prevState,
-                onNav: false
-            }));
-        });
+        let ticking = false;
+        let lastScrollY = window.scrollY;
+
+        const event = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if (lastScrollY < window.scrollY && lastScrollY > 0) {
+                        setIsRollup(true);
+                    } else {
+                        setIsRollup(false);
+                    }
+                    lastScrollY = window.scrollY;
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        document.addEventListener('scroll', event);
+
+        return () => document.removeEventListener('scroll', event);
     }, []);
 
-    const onClickNavigation = () => {
-        setState((prevState) => ({
-            ...prevState,
-            onNav: !state.onNav
-        }));
-    }
+    console.log(isRollup)
 
     const onClickLogout = async () => {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
@@ -133,12 +148,18 @@ export function TopNavigation() {
             if(data.status === 'DONE') {
                 authContext.setState({
                     isLogin: false,
-                    username: ''
+                    username: '',
+                    avatar: '',
+                    notify: [],
                 });
                 toast('😀 로그아웃 되었습니다.');
             }
         }
     }
+
+    const notifyCount = useMemo(() => {
+        return state.notify.filter(item => !item.isRead).length;
+    }, [state.notify]);
 
     return (
         <>
@@ -154,125 +175,84 @@ export function TopNavigation() {
                 isOpen={state.isTwoFactorAuthModalOpen}
                 onClose={() => modalContext.onCloseModal('isTwoFactorAuthModalOpen')}
             />
-            <nav
-                onClick={() => onClickNavigation()}
-                className={cn('button', { on : state.onNav })}
-            >
-                <i className="fas fa-stream"/>
-            </nav>
-            <div className={cn('outer', { on : state.onNav })}>
-                <div className={cn('search')}>
-                    <Link href="/search">
-                        <a>
-                            <i className="fas fa-search"/>
-                        </a>
-                    </Link>
-                </div>
-                <div className={cn('inner')}>
-                    <ul className={cn('items')}>
-                        <li>
-                            <Link href="/">
-                                <a>메인 페이지</a>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/tags">
-                                <a>태그 클라우드</a>
-                            </Link>
-                        </li>
-                    </ul>
-                    {state.isLogin ? (
+            <nav className={cn('top-nav', { isRollup })}>
+                <div className={cn('container', 'h-100')}>
+                    <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
+                        <Link href="/">
+                            <a className={cn('logo')}>
+                                {state.theme === 'dark' ? (
+                                    <img src="/logow.svg"/>
+                                ) : (
+                                    <img src="/logob.svg"/>
+                                )}
+                            </a>
+                        </Link>
                         <ul className={cn('items')}>
-                            <li>
-                                <Link href={`/[author]`} as={`/@${state.username}`}>
-                                    <a><i className="fas fa-user"></i> 내 블로그</a>
-                                </Link>
+                            <li onClick={() => Router.push('/search')}>
+                                <i className="fas fa-search"/>
                             </li>
-                            <li>
-                                <Link href="/write">
-                                    <a><i className="fas fa-pencil-alt"></i> 포스트 작성</a>
-                                </Link>
-                            </li>
+                            {state.isLogin ? (
+                                <>
+                                    <li
+                                        onClick={() => Router.push('/setting')}
+                                        className={cn('notify')}
+                                    >
+                                        <i className="far fa-bell"/>
+                                        {notifyCount > 0 && (
+                                            <span>
+                                                {notifyCount}
+                                            </span>
+                                        )}
+                                    </li>
+                                    <li
+                                        onClick={() => Router.push('/write')}
+                                        className={cn('get-start')}
+                                    >
+                                        글 작성하기
+                                    </li>
+                                    <li className={cn('profile')}>
+                                        <Dropdown
+                                            position="left"
+                                            button={
+                                                <>
+                                                    <img src={getUserImage(state.avatar)}/>
+                                                    <i className="fas fa-sort-down"/>
+                                                </>
+                                            }
+                                            menus={[
+                                                {
+                                                    name: '내 블로그',
+                                                    onClick: () => Router.push(`/@${state.username}`),
+                                                },
+                                                {
+                                                    name: '설정',
+                                                    onClick: () => Router.push(`/setting/account`),
+                                                },
+                                                {
+                                                    name: '로그아웃',
+                                                    onClick: () => onClickLogout(),
+                                                }
+                                            ]}
+                                        />
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    <li onClick={() => modalContext.onOpenModal('isLoginModalOpen')}>
+                                        로그인
+                                    </li>
+                                    <li
+                                        onClick={() => modalContext.onOpenModal('isSignupModalOpen')}
+                                        className={cn('get-start')}
+                                    >
+                                        블로그 시작
+                                    </li>
+                                </>
+                            )}
                         </ul>
-                    ) : (
-                        <></>
-                    )}
-                    <ul className={cn('footer')}>
-                        <li>
-                            <a>
-                                <Dropdown
-                                    position="right"
-                                    button={<i className="fas fa-palette"/>}
-                                    menus={[
-                                        {
-                                            name: '밝은',
-                                            onClick: () => configContext.setTheme('default'),
-                                        },
-                                        {
-                                            name: '어두운',
-                                            onClick: () => configContext.setTheme('dark'),
-                                        },
-                                        {
-                                            name: '깜깜한',
-                                            onClick: () => {},
-                                            disable: true,
-                                        },
-                                        {
-                                            name: '네온',
-                                            onClick: () => {},
-                                            disable: true,
-                                        },
-                                        {
-                                            name: '파스텔',
-                                            onClick: () => {},
-                                            disable: true,
-                                        }
-                                    ]}
-                                />
-                            </a>
-                        </li>
-                        {state.isLogin ? (
-                            <>
-                                <li>
-                                    <Link href="/setting">
-                                        <a><i className="fas fa-cogs"></i> 설정</a>
-                                    </Link>
-                                </li>
-                                <li>
-                                    <a onClick={() => onClickLogout()}>
-                                        <i className="fas fa-sign-out-alt"></i> 로그아웃
-                                    </a>
-                                </li>
-                            </>
-                        ) : (
-                            <>
-                                <li>
-                                    <a onClick={() => modalContext.onOpenModal('isLoginModalOpen')}>
-                                        <i className="fas fa-sign-in-alt"></i> 로그인
-                                    </a>
-                                </li>
-                                <li>
-                                    <a onClick={() => modalContext.onOpenModal('isSignupModalOpen')}>
-                                        <i className="fas fa-users"></i> 회원가입
-                                    </a>
-                                </li>
-                            </>
-                        )}
-                    </ul>
-                    <ul className={cn('items')}>
-                        <li>
-                            <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
-                                <i className="fas fa-book"></i> 서비스 안내서
-                            </a>
-                        </li>
-                        <li>
-                            <a target="_blank" href="mailto:im@baejino.com">
-                                <i className="fas fa-at"></i> 이메일 보내기
-                            </a>
-                        </li>
-                    </ul>
+                    </div>
                 </div>
-            </div>
+            </nav>
         </>
     )
 }

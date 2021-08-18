@@ -25,11 +25,12 @@
 
     .card {
         transition: all 0.5s ease;
-        background: $COLOR_DEFAULT_BACKGROUND;
+        @include BACKGROUND;
+        @include SUB_SHADOW;
         
         &:hover {
             cursor: text;
-            @include SUB_SHADOW;
+            @include MAIN_SHADOW;
 
             &.isOpen {
                 cursor: initial;
