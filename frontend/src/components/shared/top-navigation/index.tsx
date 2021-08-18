@@ -87,14 +87,14 @@ export function TopNavigation() {
                 if (configContext.state.theme === 'default' || configContext.state.theme === 'dark') {
                     if (e.matches) {
                         document.body.classList.add('dark');
-                        configContext.setState((prevState) => ({
-                            ...prevState,
+                        configContext.setState((state) => ({
+                            ...state,
                             theme: 'dark',
                         }));
                     } else {
                         document.body.classList.remove('dark');
-                        configContext.setState((prevState) => ({
-                            ...prevState,
+                        configContext.setState((state) => ({
+                            ...state,
                             theme: 'default',
                         }));
                     }
@@ -176,15 +176,13 @@ export function TopNavigation() {
             <nav className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
                     <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
-                        <Link href="/">
-                            <a className={cn('logo')}>
-                                {state.theme === 'dark' ? (
-                                    <img src="/logow.svg"/>
-                                ) : (
+                        <div className={cn('logo')}>
+                            <Link href="/">
+                                <a>
                                     <img src="/logob.svg"/>
-                                )}
-                            </a>
-                        </Link>
+                                </a>
+                            </Link>
+                        </div>
                         <ul className={cn('items')}>
                             <li onClick={() => Router.push('/search')}>
                                 <i className="fas fa-search"/>
