@@ -103,13 +103,8 @@
     bottom: 0;
     width: 100%;
     backdrop-filter: blur(10px);
-    background: rgba(240, 240, 240, 0.77);
-    box-shadow: 0 -4px 12px 0 rgba(0, 0, 0, 0.05);
-
-    :global(body.dark) & {
-        background: rgba(15, 15, 15, 0.77);
-        box-shadow: 0 -4px 12px 0 rgba(0, 0, 0, 0.25);
-    }
+    @include MAIN_SHADOW;
+    @include BACKGROUND;
 
     .isScrollDown {
         transform: translateY(0px);
