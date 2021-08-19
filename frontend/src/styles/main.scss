@@ -12,6 +12,15 @@
 
 @import 'three-dots/sass/three-dots.scss';
 
+.content {
+    margin-top: 110px;
+    word-break: break-all;
+
+    @media only screen and (min-width: 991px) {
+        margin-top: 100px;
+    }
+}
+
 input, textarea, select {
     font-size: 16px;
 }
@@ -27,88 +36,16 @@ body.dark {
     float: left;
     border-radius: 100%;
     background: #fff;
-
-    body.dark & {
-        background: $COLOR_DARK_BACKGROUND;
-    }
 }
+
 .comment-thumb {
     width: 50px;
     height: 50px;
     margin-right: 15px;
 }
 
-// 글쓰기
-.article-w-title {
-    width: 100%;
-    padding: 12px;
-    border: 0;
-    background: #1A1A17;
-    color: #fff;
-    font-size: 18px;
-    font-weight: bold;
-
-    &::placeholder {
-        color: #ccc;
-    }
-
-    &:focus {
-        outline: 0;
-    }
-}
-
-.article-w-content {
-    border: 0;
-    background: #1A1A17;
-    color: #fff;
-    width: 100%;
-    font-size: 15px;
-    font-weight: bold;
-    padding: 5px;
-    height: 80vh;
-}
-
-.blex-editor {
-    .button {
-        font-family: $FONT_SERIF;
-        font-weight: bold;
-        margin: 5px;
-        font-size: 1em;
-    }
-
-    .CodeMirror {
-        height: 85vh !important;
-
-        .cm-header-1,
-        .cm-header-2,
-        .cm-header-3,
-        .cm-header-4 {
-            font-size: 1.6rem;
-        }
-    
-        .cm-header-5,
-        .cm-header-6 {
-            font-size: 1.2rem;
-        }
-    }
-
-    .preview {
-        height: 85vh;
-        overflow-y: scroll;
-        border-left: 1px solid #ddd;
-
-        body.dark & {
-            border-left: 1px solid #555;
-        }
-    }
-}
-
-
 /* ------------------------------ */
 /* HOME : COMMON */
-.card-subtitle {
-    text-transform: capitalize;
-}
 
 .card-title {
     font-weight: 600;
@@ -116,46 +53,9 @@ body.dark {
     font-variant: petite-caps;
 }
 
-.write-btn {
-    cursor: pointer;
-    position: fixed;
-    right: 23px;
-    bottom: 23px;
-    border-radius: 100%;
-    width: 50px;
-    height: 50px;
-    text-align: center;
-    z-index: 10;
-    background: #eee;
-    color: #000;
-
-    body.dark & {
-        background: #555;
-        color: #fff;
-    }
-}
-
-.write-btn i {
-    padding-top: 12px;
-    font-size: 24px;
-}
-
-.write-btn.slide {
-    right: 80px;
-    animation: movebtn 0.5s 1;
-}
-
 
 /* ------------------------------ */
 /* POSTS : DETAIL : COMMON */
-.bg-series {
-    border-top: 1px solid #ddd;
-}
-
-.s-shadow {
-    @include SUB_SHADOW;
-}
-
 .sticky-top-200 {
     top: 200px !important;
 }
@@ -178,32 +78,11 @@ body.dark {
     font-family: $FONT_GOTHIC;
     font-size: 0.8rem;
 }
+
 .post-series {
     display: block;
     font-size: 16px;
     margin-bottom:5px;
-}
-/* ------------------------------ */
-/* POSTS : DETAIL : SERIES */
-.posts-sereis {
-    li {
-        margin: 5px;
-    }
-
-    .series-count {
-        margin-left: 5px;
-        display: inline-block;
-        font-size: 10px;
-        padding: 0 3px;
-        color: #888;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-
-        body.dark & {
-            color: #ccc;
-            border: 1px solid #888;
-        }
-    }
 }
 /* ------------------------------ */
 /* SERIES : LAYOUT */

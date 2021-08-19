@@ -285,13 +285,13 @@ class PostDetail extends React.Component<Props, State> {
                                     <a>{item}</a>
                                 </Link>
                             ))}/>
-                            {this.props.hasSeries ? (
+                            {this.props.hasSeries && (
                                 <ArticleSeries
                                     {...this.props.series}
                                     activeSeries={this.props.activeSeries}
                                     sereisLength={this.props.sereisLength}
                                 />
-                            ) : <></>}
+                            )}
                         </div>
                         <div className="col-lg-2 mobile-disable">
                             <div className="sticky-top sticky-top-100 article-nav none-drag">

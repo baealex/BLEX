@@ -3,6 +3,7 @@ import SharedState from 'bstate';
 export interface ModalContextState {
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
+    isPublishModalOpen: boolean;
     isTwoFactorAuthModalOpen: boolean;
 }
 
@@ -12,6 +13,7 @@ class ModalContext extends SharedState<ModalContextState> {
     state = {
         isLoginModalOpen: false,
         isSignupModalOpen: false,
+        isPublishModalOpen: false,
         isTwoFactorAuthModalOpen: false,
     }
 

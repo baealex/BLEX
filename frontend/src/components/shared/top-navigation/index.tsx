@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 
 import { toast } from 'react-toastify';
 
@@ -22,6 +22,9 @@ import { modalContext } from '@state/modal';
 import { Dropdown } from '@components/atoms';
 
 export function TopNavigation() {
+    const router = useRouter();
+
+    const [path, setPath] = useState(router.pathname);
     const [isRollup, setIsRollup] = useState(false);
     const [state, setState] = useState({
         theme: configContext.state.theme,
@@ -140,6 +143,12 @@ export function TopNavigation() {
         return () => document.removeEventListener('scroll', event);
     }, []);
 
+    useEffect(() => {
+        router.events.on('routeChangeComplete', (url) => {
+            setPath(url);
+        })
+    }, []);
+
     const onClickLogout = async () => {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
             const { data } = await API.postLogout();
@@ -184,13 +193,13 @@ export function TopNavigation() {
                             </Link>
                         </div>
                         <ul className={cn('items')}>
-                            <li onClick={() => Router.push('/search')}>
+                            <li onClick={() => router.push('/search')}>
                                 <i className="fas fa-search"/>
                             </li>
                             {state.isLogin ? (
                                 <>
                                     <li
-                                        onClick={() => Router.push('/setting')}
+                                        onClick={() => router.push('/setting')}
                                         className={cn('notify')}
                                     >
                                         <i className="far fa-bell"/>
@@ -200,12 +209,21 @@ export function TopNavigation() {
                                             </span>
                                         )}
                                     </li>
-                                    <li
-                                        onClick={() => Router.push('/write')}
-                                        className={cn('get-start')}
-                                    >
-                                        글 작성하기
-                                    </li>
+                                    {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
+                                        <li
+                                            onClick={() => modalContext.onOpenModal('isPublishModalOpen')}
+                                            className={cn('get-start')}
+                                        >
+                                            글 발행하기
+                                        </li>
+                                    ) :(
+                                        <li
+                                            onClick={() => router.push('/write')}
+                                            className={cn('get-start', 'outline')}
+                                        >
+                                            글 작성하기
+                                        </li>
+                                    )}
                                     <li className={cn('profile')}>
                                         <Dropdown
                                             position="left"
@@ -218,11 +236,11 @@ export function TopNavigation() {
                                             menus={[
                                                 {
                                                     name: '내 블로그',
-                                                    onClick: () => Router.push(`/@${state.username}`),
+                                                    onClick: () => router.push(`/@${state.username}`),
                                                 },
                                                 {
                                                     name: '설정',
-                                                    onClick: () => Router.push(`/setting/account`),
+                                                    onClick: () => router.push(`/setting/account`),
                                                 },
                                                 {
                                                     name: '로그아웃',

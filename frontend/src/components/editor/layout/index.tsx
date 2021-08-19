@@ -27,6 +27,8 @@ import {
 import * as API from '@modules/api';
 import { dropImage, uploadImage } from '@modules/image';
 
+import { modalContext } from '@state/modal';
+
 interface Props {
     title: {
         value: string;
@@ -76,10 +78,21 @@ export function Layout(props: Props) {
     const [ isOepnFormsModal, setIsOpenFormsModal ] = useState(false);
     const [ isOepnImageModal, setIsOpenImageModal ] = useState(false);
     const [ isOepnYoutubeModal, setIsOpenYoutubeModal ] = useState(false);
-    const [ isOepnPublishModal, setIsOpenPublishModal ] = useState(false);
+    const [ isOepnPublishModal, setIsOpenPublishModal ] = useState(modalContext.state.isPublishModalOpen);
 
     const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
+
+    useEffect(() => {
+        const key = modalContext.appendUpdater((state) => {
+            setIsOpenPublishModal(state.isPublishModalOpen);
+        });
+
+        return () => {
+            modalContext.popUpdater(key);
+            modalContext.onCloseModal('isPublishModalOpen');
+        }
+    }, []);
 
     useEffect(() => {
         API.getSettingForms('').then((response) => {
@@ -200,7 +213,7 @@ export function Layout(props: Props) {
                 <Modal
                     title={props.publish.title}
                     isOpen={isOepnPublishModal}
-                    onClose={() => setIsOpenPublishModal(false)}
+                    onClose={() => modalContext.onCloseModal('isPublishModalOpen')}
                     submitText={props.publish.buttonText}
                     onSubmit={() => onSubmit()}
                 >
@@ -283,12 +296,6 @@ export function Layout(props: Props) {
                 />
 
                 {props.addon?.modal}
-
-                <div
-                    className="write-btn"
-                    onClick={() => setIsOpenPublishModal(true)}>
-                    <i className="fas fa-pencil-alt"></i>
-                </div>
 
                 {isSumbit ? <Loading/> : ''}
             </div>
