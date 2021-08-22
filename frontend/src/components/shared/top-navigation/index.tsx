@@ -116,6 +116,10 @@ export function TopNavigation() {
         let lastScrollY = window.scrollY;
 
         const event = () => {
+            if (path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1) {
+                return;
+            }
+            
             if (!ticking) {
                 window.requestAnimationFrame(() => {
                     if (lastScrollY < window.scrollY && lastScrollY > 0) {
@@ -133,7 +137,7 @@ export function TopNavigation() {
         document.addEventListener('scroll', event);
 
         return () => document.removeEventListener('scroll', event);
-    }, []);
+    }, [path]);
 
     useEffect(() => {
         router.events.on('routeChangeComplete', (url) => {

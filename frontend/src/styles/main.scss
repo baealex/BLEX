@@ -246,6 +246,11 @@ body.dark .btn {
     color: #fff;
 }
 
+.Toastify__toast-container--top-right {
+    top: calc(72px + 1em);
+    right: 1em;
+}
+
 .Toastify__toast--default {
     background: #fff !important;
     color: #555 !important;

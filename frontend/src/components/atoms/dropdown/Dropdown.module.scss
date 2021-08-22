@@ -46,6 +46,7 @@
     :global(body.dark) & {
         background-color: $COLOR_DARK_BACKGROUND;
         box-shadow: none;
+        border: 1px solid #444;
     }
 
     ul {
@@ -53,27 +54,19 @@
         padding-left: 0;
         margin-bottom: 0;
 
-        :not(:last-child) {
-            border-bottom: 1px solid #f7f7f7;
-
-            :global(body.dark) & {
-                border-bottom: 1px solid #525252;
-            }
-        }
-
         li {
             padding: 8px 12px;
             width: 100%;
             cursor: pointer;
-            a {
-                color: #333 !important;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f7f7f7;
+            color: #333 !important;
 
-                :global(body.dark) & {
-                    color: #eee !important;
-                }
+            :global(body.dark) & {
+                border-bottom: 1px solid #525252;
+                color: #eee !important;
             }
 
             &.disable {
@@ -85,6 +78,7 @@
             }
 
             &:last-child {
+                border: none;
                 border-radius: 0 0 5px 5px;
             }
             
