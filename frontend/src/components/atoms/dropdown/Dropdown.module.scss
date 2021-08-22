@@ -3,12 +3,12 @@
 @keyframes left-in {
     from {
         opacity: 0;
-        transform: scale(0) translate(-100%, -50%);
+        transform: scale(0) translate(-90%, -50%);
     }
   
     to {
         opacity: 1;
-        transform: scale(1) translate(-100%, 0);
+        transform: scale(1) translate(-90%, 0);
     }
 }
 
@@ -26,11 +26,11 @@
 
 .menu {
     position: absolute;
-    min-width: 120px;
+    min-width: 130px;
     z-index: 5;
 
     &.left {
-        transform: translateX(-100%);
+        transform: translateX(-90%);
         animation: left-in 0.2s ease-in;
     }
 
@@ -67,6 +67,9 @@
             cursor: pointer;
             a {
                 color: #333 !important;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
 
                 :global(body.dark) & {
                     color: #eee !important;

@@ -12,6 +12,7 @@ export interface DropdownProps {
     position?: 'left' | 'right';
     button: JSX.Element;
     menus: {
+        icon?: string,
         name: string;
         onClick: (event: React.MouseEvent) => void;
         disable?: boolean;
@@ -59,7 +60,12 @@ export function Dropdown(props: DropdownProps) {
                                 {props.menus.map((menu, idx) => (
                                     <li key={idx} onClick={menu.onClick} className={cn({ disable: menu.disable })}>
                                         <a>
-                                            {menu.name}
+                                            <span>
+                                                {menu.name}
+                                            </span>
+                                            {menu.icon && (
+                                                <i className={menu.icon}/>
+                                            )}
                                         </a>
                                     </li>
                                 ))}

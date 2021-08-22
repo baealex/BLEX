@@ -89,17 +89,9 @@ export function TopNavigation() {
             systemDark.addEventListener('change', e => {
                 if (configContext.state.theme === 'default' || configContext.state.theme === 'dark') {
                     if (e.matches) {
-                        document.body.classList.add('dark');
-                        configContext.setState((state) => ({
-                            ...state,
-                            theme: 'dark',
-                        }));
+                        configContext.setTheme('dark');
                     } else {
-                        document.body.classList.remove('dark');
-                        configContext.setState((state) => ({
-                            ...state,
-                            theme: 'default',
-                        }));
+                        configContext.setTheme('default');
                     }
                 }
             });
@@ -236,16 +228,31 @@ export function TopNavigation() {
                                             menus={[
                                                 {
                                                     name: '내 블로그',
+                                                    icon: 'far fa-user',
                                                     onClick: () => router.push(`/@${state.username}`),
                                                 },
                                                 {
+                                                    name: state.theme === 'default' ? '라이트 모드' : '다크 모드',
+                                                    icon: state.theme === 'default' ?  'fas fa-sun' : 'far fa-moon',
+                                                    onClick: () => {
+                                                        if (state.theme === 'default') {
+                                                            configContext.setTheme('dark');
+                                                        }
+                                                        else if (state.theme === 'dark') {
+                                                            configContext.setTheme('default');
+                                                        }
+                                                    },
+                                                },
+                                                {
                                                     name: '설정',
+                                                    icon: 'fas fa-cog',
                                                     onClick: () => router.push(`/setting/account`),
                                                 },
                                                 {
                                                     name: '로그아웃',
+                                                    icon: 'fas fa-sign-out-alt',
                                                     onClick: () => onClickLogout(),
-                                                }
+                                                },
                                             ]}
                                         />
                                     </li>
