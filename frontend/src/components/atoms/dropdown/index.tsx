@@ -59,12 +59,12 @@ export function Dropdown(props: DropdownProps) {
                             <ul>
                                 {props.menus.map((menu, idx) => (
                                     <li key={idx} onClick={menu.onClick} className={cn({ disable: menu.disable })}>
-                                            <span>
-                                                {menu.name}
-                                            </span>
-                                            {menu.icon && (
-                                                <i className={menu.icon}/>
-                                            )}
+                                        <span>
+                                            {menu.name}
+                                        </span>
+                                        {menu.icon && (
+                                            <i className={menu.icon}/>
+                                        )}
                                     </li>
                                 ))}
                             </ul>
