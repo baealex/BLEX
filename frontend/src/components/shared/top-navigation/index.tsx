@@ -115,11 +115,12 @@ export function TopNavigation() {
         let ticking = false;
         let lastScrollY = window.scrollY;
 
+        if (path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1) {
+            setIsRollup(false);
+            return;
+        }
+
         const event = () => {
-            if (path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1) {
-                return;
-            }
-            
             if (!ticking) {
                 window.requestAnimationFrame(() => {
                     if (lastScrollY < window.scrollY && lastScrollY > 0) {
