@@ -211,9 +211,11 @@ export function TopNavigation() {
                                             onClick={() => modalContext.onOpenModal('isPublishModalOpen')}
                                             className={cn('get-start')}
                                         >
-                                            글 발행하기
+                                            {path.lastIndexOf('/write') > -1
+                                                ? '글 발행하기' 
+                                                : '글 수정하기'}
                                         </li>
-                                    ) :(
+                                    ) : (
                                         <li
                                             onClick={() => router.push('/write')}
                                             className={cn('get-start', 'outline')}
