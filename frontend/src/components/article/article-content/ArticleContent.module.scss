@@ -34,6 +34,10 @@
         margin: 0 0 1em;
     }
 
+    li > ul {
+        margin: 0;
+    }
+
     div {
         p {
             margin: 0;
