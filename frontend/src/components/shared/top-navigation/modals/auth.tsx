@@ -42,25 +42,26 @@ export class AuthModal extends React.Component<Props, State> {
         }
     }
 
-    onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
-        if(e.key == 'Enter') {
-            this.onSubmitLogin();
-        }
-    }
-
     onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
         this.setState({
             ...this.state,
             [e.target.name]: e.target.value
         });
+        if (e.target.value.length >= 6) {
+            this.onSubmitLogin(e.target.value);
+        }
     }
 
-    async onSubmitLogin() {
-        if(this.state.code == '') {
+    async onSubmitLogin(code: string) {
+        if (code == '') {
             toast('😅 코드를 입력해주세요!');
             return;
         }
-        const { data } = await API.postSecuritySend(this.state.code);
+        if (code.length < 6) {
+            toast('😅 코드를 정확히 입력해주세요!');
+            return;
+        }
+        const { data } = await API.postSecuritySend(code);
         this.loginCheck(data);
     }
 
@@ -78,6 +79,11 @@ export class AuthModal extends React.Component<Props, State> {
             if (data.errorCode === API.ERROR.REJECT) {
                 toast('😥 코드를 확인하여 주십시오.');
             }
+
+            this.setState({
+                ...this.state,
+                code: '',
+            });
         }
 
         if (data.status == 'DONE') {
@@ -102,21 +108,25 @@ export class AuthModal extends React.Component<Props, State> {
                 onClose={() => {}}
             >
                 <p>
-                    텔레그램으로 전송된 2차 인증 코드를 입력하세요.
-                    코드를 받을 수 없다면 복구키를 입력해 주십시오.
-                    인증 코드 유효시간 {remainTime}
+                    텔레그램으로 전송된 2차 인증코드를 입력하세요.
+                    인증코드 유효 시간 {remainTime}
                 </p>
                 <input
                     className="login-form"
                     name="code"
+                    type="number"
                     placeholder="코드"
                     onChange={(e) => this.onInputChange(e)}
                     value={this.state.code}
-                    onKeyPress={(e) => this.onEnterLogin(e)}
+                    onKeyPress={(e) => {
+                        if(e.key == 'Enter') {
+                            this.onSubmitLogin(this.state.code);
+                        }
+                    }}
                 />
                 <button
                     className="login-button"
-                    onClick={() => this.onSubmitLogin()}>
+                    onClick={() => this.onSubmitLogin(this.state.code)}>
                     인증
                 </button>
             </Modal>
