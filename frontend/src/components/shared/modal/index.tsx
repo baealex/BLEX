@@ -17,11 +17,11 @@ export function Modal(props: Props) {
         if(props.isOpen) {
             document.body.style.overflow = 'hidden';
         } else {
-            document.body.style.overflow = 'initial';
+            document.body.style.overflow = '';
         }
 
         return () => {
-            document.body.style.overflow = 'initial';
+            document.body.style.overflow = '';
         }
     }, [props.isOpen]);
 
