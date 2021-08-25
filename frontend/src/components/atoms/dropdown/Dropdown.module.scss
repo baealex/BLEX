@@ -3,24 +3,24 @@
 @keyframes left-in {
     from {
         opacity: 0;
-        transform: scale(0) translate(-90%, -50%);
+        transform: scale(0.8) translateX(-90%);
     }
   
     to {
         opacity: 1;
-        transform: scale(1) translate(-90%, 0);
+        transform: scale(1) translateX(-90%);
     }
 }
 
 @keyframes right-in {
     from {
         opacity: 0;
-        transform: scale(0) translate(10%, -50%);
+        transform: scale(0.8) translateX(10%);
     }
   
     to {
         opacity: 1;
-        transform: scale(1) translate(10%, 0);
+        transform: scale(1) translateX(10%);
     }
 }
 
@@ -31,12 +31,12 @@
 
     &.left {
         transform: translateX(-90%);
-        animation: left-in 0.2s ease-in;
+        animation: left-in 0.2s ease;
     }
 
     &.right {
         transform: translateX(10%);
-        animation: right-in 0.2s ease-in;
+        animation: right-in 0.2s ease;
     }
     
     border-radius: 5px;
@@ -46,7 +46,7 @@
     :global(body.dark) & {
         background-color: $COLOR_DARK_BACKGROUND;
         box-shadow: none;
-        border: 1px solid #444;
+        border: 1px solid #333;
     }
 
     ul {
