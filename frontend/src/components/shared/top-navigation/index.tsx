@@ -26,6 +26,7 @@ export function TopNavigation() {
 
     const [path, setPath] = useState(router.pathname);
     const [isRollup, setIsRollup] = useState(false);
+    const [isMenuOpen, setisMenuOpen] = useState(false);
     const [state, setState] = useState({
         theme: configContext.state.theme,
         isLogin: authContext.state.isLogin,
@@ -143,8 +144,17 @@ export function TopNavigation() {
     useEffect(() => {
         router.events.on('routeChangeComplete', (url) => {
             setPath(url);
+            setisMenuOpen(false);
         })
     }, []);
+
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }, [isMenuOpen]);
 
     const onClickLogout = async () => {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
@@ -256,6 +266,11 @@ export function TopNavigation() {
                                                     onClick: () => router.push(`/setting/account`),
                                                 },
                                                 {
+                                                    name: '전체 메뉴',
+                                                    icon: 'fas fa-th-large',
+                                                    onClick: () => setisMenuOpen(true),
+                                                },
+                                                {
                                                     name: '로그아웃',
                                                     icon: 'fas fa-sign-out-alt',
                                                     onClick: () => onClickLogout(),
@@ -281,6 +296,53 @@ export function TopNavigation() {
                     </div>
                 </div>
             </nav>
+            <div className={cn('all-menu', { isMenuOpen })}>
+                <div className={cn('close')} onClick={() => setisMenuOpen(false)}>
+                    <i className="fas fa-times"/>
+                </div>
+                <div className="container">
+                    <div className={cn('header')}>게시글</div>
+                    <ul>
+                        <li>
+                            <Link href="/search">
+                                <a>검색</a>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/">
+                                <a>주간 트렌드</a>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/">
+                                <a>최신 포스트</a>
+                            </Link>
+                        </li>
+                        <li>인기 포스트</li>
+                        <li>
+                            <Link href="/tags">
+                                <a>태그 클라우드</a>
+                            </Link>
+                        </li>
+                        <li>하트 눌렀던 포스트</li>
+                        <li>구독한 블로거 피드</li>
+                    </ul>
+                    <div className={cn('header')}>블로그</div>
+                    <ul>
+                        <li>새 글 작성</li>
+                        <li>포스트 관리</li>
+                        <li>서식 관리</li>
+                        <li>시리즈 관리</li>
+                    </ul>
+                    <div className={cn('header')}>계정</div>
+                    <ul>
+                        <li>아이디 / 패스워드 변경</li>
+                        <li>2차 인증</li>
+                        <li>프로필 관리</li>
+                        <li>회원탈퇴</li>
+                    </ul>
+                </div>
+            </div>
         </>
     )
 }
