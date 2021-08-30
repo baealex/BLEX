@@ -6,13 +6,17 @@ const NAVIGATION_ITEMS = [
         name: '최신 포스트'
     },
     {
+        link: '/popular',
+        name: '인기 포스트'
+    },
+    {
         link: '/tags',
         name: '태그 클라우드'
     },
 ];
 
 export interface LayoutProps {
-    active: '최신 포스트' | '태그 클라우드' | string;
+    active: '최신 포스트' | '인기 포스트' | '태그 클라우드' | string;
     children: JSX.Element;
     itemExpended?: (tag: typeof NAVIGATION_ITEMS) => typeof NAVIGATION_ITEMS;
 }

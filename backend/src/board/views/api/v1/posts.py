@@ -111,9 +111,43 @@ def top_trendy(request):
         })
     raise Http404
 
-def posts(request):
+def popular_posts(request):
     if request.method == 'GET':
-        sort = request.GET.get('sort', 'newest')
+        page = request.GET.get('page', 1)
+
+        cache_key = 'popular_posts'
+        posts = cache.get(cache_key)
+        if not posts:
+            posts = Post.objects.filter(
+                created_date__lte=timezone.now(),
+                notice=False,
+                hide=False,
+            ).annotate(
+                author_username=F('author__username'),
+                author_image=F('author__profile__avatar')
+            )
+            posts = sorted(posts, key=lambda instance: instance.trendy(), reverse=True)
+            cache.set(cache_key, posts, 7200)
+
+        paginator = Paginator(posts, 24)
+        fn.page_check(page, paginator)
+        posts = paginator.get_page(page)
+        return StatusDone({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'image': str(post.image),
+                'description': post.description(),
+                'read_time': post.read_time,
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'author_image': post.author_image,
+                'author': post.author_username,
+            }, posts)),
+            'last_page': posts.paginator.num_pages
+        })
+
+def newest_posts(request):
+    if request.method == 'GET':
         page = request.GET.get('page', 1)
 
         posts = Post.objects.filter(
@@ -123,10 +157,7 @@ def posts(request):
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar')
-        )
-
-        if sort == 'newest':
-            posts = posts.order_by('-created_date')
+        ).order_by('-created_date')
 
         paginator = Paginator(posts, 24)
         fn.page_check(page, paginator)

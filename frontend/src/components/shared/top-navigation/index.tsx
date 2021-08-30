@@ -318,7 +318,11 @@ export function TopNavigation() {
                                 <a>최신 포스트</a>
                             </Link>
                         </li>
-                        <li>인기 포스트</li>
+                        <li>
+                            <Link href="/popular">
+                                <a>인기 포스트</a>
+                            </Link>
+                        </li>
                         <li>
                             <Link href="/tags">
                                 <a>태그 클라우드</a>

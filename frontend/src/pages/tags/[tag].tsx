@@ -1,12 +1,12 @@
 import Head from 'next/head';
 import React from 'react';
 
-import { Layout } from '@components/article/collection';
 import { ArticleCard } from '@components/article';
 import {
     Footer,
+    PageNavigation,
     Pagination,
-    SEO
+    SEO,
 } from '@components/shared';
 import { TagWiki } from '@components/tag';
 
@@ -50,42 +50,30 @@ export default function TagDetail(props: Props) {
                 image="https://static.blex.me/assets/images/default-post.png"
                 description={`블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}
             />
-            
+            <div className="container">
+                <PageNavigation
+                    items={[{name: props.tag}]}
+                    active={props.tag}
+                    disableLink
+                />
+                {props.descPosts.url && (
+                    <TagWiki {...props.descPosts}/>
+                )}
+                <div className="row">
+                    {props.posts.map((item, idx) => (
+                        <ArticleCard 
+                            key={idx}
+                            className="col-lg-4 col-md-6 mt-4"
+                            {...item}
+                        />
+                    ))}
+                </div>
                 <Pagination
                     page={props.page}
                     last={props.lastPage}
                 />
+            </div>
             <Footer/>
         </>
     )
 }
-
-TagDetail.pageLayout = (page: JSX.Element, props: Props) => (
-    <Layout
-        active={props.tag}
-        {...props}
-        itemExpended={(tags) => [
-            ...tags,
-            {
-                name: props.tag,
-                link: `/tags/${props.tag}`
-            }
-        ]}
-    >
-        <>
-            {props.descPosts.url && (
-                <TagWiki {...props.descPosts}/>
-            )}
-            <div className="row">
-                {props.posts.map((item, idx) => (
-                    <ArticleCard 
-                        key={idx}
-                        className="col-lg-4 col-md-6 mt-4"
-                        {...item}
-                    />
-                ))}
-            </div>
-            {page}
-        </>
-    </Layout>
-)

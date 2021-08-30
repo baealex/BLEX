@@ -84,9 +84,16 @@ export async function deleteTempPosts(token: string) {
     });
 }
 
-export async function getPosts(sort: string, page: number) {
+export async function getPopualrPosts(page: number) {
     return await axios.request<ResponseData<GetPostsData>>({
-        url: `/v1/posts?sort=${sort}&page=${page}`,
+        url: `/v1/posts/popular?page=${page}`,
+        method: 'GET',
+    });
+}
+
+export async function getNewestPosts(page: number) {
+    return await axios.request<ResponseData<GetPostsData>>({
+        url: `/v1/posts/newest?page=${page}`,
         method: 'GET',
     });
 }
