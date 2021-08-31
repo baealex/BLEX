@@ -1,6 +1,4 @@
-import base64
 import datetime
-import hashlib
 
 from django.conf import settings
 from django.utils import timezone
@@ -9,6 +7,7 @@ from board.models import (
     History, PostAnalytics, Referer, RefererFrom, convert_to_localtime)
 from modules.subtask import sub_task_manager
 from modules.scrap import page_parser
+from modules.hash import get_sha256
 
 UNVAILD_REFERERS = [
     settings.SITE_URL,
@@ -77,9 +76,6 @@ def get_network_addr(request):
         ip_addr = request.META.get('HTTP_X_FORWARDED_FOR')
     return ip_addr
 
-def get_hash_key(data):
-    return base64.b64encode(hashlib.sha256(data).digest()).decode()
-
 def view_count(posts, request, ip, user_agent, referer):
     if posts.author == request.user:
         return
@@ -137,7 +133,7 @@ def has_vaild_referer(referer):
     return True
 
 def create_history(ip, user_agent):
-    key = get_hash_key((ip).encode())
+    key = get_sha256(ip)
     try:
         history = History.objects.get(key=key)
         will_save = False

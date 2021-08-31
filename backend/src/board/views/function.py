@@ -1,7 +1,5 @@
 import io
 import os
-import base64
-import hashlib
 import requests
 
 from django.http import Http404
@@ -12,6 +10,7 @@ from django.core.cache import cache
 from django.conf import settings
 
 from board.models import *
+from modules.hash import get_sha256
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 
@@ -87,9 +86,6 @@ def get_user_topics(user, include='posts,thread'):
 def get_clean_tag(tag):
     clean_tag = slugify(tag.replace(',', '-').replace('_', '-'), allow_unicode=True).split('-')
     return ','.join(list(set(clean_tag)))
-
-def get_hash_key(data):
-    return base64.b64encode(hashlib.sha256(data).digest()).decode()
 
 def get_exp(user):
     if hasattr(user, 'profile'):
@@ -214,7 +210,7 @@ def page_check(page, paginator):
         raise Http404
 
 def create_notify(user, url, infomation):
-    hash_key = get_hash_key((user.username + url + infomation).encode())
+    hash_key = get_sha256(user.username + url + infomation)
     if Notify.objects.filter(key=hash_key).exists():
         return
     
