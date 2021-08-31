@@ -77,6 +77,10 @@
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover;
+
+        @supports (-webkit-touch-callout : none) {
+            background-attachment: scroll;
+        }
     }
 
     &::after {
