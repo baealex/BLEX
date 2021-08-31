@@ -6,6 +6,7 @@ from django.http import Http404
 from PIL import Image, ImageFilter
 
 from board.models import ImageCache, randstr
+from modules.hash import get_sha256
 from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
@@ -18,7 +19,7 @@ def image(request):
             allowed_ext = ['jpg', 'jpeg', 'png', 'gif']
             
             image = request.FILES['image']
-            image_key = fn.get_hash_key(image.read())
+            image_key = get_sha256(image.read())
 
             try:
                 image_cache = ImageCache.objects.get(key=image_key)
