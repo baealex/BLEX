@@ -80,6 +80,58 @@ def temp_posts(request):
 
     raise Http404
 
+def posts(request):
+    if request.method == 'POST':
+        if not request.user.is_active:
+            return StatusError('NL')
+
+        post = Post()
+        post.title = request.POST.get('title', '')
+        post.author = request.user
+        post.text_md = request.POST.get('text_md', '')
+        post.text_html = request.POST.get('text_html', '')
+        post.hide = True if request.POST.get('is_hide', '') == 'true' else False
+        post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
+        post.read_time = calc_read_time(post.text_html)
+
+        try:
+            series_url = request.POST.get('series', '')
+            if series_url:
+                series = Series.objects.get(owner=request.user, url=series_url)
+                post.series = series
+        except:
+            pass
+
+        try:
+            post.image = request.FILES['image']
+        except:
+            pass
+        
+        post.tag = fn.get_clean_tag(request.POST.get('tag', ''))[:50]
+        post.url = slugify(post.title, allow_unicode=True)
+        if post.url == '':
+            post.url = randstr(15)
+        i = 1
+        while True:
+            try:
+                post.save()
+                break
+            except:
+                post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
+                i += 1
+
+        token = request.POST.get('token')
+        if token:
+            try:
+                TempPosts.objects.get(token=token, author=request.user).delete()
+            except:
+                pass
+        return StatusDone({
+            'url': post.url,
+        })
+
+    raise Http404
+
 def top_trendy(request):
     if request.method == 'GET':
         seven_days_ago  = timezone.now() - datetime.timedelta(days=7)
@@ -175,57 +227,6 @@ def newest_posts(request):
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
-    
-    if request.method == 'POST':
-        if not request.user.is_active:
-            return StatusError('NL')
-
-        post = Post()
-        post.title = request.POST.get('title', '')
-        post.author = request.user
-        post.text_md = request.POST.get('text_md', '')
-        post.text_html = request.POST.get('text_html', '')
-        post.hide = True if request.POST.get('is_hide', '') == 'true' else False
-        post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
-        post.read_time = calc_read_time(post.text_html)
-
-        try:
-            series_url = request.POST.get('series', '')
-            if series_url:
-                series = Series.objects.get(owner=request.user, url=series_url)
-                post.series = series
-        except:
-            pass
-
-        try:
-            post.image = request.FILES['image']
-        except:
-            pass
-        
-        post.tag = fn.get_clean_tag(request.POST.get('tag', ''))[:50]
-        post.url = slugify(post.title, allow_unicode=True)
-        if post.url == '':
-            post.url = randstr(15)
-        i = 1
-        while True:
-            try:
-                post.save()
-                break
-            except:
-                post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
-                i += 1
-
-        token = request.POST.get('token')
-        if token:
-            try:
-                TempPosts.objects.get(token=token, author=request.user).delete()
-            except:
-                pass
-        return StatusDone({
-            'url': post.url,
-        })
-
-    raise Http404
 
 def feature_posts(request, tag=None):
     if not tag:
