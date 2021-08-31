@@ -7,12 +7,15 @@ export interface AuthContextState extends GetLoginData {
 }
 
 class AuthContext extends SharedState<AuthContextState> {
-    state = {
-        isLogin: false,
-        username: '',
-        avatar: '',
-        notify: [],
-    } as AuthContextState
+    constructor() {
+        super();
+        this.state = {
+            isLogin: false,
+            username: '',
+            avatar: '',
+            notify: [],
+        };
+    }
 }
 
 export const authContext = new AuthContext();

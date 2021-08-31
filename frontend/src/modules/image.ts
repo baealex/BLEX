@@ -66,28 +66,22 @@ export async function uploadImage(file: File) {
         return;
     }
     try {
-        loadingContext.setState({
-            isLoading: true,
-        })
+        loadingContext.setState({ isLoading: true });
         const { data } = await API.postImage(file);
-        loadingContext.setState({
-            isLoading: false,
-        })
+        loadingContext.setState({ isLoading: false });
         if (data.status === 'ERROR') {
             toast(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
             return;
         }
         return data.body.url;
-    } catch(error) {
-        loadingContext.setState({
-            isLoading: false,
-        })
+    } catch(error: any) {
+        loadingContext.setState({ isLoading: false });
         const { status } = error.response;
-        if(status == 404) {
+        if (status == 404) {
             toast('🤔 로그인이 필요합니다.');
             return;
         }
-        if(status > 500) {
+        if (status > 500) {
             toast('🤔 이미지 파일이 아닙니다.');
             return;
         }

@@ -10,11 +10,14 @@ export interface ModalContextState {
 type ModalName = keyof ModalContextState;
 
 class ModalContext extends SharedState<ModalContextState> {
-    state = {
-        isLoginModalOpen: false,
-        isSignupModalOpen: false,
-        isPublishModalOpen: false,
-        isTwoFactorAuthModalOpen: false,
+    constructor() {
+        super();
+        this.state = {
+            isLoginModalOpen: false,
+            isSignupModalOpen: false,
+            isPublishModalOpen: false,
+            isTwoFactorAuthModalOpen: false,
+        }
     }
 
     async onOpenModal(modalName: ModalName) {

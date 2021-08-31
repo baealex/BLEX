@@ -1,6 +1,6 @@
-import cookie from '@modules/cookie';
-
 import SharedState from 'bstate';
+
+import cookie from '@modules/cookie';
 
 type Theme = 'default' | 'dark' | 'black' | 'neon' | 'pastel';
 
@@ -13,18 +13,18 @@ export interface ConfigContextState {
 
 class ConfigContext extends SharedState<ConfigContextState> {
     init: boolean = false;
-    state = {
-        theme: 'default' as Theme,
-        isAutoSave: true,
-        isOpenNewTab: false,
-        isSortOldFirst: false,
-    };
 
     constructor() {
         super();
         if (typeof window !== 'undefined') {
             this.clientSideInject();
             this.init = true;
+            this.state = {
+                theme: 'default' as Theme,
+                isAutoSave: true,
+                isOpenNewTab: false,
+                isSortOldFirst: false,
+            };
         }
     }
 

@@ -5,8 +5,11 @@ export interface LoadingContextState {
 }
 
 class LoadingContext extends SharedState<LoadingContextState> {
-    state = {
-        isLoading: false,
+    constructor() {
+        super();
+        this.state = {
+            isLoading: false,
+        };
     }
 }
 
