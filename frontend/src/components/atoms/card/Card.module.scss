@@ -5,7 +5,7 @@
     display: block;
 
     &.hasShadow {
-        @include SUB_SHADOW;
+        @include MAIN_SHADOW;
     }
 
     &.isRounded {
