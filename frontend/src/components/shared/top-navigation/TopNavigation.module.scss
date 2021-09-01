@@ -89,7 +89,7 @@
     height: 100%;
     overflow-y: auto;
     transition: transform 0.5s ease;
-    padding-top: 60px;
+    padding: 60px 0;
     background: #fff;
     color: #000;
 
@@ -104,14 +104,16 @@
 
     .close {
         position: absolute;
+        cursor: pointer;
         top: 15px;
         right: 15px;
         font-size: 20px;
     }
 
     .header {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: bold;
+        margin-top: 2rem;
         margin-bottom: 1rem;
     }
 
@@ -121,12 +123,12 @@
 
         li {
             font-size: 18px;
-            line-height: 2;
+            line-height: 2.2;
             color: #ddd;
 
             a {
                 text-decoration: none;
-                color: #000;
+                color: #555;
             }
 
             :global(body.dark) & {
