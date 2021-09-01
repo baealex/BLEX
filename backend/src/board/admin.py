@@ -181,3 +181,31 @@ class TwoFactorAuthAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user']
         return super().get_form(request, obj, **kwargs)
+
+admin.site.register(TitleCache)
+
+admin.site.register(ContentCache)
+
+admin.site.register(TagCache)
+
+admin.site.register(EditHistory)
+
+admin.site.register(EditRequest)
+
+admin.site.register(Developer)
+
+@admin.register(APIHistory)
+class APIHistoryAdmin(admin.ModelAdmin):
+    list_display = ['developer', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['his_ptr']
+        return super().get_form(request, obj, **kwargs)
+
+@admin.register(LoginHistory)
+class LoginHistoryAdmin(admin.ModelAdmin):
+    list_display = ['user', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['his_ptr']
+        return super().get_form(request, obj, **kwargs)

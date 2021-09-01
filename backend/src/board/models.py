@@ -519,7 +519,7 @@ class TitleCache(models.Model):
     value = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.value
+        return self.posts
 
 class ContentCache(models.Model):
     user  = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -528,7 +528,7 @@ class ContentCache(models.Model):
     value = models.TextField()
 
     def __str__(self):
-        return self.value
+        return self.posts
 
 class TagCache(models.Model):
     user  = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -537,7 +537,7 @@ class TagCache(models.Model):
     value = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.value
+        return self.posts
 
 class EditHistory(models.Model):
     posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
@@ -547,7 +547,7 @@ class EditHistory(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.title
+        return self.posts
 
 class EditRequest(models.Model):
     user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
