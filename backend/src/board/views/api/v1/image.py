@@ -23,11 +23,17 @@ def image(request):
 
             try:
                 image_cache = ImageCache.objects.get(key=image_key)
+                if not image_cache.size:
+                    image_cache.size = image.size
+                    image_cache.save()
                 return StatusDone({
                     'url': settings.MEDIA_URL + image_cache.path,
                 })
             except:
-                image_cache = ImageCache(key=image_key)
+                image_cache = ImageCache(
+                    key=image_key,
+                    size=image.size
+                )
                 ext = str(image).split('.')[-1].lower()
 
                 if not ext in allowed_ext:
