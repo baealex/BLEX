@@ -30,8 +30,6 @@ class FormAdmin(admin.ModelAdmin):
 class FormAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'title']
 
-admin.site.register(Grade)
-
 @admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
     list_display = [
@@ -90,7 +88,7 @@ class PostLikesAdmin(admin.ModelAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'grade', 'subscriber']
+    list_display = ['user', 'subscriber']
 
     def subscriber(self, obj):
         return obj.total_subscriber()

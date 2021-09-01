@@ -153,12 +153,6 @@ class Form(models.Model):
     def __str__(self):
         return self.title
 
-class Grade(models.Model):
-    name = models.CharField(max_length=30, unique=True)
-
-    def __str__(self):
-        return self.name
-
 class History(models.Model):
     key      = models.CharField(max_length=44, unique=True)
     ip       = models.CharField(max_length=39)
@@ -171,6 +165,7 @@ class History(models.Model):
 class ImageCache(models.Model):
     key  = models.CharField(max_length=44, unique=True)
     path = models.CharField(max_length=128, unique=True)
+    size = models.IntegerField(default=0)
 
     def __str__(self):
         return self.path
@@ -182,6 +177,7 @@ class Notify(models.Model):
     is_read      = models.BooleanField(default=False)
     infomation   = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
 
     def to_dict(self):
         return {
@@ -207,7 +203,7 @@ class Post(models.Model):
     advertise     = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
     read_time     = models.IntegerField(default=0)
-    tag           = models.CharField(max_length=50)
+    tag           = models.CharField(max_length=100)
     created_date  = models.DateTimeField(default=timezone.now)
     updated_date  = models.DateTimeField(default=timezone.now)
 
@@ -322,8 +318,6 @@ class PostLikes(models.Model):
 
 class Profile(models.Model):
     user       = models.OneToOneField(User, on_delete=models.CASCADE)
-    grade      = models.ForeignKey('board.Grade', on_delete=models.CASCADE, blank=True, null=True)
-    exp        = models.IntegerField(default=0)
     bio        = models.TextField(max_length=500, blank=True)
     avatar     = models.ImageField(blank=True, upload_to=avatar_path)
     github     = models.CharField(max_length=15, blank=True)
@@ -392,8 +386,8 @@ class RefererFrom(models.Model):
     title        = models.CharField(max_length=100, default='', blank=True)
     image        = models.CharField(max_length=500, default='', blank=True)
     description  = models.CharField(max_length=250, default='', blank=True)
-    updated_date = models.DateTimeField(default=timezone.now)
     created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
     
     def should_update(self):
         created_date = self.created_date.strftime('%x%X')
@@ -448,6 +442,7 @@ class Series(models.Model):
     url          = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     layout       = models.CharField(max_length=5, default='list')
     created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
 
     def thumbnail(self):
         posts = Post.objects.filter(series=self, hide=False)
@@ -479,12 +474,13 @@ class TelegramSync(models.Model):
         return self.user.username
 
 class TempPosts(models.Model):
-    author            = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    title             = models.CharField(max_length=50)
-    token             = models.CharField(max_length=50)
-    text_md           = models.TextField(blank=True)
-    tag               = models.CharField(max_length=50)
-    created_date      = models.DateTimeField(default=timezone.now)
+    author       = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    title        = models.CharField(max_length=50)
+    token        = models.CharField(max_length=50)
+    text_md      = models.TextField(blank=True)
+    tag          = models.CharField(max_length=50)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.title
@@ -515,3 +511,83 @@ class TwoFactorAuth(models.Model):
     
     def __str__(self):
         return self.user.username
+
+class TitleCache(models.Model):
+    user  = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    posts = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    key   = models.CharField(max_length=44, unique=True)
+    value = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.value
+
+class ContentCache(models.Model):
+    user  = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    posts = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    key   = models.CharField(max_length=88, unique=True)
+    value = models.TextField()
+
+    def __str__(self):
+        return self.value
+
+class TagCache(models.Model):
+    user  = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    posts = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    key   = models.CharField(max_length=44, unique=True)
+    value = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.value
+
+class EditHistory(models.Model):
+    posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    title        = models.ForeignKey('board.TitleCache', on_delete=models.CASCADE)
+    content      = models.ForeignKey('board.ContentCache', on_delete=models.CASCADE)
+    tag          = models.ForeignKey('board.TagCache', on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title
+
+class EditRequest(models.Model):
+    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    title        = models.ForeignKey('board.TitleCache', on_delete=models.CASCADE)
+    content      = models.ForeignKey('board.ContentCache', on_delete=models.CASCADE)
+    tag          = models.ForeignKey('board.TagCache', on_delete=models.CASCADE)
+    apply        = models.BooleanField(default=False)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title
+
+class Highlight(models.Model):
+    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    text         = models.TextField()
+    likes        = models.ManyToManyField(User, related_name='like_highlight', blank=True)
+    posts_ptr    = models.ForeignKey('board.EditHistory', on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title
+
+class Developer(models.Model):
+    user         = models.OneToOneField(User, on_delete=models.CASCADE)
+    api_key      = models.CharField(max_length=36, blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title
+
+class APIHistory(models.Model):
+    developer    = models.ForeignKey('board.Developer', on_delete=models.CASCADE)
+    his_ptr      = models.ForeignKey('board.History', on_delete=models.CASCADE)
+    url          = models.CharField(max_length=255)
+    created_date = models.DateTimeField(default=timezone.now)
+
+class LoginHistory(models.Model):
+    user         = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    his_ptr      = models.ForeignKey('board.History', on_delete=models.CASCADE)
+    trust        = models.BooleanField(default=False)
+    identify     = models.BooleanField(default=False)
+    created_date = models.DateTimeField(default=timezone.now)
