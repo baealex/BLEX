@@ -80,6 +80,41 @@
     }
 }
 
+.notify-contnet {
+    width: 420px;
+    padding: 8px;
+    border-radius: 8px;
+    position: absolute;
+    @include MAIN_SHADOW;
+    @include BACKGROUND;
+    transform: translate(-50%, 15px);
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    cursor: default;
+    pointer-events: none;
+
+    .sync-btn {
+        color: #0088cc;
+        margin: 4px 0;
+        padding: 4px 8px;
+        float: right;
+        cursor: pointer;
+    }
+
+    &.isOpen {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    @media only screen and (max-width: 600px) {
+        transform: translate(0%, 15px);
+        position: fixed;
+        width: calc(100% - 30px);
+        left: 15px;
+        right: 15px;
+    }
+}
+
 .all-menu {
     position: fixed;
     z-index: 9999;
@@ -98,7 +133,7 @@
         color: #eaeaea;
     }
 
-    &.isMenuOpen {
+    &.isOpen {
         transform: translate(-100%, 0);
     }
 

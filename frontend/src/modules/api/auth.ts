@@ -23,6 +23,7 @@ export interface GetLoginData {
         content: string;
         createdDate: string;
     }[];
+    isTelegramSync: boolean;
 }
 
 export async function postLogin(username: string, password: string) {

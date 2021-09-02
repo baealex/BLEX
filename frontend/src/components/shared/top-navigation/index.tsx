@@ -2,7 +2,7 @@ import styles from './TopNavigation.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -14,38 +14,35 @@ import {
     LoginModal,
     SignupModal,
     AuthModal,
+    SyncModal,
 } from './modals';
 
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';
 import { modalContext } from '@state/modal';
-import { Dropdown } from '@components/atoms';
+import { Card, Dropdown } from '@components/atoms';
 
 export function TopNavigation() {
     const router = useRouter();
 
+    const notifyBox = useRef<HTMLDivElement>(null);
+    const notifyToggle = useRef<HTMLLIElement>(null);
+
     const [path, setPath] = useState(router.pathname);
     const [isRollup, setIsRollup] = useState(false);
     const [isMenuOpen, setisMenuOpen] = useState(false);
+    const [isNotifyOpen, setIsNotifyOpen] = useState(false);
     const [state, setState] = useState({
+        ...authContext.state,
+        ...modalContext.state,
         theme: configContext.state.theme,
-        isLogin: authContext.state.isLogin,
-        username: authContext.state.username,
-        avatar: authContext.state.avatar,
-        notify: authContext.state.notify,
-        isLoginModalOpen: modalContext.state.isLoginModalOpen,
-        isSignupModalOpen: modalContext.state.isSignupModalOpen,
-        isTwoFactorAuthModalOpen: modalContext.state.isTwoFactorAuthModalOpen,
     });
 
     useEffect(() => {
         const authUpdateKey = authContext.appendUpdater((nextState) => {
             setState((prevState) => ({
                 ...prevState,
-                isLogin: nextState.isLogin,
-                username: nextState.username,
-                avatar: nextState.avatar,
-                notify: nextState.notify,
+                ...nextState,
             }));
         });
         const configUpdateKey = configContext.appendUpdater((nextState) => {
@@ -57,9 +54,7 @@ export function TopNavigation() {
         const modalUpdateKey = modalContext.appendUpdater((nextState) => {
             setState((prevState) => ({
                 ...prevState,
-                isLoginModalOpen: nextState.isLoginModalOpen,
-                isSignupModalOpen: nextState.isSignupModalOpen,
-                isTwoFactorAuthModalOpen: nextState.isTwoFactorAuthModalOpen,
+                ...nextState,
             }));
         });
 
@@ -126,6 +121,7 @@ export function TopNavigation() {
                 window.requestAnimationFrame(() => {
                     if (lastScrollY < window.scrollY && lastScrollY > 0) {
                         setIsRollup(true);
+                        setIsNotifyOpen(false);
                     } else {
                         setIsRollup(false);
                     }
@@ -140,6 +136,24 @@ export function TopNavigation() {
 
         return () => document.removeEventListener('scroll', event);
     }, [path]);
+
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            const path = e.composedPath && e.composedPath();
+
+            if (
+                !path.includes(notifyBox.current as EventTarget) &&
+                !path.includes(notifyToggle.current as EventTarget)
+            ) {
+                setIsNotifyOpen(false);
+            }
+        };
+
+        document.addEventListener('click', handleClick);
+        return () => {
+            document.removeEventListener('click', handleClick);
+        }
+    }, []);
 
     useEffect(() => {
         router.events.on('routeChangeStart', () => {
@@ -163,12 +177,7 @@ export function TopNavigation() {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
             const { data } = await API.postLogout();
             if(data.status === 'DONE') {
-                authContext.setState({
-                    isLogin: false,
-                    username: '',
-                    avatar: '',
-                    notify: [],
-                });
+                authContext.initState();
                 toast('😀 로그아웃 되었습니다.');
             }
         }
@@ -177,6 +186,35 @@ export function TopNavigation() {
     const notifyCount = useMemo(() => {
         return state.notify.filter(item => !item.isRead).length;
     }, [state.notify]);
+
+    const unsync = async () => {
+        if(confirm('😥 정말 연동을 해제할까요?')) {
+            const { data } = await API.postTelegram('unsync');
+            if (data.status === 'ERROR') {
+                toast(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+                return;
+            }
+            toast('😀 텔레그램과 연동이 해제되었습니다.');
+            setState((prevState) => ({
+                ...prevState,
+                isTelegramSync: false
+            }));
+        }
+    }
+
+    const onReadNotify = async (pk: number) => {
+        const { data } = await API.putSetting('notify', { pk: pk });
+        if(data.status === 'DONE') {
+            setState((prevState) => ({
+                ...prevState,
+                notify : prevState.notify.map(item => {
+                    return item.pk == pk
+                        ? { ...item, isRead: true }
+                        : item;
+                })
+            }));
+        }
+    }
 
     return (
         <>
@@ -187,6 +225,10 @@ export function TopNavigation() {
             <SignupModal
                 isOpen={state.isSignupModalOpen}
                 onClose={() => modalContext.onCloseModal('isSignupModalOpen')}
+            />
+            <SyncModal
+                isOpen={state.isTelegramSyncModalOpen}
+                onClose={() => modalContext.onCloseModal('isTelegramSyncModalOpen')}
             />
             <AuthModal
                 isOpen={state.isTwoFactorAuthModalOpen}
@@ -209,7 +251,8 @@ export function TopNavigation() {
                             {state.isLogin ? (
                                 <>
                                     <li
-                                        onClick={() => router.push('/setting')}
+                                        ref={notifyToggle}
+                                        onClick={() => setIsNotifyOpen((prev) => !prev)}
                                         className={cn('notify')}
                                     >
                                         <i className="far fa-bell"/>
@@ -218,6 +261,32 @@ export function TopNavigation() {
                                                 {notifyCount}
                                             </span>
                                         )}
+                                        <div ref={notifyBox} className={cn('notify-contnet', { isOpen: isNotifyOpen })}>
+                                            {state.notify.length == 0 ? (
+                                                <Card hasShadow shadowLevel="sub" fillBack isRounded className="my-2 p-3">
+                                                    최근 생성된 알림이 없습니다.
+                                                </Card>
+                                            ) : state.notify.map((item, idx) => (
+                                                <Link key={idx} href={item.url}>
+                                                    <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => onReadNotify(item.pk)}>
+                                                        <Card hasShadow shadowLevel="sub" fillBack isRounded className="my-2 p-3">
+                                                            <>
+                                                                {item.content} <span className="ns shallow-dark">{item.createdDate}전</span>
+                                                            </>
+                                                        </Card>
+                                                    </a>
+                                                </Link>
+                                            ))}
+                                            {state.isTelegramSync ? (
+                                                <div className={cn('sync-btn')} onClick={() => unsync()}>
+                                                    <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
+                                                </div>
+                                            ) : (
+                                                <div className={cn('sync-btn')} onClick={() => modalContext.onOpenModal('isTelegramSyncModalOpen')}>
+                                                    <i className="fab fa-telegram-plane"/> 텔레그램 연동
+                                                </div>
+                                            )}
+                                        </div>
                                     </li>
                                     {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
                                         <li
@@ -300,7 +369,7 @@ export function TopNavigation() {
                 </div>
             </nav>
             {state.isLogin && (
-                <div className={cn('all-menu', { isMenuOpen })}>
+                <div className={cn('all-menu', { 'isOpen': isMenuOpen })}>
                     <div className={cn('close')} onClick={() => setisMenuOpen(false)}>
                         <i className="fas fa-times"/>
                     </div>

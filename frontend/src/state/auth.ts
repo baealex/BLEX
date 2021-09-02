@@ -14,7 +14,18 @@ class AuthContext extends SharedState<AuthContextState> {
             username: '',
             avatar: '',
             notify: [],
+            isTelegramSync: false,
         };
+    }
+
+    initState() {
+        this.setState({
+            isLogin: false,
+            username: '',
+            avatar: '',
+            notify: [],
+            isTelegramSync: false,
+        });
     }
 }
 

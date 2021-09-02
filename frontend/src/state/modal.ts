@@ -4,6 +4,7 @@ export interface ModalContextState {
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
     isPublishModalOpen: boolean;
+    isTelegramSyncModalOpen: boolean;
     isTwoFactorAuthModalOpen: boolean;
 }
 
@@ -16,6 +17,7 @@ class ModalContext extends SharedState<ModalContextState> {
             isLoginModalOpen: false,
             isSignupModalOpen: false,
             isPublishModalOpen: false,
+            isTelegramSyncModalOpen: false,
             isTwoFactorAuthModalOpen: false,
         }
     }

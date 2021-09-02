@@ -104,12 +104,7 @@ export default function AccountSetting(props: Props) {
     const onSignOut = async () => {
         const { data } = await API.deleteSign();
         if (data.status === 'DONE') {
-            authContext.setState({
-                isLogin: false,
-                username: '',
-                avatar: '',
-                notify: []
-            });
+            authContext.initState();
             toast('😀 계정이 삭제되었습니다.');
             Router.push('/');
         }

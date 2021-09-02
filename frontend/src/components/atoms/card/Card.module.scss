@@ -4,11 +4,20 @@
     width: 100%;
     display: block;
 
-    &.hasShadow {
-        @include MAIN_SHADOW;
+    &.hs { // hasShadow
+        &.sl-main {
+            @include MAIN_SHADOW;
+        }
+        &.sl-sub {
+            @include SUB_SHADOW;
+        }
     }
 
-    &.isRounded {
+    &.fb { // fillBack
+        @include BACKGROUND;
+    }
+
+    &.ir { // isRounded
         border-radius: 8px;
 
         :global(img) {

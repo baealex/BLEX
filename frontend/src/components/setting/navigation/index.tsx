@@ -8,12 +8,6 @@ export interface NavigationProps {
 
 const NAVIGATION_ITEMS = [
     {
-        title: '알림',
-        icon: 'far fa-envelope',
-        name: 'notify',
-        url: '/setting',
-    },
-    {
         title: '계정',
         icon: 'far fa-user',
         name: 'account',
