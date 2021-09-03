@@ -63,6 +63,21 @@
             }
         }
     }
+
+    .ad {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.89);
+        border-radius: 4px;
+        color: #ccc;
+        padding: 4px 8px;
+        right: 24px;
+        bottom: 24px;
+
+        @media only screen and (max-width: 991px) {
+            right: 16px;
+            bottom: 16px;
+        }
+    }
 }
 
 .image-cover {

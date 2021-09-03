@@ -108,6 +108,7 @@ export interface GetPostsData {
         createdDate: string;
         author: string;
         authorImage: string;
+        isAd: boolean;
     }[];
     lastPage: number;
 }
@@ -127,6 +128,7 @@ export interface GetTopTrendyPostsData {
         createdDate: string;
         author: string;
         authorImage: string;
+        isAd: boolean;
     }[];
 }
 
@@ -167,6 +169,7 @@ export interface GetUserPostsDataPosts {
     createdDate: string;
     authorImage: string;
     author: string;
+    isAd: boolean;
     tag: string;
 }
 
@@ -192,6 +195,7 @@ export interface GetAnUserPostsViewData {
     textHtml: string;
     totalLikes: number;
     totalComment: number;
+    isAd: boolean;
     tag: string;
     isLiked: boolean;
 }
@@ -211,7 +215,7 @@ export interface GetAnUserPostsEditData {
     textMd: string;
     tag: string;
     isHide: boolean;
-    isAdvertise: boolean;
+    isAd: boolean;
 }
 
 export async function postAnUserPosts(author: string, url: string, data: {}) {

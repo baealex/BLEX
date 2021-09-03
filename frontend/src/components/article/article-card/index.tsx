@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card } from '@components/atoms';
+import { Badge, Card, PopOver } from '@components/atoms';
 
 import {
     getPostsImage,
@@ -21,6 +21,7 @@ export interface ArticleCardProps {
     authorImage?: string;
     createdDate?: string;
     readTime?: number;
+    isAd?: boolean;
     className?: string;
     children?: JSX.Element;
     hasShadow?: boolean;
@@ -73,20 +74,33 @@ export function ArticleCard(props: ArticleCardProps) {
                             </a>
                         </Link>
                         {props.author && (
-                            <div className="d-flex">
-                                <Link href="/[author]" as={`/@${props.author}`}>
-                                    <a>
-                                        <img
-                                            className="fit-cover rounded"
-                                            src={getUserImage(props.authorImage || '')}
-                                            width="35"
-                                            height="35"
-                                        />
-                                    </a>
-                                </Link>
-                                <div className="vs mx-2">
-                                    <Link href="/[author]" as={`/@${props.author}`}><a className="deep-dark">{props.author}</a></Link>님이 작성함<br/>{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
+                            <div className="d-flex align-items-center justify-content-between">
+                                <div className="d-flex">
+                                    <Link href="/[author]" as={`/@${props.author}`}>
+                                        <a>
+                                            <img
+                                                className="fit-cover rounded"
+                                                src={getUserImage(props.authorImage || '')}
+                                                width="35"
+                                                height="35"
+                                            />
+                                        </a>
+                                    </Link>
+                                    <div className="vs mx-2">
+                                        <Link href="/[author]" as={`/@${props.author}`}>
+                                            <a className="deep-dark">{props.author}</a>
+                                        </Link>님이 작성함
+                                        <br/>
+                                        {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
+                                    </div>
                                 </div>
+                                {props.isAd && (
+                                    <PopOver text="유료 광고 포함">
+                                        <Badge isRounded isSolo size="small">
+                                            AD
+                                        </Badge>
+                                    </PopOver>
+                                )}
                             </div>
                         )}
                     </div>

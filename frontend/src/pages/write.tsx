@@ -46,7 +46,7 @@ interface State {
     image: File | undefined;
     isAutoSave: boolean;
     isHide: boolean;
-    isAdvertise: boolean;
+    isAd: boolean;
     isOpenArticleModal: boolean;
     tempPosts: API.GetTempPostsDataTemp[],
     tempPostsCache: {
@@ -73,7 +73,7 @@ class Write extends React.Component<Props, State> {
             token: '',
             series: '',
             isHide: false,
-            isAdvertise: false,
+            isAd: false,
             image: undefined,
             isAutoSave: configContext.state.isAutoSave,
             isOpenArticleModal: false,
@@ -183,7 +183,7 @@ class Write extends React.Component<Props, State> {
                 tag: this.state.tags,
                 series: this.state.series,
                 is_hide: JSON.stringify(this.state.isHide),
-                is_advertise: JSON.stringify(this.state.isAdvertise),
+                is_advertise: JSON.stringify(this.state.isAd),
             });
             Router.push('/[author]/[posturl]', `/@${this.state.username}/${data.body.url}`);
         } catch(e) {
@@ -305,9 +305,9 @@ class Write extends React.Component<Props, State> {
                         value: this.state.isHide,
                         onChange: (value) => this.setState({isHide: value})
                     }}
-                    isAdvertise={{
-                        value: this.state.isAdvertise,
-                        onChange: (value) => this.setState({isAdvertise: value})
+                    isAd={{
+                        value: this.state.isAd,
+                        onChange: (value) => this.setState({isAd: value})
                     }}
                     image={{
                         onChange: (image) => this.setState({image: image})

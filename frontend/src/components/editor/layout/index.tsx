@@ -57,7 +57,7 @@ interface Props {
         value: boolean;
         onChange: (value: boolean) => void;
     }
-    isAdvertise: {
+    isAd: {
         value: boolean;
         onChange: (value: boolean) => void;
     }
@@ -271,8 +271,8 @@ export function Layout(props: Props) {
                     />
                     <CheckBox
                         label="포스트에 광고가 있습니다."
-                        defaultChecked={props.isAdvertise.value}
-                        onClick={(value: boolean) => props.isAdvertise.onChange(value)}
+                        defaultChecked={props.isAd.value}
+                        onClick={(value: boolean) => props.isAd.onChange(value)}
                     />
                 </Modal>
 

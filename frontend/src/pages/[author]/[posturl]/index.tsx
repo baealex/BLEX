@@ -250,6 +250,7 @@ class PostDetail extends React.Component<Props, State> {
                     series={this.props.series?.name!}
                     image={this.props.post.image}
                     title={this.props.post.title}
+                    isAd={this.props.post.isAd}
                     createdDate={this.props.post.createdDate}
                     updatedDate={this.props.post.updatedDate}
                 />

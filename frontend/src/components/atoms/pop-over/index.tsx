@@ -14,7 +14,7 @@ export function PopOver(props: PopOverProps) {
 
     return (
         <>
-            <>
+            <div>
                 <div className={cn('popover', { hover })}>
                     {props.text}
                 </div>
@@ -24,7 +24,7 @@ export function PopOver(props: PopOverProps) {
                 >
                     {props.children}
                 </div>
-            </>
+            </div>
         </>
     )
 }

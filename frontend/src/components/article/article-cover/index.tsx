@@ -8,6 +8,7 @@ export function ArticleCover(props: {
     series?: string;
     image: string;
     title: string;
+    isAd: boolean;
     createdDate: string;
     updatedDate: string;
 }) {
@@ -34,6 +35,11 @@ export function ArticleCover(props: {
                     </time>
                 </div>
             </div>
+            {props.isAd && (
+                <div className={cn('ad')}>
+                    유료 광고 포함
+                </div>
+            )}
         </div>
     )
 }
