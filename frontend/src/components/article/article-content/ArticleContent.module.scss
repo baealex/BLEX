@@ -16,22 +16,23 @@
         letter-spacing: -1px;
         position: relative;
         font-weight: bold;
+        margin: 0 0 1.5rem;
     }
 
     h1, h2 {
-        font-size: 1.8rem;
+        font-size: 2.0rem;
     }
 
     h3, h4 {
-        font-size: 1.6rem;
+        font-size: 1.75rem;
     }
 
     h5, h6 {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
     }
     
     p, ul, ol, table, div, pre {
-        margin: 0 0 1em;
+        margin: 0 0 1.5rem;
     }
 
     li > ul {
