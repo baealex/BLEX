@@ -1,22 +1,20 @@
-import styles from './TagBadge.module.scss';
-import classNames from 'classnames/bind';
-const cn = classNames.bind(styles);
+import { Badge } from '../../atoms';
 
 export interface TagBadgeProps {
-    items: any[];
+    items: JSX.Element[];
     disableSharp?: boolean;
 }
 
 export function TagBadge(props: TagBadgeProps) {
     return (
-        <ul className={classNames(cn('items', { disableSharp: props.disableSharp }))}>
+        <>
             {props.items.map((item, idx) => (
                 item && (
-                    <li key={idx}>
+                    <Badge hasSharp={!props.disableSharp} key={idx}>
                         {item}
-                    </li>
+                    </Badge>
                 )
             ))}
-        </ul>
+        </>
     );
 }
