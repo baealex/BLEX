@@ -159,6 +159,7 @@ def top_trendy(request):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
+                'is_ad': post.advertise,
             }, posts))
         })
     raise Http404
@@ -194,6 +195,7 @@ def popular_posts(request):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
+                'is_ad': post.advertise,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -224,6 +226,7 @@ def newest_posts(request):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
+                'is_ad': post.advertise,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -257,6 +260,7 @@ def feature_posts(request, tag=None):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
+                'is_ad': post.advertise,
             }, posts))
         })
 
@@ -282,6 +286,7 @@ def feature_posts(request, tag=None):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
+                'is_ad': post.advertise,
             }, posts))
         })
 
@@ -400,6 +405,7 @@ def user_posts(request, username, url=None):
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                     'author_image': post.author_image,
                     'author': post.author_username,
+                    'is_ad': post.advertise,
                     'tag': post.tag,
                 }, posts)),
                 'last_page': posts.paginator.num_pages
@@ -440,6 +446,7 @@ def user_posts(request, username, url=None):
                     'text_html': post.text_html,
                     'total_likes': post.total_likes(),
                     'total_comment': post.total_comment(),
+                    'is_ad': post.advertise,
                     'tag': post.tag,
                     'is_liked': post.likes.filter(user__id=request.user.id).exists()
                 })
