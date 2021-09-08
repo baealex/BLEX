@@ -85,7 +85,7 @@
     padding: 8px;
     border-radius: 8px;
     position: absolute;
-    @include MAIN_SHADOW;
+    border: 1px solid #eee;
     @include BACKGROUND;
     transform: translate(-50%, 15px);
     transition: opacity 0.5s ease;
