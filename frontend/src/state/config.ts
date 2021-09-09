@@ -16,15 +16,16 @@ class ConfigContext extends SharedState<ConfigContextState> {
 
     constructor() {
         super();
+        this.state = {
+            theme: 'default' as Theme,
+            isAutoSave: true,
+            isOpenNewTab: false,
+            isSortOldFirst: false,
+        };
+
         if (typeof window !== 'undefined') {
-            this.clientSideInject();
             this.init = true;
-            this.state = {
-                theme: 'default' as Theme,
-                isAutoSave: true,
-                isOpenNewTab: false,
-                isSortOldFirst: false,
-            };
+            this.clientSideInject();
         }
     }
 
