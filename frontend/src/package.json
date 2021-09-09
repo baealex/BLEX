@@ -9,7 +9,7 @@
     },
     "dependencies": {
         "@hcaptcha/react-hcaptcha": "^0.3.7",
-        "axios": "^0.21.1",
+        "axios": "^0.21.4",
         "bstate": "^1.1.0",
         "classnames": "^2.3.1",
         "frappe-charts": "^1.6.1",
@@ -23,8 +23,8 @@
     },
     "devDependencies": {
         "@types/hcaptcha__react-hcaptcha": "^0.1.5",
-        "@types/node": "^16.7.8",
-        "@types/react": "^17.0.19",
+        "@types/node": "^16.7.13",
+        "@types/react": "^17.0.20",
         "next-transpile-modules": "^8.0.0",
         "node-sass": "^4.14.1",
         "styled-jsx-plugin-sass": "^1.0.0",
