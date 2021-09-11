@@ -10,7 +10,6 @@ from itertools import chain
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 CONTENT_IMAGE_DIR = BASE_DIR + '/static/images/content'
-TITLE_IMAGE_DIR   = BASE_DIR + '/static/images/title'
 
 sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
@@ -23,8 +22,7 @@ if __name__ == '__main__':
     video_parser = re.compile(r'\@gif\[(.*)\]')
     src_parser = re.compile(r'src=[\'\"]([^\'\"]*)[\'\"]')
 
-    title_image_dict = dict()
-    content_image_dict = dict()
+    image_dict = dict()
 
     posts = Post.objects.all()
     comments = Comment.objects.all()
@@ -36,12 +34,12 @@ if __name__ == '__main__':
         etc = src_parser.findall(item.text_md)
         
         for image in chain(images, videos, etc):
-            content_image_dict[image.split('/')[-1]] = True
+            image_dict[image.split('/')[-1]] = True
         
     for (path, dir, files) in os.walk(CONTENT_IMAGE_DIR):
         for filename in files:
             try:
-                if not content_image_dict[filename.replace('.preview.jpg', '')]:
+                if not image_dict[filename.replace('.preview.jpg', '')]:
                     pass
             except KeyError:
                 print(path + '/' + filename)
@@ -49,7 +47,7 @@ if __name__ == '__main__':
 
     for image_cache in ImageCache.objects.all():
         try:
-            if not content_image_dict[image_cache.path.split('/')[-1]]:
+            if not image_dict[image_cache.path.split('/')[-1]]:
                 pass
         except KeyError:
             print(f'{image_cache.pk} : {image_cache.path}')
