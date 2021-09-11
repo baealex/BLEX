@@ -2,6 +2,8 @@ import styles from './styles.module.scss';
 
 import React, { useEffect } from 'react';
 
+import { Button } from '@components/atoms';
+
 interface Props {
     isOpen: boolean;
     title: string;
@@ -49,9 +51,12 @@ export function Modal(props: Props) {
                                         {props.footer}
                                     </div>
                                     {props.submitText && (
-                                        <div className={styles.button} onClick={() => props.onSubmit && props.onSubmit()}>
-                                            <button>{props.submitText}</button>
-                                        </div>
+                                        <Button
+                                            space="spare"
+                                            color="secondary"
+                                            onClick={() => props.onSubmit && props.onSubmit()}>
+                                            {props.submitText}
+                                        </Button>
                                     )}
                                 </div>
                             )}

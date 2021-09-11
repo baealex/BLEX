@@ -99,27 +99,3 @@
         background-color: rgba(255, 255, 255, 0.05);
     }
 }
-
-.button {
-    margin: 0;
-    
-    button {
-        padding: 8px 16px;
-        border-radius: 8px;
-        background-color: $COLOR_DEFAULT_SECONDARY;
-        color: white;
-        border: 0;
-
-        &:hover {
-            background-color: scale-color($COLOR_DEFAULT_SECONDARY, $lightness: -5%);
-        }
-
-        &:active {
-            background-color: scale-color($COLOR_DEFAULT_SECONDARY, $lightness: -10%);
-        }
-
-        &:focus {
-            outline: none;
-        }
-    }
-}

@@ -2,6 +2,7 @@ import { GetServerSidePropsContext } from 'next';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
+import { Button } from '@components/integrated';
 import { Layout } from '@components/setting';
 import { ImageInput } from '@components/integrated';
 
@@ -162,10 +163,9 @@ export default function ProfileSetting(props: Props) {
                     onChange={(e) => setYoutube(e.target.value)}
                 />
             </div>
-            <button
-                type="button"
-                className="btn btn-block btn-dark"
-                onClick={() => onSubmit()}>프로필 변경</button>
+            <Button space="spare" display="block" onClick={() => onSubmit()}>
+                프로필 변경
+            </Button>
         </>
     );
 }

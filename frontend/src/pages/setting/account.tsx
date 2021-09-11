@@ -5,6 +5,7 @@ import Router from 'next/router';
 import { toast } from 'react-toastify';
 
 import {
+    Button,
     CheckBox,
     Modal,
 } from '@components/integrated';
@@ -169,21 +170,15 @@ export default function AccountSetting(props: Props) {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}/>
                         <div className="input-group-prepend">
-                            <button
-                                type="button"
-                                className="btn btn-dark"
-                                onClick={() => onChangeUsername()}>
+                            <Button gap="little" onClick={() => onChangeUsername()}>
                                 변경
-                            </button>
-                            <button
-                                type="button"
-                                className="btn btn-dark"
-                                onClick={() => {
-                                    setChangeUsername(false);
-                                    setUsername(props.username);
-                                }}>
+                            </Button>
+                            <Button onClick={() => {
+                                setChangeUsername(false);
+                                setUsername(props.username);
+                            }}>
                                 취소
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 ) : (
@@ -191,12 +186,9 @@ export default function AccountSetting(props: Props) {
                         <h3 className="font-weight-bold">
                             @{username}
                         </h3>
-                        <button
-                            type="button"
-                            className="btn btn-dark"
-                            onClick={() => setChangeUsername(true)}>
+                        <Button onClick={() => setChangeUsername(true)}>
                             아이디 변경
-                        </button>
+                        </Button>
                     </div>
                 )}
                 <p>
@@ -236,37 +228,21 @@ export default function AccountSetting(props: Props) {
                     defaultChecked={agreeHistory}
                     onClick={(value: boolean) => setAgreeHistory(value)}
                 />
-                <button
-                    type="button"
-                    className="btn btn-dark"
-                    onClick={() => onSubmit()}>정보 변경
-                </button>
+                <Button gap="little" onClick={() => onSubmit()}>
+                    정보 변경
+                </Button>
                 {hasTwoFactorAuth ? (
-                    <button
-                        type="button"
-                        className="btn btn-dark"
-                        onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') ? onDeleteTwoFactorAuth() : ''}>2차 인증 중지
-                    </button>
+                    <Button gap="little" onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') ? onDeleteTwoFactorAuth() : ''}>
+                        2차 인증 중지
+                    </Button>
                 ) : (
-                    <button
-                        type="button"
-                        className="btn btn-dark"
-                        onClick={() => setCreateTwoFactorAuthModalOpen(true)}>2차 인증 등록
-                    </button>
+                    <Button gap="little" onClick={() => setCreateTwoFactorAuthModalOpen(true)}>
+                        2차 인증 등록
+                    </Button>
                 )}
-                <button
-                    type="button"
-                    className="btn btn-dark"
-                    onClick={() => setSignDeleteModalOpen(true)}>회원 탈퇴
-                </button>
-                <style jsx>{`
-                    input {
-                        margin-bottom: 15px;
-                    }
-                    button {
-                        margin-right: 5px;
-                    }
-                `}</style>
+                <Button onClick={() => setSignDeleteModalOpen(true)}>
+                    회원 탈퇴
+                </Button>
             </>
             <Modal
                 title="정말 탈퇴 하시겠습니까?"
