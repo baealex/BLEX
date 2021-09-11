@@ -36,6 +36,7 @@ def login_response(user):
             'created_date': timesince(item.created_date)
         }, notify)),
         'is_telegram_sync': user.config.has_telegram_id(),
+        'is_2fa_sync': user.config.has_two_factor_auth(),
     })
 
 def common_auth(request, user):

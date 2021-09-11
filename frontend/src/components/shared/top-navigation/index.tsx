@@ -13,8 +13,10 @@ import { getUserImage } from '@modules/image';
 import {
     LoginModal,
     SignupModal,
-    AuthModal,
-    SyncModal,
+    SignoutModal,
+    TelegramSyncModal,
+    TwoFactorAuthModal,
+    TwoFactorAuthSyncModal,
 } from './modals';
 
 import { authContext } from '@state/auth';
@@ -226,13 +228,21 @@ export function TopNavigation() {
                 isOpen={state.isSignupModalOpen}
                 onClose={() => modalContext.onCloseModal('isSignupModalOpen')}
             />
-            <SyncModal
+            <SignoutModal
+                isOpen={state.isSignoutModalOpen}
+                onClose={() => modalContext.onCloseModal('isSignoutModalOpen')}
+            />
+            <TelegramSyncModal
                 isOpen={state.isTelegramSyncModalOpen}
                 onClose={() => modalContext.onCloseModal('isTelegramSyncModalOpen')}
             />
-            <AuthModal
+            <TwoFactorAuthModal
                 isOpen={state.isTwoFactorAuthModalOpen}
                 onClose={() => modalContext.onCloseModal('isTwoFactorAuthModalOpen')}
+            />
+            <TwoFactorAuthSyncModal
+                isOpen={state.isTwoFactorAuthSyncModalOpen}
+                onClose={() => modalContext.onCloseModal('isTwoFactorAuthSyncModalOpen')}
             />
             <nav className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>

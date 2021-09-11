@@ -17,7 +17,7 @@ interface State {
     token: string;
 }
 
-export class SyncModal extends React.Component<Props, State> {
+export class TelegramSyncModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {

@@ -12,7 +12,7 @@ import { authContext } from '@state/auth';
 
 interface Props {
     isOpen: boolean;
-    onClose: Function;
+    onClose: () => void;
 }
 
 interface State {
@@ -20,7 +20,7 @@ interface State {
     timer: number;
 }
 
-export class AuthModal extends React.Component<Props, State> {
+export class TwoFactorAuthModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -105,7 +105,7 @@ export class AuthModal extends React.Component<Props, State> {
             <Modal
                 title="2차 인증"
                 isOpen={this.props.isOpen}
-                onClose={() => {}}
+                onClose={this.props.onClose}
             >
                 <p>
                     텔레그램으로 전송된 2차 인증코드를 입력하세요.

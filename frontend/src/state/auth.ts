@@ -15,6 +15,7 @@ class AuthContext extends SharedState<AuthContextState> {
             avatar: '',
             notify: [],
             isTelegramSync: false,
+            is2faSync: false,
         };
     }
 
@@ -25,6 +26,7 @@ class AuthContext extends SharedState<AuthContextState> {
             avatar: '',
             notify: [],
             isTelegramSync: false,
+            is2faSync: false,
         });
     }
 }

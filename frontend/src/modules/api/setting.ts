@@ -38,7 +38,6 @@ export interface GetSettingAccountData {
     username: string;
     realname: string;
     createdDate: string;
-    hasTwoFactorAuth: boolean;
     agreeEmail: boolean;
     agreeHistory: boolean;
 }

@@ -42,7 +42,6 @@ def setting(request, item):
                 'username': user.username,
                 'realname': user.first_name,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
-                'has_two_factor_auth': user.config.has_two_factor_auth(),
                 'agree_email': user.config.agree_email,
                 'agree_history': user.config.agree_history
             })

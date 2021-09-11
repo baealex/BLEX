@@ -24,6 +24,7 @@ export interface GetLoginData {
         createdDate: string;
     }[];
     isTelegramSync: boolean;
+    is2faSync: boolean;
 }
 
 export async function postLogin(username: string, password: string) {
