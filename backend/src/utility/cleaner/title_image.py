@@ -28,11 +28,13 @@ if __name__ == '__main__':
     
     for (path, dir, files) in os.walk(TITLE_IMAGE_DIR):
         for filename in files:
-            fname = filename.replace('.preview.jpg', '')
+            fname = filename
+            if 'preview' in fname:
+                fname = fname.split('.preview')[0]
             if 'minify' in fname:
                 fname = fname.split('.minify')[0]
             
             if not fname in image_dict:
                 print(path + '/' + filename)
                 os.remove(path + '/' + filename)
-            time.sleep(0.01)
+                time.sleep(0.1)
