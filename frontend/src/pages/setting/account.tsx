@@ -5,9 +5,11 @@ import Router from 'next/router';
 import { toast } from 'react-toastify';
 
 import {
+    Alert,
     Button,
     CheckBox,
     Modal,
+    Text,
 } from '@components/integrated';
 import { Layout } from '@components/setting';
 
@@ -96,7 +98,7 @@ export default function AccountSetting(props: Props) {
 
         const { data } = await API.putSetting('account', sendData);
         if (data.status === 'DONE') {
-            toast('😀 계정이 업데이트 되었습니다.');
+            toast('😀 기타 정보가 업데이트 되었습니다.');
         }
         setPassword('');
         setPasswordCheck('');
@@ -161,76 +163,96 @@ export default function AccountSetting(props: Props) {
     return (
         <>
             <>
-                {isChangeUsername ? (
-                    <div className="input-group mb-3">
-                        <input
-                            type="text"
-                            placeholder="아이디"
-                            className="form-control"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}/>
-                        <div className="input-group-prepend">
-                            <Button gap="little" onClick={() => onChangeUsername()}>
+                <div className="mb-5">
+                    <div className="d-flex justify-content-between mb-2">
+                        <Text fontSize={6} fontWeight={600}>
+                            사용자 이름
+                        </Text>
+                        {isChangeUsername ? (
+                            <div>
+                                <Button gap="little" onClick={() => onChangeUsername()}>
+                                    업데이트
+                                </Button>
+                                <Button onClick={() => {
+                                    setChangeUsername(false);
+                                    setUsername(props.username);
+                                }}>
+                                    취소
+                                </Button>
+                            </div>
+                        ) : (
+                            <Button onClick={() => setChangeUsername(true)}>
                                 변경
                             </Button>
-                            <Button onClick={() => {
-                                setChangeUsername(false);
-                                setUsername(props.username);
-                            }}>
-                                취소
-                            </Button>
-                        </div>
+                        )}
                     </div>
-                ) : (
-                    <div className="d-flex justify-content-between">
-                        <h3 className="font-weight-bold">
-                            @{username}
-                        </h3>
-                        <Button onClick={() => setChangeUsername(true)}>
-                            아이디 변경
+                    <div className="mb-2">
+                        {isChangeUsername ? (
+                            <input
+                                type="text"
+                                placeholder="아이디"
+                                className="form-control"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        ) : (
+                            <Text>{username}</Text>
+                        )}
+                    </div>
+                    <Alert type="warning">
+                        {`https://blex.me/@${username}`}
+                    </Alert>
+                </div>
+                <div className="mb-5">
+                    <Text fontSize={6} fontWeight={600}>
+                        가입일
+                    </Text>
+                    <Text>{props.createdDate}</Text>
+                </div>
+                <div className="mb-5">
+                    <div className="d-flex justify-content-between mb-2">
+                        <Text fontSize={6} fontWeight={600}>
+                            기타 정보
+                        </Text>
+                        <Button onClick={() => onSubmit()}>
+                            업데이트
                         </Button>
                     </div>
-                )}
-                <p>
-                    {props.createdDate}
-                </p>
-                <input
-                    type="text"
-                    value={realname}
-                    placeholder="이름"
-                    className="form-control"
-                    maxLength={30}
-                    onChange={(e) => setRealname(e.target.value)}
-                />
-                <input
-                    type="password"
-                    value={password}
-                    placeholder="새 비밀번호"
-                    className="form-control"
-                    maxLength={200}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <input
-                    type="password"
-                    value={passwordCheck}
-                    placeholder="비밀번호 확인"
-                    className="form-control"
-                    maxLength={200}
-                    onChange={(e) => setPasswordCheck(e.target.value)}
-                />
-                <CheckBox
-                    label="이메일 전송에 동의합니다."
-                    defaultChecked={agreeEmail}
-                    onClick={(value: boolean) => setAgreeEmail(value)}
-                />
-                <CheckBox
-                    label="활동 내역 수집에 동의합니다."
-                    defaultChecked={agreeHistory}
-                    onClick={(value: boolean) => setAgreeHistory(value)}
-                />
-                <Button gap="little" onClick={() => onSubmit()}>
-                    정보 변경
-                </Button>
+                    <input
+                        type="text"
+                        value={realname}
+                        placeholder="이름"
+                        className="form-control mb-2"
+                        maxLength={30}
+                        onChange={(e) => setRealname(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        value={password}
+                        placeholder="새 비밀번호"
+                        className="form-control mb-2"
+                        maxLength={200}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        value={passwordCheck}
+                        placeholder="비밀번호 확인"
+                        className="form-control mb-2"
+                        maxLength={200}
+                        onChange={(e) => setPasswordCheck(e.target.value)}
+                    />
+                    <CheckBox
+                        label="이메일 전송에 동의합니다."
+                        defaultChecked={agreeEmail}
+                        onClick={(value: boolean) => setAgreeEmail(value)}
+                    />
+                    <CheckBox
+                        label="활동 내역 수집에 동의합니다."
+                        defaultChecked={agreeHistory}
+                        onClick={(value: boolean) => setAgreeHistory(value)}
+                    />
+                </div>
                 {hasTwoFactorAuth ? (
                     <Button gap="little" onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') ? onDeleteTwoFactorAuth() : ''}>
                         2차 인증 중지
