@@ -34,8 +34,11 @@ export function Button(props: ButtonProps) {
         button.current?.appendChild(ripple);
 
         setTimeout(() => {
-            ripple.style.top = e.pageY - (button.current?.getBoundingClientRect().top || 0) - 25 + 'px';
-            ripple.style.left = e.pageX - (button.current?.getBoundingClientRect().left || 0) - 25 + 'px';
+            const absoluteTop = (button.current?.getBoundingClientRect().top || 0) + window.scrollY;
+            const absoliteLeft = (button.current?.getBoundingClientRect().left || 0) + window.scrollX;
+
+            ripple.style.top = e.pageY - absoluteTop - 25 + 'px';
+            ripple.style.left = e.pageX - absoliteLeft - 25 + 'px';
             ripple.style.opacity = '0';
             ripple.style.transform = 'scale(5)';
         }, 0);
@@ -53,7 +56,7 @@ export function Button(props: ButtonProps) {
                 gap != 'none' && `g-${gap}`,
                 space != 'default' && `s-${space}`,
                 color != 'default' && `c-${color}`,
-                display != 'inline-block' && `d-${display}`,
+                display != 'inline-block' && `d-${display}`
             )}
             onClick={handleClick}
         >
