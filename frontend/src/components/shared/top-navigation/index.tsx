@@ -456,22 +456,12 @@ export function TopNavigation() {
                         <ul>
                             <li>
                                 <Link href="/setting/account">
-                                    <a>아이디 / 패스워드 변경</a>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/setting/account">
-                                    <a>2차 인증</a>
+                                    <a>계정 정보 변경</a>
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/setting/profile">
-                                    <a>포스트 관리</a>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/setting/account">
-                                    <a>회원탈퇴</a>
+                                    <a>프로필 정보 변경</a>
                                 </Link>
                             </li>
                         </ul>
