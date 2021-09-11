@@ -8,4 +8,5 @@ export * from './dropdown';
 export * from './image-input';
 export * from './pop-over';
 export * from './split-line';
+export * from './text';
 export * from './toggle';

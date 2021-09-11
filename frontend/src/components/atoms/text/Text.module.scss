@@ -1,0 +1,15 @@
+@import 'var';
+
+.text {
+    @for $i from 1 through 7 {
+        &.fw-#{$i} {
+            font-weight: ($i * 100);
+        }
+    }
+
+    @each $sizeName, $size in $fontSizes {
+        &.si-#{$sizeName} {
+            font-size: $size;
+        }
+    }
+}
