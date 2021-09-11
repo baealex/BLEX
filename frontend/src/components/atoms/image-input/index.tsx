@@ -1,3 +1,7 @@
+import styles from './ImageInput.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
+
 import { useRef, ChangeEvent } from 'react';
 
 export interface ImageInputProps {
@@ -33,18 +37,15 @@ export function ImageInput(props: ImageInputProps) {
                 accept="image/*"
                 onChange={(e) => onChangeImage(e)}
             />
-            <div className="mb-1">
-                <img
-                    width="150px"
-                    src={props.url}
-                />
-            </div>
-            <button
-                className="btn btn-dark"
-                onClick={() => onClickButton()}
+            <div
+                onClick={onClickButton}
+                className={cn('image')}
             >
-                {props.label || '이미지 선택'}
-            </button>
+                <img src={props.url}/>
+                <div className={cn('cover')}>
+                    {props.label}
+                </div>
+            </div>
         </>
     )
 }
