@@ -79,13 +79,11 @@ export default function Search(props: Props) {
     }
 
     const handleRemoveHistory = async (pk: number) => {
-        if (confirm('😥 정말 검색 기록을 삭제할까요?')) {
-            const { data } = await API.deleteSearchHistory(pk);
-            if (data.status === 'DONE') {
-                API.getSearchHistory().then(({data}) => {
-                    setHistory(data.body.searches);
-                });
-            }
+        const { data } = await API.deleteSearchHistory(pk);
+        if (data.status === 'DONE') {
+            API.getSearchHistory().then(({data}) => {
+                setHistory(data.body.searches);
+            });
         }
     }
 
