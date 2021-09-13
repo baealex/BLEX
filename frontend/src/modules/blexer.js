@@ -1,12 +1,13 @@
 import { Remarkable } from 'remarkable';
+import { linkify } from 'remarkable/linkify';
 
-export const strip = (html) => {
+export function strip(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || "";
 };
 
-export const slugify = (text) => (
-    text ? text
+export function slugify(text) {
+    return text ? text
         .toString()
         .toLowerCase()
         .trim()
@@ -16,37 +17,45 @@ export const slugify = (text) => (
         .replace(/--+/g, '-')
         .slice(0, 25)
     : 'header'
-);
+};
+
+export function headerHash(remarkable) {
+    const ids = [];
+    const makeID = (text) => {
+        const id = slugify(text);
+        for(let idx=0; ; idx++) {
+            let tempId = id + (idx != 0 ? `-${idx}` : '');
+            if(!ids.includes(tempId)) {
+                ids.push(tempId);
+                return tempId;
+            }
+        }
+    };
+    remarkable.renderer.rules.heading_open = (tokens, idx) => {
+        let hLevel = tokens[idx].hLevel;
+        if(tokens[idx].hLevel % 2 == 1) {
+            hLevel += 1;
+        }
+        return `<h${hLevel} id="${makeID(tokens[idx + 1].content)}">`;
+    };
+}
+
+export function lazyImage(remarkable) {
+    remarkable.renderer.rules.image = (tokens, idx) => {
+        const dataSrc = ' data-src="' + tokens[idx].src + '"';
+        const src = ' src="' + tokens[idx].src + '.preview.jpg"';
+        const title = tokens[idx].title ? (' title="' + tokens[idx].title + '"') : '';
+        const alt = ' alt="' + (tokens[idx].alt ? tokens[idx].alt : '') + '"';
+        return '<img class="lazy"' + dataSrc + src + alt + title + '>';
+    }
+}
 
 export default function blexer(md) {
-    let html = new Remarkable().use((remarkable) => {
-        const ids = [];
-        const makeID = (text) => {
-            const id = slugify(text);
-            for(let idx=0; ; idx++) {
-                let tempId = id + (idx != 0 ? `-${idx}` : '');
-                if(!ids.includes(tempId)) {
-                    ids.push(tempId);
-                    return tempId;
-                }
-            }
-        };
-        remarkable.renderer.rules.heading_open = (tokens, idx) => {
-            let hLevel = tokens[idx].hLevel;
-            if(tokens[idx].hLevel % 2 == 1) {
-                hLevel += 1;
-            }
-            return `<h${hLevel} id="${makeID(tokens[idx + 1].content)}">`;
-        };
-    }).use((remarkable) => {
-        remarkable.renderer.rules.image = (tokens, idx) => {
-            const dataSrc = ' data-src="' + tokens[idx].src + '"';
-            const src = ' src="' + tokens[idx].src + '.preview.jpg"';
-            const title = tokens[idx].title ? (' title="' + tokens[idx].title + '"') : '';
-            const alt = ' alt="' + (tokens[idx].alt ? tokens[idx].alt : '') + '"';
-            return '<img class="lazy"' + dataSrc + src + alt + title + '>';
-        }
-    }).render(md);
+    let html = new Remarkable()
+        .use(headerHash)
+        .use(lazyImage)
+        .use(linkify)
+        .render(md);
 
     // Custom Markdown
     html = html.replace(
