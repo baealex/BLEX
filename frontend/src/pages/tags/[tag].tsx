@@ -4,10 +4,10 @@ import React from 'react';
 import { ArticleCard } from '@components/article';
 import {
     Footer,
-    PageNavigation,
     Pagination,
     SEO,
-} from '@components/shared';
+    Text,
+} from '@components/integrated';
 import { TagWiki } from '@components/tag';
 
 import * as API from '@modules/api';
@@ -51,11 +51,7 @@ export default function TagDetail(props: Props) {
                 description={`블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}
             />
             <div className="container">
-                <PageNavigation
-                    items={[{name: props.tag}]}
-                    active={props.tag}
-                    disableLink
-                />
+                <Text fontSize={8} fontWeight={600}>— {props.tag} —</Text>
                 {props.descPosts.url && (
                     <TagWiki {...props.descPosts}/>
                 )}
