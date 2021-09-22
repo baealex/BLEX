@@ -111,6 +111,7 @@ export function TopNavigation() {
 
     useEffect(() => {
         let ticking = false;
+        let accScrollY = 0;
         let lastScrollY = window.scrollY;
 
         if (path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1) {
@@ -121,12 +122,19 @@ export function TopNavigation() {
         const event = () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    if (lastScrollY < window.scrollY && lastScrollY > 0) {
-                        setIsRollup(true);
-                        setIsNotifyOpen(false);
-                    } else {
+                    accScrollY += lastScrollY - window.scrollY;
+
+                    if (window.scrollY == 0 || accScrollY > 0) {
                         setIsRollup(false);
+                        accScrollY = 0;
                     }
+                    
+                    if (accScrollY < -80) {
+                        setIsNotifyOpen(false);
+                        setIsRollup(true);
+                        accScrollY = -80;
+                    }
+
                     lastScrollY = window.scrollY;
                     ticking = false;
                 });
