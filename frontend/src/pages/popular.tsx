@@ -17,16 +17,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     try {
         const { data } = await API.getPopualrPosts(Number(page));
 
-        if (page === 1) {
-            const trendy = await API.getTrendyTopPosts();
-            return {
-                props: {
-                    trendy: trendy.data.body,
-                    ...data.body,
-                    page
-                }
-            }
-        }
         return {
             props: {
                 ...data.body,
