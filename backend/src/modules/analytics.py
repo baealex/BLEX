@@ -10,7 +10,7 @@ from modules.scrap import page_parser
 from modules.hash import get_sha256
 
 UNVAILD_REFERERS = [
-    settings.SITE_URL,
+    settings.SITE_URL.split('//')[-1],
     'in-vm',
     'AND',
     'OR',
