@@ -19,7 +19,7 @@ export function CornerLoading() {
         <>
             {isLoading &&(
                 <div className={cn('box')}>
-                    <div className="dot-pulse"/>
+                    <div className="dot-flashing"/>
                 </div>
             )}
         </>
