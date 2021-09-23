@@ -122,7 +122,9 @@ export function TopNavigation() {
         const event = () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    accScrollY += lastScrollY - window.scrollY;
+                    if (window.scrollY > 0) {
+                        accScrollY += lastScrollY - window.scrollY;
+                    }
 
                     if (window.scrollY == 0 || accScrollY > 0) {
                         setIsRollup(false);
