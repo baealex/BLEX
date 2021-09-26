@@ -4,6 +4,13 @@
     margin-top: 30px;
     padding-bottom: 30px;
     color: #ccc;
+
+    .copy {
+        height: 30px;
+        line-height: 30px;
+        font-size: 16px;
+        overflow-y: hidden;
+    }
     
     a {
         color: #999;
@@ -18,15 +25,18 @@
         }
     }
 
-    &.bgDark {
+    .content {
+        margin-bottom: 30px;
+    }
+
+    &.bgdark {
+        color: #999;
         margin-top: 0px;
         background: #000;
-
-        .copy {
-            padding-top: 30px;
-        }
         
         a {
+            color: #e0e0e0;
+
             &:hover {
                 color: #fff;
             }
