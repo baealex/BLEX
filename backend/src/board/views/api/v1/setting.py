@@ -180,7 +180,7 @@ def setting(request, item):
                     'date': item,
                     'count': date_dict[item]
                 }, date_dict)),
-                'total': total
+                'total': total if total else 0
             })
         
         if item == 'referer':
