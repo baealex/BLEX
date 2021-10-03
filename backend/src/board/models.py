@@ -225,6 +225,18 @@ class Post(models.Model):
     def total_comment(self):
         return self.comments.count()
     
+    def search_description(self, search_text, count=30):
+        if not search_text:
+            return self.description()
+        
+        text = strip_tags(self.text_html.lower())
+        point = text.find(search_text)
+        description = text[point-60:point] + text[point:point+60]
+        if point > 60:
+            description = '...' + description
+
+        return truncatewords(description, count)[:200]
+
     def description(self, count=25):
         return truncatewords(strip_tags(self.text_html), count)[:200]
     

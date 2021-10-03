@@ -33,7 +33,7 @@ SIMILAR_KEYWORDS = [
 
 def search(request):
     if request.method == 'GET':
-        query = request.GET.get('q', '')[:10].lower()
+        query = request.GET.get('q', '')[:20].lower()
         page = int(request.GET.get('page', 1))
         username = request.GET.get('username', '')
 
@@ -66,6 +66,7 @@ def search(request):
         start_time = time.time()
         for post in posts.iterator():
             max_score = 0
+            save_search_word = ''
 
             for search_word in search_words:
                 score = 0
@@ -85,9 +86,10 @@ def search(request):
                 
                 if score > max_score:
                     max_score = score
+                    save_search_word = search_word
             
             if max_score > 0:
-                results.append((post, max_score))
+                results.append((post, max_score, save_search_word))
         elapsed_time = round(time.time() - start_time, 3)
 
         total_size = len(results)
@@ -100,7 +102,10 @@ def search(request):
         if page > 1 and len(results) < 1:
             raise Http404
         
-        results = list(map(lambda x: x[0], results))
+        results = list(map(lambda x: {
+            'post': x[0],
+            'word': x[2],
+        }, results))
 
         if total_size > 0:
             user_addr = get_network_addr(request)
@@ -139,15 +144,15 @@ def search(request):
             'elapsed_time': elapsed_time,
             'total_size': total_size,
             'last_page': last_page,
-            'results': list(map(lambda post: {
-                'url': post.url,
-                'title': post.title,
-                'image': str(post.image),
-                'description': post.description(),
-                'read_time': post.read_time,
-                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author_image,
-                'author': post.author_username,
+            'results': list(map(lambda x: {
+                'url': x['post'].url,
+                'title': x['post'].title,
+                'image': str(x['post'].image),
+                'description': x['post'].search_description(x['word']),
+                'read_time': x['post'].read_time,
+                'created_date': convert_to_localtime(x['post'].created_date).strftime('%Y년 %m월 %d일'),
+                'author_image': x['post'].author_image,
+                'author': x['post'].author_username,
             }, results)),
         })
 
