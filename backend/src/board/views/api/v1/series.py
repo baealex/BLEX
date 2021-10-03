@@ -1,3 +1,5 @@
+import traceback
+
 from django.core.paginator import Paginator
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
@@ -42,6 +44,9 @@ def user_series(request, username, url=None):
                     series.save()
                     break
                 except:
+                    if i > 1000:
+                        traceback.print_exc()
+                        return StatusError('TO', '일시적으로 오류가 발생했습니다.')
                     series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
                     i += 1
             return StatusDone({
@@ -86,6 +91,9 @@ def user_series(request, username, url=None):
                     series.save()
                     break
                 except:
+                    if i > 1000:
+                        traceback.print_exc()
+                        return StatusError('TO', '일시적으로 오류가 발생했습니다.')
                     series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
                     i += 1
             return StatusDone({

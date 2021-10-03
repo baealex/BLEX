@@ -1,3 +1,5 @@
+import traceback
+
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import F, Q, Case, Exists, When, Value, OuterRef
@@ -117,6 +119,9 @@ def posts(request):
                 post.save()
                 break
             except:
+                if i > 1000:
+                    traceback.print_exc()
+                    return StatusError('TO', '일시적으로 오류가 발생했습니다.')
                 post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
                 i += 1
 
