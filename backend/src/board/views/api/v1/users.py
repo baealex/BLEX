@@ -39,7 +39,7 @@ def users(request, username):
 
                     heatmap = dict()
                     for element in activity:
-                        key = timestamp(convert_to_localtime(element.created_date), kind='grass')[:10]
+                        key = timestamp(element.created_date, kind='grass')[:10]
                         if key in heatmap:
                             heatmap[key] += 1
                         else:
