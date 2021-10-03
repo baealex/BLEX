@@ -332,12 +332,23 @@ def posts_analytics(request, url):
         
         seven_days_ago  = timezone.now() - datetime.timedelta(days=7)
         
-        posts_analytics = PostAnalytics.objects.filter(
+        posts_analytics = PostAnalytics.objects.values(
+            'created_date'
+        ).filter(
             posts__id=post.pk,
             created_date__gt=seven_days_ago
         ).annotate(
             table_count=Count('table')
         ).order_by('-created_date')
+
+        date_dict = dict()
+        for i in range(7):
+            key = str(convert_to_localtime(timezone.now() - datetime.timedelta(days=i)))[:10]
+            date_dict[key] = 0
+        
+        for item in posts_analytics:
+            key = str(item['created_date'])[:10]
+            date_dict[key] = item['table_count']
 
         posts_referers = Referer.objects.filter(
             posts__posts__id=post.pk,
@@ -350,10 +361,10 @@ def posts_analytics(request, url):
             'items': [],
             'referers': [],
         }
-        for item in posts_analytics:
+        for item in date_dict:
             data['items'].append({
-                'date': item.created_date,
-                'count': item.table_count
+                'date': item,
+                'count': date_dict[item]
             })
         for referer in posts_referers:
             data['referers'].append({
