@@ -109,7 +109,7 @@ export default function Search(props: Props) {
                             <div className="mb-4">
                                 <SearchBox
                                     value={search}
-                                    maxLength={10}
+                                    maxLength={20}
                                     placeholder="검색어를 입력하세요."
                                     onChange={(e) => setSearch(e.target.value)}
                                     button={<i className="fas fa-search"/>}
