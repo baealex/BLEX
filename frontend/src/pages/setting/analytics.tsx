@@ -37,9 +37,14 @@ export default function AnalyticsSetting(props: Props) {
             <div className="h5 font-weight-bold mb-3">
                 조회수 추이
             </div>
-            <Card hasShadow isRounded className="p-3">
-                <div className="ns shallow-dark text-right">
-                    총 조회수 : {props.total.toLocaleString()}
+            <Card hasShadow isRounded>
+                <div className="pt-3 px-3 d-flex justify-content-between">
+                    <div className="ns shallow-dark">
+                        총 조회수 : {props.total.toLocaleString()}
+                    </div>
+                    <div className="ns shallow-dark">
+                            기간 : 30일 이내
+                    </div>
                 </div>
                 <ReactFrappeChart
                     type="axis-mixed"
@@ -54,13 +59,24 @@ export default function AnalyticsSetting(props: Props) {
                         ]
                     }}
                     colors={['#A076F1']}
+                    lineOptions={{
+                        hideDots: 1
+                    }}
+                    axisOptions={{
+                        xIsSeries: 1
+                    }}
                 />
             </Card>
             <div className="h5 font-weight-bold mt-5 mb-3">
-                안기 검색어 분석
+                인기 검색어 분석
             </div>
-            <Card hasShadow isRounded className="p-3">
+            <Card hasShadow isRounded>
                 <>
+                    <div className="pt-3 px-3">
+                        <div className="ns shallow-dark text-right">
+                            기간 : 30일 이내
+                        </div>
+                    </div>
                     <ReactFrappeChart
                         type="pie"
                         data={{
@@ -74,9 +90,11 @@ export default function AnalyticsSetting(props: Props) {
                             ]
                         }}
                     />
-                    {props.topSearches.map(item => (
-                        <p>{item.keyword} ({item.platform}) {item.count}회</p>
-                    ))}
+                    <div className="p-3">
+                        {props.topSearches.map(item => (
+                            <p>{item.keyword} ({item.platform}) {item.count}회</p>
+                        ))}
+                    </div>
                 </>
             </Card>
             <div className="h5 font-weight-bold mt-5 mb-3">

@@ -148,7 +148,7 @@ def setting(request, item):
             })
         
         if item == 'analytics-view':
-            seven_days_ago = convert_to_localtime(timezone.now() - datetime.timedelta(days=7))
+            seven_days_ago = convert_to_localtime(timezone.now() - datetime.timedelta(days=30))
 
             posts_analytics = PostAnalytics.objects.values(
                 'created_date',
@@ -160,7 +160,7 @@ def setting(request, item):
             ).order_by('-created_date')
 
             date_dict = dict()
-            for i in range(7):
+            for i in range(30):
                 key = str(convert_to_localtime(timezone.now() - datetime.timedelta(days=i)))[:10]
                 date_dict[key] = 0
             
