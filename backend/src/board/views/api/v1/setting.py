@@ -147,7 +147,7 @@ def setting(request, item):
                 }, series))
             })
         
-        if item == 'view':
+        if item == 'analytics-view':
             seven_days_ago = convert_to_localtime(timezone.now() - datetime.timedelta(days=7))
 
             posts_analytics = PostAnalytics.objects.values(
@@ -183,7 +183,7 @@ def setting(request, item):
                 'total': total if total else 0
             })
         
-        if item == 'referer':
+        if item == 'analytics-referer':
             referers = RefererFrom.objects.filter(
                 referers__posts__posts__author=user
             ).order_by('-created_date').distinct()[:12]
@@ -196,6 +196,106 @@ def setting(request, item):
                     'image': referer.image,
                     'description': referer.description,
                 }, referers))
+            })
+        
+        if item == 'analytics-search':
+            a_month_ago = timezone.now() - datetime.timedelta(days=30)
+
+            referers = RefererFrom.objects.filter(
+                referers__posts__posts__author=request.user,
+            ).filter(
+                Q(title__contains='검색') |
+                Q(title__contains='Google') |
+                Q(title__contains='DuckDuckGo')
+            ).annotate(
+                count=Count(
+                    Case(
+                        When(
+                            referers__created_date__gt=a_month_ago,
+                            then='referers'
+                        )
+                    )
+                )
+            ).distinct()
+
+            search_counter = {}
+            platform_total = {
+                '네이버': 0,
+                '덕덕고': 0,
+                '다음': 0,
+                '구글': 0,
+                '줌': 0,
+            }
+
+            for referer in referers:
+                keyword = referer.title
+                platform = ''
+
+                if ' : 네이버 통합웹검색' in referer.title:
+                    keyword = keyword.replace(' : 네이버 통합웹검색', '')
+                    platform = '네이버'
+
+                if ' : 네이버 통합검색' in referer.title:
+                    keyword = keyword.replace(' : 네이버 통합검색', '')
+                    platform = '네이버'
+
+                if ' – Daum 검색' in referer.title:
+                    keyword = keyword.replace(' – Daum 검색', '')
+                    platform = '다음'
+
+                if ' - Google 검색' in referer.title:
+                    keyword = keyword.replace(' - Google 검색', '')
+                    platform = '구글'
+
+                if 'Google' == referer.title:
+                    keyword = ''
+                    platform = '구글'
+                
+                if 'DuckDuckGo' in referer.title:
+                    keyword = ''
+                    platform = '덕덕고'
+
+                if ' : 검색줌' in referer.title:
+                    keyword = keyword.replace(' : 검색줌', '')
+                    platform = '줌'
+
+                if not platform:
+                    continue
+
+                platform_total[platform] += referer.count
+
+                if not keyword:
+                    continue
+
+                if f'{keyword} - {platform}' in search_counter:
+                    search_counter[f'{keyword} - {platform}'] += referer.count
+                    continue
+                search_counter[f'{keyword} - {platform}'] = referer.count
+            
+            platform_total = dict(
+                sorted(
+                    filter(
+                        lambda x: x[1] != 0,
+                        platform_total.items()
+                    ),
+                    key=lambda x : x[1],
+                    reverse=True
+                )
+            )
+
+            top_searches = []
+
+            for item in sorted(search_counter.items(), key=lambda x : x[1], reverse=True)[:10]:
+                [ keyword, platform ] = item[0].split(' - ')
+                top_searches.append({
+                    'keyword': keyword,
+                    'platform': platform,
+                    'count': item[1],
+                })
+        
+            return StatusDone({
+                'platform_total': platform_total,
+                'top_searches': top_searches,
             })
         
         if item == 'forms':

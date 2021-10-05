@@ -116,9 +116,9 @@ export interface GetSettingSeriesDataSeries {
     totalPosts: number;
 }
 
-export async function getSettingView(cookie: string | undefined) {
-    return await axios.request<ResponseData<GetSettingViewData>>({
-        url: `/v1/setting/view`,
+export async function getSettingAnalyticsView(cookie: string | undefined) {
+    return await axios.request<ResponseData<GetSettingAnalyticsViewData>>({
+        url: `/v1/setting/analytics-view`,
         headers: {
             cookie
         },
@@ -126,7 +126,7 @@ export async function getSettingView(cookie: string | undefined) {
     });
 }
 
-export interface GetSettingViewData {
+export interface GetSettingAnalyticsViewData {
     username: string;
     total: number;
     views: {
@@ -135,9 +135,12 @@ export interface GetSettingViewData {
     }[];
 }
 
-export async function getSettingReferrers(cookie: string | undefined, page: number) {
-    return await axios.request<ResponseData<GetSettingRefererData>>({
-        url: `/v1/setting/referer?page=${page}`,
+export async function getSettingAnalyticsReferrers(cookie: string | undefined, page: number) {
+    return await axios.request<ResponseData<GetSettingAnalyticsRefererData>>({
+        url: `/v1/setting/analytics-referer`,
+        params: {
+            page
+        },
         headers: cookie ? {
             cookie
         } : {},
@@ -145,13 +148,38 @@ export async function getSettingReferrers(cookie: string | undefined, page: numb
     });
 }
 
-export interface GetSettingRefererData {
+export interface GetSettingAnalyticsRefererData {
     referers: {
         time: string;
         url: string;
         title: string;
         image: string;
         description: string;
+    }[];
+}
+
+export async function getSettingAnalyticsSearch(cookie: string | undefined) {
+    return await axios.request<ResponseData<GetSettingAnalyticsgSearchData>>({
+        url: `/v1/setting/analytics-search`,
+        headers: cookie ? {
+            cookie
+        } : {},
+        method: 'GET'
+    });
+}
+
+export interface GetSettingAnalyticsgSearchData {
+    platformTotal: {
+        네이버: number;
+        덕덕고: number;
+        다음: number;
+        구글: number;
+        줌: number;
+    };
+    topSearches: {
+        keyword: string;
+        platform: string;
+        count: number;
     }[];
 }
 

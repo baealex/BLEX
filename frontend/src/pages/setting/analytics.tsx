@@ -8,20 +8,25 @@ import * as API from '@modules/api';
 import { GetServerSidePropsContext } from 'next';
 import { Card } from '@components/atoms';
 
-interface Props extends API.GetSettingViewData, API.GetSettingRefererData {}
+interface Props extends
+    API.GetSettingAnalyticsViewData,
+    API.GetSettingAnalyticsRefererData, 
+    API.GetSettingAnalyticsgSearchData {}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
-    const views = await API.getSettingView(req.headers.cookie);
+    const views = await API.getSettingAnalyticsView(req.headers.cookie);
     if (views.data.status === 'ERROR') {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
-    const referers = await API.getSettingReferrers(req.headers.cookie, 1);
+    const referers = await API.getSettingAnalyticsReferrers(req.headers.cookie, 1);
+    const searches = await API.getSettingAnalyticsSearch(req.headers.cookie);
     return {
         props: {
             ...views.data.body,
-            ...referers.data.body
+            ...referers.data.body,
+            ...searches.data.body,
         }
     };
 }
@@ -50,6 +55,29 @@ export default function AnalyticsSetting(props: Props) {
                     }}
                     colors={['#A076F1']}
                 />
+            </Card>
+            <div className="h5 font-weight-bold mt-5 mb-3">
+                안기 검색어 분석
+            </div>
+            <Card hasShadow isRounded className="p-3">
+                <>
+                    <ReactFrappeChart
+                        type="pie"
+                        data={{
+                            labels: Object.keys(props.platformTotal),
+                            datasets: [
+                                {
+                                    name: 'View',
+                                    values: Object.values(props.platformTotal),
+                                    chartType: 'line'
+                                }
+                            ]
+                        }}
+                    />
+                    {props.topSearches.map(item => (
+                        <p>{item.keyword} ({item.platform}) {item.count}회</p>
+                    ))}
+                </>
             </Card>
             <div className="h5 font-weight-bold mt-5 mb-3">
                 신규 유입 경로
