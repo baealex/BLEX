@@ -34,7 +34,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 export default function AnalyticsSetting(props: Props) {
     return (
         <>
-            <div className="h5 font-weight-bold mb-3">
+            <div className="h5 font-weight-bold mt-lg-0 mt-3 mb-3">
                 조회수 추이
             </div>
             <Card hasShadow isRounded>
@@ -43,7 +43,7 @@ export default function AnalyticsSetting(props: Props) {
                         총 조회수 : {props.total.toLocaleString()}
                     </div>
                     <div className="ns shallow-dark">
-                            기간 : 30일 이내
+                        기간 : 30일 이내
                     </div>
                 </div>
                 <ReactFrappeChart
@@ -68,7 +68,7 @@ export default function AnalyticsSetting(props: Props) {
                 />
             </Card>
             <div className="h5 font-weight-bold mt-5 mb-3">
-                인기 검색어 분석
+                검색 유입 분석
             </div>
             <Card hasShadow isRounded>
                 <>
@@ -90,10 +90,101 @@ export default function AnalyticsSetting(props: Props) {
                             ]
                         }}
                     />
-                    <div className="p-3">
-                        {props.topSearches.map(item => (
-                            <p>{item.keyword} ({item.platform}) {item.count}회</p>
-                        ))}
+                    <div className="p-3 p-md-0">
+                        <div className="table_wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>횟수</th>
+                                        <th>검색어</th>
+                                        <th>출처</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {props.topSearches.map((item, idx) => (
+                                        <tr key={idx}>
+                                            <td data-title="횟수">{item.count}</td>
+                                            <td data-title="검색어">{item.keyword}</td>
+                                            <td data-title="출처">{item.platform}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <style jsx>{`
+                            .table_wrap {
+                                overflow: hidden;
+                            }
+
+                            table {
+                                width: 100% !important;
+                            }
+
+                            thead {
+                                color: #fff;
+                                background: #A076F1;
+
+                                :global(body.dark) & {
+                                    background: #555;
+                                }
+
+                                @media (max-width: 767px) {
+                                    display: none;
+                                }
+                            }
+
+                            tbody {
+                                color: #666;
+
+                                :global(body.dark) & {
+                                    color: #ccc;
+                                }
+                            }
+
+                            th, td {
+                                line-height: 1.2;
+                                font-weight: unset !important;
+                                padding: 15px 0;
+                                text-align: center;
+
+                                @media (max-width: 767px) {
+                                    text-align: left;
+                                    display: block;
+                                    padding: 8px 0;
+                                }
+                            }
+
+                            td::before {
+                                @media (max-width: 767px) {
+                                    font-size: 12px;
+                                    color: #aaa;
+                                    line-height: 1.2;
+                                    margin-bottom: 12px;
+                                    content: attr(data-title);
+                                    min-width: 98px;
+                                    display: block;
+
+                                    :global(body.dark) & {
+                                        color: #888;
+                                    }
+                                }
+                            }
+
+                            tbody tr:not(:last-child) {
+                                border-bottom: 1px solid #f2f2f2;
+
+                                :global(body.dark) & {
+                                    border-bottom: 1px solid #555;
+                                }
+                            }
+
+                            tr > *:nth-child(1) {
+                                @media (min-width: 768px) {
+                                    width: 80px;
+                                    padding-left: 20px;
+                                }
+                            }
+                        `}</style>
                     </div>
                 </>
             </Card>
