@@ -186,6 +186,10 @@ def setting(request, item):
         if item == 'analytics-referer':
             referers = RefererFrom.objects.filter(
                 referers__posts__posts__author=user
+            ).exclude(
+                Q(title__contains='검색') |
+                Q(title__contains='Google') |
+                Q(title__contains='DuckDuckGo')
             ).order_by('-created_date').distinct()[:12]
 
             return StatusDone({
