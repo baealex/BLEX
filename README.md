@@ -19,23 +19,22 @@
 
 ***"예쁘고 유니크한 블로그 없을까요?"*** 🙋‍♂️ [여기 있습니다!](https://blex.me) 블렉스는 가입형 블로그로 회원이라면 누구나 글을 자유롭게 작성할 수 있습니다. ~~무엇보다 쓰는 사람이 없어서 매우 유니크합니다!~~ 블렉스는 미니멀한 디자인과 신기술을 응용한 빠른 웹사이트를 지향하며 `AD-Free`, 3세대 블로그를 과감히 꿈꿉니다. 의견은 [im@baejino.com](mailto:im@baejino.com)으로 부탁드립니다.
 
-![1](https://user-images.githubusercontent.com/35596687/128170987-c76cb8ad-5e14-4728-9b16-15f1e14d52cb.png)
+![1](https://user-images.githubusercontent.com/35596687/136197530-c61c0a14-d7da-4421-a79f-6c6aafdb270d.png)
 
-![2](https://user-images.githubusercontent.com/35596687/128170993-8efe31c1-ffa4-4d7a-8c52-ff7016df00dc.png)
+![2](https://user-images.githubusercontent.com/35596687/136197534-af7f3818-dfe4-4f0d-a3f1-dacbc3b3379c.png)
 
-![3](https://user-images.githubusercontent.com/35596687/128170997-1f0cd0af-7b7d-45f2-baf5-678e70791f78.png)
+![3](https://user-images.githubusercontent.com/35596687/136197537-6462b724-2942-465d-a31c-a3435dd85524.png)
 
 ## Features
 
 - [x] 마크다운으로 글 · 댓글 작성 ✍️
-- [x] 텔레그램으로 날아오는 알림 🚀
-- [x] 텔레그램 2차 인증으로 강력한 보안 🔒
 - [x] 잔디로 정리되는 블로그의 기록들 🌿
-- [x] 포스트의 유입경로와 조회수 제공 📈
+- [x] 구글 · 깃허브 아이디로 빠른 시작 ✨
+- [x] 텔레그램으로 날아오는 실시간 알림 🚀
+- [x] 텔레그램 2차 인증으로 강력한 보안 🔒
 - [x] 여러분 눈 건강을 위한 나이트 모드 😉❤
 - [x] 구글 · 네이버에서 검색순위 올라가고 있는 중 ✈️
-- [x] 구글 · 깃허브 아이디로 빠른 시작 ✨
-- [x] 음...또 뭐가있지? 개발자가 착함 😅
+- [x] 방문자 집계, 검색 유입 분석, 신규 유입 경로 제공 📈
 
 ## Links
 
