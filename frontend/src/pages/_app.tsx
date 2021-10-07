@@ -2,6 +2,9 @@ import App, { AppProps } from 'next/app';
 import Head from 'next/head';
 import Router from 'next/router';
 
+import nprogress from 'nprogress';
+import 'nprogress/nprogress.css'
+
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -28,21 +31,19 @@ function minify(str: string) {
     return str;
 }
 
+nprogress.configure({
+    showSpinner: false
+});
+
 Router.events.on('routeChangeStart', () => {
-    loadingContext.setState({
-        isLoading: true,
-    });
+    nprogress.start();
 });
 Router.events.on('routeChangeComplete', () => {
     lazyLoadResource();
-    loadingContext.setState({
-        isLoading: false,
-    });
+    nprogress.done();
 });
 Router.events.on('routeChangeError', () => {
-    loadingContext.setState({
-        isLoading: false,
-    });
+    nprogress.done();
 });
 
 class Main extends App<AppProps> {
