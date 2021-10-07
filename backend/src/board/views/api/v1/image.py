@@ -49,7 +49,7 @@ def image(request):
                     ]
                 )
 
-                file_name = str(dt.hour) + '_' + randstr(20)
+                file_name = f'{dt.year}_{dt.month}_{dt.day}_{dt.hour}_{randstr(20)}'
                 with open(upload_path + '/' + file_name + '.' + ext, 'wb+') as destination:
                     for chunk in image.chunks():
                         destination.write(chunk)
