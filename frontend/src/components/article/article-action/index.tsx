@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api';
 
@@ -62,14 +62,14 @@ export function ArticleAction(props: ArticleActionProps) {
         }
         if (data.status === 'ERROR') {
             if (data.errorCode === API.ERROR.NOT_LOGIN) {
-                toast('😅 로그인이 필요합니다.', {
+                snackBar('😅 로그인이 필요합니다.', {
                     onClick:() => {
                         modalContext.onOpenModal('isLoginModalOpen');
                     }
                 });
             }
             if (data.errorCode === API.ERROR.SAME_USER) {
-                toast('😅 자신의 글은 추천할 수 없습니다.');
+                snackBar('😅 자신의 글은 추천할 수 없습니다.');
             }
         }
     }

@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api';
 import { getUserImage } from '@modules/image';
@@ -190,7 +190,7 @@ export function TopNavigation() {
             const { data } = await API.postLogout();
             if(data.status === 'DONE') {
                 authContext.initState();
-                toast('😀 로그아웃 되었습니다.');
+                snackBar('😀 로그아웃 되었습니다.');
             }
         }
     }
@@ -203,10 +203,10 @@ export function TopNavigation() {
         if(confirm('😥 정말 연동을 해제할까요?')) {
             const { data } = await API.postTelegram('unsync');
             if (data.status === 'ERROR') {
-                toast(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+                snackBar(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
                 return;
             }
-            toast('😀 텔레그램과 연동이 해제되었습니다.');
+            snackBar('😀 텔레그램과 연동이 해제되었습니다.');
             setState((prevState) => ({
                 ...prevState,
                 isTelegramSync: false

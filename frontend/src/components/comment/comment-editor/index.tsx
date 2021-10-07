@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 export interface CommentEditorProps {
     pk: number;
@@ -14,7 +14,7 @@ export function CommentEditor(props: CommentEditorProps) {
 
     const onSubmit = () => {
         if(content == '') {
-            toast('😅 댓글의 내용을 입력해주세요.');
+            snackBar('😅 댓글의 내용을 입력해주세요.');
             return;
         }
         if(content == props.content) {

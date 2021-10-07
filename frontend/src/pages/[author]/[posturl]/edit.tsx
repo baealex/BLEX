@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Router from 'next/router';
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import { Layout } from '@components/editor';
 
@@ -62,12 +62,12 @@ export default function Edit(props: Props) {
 
     const onSubmit = async (onFail: Function) => {
         if(!title) {
-            toast('😅 제목이 비어있습니다.');
+            snackBar('😅 제목이 비어있습니다.');
             onFail();
             return;
         }
         if(!tags) {
-            toast('😅 키워드를 작성해주세요.');
+            snackBar('😅 키워드를 작성해주세요.');
             onFail();
             return;
         }
@@ -86,7 +86,7 @@ export default function Edit(props: Props) {
                 Router.push('/[author]/[posturl]', `/${props.username}/${props.posturl}`);
             }
         } catch(e) {
-            toast('😥 글 수정중 오류가 발생했습니다.');
+            snackBar('😥 글 수정중 오류가 발생했습니다.');
             onFail();
         }
     }

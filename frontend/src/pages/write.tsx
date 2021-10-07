@@ -1,7 +1,7 @@
 import React from 'react';
 import { GetServerSidePropsContext } from 'next';
 import Router from 'next/router';
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import { Layout, TempArticleModal } from '@components/editor';
 
@@ -105,7 +105,7 @@ class Write extends React.Component<Props, State> {
             this.setState({
                 tempPosts: data.body.temps
             });
-            toast('😀 작성하던 포스트가 있으시네요!', {
+            snackBar('😀 작성하던 포스트가 있으시네요!', {
                 onClick: () => {
                     this.setState({isOpenArticleModal: true});
                 }
@@ -161,12 +161,12 @@ class Write extends React.Component<Props, State> {
 
     async onSubmit(onFail: Function) {
         if(!this.state.title) {
-            toast('😅 제목이 비어있습니다.');
+            snackBar('😅 제목이 비어있습니다.');
             onFail();
             return;
         }
         if(!this.state.tags) {
-            toast('😅 키워드를 작성해주세요.');
+            snackBar('😅 키워드를 작성해주세요.');
             onFail();
             return;
         }
@@ -187,7 +187,7 @@ class Write extends React.Component<Props, State> {
             });
             Router.push('/[author]/[posturl]', `/@${this.state.username}/${data.body.url}`);
         } catch(e) {
-            toast('😥 글 작성중 오류가 발생했습니다.');
+            snackBar('😥 글 작성중 오류가 발생했습니다.');
             onFail();
         }
     }
@@ -202,7 +202,7 @@ class Write extends React.Component<Props, State> {
                         post.token !== token
                     )
                 });
-                toast('😀 임시글이 삭제되었습니다.');
+                snackBar('😀 임시글이 삭제되었습니다.');
             }
         }
     }
@@ -237,13 +237,13 @@ class Write extends React.Component<Props, State> {
                         }
                     }
                 });
-                toast('😀 임시 저장이 완료되었습니다.');
+                snackBar('😀 임시 저장이 완료되었습니다.');
             }
         } else {
             const { data } = await API.postTempPosts(title, content, tags);
             if (data.status === 'ERROR') {
                 if (data.errorCode === API.ERROR.OVER_FLOW) {
-                    toast('😥 임시 저장글 갯수가 초과했습니다');
+                    snackBar('😥 임시 저장글 갯수가 초과했습니다');
                     return;    
                 }
             }
@@ -255,7 +255,7 @@ class Write extends React.Component<Props, State> {
                     createdDate: '0분'
                 })
             });
-            toast('😀 임시 저장이 완료되었습니다.');
+            snackBar('😀 임시 저장이 완료되었습니다.');
         }
     }
 

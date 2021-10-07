@@ -5,9 +5,6 @@ import Router from 'next/router';
 import nprogress from 'nprogress';
 import 'nprogress/nprogress.css'
 
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 import {
     SEO,
     CornerLoading,
@@ -119,13 +116,12 @@ class Main extends App<AppProps> {
                 />
 
                 <TopNavigation/>
+                
                 <CornerLoading/>
                 
                 <div className="content">
                     {getLayout(<Component {...pageProps}/>, pageProps)}
                 </div>
-
-                <ToastContainer/>
             </>
         )
     }

@@ -3,7 +3,7 @@ import Router from 'next/router';
 
 import { Footer } from '@components/shared';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import { GetServerSidePropsContext } from 'next';
@@ -39,24 +39,24 @@ export default function Verify(props: Props) {
     const onSubmit = async (hctoken?: string) => {
         if(CONFIG.HCAPTCHA_SITE_KEY) {
             if(!hctoken) {
-                toast('😅 체크박스를 눌러주세요!');
+                snackBar('😅 체크박스를 눌러주세요!');
                 return;
             }
         }
         const { data } = await API.postEmailVerify(props.token, hctoken);
         if (data.status === 'ERROR') {
             if (data.errorCode === API.ERROR.ALREADY_VERIFY) {
-                toast('😥 이미 인증된 메일입니다.');
+                snackBar('😥 이미 인증된 메일입니다.');
             }
             if (data.errorCode === API.ERROR.EXPIRE) {
-                toast('😥 만료된 토큰입니다.');
+                snackBar('😥 만료된 토큰입니다.');
             }
             if (data.errorCode === API.ERROR.REJECT) {
-                toast('😥 인증이 실패했습니다.');
+                snackBar('😥 인증이 실패했습니다.');
             }
         }
         if(data.status === 'DONE') {
-            toast(`😆 ${props.username}님! 환영합니다 🎉`);
+            snackBar(`😆 ${props.username}님! 환영합니다 🎉`);
             authContext.setState({
                 isLogin: true,
                 ...data.body,

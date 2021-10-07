@@ -3,7 +3,7 @@ import React from 'react';
 import { SplitLine } from '@components/atoms';
 import { Modal } from '@components/shared';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api';
 import { oauth } from '@modules/oauth';
@@ -54,11 +54,11 @@ export class LoginModal extends React.Component<Props, State> {
 
     async onSubmitLogin() {
         if(this.state.username == '') {
-            toast('😅 아이디를 입력해주세요!');
+            snackBar('😅 아이디를 입력해주세요!');
             return;
         }
         if(this.state.password == '') {
-            toast('😅 비밀번호를 입력해주세요!');
+            snackBar('😅 비밀번호를 입력해주세요!');
             return;
         }
         const { data } = await API.postLogin(this.state.username, this.state.password);
@@ -72,18 +72,18 @@ export class LoginModal extends React.Component<Props, State> {
 
     async loginCheck(data: API.ResponseData<API.PostLoginData>) {
         if (data.status === 'ERROR') {
-            toast('😥 아이디 혹은 패스워드를 확인해 주세요.');
+            snackBar('😥 아이디 혹은 패스워드를 확인해 주세요.');
         }
 
         if (data.status === 'DONE') {
             if (data.body.security) {
-                toast('😃 2차 인증 코드를 입력해 주세요.');
+                snackBar('😃 2차 인증 코드를 입력해 주세요.');
                 modalContext.onOpenModal('isTwoFactorAuthModalOpen');
                 this.props.onClose();
                 return;
             }
 
-            toast(`😃 로그인 되었습니다.`);
+            snackBar(`😃 로그인 되었습니다.`);
             authContext.setState({
                 isLogin: true,
                 ...data.body,

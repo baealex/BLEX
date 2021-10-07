@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from 'next';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import { Card } from '@components/atoms';
 import { Layout } from '@components/setting';
@@ -38,11 +38,11 @@ export default function FormsSetting(props: Props) {
 
     const onSubmit = async () => {
         if (!title) {
-            toast('😅 서식의 제목을 입력하세요.');
+            snackBar('😅 서식의 제목을 입력하세요.');
             return;
         }
         if (!content) {
-            toast('😅 서식의 내용을 입력하세요.');
+            snackBar('😅 서식의 내용을 입력하세요.');
             return;
         }
         const { data } = await API.postForms(title, content);
@@ -51,7 +51,7 @@ export default function FormsSetting(props: Props) {
             title,
             createdDate: '',
         }]);
-        toast('😀 서식이 생성되었습니다.');
+        snackBar('😀 서식이 생성되었습니다.');
         setTitle('');
         setContent('');
     };
@@ -61,7 +61,7 @@ export default function FormsSetting(props: Props) {
             const { data } = await API.deleteForms(id);
             if (data.status === 'DONE') {
                 setForms(forms.filter(item => item.id !== id));
-                toast('😀 서식이 삭제되었습니다.');
+                snackBar('😀 서식이 삭제되었습니다.');
             }
         }
     }

@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 import React from 'react';
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import {
     Card,
@@ -140,9 +140,9 @@ class Series extends React.Component<Props, State> {
                 );
             }
             this.onCloseModal('isSeriesModalOpen');
-            toast('😀 시리즈가 업데이트 되었습니다.');
+            snackBar('😀 시리즈가 업데이트 되었습니다.');
         } else {
-            toast('😯 변경중 오류가 발생했습니다.');
+            snackBar('😯 변경중 오류가 발생했습니다.');
         }
     }
 
@@ -157,9 +157,9 @@ class Series extends React.Component<Props, State> {
                 this.setState({
                     seriesPosts
                 });
-                toast('😀 시리즈가 업데이트 되었습니다.');
+                snackBar('😀 시리즈가 업데이트 되었습니다.');
             } else {
-                toast('😯 변경중 오류가 발생했습니다.');
+                snackBar('😯 변경중 오류가 발생했습니다.');
             }
         }
     }

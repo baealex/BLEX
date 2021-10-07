@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import { Layout } from '@components/setting';
 
@@ -34,11 +34,11 @@ export default function SeriesSetting(props: Props) {
 
     const onSeriesCreate = async () => {
         if(!newSeries) {
-            toast('😅 시리즈의 이름을 입력하세요.');
+            snackBar('😅 시리즈의 이름을 입력하세요.');
             return;
         }
         const { data } = await API.postUserSeries('@' + props.username, newSeries);
-        toast('😀 시리즈가 생성되었습니다.');
+        snackBar('😀 시리즈가 생성되었습니다.');
         setSeries([{
             url: data.body.url,
             title: newSeries,
@@ -53,7 +53,7 @@ export default function SeriesSetting(props: Props) {
                 setSeries([...series.filter(series => (
                     series.url !== url
                 ))]);
-                toast('😀 시리즈가 삭제되었습니다.');
+                snackBar('😀 시리즈가 삭제되었습니다.');
             }   
         }
     };

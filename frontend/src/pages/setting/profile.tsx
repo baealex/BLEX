@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from 'next';
 import React, { useState } from 'react';
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import { Alert, Button, Text } from '@components/integrated';
 import { Layout } from '@components/setting';
@@ -51,7 +51,7 @@ export default function ProfileSetting(props: Props) {
 
         const { data } = await API.putSetting('profile', sendData);
         if(data.status === 'DONE') {
-            toast('😀 프로필이 업데이트 되었습니다.');
+            snackBar('😀 프로필이 업데이트 되었습니다.');
         }
     };
     

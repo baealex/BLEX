@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import {
     Modal,
@@ -44,7 +44,7 @@ export function YoutubeModal(props: Props) {
                         if(
                             !value.includes('https://www.youtube.com/watch?v=') &&
                             !value.includes('https://youtu.be/')) {
-                            toast('😅 올바른 링크가 아닙니다.');
+                            snackBar('😅 올바른 링크가 아닙니다.');
                             return;
                         }
 

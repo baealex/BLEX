@@ -3,7 +3,7 @@ import React from 'react';
 import { SplitLine } from '@components/atoms';
 import { Modal } from '@components/shared';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import { oauth } from '@modules/oauth';
 import * as API from '@modules/api';
@@ -52,23 +52,23 @@ export class SignupModal extends React.Component<Props, State> {
 
     async onSubmitLogin() {
         if(this.state.username == '') {
-            toast('😅 아이디를 입력해주세요!');
+            snackBar('😅 아이디를 입력해주세요!');
             return;
         }
         if(this.state.password == '') {
-            toast('😅 비밀번호를 입력해주세요!');
+            snackBar('😅 비밀번호를 입력해주세요!');
             return;
         }
         if(this.state.password !== this.state.passwordCheck) {
-            toast('😅 비밀번호가 일치하지 않습니다!');
+            snackBar('😅 비밀번호가 일치하지 않습니다!');
             return;
         }
         if(this.state.email == '') {
-            toast('😅 이메일을 입력해주세요!');
+            snackBar('😅 이메일을 입력해주세요!');
             return;
         }
         if(this.state.realname == '') {
-            toast('😅 이름을 입력해주세요!');
+            snackBar('😅 이름을 입력해주세요!');
             return;
         }
         const { data } = await API.postSign(
@@ -81,15 +81,15 @@ export class SignupModal extends React.Component<Props, State> {
             if (data.errorCode) {
                 const { errorCode } = data;
                 if (errorCode === API.ERROR.ALREADY_EXISTS) {
-                    toast('😥 이미 사용중인 아이디입니다.');
+                    snackBar('😥 이미 사용중인 아이디입니다.');
                     return;
                 }
                 if (errorCode === API.ERROR.USERNAME_NOT_MATCH) {
-                    toast('😥 아이디는 4글자 이상 15글자 이하의 영어, 숫자입니다.');
+                    snackBar('😥 아이디는 4글자 이상 15글자 이하의 영어, 숫자입니다.');
                     return;
                 }
                 if (errorCode === API.ERROR.EMAIL_NOT_MATCH) {
-                    toast('😥 올바른 이메일 형식이 아닙니다.');
+                    snackBar('😥 올바른 이메일 형식이 아닙니다.');
                     return;
                 }
             }

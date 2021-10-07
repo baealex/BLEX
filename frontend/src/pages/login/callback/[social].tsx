@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import Router from 'next/router';
 import { GetServerSidePropsContext } from 'next';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import { Loading } from '@components/shared';
 
@@ -37,18 +37,18 @@ export default function SocialLogin(props: Props) {
         
         if (data.status === 'DONE') {
             if (data.body.security) {
-                toast('😃 2차 인증 코드를 입력해 주세요.');
+                snackBar('😃 2차 인증 코드를 입력해 주세요.');
                 modalContext.onOpenModal('isTwoFactorAuthModalOpen');
                 return;
             }
-            toast(`😃 로그인 되었습니다.`);
+            snackBar(`😃 로그인 되었습니다.`);
 
             authContext.setState({
                 isLogin: true,
                 ...data.body
             });
         } else {
-            toast('😥 인증이 실패했습니다.');
+            snackBar('😥 인증이 실패했습니다.');
         }
     }
 

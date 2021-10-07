@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import ReactFrappeChart from 'react-frappe-charts';
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import {
     Dropdown,
@@ -137,7 +137,7 @@ export default function PostsSetting(props: Props) {
             const { data } = await API.deleteAnUserPosts('@' + props.username, url);
             if(data.status === 'DONE') {
                 router.replace(router.asPath, '', { scroll: false });
-                toast('😀 포스트가 삭제되었습니다.');
+                snackBar('😀 포스트가 삭제되었습니다.');
             }   
         }
     };
@@ -173,7 +173,7 @@ export default function PostsSetting(props: Props) {
                 fixedTag: data.body.tag as string
             }) : post
         ))]);
-        toast('😀 태그가 수정되었습니다.');
+        snackBar('😀 태그가 수정되었습니다.');
     };
 
     return (

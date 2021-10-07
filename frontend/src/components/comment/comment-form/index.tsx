@@ -8,7 +8,7 @@ import {
     useState,
 } from 'react';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import { Card } from '@components/atoms';
 
@@ -52,7 +52,7 @@ export function CommentForm(props: CommentFormProps) {
 
     const handleSubmit = () => {
         if(props.content == '') {
-            toast('😅 댓글의 내용을 입력해주세요.');
+            snackBar('😅 댓글의 내용을 입력해주세요.');
             return;
         }
         props.onSubmit(props.content);

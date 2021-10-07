@@ -1,5 +1,5 @@
 import React from 'react';
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 import Head from 'next/head';
 import Router from 'next/router';
 import Link from 'next/link';
@@ -227,7 +227,7 @@ class PostDetail extends React.Component<Props, State> {
             const { author, url } = this.props.post;
             const { data } = await API.deleteAnUserPosts('@' + author, url);
             if(data.status === 'DONE') {
-                toast('😀 포스트가 삭제되었습니다.');
+                snackBar('😀 포스트가 삭제되었습니다.');
             }   
         }
     }

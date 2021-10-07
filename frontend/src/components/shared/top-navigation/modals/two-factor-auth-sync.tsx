@@ -4,7 +4,7 @@ import {
     Modal,
  } from '@components/integrated';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api';
 
@@ -32,22 +32,22 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
         const { data } = await API.postSecurity();
         if (data.status === 'ERROR') {
             if (data.errorCode === API.ERROR.NOT_LOGIN) {
-                toast('😥 로그인이 필요합니다.');
+                snackBar('😥 로그인이 필요합니다.');
                 return;
             }
             if (data.errorCode === API.ERROR.NEED_TELEGRAM) {
-                toast('😥 텔레그램 연동이 필요합니다.', {
+                snackBar('😥 텔레그램 연동이 필요합니다.', {
                     onClick: () => modalContext.onOpenModal('isTelegramSyncModalOpen')
                 });
                 return;
             }
             if (data.errorCode === API.ERROR.ALREADY_EXISTS) {
-                toast('😥 이미 등록되어 있습니다.');
+                snackBar('😥 이미 등록되어 있습니다.');
                 return;
             }
         }
         if (data.status === 'DONE') {
-            toast('😀 2차 인증이 등록되었습니다.');
+            snackBar('😀 2차 인증이 등록되었습니다.');
             authContext.setState((prevState) => ({
                 ...prevState,
                 is2faSync: true,
@@ -56,7 +56,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
             this.props.onClose();
             return;
         }
-        toast('😥 등록중 오류가 발생했습니다.');
+        snackBar('😥 등록중 오류가 발생했습니다.');
     }
     
     render() {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GetServerSidePropsContext } from 'next';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import {
     Alert,
@@ -58,18 +58,18 @@ export default function AccountSetting(props: Props) {
         );
         if (data.status === 'ERROR') {
             if (data.errorCode == API.ERROR.REJECT) {
-                toast('😥 작성한 댓글과 포스트가 존재하여 변경할 수 없습니다.');
+                snackBar('😥 작성한 댓글과 포스트가 존재하여 변경할 수 없습니다.');
                 setUsername(props.username);
                 setChangeUsername(false);
                 return;
             }
             if (data.errorCode == API.ERROR.ALREADY_EXISTS) {
-                toast('😥 이미 존재하는 아이디입니다.');
+                snackBar('😥 이미 존재하는 아이디입니다.');
                 return;
             }
         }
         if (data.status === 'DONE') {
-            toast('😀 아이디가 변경되었습니다.');
+            snackBar('😀 아이디가 변경되었습니다.');
             authContext.setState((state) => ({
                 ...state,
                 username: username,
@@ -81,7 +81,7 @@ export default function AccountSetting(props: Props) {
     const onSubmit = async () => {
         let sendData: any = {};
         if (!realname) {
-            toast('🤔 이름은 비워둘 수 없습니다.');
+            snackBar('🤔 이름은 비워둘 수 없습니다.');
             return;
         }
 
@@ -91,7 +91,7 @@ export default function AccountSetting(props: Props) {
 
         if (password) {
             if (password != passwordCheck) {
-                toast('🤔 입력한 패스워드가 서로 다릅니다.');
+                snackBar('🤔 입력한 패스워드가 서로 다릅니다.');
                 return;
             }
             sendData.password = password;
@@ -102,7 +102,7 @@ export default function AccountSetting(props: Props) {
 
         const { data } = await API.putSetting('account', sendData);
         if (data.status === 'DONE') {
-            toast('😀 기타 정보가 업데이트 되었습니다.');
+            snackBar('😀 기타 정보가 업데이트 되었습니다.');
         }
         setPassword('');
         setPasswordCheck('');
@@ -112,23 +112,23 @@ export default function AccountSetting(props: Props) {
         const { data } = await API.deleteSecurity();
         if (data.status === 'ERROR') {
             if (data.errorCode == API.ERROR.ALREADY_UNSYNC) {
-                toast('😥 이미 해제되어 있습니다.');
+                snackBar('😥 이미 해제되어 있습니다.');
                 return;
             }
             if (data.errorCode == API.ERROR.REJECT) {
-                toast('😥 인증을 해제할 수 없습니다.');
+                snackBar('😥 인증을 해제할 수 없습니다.');
                 return;
             }
         }
         if (data.status === 'DONE') {
-            toast('😀 2차 인증이 해제되었습니다.');
+            snackBar('😀 2차 인증이 해제되었습니다.');
             authContext.setState((prevState) => ({
                 ...prevState,
                 is2faSync: false,
             }))
             return;
         }
-        toast('😥 해제중 오류가 발생했습니다.');
+        snackBar('😥 해제중 오류가 발생했습니다.');
     }
 
     return (

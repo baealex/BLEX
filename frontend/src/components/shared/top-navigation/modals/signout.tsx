@@ -5,7 +5,7 @@ import {
     Modal,
  } from '@components/integrated';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api';
 
@@ -31,7 +31,7 @@ export class SignoutModal extends React.Component<Props, State> {
     async onSignOut() {
         const { data } = await API.deleteSign();
         if (data.status === 'DONE') {
-            toast('😀 계정이 삭제되었습니다.');
+            snackBar('😀 계정이 삭제되었습니다.');
             authContext.initState();
             this.props.onClose();
             Router.push('/');

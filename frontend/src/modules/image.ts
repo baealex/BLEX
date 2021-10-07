@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
@@ -53,7 +53,7 @@ export async function dropImage(e: any) {
     e.preventDefault();
     const { files } = e.dataTransfer;
     if (files.length > 1) {
-        toast('🤔 하나씩 업로드 할 수 있습니다.');
+        snackBar('🤔 하나씩 업로드 할 수 있습니다.');
         return;
     }
     const [ file ] = files;
@@ -62,7 +62,7 @@ export async function dropImage(e: any) {
 
 export async function uploadImage(file: File) {
     if (!isImage(file)) {
-        toast('🤔 이미지 파일이 아닙니다.');
+        snackBar('🤔 이미지 파일이 아닙니다.');
         return;
     }
     try {
@@ -70,7 +70,7 @@ export async function uploadImage(file: File) {
         const { data } = await API.postImage(file);
         loadingContext.setState({ isLoading: false });
         if (data.status === 'ERROR') {
-            toast(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+            snackBar(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
             return;
         }
         return data.body.url;
@@ -78,11 +78,11 @@ export async function uploadImage(file: File) {
         loadingContext.setState({ isLoading: false });
         const { status } = error.response;
         if (status == 404) {
-            toast('🤔 로그인이 필요합니다.');
+            snackBar('🤔 로그인이 필요합니다.');
             return;
         }
         if (status > 500) {
-            toast('🤔 이미지 파일이 아닙니다.');
+            snackBar('🤔 이미지 파일이 아닙니다.');
             return;
         }
     }

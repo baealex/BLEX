@@ -6,7 +6,7 @@ import { Layout } from '@components/profile';
 import { ArticleContent } from '@components/article';
 import { Alert } from '@components/atoms';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api'
 import blexer from '@modules/blexer';
@@ -73,7 +73,7 @@ export default function UserAbout(props: Props) {
             );
             if (data.status === 'DONE') {
                 setAboutHTML(aboutMarkup);
-                toast('😄 정상적으로 변경되었습니다.');
+                snackBar('😄 정상적으로 변경되었습니다.');
             }
         }
         setIsEdit(!isEdit);

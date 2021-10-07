@@ -4,7 +4,7 @@ import {
     Modal,
  } from '@components/integrated';
 
-import { toast } from 'react-toastify';
+import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api';
 
@@ -54,11 +54,11 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
 
     async onSubmitLogin(code: string) {
         if (code == '') {
-            toast('😅 코드를 입력해주세요!');
+            snackBar('😅 코드를 입력해주세요!');
             return;
         }
         if (code.length < 6) {
-            toast('😅 코드를 정확히 입력해주세요!');
+            snackBar('😅 코드를 정확히 입력해주세요!');
             return;
         }
         const { data } = await API.postSecuritySend(code);
@@ -73,11 +73,11 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
     async loginCheck(data: API.ResponseData<API.PostLoginData>) {
         if (data.status === 'ERROR') {
             if (data.errorCode === API.ERROR.EXPIRE) {
-                toast('😥 코드가 만료되었습니다.');
+                snackBar('😥 코드가 만료되었습니다.');
             }
 
             if (data.errorCode === API.ERROR.REJECT) {
-                toast('😥 코드를 확인하여 주십시오.');
+                snackBar('😥 코드를 확인하여 주십시오.');
             }
 
             this.setState({
@@ -87,7 +87,7 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
         }
 
         if (data.status == 'DONE') {
-            toast(`😃 로그인 되었습니다.`);
+            snackBar(`😃 로그인 되었습니다.`);
             authContext.setState({
                 isLogin: true,
                 ...data.body,
