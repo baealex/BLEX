@@ -10,8 +10,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.models import Post, Search, SearchValue, History, convert_to_localtime
+from board.modules.analytics import create_history, get_network_addr
 from board.views import function as fn
-from modules.analytics import create_history, get_network_addr
 from modules.response import StatusDone, StatusError
 from modules.subtask import sub_task_manager
 

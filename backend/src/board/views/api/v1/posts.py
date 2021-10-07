@@ -10,8 +10,8 @@ from django.utils.text import slugify
 from django.utils.timesince import timesince
 
 from board.models import *
+from board.modules.analytics import view_count
 from modules.response import StatusDone, StatusError
-from modules.analytics import view_count
 from board.views import function as fn
 
 def temp_posts(request):

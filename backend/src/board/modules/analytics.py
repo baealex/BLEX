@@ -46,6 +46,7 @@ BOT_TYPES = [
     'google',
     'petal',
     'notion',
+    'mail.ru_bot',
     'naver',
     'neeva',
     'kakao',
