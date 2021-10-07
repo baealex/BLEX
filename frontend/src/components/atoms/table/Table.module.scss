@@ -19,7 +19,7 @@
     }
     
     tbody {
-        color: #666;
+        color: #444;
     
         :global(body.dark) & {
             color: #ccc;
@@ -29,23 +29,24 @@
     th, td {
         line-height: 1.2;
         font-weight: unset !important;
-        padding: 15px 0;
+        padding: 16px 0;
         text-align: center;
     
         @media (max-width: 767px) {
             text-align: left;
             display: block;
             padding: 8px 0;
+            font-size: 14px;
         }
     }
     
     td::before {
         @media (max-width: 767px) {
-            font-size: 12px;
-            color: #acacac;
+            font-size: 14px;
+            color: #aaa;
             line-height: 1.2;
             content: attr(data-title);
-            min-width: 50px;
+            min-width: 56px;
             display: inline-block;
     
             :global(body.dark) & {

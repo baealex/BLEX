@@ -95,7 +95,7 @@ export default function AnalyticsSetting(props: Props) {
                     />
                     <div className="p-3 p-md-0">
                         <Table
-                            head={['횟수', '검색어', '출처']}
+                            head={['유입수', '키워드', '플랫폼']}
                             body={props.topSearches.map((item) => [
                                 item.count.toString(),
                                 item.keyword,
