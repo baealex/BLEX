@@ -1,0 +1,71 @@
+.wrap {
+    overflow: hidden;
+
+    table {
+        width: 100% !important;
+    }
+    
+    thead {
+        color: #fff;
+        background: #A076F1;
+    
+        :global(body.dark) & {
+            background: #555;
+        }
+    
+        @media (max-width: 767px) {
+            display: none;
+        }
+    }
+    
+    tbody {
+        color: #666;
+    
+        :global(body.dark) & {
+            color: #ccc;
+        }
+    }
+    
+    th, td {
+        line-height: 1.2;
+        font-weight: unset !important;
+        padding: 15px 0;
+        text-align: center;
+    
+        @media (max-width: 767px) {
+            text-align: left;
+            display: block;
+            padding: 8px 0;
+        }
+    }
+    
+    td::before {
+        @media (max-width: 767px) {
+            font-size: 12px;
+            color: #acacac;
+            line-height: 1.2;
+            content: attr(data-title);
+            min-width: 50px;
+            display: inline-block;
+    
+            :global(body.dark) & {
+                color: #888;
+            }
+        }
+    }
+    
+    tbody tr:not(:last-child) {
+        border-bottom: 1px solid #f2f2f2;
+    
+        :global(body.dark) & {
+            border-bottom: 1px solid #555;
+        }
+    }
+    
+    tr > *:nth-child(1) {
+        @media (min-width: 768px) {
+            width: 80px;
+            padding-left: 20px;
+        }
+    }
+}
