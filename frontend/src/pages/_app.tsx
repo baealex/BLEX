@@ -50,7 +50,7 @@ class Main extends App<AppProps> {
 
     constructor(props: AppProps) {
         super(props);
-        loadingContext.appendUpdater((state) => {
+        loadingContext.append((state) => {
             this.setState({
                 isLoading: state.isLoading,
             });

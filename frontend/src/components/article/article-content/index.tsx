@@ -23,13 +23,7 @@ export function ArticleContent(props: {
 }) {
     const [ isOpenNewTab, setIsOpenNewTab ] = useState(configContext.state.isOpenNewTab);
 
-    useEffect(() => {
-        const updateKey = configContext.appendUpdater((state) => {
-            setIsOpenNewTab(state.isOpenNewTab);
-        });
-
-        return () => configContext.popUpdater(updateKey);
-    }, []);
+    useEffect(configContext.syncValue('isOpenNewTab', setIsOpenNewTab), []);
 
     useEffect(() => {
         if(typeof window !== "undefined") {

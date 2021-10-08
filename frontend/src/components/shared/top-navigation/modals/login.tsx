@@ -30,13 +30,13 @@ export class LoginModal extends React.Component<Props, State> {
             username: authContext.state.username,
             password: ''
         }
-        this.updateKey = authContext.appendUpdater((state) => this.setState({
+        this.updateKey = authContext.append((state) => this.setState({
             username: state.username,
         }));
     }
 
     componentWillUnmount() {
-        authContext.popUpdater(this.updateKey);
+        authContext.pop(this.updateKey);
     }
 
     onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {

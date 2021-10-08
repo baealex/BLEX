@@ -9,11 +9,7 @@ import { loadingContext } from '@state/loading';
 export function CornerLoading() {
     const [isLoading, setIsLoading] = useState(loadingContext.state.isLoading);
     
-    useEffect(() => {
-        loadingContext.appendUpdater((state) => {
-            setIsLoading(state.isLoading);
-        })
-    }, []);
+    useEffect(loadingContext.syncValue('isLoading', setIsLoading), []);
     
     return (
         <>

@@ -76,18 +76,18 @@ class Series extends React.Component<Props, State> {
             isSeriesModalOpen: false,
             isSortOldFirst: configContext.state.isSortOldFirst,
         }
-        this.authUpdateKey = authContext.appendUpdater((state) => this.setState({
+        this.authUpdateKey = authContext.append((state) => this.setState({
             isLogin: state.isLogin,
             username: state.username,
         }));
-        this.configUpdateKey = configContext.appendUpdater((state) => this.setState({
+        this.configUpdateKey = configContext.append((state) => this.setState({
             isSortOldFirst: state.isSortOldFirst,
         }));
     }
 
     componentWillUnmount() {
-        authContext.popUpdater(this.authUpdateKey);
-        configContext.popUpdater(this.configUpdateKey);
+        authContext.pop(this.authUpdateKey);
+        configContext.pop(this.configUpdateKey);
     }
 
     componentDidUpdate(prevProps: Props) {

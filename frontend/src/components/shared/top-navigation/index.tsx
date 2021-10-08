@@ -34,6 +34,7 @@ export function TopNavigation() {
     const [isRollup, setIsRollup] = useState(false);
     const [isMenuOpen, setisMenuOpen] = useState(false);
     const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+    const [isOnSwitch, setIsOnSwitch] = useState(false);
     const [state, setState] = useState({
         ...authContext.state,
         ...modalContext.state,
@@ -41,19 +42,19 @@ export function TopNavigation() {
     });
 
     useEffect(() => {
-        const authUpdateKey = authContext.appendUpdater((nextState) => {
+        const authUpdateKey = authContext.append((nextState) => {
             setState((prevState) => ({
                 ...prevState,
                 ...nextState,
             }));
         });
-        const configUpdateKey = configContext.appendUpdater((nextState) => {
+        const configUpdateKey = configContext.append((nextState) => {
             setState((prevState) => ({
                 ...prevState,
                 theme: nextState.theme,
             }))
         });
-        const modalUpdateKey = modalContext.appendUpdater((nextState) => {
+        const modalUpdateKey = modalContext.append((nextState) => {
             setState((prevState) => ({
                 ...prevState,
                 ...nextState,
@@ -61,9 +62,9 @@ export function TopNavigation() {
         });
 
         return () => {
-            authContext.popUpdater(authUpdateKey);
-            configContext.popUpdater(configUpdateKey);
-            modalContext.popUpdater(modalUpdateKey);
+            authContext.pop(authUpdateKey);
+            configContext.pop(configUpdateKey);
+            modalContext.pop(modalUpdateKey);
         }
     }, []);
 
@@ -478,6 +479,39 @@ export function TopNavigation() {
                     </div>
                 </div>
             )}
+            <div className="day-night" onClick={() => setIsOnSwitch((prev) => !prev)}>
+                <div className={`ball ${isOnSwitch ? 'on' : 'off'}`}></div>
+            </div>
+            <style jsx>{`
+                .ball {
+                    position: absolute;
+                    height: (30px - 3px * 2);
+                    width: (30px - 3px * 2);
+                    border-radius: 100%;
+                    background: #fff;
+                    top: 3px;
+                    left: 3px;
+                    transition: all 0.1s ease;
+
+                    &.on {
+                        transform: translate(30px, 0);
+                    }
+
+                    &.off {
+                        transform: translate(0px, 0);
+                    }
+                }
+                
+                .day-night {
+                    border-radius: 100px;
+                    position: fixed;
+                    bottom: 15px;
+                    right: 15px;
+                    width: 60px;
+                    height: 30px;
+                    background: #ccc;
+                }
+            `}</style>
         </>
     )
 }

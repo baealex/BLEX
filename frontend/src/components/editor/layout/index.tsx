@@ -84,12 +84,12 @@ export function Layout(props: Props) {
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
 
     useEffect(() => {
-        const key = modalContext.appendUpdater((state) => {
+        const key = modalContext.append((state) => {
             setIsOpenPublishModal(state.isPublishModalOpen);
         });
 
         return () => {
-            modalContext.popUpdater(key);
+            modalContext.pop(key);
             modalContext.onCloseModal('isPublishModalOpen');
         }
     }, []);

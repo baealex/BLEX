@@ -44,12 +44,7 @@ export default function AccountSetting(props: Props) {
     const [ agreeEmail, setAgreeEmail ] = useState(props.agreeEmail);
     const [ agreeHistory, setAgreeHistory ] = useState(props.agreeHistory);
 
-    useEffect(() => {
-        const authKey = authContext.appendUpdater((state) => {
-            setIs2faSync(state.is2faSync);
-        });
-        return () => authContext.popUpdater(authKey);
-    }, []);
+    useEffect(authContext.syncValue('is2faSync', setIs2faSync), []);
 
     const onChangeUsername = async () => {
         const { data } = await API.putUsername(

@@ -80,12 +80,12 @@ class Write extends React.Component<Props, State> {
             tempPosts: [],
             tempPostsCache: {}
         };
-        this.authUpdateKey = authContext.appendUpdater((state) => {
+        this.authUpdateKey = authContext.append((state) => {
             this.setState({
                 username: state.username,
             });
         });
-        this.configUpdateKey = configContext.appendUpdater((state) => {
+        this.configUpdateKey = configContext.append((state) => {
             this.setState({
                 isAutoSave: state.isAutoSave,
             });
@@ -95,8 +95,8 @@ class Write extends React.Component<Props, State> {
     /* Component Method */
 
     componentWillUnmount() {
-        configContext.popUpdater(this.configUpdateKey);
-        authContext.popUpdater(this.authUpdateKey);
+        configContext.pop(this.configUpdateKey);
+        authContext.pop(this.authUpdateKey);
     }
 
     async componentDidMount() {

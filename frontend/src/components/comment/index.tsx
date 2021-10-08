@@ -154,7 +154,7 @@ export function Comment(props: CommentProps) {
     }
 
     useEffect(() => {
-        const updateKey = authContext.appendUpdater((state) => {
+        const updateKey = authContext.append((state) => {
             setIsLogin(state.isLogin);
             setUsername(state.username);
         });
@@ -173,7 +173,7 @@ export function Comment(props: CommentProps) {
     
             return () => {
                 observer?.disconnect();
-                authContext.popUpdater('Comment');
+                authContext.pop('Comment');
             }
         } else {
             if (comments.length > 0) {
@@ -182,7 +182,7 @@ export function Comment(props: CommentProps) {
         }
 
         return () => {
-            authContext.popUpdater(updateKey);
+            authContext.pop(updateKey);
         }
     }, [props.url, username]);
 

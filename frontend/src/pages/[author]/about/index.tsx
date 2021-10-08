@@ -49,11 +49,11 @@ export default function UserAbout(props: Props) {
     const [ username, setUsername ] = useState(authContext.state.username);
 
     useEffect(() => {
-        const updateKey = authContext.appendUpdater((state) => {
+        const updateKey = authContext.append((state) => {
             setUsername(state.username);
         });
 
-        return () => authContext.popUpdater(updateKey);
+        return () => authContext.pop(updateKey);
     }, []);
 
     const handleClickEdit = async () => {

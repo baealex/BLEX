@@ -131,14 +131,14 @@ class PostDetail extends React.Component<Props, State> {
             headerNav: [],
             headerNow: ''
         };
-        this.updateKey = authContext.appendUpdater(() => this.setState({
+        this.updateKey = authContext.append(() => this.setState({
             isLogin: authContext.state.isLogin,
             username: authContext.state.username
         }));
     }
 
     componentWillUnmount() {
-        authContext.popUpdater(this.updateKey);
+        authContext.pop(this.updateKey);
     }
 
     componentDidMount() {

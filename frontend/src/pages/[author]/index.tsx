@@ -50,11 +50,11 @@ export default function Overview(props: Props) {
     const [ isNightMode, setIsNightMode ] = useState(configContext.state.theme === 'dark');
 
     useEffect(() => {
-        const updateKey = configContext.appendUpdater((state) => {
+        const updateKey = configContext.append((state) => {
             setIsNightMode(state.theme === 'dark');
         });
 
-        return () => configContext.popUpdater(updateKey);
+        return () => configContext.pop(updateKey);
     }, []);
 
     return (
