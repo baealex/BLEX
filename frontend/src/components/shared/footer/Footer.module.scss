@@ -4,24 +4,13 @@
     margin-top: 30px;
     padding-bottom: 30px;
     color: #ccc;
-
-    .copy {
-        height: 30px;
-        line-height: 30px;
-        font-size: 16px;
-        overflow-y: hidden;
-    }
     
     a {
-        color: #999;
+        color: #ccc;
         
         &:hover {
-            color: #000;
+            color: $COLOR_DEFAULT_SECONDARY;
             text-decoration: none;
-
-            :global(body.dark) & {
-                color: #fff;
-            }
         }
     }
 
@@ -30,16 +19,25 @@
     }
 
     &.bgdark {
-        color: #999;
         margin-top: 0px;
         background: #000;
-        
-        a {
-            color: #e0e0e0;
+    }
 
-            &:hover {
-                color: #fff;
-            }
+    .title {
+        font-size: 34px;
+        font-weight: 600;
+    }
+
+    .sub-title {
+        font-size: 10px;
+        font-weight: 400;
+    }
+
+    .items {
+        div {
+            font-size: 14px;
+            display: inline-block;
+            margin: 16px;
         }
     }
 }
