@@ -24,7 +24,6 @@ export function Layout({
                     </div>
                     <div className="col-lg-8">
                         {children}
-                        <Footer />
                     </div>
                 </div>
             </div>
