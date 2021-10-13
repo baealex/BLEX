@@ -14,6 +14,7 @@ from django.utils import timezone
 from board.models import *
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
+from modules.randomness import randnum
 from modules.response import StatusDone, StatusError
 from board.views import function as fn
 

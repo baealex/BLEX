@@ -1,5 +1,4 @@
 import datetime
-import random
 import time
 import pytz
 
@@ -16,6 +15,8 @@ from django.conf import settings
 
 from PIL import Image
 
+from modules.randomness import randstr
+
 def calc_read_time(html):
     return int(len(strip_tags(html))/500)
 
@@ -23,25 +24,6 @@ def convert_to_localtime(utctime):
     utc = utctime.replace(tzinfo=pytz.UTC)
     localtz = utc.astimezone(timezone.get_current_timezone())
     return localtz
-
-def randnum(length):
-    rstr = '0123456789'
-    rstr_len = len(rstr) - 1
-    result = ''
-    for i in range(length):
-        result += rstr[random.randint(0, rstr_len)]
-    return result
-
-def randstr(length):
-    rstr = '0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ'
-    rstr_len = len(rstr) - 1
-    result = ''
-    for i in range(length):
-        result += rstr[random.randint(0, rstr_len)]
-    return result
-
-def parsedown(text):
-    return 'Deprecated'
 
 def avatar_path(instance, filename):
     dt = datetime.datetime.now()
@@ -54,13 +36,19 @@ def title_image_path(instance, filename):
 def make_thumbnail(this, size, save_as=False, quality=100):
     if hasattr(this, 'avatar'):
         this.image = this.avatar
+    
     image = Image.open(this.image)
     if not save_as:
         image.thumbnail((size, size), Image.ANTIALIAS)
-        image.save('static/' + str(this.image), quality=quality)
+        image.save(f'static/{this.image}', quality=quality)
         return
+    
     image.thumbnail((size, size), Image.ANTIALIAS)
-    image.save('static/' + str(this.image) + '.minify.' + str(this.image).split('.')[-1], quality=quality)
+    image.save(f"static/{this.image}.minify.{str(this.image).split('.')[-1]}", quality=quality)
+
+    image.convert('RGB')
+    image.filter(ImageFilter.GaussianBlur(50))
+    image.save(f'static/{this.image}.preview.jpg', quality=50)
 
 def timestamp(date, kind=''):
     if kind == 'grass':
