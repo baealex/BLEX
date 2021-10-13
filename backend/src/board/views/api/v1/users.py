@@ -17,7 +17,7 @@ def users(request, username):
             includes = request.GET.get('includes').split(',')
             user_profile = Profile.objects.get(user=user)
             data = dict()
-            for include in includes:
+            for include in set(includes):
                 if include == 'profile':
                     data[include] = {
                         'image': user_profile.get_thumbnail(),
