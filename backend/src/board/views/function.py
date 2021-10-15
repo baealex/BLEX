@@ -1,4 +1,3 @@
-import io
 import os
 import requests
 
@@ -87,49 +86,6 @@ def get_clean_tag(tag):
     clean_tag = slugify(tag.replace(',', '-').replace('_', '-'), allow_unicode=True).split('-')
     return ','.join(list(set(clean_tag)))
 
-def get_exp(user):
-    if hasattr(user, 'profile'):
-        if user.profile.exp >= 0 and user.profile.exp < 15:
-            return 'empty'
-        elif user.profile.exp >= 15 and user.profile.exp < 40:
-            return 'quarter'
-        elif user.profile.exp >= 40 and user.profile.exp < 65:
-            return 'half'
-        elif user.profile.exp >= 65 and user.profile.exp < 85:
-            return 'three-quarters'
-        elif user.profile.exp >= 85:
-            return 'full'
-    else:
-        return 'empty'
-
-def get_grade(user):
-    select_grade = 'blogger'
-    if hasattr(user, 'profile'):
-        if user.profile.grade:
-            select_grade = str(user.profile.grade)
-    return select_grade
-
-def get_image(url):
-    image = requests.get(url, stream=True)
-    if not image.status_code == 200:
-        return None
-    binary_image = image.content
-    temp_image = io.BytesIO()
-    temp_image.write(binary_image)
-    temp_image.seek(0)
-    return temp_image
-
-def night_mode(request):
-    update_dict = {
-        'night_changer': True,
-    }
-    if request.COOKIES.get('nightmode') is not None:
-        update_dict['night_mode'] = True
-    else:
-        update_dict['night_mode'] = False
-    update_dict['white_nav'] = not update_dict['night_mode']
-    return update_dict
-
 def auth_google(code):
     data = {
         'code': code,
@@ -185,13 +141,6 @@ def auth_hcaptcha(response):
     if response.json().get('success'):
         return True
     return False
-
-def make_path(upload_path, dir_list):
-    for dir_name in dir_list:
-        upload_path += ('/' + dir_name)
-        if not os.path.exists(upload_path):
-            os.makedirs(upload_path)
-    return upload_path
 
 def compere_user(req, res, give_404_if='none'):
     if give_404_if == 'same':

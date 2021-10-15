@@ -7,6 +7,7 @@ from PIL import Image, ImageFilter
 
 from board.models import ImageCache, randstr
 from modules.hash import get_sha256
+from modules.sysutil import make_path
 from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
@@ -38,16 +39,16 @@ def image(request):
 
                 if not ext in allowed_ext:
                     return StatusError('RJ', '허용된 확장자가 아닙니다.')
-                    
+                
                 dt = datetime.datetime.now()
-                upload_path = fn.make_path(
-                    'static/images/content',
-                    [
-                        str(dt.year),
-                        str(dt.month),
-                        str(dt.day)
-                    ]
-                )
+                upload_path = make_path([
+                    'static',
+                    'images',
+                    'content',
+                    str(dt.year),
+                    str(dt.month),
+                    str(dt.day)
+                ])
 
                 file_name = f'{dt.year}_{dt.month}_{dt.day}_{dt.hour}_{randstr(20)}'
                 with open(upload_path + '/' + file_name + '.' + ext, 'wb+') as destination:

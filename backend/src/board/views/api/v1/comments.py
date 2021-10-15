@@ -4,13 +4,13 @@ import json
 import time
 import traceback
 
+from django.contrib.auth.models import User
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
-from board.forms import *
-from board.models import *
+from board.models import Comment, Post
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 from modules.response import StatusDone, StatusError

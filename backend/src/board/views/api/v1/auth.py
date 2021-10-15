@@ -1,9 +1,11 @@
 import re
 import time
+import datetime
 import traceback
 
 from django.conf import settings
 from django.contrib import auth
+from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.mail import send_mail
 from django.db.models import Q
@@ -11,11 +13,12 @@ from django.http import HttpResponse, JsonResponse, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.models import *
+from board.models import Notify
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 from modules.randomness import randnum
 from modules.response import StatusDone, StatusError
+from modules.scrap import download_image
 from board.views import function as fn
 
 def login_response(user):
@@ -163,7 +166,7 @@ def sign_social(request, social):
                     new_user.save()
 
                     profile = Profile(user=new_user)
-                    avatar = fn.get_image(state['user'].get('avatar_url'))
+                    avatar = download_image(state['user'].get('avatar_url'), stream=True)
                     if avatar:
                         profile.avatar.save(name='png', content=File(avatar))
                     profile.github = state['user'].get('login')
@@ -212,7 +215,7 @@ def sign_social(request, social):
                     new_user.save()
 
                     profile = Profile(user=new_user)
-                    avatar = fn.get_image(state['user'].get('picture'))
+                    avatar = download_image(state['user'].get('picture'), stream=True)
                     if avatar:
                         profile.avatar.save(name='png', content=File(avatar))
                     profile.save()
