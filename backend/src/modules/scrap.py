@@ -1,17 +1,24 @@
 import html
+import io
 import re
-import requests
 import urllib
 import traceback
+
+import requests
+
+from typing import Union
+from urllib.parse import urlparse
 
 headers = {
     'user-agent': 'blexmebot/1.0 (+http://blex.me/)',
 }
 
-def page_parser(url):
-    protocol = url.split('://')[0]
-    host     = url.split('://')[1].split('/')[0]
-    origin   = f'{protocol}://{host}'
+def page_parser(url: str):
+    url_parse = urlparse(url)
+
+    protocol = url_parse.scheme
+    host     = url_parse.netloc
+    origin   = f'{url_parse.scheme}://{url_parse.netloc}'
 
     data = {
         'title': '',
@@ -61,5 +68,52 @@ def page_parser(url):
     
     return data
 
+def download_image(
+    src: str,
+    path='.',
+    stream=False,
+    referer='',
+    filename='test',
+) -> Union[None, str]:
+    try:
+        url_parse = urlparse(src)
+
+        if not referer:
+            referer = f'{url_parse.scheme}://{url_parse.netloc}/'
+
+        headers = {
+            'Referer': referer
+        }
+
+        res = requests.get(src, headers=headers, stream=stream)
+
+        if not res.status_code == 200:
+            return None
+        
+        content_type = res.headers['content-type']
+        if not 'image' in content_type:
+            return None
+        
+        if stream:
+            binary_image = res.content
+            temp_image = io.BytesIO()
+            temp_image.write(binary_image)
+            temp_image.seek(0)
+            return temp_image
+        
+        ext = content_type.split('/')[-1]
+        path = f'{path}/{filename}.{ext}'
+        with open(path, 'wb') as f:
+            for chunk in res.iter_content():
+                f.write(chunk)
+        return path
+    except:
+        traceback.print_exc()
+    
+    return None
+
 if __name__ == '__main__':
-    print(page_parser('http://localhost:20001/asd'))
+    x = page_parser('https://blex.me/popular')
+    # print(x)
+    # print(download_image(x['image']))
+    print(download_image(x['image'], stream=True))
