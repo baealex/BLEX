@@ -1,4 +1,4 @@
-import styles from './Accordian.module.scss';
+import styles from './Accordion.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
@@ -9,7 +9,7 @@ export interface ArcodianProps {
     children?: JSX.Element | JSX.Element[];
 }
 
-export function Accordian(props: ArcodianProps) {
+export function Accordion(props: ArcodianProps) {
     const {
         minHeight = 130
     } = props;
@@ -27,7 +27,7 @@ export function Accordian(props: ArcodianProps) {
     return (
         <>
             <div
-                className={cn('accordian')}
+                className={cn('Accordion')}
                 style={{
                     height: isOpen 
                         ? `${maxHeight}px`

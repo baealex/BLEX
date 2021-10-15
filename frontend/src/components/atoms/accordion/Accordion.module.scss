@@ -1,4 +1,6 @@
-.accordian {
+@import 'var';
+
+.Accordion {
     transition: height 1s;
     overflow: hidden;
     position: relative;
@@ -8,7 +10,7 @@
     }
 
     button {
-        background: none;
+        @include BACKGROUND;
         color: #ccc;
         border: none;
         outline: none;
