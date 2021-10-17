@@ -13,10 +13,10 @@ from django.http import HttpResponse, JsonResponse, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.models import Notify
+from board.models import Notify, TwoFactorAuth
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
-from modules.randomness import randnum
+from modules.randomness import randnum, randstr
 from modules.response import StatusDone, StatusError
 from modules.scrap import download_image
 from board.views import function as fn
