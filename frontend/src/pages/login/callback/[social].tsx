@@ -62,14 +62,12 @@ export default function SocialLogin(props: Props) {
             return;
         }
 
-        setTimeout(() => {
-            onSocialLogin(social, code);
-        }, 500);
-        
-        const oauthRedirect = Cookie.get('oauth_redirect');
-        oauthRedirect
-            ? Router.replace(oauthRedirect)
-            : Router.replace('/');
+        onSocialLogin(social, code).then(() => {
+            const oauthRedirect = Cookie.get('oauth_redirect');
+            oauthRedirect
+                ? Router.replace(oauthRedirect)
+                : Router.replace('/');  
+        });
     }, []);
 
     return <Loading/>;
