@@ -26,6 +26,7 @@ export interface ArticleCardProps {
     children?: JSX.Element;
     hasShadow?: boolean;
     isRounded?: boolean;
+    highlight?: string;
 }
 
 export function ArticleCard(props: ArticleCardProps) {
@@ -35,6 +36,10 @@ export function ArticleCard(props: ArticleCardProps) {
     } = props;
 
     const url = props.author ? `/@${props.author}/${props.url}` : props.url;
+
+    const description = props.highlight
+        ? props.description?.replace(props.highlight, `<mark>${props.highlight}</mark>`) || ''
+        : props.description;
 
     return (
         <div className={props.className}>
@@ -66,10 +71,10 @@ export function ArticleCard(props: ArticleCardProps) {
                                 )}>
                                     {props.title}
                                 </div>
-                                {props.description && (
-                                    <p className="shallow-dark">
-                                        {props.description}
-                                    </p>
+                                {description && props.highlight ? (
+                                    <p className="shallow-dark" dangerouslySetInnerHTML={{__html: description}}/>
+                                ) : (
+                                    <p className="shallow-dark">{description}</p>
                                 )}
                             </a>
                         </Link>

@@ -142,7 +142,12 @@ export default function Search(props: Props) {
                                                 {response?.body.totalSize}건의 결과 ({response?.body.elapsedTime}초)
                                             </div>
                                             {response?.body.results.map((item, idx) => (
-                                                <ArticleCard key={idx} className="mt-4" {...item}/>
+                                                <ArticleCard
+                                                    key={idx}
+                                                    className="mt-4"
+                                                    highlight={props.query}
+                                                    {...item}
+                                                />
                                             ))}
                                             {response?.body.lastPage ? (
                                                 <Pagination
