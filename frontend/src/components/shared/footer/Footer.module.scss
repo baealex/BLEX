@@ -18,7 +18,7 @@
         margin-bottom: 30px;
     }
 
-    &.bgdark {
+    &.isDark {
         margin-top: 0px;
         background: #000;
 
@@ -28,6 +28,7 @@
     }
 
     .items {
+        text-align: center;
         border-top: 1px solid #eee;
 
         div {

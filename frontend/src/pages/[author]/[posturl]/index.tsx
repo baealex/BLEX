@@ -308,7 +308,7 @@ class PostDetail extends React.Component<Props, State> {
                     url={this.props.post.url}
                     totalComment={this.props.post.totalComment}
                 />
-                <Footer bgdark>
+                <Footer isDark>
                     <Related
                         author={this.props.post.author}
                         realname={this.props.profile.profile.realname}
