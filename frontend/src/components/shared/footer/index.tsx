@@ -19,10 +19,6 @@ export function Footer({
                 </div>
             )}
             <div className={cn('text-center')}>
-                <div className={cn('title')}>BLEX</div>
-                <div className={cn('sub-title')}>
-                    BLOG EXPRESS ME
-                </div>
                 <div className={cn('items')}>
                     <div>
                         <a target="_blank" href="https://www.notion.so/58e7e6ab9a2d441d8f824ef852e77059">

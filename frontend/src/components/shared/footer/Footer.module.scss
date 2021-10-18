@@ -21,19 +21,15 @@
     &.bgdark {
         margin-top: 0px;
         background: #000;
-    }
 
-    .title {
-        font-size: 34px;
-        font-weight: 600;
-    }
-
-    .sub-title {
-        font-size: 10px;
-        font-weight: 400;
+        .items {
+            border-top: 1px solid #333;
+        }
     }
 
     .items {
+        border-top: 1px solid #eee;
+
         div {
             font-size: 14px;
             display: inline-block;
