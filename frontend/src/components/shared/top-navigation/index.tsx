@@ -19,10 +19,16 @@ import {
     TwoFactorAuthSyncModal,
 } from './modals';
 
+import {
+    Card,
+    Dropdown
+} from '@components/integrated';
+
+import { optimizedEvent } from '@modules/event';
+
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';
 import { modalContext } from '@state/modal';
-import { Card, Dropdown } from '@components/atoms';
 
 export function TopNavigation() {
     const router = useRouter();
@@ -110,7 +116,6 @@ export function TopNavigation() {
     }, []);
 
     useEffect(() => {
-        let ticking = false;
         let accScrollY = 0;
         let lastScrollY = window.scrollY;
 
@@ -119,30 +124,24 @@ export function TopNavigation() {
             return;
         }
 
-        const event = () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    if (window.scrollY > 0) {
-                        accScrollY += lastScrollY - window.scrollY;
-                    }
-
-                    if (window.scrollY == 0 || accScrollY > 0) {
-                        setIsRollup(false);
-                        accScrollY = 0;
-                    }
-                    
-                    if (accScrollY < -80) {
-                        setIsNotifyOpen(false);
-                        setIsRollup(true);
-                        accScrollY = -80;
-                    }
-
-                    lastScrollY = window.scrollY;
-                    ticking = false;
-                });
-                ticking = true;
+        const event = optimizedEvent(() => {
+            if (window.scrollY > 0) {
+                accScrollY += lastScrollY - window.scrollY;
             }
-        };
+
+            if (window.scrollY == 0 || accScrollY > 0) {
+                setIsRollup(false);
+                accScrollY = 0;
+            }
+            
+            if (accScrollY < -80) {
+                setIsNotifyOpen(false);
+                setIsRollup(true);
+                accScrollY = -80;
+            }
+
+            lastScrollY = window.scrollY;
+        });
 
         document.addEventListener('scroll', event);
 
@@ -189,14 +188,14 @@ export function TopNavigation() {
         if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
             const { data } = await API.postLogout();
             if(data.status === 'DONE') {
-                authContext.initState();
+                authContext.logout();
                 snackBar('😀 로그아웃 되었습니다.');
             }
         }
     }
 
     const notifyCount = useMemo(() => {
-        return state.notify.filter(item => !item.isRead).length;
+        return authContext.unreadNotifies().length;
     }, [state.notify]);
 
     const unsync = async () => {
