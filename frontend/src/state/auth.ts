@@ -19,15 +19,19 @@ class AuthContext extends SharedState<AuthContextState> {
         };
     }
 
-    initState() {
-        this.setState({
+    unreadNotifies() {
+        return this.state.notify.filter(item => !item.isRead);
+    }
+
+    logout() {
+        this.state = {
             isLogin: false,
             username: '',
             avatar: '',
             notify: [],
             isTelegramSync: false,
             is2faSync: false,
-        });
+        };
     }
 }
 

@@ -1,5 +1,5 @@
 interface SnackBarOptions {
-    onClick?: () => void;
+    onClick?: (e: MouseEvent) => void;
 }
 
 const handleRemove: NodeJS.Timeout[] = [];

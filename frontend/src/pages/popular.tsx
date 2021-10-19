@@ -38,13 +38,11 @@ interface Props extends API.GetPostsData {
 export default function TrendyArticles(props: Props) {
     return (
         <>
-            <>
-                <Pagination
-                    page={props.page}
-                    last={props.lastPage}
-                />
-                <Footer/>
-            </>
+            <Pagination
+                page={props.page}
+                last={props.lastPage}
+            />
+            <Footer/>
         </>
     )
 }

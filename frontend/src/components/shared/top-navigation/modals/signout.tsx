@@ -32,7 +32,7 @@ export class SignoutModal extends React.Component<Props, State> {
         const { data } = await API.deleteSign();
         if (data.status === 'DONE') {
             snackBar('😀 계정이 삭제되었습니다.');
-            authContext.initState();
+            authContext.logout();
             this.props.onClose();
             Router.push('/');
         }
