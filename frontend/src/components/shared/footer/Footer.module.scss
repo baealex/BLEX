@@ -31,6 +31,10 @@
         text-align: center;
         border-top: 1px solid #eee;
 
+        :global(body.dark) & {
+            border-top: 1px solid #333;
+        }
+
         div {
             font-size: 14px;
             display: inline-block;
