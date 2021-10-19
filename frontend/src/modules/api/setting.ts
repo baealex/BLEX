@@ -1,10 +1,10 @@
-import axios, {
+import axiosRequest, {
     ResponseData,
     serializeObject,
 } from './index';
 
 export async function getSettingNotify(cookie: string | undefined) {
-    return await axios.request<ResponseData<GetSettingNotifyData>>({
+    return await axiosRequest<ResponseData<GetSettingNotifyData>>({
         url: `/v1/setting/notify`,
         headers: {
             cookie
@@ -25,7 +25,7 @@ export interface GetSettingNotifyData {
 }
 
 export async function getSettingAcount(cookie: string | undefined) {
-    return await axios.request<ResponseData<GetSettingAccountData>>({
+    return await axiosRequest<ResponseData<GetSettingAccountData>>({
         url: `/v1/setting/account`,
         headers: {
             cookie
@@ -43,7 +43,7 @@ export interface GetSettingAccountData {
 }
 
 export async function getSettingProfile(cookie: string | undefined) {
-    return await axios.request<ResponseData<GetSettingProfileData>>({
+    return await axiosRequest<ResponseData<GetSettingProfileData>>({
         url: `/v1/setting/profile`,
         headers: {
             cookie
@@ -64,7 +64,7 @@ export interface GetSettingProfileData {
 }
 
 export async function getSettingPosts(cookie: string | undefined, order: string, page: number) {
-    return await axios.request<ResponseData<GetSettingPostsData>>({
+    return await axiosRequest<ResponseData<GetSettingPostsData>>({
         url: `/v1/setting/posts?order=${order}&page=${page}`,
         headers: {
             cookie
@@ -92,7 +92,7 @@ export interface GetSettingPostsData {
 }
 
 export async function getSettingSeries(cookie: string | undefined) {
-    return await axios.request<ResponseData<GetSettingSeriesData>>({
+    return await axiosRequest<ResponseData<GetSettingSeriesData>>({
         url: `/v1/setting/series`,
         headers: {
             cookie
@@ -117,7 +117,7 @@ export interface GetSettingSeriesDataSeries {
 }
 
 export async function getSettingAnalyticsView(cookie: string | undefined) {
-    return await axios.request<ResponseData<GetSettingAnalyticsViewData>>({
+    return await axiosRequest<ResponseData<GetSettingAnalyticsViewData>>({
         url: `/v1/setting/analytics-view`,
         headers: {
             cookie
@@ -136,7 +136,7 @@ export interface GetSettingAnalyticsViewData {
 }
 
 export async function getSettingAnalyticsReferrers(cookie: string | undefined, page: number) {
-    return await axios.request<ResponseData<GetSettingAnalyticsRefererData>>({
+    return await axiosRequest<ResponseData<GetSettingAnalyticsRefererData>>({
         url: `/v1/setting/analytics-referer`,
         params: {
             page
@@ -159,7 +159,7 @@ export interface GetSettingAnalyticsRefererData {
 }
 
 export async function getSettingAnalyticsSearch(cookie: string | undefined) {
-    return await axios.request<ResponseData<GetSettingAnalyticsgSearchData>>({
+    return await axiosRequest<ResponseData<GetSettingAnalyticsgSearchData>>({
         url: `/v1/setting/analytics-search`,
         headers: cookie ? {
             cookie
@@ -184,7 +184,7 @@ export interface GetSettingAnalyticsgSearchData {
 }
 
 export async function getSettingForms(cookie: string | undefined) {
-    return await axios.request<ResponseData<GetSettingFormsData>>({
+    return await axiosRequest<ResponseData<GetSettingFormsData>>({
         url: `/v1/setting/forms`,
         headers: cookie ? {
             cookie
@@ -204,7 +204,7 @@ export interface GetSettingFormsDataForms {
 }
 
 export async function putSetting(item: string, data: object) {
-    return await axios.request<ResponseData<any>>({
+    return await axiosRequest<ResponseData<any>>({
         url: `/v1/setting/${item}`,
         method: 'PUT',
         headers: {
@@ -215,7 +215,7 @@ export async function putSetting(item: string, data: object) {
 }
 
 export async function postSettingAvatar(data: FormData) {
-    return await axios.request<ResponseData<PostSettingAvatarData>>({
+    return await axiosRequest<ResponseData<PostSettingAvatarData>>({
         url: `/v1/setting/avatar`,
         method: 'POST',
         data: data,

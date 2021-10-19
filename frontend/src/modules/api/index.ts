@@ -1,10 +1,20 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import { CONFIG } from '@modules/settings';
+import { snackBar } from '@modules/snack-bar';
 
-export default axios.create({
-    baseURL: CONFIG.API_SERVER,
-    withCredentials: true,
-});
+export default async function axiosRequest<T>(config: AxiosRequestConfig) {
+    const { request } = axios.create({
+        baseURL: CONFIG.API_SERVER,
+        withCredentials: true,
+    });
+
+    try {
+        return await request<T>(config);
+    } catch(e) {
+        snackBar(EMOJI.SYSTEM_ERR + '시스템 오류가 발생했습니다.');
+        throw e;
+    }
+}
 
 export * from './auth';
 export * from './comments';
@@ -34,6 +44,7 @@ export const ERROR = {
 };
 
 export const EMOJI = {
+    SYSTEM_ERR: '😱 ',
     BEFORE_REQ_ERR: '🤔 ',
     AFTER_REQ_ERR: '😥 ',
     AFTER_REQ_DONE: '😀 '

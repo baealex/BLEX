@@ -1,10 +1,10 @@
-import axios, {
+import axiosRequest, {
     ResponseData,
     serializeObject,
 } from './index';
 
 export async function getUserSeries(author: string, page: number) {
-    return await axios.request<ResponseData<GetUserSeriesData>>({
+    return await axiosRequest<ResponseData<GetUserSeriesData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
         method: 'GET'
     });
@@ -22,7 +22,7 @@ export interface GetUserSeriesData {
 }
 
 export async function postUserSeries(author: string, title: string) {
-    return await axios.request<ResponseData<PostUserSeriesData>>({
+    return await axiosRequest<ResponseData<PostUserSeriesData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series`,
         method: 'POST',
         headers: {
@@ -39,7 +39,7 @@ export interface PostUserSeriesData {
 }
 
 export async function getAnUserSeries(author: string, url: string) {
-    return await axios.request<ResponseData<GetAnUserSeriesData>>({
+    return await axiosRequest<ResponseData<GetAnUserSeriesData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
         method: 'GET'
     });
@@ -64,7 +64,7 @@ export interface GetAnUserSeriesDataPosts {
 }
 
 export async function putUserSeries(author: string, url: string, data: object) {
-    return await axios.request<ResponseData<putUserSeriesData>>({
+    return await axiosRequest<ResponseData<putUserSeriesData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
         method: 'PUT',
         headers: {
@@ -79,7 +79,7 @@ export interface putUserSeriesData {
 }
 
 export async function deleteUserSeries(author: string, url: string) {
-    return await axios.request<ResponseData<any>>({
+    return await axiosRequest<ResponseData<any>>({
         url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
         method: 'DELETE',
     });

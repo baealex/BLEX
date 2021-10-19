@@ -1,7 +1,7 @@
-import axios, { ResponseData } from './index';
+import axiosRequest, { ResponseData } from './index';
 
 export async function getTags(page: number) {
-    return await axios.request<ResponseData<GetTagsData>>({
+    return await axiosRequest<ResponseData<GetTagsData>>({
         url: `/v1/tags?page=${page}`,
         method: 'GET'
     });
@@ -18,7 +18,7 @@ export interface GetTagsData {
 }
 
 export async function getTag(tag: string, page: number) {
-    return await axios.request<ResponseData<GetTagData>>({
+    return await axiosRequest<ResponseData<GetTagData>>({
         url: `/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
         method: 'GET'
     });

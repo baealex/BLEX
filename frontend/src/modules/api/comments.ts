@@ -1,11 +1,11 @@
-import axios, {
+import axiosRequest, {
     ResponseData,
     serializeObject,
     GetPostCommentDataComment,
 } from './index';
 
 export async function postComments(url: string, content: string, contentMarkup: string) {
-    return await axios.request<ResponseData<PostCommentsData>>({
+    return await axiosRequest<ResponseData<PostCommentsData>>({
         url: `/v1/comments?url=${url}`,
         method: 'POST',
         headers: {
@@ -21,7 +21,7 @@ export async function postComments(url: string, content: string, contentMarkup: 
 export interface PostCommentsData extends GetPostCommentDataComment {};
 
 export async function putCommentLike(pk: number) {
-    return await axios.request<ResponseData<PutCommentLike>>({
+    return await axiosRequest<ResponseData<PutCommentLike>>({
         url: `/v1/comments/${pk}`,
         method: 'PUT',
         headers: {
@@ -38,7 +38,7 @@ export interface PutCommentLike {
 }
 
 export async function getComment(pk: number) {
-    return await axios.request<ResponseData<GetComment>>({
+    return await axiosRequest<ResponseData<GetComment>>({
         url: `/v1/comments/${pk}`,
         method: 'GET'
     });
@@ -49,7 +49,7 @@ export interface GetComment {
 }
 
 export async function putComment(pk: number, content: string, html: string) {
-    return await axios.request<ResponseData<any>>({
+    return await axiosRequest<ResponseData<any>>({
         url: `/v1/comments/${pk}`,
         method: 'PUT',
         headers: {
@@ -64,7 +64,7 @@ export async function putComment(pk: number, content: string, html: string) {
 }
 
 export async function deleteComment(pk: number) {
-    return await axios.request<ResponseData<DeleteComment>>({
+    return await axiosRequest<ResponseData<DeleteComment>>({
         url: `/v1/comments/${pk}`,
         method: 'DELETE',
     });

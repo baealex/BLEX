@@ -1,7 +1,7 @@
-import axios, { ResponseData } from './index';
+import axiosRequest, { ResponseData } from './index';
 
 export async function postTelegram(parameter: 'unsync' | 'makeToken') {
-    return await axios.request<ResponseData<PostTelegramData>>({
+    return await axiosRequest<ResponseData<PostTelegramData>>({
         url: `/v1/telegram/${parameter}`,
         method: 'POST',
         headers: {

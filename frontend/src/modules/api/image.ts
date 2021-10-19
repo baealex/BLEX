@@ -1,10 +1,10 @@
-import axios, {
+import axiosRequest, {
     objectToForm,
     ResponseData,
 } from './index';
 
 export async function postImage(file: File) {
-    return await axios.request<ResponseData<PostImageData>>({
+    return await axiosRequest<ResponseData<PostImageData>>({
         url: `/v1/image`,
         method: 'POST',
         headers: {

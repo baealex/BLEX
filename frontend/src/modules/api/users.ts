@@ -1,10 +1,10 @@
-import axios, {
+import axiosRequest, {
     ResponseData,
     serializeObject,
 } from './index';
 
 export async function getUserProfile(author: string, includes: GetUserProfileInclude[]) {
-    return await axios.request<ResponseData<GetUserProfileData>>({
+    return await axiosRequest<ResponseData<GetUserProfileData>>({
         url: `/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
         method: 'GET'
     });
@@ -57,7 +57,7 @@ export interface GetUserProfileData {
 }
 
 export async function getUserAbout(author: string) {
-    return await axios.request<ResponseData<GetUserAboutData>>({
+    return await axiosRequest<ResponseData<GetUserAboutData>>({
         url: `/v1/users/${encodeURIComponent(author)}?get=about`,
         method: 'GET'
     });
@@ -68,7 +68,7 @@ export interface GetUserAboutData {
 }
 
 export async function putUserAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
-    return await axios.request<ResponseData<any>>({
+    return await axiosRequest<ResponseData<any>>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
         headers: {
@@ -83,7 +83,7 @@ export async function putUserAbout(author: string, aboutMarkdown: string, aboutM
 }
 
 export async function putUsername(username: string, newUsername: string) {
-    return await axios.request<ResponseData<any>>({
+    return await axiosRequest<ResponseData<any>>({
         url: `/v1/users/@${encodeURIComponent(username)}`,
         method: 'PUT',
         headers: {
