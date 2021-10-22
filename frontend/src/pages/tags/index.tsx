@@ -2,7 +2,6 @@ import React from 'react';
 import Head from 'next/head';
 
 import { Layout } from '@components/article/collection';
-import { ArticleCard } from '@components/article';
 import {
     Footer,
     Pagination,
@@ -12,6 +11,8 @@ import {
 import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
+
+import { TagCard } from '@components/tag';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -57,13 +58,7 @@ Tags.pageLayout = (page: JSX.Element, props: Props) => (
         <>
             <div className="row">
                 {props.tags.map((item, idx) => (
-                    <ArticleCard
-                        key={idx}
-                        className="col-lg-4 col-md-6 mt-4"
-                        title={`${item.name} (${item.count})`}
-                        url={`/tags/${item.name}`}
-                        {...item}
-                    />
+                    <TagCard key={idx} {...item}/>
                 ))}
             </div>
             {page}

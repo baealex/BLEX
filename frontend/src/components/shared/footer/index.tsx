@@ -20,13 +20,8 @@ export function Footer({
             )}
             <div className={cn('items')}>
                 <div>
-                    <a target="_blank" href="https://www.notion.so/58e7e6ab9a2d441d8f824ef852e77059">
-                        Terms
-                    </a>
-                </div>
-                <div>
-                    <a target="_blank" href="https://www.notion.so/b3901e0837ec40e3983d16589314b59a">
-                        Guide
+                    <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
+                        Notion
                     </a>
                 </div>
                 <div>
