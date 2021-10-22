@@ -29,6 +29,7 @@ import { optimizedEvent } from '@modules/event';
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';
 import { modalContext } from '@state/modal';
+import { DayNight } from './day-night';
 
 export function TopNavigation() {
     const router = useRouter();
@@ -40,11 +41,23 @@ export function TopNavigation() {
     const [isRollup, setIsRollup] = useState(false);
     const [isMenuOpen, setisMenuOpen] = useState(false);
     const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+    const [isNight, setIsNight] = useState(false);
     const [state, setState] = useState({
         ...authContext.state,
         ...modalContext.state,
-        theme: configContext.state.theme,
     });
+
+    useEffect(() => {
+        setIsNight(configContext.state.theme === 'dark');
+    }, [])
+
+    useEffect(() => {
+        if (isNight) {
+            configContext.setTheme('dark');
+        } else {
+            configContext.setTheme('default');
+        }
+    }, [isNight])
 
     useEffect(() => {
         const authUpdateKey = authContext.append((nextState) => {
@@ -340,18 +353,6 @@ export function TopNavigation() {
                                                     onClick: () => router.push(`/@${state.username}`),
                                                 },
                                                 {
-                                                    name: state.theme === 'default' ? '라이트 모드' : '다크 모드',
-                                                    icon: state.theme === 'default' ?  'fas fa-sun' : 'far fa-moon',
-                                                    onClick: () => {
-                                                        if (state.theme === 'default') {
-                                                            configContext.setTheme('dark');
-                                                        }
-                                                        else if (state.theme === 'dark') {
-                                                            configContext.setTheme('default');
-                                                        }
-                                                    },
-                                                },
-                                                {
                                                     name: '설정',
                                                     icon: 'fas fa-cog',
                                                     onClick: () => router.push(`/setting/account`),
@@ -477,6 +478,7 @@ export function TopNavigation() {
                     </div>
                 </div>
             )}
+            <DayNight isNight={isNight} onChange={setIsNight}/>
         </>
     )
 }

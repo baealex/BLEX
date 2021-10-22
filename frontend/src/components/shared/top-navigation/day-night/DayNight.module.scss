@@ -1,0 +1,60 @@
+$box-width: 52px;
+$box-height: 28px; 
+$ball-size: 28px;
+$ball-padding: 3px;
+$icon-size: $ball-size - 4px;
+
+.box {
+    opacity: 0.75;
+    border-radius: 100px;
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    width: $box-width;
+    height: $box-height;
+    background: #ccc;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    :global(body.dark) & {
+        background: #555;
+    }
+}
+
+.ball {
+    position: absolute;
+    height: ($ball-size - $ball-padding * 2);
+    width: ($ball-size - $ball-padding * 2);
+    border-radius: 100%;
+    background: #fff;
+    top: $ball-padding;
+    left: $ball-padding;
+    transition: all 0.1s ease;
+    box-shadow: 0 .15em .3em rgba(0,0,0,.15),0 .2em .5em rgba(0,0,0,.3);
+    transform: translate(0px, 0);
+
+    &.isNight {
+        transform: translate(($box-width - $ball-size), 0);
+    }
+    
+    :global(body.dark) & {
+        background: #000;
+    }
+}
+
+.icon {
+    position: absolute;
+    height: ($icon-size - $ball-padding * 2);
+    width: ($icon-size - $ball-padding * 2);
+
+    &.day {
+        left: 5px;
+    }
+
+    &.night {
+        right: 5px;
+    }
+}
