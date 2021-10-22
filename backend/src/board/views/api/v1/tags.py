@@ -16,19 +16,17 @@ def tags(request, tag=None):
             cache_key = 'main_page_topics'
             tags = cache.get(cache_key)
             if not tags:
-                tags = sorted(fn.get_clean_all_tags(desc=True), key=lambda instance:instance['count'], reverse=True)
+                tags = sorted(fn.get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
                 cache_time = 7200
                 cache.set(cache_key, tags, cache_time)
             page = request.GET.get('page', 1)
-            paginator = Paginator(tags, 24)
+            paginator = Paginator(tags, 48)
             fn.page_check(page, paginator)
             tags = paginator.get_page(page)
             return StatusDone({
                 'tags': list(map(lambda tag: {
                     'name': tag['name'],
                     'count': tag['count'],
-                    'image': tag['image'],
-                    'description': tag['desc']
                 }, tags)),
                 'last_page': tags.paginator.num_pages
             })

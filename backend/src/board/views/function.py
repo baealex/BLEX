@@ -24,7 +24,7 @@ def get_view_count(user, date=None):
         count += posts['table_count__sum']
     return count
 
-def get_clean_all_tags(user=None, count=True, desc=False, include='posts'):
+def get_clean_all_tags(user=None, count=True, user_count=False, desc=False, include='posts'):
     posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False)
     if user:
         posts = posts.filter(author=user)
@@ -47,7 +47,9 @@ def get_clean_all_tags(user=None, count=True, desc=False, include='posts'):
             for tags in tagslist:
                 if ',' + tag + ',' in ',' + tags + ',':
                     tag_dict['count'] += 1
-            all_tags_dict.append(tag_dict)
+            
+            if tag_dict['count'] > 1:
+                all_tags_dict.append(tag_dict)
         
         if not desc:
             return all_tags_dict
