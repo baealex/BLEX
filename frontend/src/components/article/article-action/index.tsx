@@ -108,16 +108,14 @@ export function ArticleAction(props: ArticleActionProps) {
             </div>
             <div className={cn('m')}>
                 <div className={cn('bottom-nav')}>
-                    <div className={cn('container')}>
-                        <div className={cn('d-flex', 'justify-content-between')}>
-                            <div className={cn('item')} onClick={() => onClickLike()}>
-                                <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
-                                <span>{state.totalLikes}</span>
-                            </div>
-                            <div className={cn('item')} onClick={() => onClickComment()}>
-                                <i className="far fa-comment"></i>
-                                <span>{state.totalComment}</span>
-                            </div>
+                    <div className={cn('d-flex')}>
+                        <div className={cn('item')} onClick={() => onClickLike()}>
+                            <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
+                            <span>{state.totalLikes}</span>
+                        </div>
+                        <div className={cn('item')} onClick={() => onClickComment()}>
+                            <i className="far fa-comment"></i>
+                            <span>{state.totalComment}</span>
                         </div>
                     </div>
                 </div>

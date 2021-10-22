@@ -25,6 +25,10 @@
         .items {
             border-top: 1px solid #333;
         }
+
+        @media only screen and (max-width: 990px) {
+            margin-bottom: 54px;
+        }
     }
 
     .items {

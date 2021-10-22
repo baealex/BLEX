@@ -5,6 +5,7 @@ $ball-padding: 3px;
 $icon-size: $ball-size - 4px;
 
 .box {
+    z-index: 1000;
     opacity: 0.75;
     border-radius: 100px;
     position: fixed;
@@ -22,6 +23,11 @@ $icon-size: $ball-size - 4px;
 
     :global(body.dark) & {
         background: #555;
+    }
+
+    @media only screen and (max-width: 990px) {
+        bottom: 12px;
+        right: 12px;
     }
 }
 
