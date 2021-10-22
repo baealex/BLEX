@@ -14,6 +14,7 @@ $icon-size: $ball-size - 4px;
     height: $box-height;
     background: #ccc;
     transition: opacity 0.3s ease;
+    cursor: pointer;
 
     &:hover {
         opacity: 1;

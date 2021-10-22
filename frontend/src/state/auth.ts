@@ -19,10 +19,6 @@ class AuthContext extends SharedState<AuthContextState> {
         };
     }
 
-    unreadNotifies() {
-        return this.state.notify.filter(item => !item.isRead);
-    }
-
     logout() {
         this.state = {
             isLogin: false,

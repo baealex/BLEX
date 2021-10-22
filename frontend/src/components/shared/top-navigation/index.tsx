@@ -209,7 +209,7 @@ export function TopNavigation() {
     }
 
     const notifyCount = useMemo(() => {
-        return authContext.unreadNotifies().length;
+        return state.notify.filter(item => !item.isRead).length;
     }, [state.notify]);
 
     const unsync = async () => {
@@ -227,7 +227,7 @@ export function TopNavigation() {
         }
     }
 
-    const onReadNotify = async (pk: number) => {
+    const onReadNotify = async (pk: number, url: string) => {
         const { data } = await API.putSetting('notify', { pk: pk });
         if(data.status === 'DONE') {
             setState((prevState) => ({
@@ -238,6 +238,7 @@ export function TopNavigation() {
                         : item;
                 })
             }));
+            router.push(url);
         }
     }
 
@@ -294,31 +295,25 @@ export function TopNavigation() {
                                                 {notifyCount}
                                             </span>
                                         )}
-                                        <div ref={notifyBox} className={cn('notify-contnet', { isOpen: isNotifyOpen })}>
-                                            {state.notify.length == 0 ? (
-                                                <Card hasShadow shadowLevel="sub" fillBack isRounded className="my-2 p-3">
-                                                    최근 생성된 알림이 없습니다.
-                                                </Card>
-                                            ) : state.notify.map((item, idx) => (
-                                                <Link key={idx} href={item.url}>
-                                                    <a className={item.isRead ? 'shallow-dark' : 'deep-dark'} onClick={() => onReadNotify(item.pk)}>
-                                                        <Card hasShadow shadowLevel="sub" fillBack isRounded className="my-2 p-3">
-                                                            <>
-                                                                {item.content} <span className="ns shallow-dark">{item.createdDate}전</span>
-                                                            </>
-                                                        </Card>
-                                                    </a>
-                                                </Link>
-                                            ))}
+                                        <div ref={notifyBox} className={cn('notify-box', { isOpen: isNotifyOpen })}>
                                             {state.isTelegramSync ? (
-                                                <div className={cn('sync-btn')} onClick={() => unsync()}>
+                                                <div className={cn('telegram')} onClick={() => unsync()}>
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
                                                 </div>
                                             ) : (
-                                                <div className={cn('sync-btn')} onClick={() => modalContext.onOpenModal('isTelegramSyncModalOpen')}>
+                                                <div className={cn('telegram')} onClick={() => modalContext.onOpenModal('isTelegramSyncModalOpen')}>
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동
                                                 </div>
                                             )}
+                                            {state.notify.length == 0 ? (
+                                                <div className={cn('card')}>
+                                                    최근 생성된 알림이 없습니다.
+                                                </div>
+                                            ) : state.notify.map((item, idx) => (
+                                                <div key={idx} className={cn('card')} onClick={() => onReadNotify(item.pk, item.url)}>
+                                                    {item.content} <span className="ns shallow-dark">{item.createdDate}전</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </li>
                                     {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (

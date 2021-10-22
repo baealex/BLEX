@@ -80,34 +80,49 @@
     }
 }
 
-.notify-contnet {
-    width: 420px;
-    padding: 8px;
-    border-radius: 8px;
-    position: absolute;
-    border: 1px solid #eee;
-    @include BACKGROUND;
-    transform: translate(-50%, 15px);
-    transition: opacity 0.5s ease;
-    opacity: 0;
+.notify-box {
+    position: fixed;
+    top: (72px + 15px);
+    right: 15px;
+    width: 380px;
+    transform: translate(380px + 15px);
     cursor: default;
     pointer-events: none;
+    transition: transform 0.5s ease;
 
-    .sync-btn {
-        color: #0088cc;
-        margin: 4px 0;
-        padding: 4px 8px;
-        float: right;
+    .telegram, .card {
+        margin: 8px;
+        padding: 16px;
         cursor: pointer;
+        border-radius: 8px;
+    }
+
+    .telegram {
+        color: #fff;
+
+        background: #0088cc !important;
+        :global(body.dark) & {
+            background: #00344e !important;
+        }
+    }
+
+    .card {
+        @include BACKGROUND;
+
+        border: 1px solid #eaeaea;
+        :global(body.dark) & {
+            border: 1px solid #5a5a5a;
+        }
+
     }
 
     &.isOpen {
-        opacity: 1;
         pointer-events: all;
+        transform: translate(0px);
     }
 
     @media only screen and (max-width: 600px) {
-        transform: translate(0%, 15px);
+        transform: translate(calc(100% + 15px));
         position: fixed;
         width: calc(100% - 30px);
         left: 15px;
