@@ -96,6 +96,7 @@ export function TopNavigation() {
                         ...state,
                         theme: 'dark',
                     }));
+                    setIsNight(true);
                 }
             } else {
                 document.body.classList.add(configContext.state.theme);
@@ -105,6 +106,7 @@ export function TopNavigation() {
                 if (configContext.state.theme === 'default' || configContext.state.theme === 'dark') {
                     if (e.matches) {
                         configContext.setTheme('dark');
+                        setIsNight(true);
                     } else {
                         configContext.setTheme('default');
                     }
