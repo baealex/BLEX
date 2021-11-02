@@ -47,9 +47,7 @@ def get_clean_all_tags(user=None, count=True, user_count=False, desc=False, incl
             for tags in tagslist:
                 if ',' + tag + ',' in ',' + tags + ',':
                     tag_dict['count'] += 1
-            
-            if tag_dict['count'] > 1:
-                all_tags_dict.append(tag_dict)
+            all_tags_dict.append(tag_dict)
         
         if not desc:
             return all_tags_dict
