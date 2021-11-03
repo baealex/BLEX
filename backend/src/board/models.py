@@ -46,10 +46,6 @@ def make_thumbnail(this, size, save_as=False, quality=100):
     image.thumbnail((size, size), Image.ANTIALIAS)
     image.save(f"static/{this.image}.minify.{str(this.image).split('.')[-1]}", quality=quality)
 
-    image.convert('RGB')
-    image.filter(ImageFilter.GaussianBlur(50))
-    image.save(f'static/{this.image}.preview.jpg', quality=50)
-
 def timestamp(date, kind=''):
     if kind == 'grass':
         date = date + datetime.timedelta(hours=9)
@@ -331,16 +327,9 @@ class Profile(models.Model):
 
     def collect_social(self):
         result = dict()
-        if self.github:
-            result['github'] = self.github
-        if self.twitter:
-            result['twitter'] = self.twitter
-        if self.youtube:
-            result['youtube'] = self.youtube
-        if self.facebook:
-            result['facebook'] = self.facebook
-        if self.instagram:
-            result['instagram'] = self.instagram
+        for social in ['github', 'twitter', 'youtube', 'facebook', 'instagram']:
+            if getattr(self, social):
+                result[social] = getattr(self, social)
         return result
 
     def get_thumbnail(self):
