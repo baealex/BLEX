@@ -1,3 +1,5 @@
+import re
+
 from itertools import chain
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
@@ -35,7 +37,7 @@ class SitePostsFeed(Feed):
         return item.title
 
     def item_description(self, item):
-        return item.text_html
+        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.text_html)
 
     def item_link(self, item):
         return item.get_absolute_url()
@@ -72,7 +74,7 @@ class UserPostsFeed(Feed):
         return item.title
 
     def item_description(self, item):
-        return item.text_html
+        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.text_html)
 
     def item_link(self, item):
         return item.get_absolute_url()
