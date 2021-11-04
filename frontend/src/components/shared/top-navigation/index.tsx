@@ -207,10 +207,6 @@ export function TopNavigation() {
         }
     }
 
-    const notifyCount = useMemo(() => {
-        return state.notify.filter(item => !item.isRead).length;
-    }, [state.notify]);
-
     const unsync = async () => {
         if(confirm('😥 정말 연동을 해제할까요?')) {
             const { data } = await API.postTelegram('unsync');
@@ -231,11 +227,7 @@ export function TopNavigation() {
         if(data.status === 'DONE') {
             setState((prevState) => ({
                 ...prevState,
-                notify : prevState.notify.map(item => {
-                    return item.pk == pk
-                        ? { ...item, isRead: true }
-                        : item;
-                })
+                notify : prevState.notify.filter(item => pk != item.pk),
             }));
             router.push(url);
         }
@@ -289,9 +281,9 @@ export function TopNavigation() {
                                         className={cn('notify')}
                                     >
                                         <i className="far fa-bell"/>
-                                        {notifyCount > 0 && (
+                                        {state.notify.length > 0 && (
                                             <span>
-                                                {notifyCount}
+                                                {state.notify.length}
                                             </span>
                                         )}
                                         <div ref={notifyBox} className={cn('notify-box', { isOpen: isNotifyOpen })}>
@@ -306,7 +298,7 @@ export function TopNavigation() {
                                             )}
                                             {state.notify.length == 0 ? (
                                                 <div className={cn('card')}>
-                                                    최근 생성된 알림이 없습니다.
+                                                    읽지 않은 알림이 없습니다.
                                                 </div>
                                             ) : state.notify.map((item, idx) => (
                                                 <div key={idx} className={cn('card')} onClick={() => onReadNotify(item.pk, item.url)}>

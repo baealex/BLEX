@@ -25,10 +25,10 @@ from board.views import function as fn
 def login_response(user):
     username = user.username
     avatar = str(user.profile.avatar)
-
-    seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-    notify = Notify.objects.filter(user=user)
-    notify = notify.filter(Q(created_date__gt=seven_days_ago) | Q(is_read=False)).order_by('-created_date')
+    notify = Notify.objects.filter(
+        user=user,
+        is_read=False
+    ).order_by('-created_date')
 
     return StatusDone({
         'username': user.username,
