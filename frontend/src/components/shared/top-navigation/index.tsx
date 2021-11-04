@@ -2,7 +2,7 @@ import styles from './TopNavigation.module.scss';
 import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
