@@ -188,6 +188,7 @@ def setting(request, item):
                 referers__posts__posts__author=user
             ).exclude(
                 Q(title__contains='검색') |
+                Q(title__contains='Bing') |
                 Q(title__contains='Google') |
                 Q(title__contains='DuckDuckGo')
             ).order_by('-created_date').distinct()[:12]
@@ -209,6 +210,7 @@ def setting(request, item):
                 referers__posts__posts__author=request.user,
             ).filter(
                 Q(title__contains='검색') |
+                Q(title__contains='Bing') |
                 Q(title__contains='Google') |
                 Q(title__contains='DuckDuckGo')
             ).annotate(
@@ -228,6 +230,7 @@ def setting(request, item):
                 '덕덕고': 0,
                 '다음': 0,
                 '구글': 0,
+                '빙': 0,
                 '줌': 0,
             }
 
@@ -258,6 +261,10 @@ def setting(request, item):
                 if 'DuckDuckGo' in referer.title:
                     keyword = ''
                     platform = '덕덕고'
+
+                if ' - Bing' in referer.title:
+                    keyword = keyword.replace(' - Bing', '')
+                    platform = '빙'
 
                 if ' : 검색줌' in referer.title:
                     keyword = keyword.replace(' : 검색줌', '')
