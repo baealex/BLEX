@@ -43,6 +43,7 @@ urlpatterns = [
     path('v1/posts/popular', api_v1.popular_posts),
     path('v1/posts/newest', api_v1.newest_posts),
     path('v1/posts/temp', api_v1.temp_posts),
+    path('v1/posts/temp/<token>', api_v1.temp_posts),
     path('v1/posts/top-trendy', api_v1.top_trendy),
     path('v1/posts/feature', api_v1.feature_posts),
     path('v1/posts/feature/<tag>', api_v1.feature_posts),

@@ -14,22 +14,11 @@ from board.modules.analytics import view_count
 from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
-def temp_posts(request):
+def temp_posts(request, token=None):
     if not request.user.is_active:
         return HttpResponse('error:NL')
-
-    if request.method == 'GET':
-        token = request.GET.get('token')
-        if token:
-            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-            return StatusDone({
-                'title': temp_posts.title,
-                'token': temp_posts.token,
-                'text_md': temp_posts.text_md,
-                'tag': temp_posts.tag,
-                'created_date': timesince(temp_posts.created_date),
-            })
-
+    
+    if not token:
         if request.GET.get('get') == 'list':
             temps = TempPosts.objects.filter(author=request.user)
             return StatusDone({
@@ -40,45 +29,54 @@ def temp_posts(request):
                 }, temps)),
             })
 
-    if request.method == 'POST':
-        temps = TempPosts.objects.filter(author=request.user).count()
-        if temps >= 20:
-            return StatusError('OF')
-        
-        body = QueryDict(request.body)
+        if request.method == 'POST':
+            temps = TempPosts.objects.filter(author=request.user).count()
+            if temps >= 100:
+                return StatusError('OF')
+            
+            body = QueryDict(request.body)
 
-        token = randstr(25)
-        has_token = TempPosts.objects.filter(token=token, author=request.user)
-        while len(has_token) > 0:
             token = randstr(25)
             has_token = TempPosts.objects.filter(token=token, author=request.user)
-        
-        temp_posts = TempPosts(token=token, author=request.user)
-        temp_posts.title = body.get('title')
-        temp_posts.text_md = body.get('text_md')
-        temp_posts.tag = body.get('tag')
-        temp_posts.save()
+            while len(has_token) > 0:
+                token = randstr(25)
+                has_token = TempPosts.objects.filter(token=token, author=request.user)
+            
+            temp_posts = TempPosts(token=token, author=request.user)
+            temp_posts.title = body.get('title')
+            temp_posts.text_md = body.get('text_md')
+            temp_posts.tag = body.get('tag')
+            temp_posts.save()
 
-        return StatusDone({
-            'token': token
-        })
+            return StatusDone({
+                'token': token
+            })
     
-    if request.method == 'PUT':
-        body = QueryDict(request.body)
-        token = body.get('token')
-        temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-        temp_posts.title = body.get('title')
-        temp_posts.text_md = body.get('text_md')
-        temp_posts.tag = body.get('tag')
-        temp_posts.save()
-        return StatusDone()
-    
-    if request.method == 'DELETE':
-        body = QueryDict(request.body)
-        token = body.get('token')
-        temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-        temp_posts.delete()
-        return StatusDone()
+    if token:
+        if request.method == 'GET':
+            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
+            return StatusDone({
+                'token': temp_posts.token,
+                'title': temp_posts.title,
+                'text_md': temp_posts.text_md,
+                'tag': temp_posts.tag,
+                'created_date': timesince(temp_posts.created_date),
+            })
+        
+        if request.method == 'PUT':
+            body = QueryDict(request.body)
+            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
+            temp_posts.title = body.get('title')
+            temp_posts.text_md = body.get('text_md')
+            temp_posts.tag = body.get('tag')
+            temp_posts.updated_date = timezone.now()
+            temp_posts.save()
+            return StatusDone()
+        
+        if request.method == 'DELETE':
+            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
+            temp_posts.delete()
+            return StatusDone()
 
     raise Http404
 
