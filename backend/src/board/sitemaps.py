@@ -18,10 +18,10 @@ class StaticSitemap(Sitemap):
 
 class PostsSitemap(Sitemap):
     changefreq = 'weekly'
-    priority = 0.5
+    priority = 0.8
 
     def items(self):
-        return Post.objects.filter(hide=False).order_by('pk')
+        return Post.objects.filter(hide=False).order_by('-updated_date')
     
     def lastmod(self, element):
         return element.updated_date
@@ -45,7 +45,8 @@ class UserSitemap(Sitemap):
                 reverse('user_profile', args=[user]),
                 reverse('user_profile_tab', args=[user, 'about']),
                 reverse('user_profile_tab', args=[user, 'series']),
-                reverse('user_profile_posts', args=[user]),
+                reverse('user_profile_tab', args=[user, 'posts']),
+                # reverse('user_profile_posts', args=[user]),
             ]
         return user_site
     
@@ -79,8 +80,8 @@ class UserTopicSitemap(Sitemap):
 
 sitemaps = {
     'static_sitemap': StaticSitemap,
-    'topic_sitemap': TopicSitemap,
-    'posts_sitemap': PostsSitemap,
-    'series_sitemap': SeriesSitemap,
     'user_sitemap': UserSitemap,
+    'posts_sitemap': PostsSitemap,
+    # 'series_sitemap': SeriesSitemap,
+    # 'topic_sitemap': TopicSitemap,
 }
