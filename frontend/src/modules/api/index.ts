@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios'
+import axios, { AxiosRequestConfig } from 'axios';
 import { CONFIG } from '@modules/settings';
 import { snackBar } from '@modules/snack-bar';
 
@@ -11,7 +11,11 @@ export default async function axiosRequest<T>(config: AxiosRequestConfig) {
     try {
         return await request<T>(config);
     } catch(e) {
-        snackBar(EMOJI.SYSTEM_ERR + '시스템 오류가 발생했습니다.');
+        if (typeof window !== 'undefined') {
+            snackBar(EMOJI.SYSTEM_ERR + '시스템 오류가 발생했습니다.');
+        } else {
+            console.log(e);
+        }
         throw e;
     }
 }
