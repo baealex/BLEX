@@ -32,11 +32,18 @@ export function headerHash(remarkable) {
         }
     };
     remarkable.renderer.rules.heading_open = (tokens, idx) => {
-        let hLevel = tokens[idx].hLevel;
-        if(tokens[idx].hLevel % 2 == 1) {
+        let { hLevel } = tokens[idx];
+        if (tokens[idx].hLevel % 2 == 1) {
             hLevel += 1;
         }
         return `<h${hLevel} id="${makeID(tokens[idx + 1].content)}">`;
+    };
+    remarkable.renderer.rules.heading_close = (tokens, idx) => {
+        let { hLevel } = tokens[idx];
+        if (tokens[idx].hLevel % 2 == 1) {
+            hLevel += 1;
+        }
+        return `</h${hLevel}>`;
     };
 }
 
