@@ -2,10 +2,9 @@ import { useEffect } from 'react';
 import Router from 'next/router';
 import { GetServerSidePropsContext } from 'next';
 
+import { Flip } from '@components/integrated';
+
 import { snackBar } from '@modules/snack-bar';
-
-import { Loading } from '@components/shared';
-
 import * as API from '@modules/api';
 import Cookie from '@modules/cookie';
 
@@ -70,5 +69,5 @@ export default function SocialLogin(props: Props) {
         });
     }, []);
 
-    return <Loading/>;
+    return <Flip block/>;
 }

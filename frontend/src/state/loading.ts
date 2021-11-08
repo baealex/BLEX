@@ -11,6 +11,20 @@ class LoadingContext extends SharedState<LoadingContextState> {
             isLoading: false,
         };
     }
+
+    start() {
+        this.setState((prevState) => ({
+            ...prevState,
+            isLoading: true,
+        }));
+    }
+
+    end() {
+        this.setState((prevState) => ({
+            ...prevState,
+            isLoading: false,
+        }));
+    }
 }
 
 export const loadingContext = new LoadingContext();

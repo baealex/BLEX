@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import {
     CheckBox,
     Modal,
-    Loading,
+    Flip,
     PopOver,
 } from '@components/integrated';
 
@@ -75,6 +75,7 @@ export function Layout(props: Props) {
     const [ imagePreview, setImagePreview ] = useState('');
     const [ isSumbit, setIsSubmit ] = useState(false);
     const [ isEditMode, setIsEditMode ] = useState(true);
+
     const [ isOepnFormsModal, setIsOpenFormsModal ] = useState(false);
     const [ isOepnImageModal, setIsOpenImageModal ] = useState(false);
     const [ isOepnYoutubeModal, setIsOpenYoutubeModal ] = useState(false);
@@ -83,30 +84,17 @@ export function Layout(props: Props) {
     const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
 
-    useEffect(() => {
-        const key = modalContext.append((state) => {
-            setIsOpenPublishModal(state.isPublishModalOpen);
-        });
-
-        return () => {
-            modalContext.pop(key);
-            modalContext.onCloseModal('isPublishModalOpen');
-        }
-    }, []);
-
+    useEffect(modalContext.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
+    
     useEffect(() => {
         API.getSettingForms('').then((response) => {
             const { data } = response;
-            if (data.body) {
-                setForms(data.body.forms);
-            }
+            setForms(data.body.forms);
         });
 
         API.getSettingSeries('').then((response) => {
             const { data } = response;
-            if (data.body) {
-                setSeries(data.body.series);
-            }
+            setSeries(data.body.series);
         })
     }, []);
 
@@ -123,29 +111,34 @@ export function Layout(props: Props) {
     }
 
     const onUploadImage = async (image: File) => {
-        const link = await uploadImage(image);
-        if(link) {
-            const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
+        const imageSrc = await uploadImage(image);
+        if(imageSrc) {
+            const imageMd = imageSrc.includes('.mp4')
+                ? `@gif[${imageSrc}]`
+                : `![](${imageSrc})`;
             appendTextOnCursor(imageMd);
         }
     }
 
     const onDropImage = async (e: DragEvent) => {
-        const link = await dropImage(e);
-        if(link) {
-            const imageMd = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
+        const imageSrc = await dropImage(e);
+        if(imageSrc) {
+            const imageMd = imageSrc.includes('.mp4')
+                ? `@gif[${imageSrc}]`
+                : `![](${imageSrc})`;
             appendTextOnCursor(imageMd);
         }
     }
 
     const onUploadYoutube = (id: string) => {
-        if(id) {
+        if (id) {
             const youtubeMd = `@youtube[${id}]`;
             appendTextOnCursor(youtubeMd);
         }
     }
 
-    const onSubmit = async () => {
+    const handleSubmit = async () => {
+        modalContext.onCloseModal('isPublishModalOpen');
         setIsSubmit(true);
         await props.onSubmit(() => {
             setIsSubmit(false);
@@ -215,7 +208,7 @@ export function Layout(props: Props) {
                     isOpen={isOepnPublishModal}
                     onClose={() => modalContext.onCloseModal('isPublishModalOpen')}
                     submitText={props.publish.buttonText}
-                    onSubmit={() => onSubmit()}
+                    onSubmit={() => handleSubmit()}
                 >
                     <ImageForm
                         title="포스트 썸네일"
@@ -297,7 +290,7 @@ export function Layout(props: Props) {
 
                 {props.addon?.modal}
 
-                {isSumbit ? <Loading/> : ''}
+                {isSumbit ? <Flip block/> : ''}
             </div>
         </div>
     )

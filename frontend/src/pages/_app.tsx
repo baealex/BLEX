@@ -6,10 +6,10 @@ import nprogress from 'nprogress';
 import 'nprogress/nprogress.css'
 
 import {
-    SEO,
-    CornerLoading,
+    Flip,
     TopNavigation,
-} from '@components/shared';
+    SEO,
+} from '@components/integrated';
 
 import { CONFIG } from '@modules/settings';
 import {
@@ -117,7 +117,9 @@ class Main extends App<AppProps> {
 
                 <TopNavigation/>
                 
-                <CornerLoading/>
+                {this.state.isLoading && (
+                    <Flip/>
+                )}
                 
                 <div className="content">
                     {getLayout(<Component {...pageProps}/>, pageProps)}
