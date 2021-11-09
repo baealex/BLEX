@@ -109,6 +109,7 @@ export function TopNavigation() {
                         setIsNight(true);
                     } else {
                         configContext.setTheme('default');
+                        setIsNight(false);
                     }
                 }
             });
