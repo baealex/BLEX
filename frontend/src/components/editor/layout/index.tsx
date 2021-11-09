@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 
 import {
     CheckBox,
+    Loading,
     Modal,
-    Flip,
     PopOver,
 } from '@components/integrated';
 
@@ -290,7 +290,7 @@ export function Layout(props: Props) {
 
                 {props.addon?.modal}
 
-                {isSumbit ? <Flip block/> : ''}
+                {isSumbit ? <Loading block/> : ''}
             </div>
         </div>
     )

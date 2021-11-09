@@ -6,7 +6,7 @@ import nprogress from 'nprogress';
 import 'nprogress/nprogress.css'
 
 import {
-    Flip,
+    Loading,
     TopNavigation,
     SEO,
 } from '@components/integrated';
@@ -118,7 +118,7 @@ class Main extends App<AppProps> {
                 <TopNavigation/>
                 
                 {this.state.isLoading && (
-                    <Flip/>
+                    <Loading/>
                 )}
                 
                 <div className="content">
