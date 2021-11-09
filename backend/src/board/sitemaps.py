@@ -43,9 +43,9 @@ class UserSitemap(Sitemap):
         for user in users:
             user_site += [
                 reverse('user_profile', args=[user]),
-                reverse('user_profile_tab', args=[user, 'about']),
-                reverse('user_profile_tab', args=[user, 'series']),
-                reverse('user_profile_tab', args=[user, 'posts']),
+                # reverse('user_profile_tab', args=[user, 'about']),
+                # reverse('user_profile_tab', args=[user, 'series']),
+                # reverse('user_profile_tab', args=[user, 'posts']),
                 # reverse('user_profile_posts', args=[user]),
             ]
         return user_site
@@ -80,8 +80,8 @@ class UserTopicSitemap(Sitemap):
 
 sitemaps = {
     'static_sitemap': StaticSitemap,
-    'user_sitemap': UserSitemap,
     'posts_sitemap': PostsSitemap,
+    'user_sitemap': UserSitemap,
     # 'series_sitemap': SeriesSitemap,
     # 'topic_sitemap': TopicSitemap,
 }
