@@ -22,7 +22,7 @@ export function setLocache(props: LocacheProps, data: any) {
     return data;
 }
 
-export async function getLocache(props: LocacheProps, initValue: () => any): Promise<any> {
+export async function getLocache(props: LocacheProps, initValue: any): Promise<any> {
     if ('localStorage' in window) {
         const storage = localStorage.getItem(props.key);
         if (!storage) {
@@ -34,6 +34,10 @@ export async function getLocache(props: LocacheProps, initValue: () => any): Pro
             created,
             data,
         } = JSON.parse(storage) as Storage;
+
+        if (data === undefined) {
+            return setLocache(props, await initValue());
+        }
 
         if (props.owner && props.owner != owner) {
             return setLocache(props, await initValue());
@@ -52,6 +56,6 @@ export async function getLocache(props: LocacheProps, initValue: () => any): Pro
 
 export function destroyLocache(key: string) {
     if ('localStorage' in window) {
-        window.localStorage.removeItem(key);
+        localStorage.removeItem(key);
     }
 }

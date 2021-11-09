@@ -63,33 +63,27 @@ export interface GetSettingProfileData {
     instagram: string;
 }
 
-export async function getSettingPosts(cookie: string | undefined, order: string, page: number) {
+export async function getSettingPosts() {
     return await axiosRequest<ResponseData<GetSettingPostsData>>({
-        url: `/v1/setting/posts?order=${order}&page=${page}`,
-        headers: {
-            cookie
-        },
+        url: `/v1/setting/posts`,
         method: 'GET'
     });
 }
 
 export interface GetSettingPostsData {
-    username: string;
-    posts: {
-        url: string;
-        title: string;
-        createdDate: string;
-        updatedDate: string;
-        isHide: boolean;
-        totalLikes: number;
-        totalComments: number;
-        todayCount: number;
-        readTime: number;
-        yesterdayCount: number;
-        tag: string;
-    }[];
-    lastPage: number;
-}
+    author: string
+    url: string;
+    title: string;
+    createdDate: string;
+    updatedDate: string;
+    isHide: boolean;
+    totalLikes: number;
+    totalComments: number;
+    todayCount: number;
+    readTime: number;
+    yesterdayCount: number;
+    tag: string;
+};
 
 export async function getSettingSeries(cookie: string | undefined) {
     return await axiosRequest<ResponseData<GetSettingSeriesData>>({
@@ -103,11 +97,7 @@ export async function getSettingSeries(cookie: string | undefined) {
 
 export interface GetSettingSeriesData {
     username: string;
-    series: {
-        url: string;
-        title: string;
-        totalPosts: number;
-    }[];
+    series: GetSettingSeriesDataSeries[];
 }
 
 export interface GetSettingSeriesDataSeries {

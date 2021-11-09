@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+    useCallback,
+    useEffect,
+    useState
+} from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -7,7 +11,6 @@ import { snackBar } from '@modules/snack-bar';
 
 import {
     Dropdown,
-    Pagination,
     Modal,
     Card,
     Alert,
@@ -15,111 +18,153 @@ import {
 import { Layout } from '@components/setting';
 import { TagBadge } from '@components/tag';
 
-import * as API from '@modules/api';
+import { getLocache, setLocache } from '@modules/locache';
+import {
+    deleteAnUserPosts,
+    getPostAnalytics,
+    getSettingPosts,
+    putAnUserPosts,
+    GetSettingPostsData
+} from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        page = 1,
-        order = '',
-    } = context.query;
+import { authContext } from '@state/auth';
+import { loadingContext } from '@state/loading';
 
+export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
     if(!req.headers.cookie) {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
-    const { data } = await API.getSettingPosts(
-        req.headers.cookie,
-        order as string,
-        page as number
-    );
-    if(data.status === 'ERROR') {
-        res.writeHead(302, { Location: '/' });
-        res.end();
-    }
     return {
-        props: {
-            page,
-            ...data.body
-        }
+        props: {}
     };
 }
 
 const POSTS_ORDER = [
     {
         name: '제목',
-        order: '-title',
+        order: 'title',
     },
     {
         name: '분량',
-        order: '-read_time',
+        order: 'readTime',
     },
     {
         name: '생성',
-        order: '-created_date',
+        order: 'createdDate',
     },
     {
         name: '수정',
-        order: '-updated_date',
+        order: 'updatedDate',
     },
     {
         name: '태그',
-        order: '-tag',
+        order: 'tag',
     },
     {
         name: '추천',
-        order: '-total_like_count',
+        order: 'totalLikes',
     },
     {
         name: '댓글',
-        order: '-total_comment_count',
+        order: 'totalComments',
     },
     {
         name: '숨김',
-        order: '-hide',
+        order: 'isHide',
     },
     {
         name: '오늘 조회수',
-        order: '-today_count',
+        order: 'todayCount',
     },
     {
         name: '어제 조회수',
-        order: '-yesterday_count',
+        order: 'yesterdayCount',
     },
 ];
 
-interface Props extends API.GetSettingPostsData {
-    page: number;
-}
+export default function PostsSetting() {
+    const [ username , setUsername ] = useState(authContext.state.username);
+    const [ order , setOrder ] = useState('');
+    const [ search, setSearch ] = useState('');
 
-export default function PostsSetting(props: Props) {
     const [ isModalOpen, setModalOpen ] = useState(false);
-    const [ posts, setPosts ] = useState(props.posts);
+    const [ posts, setPosts ] = useState<GetSettingPostsData[]>([]);
 
     const [ apNow, setApNow ] = useState('');
     const [ analytics, setAnalytics ] = useState(Object());
 
+    useEffect(authContext.syncValue('username', setUsername), []);
+
     useEffect(() => {
-        setPosts(props.posts);
-    }, [props.posts])
+        loadingContext.start();
+
+        const initPosts = async () => {
+            const { data } = await getSettingPosts();
+            return data.body;
+        }
+
+        getLocache({
+            key: 'settingPostsOrder',
+            owner: username,
+            refreshSeconds: 60 * 5,
+        }, () => '').then(setOrder);
+
+        getLocache({
+            key: 'settingPosts',
+            owner: username,
+            refreshSeconds: 60 * 5,
+        }, initPosts).then((posts) => {
+            setPosts(posts);
+            loadingContext.end();
+        });
+    }, [])
+
+    useEffect(() => {
+        setLocache({
+            key: 'settingPostsOrder',
+            owner: username,
+        }, order);
+
+        const shouldReverse = order.includes('-');
+        const orderName = order.replace('-', '') as keyof GetSettingPostsData;
+
+        setPosts((prevPosts) => {
+            return [...prevPosts].sort((a, b) => {
+                if (shouldReverse) {
+                    return a[orderName] > b[orderName] ? 1 : -1    
+                }
+                return a[orderName] > b[orderName] ? -1 : 1
+            });
+        })
+    }, [username, order])
+
+    useEffect(() => {
+        setLocache({
+            key: 'settingPosts',
+            owner: username,
+        }, posts);
+    }, [username, posts])
 
     const router = useRouter();
 
-    const postsAnalytics = async (url: string) => {
+    const postsAnalytics = useCallback(async (url: string) => {
         setApNow(url);
-        if(!analytics[url]) {
-            const { data } = await API.getPostAnalytics(url);
+        if (!analytics[url]) {
+            const { data } = await getPostAnalytics(url);
+            const { items, referers } = data.body;
+
             const dates = [];
             const counts = [];
-            for(const item of data.body.items) {
-                dates.push(item.date.slice(-2));
-                counts.push(item.count);
+
+            for (const item of items) {
+                dates.unshift(item.date.slice(-2));
+                counts.unshift(item.count);
             }
-            dates.reverse();
-            counts.reverse();
-            const { referers } = data.body;
+
             setAnalytics({
                 ...analytics,
                 [url]: {
@@ -130,86 +175,88 @@ export default function PostsSetting(props: Props) {
             });
         };
         setModalOpen(true);
-    };
+    }, []);
 
-    const onPostsDelete = async (url: string) => {
-        if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { data } = await API.deleteAnUserPosts('@' + props.username, url);
-            if(data.status === 'DONE') {
-                router.replace(router.asPath, '', { scroll: false });
+    const handlePostsDelete = useCallback(async (username: string, url: string) => {
+        if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
+            const { data } = await deleteAnUserPosts('@' + username, url);
+            
+            if (data.status === 'DONE') {
+                setPosts((prevPosts) => [...prevPosts.filter(
+                    post => post.url != url
+                )]);
                 snackBar('😀 포스트가 삭제되었습니다.');
             }   
         }
-    };
+    }, []);
 
-    const onPostsHide = async (url: string) => {
-        const { data } = await API.putAnUserPosts('@' + props.username, url, 'hide');
-        setPosts([...posts.map(post => (
+    const handlePostsHide = useCallback(async (username: string, url: string) => {
+        const { data } = await putAnUserPosts('@' + username, url, 'hide');
+        setPosts(prevPosts => [...prevPosts.map(post => (
             post.url == url ? ({
                 ...post,
                 isHide: data.body.isHide as boolean,
             }) : post
         ))]);
-    };
+    }, []);
 
-    const onTagChange = (url: string, value: string) => {
-        setPosts([...posts.map(post => (
+    const handleTagValueChange = useCallback((url: string, value: string) => {
+        setPosts(prevPosts => [...prevPosts.map(post => (
             post.url == url ? ({
                 ...post,
                 tag: value
             }) : post
         ))]);
-    };
+    }, []);
 
-    const onTagSubmit = async (url: string) => {
-        const thisPost = posts.find(post => post.url == url);
-        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', {
-            tag: thisPost?.tag
+    const handleTagSubmit = useCallback(async (username: string, url: string, tag: string) => {
+        const { data } = await putAnUserPosts('@' + username, url, 'tag', {
+            tag
         });
-        setPosts([...posts.map(post => (
+
+        setPosts(prevPosts => [...prevPosts.map(post => (
             post.url == url ? ({
                 ...post,
-                tag: data.body.tag  as string,
-                fixedTag: data.body.tag as string
+                tag: data.body.tag || '',
             }) : post
         ))]);
         snackBar('😀 태그가 수정되었습니다.');
-    };
+    }, []);
 
     return (
         <>
             <TagBadge items={POSTS_ORDER.map((item) => (
-                <Link
-                    href={{
-                        query: {
-                            ...router.query,
-                            order: router.query.order === item.order
-                                ? item.order.replace('-' , '')
-                                : item.order,
-                            page: 1,
-                        }
-                    }}
-                    scroll={false}
+                <a onClick={() => order != item.order
+                    ? setOrder(item.order)
+                    : setOrder('-' + item.order)}
                 >
-                    <a>
-                        {item.name}&nbsp;
-                        {router.query.order?.includes(item.order.replace('-' , '')) && (
-                            router.query.order?.includes('-') ? (
-                                <i className="fas fa-sort-up"/>
-                            ) : (
-                                <i className="fas fa-sort-down"/>
-                            )
-                        )}
-                    </a>
-                </Link>
+                    {item.name}&nbsp;
+                    {order.includes(item.order.replace('-' , '')) && (
+                        order.includes('-') ? (
+                            <i className="fas fa-sort-down"/>
+                        ) : (
+                            <i className="fas fa-sort-up"/>
+                        )
+                    )}
+                </a>
             ))}/>
+            <div className="input-group mb-3">
+                <input
+                    type="text"
+                    placeholder="포스트 검색"
+                    className="form-control"
+                    maxLength={50}
+                    onChange={(e) => setSearch(e.target.value)}
+                    value={search}
+                />
+            </div>
             <>
-                {posts.map((post, idx) => (
+                {posts.filter(post => post.title.toLowerCase().includes(search)).map((post, idx) => (
                     <Card key={idx} hasShadow isRounded className="mb-3">
                         <div className="p-3 mb-1">
                             <div className="d-flex justify-content-between mb-1">
                                 <span>
-                                    <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
+                                    <Link href="/[author]/[posturl]" as={`/@${username}/${post.url}`}>
                                         <a className="deep-dark">
                                             {post.title}
                                         </a>
@@ -222,11 +269,11 @@ export default function PostsSetting(props: Props) {
                                     menus={[
                                         {
                                             name: '수정',
-                                            onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
+                                            onClick: () => router.push(`/@${username}/${post.url}/edit`)
                                         },
                                         {
                                             name: '삭제',
-                                            onClick: () => onPostsDelete(post.url)
+                                            onClick: () => handlePostsDelete(username, post.url)
                                         },
                                         {
                                             name: '분석',
@@ -249,12 +296,16 @@ export default function PostsSetting(props: Props) {
                                     type="text"
                                     name="tag"
                                     value={post.tag}
-                                    onChange={(e) => onTagChange(post.url, e.target.value)}
+                                    onChange={(e) => handleTagValueChange(post.url, e.target.value)}
                                     className="form-control"
                                     maxLength={255}
                                 />
                                 <div className="input-group-prepend">
-                                    <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(post.url)}>
+                                    <button
+                                        type="button"
+                                        className="btn btn-dark"
+                                        onClick={() => handleTagSubmit(username, post.url, post.tag)}
+                                    >
                                         변경
                                     </button>
                                 </div>
@@ -271,7 +322,7 @@ export default function PostsSetting(props: Props) {
                             <div className="d-flex justify-content-between align-items-center shallow-dark ns">
                                 <ul className="none-list mb-0">
                                     <li>
-                                        <a onClick={() => onPostsHide(post.url)} className="element-lock c-pointer">
+                                        <a onClick={() => handlePostsHide(username, post.url)} className="element-lock c-pointer">
                                             {post.isHide
                                                 ? <i className="fas fa-lock"/>
                                                 : <i className="fas fa-lock-open"/>
@@ -293,10 +344,6 @@ export default function PostsSetting(props: Props) {
                     </Card>
                 ))}
             </>
-            <Pagination
-                page={props.page}
-                last={props.lastPage}
-            />
             <Modal
                 title="포스트 분석"
                 isOpen={isModalOpen}
@@ -321,7 +368,9 @@ export default function PostsSetting(props: Props) {
                             />
                             <ul>
                                 {analytics[apNow].referers.map((item: any, idx: number) => (
-                                    <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a></li>
+                                    <li key={idx}>
+                                        {item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a>
+                                    </li>
                                 ))}
                             </ul>
                         </>
