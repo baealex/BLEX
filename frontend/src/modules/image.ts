@@ -66,16 +66,16 @@ export async function uploadImage(file: File) {
         return;
     }
     try {
-        loadingContext.setState({ isLoading: true });
+        loadingContext.start();
         const { data } = await API.postImage(file);
-        loadingContext.setState({ isLoading: false });
+        loadingContext.end();
         if (data.status === 'ERROR') {
             snackBar(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
             return;
         }
         return data.body.url;
     } catch(error: any) {
-        loadingContext.setState({ isLoading: false });
+        loadingContext.end();
         const { status } = error.response;
         if (status == 404) {
             snackBar('🤔 로그인이 필요합니다.');
