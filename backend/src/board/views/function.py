@@ -84,7 +84,7 @@ def get_user_topics(user, include='posts,thread'):
 
 def get_clean_tag(tag):
     clean_tag = slugify(tag.replace(',', '-').replace('_', '-'), allow_unicode=True).split('-')
-    return ','.join(list(set(clean_tag)))
+    return ','.join(sorted(list(set(clean_tag))))
 
 def auth_google(code):
     data = {
