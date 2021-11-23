@@ -39,6 +39,7 @@ export interface GetSearchHistoryData {
 export interface GetSearchHistorySearch {
     pk: number,
     value: string,
+    createdDate: string,
 }
 
 export async function deleteSearchHistory(pk: number) {

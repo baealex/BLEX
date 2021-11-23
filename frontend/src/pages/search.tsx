@@ -3,7 +3,6 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import { ArticleCard } from '@components/article';
-import { TagBadge } from '@components/tag';
 import {
     Alert,
     Footer,
@@ -114,21 +113,10 @@ export default function Search(props: Props) {
                                     onChange={(e) => setSearch(e.target.value)}
                                     button={<i className="fas fa-search"/>}
                                     onClick={handleClickSearch}
+                                    history={history}
+                                    onClickHistory={searching}
+                                    onRemoveHistory={handleRemoveHistory}
                                 />
-                                {history && (
-                                    <div className="mt-3">
-                                        <TagBadge disableSharp items={history.map(item => (
-                                            <span className="mt-3">
-                                                <a className="mr-2" onClick={() => searching(item.value)}>
-                                                    {item.value}
-                                                </a>
-                                                <a onClick={() => handleRemoveHistory(item.pk)}>
-                                                    <i className="fas fa-times"/>
-                                                </a>
-                                            </span>
-                                        )) || []}/>
-                                    </div>
-                                )}
                             </div>
                             {response?.status == 'ERROR' ? (
                                 <Alert>

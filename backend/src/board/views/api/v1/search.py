@@ -171,7 +171,8 @@ def search_history(request, pk=None):
                 return StatusDone({
                     'searches': list(map(lambda search: {
                         'pk': search.id,
-                        'value': search.value
+                        'value': search.value,
+                        'created_date': convert_to_localtime(search.created_date).strftime('%Y. %m. %d.'),
                     }, searches))
                 })
             else:

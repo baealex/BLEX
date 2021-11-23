@@ -5,18 +5,18 @@
 
     display: flex;
     justify-content: space-between;
-    border-radius: 100px;
-    padding: 8px 8px 8px 16px;
     background: #fff;
+    border: 2px solid $COLOR_DARK_SECONDARY;
 
     :global(body.dark) & {
         background: $COLOR_DARK_BACKGROUND;
     }
 
     input {
-        flex: 1;
         border: none;
         outline: none;
+        margin: 16px;
+        width: 100%;
 
         :global(body.dark) & {
             color: #fff;
@@ -27,8 +27,7 @@
     button {
         transition: opacity 0.5s;
         color: #fff;
-        padding: 8px 16px;
-        border-radius: 100px;
+        padding: 16px 24px;
         opacity: 0.3;
         border: none;
         outline: none;
@@ -46,6 +45,27 @@
 
         &:focus {
             outline: none;
+        }
+    }
+}
+
+.histories {
+    @include MAIN_SHADOW;
+    padding: 8px 0 0 0;
+
+    .recent {
+        color: #777;
+    }
+
+    .recent, .history {
+        padding: 8px 16px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .history {
+        span {
+            cursor: pointer;
         }
     }
 }
