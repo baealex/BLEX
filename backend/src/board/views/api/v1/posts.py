@@ -45,7 +45,6 @@ def temp_posts(request, token=None):
             temp_posts = TempPosts(token=token, author=request.user)
             temp_posts.title = body.get('title')
             temp_posts.text_md = body.get('text_md')
-            temp_posts.tag = body.get('tag')
             temp_posts.save()
 
             return StatusDone({
@@ -59,7 +58,7 @@ def temp_posts(request, token=None):
                 'token': temp_posts.token,
                 'title': temp_posts.title,
                 'text_md': temp_posts.text_md,
-                'tag': temp_posts.tag,
+                'tags': [],
                 'created_date': timesince(temp_posts.created_date),
             })
         
@@ -68,7 +67,6 @@ def temp_posts(request, token=None):
             temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
             temp_posts.title = body.get('title')
             temp_posts.text_md = body.get('text_md')
-            temp_posts.tag = body.get('tag')
             temp_posts.updated_date = timezone.now()
             temp_posts.save()
             return StatusDone()
@@ -107,7 +105,7 @@ def posts(request):
         except:
             pass
         
-        post.tag = fn.get_clean_tag(request.POST.get('tag', ''))[:50]
+        post.tag = ''
         post.url = slugify(post.title, allow_unicode=True)
         if post.url == '':
             post.url = randstr(15)
@@ -115,12 +113,13 @@ def posts(request):
         while True:
             try:
                 post.save()
+                post.set_tags(request.POST.get('tag', ''))
                 break
             except:
                 if i > 1000:
                     traceback.print_exc()
                     return StatusError('TO', '일시적으로 오류가 발생했습니다.')
-                post.url = slugify(post.title+'-'+str(i), allow_unicode=True)
+                post.url = slugify(f'{post.title}-{i}', allow_unicode=True)
                 i += 1
 
         token = request.POST.get('token')
@@ -401,7 +400,7 @@ def user_posts(request, username, url=None):
             all_count = posts.count()
             tag = request.GET.get('tag', '')
             if tag:
-                posts = posts.filter(tag__iregex=r'\b%s\b' % tag)
+                posts = posts.filter(tags__value=tag)
             posts = posts.order_by('-created_date')
             
             page = request.GET.get('page', 1)
@@ -420,7 +419,7 @@ def user_posts(request, username, url=None):
                     'author_image': post.author_image,
                     'author': post.author_username,
                     'is_ad': post.advertise,
-                    'tag': post.tag,
+                    'tags': post.tagging(),
                 }, posts)),
                 'last_page': posts.paginator.num_pages
             })
@@ -437,7 +436,7 @@ def user_posts(request, username, url=None):
                     'title': post.title,
                     'series': post.series.url if post.series else None,
                     'text_md': post.text_md,
-                    'tag': post.tag,
+                    'tags': post.tagging(),
                     'is_hide': post.hide,
                     'is_advertise': post.advertise
                 })
@@ -461,7 +460,7 @@ def user_posts(request, username, url=None):
                     'total_likes': post.total_likes(),
                     'total_comment': post.total_comment(),
                     'is_ad': post.advertise,
-                    'tag': post.tag,
+                    'tags': post.tagging(),
                     'is_liked': post.likes.filter(user__id=request.user.id).exists()
                 })
 
@@ -488,8 +487,9 @@ def user_posts(request, username, url=None):
             except:
                 pass
 
-            post.tag = fn.get_clean_tag(request.POST.get('tag', ''))
             post.save()
+            post.set_tags(request.POST.get('tag', ''))
+
             return StatusDone()
 
         if request.method == 'PUT':
@@ -519,10 +519,9 @@ def user_posts(request, username, url=None):
                 })
             if request.GET.get('tag', ''):
                 fn.compere_user(request.user, post.author, give_404_if='different')
-                post.tag = fn.get_clean_tag(put.get('tag'))
-                post.save()
+                post.set_tags(put.get('tag'))
                 return StatusDone({
-                    'tag': post.tag
+                    'tag': ','.join(post.tagging())
                 })
             if request.GET.get('series', ''):
                 fn.compere_user(request.user, post.author, give_404_if='different')

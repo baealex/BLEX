@@ -1,11 +1,11 @@
 
 from django.core.cache import cache
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Count, Case, When
 from django.http import Http404
 from django.utils import timezone
 
-from board.models import Post, convert_to_localtime
+from board.models import Tag, Post, convert_to_localtime
 from modules.telegram import TelegramBot
 from modules.response import StatusDone
 from board.views import function as fn
@@ -13,20 +13,26 @@ from board.views import function as fn
 def tags(request, tag=None):
     if not tag:
         if request.method == 'GET':
-            cache_key = 'main_page_topics'
-            tags = cache.get(cache_key)
-            if not tags:
-                tags = sorted(fn.get_clean_all_tags(), key=lambda instance:instance['count'], reverse=True)
-                cache_time = 7200
-                cache.set(cache_key, tags, cache_time)
+            tags = Tag.objects.filter(
+                posts__hide=False
+            ).annotate(
+                count=Count(
+                    Case(
+                        When(
+                            posts__hide=False,
+                            then='posts'
+                        ),
+                    )
+                )
+            ).order_by('-count')
             page = request.GET.get('page', 1)
             paginator = Paginator(tags, 48)
             fn.page_check(page, paginator)
             tags = paginator.get_page(page)
             return StatusDone({
                 'tags': list(map(lambda tag: {
-                    'name': tag['name'],
-                    'count': tag['count'],
+                    'name': tag.value,
+                    'count': tag.count,
                 }, tags)),
                 'last_page': tags.paginator.num_pages
             })
@@ -35,7 +41,8 @@ def tags(request, tag=None):
         if request.method == 'GET':
             posts = Post.objects.filter(
                 created_date__lte=timezone.now(),
-                hide=False, tag__iregex=r'\b%s\b' % tag
+                hide=False,
+                tags__value=tag
             ).annotate(
                 author_username=F('author__username'),
                 author_image=F('author__profile__avatar')

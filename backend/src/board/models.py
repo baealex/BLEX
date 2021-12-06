@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.template.defaultfilters import linebreaks, truncatewords
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 from django.conf import settings
@@ -180,6 +181,9 @@ class Notify(models.Model):
 class Tag(models.Model):
     value = models.CharField(max_length=50)
 
+    def __str__(self):
+        return str(self.value)
+
 class Post(models.Model):
     author        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     series        = models.ForeignKey('board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
@@ -187,14 +191,14 @@ class Post(models.Model):
     url           = models.SlugField(max_length=65, unique=True, allow_unicode=True)
     image         = models.ImageField(blank=True, upload_to=title_image_path)
     read_time     = models.IntegerField(default=0)
-    tags          = models.ManyToManyField(Tag, blank=True)
+    tags          = models.ManyToManyField(Tag, related_name='posts', blank=True)
     created_date  = models.DateTimeField(default=timezone.now)
     updated_date  = models.DateTimeField(default=timezone.now)
 
     text_md       = models.TextField(blank=True) # deprecated
     text_html     = models.TextField(blank=True) # deprecated
     text_block    = models.TextField(blank=True) # deprecated
-    tag           = models.CharField(max_length=100) # deprecated
+    tag           = models.CharField(default='', max_length=100) # deprecated
 
     hide          = models.BooleanField(default=False) # deprecated
     notice        = models.BooleanField(default=False) # deprecated
@@ -275,8 +279,19 @@ class Post(models.Model):
             trendy += count[1] * rate
         return trendy
     
+    def set_tags(self, tags: str):
+        self.tags.clear()
+        tags = tags.replace(',', '-').replace('_', '-')
+        tags = slugify(tags, allow_unicode=True).split('-')
+        for tag in set(tags):
+            tag_object = Tag.objects.filter(value=tag)
+            if not tag_object.exists():
+                Tag(value=tag).save()
+                tag_object = Tag.objects.filter(value=tag)
+            self.tags.add(tag_object.first())
+    
     def tagging(self):
-        return [tag for tag in self.tag.split(',') if tag]
+        return [tag.value for tag in self.tags.all() if tag]
 
     def get_thumbnail(self):
         if self.image:

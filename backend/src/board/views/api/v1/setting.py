@@ -73,7 +73,7 @@ def setting(request, item):
                 'today_count': post.today(),
                 'read_time': post.read_time,
                 'yesterday_count': post.yesterday(),
-                'tag': post.tag,
+                'tag': ','.join(post.tagging()),
             }, posts.iterator())))
         
         if item == 'series':

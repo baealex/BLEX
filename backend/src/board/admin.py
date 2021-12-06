@@ -58,6 +58,14 @@ class NotifyAdmin(admin.ModelAdmin):
         kwargs['exclude'] = ['user', 'key']
         return super().get_form(request, obj, **kwargs)
 
+@admin.register(Tag)
+class FormAdmin(admin.ModelAdmin):
+    list_display = ['value', 'count']
+    list_per_page = 30
+
+    def count(self, obj):
+        return obj.posts.count()
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ['author', 'title', 'read_time', 'hide', 'created_date', 'updated_date']

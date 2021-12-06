@@ -136,14 +136,14 @@ class Write extends React.Component<Props, State> {
             this.setState({
                 title: data.body.title,
                 content: data.body.textMd,
-                tags: data.body.tag,
+                tags: data.body.tags.join(','),
                 token: data.body.token,
                 tempPostsCache: {
                     ...tempPostsCache,
                     [data.body.token]: {
                         title: data.body.title,
                         content: data.body.textMd,
-                        tags: data.body.tag,
+                        tags: data.body.tags.join(','),
                     }
                 }
             });

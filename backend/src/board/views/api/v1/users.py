@@ -1,6 +1,6 @@
 from itertools import chain
 from django.core.cache import cache
-from django.db.models import F
+from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -47,7 +47,25 @@ def users(request, username):
                     data[include] = heatmap
 
                 elif include == 'tags':
-                    data[include] = fn.get_user_topics(user=user, include='posts')
+                    tags = Tag.objects.filter(
+                        posts__author=user,
+                        posts__hide=False,
+                    ).annotate(
+                        count=Count(
+                            Case(
+                                When(
+                                    posts__author=user,
+                                    posts__hide=False,
+                                    then='posts'
+                                ),
+                            )
+                        )
+                    ).order_by('-count')
+                    
+                    data[include] = list(map(lambda tag: {
+                        'name': tag.value,
+                        'count': tag.count,
+                    }, tags))
                 
                 elif include == 'most':
                     cache_key = user.username + '_most_trendy'

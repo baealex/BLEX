@@ -56,7 +56,7 @@ export default function Edit(props: Props) {
     const [ title, setTitle ] = useState(props.title);
     const [ content, setContent ] = useState(props.textMd);
     const [ series, setSeries ] = useState(props.series);
-    const [ tags, setTags ] = useState(props.tag);
+    const [ tags, setTags ] = useState(props.tags.join(','));
     const [ isHide, setIsHide ] = useState(props.isHide);
     const [ isAd, setIsAdvertise ] = useState(props.isAd);
 

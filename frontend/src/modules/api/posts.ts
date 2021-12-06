@@ -44,7 +44,7 @@ export interface GetAnTempPostsData {
     title: string;
     token: string;
     textMd: string;
-    tag: string;
+    tags: string[];
     createdDate: string;
 }
 
@@ -153,7 +153,7 @@ export interface GetUserPostsDataPosts {
     authorImage: string;
     author: string;
     isAd: boolean;
-    tag: string;
+    tags: string[];
 }
 
 export interface GetUserPostsData {
@@ -184,7 +184,7 @@ export interface GetAnUserPostsViewData {
     totalLikes: number;
     totalComment: number;
     isAd: boolean;
-    tag: string;
+    tags: string[];
     isLiked: boolean;
 }
 
@@ -201,7 +201,7 @@ export interface GetAnUserPostsEditData {
     title: string;
     series: string;
     textMd: string;
-    tag: string;
+    tags: string[];
     isHide: boolean;
     isAd: boolean;
 }

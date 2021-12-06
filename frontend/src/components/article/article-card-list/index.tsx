@@ -16,7 +16,7 @@ export interface ArticleCardListProps {
     createdDate: string;
     description: string;
     readTime: number;
-    tag: string;
+    tags: string[];
 }
 
 export function ArticleCardList(props: ArticleCardListProps) {
@@ -51,7 +51,7 @@ export function ArticleCardList(props: ArticleCardListProps) {
             <p className="vs">
                 {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
             </p>
-            <TagBadge items={props.tag.split(',').map(item => (
+            <TagBadge items={props.tags.map(item => (
                 <Link href={`/@${props.author}/posts/${item}`}>
                     <a>{item}</a>
                 </Link>

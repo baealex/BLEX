@@ -242,7 +242,7 @@ class PostDetail extends React.Component<Props, State> {
                     title={this.props.post.title}
                     description={this.props.post.description}
                     author={this.props.post.author}
-                    keywords={this.props.post.tag}
+                    keywords={this.props.post.tags.join(',')}
                     image={getPostsImage(this.props.post.image)}
                     isArticle={true}
                 />
@@ -281,7 +281,7 @@ class PostDetail extends React.Component<Props, State> {
                                 />
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>
-                            <TagBadge items={this.props.post.tag.split(',').map(item => (
+                            <TagBadge items={this.props.post.tags.map(item => (
                                 <Link href={`/@${this.props.post.author}/posts/${item}`}>
                                     <a>{item}</a>
                                 </Link>
