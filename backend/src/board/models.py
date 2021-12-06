@@ -25,9 +25,11 @@ def convert_to_localtime(utctime):
     localtz = utc.astimezone(timezone.get_current_timezone())
     return localtz
 
+def cover_path(instance, filename):
+    return f"images/avatar/u/{instance.user.username}/c{randstr(4)}.{filename.split('.')[-1]}"
+
 def avatar_path(instance, filename):
-    dt = datetime.datetime.now()
-    return 'images/avatar/u/' + instance.user.username + '/' + randstr(4) + '.' + filename.split('.')[-1]
+    return f"images/avatar/u/{instance.user.username}/a{randstr(4)}.{filename.split('.')[-1]}"
 
 def title_image_path(instance, filename):
     dt = datetime.datetime.now()
@@ -99,6 +101,7 @@ class Comment(models.Model):
 
 class Config(models.Model):
     user           = models.OneToOneField(User, on_delete=models.CASCADE)
+    show_email     = models.BooleanField(default=False)
     agree_email    = models.BooleanField(default=False)
     agree_history  = models.BooleanField(default=False)
     password_qna   = models.TextField(blank=True)
@@ -174,22 +177,29 @@ class Notify(models.Model):
     def __str__(self):
         return str(self.user)
 
+class Tag(models.Model):
+    value = models.CharField(max_length=50)
+
 class Post(models.Model):
     author        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    series        = models.ForeignKey('board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
     title         = models.CharField(max_length=50)
     url           = models.SlugField(max_length=65, unique=True, allow_unicode=True)
     image         = models.ImageField(blank=True, upload_to=title_image_path)
-    text_md       = models.TextField(blank=True)
-    text_html     = models.TextField()
-    series        = models.ForeignKey('board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
-    hide          = models.BooleanField(default=False)
-    notice        = models.BooleanField(default=False)
-    advertise     = models.BooleanField(default=False)
-    block_comment = models.BooleanField(default=False)
     read_time     = models.IntegerField(default=0)
-    tag           = models.CharField(max_length=100)
+    tags          = models.ManyToManyField(Tag, blank=True)
     created_date  = models.DateTimeField(default=timezone.now)
     updated_date  = models.DateTimeField(default=timezone.now)
+
+    text_md       = models.TextField(blank=True) # deprecated
+    text_html     = models.TextField(blank=True) # deprecated
+    text_block    = models.TextField(blank=True) # deprecated
+    tag           = models.CharField(max_length=100) # deprecated
+
+    hide          = models.BooleanField(default=False) # deprecated
+    notice        = models.BooleanField(default=False) # deprecated
+    advertise     = models.BooleanField(default=False) # deprecated
+    block_comment = models.BooleanField(default=False) # deprecated
 
     def get_image(self):
         if self.image:
@@ -293,6 +303,20 @@ class Post(models.Model):
             make_thumbnail(self, size=750, save_as=True, quality=85)
             make_thumbnail(self, size=1920, quality=85)
 
+class PostContent(models.Model):
+    posts         = models.OneToOneField('board.Post', related_name='content', on_delete=models.CASCADE)
+    text_md       = models.TextField(blank=True)
+    text_html     = models.TextField(blank=True)
+    text_block    = models.TextField(blank=True)
+
+class PostConfig(models.Model):
+    posts         = models.OneToOneField('board.Post', related_name='config', on_delete=models.CASCADE)
+    hide          = models.BooleanField(default=False)
+    notice        = models.BooleanField(default=False)
+    pinned        = models.BooleanField(default=False)
+    advertise     = models.BooleanField(default=False)
+    block_comment = models.BooleanField(default=False)
+
 class PostAnalytics(models.Model):
     posts        = models.ForeignKey('board.Post', related_name='analytics', on_delete=models.CASCADE)
     table        = models.ManyToManyField(History, blank=True)
@@ -312,18 +336,36 @@ class PostLikes(models.Model):
     def __str__(self):
         return str(self.post)
 
+class PostThanks(models.Model):
+    post         = models.ForeignKey('board.Post', related_name='thanks', on_delete=models.CASCADE)
+    history      = models.ForeignKey(History, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.post)
+
+class PostNoThanks(models.Model):
+    post         = models.ForeignKey('board.Post', related_name='nothanks', on_delete=models.CASCADE)
+    history      = models.ForeignKey(History, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.post)
+
 class Profile(models.Model):
     user       = models.OneToOneField(User, on_delete=models.CASCADE)
     bio        = models.TextField(max_length=500, blank=True)
+    cover      = models.ImageField(blank=True, upload_to=cover_path)
     avatar     = models.ImageField(blank=True, upload_to=avatar_path)
-    github     = models.CharField(max_length=15, blank=True)
-    twitter    = models.CharField(max_length=15, blank=True)
-    youtube    = models.CharField(max_length=30, blank=True)
-    facebook   = models.CharField(max_length=30, blank=True)
-    instagram  = models.CharField(max_length=15, blank=True)
     homepage   = models.CharField(max_length=100, blank=True)
-    about_md   = models.TextField()
-    about_html = models.TextField()
+    github     = models.CharField(max_length=15, blank=True) # deprecated
+    twitter    = models.CharField(max_length=15, blank=True) # deprecated
+    youtube    = models.CharField(max_length=30, blank=True) # deprecated
+    facebook   = models.CharField(max_length=30, blank=True) # deprecated
+    instagram  = models.CharField(max_length=15, blank=True) # deprecated
+    socials    = models.TextField(blank=True)
+    about_md   = models.TextField(blank=True) # deprecated
+    about_html = models.TextField(blank=True) # deprecated
 
     def collect_social(self):
         result = dict()
@@ -423,6 +465,7 @@ class SearchValue(models.Model):
         return self.value
 
 class Series(models.Model):
+    index        = models.IntegerField(default=0)
     owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name         = models.CharField(max_length=50, unique=True)
     text_md      = models.TextField(blank=True)
@@ -519,20 +562,10 @@ class ContentCache(models.Model):
     def __str__(self):
         return self.posts
 
-class TagCache(models.Model):
-    user  = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    posts = models.ForeignKey('board.Post', on_delete=models.CASCADE)
-    key   = models.CharField(max_length=44, unique=True)
-    value = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.posts
-
 class EditHistory(models.Model):
     posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     title        = models.ForeignKey('board.TitleCache', on_delete=models.CASCADE)
     content      = models.ForeignKey('board.ContentCache', on_delete=models.CASCADE)
-    tag          = models.ForeignKey('board.TagCache', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -543,7 +576,6 @@ class EditRequest(models.Model):
     posts        = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     title        = models.ForeignKey('board.TitleCache', on_delete=models.CASCADE)
     content      = models.ForeignKey('board.ContentCache', on_delete=models.CASCADE)
-    tag          = models.ForeignKey('board.TagCache', on_delete=models.CASCADE)
     apply        = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
 

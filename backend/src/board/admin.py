@@ -186,8 +186,6 @@ admin.site.register(TitleCache)
 
 admin.site.register(ContentCache)
 
-admin.site.register(TagCache)
-
 admin.site.register(EditHistory)
 
 admin.site.register(EditRequest)
