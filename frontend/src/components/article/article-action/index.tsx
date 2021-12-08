@@ -9,9 +9,9 @@ import * as API from '@modules/api';
 
 import { modalContext } from '@state/modal';
 
-export interface ArticleActionProps extends API.GetAnUserPostsViewData {
+export interface ArticleActionProps extends API.GetAnUserPostsViewData {}
 
-}
+type Social = 'twitter' | 'facebook' | 'pinterest';
 
 export function ArticleAction(props: ArticleActionProps) {
     const [ state, setState ] = useState({
@@ -28,10 +28,10 @@ export function ArticleAction(props: ArticleActionProps) {
         });
     }, [props])
     
-    const onClickShare = (sns: 'twitter' | 'facebook' | 'pinterest') => {
+    const onClickShare = (social: Social) => {
         let href = '';
         let size = '';
-        switch(sns) {
+        switch(social) {
             case 'twitter':
                 href = `https://twitter.com/intent/tweet?text=${props.title}&url=${window.location.href}`;
                 size = 'width=550,height=235';
@@ -45,7 +45,7 @@ export function ArticleAction(props: ArticleActionProps) {
                 size = 'width=650,height=500';
                 break;
         }
-        window.open(href, `${sns}-share`, size);
+        window.open(href, `${social}-share`, size);
     }
 
     const onClickLike = async () => {
@@ -74,7 +74,7 @@ export function ArticleAction(props: ArticleActionProps) {
         }
     }
 
-    const onClickComment = () => {
+    const onClickGoComment = () => {
         window.scrollTo({
             top: window.pageYOffset + document.querySelector('.comments')!.getBoundingClientRect().top - 15,
             behavior: 'smooth'
@@ -86,34 +86,34 @@ export function ArticleAction(props: ArticleActionProps) {
             <div className={classNames(cn('pc'), 'sticky-top sticky-top-200 mb-5')}>
                 <div className={cn('actions')}>
                     <ul className="px-3">
-                        <li className="mx-3 mx-lg-4" onClick={() => onClickLike()}>
-                            <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
+                        <li className="mx-3 mx-lg-4" onClick={onClickLike}>
+                            <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}/>
                             <span>{state.totalLikes}</span>
                         </li>
-                        <li className="mx-3 mx-lg-4" onClick={() => onClickComment()}>
-                            <i className="far fa-comment"></i>
+                        <li className="mx-3 mx-lg-4" onClick={onClickGoComment}>
+                            <i className="far fa-comment"/>
                             <span>{state.totalComment}</span>
                         </li>
-                        <li className="mx-3 mx-lg-4" onClick={() => onClickShare('twitter')}>
-                            <i className="fab fa-twitter"></i>
-                        </li>
-                        <li className="mx-3 mx-lg-4" onClick={() => onClickShare('facebook')}>
-                            <i className="fab fa-facebook"></i>
-                        </li>
-                        <li className="mx-3 mx-lg-4" onClick={() => onClickShare('pinterest')}>
-                            <i className="fab fa-pinterest"></i>
-                        </li>
+                        {['twitter', 'facebook', 'pinterest'].map((social, idx) => (
+                            <li
+                                key={idx}
+                                className="mx-3 mx-lg-4"
+                                onClick={() => onClickShare(social as Social)}
+                            >
+                                <i className={`fab fa-${social}`}/>
+                            </li>
+                        ))}
                     </ul>
                 </div>
             </div>
             <div className={cn('m')}>
                 <div className={cn('bottom-nav')}>
                     <div className={cn('d-flex')}>
-                        <div className={cn('item')} onClick={() => onClickLike()}>
+                        <div className={cn('item')} onClick={onClickLike}>
                             <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
                             <span>{state.totalLikes}</span>
                         </div>
-                        <div className={cn('item')} onClick={() => onClickComment()}>
+                        <div className={cn('item')} onClick={onClickGoComment}>
                             <i className="far fa-comment"></i>
                             <span>{state.totalComment}</span>
                         </div>
