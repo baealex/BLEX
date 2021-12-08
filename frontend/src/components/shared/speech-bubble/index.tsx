@@ -10,6 +10,10 @@ interface SpeechBubbleProps {
     children?: string;
 };
 
+import {
+    getUserImage,
+} from '@modules/image';
+
 export function SpeechBubble(props: SpeechBubbleProps) {
     return (
         <>
@@ -20,7 +24,10 @@ export function SpeechBubble(props: SpeechBubbleProps) {
                 <div className={cn('user')}>
                     <Link href="/[author]" as={`/@${props.username}`}>
                         <a>
-                            <img alt={props.username} src={props.userImage}/>
+                            <img
+                                alt={props.username}
+                                src={getUserImage(props.userImage)}
+                            />
                         </a>
                     </Link>
                 </div>
