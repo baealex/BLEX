@@ -12,6 +12,7 @@ from django.utils.timesince import timesince
 from board.models import *
 from board.modules.analytics import view_count
 from modules.response import StatusDone, StatusError
+from modules.requests import BooleanType
 from board.views import function as fn
 
 def temp_posts(request, token=None):
@@ -83,23 +84,22 @@ def posts(request):
         if not request.user.is_active:
             return StatusError('NL')
 
+        text_md = request.POST.get('text_md', '')
+        text_html = request.POST.get('text_html', '')
+
         post = Post()
         post.title = request.POST.get('title', '')
         post.author = request.user
-        post.text_md = request.POST.get('text_md', '')
-        post.text_html = request.POST.get('text_html', '')
-        post.hide = True if request.POST.get('is_hide', '') == 'true' else False
-        post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
-        post.read_time = calc_read_time(post.text_html)
+        post.read_time = calc_read_time(text_html)
 
-        try:
-            series_url = request.POST.get('series', '')
-            if series_url:
-                series = Series.objects.get(owner=request.user, url=series_url)
-                post.series = series
-        except:
-            pass
-
+        series_url = request.POST.get('series', '')
+        series = Series.objects.filter(
+            owner=request.user,
+            url=series_url
+        )
+        if series.exists():
+            post.series = series.first()
+        
         try:
             post.image = request.FILES['image']
         except:
@@ -121,6 +121,16 @@ def posts(request):
                     return StatusError('TO', '일시적으로 오류가 발생했습니다.')
                 post.url = slugify(f'{post.title}-{i}', allow_unicode=True)
                 i += 1
+        
+        post_content = PostContent(posts=post)
+        post_content.text_md = text_md
+        post_content.text_html = text_html
+        post_content.save()
+
+        post_config = PostConfig(posts=post)
+        post_config.hide = BooleanType(request.POST.get('is_hide', ''))
+        post_config.advertise = BooleanType(request.POST.get('is_advertise', ''))
+        post_config.save()
 
         token = request.POST.get('token')
         if token:
@@ -141,11 +151,13 @@ def top_trendy(request):
         cache_key = 'top_trendy'
         posts = cache.get(cache_key)
         if not posts:
-            posts = Post.objects.filter(
+            posts = Post.objects.select_related(
+                'config', 'content'
+            ).filter(
                 created_date__gte=seven_days_ago,
                 created_date__lte=timezone.now(),
-                notice=False,
-                hide=False,
+                config__notice=False,
+                config__hide=False,
             ).annotate(
                 author_username=F('author__username'),
                 author_image=F('author__profile__avatar')
@@ -161,7 +173,7 @@ def top_trendy(request):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
-                'is_ad': post.advertise,
+                'is_ad': post.config.advertise,
             }, posts))
         })
     raise Http404
@@ -173,10 +185,12 @@ def popular_posts(request):
         cache_key = 'popular_posts'
         posts = cache.get(cache_key)
         if not posts:
-            posts = Post.objects.filter(
+            posts = Post.objects.select_related(
+                'config', 'content'
+            ).filter(
                 created_date__lte=timezone.now(),
-                notice=False,
-                hide=False,
+                config__notice=False,
+                config__hide=False,
             ).annotate(
                 author_username=F('author__username'),
                 author_image=F('author__profile__avatar')
@@ -197,7 +211,7 @@ def popular_posts(request):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
-                'is_ad': post.advertise,
+                'is_ad': post.config.advertise,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -206,10 +220,12 @@ def newest_posts(request):
     if request.method == 'GET':
         page = request.GET.get('page', 1)
 
-        posts = Post.objects.filter(
+        posts = Post.objects.select_related(
+            'config', 'content'
+        ).filter(
             created_date__lte=timezone.now(),
-            notice=False,
-            hide=False,
+            config__notice=False,
+            config__hide=False,
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar')
@@ -228,7 +244,7 @@ def newest_posts(request):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
-                'is_ad': post.advertise,
+                'is_ad': post.config.advertise,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -241,9 +257,11 @@ def feature_posts(request, tag=None):
         if not username:
             raise Http404('require username.')
         
-        posts = Post.objects.filter(
+        posts = Post.objects.select_related(
+            'config'
+        ).filter(
             created_date__lte=timezone.now(),
-            hide=False,
+            config__hide=False,
             author__username=username
         ).annotate(
             author_username=F('author__username'),
@@ -262,15 +280,17 @@ def feature_posts(request, tag=None):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
-                'is_ad': post.advertise,
+                'is_ad': post.config.advertise,
             }, posts))
         })
 
     if tag:
-        posts = Post.objects.filter(
+        posts = Post.objects.select_related(
+            'config'
+        ).filter(
             created_date__lte=timezone.now(),
-            tag__iregex=r'\b%s\b' % tag,
-            hide=False,
+            tags__value=tag,
+            config__hide=False,
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar')
@@ -389,10 +409,12 @@ def posts_analytics(request, url):
 def user_posts(request, username, url=None):
     if not url:
         if request.method == 'GET':
-            posts = Post.objects.filter(
+            posts = Post.objects.select_related(
+                'config', 'content'
+            ).filter(
                 created_date__lte=timezone.now(),
                 author__username=username,
-                hide=False
+                config__hide=False
             ).annotate(
                 author_username=F('author__username'),
                 author_image=F('author__profile__avatar')
@@ -418,74 +440,91 @@ def user_posts(request, username, url=None):
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                     'author_image': post.author_image,
                     'author': post.author_username,
-                    'is_ad': post.advertise,
+                    'is_ad': post.config.advertise,
                     'tags': post.tagging(),
                 }, posts)),
                 'last_page': posts.paginator.num_pages
             })
     if url:
-        post = get_object_or_404(Post.objects.annotate(
+        post = get_object_or_404(Post.objects.select_related(
+            'config', 'content'
+        ).annotate(
             author_username=F('author__username'),
-            author_image=F('author__profile__avatar')
+            author_image=F('author__profile__avatar'),
+            series_url=F('series__url'),
         ), author__username=username, url=url)
+
         if request.method == 'GET':
             if request.GET.get('mode') == 'edit':
                 fn.compere_user(request.user, post.author, give_404_if='different')
                 return StatusDone({
                     'image': post.get_thumbnail(),
                     'title': post.title,
-                    'series': post.series.url if post.series else None,
-                    'text_md': post.text_md,
+                    'series': post.series_url if post.series_url else None,
+                    'text_md': post.content.text_md,
                     'tags': post.tagging(),
-                    'is_hide': post.hide,
-                    'is_advertise': post.advertise
+                    'is_hide': post.config.hide,
+                    'is_advertise': post.config.advertise
                 })
 
             if request.GET.get('mode') == 'view':
-                if post.hide and request.user != post.author:
+                if post.config.hide and request.user != post.author:
                     raise Http404
                 
                 return StatusDone({
                     'url': post.url,
                     'title': post.title,
                     'image': str(post.image),
-                    'description': post.description_tag(),
+                    'description': post.description(document_for='seo'),
                     'read_time': post.read_time,
-                    'series': post.series.url if post.series else None,
+                    'series': post.series_url if post.series_url else None,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
                     'author_image': str(post.author_image),
                     'author': post.author_username,
-                    'text_html': post.text_html,
+                    'text_html': post.content.text_html,
                     'total_likes': post.total_likes(),
                     'total_comment': post.total_comment(),
-                    'is_ad': post.advertise,
+                    'is_ad': post.config.advertise,
                     'tags': post.tagging(),
                     'is_liked': post.likes.filter(user__id=request.user.id).exists()
                 })
 
         if request.method == 'POST':
             fn.compere_user(request.user, post.author, give_404_if='different')
-            post.title = request.POST.get('title', '')
-            post.text_md = request.POST.get('text_md', '')
-            post.text_html = request.POST.get('text_html', '')
-            post.hide = True if request.POST.get('is_hide', '') == 'true' else False
-            post.advertise = True if request.POST.get('is_advertise', '') == 'true' else False
-            post.updated_date = timezone.now()
-            post.read_time = calc_read_time(post.text_html)
 
-            try:
-                series_url = request.POST.get('series', '')
-                if series_url:
-                    series = Series.objects.get(owner=request.user, url=series_url)
-                    post.series = series
-            except:
-                pass
+            text_md = request.POST.get('text_md', '')
+            text_html = request.POST.get('text_html', '')
+
+            post.title = request.POST.get('title', '')
+            post.updated_date = timezone.now()
+            post.read_time = calc_read_time(text_html)
+
+            series_url = request.POST.get('series', '')
+            if not series_url:
+                post.series = None
+            else:
+                series = Series.objects.filter(
+                    owner=request.user,
+                    url=series_url
+                )
+                if series.exists():
+                    post.series = series.first()
             
             try:
                 post.image = request.FILES['image']
             except:
                 pass
+            
+            post_content = post.content
+            post_content.text_md = request.POST.get('text_md', '')
+            post_content.text_html = request.POST.get('text_html', '')
+            post_content.save()
+            
+            post_config = post.config
+            post_config.hide = BooleanType(request.POST.get('is_hide', ''))
+            post_config.advertise = BooleanType(request.POST.get('is_advertise', ''))
+            post_config.save()
 
             post.save()
             post.set_tags(request.POST.get('tag', ''))
@@ -512,10 +551,10 @@ def user_posts(request, username, url=None):
                 })
             if request.GET.get('hide', ''):
                 fn.compere_user(request.user, post.author, give_404_if='different')
-                post.hide = not post.hide
-                post.save()
+                post.config.hide = not post.config.hide
+                post.config.save()
                 return StatusDone({
-                    'is_hide': post.hide
+                    'is_hide': post.config.hide
                 })
             if request.GET.get('tag', ''):
                 fn.compere_user(request.user, post.author, give_404_if='different')

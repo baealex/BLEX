@@ -49,7 +49,7 @@ class UserPostsFeed(Feed):
     feed_type = ImageRssFeedGenerator
 
     def get_object(self, request, username):
-        return User.objects.get(username=username)
+        return User.objects.select_related('profile').get(username=username)
 
     def title(self, obj):
         return obj.username + ' (' + obj.first_name + ')'
@@ -67,14 +67,18 @@ class UserPostsFeed(Feed):
             return obj.username + '\'s rss'
 
     def items(self, obj):
-        posts = Post.objects.filter(created_date__lte=timezone.now(), author=obj, hide=False).order_by('-created_date')
+        posts = Post.objects.filter(
+            author=obj,
+            config__hide=False,
+            created_date__lte=timezone.now(),
+        ).select_related('content').order_by('-created_date')
         return posts[:20]
 
     def item_title(self, item):
         return item.title
 
     def item_description(self, item):
-        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.text_html)
+        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.content.text_html)
 
     def item_link(self, item):
         return item.get_absolute_url()

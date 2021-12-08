@@ -21,13 +21,29 @@ if __name__ == '__main__':
         print(post)
 
         # tag migrate
-        tags = post.tag.split(',')
-        for tag in tags:
-            if tag:
-                tag_object = Tag.objects.filter(value=tag)
-                if not tag_object.exists():
-                    Tag(value=tag).save()
-                    time.sleep(0.05)
-                    tag_object = Tag.objects.filter(value=tag)
-                post.tags.add(tag_object.first())
-                time.sleep(0.05)
+        post.set_tags(post.tag)
+        time.sleep(0.05)
+
+        # post content migrate
+        post_content = PostContent(posts=post)
+        post_content.text_md = post.text_md
+        post_content.text_html = post.text_html
+        post_content.text_block = post.text_block
+        post_content.save()
+        time.sleep(0.05)
+
+        # post config migrate
+        post_config = PostConfig(posts=post)
+        post_config.hide = post.hide
+        post_config.notice = post.notice
+        post_config.advertise = post.advertise
+        post_config.block_comment = post.block_comment
+        post_config.save()
+        time.sleep(0.05)
+
+        post.tag = ''
+        post.text_md = ''
+        post.text_html = ''
+        post.text_block = ''
+        post.save()
+        time.sleep(0.05)

@@ -34,7 +34,9 @@ def avatar_path(instance, filename):
 
 def title_image_path(instance, filename):
     dt = datetime.datetime.now()
-    return 'images/title/' + '/' + str(dt.year) + '/' + str(dt.month) + '/' + str(dt.day) + '/' + instance.author.username + '/' + str(dt.hour) + '_' + randstr(8) + '.' + filename.split('.')[-1]
+    path = f"images/title/{dt.year}/{dt.month}/{dt.day}/{instance.author.username}"
+    name = f"{dt.hour}_{randstr(8)}.{filename.split('.')[-1]}"
+    return f"{path}/{name}"
 
 def make_thumbnail(this, size, save_as=False, quality=100):
     if hasattr(this, 'avatar'):
@@ -104,6 +106,7 @@ class Config(models.Model):
     user           = models.OneToOneField(User, on_delete=models.CASCADE)
     show_email     = models.BooleanField(default=False)
     agree_email    = models.BooleanField(default=False)
+    # agree_editor   = models.BooleanField(default=False)
     agree_history  = models.BooleanField(default=False)
     password_qna   = models.TextField(blank=True)
 
@@ -227,22 +230,25 @@ class Post(models.Model):
         if not search_text:
             return self.description()
         
-        text = strip_tags(self.text_html.lower())
+        text = strip_tags(self.content.text_html.lower())
         point = text.find(search_text)
-        description = text[point-60:point] + text[point:point+60]
-        if point > 60:
+
+        if point < 0:
+            return self.description()
+
+        description = text[point-100:point] + text[point:point+100]
+        if point > 100:
             description = '...' + description
 
-        return truncatewords(description, count)[:200]
+        return truncatewords(description, count)
 
-    def description(self, count=25):
-        return truncatewords(strip_tags(self.text_html), count)[:200]
-    
-    def description_tag(self, count=25):
-        description = self.description(count)[:120]
-        if not description:
-            description = '이 포스트는 이미지 혹은 영상으로만 구성되어 있습니다.'
-        return description
+    def description(self, count=25, document_for=''):
+        desc = truncatewords(strip_tags(self.content.text_html), count)[:200]
+        if document_for == 'seo':
+            if not desc:
+                return '이 포스트는 이미지 혹은 영상으로만 구성되어 있습니다.'
+            return desc[:120]
+        return desc
     
     def today(self):
         count = 0
@@ -334,7 +340,7 @@ class PostConfig(models.Model):
 
 class PostAnalytics(models.Model):
     posts        = models.ForeignKey('board.Post', related_name='analytics', on_delete=models.CASCADE)
-    table        = models.ManyToManyField(History, blank=True)
+    table        = models.ManyToManyField('board.History', blank=True)
     created_date = models.DateField(default=timezone.now)
 
     def __str__(self):
@@ -353,7 +359,7 @@ class PostLikes(models.Model):
 
 class PostThanks(models.Model):
     post         = models.ForeignKey('board.Post', related_name='thanks', on_delete=models.CASCADE)
-    history      = models.ForeignKey(History, on_delete=models.CASCADE)
+    history      = models.ForeignKey('board.History', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -361,14 +367,14 @@ class PostThanks(models.Model):
 
 class PostNoThanks(models.Model):
     post         = models.ForeignKey('board.Post', related_name='nothanks', on_delete=models.CASCADE)
-    history      = models.ForeignKey(History, on_delete=models.CASCADE)
+    history      = models.ForeignKey('board.History', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return str(self.post)
 
 class Profile(models.Model):
-    user       = models.OneToOneField(User, on_delete=models.CASCADE)
+    user       = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     bio        = models.TextField(max_length=500, blank=True)
     cover      = models.ImageField(blank=True, upload_to=cover_path)
     avatar     = models.ImageField(blank=True, upload_to=avatar_path)

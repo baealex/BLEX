@@ -53,7 +53,9 @@ def search(request):
             if not search_words:
                 search_words = [query]
 
-        posts = Post.objects.filter(
+        posts = Post.objects.select_related(
+            'content'
+        ).filter(
             hide=False,
             created_date__lte=timezone.now()
         ).annotate(

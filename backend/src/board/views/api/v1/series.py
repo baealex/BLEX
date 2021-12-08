@@ -1,6 +1,7 @@
 import traceback
 
 from django.core.paginator import Paginator
+from django.db.models import F
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -13,7 +14,12 @@ from board.views import function as fn
 def user_series(request, username, url=None):
     if not url:
         if request.method == 'GET':
-            series = Series.objects.filter(owner__username=username, hide=False).order_by('-created_date')
+            series = Series.objects.filter(
+                owner__username=username,
+                hide=False
+            ).annotate(
+                owner_username=F('owner__username')
+            ).order_by('-created_date')
             page = request.GET.get('page', 1)
             paginator = Paginator(series, 10)
             fn.page_check(page, paginator)
@@ -24,7 +30,7 @@ def user_series(request, username, url=None):
                     'name': item.name,
                     'image': item.thumbnail(),
                     'created_date': convert_to_localtime(item.created_date).strftime('%Y년 %m월 %d일'),
-                    'owner': item.owner.username,
+                    'owner': item.owner_username,
                 }, series)),
                 'last_page': series.paginator.num_pages
             })
@@ -54,17 +60,25 @@ def user_series(request, username, url=None):
             })
     
     if url:
-        user = User.objects.get(username=username)
-        series = get_object_or_404(Series, owner=user, url=url)
+        user = get_object_or_404(User, username=username)
+        series = get_object_or_404(Series.objects.annotate(
+            owner_username=F('owner__username'),
+            owner_avatar=F('owner__profile__avatar'),
+        ), owner=user, url=url)
         if request.method == 'GET':
             if request.GET.get('type', 1):
-                posts = Post.objects.filter(series=series, hide=False)
+                posts = Post.objects.select_related(
+                    'content'
+                ).filter(
+                    series=series,
+                    config__hide=False
+                )
                 return StatusDone({
                     'name': series.name,
                     'url': series.url,
                     'image': series.thumbnail(),
-                    'owner': series.owner.username,
-                    'owner_image': series.owner.profile.get_thumbnail(),
+                    'owner': series.owner_username,
+                    'owner_image': series.owner_avatar,
                     'description': series.text_md,
                     'posts': list(map(lambda post: {
                         'url': post.url,

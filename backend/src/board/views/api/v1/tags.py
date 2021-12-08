@@ -39,9 +39,11 @@ def tags(request, tag=None):
     
     if tag:
         if request.method == 'GET':
-            posts = Post.objects.filter(
+            posts = Post.objects.select_related(
+                'config', 'content'
+            ).filter(
                 created_date__lte=timezone.now(),
-                hide=False,
+                config__hide=False,
                 tags__value=tag
             ).annotate(
                 author_username=F('author__username'),
@@ -57,9 +59,15 @@ def tags(request, tag=None):
             posts = paginator.get_page(page)
             desc_object = dict()
             try:
-                article = Post.objects.filter(url=tag, hide=False).annotate(
+                article = Post.objects.select_related(
+                    'content'
+                ).filter(
+                    url=tag,
+                    config__hide=False,
+                ).annotate(
                     author_username=F('author__username')
                 ).first()
+                
                 desc_object = {
                     'url': article.url,
                     'author': article.author_username,

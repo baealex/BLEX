@@ -60,14 +60,18 @@ def setting(request, item):
             })
         
         if item == 'posts':
-            posts = Post.objects.filter(author=user).order_by('-created_date')
+            posts = Post.objects.select_related(
+                'config'
+            ).filter(
+                author=user
+            ).order_by('-created_date')
 
             return StatusDone(list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
                 'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
-                'is_hide': post.hide,
+                'is_hide': post.config.hide,
                 'total_likes': post.total_likes(),
                 'total_comments': post.total_comment(),
                 'today_count': post.today(),

@@ -32,9 +32,23 @@ def users(request, username):
 
                 elif include == 'heatmap':
                     standard_date = timezone.now() - datetime.timedelta(days=365)
-                    posts = Post.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, hide=False)
-                    series = Series.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), owner=user)
-                    comments = Comment.objects.filter(created_date__gte=standard_date, created_date__lte=timezone.now(), author=user, post__hide=False)
+                    posts = Post.objects.filter(
+                        created_date__gte=standard_date,
+                        created_date__lte=timezone.now(),
+                        author=user,
+                        config__hide=False
+                    )
+                    series = Series.objects.filter(
+                        created_date__gte=standard_date,
+                        created_date__lte=timezone.now(),
+                        owner=user
+                    )
+                    comments = Comment.objects.filter(
+                        created_date__gte=standard_date,
+                        created_date__lte=timezone.now(),
+                        author=user,
+                        post__config__hide=False
+                    )
                     activity = chain(posts, series, comments)
 
                     heatmap = dict()
@@ -72,10 +86,10 @@ def users(request, username):
                     posts = cache.get(cache_key)
                     if not posts:
                         posts = Post.objects.filter(
-                            created_date__lte=timezone.now(),
                             author=user,
-                            notice=False,
-                            hide=False,
+                            config__hide=False,
+                            config__notice=False,
+                            created_date__lte=timezone.now(),
                         ).annotate(
                             author_username=F('author__username'),
                             author_image=F('author__profile__avatar')
@@ -94,9 +108,23 @@ def users(request, username):
                 
                 elif include == 'recent':
                     seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-                    posts = Post.objects.filter(created_date__gte=seven_days_ago, author=user, hide=False).order_by('-created_date')
-                    series = Series.objects.filter(created_date__gte=seven_days_ago, owner=user, hide=False).order_by('-created_date')
-                    comments = Comment.objects.filter(created_date__gte=seven_days_ago, author=user, post__hide=False).order_by('-created_date')
+                    posts = Post.objects.filter(
+                        created_date__gte=seven_days_ago,
+                        created_date__lte=timezone.now(),
+                        author=user,
+                        config__hide=False
+                    ).order_by('-created_date')
+                    series = Series.objects.filter(
+                        created_date__gte=seven_days_ago,
+                        created_date__lte=timezone.now(),
+                        owner=user
+                    ).order_by('-created_date')
+                    comments = Comment.objects.filter(
+                        created_date__gte=seven_days_ago,
+                        created_date__lte=timezone.now(),
+                        author=user,
+                        post__config__hide=False
+                    ).order_by('-created_date')
                     activity = sorted(chain(posts, series, comments), key=lambda instance: instance.created_date, reverse=True)
                     data[include] = list()
                     for active in activity:
