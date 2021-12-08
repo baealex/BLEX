@@ -24,10 +24,10 @@ export async function getTag(tag: string, page: number) {
 
 export interface GetTagData {
     tag: string;
-    lastPage: number;
-    descPosts: {
+    desc: {
         url: string;
         author: string;
+        authorImage: string;
         description: string;
     };
     posts: {
@@ -39,4 +39,5 @@ export interface GetTagData {
         author: string;
         authorImage: string;
     }[];
+    lastPage: number;
 }

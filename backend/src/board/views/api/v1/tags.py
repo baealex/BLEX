@@ -65,20 +65,22 @@ def tags(request, tag=None):
                     url=tag,
                     config__hide=False,
                 ).annotate(
-                    author_username=F('author__username')
+                    author_username=F('author__username'),
+                    author_image=F('author__profile__avatar'),
                 ).first()
                 
                 desc_object = {
                     'url': article.url,
                     'author': article.author_username,
-                    'description': article.description(80)
+                    'author_image': article.author_image,
+                    'description': article.description(50)
                 }
             except:
                 pass
             
             return StatusDone({
                 'tag': tag,
-                'desc_posts': desc_object,
+                'desc': desc_object,
                 'last_page': posts.paginator.num_pages,
                 'posts': list(map(lambda post: {
                     'url': post.url,

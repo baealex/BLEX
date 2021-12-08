@@ -1,18 +1,19 @@
 import Head from 'next/head';
-import React from 'react';
+import Link from 'next/link';
 
 import { ArticleCard } from '@components/article';
 import {
     Footer,
     Pagination,
+    SpeechBubble,
     SEO,
     Text,
 } from '@components/integrated';
-import { TagWiki } from '@components/tag';
 
 import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
+import { getUserImage } from '@modules/image';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -52,8 +53,19 @@ export default function TagDetail(props: Props) {
             />
             <div className="container">
                 <Text fontSize={8} fontWeight={600}>— {props.tag} —</Text>
-                {props.descPosts.url && (
-                    <TagWiki {...props.descPosts}/>
+                {props.desc.url && (
+                    <div className="mt-3">
+                        <SpeechBubble username={props.desc.author} userImage={getUserImage(props.desc.authorImage)}>
+                            <>
+                                {props.desc.description}
+                                <Link href={`/@${props.desc.author}/${props.desc.url}`}>
+                                    <a className="ml-1 shallow-dark">
+                                        더보기
+                                    </a>
+                                </Link>
+                            </>
+                        </SpeechBubble>
+                    </div>
                 )}
                 <div className="row">
                     {props.posts.map((item, idx) => (

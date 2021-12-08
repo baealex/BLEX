@@ -7,6 +7,10 @@ import Link from 'next/link';
 
 import { SpeechBubble } from '@components/shared';
 
+import {
+    getUserImage,
+} from '@modules/image';
+
 export interface ArticleSeriesProps {
     url: string;
     name: string;
@@ -24,14 +28,17 @@ export interface ArticleSeriesProps {
 export function ArticleSeries(props: ArticleSeriesProps) {
     return (
         <div className={cn('series', 'my-5')}>
-            <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
+            <Link href={`/@${props.owner}/series/${props.url}`}>
                 <a className="deep-dark">
                     <h4 className="font-weight-bold mb-3">
                         '{props.name}' 시리즈
                     </h4>
                 </a>
             </Link>
-            <SpeechBubble username={props.owner} userImage={props.ownerImage}>
+            <SpeechBubble
+                username={props.owner}
+                userImage={getUserImage(props.ownerImage)}
+            >
                 {props.description ? props.description : '이 시리즈에 대한 설명이 없습니다.'}
             </SpeechBubble>
             <ul>
@@ -39,9 +46,17 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                     props.activeSeries >= idx - 2 && props.activeSeries <= idx + 2 && (
                         <li key={idx}>
                             <Link href="/[author]/[posturl]" as={`/@${props.owner}/${post.url}`}>
-                                <a className={`${idx == props.activeSeries ? 'deep' : 'shallow'}-dark`}>{post.title}</a>
+                                <a className={cn(
+                                    idx == props.activeSeries
+                                        ? 'deep-dark'
+                                        : 'shallow-dark',
+                                )}>
+                                    {post.title}
+                                </a>
                             </Link>
-                            <div className={cn('count')}>{idx + 1}/{props.sereisLength}</div>
+                            <div className={cn('count')}>
+                                {idx + 1}/{props.sereisLength}
+                            </div>
                         </li>
                     )
                 ))}

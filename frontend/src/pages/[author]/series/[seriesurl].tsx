@@ -14,6 +14,9 @@ import {
 import { SeriesArticleCard } from '@components/series';
 
 import * as API from '@modules/api';
+import {
+    getUserImage,
+} from '@modules/image';
 
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';
@@ -260,7 +263,7 @@ class Series extends React.Component<Props, State> {
                                 )}
                                 <SpeechBubble
                                     username={this.props.series.owner}
-                                    userImage={this.props.series.ownerImage}
+                                    userImage={getUserImage(this.props.series.ownerImage)}
                                 >
                                     {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
                                 </SpeechBubble>

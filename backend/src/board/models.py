@@ -248,7 +248,7 @@ class Post(models.Model):
         return truncatewords(description, count)
 
     def description(self, count=25, document_for=''):
-        desc = truncatewords(strip_tags(self.content.text_html), count)[:200]
+        desc = truncatewords(strip_tags(self.content.text_html), count)
         if document_for == 'seo':
             if not desc:
                 return '이 포스트는 이미지 혹은 영상으로만 구성되어 있습니다.'
