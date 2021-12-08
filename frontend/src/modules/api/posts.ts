@@ -203,7 +203,7 @@ export interface GetAnUserPostsEditData {
     textMd: string;
     tags: string[];
     isHide: boolean;
-    isAd: boolean;
+    isAdvertise: boolean;
 }
 
 export async function getAnUserPostsEdit(username: string, url: string, cookie?: string) {

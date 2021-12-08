@@ -58,7 +58,7 @@ export default function Edit(props: Props) {
     const [ series, setSeries ] = useState(props.series);
     const [ tags, setTags ] = useState(props.tags.join(','));
     const [ isHide, setIsHide ] = useState(props.isHide);
-    const [ isAd, setIsAdvertise ] = useState(props.isAd);
+    const [ isAdvertise, setIsAdvertise ] = useState(props.isAdvertise);
 
     const onSubmit = async (onFail: Function) => {
         if(!title) {
@@ -80,7 +80,7 @@ export default function Edit(props: Props) {
                 tag: tags,
                 series,
                 is_hide: JSON.stringify(isHide),
-                is_advertise: JSON.stringify(isAd),
+                is_advertise: JSON.stringify(isAdvertise),
             });
             if(data.status === 'DONE') {
                 Router.push('/[author]/[posturl]', `/${props.username}/${props.posturl}`);
@@ -114,7 +114,7 @@ export default function Edit(props: Props) {
                 onChange: (value) => setIsHide(value)
             }}
             isAd={{
-                value: isAd,
+                value: isAdvertise,
                 onChange: (value) => setIsAdvertise(value)
             }}
             image={{
