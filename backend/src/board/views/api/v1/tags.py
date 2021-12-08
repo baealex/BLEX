@@ -14,12 +14,12 @@ def tags(request, tag=None):
     if not tag:
         if request.method == 'GET':
             tags = Tag.objects.filter(
-                posts__hide=False
+                posts__config__hide=False
             ).annotate(
                 count=Count(
                     Case(
                         When(
-                            posts__hide=False,
+                            posts__config__hide=False,
                             then='posts'
                         ),
                     )

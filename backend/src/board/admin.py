@@ -68,7 +68,7 @@ class FormAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['author', 'title', 'read_time', 'hide', 'created_date', 'updated_date']
+    list_display = ['author', 'title', 'read_time', 'created_date', 'updated_date']
     list_display_links = ['title']
     list_filter = ['author']
     list_per_page = 30

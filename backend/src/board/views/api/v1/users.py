@@ -63,13 +63,13 @@ def users(request, username):
                 elif include == 'tags':
                     tags = Tag.objects.filter(
                         posts__author=user,
-                        posts__hide=False,
+                        posts__config__hide=False,
                     ).annotate(
                         count=Count(
                             Case(
                                 When(
                                     posts__author=user,
-                                    posts__hide=False,
+                                    posts__config__hide=False,
                                     then='posts'
                                 ),
                             )
