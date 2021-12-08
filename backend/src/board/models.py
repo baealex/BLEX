@@ -102,11 +102,26 @@ class Comment(models.Model):
     def __str__(self):
         return self.text_md
 
+class EmailChange(models.Model):
+    user         = models.OneToOneField(User, on_delete=models.CASCADE)
+    email        = models.CharField(max_length=255)
+    auth_token   = models.CharField(max_length=8, blank=True)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def is_token_expire(self):
+        seven_day_ago = timezone.now() - datetime.timedelta(days=7)
+        if self.created_date < seven_day_ago:
+            return True
+        return False
+    
+    def __str__(self):
+        return self.user.username
+
 class Config(models.Model):
     user           = models.OneToOneField(User, on_delete=models.CASCADE)
     show_email     = models.BooleanField(default=False)
     agree_email    = models.BooleanField(default=False)
-    # agree_editor   = models.BooleanField(default=False)
+    agree_editor   = models.BooleanField(default=False)
     agree_history  = models.BooleanField(default=False)
     password_qna   = models.TextField(blank=True)
 
@@ -197,16 +212,6 @@ class Post(models.Model):
     tags          = models.ManyToManyField(Tag, related_name='posts', blank=True)
     created_date  = models.DateTimeField(default=timezone.now)
     updated_date  = models.DateTimeField(default=timezone.now)
-
-    text_md       = models.TextField(blank=True) # deprecated
-    text_html     = models.TextField(blank=True) # deprecated
-    text_block    = models.TextField(blank=True) # deprecated
-    tag           = models.CharField(default='', max_length=100) # deprecated
-
-    hide          = models.BooleanField(default=False) # deprecated
-    notice        = models.BooleanField(default=False) # deprecated
-    advertise     = models.BooleanField(default=False) # deprecated
-    block_comment = models.BooleanField(default=False) # deprecated
 
     def get_image(self):
         if self.image:
@@ -498,7 +503,7 @@ class Series(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     def thumbnail(self):
-        posts = Post.objects.filter(series=self, hide=False)
+        posts = Post.objects.filter(series=self, config__hide=False)
         if posts:
             return posts[0].get_thumbnail()
         else:
