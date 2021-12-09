@@ -15,22 +15,6 @@ from board.views import function as fn
 from modules.response import StatusDone, StatusError
 from modules.subtask import sub_task_manager
 
-SIMILAR_KEYWORDS = [
-    ('android', '안드로이드'),
-    ('debian', '데비안'),
-    ('django', '장고'),
-    ('flask', '플라스크'),
-    ('javascript', '자바스크립트'),
-    ('linux', '리눅스'),
-    ('pythonic', '파이써닉'),
-    ('python', '파이썬'),
-    ('react', '리액트'),
-    ('rust', '러스트'),
-    ('typescript', '타입스크립트'),
-    ('ubuntu', '우분투'),
-    ('windows', '윈도우'),
-]
-
 def search(request):
     if request.method == 'GET':
         query = request.GET.get('q', '')[:20].lower()
@@ -41,22 +25,12 @@ def search(request):
             return StatusError('RJ', '2글자 이상의 검색어를 입력하세요.')
 
         results = []
-        search_words = []
-
-        if ',' in query:
-            search_words = query.split(',')
-        else:
-            for keyword in SIMILAR_KEYWORDS:
-                if query in keyword:
-                    search_words = list(keyword)
-                    break
-            if not search_words:
-                search_words = [query]
+        search_words = [query]
 
         posts = Post.objects.select_related(
             'content'
         ).filter(
-            hide=False,
+            config__hide=False,
             created_date__lte=timezone.now()
         ).annotate(
             author_username=F('author__username'),
@@ -80,10 +54,7 @@ def search(request):
                     if word_pos == 0 or post_title_lower[word_pos-1] == ' ':
                         score += 2
                 
-                if search_word in post.tag.split(','):
-                    score += 2
-                
-                if search_word in post.text_md.lower():
+                if search_word in post.content.text_md.lower():
                     score += 1
                 
                 if score > max_score:
