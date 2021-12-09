@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { GetServerSidePropsContext } from 'next';
 
-import { snackBar } from '@modules/snack-bar';
-
+import { Card } from '@components/atoms';
 import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
-
-import { GetServerSidePropsContext } from 'next';
-import { Card } from '@components/atoms';
+import { loadingContext } from '@state/loading';
+import { snackBar } from '@modules/snack-bar';
 
 interface Props extends API.GetSettingSeriesData {}
 
@@ -33,21 +32,22 @@ export default function SeriesSetting(props: Props) {
     const [ series, setSeries ] = useState(props.series);
 
     const onSeriesCreate = async () => {
-        if(!newSeries) {
+        if (!newSeries) {
             snackBar('😅 시리즈의 이름을 입력하세요.');
             return;
         }
         const { data } = await API.postUserSeries('@' + props.username, newSeries);
         snackBar('😀 시리즈가 생성되었습니다.');
-        setSeries([{
+        setSeries((prevSeries) => [{
             url: data.body.url,
             title: newSeries,
             totalPosts: 0
-        }, ...series]);
+        }, ...prevSeries]);
+        setNewSeries('');
     };
 
     const onSeriesDelete = async (url: string) => {
-        if(confirm('😮 정말 이 시리즈를 삭제할까요?')) {
+        if (confirm('😮 정말 이 시리즈를 삭제할까요?')) {
             const { data } = await API.deleteUserSeries('@' + props.username, url);
             if(data.status === 'DONE') {
                 setSeries([...series.filter(series => (
@@ -57,6 +57,29 @@ export default function SeriesSetting(props: Props) {
             }   
         }
     };
+
+    const onSeriesChangeIndex = async (url: string, prevIdx: number, nextIdx: number) => {
+        if (nextIdx < 0 || nextIdx > series.length - 1) return;
+        
+        loadingContext.start();
+
+        const nextIndexies = series.map((item, idx) => {
+            if (item.url === url) {
+                return [item.url, nextIdx];
+            }
+
+            if (nextIdx === idx) {
+                return [item.url, prevIdx];
+            }
+
+            return [item.url, idx]
+        });
+
+        const { data } = await API.putUserSeriesIndex('@' + props.username, nextIndexies);
+        setSeries(data.body.series);
+
+        loadingContext.end();
+    }
 
     return (
         <>
@@ -75,18 +98,28 @@ export default function SeriesSetting(props: Props) {
             </div>
             <>
                 {series.map((item, idx) => (
-                    <Card key={idx} hasShadow isRounded className="p-3 mb-3">
-                        <div className="d-flex justify-content-between">
-                            <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
-                                <a className="deep-dark">
-                                    {item.title} <span className="vs">{item.totalPosts}</span>
-                                </a>
-                            </Link>
-                            <a onClick={() => onSeriesDelete(item.url)}>
-                                <i className="fas fa-times"></i>
-                            </a>
+                    <div className="d-flex mb-3">
+                        <div className="d-flex flex-column justify-content-between mr-3">
+                            <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx-1)}>
+                                <i className="fas fa-angle-up"></i>
+                            </div>
+                            <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx+1)}>
+                                <i className="fas fa-angle-down"></i>
+                            </div>
                         </div>
-                    </Card>
+                        <Card key={idx} hasShadow isRounded className="p-3">
+                            <div className="d-flex justify-content-between">
+                                <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
+                                    <a className="deep-dark">
+                                        {item.title} <span className="vs">{item.totalPosts}</span>
+                                    </a>
+                                </Link>
+                                <a onClick={() => onSeriesDelete(item.url)}>
+                                    <i className="fas fa-times"></i>
+                                </a>
+                            </div>
+                        </Card>
+                    </div>
                 ))}
             </>
         </>

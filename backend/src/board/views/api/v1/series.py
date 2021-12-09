@@ -19,7 +19,7 @@ def user_series(request, username, url=None):
                 hide=False
             ).annotate(
                 owner_username=F('owner__username')
-            ).order_by('-created_date')
+            ).order_by('index', '-id')
             page = request.GET.get('page', 1)
             paginator = Paginator(series, 10)
             fn.page_check(page, paginator)
@@ -34,6 +34,32 @@ def user_series(request, username, url=None):
                 }, series)),
                 'last_page': series.paginator.num_pages
             })
+        
+        if request.method == 'PUT':
+            body = QueryDict(request.body)
+            if request.GET.get('kind', '') == 'index':
+                series = Series.objects.filter(owner=request.user).order_by('index')
+                prev_state = {}
+
+                for item in series:
+                    prev_state[item.url] = (item.index, item)
+                
+                items = body.get('series').split(',')
+                for item in items:
+                    [url, next_index] = item.split('=')
+                    [prev_index, series_item] = prev_state[url]
+                    if int(prev_index) != int(next_index):
+                        series_item.index = next_index
+                        series_item.save()
+                
+                series = Series.objects.filter(owner=request.user).order_by('index')
+                return StatusDone({
+                    'series': list(map(lambda item: {
+                        'url': item.url,
+                        'title': item.name,
+                        'total_posts': item.posts.count()
+                    }, series))
+                })
         
         if request.method == 'POST':
             body = QueryDict(request.body)

@@ -34,6 +34,27 @@ export async function postUserSeries(author: string, title: string) {
     });
 }
 
+export async function putUserSeriesIndex(author: string, items: (string | number)[][]) {
+    return await axiosRequest<ResponseData<PutUserSeriesIndexData>>({
+        url: `/v1/users/${encodeURIComponent(author)}/series?kind=index`,
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            series: items.map(item => `${item[0]}=${item[1]}`).join(','),
+        }),
+    });
+}
+
+export interface PutUserSeriesIndexData {
+    series: {
+        url: string;
+        title: string;
+        totalPosts: number;
+    }[];
+}
+
 export interface PostUserSeriesData {
     url: string;
 }

@@ -81,7 +81,7 @@ def setting(request, item):
             }, posts.iterator())))
         
         if item == 'series':
-            series = Series.objects.filter(owner=user).order_by('-created_date')
+            series = Series.objects.filter(owner=user).order_by('index', '-id')
             return StatusDone({
                 'username': user.username,
                 'series': list(map(lambda item: {
