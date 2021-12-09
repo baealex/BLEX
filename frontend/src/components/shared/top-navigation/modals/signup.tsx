@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SplitLine } from '@components/atoms';
+import { SplitLine, Alert } from '@components/atoms';
 import { Modal } from '@components/shared';
 
 import { snackBar } from '@modules/snack-bar';
@@ -79,17 +79,8 @@ export class SignupModal extends React.Component<Props, State> {
         );
         if (data.status === 'ERROR') {
             if (data.errorCode) {
-                const { errorCode } = data;
-                if (errorCode === API.ERROR.ALREADY_EXISTS) {
-                    snackBar('😥 이미 사용중인 아이디입니다.');
-                    return;
-                }
-                if (errorCode === API.ERROR.USERNAME_NOT_MATCH) {
-                    snackBar('😥 아이디는 4글자 이상 15글자 이하의 영어, 숫자입니다.');
-                    return;
-                }
-                if (errorCode === API.ERROR.EMAIL_NOT_MATCH) {
-                    snackBar('😥 올바른 이메일 형식이 아닙니다.');
+                if (data.errorMessage) {
+                    snackBar(data.errorMessage);
                     return;
                 }
             }
@@ -118,11 +109,16 @@ export class SignupModal extends React.Component<Props, State> {
                     <input
                         className="login-form"
                         name="username"
-                        placeholder="아이디"
+                        placeholder="사용자 이름"
                         onChange={(e) => this.onInputChange(e)}
                         value={this.state.username}
                         onKeyPress={(e) => this.onEnterLogin(e)}
                     />
+                    {this.state.username && (
+                        <Alert type="infomation">
+                            {`https://blex.me/@${this.state.username}`}
+                        </Alert>
+                    )}
                     <input
                         className="login-form"
                         name="password"
@@ -153,7 +149,7 @@ export class SignupModal extends React.Component<Props, State> {
                     <input
                         className="login-form"
                         name="realname"
-                        placeholder="이름"
+                        placeholder="이름 (실명 권장)"
                         onChange={(e) => this.onInputChange(e)}
                         value={this.state.realname}
                         onKeyPress={(e) => this.onEnterLogin(e)}
@@ -167,12 +163,12 @@ export class SignupModal extends React.Component<Props, State> {
                     <button
                         className="login-button google"
                         onClick={() => oauth("google")}>
-                        <i className="fab fa-google"></i> Google 계정으로 시작
+                        <i className="fab fa-google"/> Google 계정으로 시작
                     </button>
                     <button
                         className="login-button github"
                         onClick={() => oauth("github")}>
-                        <i className="fab fa-github"></i> GitHub 계정으로 시작
+                        <i className="fab fa-github"/> GitHub 계정으로 시작
                     </button>
                     <div className="login-hint">
                         <button

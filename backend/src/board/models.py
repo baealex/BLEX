@@ -306,7 +306,7 @@ class Post(models.Model):
 
     def get_thumbnail(self):
         if self.image:
-            return settings.MEDIA_URL + str(self.image) + '.minify.' + str(self.image).split('.')[-1]
+            return settings.MEDIA_URL + str(self.image)
         else:
             return settings.STATIC_URL + 'images/default-post.png'
     

@@ -97,15 +97,15 @@ def sign(request):
 
         has_username = User.objects.filter(username=username)
         if has_username.exists():
-            return StatusError('AE')
-
+            return StatusError('AE', '😥 이미 사용중인 사용자 이름 입니다.')
+        
         regex = re.compile('[a-z0-9]{4,15}')
         if not regex.match(username) or not len(regex.match(username).group()) == len(username):
-            return StatusError('UN')
+            return StatusError('UN', '😥 사용자 이름은 4~15자 사이의 영어, 숫자만 가능합니다.')
 
         regex = re.compile('[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}')
         if not regex.match(email) or not len(regex.match(email).group()) == len(email):
-            return StatusError('EN')
+            return StatusError('EN', '😥 올바른 이메일 주소가 아닙니다.')
 
         token = randstr(35)
         has_token = User.objects.filter(last_name=token)
@@ -118,17 +118,28 @@ def sign(request):
            email,
            password
         )
-        new_user.first_name = realname;
-        new_user.last_name = 'email:' + token
-        new_user.is_active = False
-        new_user.save()
+        new_user.first_name = realname
 
-        sub_task_manager.append(lambda: send_mail(
-            subject='[ BLEX ] 이메일을 인증해 주세요!',
-            message=f'{settings.SITE_URL}/verify?token={token}',
-            from_email='im@baejino.com',
-            recipient_list=[new_user.email],
-        ))
+        if not settings.DEBUG:
+            new_user.last_name = 'email:' + token
+            new_user.is_active = False
+
+            sub_task_manager.append(lambda: send_mail(
+                subject='[ BLEX ] 이메일을 인증해 주세요!',
+                message=f'{settings.SITE_URL}/verify?token={token}',
+                from_email='im@baejino.com',
+                recipient_list=[new_user.email],
+            ))
+            new_user.save()
+        else:
+            new_user.save()
+
+            profile = Profile(user=new_user)
+            profile.save()
+
+            config = Config(user=new_user)
+            config.save()
+        
         return StatusDone()
     
     if request.method == 'DELETE':
@@ -162,7 +173,7 @@ def sign_social(request, social):
                     new_user = User(username=username)
                     new_user.first_name = state['user'].get('name')
                     new_user.last_name = 'github:' + str(node_id)
-                    new_user.email = state['user'].get('email')
+                    new_user.email = state['user'].get('email', '')
                     new_user.is_active = True
                     new_user.save()
 

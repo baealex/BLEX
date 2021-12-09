@@ -2,9 +2,6 @@ import App, { AppProps } from 'next/app';
 import Head from 'next/head';
 import Router from 'next/router';
 
-import nprogress from 'nprogress';
-import 'nprogress/nprogress.css'
-
 import {
     Loading,
     TopNavigation,
@@ -28,19 +25,14 @@ function minify(str: string) {
     return str;
 }
 
-nprogress.configure({
-    showSpinner: false
-});
-
 Router.events.on('routeChangeStart', () => {
-    nprogress.start();
+
 });
 Router.events.on('routeChangeComplete', () => {
     lazyLoadResource();
-    nprogress.done();
 });
 Router.events.on('routeChangeError', () => {
-    nprogress.done();
+
 });
 
 class Main extends App<AppProps> {
