@@ -222,7 +222,7 @@ export function Comment(props: CommentProps) {
                             pk={-1}
                             author="Ghost"
                             authorImage="https://static.blex.me/assets//images/ghost.png"
-                            timeSince="0분"
+                            timeSince="0 minutes"
                             html="작성된 댓글이 없습니다. 첫 댓글을 달아보세요!"
                             isEdited={false}
                             isOwner={false}

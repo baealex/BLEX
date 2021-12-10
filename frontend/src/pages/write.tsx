@@ -252,7 +252,7 @@ class Write extends React.Component<Props, State> {
                 tempPosts: this.state.tempPosts.concat({
                     token: data.body.token,
                     title: title,
-                    createdDate: '0분'
+                    createdDate: '0 minutes'
                 })
             });
             snackBar('😀 임시 저장이 완료되었습니다.');
