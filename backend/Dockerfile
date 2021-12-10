@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -18,7 +18,7 @@ ENV LANG="C.UTF-8" \
     PYENV_ROOT="/root/.pyenv" \
     PYENV_SHELL="bash"
 
-ENV PYTHON_VERSION=3.8.5
+ENV PYTHON_VERSION=3.9.7
 
 RUN git clone https://github.com/pyenv/pyenv.git $PYENV_ROOT \
     && pyenv install $PYTHON_VERSION \

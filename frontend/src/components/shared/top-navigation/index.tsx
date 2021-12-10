@@ -303,7 +303,7 @@ export function TopNavigation() {
                                                 </div>
                                             ) : state.notify.map((item, idx) => (
                                                 <div key={idx} className={cn('card')} onClick={() => onReadNotify(item.pk, item.url)}>
-                                                    {item.content} <span className="ns shallow-dark">{item.createdDate}전</span>
+                                                    {item.content} <span className="ns shallow-dark">{item.createdDate} ago</span>
                                                 </div>
                                             ))}
                                         </div>

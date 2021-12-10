@@ -46,7 +46,7 @@ export function CommentCard(props: CommentCardProps) {
                             </div>
                             <div>
                                 <small>
-                                    {`${props.timeSince}전`} {props.isEdited && <span className="vs">(Edited)</span>}
+                                    {`${props.timeSince} ago`} {props.isEdited && <span className="vs">(Edited)</span>}
                                 </small>
                             </div>
                         </div>
