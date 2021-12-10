@@ -101,6 +101,7 @@ export function CommentForm(props: CommentFormProps) {
                             rows={5}
                             className={cn({ isOpen })}
                             onChange={(e) => props.onChange(e.target.value)}
+                            onDragOver={(e) => e.preventDefault()}
                             onDrop={(e) => onDrop(e)}
                             placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
                             maxLength={300}

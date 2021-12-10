@@ -120,7 +120,7 @@ export function Layout(props: Props) {
         }
     }
 
-    const onDropImage = async (e: DragEvent) => {
+    const onDropImage = async (e: React.DragEvent<HTMLDivElement>) => {
         const imageSrc = await dropImage(e);
         if(imageSrc) {
             const imageMd = imageSrc.includes('.mp4')
@@ -155,7 +155,11 @@ export function Layout(props: Props) {
     return (
         <div className="container">
             <div className="row justify-content-center">
-                <div className="col-lg-8" onDrop={(e: any) => onDropImage(e)}>
+                <div
+                    className="col-lg-8"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => onDropImage(e)}
+                >
                     <EditorTitle
                         value={props.title.value}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.title.onChange(e.target.value)}
