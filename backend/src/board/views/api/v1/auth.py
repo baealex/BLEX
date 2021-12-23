@@ -173,8 +173,7 @@ def sign_social(request, social):
                     new_user = User(username=username)
                     new_user.first_name = state['user'].get('name')
                     new_user.last_name = 'github:' + str(node_id)
-                    new_user.email = state['user'].get('email', '')
-                    new_user.is_active = True
+                    new_user.email = ''
                     new_user.save()
 
                     profile = Profile(user=new_user)
@@ -222,8 +221,7 @@ def sign_social(request, social):
                     new_user = User(username=username)
                     new_user.first_name = state['user'].get('name')
                     new_user.last_name = 'google:' + str(node_id)
-                    new_user.email = state['user'].get('email')
-                    new_user.is_active = True
+                    new_user.email = ''
                     new_user.save()
 
                     profile = Profile(user=new_user)
