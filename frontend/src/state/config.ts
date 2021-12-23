@@ -1,4 +1,4 @@
-import SharedState from 'bstate';
+import BState from 'bstate';
 
 import cookie from '@modules/cookie';
 
@@ -11,7 +11,7 @@ export interface ConfigContextState {
     isSortOldFirst: boolean;
 }
 
-class ConfigContext extends SharedState<ConfigContextState> {
+class ConfigContext extends BState<ConfigContextState> {
     init: boolean = false;
 
     constructor() {

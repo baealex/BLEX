@@ -1,4 +1,4 @@
-import SharedState from 'bstate';
+import BState from 'bstate';
 
 export interface ModalContextState {
     isLoginModalOpen: boolean;
@@ -12,7 +12,7 @@ export interface ModalContextState {
 
 type ModalName = keyof ModalContextState;
 
-class ModalContext extends SharedState<ModalContextState> {
+class ModalContext extends BState<ModalContextState> {
     constructor() {
         super();
         this.state = {

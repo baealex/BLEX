@@ -1,4 +1,4 @@
-import SharedState from 'bstate';
+import BState from 'bstate';
 
 import { GetLoginData } from '@modules/api';
 
@@ -6,7 +6,7 @@ export interface AuthContextState extends GetLoginData {
     isLogin: boolean;
 }
 
-class AuthContext extends SharedState<AuthContextState> {
+class AuthContext extends BState<AuthContextState> {
     constructor() {
         super();
         this.state = {

@@ -1,10 +1,10 @@
-import SharedState from 'bstate';
+import BState from 'bstate';
 
 export interface LoadingContextState {
     isLoading: boolean;
 }
 
-class LoadingContext extends SharedState<LoadingContextState> {
+class LoadingContext extends BState<LoadingContextState> {
     constructor() {
         super();
         this.state = {
