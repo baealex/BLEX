@@ -98,7 +98,7 @@ export default function SeriesSetting(props: Props) {
             </div>
             <>
                 {series.map((item, idx) => (
-                    <div className="d-flex mb-3">
+                    <div key={idx} className="d-flex mb-3">
                         <div className="d-flex flex-column justify-content-between mr-3">
                             <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx-1)}>
                                 <i className="fas fa-angle-up"></i>
@@ -107,7 +107,7 @@ export default function SeriesSetting(props: Props) {
                                 <i className="fas fa-angle-down"></i>
                             </div>
                         </div>
-                        <Card key={idx} hasShadow isRounded className="p-3">
+                        <Card hasShadow isRounded className="p-3">
                             <div className="d-flex justify-content-between">
                                 <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
                                     <a className="deep-dark">
