@@ -95,32 +95,31 @@ export default function Edit(props: Props) {
         <Layout
             title={{
                 value: title,
-                onChange: (value) => setTitle(value),
+                onChange: setTitle,
             }}
             content={{
                 value: content,
-                onChange: (value) => setContent(value),
+                onChange: setContent,
             }}
             series={{
                 value: series,
-                onChange: (value) => setSeries(value),
+                onChange: setSeries,
             }}
             tags={{
                 value: tags,
-                onChange: (value) => setTags(value),
+                onChange: setTags,
             }}
             isHide={{
                 value: isHide,
-                onChange: (value) => setIsHide(value)
+                onChange: setIsHide,
             }}
             isAd={{
                 value: isAdvertise,
-                onChange: (value) => setIsAdvertise(value)
+                onChange: setIsAdvertise,
             }}
             image={{
                 onChange: (image) => {
                     imageFile = image;
-                    console.log(imageFile);
                 }
             }}
             publish={{

@@ -11,6 +11,7 @@ import blexer from '@modules/blexer';
 import { configContext } from '@state/config';
 import { authContext } from '@state/auth';
 import { PopOver } from '@components/atoms';
+import { debounceEvent, DebounceEventRunner } from '@modules/event';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
@@ -59,7 +60,7 @@ interface State {
 }
 
 class Write extends React.Component<Props, State> {
-    private saveTimer: any;
+    private saver: DebounceEventRunner;
     private authUpdateKey: string;
     private configUpdateKey: string;
 
@@ -90,6 +91,10 @@ class Write extends React.Component<Props, State> {
                 isAutoSave: state.isAutoSave,
             });
         });
+        this.saver = debounceEvent(() => {
+            const { token, title, content, tags } = this.state;
+            this.onTempSave(token, title, content, tags);
+        }, 5000);
     }
 
     /* Component Method */
@@ -171,8 +176,8 @@ class Write extends React.Component<Props, State> {
             return;
         }
         try {
-            if (this.saveTimer) {
-                clearTimeout(this.saveTimer);
+            if (this.saver) {
+                this.saver.clear();
             }
             const { data } = await API.postPosts({
                 token: this.state.token,
@@ -208,17 +213,15 @@ class Write extends React.Component<Props, State> {
     }
 
     async onTempSave(token: string, title: string, content: string, tags: string) {
-        if(!title) {
+        if (!title) {
             const date = new Date();
             title = date.toLocaleString();
             if(this.state.token == token) {
-                this.setState({
-                    title
-                });
+                this.setState({ title });
             }
         }
 
-        if(token) {
+        if (token) {
             const { data } = await API.putTempPosts(token, title, content, tags);
             if(data.status === 'DONE') {
                 this.setState({
@@ -260,7 +263,7 @@ class Write extends React.Component<Props, State> {
     }
 
     onCheckAutoSave(checked: boolean) {
-        !checked && clearTimeout(this.saveTimer);
+        !checked && this.saver.clear();
         configContext.setState((state) => ({
             ...state,
             isAutoSave: checked
@@ -273,90 +276,81 @@ class Write extends React.Component<Props, State> {
         } = this.state;
 
         return (
-            <>
-                <Layout
-                    title={{
-                        value: this.state.title,
-                        onChange: (value: string) => this.setState({title: value}),
-                    }}
-                    content={{
-                        value: this.state.content,
-                        onChange: (value: string) => {
-                            this.setState({content: value});
-                            if(this.state.isAutoSave) {
-                                clearTimeout(this.saveTimer);
-                                this.saveTimer = setTimeout(({
-                                    token, title, content, tags
-                                } = this.state) => {
-                                    this.onTempSave(token, title, content, tags);
-                                }, 5000);
-                            }
-                        },
-                    }}
-                    series={{
-                        value: this.state.series,
-                        onChange: (value) => this.setState({series: value}),
-                    }}
-                    tags={{
-                        value: this.state.tags,
-                        onChange: (value) => this.setState({tags: value}),
-                    }}
-                    isHide={{
-                        value: this.state.isHide,
-                        onChange: (value) => this.setState({isHide: value})
-                    }}
-                    isAd={{
-                        value: this.state.isAd,
-                        onChange: (value) => this.setState({isAd: value})
-                    }}
-                    image={{
-                        onChange: (image) => this.setState({image: image})
-                    }}
-                    publish={{
-                        title: "포스트 발행",
-                        buttonText: "이대로 발행하겠습니다"
-                    }}
-                    onSubmit={this.onSubmit.bind(this)}
-                    addon={{
-                        sideButton: (
-                            <>
-                                <li className="mx-3 mx-lg-4" onClick={() => this.setState({isOpenArticleModal: true})}>
-                                    <PopOver text="임시 저장된 글">
-                                        <i className="far fa-save"/>
-                                    </PopOver>
-                                </li>
-                                <li className="mx-3 mx-lg-4" onClick={() => {
-                                    if(confirm('🤔 이 링크는 노션으로 연결됩니다. 연결하시겠습니까?')) {
-                                        window.open('about:blank')!.location.href = '//notion.so/b3901e0837ec40e3983d16589314b59a';
-                                    }
-                                }}>
-                                    <PopOver text="도움말 보기">
-                                        <i className="fas fa-question"></i>
-                                    </PopOver>
-                                </li>
-                            </>
-                        ),
-                        modal: (
-                            <>
-                                <TempArticleModal
-                                    token={this.state.token}
-                                    isOpen={this.state.isOpenArticleModal}
-                                    close={() => this.setState({isOpenArticleModal: false})}
-                                    isAutoSave={this.state.isAutoSave}
-                                    onCheckAutoSave={(checked: boolean) => this.onCheckAutoSave(checked)}
-                                    tempPosts={tempPosts}
-                                    onDelete={(token: string) => this.onDeleteTempPost(token)}
-                                    onFecth={(token: string) => this.fecthTempPosts(token)}
-                                    onSave={() => {
-                                        const { token, title, content, tags } = this.state;
-                                        this.onTempSave(token, title, content, tags);
-                                    }}
-                                />
-                            </>
-                        )
-                    }}
-                ></Layout>
-            </>
+            <Layout
+                title={{
+                    value: this.state.title,
+                    onChange: (value: string) => this.setState({title: value}),
+                }}
+                content={{
+                    value: this.state.content,
+                    onChange: (value: string) => {
+                        this.setState({content: value});
+                        if (this.state.isAutoSave) {
+                            this.saver();
+                        }
+                    },
+                }}
+                series={{
+                    value: this.state.series,
+                    onChange: (value) => this.setState({series: value}),
+                }}
+                tags={{
+                    value: this.state.tags,
+                    onChange: (value) => this.setState({tags: value}),
+                }}
+                isHide={{
+                    value: this.state.isHide,
+                    onChange: (value) => this.setState({isHide: value})
+                }}
+                isAd={{
+                    value: this.state.isAd,
+                    onChange: (value) => this.setState({isAd: value})
+                }}
+                image={{
+                    onChange: (image) => this.setState({image: image})
+                }}
+                publish={{
+                    title: "포스트 발행",
+                    buttonText: "이대로 발행하겠습니다"
+                }}
+                onSubmit={this.onSubmit.bind(this)}
+                addon={{
+                    sideButton: (
+                        <>
+                            <li className="mx-3 mx-lg-4" onClick={() => this.setState({isOpenArticleModal: true})}>
+                                <PopOver text="임시 저장된 글">
+                                    <i className="far fa-save"/>
+                                </PopOver>
+                            </li>
+                            <li className="mx-3 mx-lg-4" onClick={() => {
+                                if(confirm('🤔 이 링크는 노션으로 연결됩니다. 연결하시겠습니까?')) {
+                                    window.open('about:blank')!.location.href = '//notion.so/b3901e0837ec40e3983d16589314b59a';
+                                }
+                            }}>
+                                <PopOver text="도움말 보기">
+                                    <i className="fas fa-question"></i>
+                                </PopOver>
+                            </li>
+                        </>
+                    ),
+                    modal: (
+                        <TempArticleModal
+                            token={this.state.token}
+                            isOpen={this.state.isOpenArticleModal}
+                            close={() => this.setState({isOpenArticleModal: false})}
+                            isAutoSave={this.state.isAutoSave}
+                            onCheckAutoSave={this.onCheckAutoSave.bind(this)}
+                            tempPosts={tempPosts}
+                            onDelete={this.onDeleteTempPost.bind(this)}
+                            onFecth={this.fecthTempPosts.bind(this)}
+                            onSave={() => {
+                                const { token, title, content, tags } = this.state;
+                                this.onTempSave(token, title, content, tags);
+                            }}
+                        />
+                    )
+                }}
+            />
         )
     }
 }
