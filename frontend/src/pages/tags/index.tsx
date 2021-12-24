@@ -19,12 +19,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         page = 1
     } = context.query;
     
-    const { data } = await API.getTags(Number(page));
-    return {
-        props: {
-            ...data.body,
-            page
+    try {
+        const { data } = await API.getTags(Number(page));
+        return {
+            props: {
+                ...data.body,
+                page
+            }
         }
+    } catch(error) {
+        return {
+            notFound: true
+        };
     }
 }
 
