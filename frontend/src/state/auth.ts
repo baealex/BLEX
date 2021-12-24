@@ -6,28 +6,23 @@ export interface AuthContextState extends GetLoginData {
     isLogin: boolean;
 }
 
+const INIT_STATE = {
+    isLogin: false,
+    username: '',
+    avatar: '',
+    notify: [],
+    isTelegramSync: false,
+    is2faSync: false,
+}
+
 class AuthContext extends BState<AuthContextState> {
     constructor() {
         super();
-        this.state = {
-            isLogin: false,
-            username: '',
-            avatar: '',
-            notify: [],
-            isTelegramSync: false,
-            is2faSync: false,
-        };
+        this.state = { ...INIT_STATE };
     }
 
     logout() {
-        this.state = {
-            isLogin: false,
-            username: '',
-            avatar: '',
-            notify: [],
-            isTelegramSync: false,
-            is2faSync: false,
-        };
+        this.state = { ...INIT_STATE };
     }
 }
 
