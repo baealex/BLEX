@@ -341,19 +341,19 @@ export function TopNavigation() {
                                                     onClick: () => router.push(`/@${state.username}`),
                                                 },
                                                 {
-                                                    name: '전체 메뉴',
-                                                    icon: 'fas fa-th-large',
-                                                    onClick: () => setisMenuOpen(true),
-                                                },
-                                                {
-                                                    name: '설정',
+                                                    name: '관리',
                                                     icon: 'fas fa-cog',
                                                     onClick: () => router.push(`/setting/account`),
                                                 },
                                                 {
+                                                    name: '전체',
+                                                    icon: 'fas fa-th-large',
+                                                    onClick: () => setisMenuOpen(true),
+                                                },
+                                                {
                                                     name: '로그아웃',
                                                     icon: 'fas fa-sign-out-alt',
-                                                    onClick: () => onClickLogout(),
+                                                    onClick: onClickLogout,
                                                 },
                                             ]}
                                         />
