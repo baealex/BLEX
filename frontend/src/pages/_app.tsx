@@ -2,8 +2,8 @@ import App, { AppProps } from 'next/app';
 import Head from 'next/head';
 import Router from 'next/router';
 
+import { Loading } from '@design-system';
 import {
-    Loading,
     TopNavigation,
     SEO,
 } from '@components/integrated';

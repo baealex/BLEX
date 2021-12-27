@@ -7,9 +7,12 @@ import { useEffect, useState } from 'react';
 import {
     CheckBox,
     Loading,
-    Modal,
     PopOver,
+} from '@design-system';
+import {
+    Modal,
 } from '@components/integrated';
+
 
 import { EditorTitle } from '../editor-title';
 import { EditorContent } from '../editor-content';

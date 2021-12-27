@@ -5,8 +5,8 @@ import Router from 'next/router';
 import React from 'react';
 import { snackBar } from '@modules/snack-bar';
 
+import { Card } from '@design-system';
 import {
-    Card,
     Modal,
     SEO,
     SpeechBubble,

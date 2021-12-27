@@ -1,7 +1,6 @@
-import { Card } from '@components/atoms';
+import { Card, Toggle } from '@design-system';
 import {
     Modal,
-    Toggle,
 } from '@components/integrated';
 
 import * as API from '@modules/api';

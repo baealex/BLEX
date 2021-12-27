@@ -1,4 +1,4 @@
-import { Card } from '@components/atoms';
+import { Card } from '@design-system';
 import {
     Modal,
 } from '@components/integrated';

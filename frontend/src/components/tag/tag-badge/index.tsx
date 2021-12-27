@@ -1,4 +1,4 @@
-import { Badge } from '../../atoms';
+import { Badge } from '@design-system';
 
 export interface TagBadgeProps {
     items: JSX.Element[];

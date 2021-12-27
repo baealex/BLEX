@@ -2,7 +2,7 @@ import styles from './styles.module.scss';
 
 import React, { useEffect } from 'react';
 
-import { Button } from '@components/atoms';
+import { Button } from '@design-system';
 
 interface Props {
     isOpen: boolean;

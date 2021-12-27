@@ -8,7 +8,7 @@ import {
     Button,
     CheckBox,
     Text,
-} from '@components/integrated';
+} from '@design-system';
 import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';

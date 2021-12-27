@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import {ActivityItem, ActivityItemProps} from './activity-item';
 
-import { Alert } from '@components/atoms';
+import { Alert } from '@design-system';
 
 export interface RecentActivityProps {
     data: ActivityItemProps[];

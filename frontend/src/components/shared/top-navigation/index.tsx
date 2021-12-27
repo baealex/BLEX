@@ -21,7 +21,7 @@ import {
 import { DayNight } from './day-night';
 import { AllPages } from './all-pages';
 
-import { Dropdown } from '@components/integrated';
+import { Dropdown } from '@design-system';
 
 import { optimizedEvent } from '@modules/event';
 

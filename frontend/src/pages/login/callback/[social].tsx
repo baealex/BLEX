@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import Router from 'next/router';
 import { GetServerSidePropsContext } from 'next';
 
-import { Loading } from '@components/integrated';
+import { Loading } from '@design-system';
 
 import { snackBar } from '@modules/snack-bar';
 import * as API from '@modules/api';

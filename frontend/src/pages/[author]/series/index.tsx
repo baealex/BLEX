@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 
-import { Alert } from '@components/atoms';
+import { Alert } from '@design-system';
 import { Pagination, SEO } from '@components/shared';
 import {
     Layout,

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 import Link from 'next/link';
 
-import { Card } from '@components/atoms';
+import { Card } from '@design-system';
 
 import {
     getPostsImage,

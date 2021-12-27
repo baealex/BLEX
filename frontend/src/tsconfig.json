@@ -7,6 +7,18 @@
       "@components/*": [
         "./components/*"
       ],
+      "@design-system": [
+        "./components/design-system"
+      ],
+      "@design-system/*": [
+        "./components/design-system/*"
+      ],
+      "@system-design": [
+        "./components/system-design"
+      ],
+      "@system-design/*": [
+        "./components/system-design/*"
+      ],
       "@modules/*": [
         "./modules/*"
       ],

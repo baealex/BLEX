@@ -4,7 +4,7 @@ import { GetServerSidePropsContext } from 'next';
 
 import { Layout } from '@components/profile';
 import { ArticleContent } from '@components/article';
-import { Alert } from '@components/atoms';
+import { Alert } from '@design-system';
 
 import { snackBar } from '@modules/snack-bar';
 

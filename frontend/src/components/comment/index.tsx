@@ -19,7 +19,7 @@ import {
     lazyLoadResource,
     lazyIntersection
 } from '@modules/lazy';
-import { Alert } from '@components/atoms';
+import { Alert } from '@design-system';
 
 import { authContext } from '@state/auth';
 import { modalContext } from '@state/modal';

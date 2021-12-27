@@ -10,7 +10,7 @@ import blexer from '@modules/blexer';
 
 import { configContext } from '@state/config';
 import { authContext } from '@state/auth';
-import { PopOver } from '@components/atoms';
+import { PopOver } from '@design-system';
 import { debounceEvent, DebounceEventRunner } from '@modules/event';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {

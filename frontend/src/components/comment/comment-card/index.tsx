@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 import {
     Dropdown,
-} from '@components/integrated';
+} from '@design-system';
 
 export interface CommentCardProps {
     pk: number;

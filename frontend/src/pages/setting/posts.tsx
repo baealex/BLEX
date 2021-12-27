@@ -11,10 +11,10 @@ import { snackBar } from '@modules/snack-bar';
 
 import {
     Dropdown,
-    Modal,
     Card,
     Alert,
-} from '@components/integrated';
+} from '@design-system';
+import { Modal } from '@components/integrated';
 import { Layout } from '@components/setting';
 import { TagBadge } from '@components/tag';
 

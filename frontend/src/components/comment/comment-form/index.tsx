@@ -10,7 +10,7 @@ import {
 
 import { snackBar } from '@modules/snack-bar';
 
-import { Card } from '@components/atoms';
+import { Card } from '@design-system';
 
 import { dropImage } from '@modules/image';
 

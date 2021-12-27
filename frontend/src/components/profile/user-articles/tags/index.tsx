@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { useState } from 'react';
 import Link from 'next/link';
 
-import { Dropdown } from '@components/integrated';
+import { Dropdown } from '@design-system';
 
 export interface TagProps {
     name: string;

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
+import { Alert } from '@design-system';
 import { ArticleCard } from '@components/article';
 import {
-    Alert,
     Footer,
     Pagination,
     SearchBox,

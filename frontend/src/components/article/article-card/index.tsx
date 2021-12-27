@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Badge, Card, PopOver } from '@components/atoms';
+import { Badge, Card, PopOver } from '@design-system';
 
 import {
     getPostsImage,

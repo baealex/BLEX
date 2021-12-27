@@ -1,4 +1,4 @@
-import { Alert } from '@components/atoms';
+import { Alert } from '@design-system';
 
 import {
     ArticleCardList,

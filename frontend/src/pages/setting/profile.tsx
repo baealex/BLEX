@@ -2,9 +2,13 @@ import { GetServerSidePropsContext } from 'next';
 import React, { useState } from 'react';
 import { snackBar } from '@modules/snack-bar';
 
-import { Alert, Button, Text } from '@components/integrated';
+import { 
+    Alert,
+    Button,
+    Text,
+    ImageInput
+} from '@design-system';
 import { Layout } from '@components/setting';
-import { ImageInput } from '@components/integrated';
 
 import * as API from '@modules/api';
 

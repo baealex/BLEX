@@ -15,9 +15,9 @@ import {
 } from '@components/article';
 import { Comment } from '@components/comment';
 import { TagBadge } from '@components/tag';
+import { Toggle } from '@design-system'
 import {
     Footer,
-    Toggle,
     SEO,
 } from '@components/integrated';
 

@@ -10,7 +10,7 @@ import {
     Accordion,
     Card,
     Table,
-} from '@components/atoms';
+} from '@design-system';
 
 interface Props extends
     API.GetSettingAnalyticsViewData,

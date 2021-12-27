@@ -1,13 +1,13 @@
 import Head from 'next/head';
 import Link from 'next/link';
 
+import { Text } from '@design-system';
 import { ArticleCard } from '@components/article';
 import {
     Footer,
     Pagination,
     SpeechBubble,
     SEO,
-    Text,
 } from '@components/integrated';
 
 import * as API from '@modules/api';
