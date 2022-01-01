@@ -20,12 +20,12 @@ interface Props extends API.GetSettingAccountData {}
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req, res } = context;
-    if(!req.headers.cookie) {
+    if (!req.headers.cookie) {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
     const { data } = await API.getSettingAcount(req.headers.cookie);
-    if(data.status === 'ERROR') {
+    if (data.status === 'ERROR') {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
@@ -41,6 +41,7 @@ export default function AccountSetting(props: Props) {
     const [ password, setPassword ] = useState('');
     const [ is2faSync, setIs2faSync ] = useState(authContext.state.is2faSync);
     const [ passwordCheck, setPasswordCheck ] = useState('');
+    const [ showEmail, setShowEmail ] = useState(props.showEmail);
     const [ agreeEmail, setAgreeEmail ] = useState(props.agreeEmail);
     const [ agreeHistory, setAgreeHistory ] = useState(props.agreeHistory);
 
@@ -92,6 +93,7 @@ export default function AccountSetting(props: Props) {
             sendData.password = password;
         }
 
+        sendData.show_email = showEmail;
         sendData.agree_email = agreeEmail;
         sendData.agree_history = agreeHistory;
 
@@ -129,6 +131,12 @@ export default function AccountSetting(props: Props) {
     return (
         <>
             <>
+                <div className="mb-5">
+                    <Text fontSize={6} fontWeight={600}>
+                        가입일
+                    </Text>
+                    <Text>{props.createdDate}</Text>
+                </div>
                 <div className="mb-5">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
@@ -170,10 +178,12 @@ export default function AccountSetting(props: Props) {
                     </Alert>
                 </div>
                 <div className="mb-5">
-                    <Text fontSize={6} fontWeight={600}>
-                        가입일
-                    </Text>
-                    <Text>{props.createdDate}</Text>
+                    <div className="d-flex justify-content-between mb-2">
+                        <Text fontSize={6} fontWeight={600}>
+                            이메일
+                        </Text>
+                    </div>
+                    <Text>{props.email}</Text>
                 </div>
                 <div className="mb-5">
                     <div className="d-flex justify-content-between mb-2">
@@ -187,7 +197,7 @@ export default function AccountSetting(props: Props) {
                     <input
                         type="text"
                         value={realname}
-                        placeholder="이름"
+                        placeholder="사용자 실명"
                         className="form-control mb-2"
                         maxLength={30}
                         onChange={(e) => setRealname(e.target.value)}
@@ -207,6 +217,11 @@ export default function AccountSetting(props: Props) {
                         className="form-control mb-2"
                         maxLength={200}
                         onChange={(e) => setPasswordCheck(e.target.value)}
+                    />
+                    <CheckBox
+                        label="회원에게 이메일을 노출합니다."
+                        defaultChecked={showEmail}
+                        onClick={(value: boolean) => setShowEmail(value)}
                     />
                     <CheckBox
                         label="이메일 전송에 동의합니다."

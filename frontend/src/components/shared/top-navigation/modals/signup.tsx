@@ -52,7 +52,7 @@ export class SignupModal extends React.Component<Props, State> {
 
     async onSubmitLogin() {
         if(this.state.username == '') {
-            snackBar('😅 아이디를 입력해주세요!');
+            snackBar('😅 사용자 이름을 입력해주세요!');
             return;
         }
         if(this.state.password == '') {
@@ -68,7 +68,7 @@ export class SignupModal extends React.Component<Props, State> {
             return;
         }
         if(this.state.realname == '') {
-            snackBar('😅 이름을 입력해주세요!');
+            snackBar('😅 사용자 실명을 입력해주세요!');
             return;
         }
         const { data } = await API.postSign(
@@ -139,19 +139,19 @@ export class SignupModal extends React.Component<Props, State> {
                     />
                     <input
                         className="login-form"
+                        name="realname"
+                        placeholder="사용자 실명"
+                        onChange={(e) => this.onInputChange(e)}
+                        value={this.state.realname}
+                        onKeyPress={(e) => this.onEnterLogin(e)}
+                    />
+                    <input
+                        className="login-form"
                         name="email"
                         type="email"
                         placeholder="이메일"
                         onChange={(e) => this.onInputChange(e)}
                         value={this.state.email}
-                        onKeyPress={(e) => this.onEnterLogin(e)}
-                    />
-                    <input
-                        className="login-form"
-                        name="realname"
-                        placeholder="이름 (실명 권장)"
-                        onChange={(e) => this.onInputChange(e)}
-                        value={this.state.realname}
                         onKeyPress={(e) => this.onEnterLogin(e)}
                     />
                     <button

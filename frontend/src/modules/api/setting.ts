@@ -38,6 +38,8 @@ export interface GetSettingAccountData {
     username: string;
     realname: string;
     createdDate: string;
+    email: string;
+    showEmail: boolean;
     agreeEmail: boolean;
     agreeHistory: boolean;
 }

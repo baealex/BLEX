@@ -9,6 +9,7 @@ from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
 from board.models import *
+from modules.requests import BooleanType
 from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
@@ -42,6 +43,8 @@ def setting(request, item):
                 'username': user.username,
                 'realname': user.first_name,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
+                'email': user.email,
+                'show_email': user.config.show_email,
                 'agree_email': user.config.agree_email,
                 'agree_history': user.config.agree_history
             })
@@ -307,14 +310,22 @@ def setting(request, item):
             if should_update:
                 user.save()
             
-            user.config.agree_email = True if put.get('agree_email', '') == 'true' else False
-            user.config.agree_history = True if put.get('agree_history', '') == 'true' else False
+            config_names = [
+                'show_email',
+                'agree_email',
+                'agree_history',
+            ]
+            for config_name in config_names:
+                setattr(user.config, config_name, BooleanType(put.get(config_name, '')))
+
             user.config.save()
             return StatusDone()
         
         if item == 'profile':
+            profile = Profile.objects.get(user=user)
+
             req_data = dict()
-            items = [
+            socials = [
                 'bio',
                 'homepage',
                 'github',
@@ -323,25 +334,9 @@ def setting(request, item):
                 'instagram',
                 'youtube'
             ]
-            for item in items:
-                req_data[item] = put.get(item, '')
+            for social in socials:
+                setattr(profile, social, put.get(social, ''))
             
-            # TODO: QuerySet의 attr을 dict처럼 가져오는 방법 모색
-            profile = Profile.objects.get(user=user)
-            if profile.bio != req_data['bio']:
-                profile.bio = req_data['bio']
-            if profile.homepage != req_data['homepage']:
-                profile.homepage = req_data['homepage']
-            if profile.github != req_data['github']:
-                profile.github = req_data['github']
-            if profile.twitter != req_data['twitter']:
-                profile.twitter = req_data['twitter']
-            if profile.facebook != req_data['facebook']:
-                profile.facebook = req_data['facebook']
-            if profile.instagram != req_data['instagram']:
-                profile.instagram = req_data['instagram']
-            if profile.youtube != req_data['youtube']:
-                profile.youtube = req_data['youtube']
             profile.save()
             return StatusDone()
     
