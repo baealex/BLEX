@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import Router from 'next/router';
-import { snackBar } from '@modules/snack-bar';
 
 import { Layout } from '@components/editor';
 
 import * as API from '@modules/api';
-import blexer from '@modules/blexer'
+import {
+    snackBar
+} from '@modules/snack-bar';
 
 import { GetServerSidePropsContext } from 'next';
 
@@ -75,7 +76,6 @@ export default function Edit(props: Props) {
             const { data } = await API.postAnUserPosts(props.username, props.posturl, {
                 title: title,
                 text_md: content,
-                text_html: blexer(content),
                 image: imageFile,
                 tag: tags,
                 series,

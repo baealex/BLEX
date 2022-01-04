@@ -1,17 +1,24 @@
 import React from 'react';
 import { GetServerSidePropsContext } from 'next';
 import Router from 'next/router';
-import { snackBar } from '@modules/snack-bar';
 
-import { Layout, TempArticleModal } from '@components/editor';
+import {
+    Layout,
+    TempArticleModal
+} from '@components/editor';
+import { PopOver } from '@design-system';
 
 import * as API from '@modules/api';
-import blexer from '@modules/blexer';
+import {
+    debounceEvent,
+    DebounceEventRunner
+} from '@modules/event';
+import {
+    snackBar
+} from '@modules/snack-bar';
 
 import { configContext } from '@state/config';
 import { authContext } from '@state/auth';
-import { PopOver } from '@design-system';
-import { debounceEvent, DebounceEventRunner } from '@modules/event';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
@@ -183,7 +190,6 @@ class Write extends React.Component<Props, State> {
                 token: this.state.token,
                 title: this.state.title,
                 text_md: this.state.content,
-                text_html: blexer(this.state.content),
                 image: this.state.image,
                 tag: this.state.tags,
                 series: this.state.series,

@@ -1,5 +1,6 @@
 import traceback
 
+from django.conf import settings
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import F, Q, Case, Exists, When, Value, OuterRef
@@ -13,6 +14,7 @@ from board.models import *
 from board.modules.analytics import view_count
 from modules.response import StatusDone, StatusError
 from modules.requests import BooleanType
+from modules.markdown import parse_to_html
 from board.views import function as fn
 
 def temp_posts(request, token=None):
@@ -85,7 +87,10 @@ def posts(request):
             return StatusError('NL')
 
         text_md = request.POST.get('text_md', '')
-        text_html = request.POST.get('text_html', '')
+        text_html = parse_to_html(settings.SITE_URL, {
+            'text': text_md,
+            'token': settings.API_KEY
+        })
 
         post = Post()
         post.title = request.POST.get('title', '')
@@ -494,7 +499,10 @@ def user_posts(request, username, url=None):
             fn.compere_user(request.user, post.author, give_404_if='different')
 
             text_md = request.POST.get('text_md', '')
-            text_html = request.POST.get('text_html', '')
+            text_html = parse_to_html(settings.SITE_URL, {
+                'text': text_md,
+                'token': settings.API_KEY
+            })
 
             post.title = request.POST.get('title', '')
             post.updated_date = timezone.now()
@@ -518,7 +526,7 @@ def user_posts(request, username, url=None):
             
             post_content = post.content
             post_content.text_md = request.POST.get('text_md', '')
-            post_content.text_html = request.POST.get('text_html', '')
+            post_content.text_html = text_html
             post_content.save()
             
             post_config = post.config

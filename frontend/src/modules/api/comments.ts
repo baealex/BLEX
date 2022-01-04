@@ -4,7 +4,7 @@ import axiosRequest, {
     GetPostCommentDataComment,
 } from './index';
 
-export async function postComments(url: string, content: string, contentMarkup: string) {
+export async function postComments(url: string, content: string) {
     return await axiosRequest<ResponseData<PostCommentsData>>({
         url: `/v1/comments?url=${url}`,
         method: 'POST',
@@ -12,7 +12,6 @@ export async function postComments(url: string, content: string, contentMarkup: 
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         data: serializeObject({
-            comment_html: contentMarkup,
             comment_md: content
         }),
     });
@@ -48,7 +47,7 @@ export interface GetComment {
     textMd: string;
 }
 
-export async function putComment(pk: number, content: string, html: string) {
+export async function putComment(pk: number, content: string) {
     return await axiosRequest<ResponseData<any>>({
         url: `/v1/comments/${pk}`,
         method: 'PUT',
@@ -58,7 +57,6 @@ export async function putComment(pk: number, content: string, html: string) {
         data: serializeObject({
             comment: 'comment',
             comment_md: content,
-            comment_html: html,
         }),
     });
 }

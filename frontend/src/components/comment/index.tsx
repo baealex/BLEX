@@ -42,8 +42,7 @@ export function Comment(props: CommentProps) {
     const [ commentText, setCommentText ] = useState('');
 
     const handleSubmit = async (content: string) => {
-        const html = blexer(content);
-        const { data } = await API.postComments(props.url, content, html);
+        const { data } = await API.postComments(props.url, content);
         if(data.status !== 'DONE') {
             snackBar('😅 댓글 작성중 오류가 발생했습니다!');
             return;
@@ -128,15 +127,14 @@ export function Comment(props: CommentProps) {
     }
 
     const handleEditSubmit = async (pk: number, content: string) => {
-        const html = blexer(content);
-        const { data } = await API.putComment(pk, content, html);
+        const { data } = await API.putComment(pk, content);
         if(data.status === 'DONE') {
             setComments(comments.map(comment => (
                 comment.pk === pk ? ({
                     ...comment,
                     isEdit: false,
-                    textHtml: html,
-                    isEdited: true
+                    isEdited: true,
+                    textHtml: blexer(content),
                 }) : comment
             )));
             snackBar('😀 댓글이 수정되었습니다.');

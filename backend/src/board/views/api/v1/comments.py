@@ -4,6 +4,7 @@ import json
 import time
 import traceback
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
@@ -11,9 +12,10 @@ from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
 from board.models import Comment, Post
+from modules.markdown import parse_to_html
+from modules.response import StatusDone, StatusError
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
-from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def comment(request, pk=None):
@@ -21,11 +23,18 @@ def comment(request, pk=None):
         if request.method == 'POST':
             post = get_object_or_404(Post, url=request.GET.get('url'))
             body = QueryDict(request.body)
+
+            text_md = body.get('comment_md')
+            text_html = parse_to_html(settings.SITE_URL, {
+                'text': text_md,
+                'token': settings.API_KEY
+            })
+            
             comment = Comment(
                 post=post,
                 author=request.user,
-                text_md=body.get('comment_md'),
-                text_html=body.get('comment_html')
+                text_md=text_md,
+                text_html=text_html
             )
             comment.save()
             comment.refresh_from_db()
@@ -82,8 +91,8 @@ def comment(request, pk=None):
             })
 
         if request.method == 'PUT':
-            put = QueryDict(request.body)
-            if put.get('like'):
+            body = QueryDict(request.body)
+            if body.get('like'):
                 if not request.user.is_active:
                     return StatusError('NL')
                 if request.user == comment.author:
@@ -109,11 +118,18 @@ def comment(request, pk=None):
                     'total_likes': comment.total_likes()
                 })
             
-            if put.get('comment'):
+            if body.get('comment'):
                 if not request.user == comment.author:
                     return StatusError('DU')
-                comment.text_md = put.get('comment_md')
-                comment.text_html = put.get('comment_html')
+
+                text_md = body.get('comment_md')
+                text_html = parse_to_html(settings.SITE_URL, {
+                    'text': text_md,
+                    'token': settings.API_KEY
+                })
+                
+                comment.text_md = text_md
+                comment.text_html = text_html
                 comment.edited = True
                 comment.save()
                 return StatusDone()
