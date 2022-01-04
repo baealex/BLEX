@@ -87,16 +87,6 @@ export interface GetSettingPostsData {
     tag: string;
 };
 
-export async function getSettingSeries(cookie: string | undefined) {
-    return await axiosRequest<ResponseData<GetSettingSeriesData>>({
-        url: `/v1/setting/series`,
-        headers: {
-            cookie
-        },
-        method: 'GET'
-    });
-}
-
 export interface GetSettingSeriesData {
     username: string;
     series: GetSettingSeriesDataSeries[];
@@ -108,14 +98,18 @@ export interface GetSettingSeriesDataSeries {
     totalPosts: number;
 }
 
-export async function getSettingAnalyticsView(cookie: string | undefined) {
-    return await axiosRequest<ResponseData<GetSettingAnalyticsViewData>>({
-        url: `/v1/setting/analytics-view`,
+export async function getSettingSeries(cookie: string | undefined) {
+    return await axiosRequest<ResponseData<GetSettingSeriesData>>({
+        url: `/v1/setting/series`,
         headers: {
             cookie
         },
         method: 'GET'
     });
+}
+
+interface getSettingAnalyticsViewProps {
+    cookie?: string;
 }
 
 export interface GetSettingAnalyticsViewData {
@@ -127,17 +121,21 @@ export interface GetSettingAnalyticsViewData {
     }[];
 }
 
-export async function getSettingAnalyticsReferrers(cookie: string | undefined, page: number) {
-    return await axiosRequest<ResponseData<GetSettingAnalyticsRefererData>>({
-        url: `/v1/setting/analytics-referer`,
-        params: {
-            page
-        },
+export async function getSettingAnalyticsView({
+    cookie
+}: getSettingAnalyticsViewProps) {
+    return await axiosRequest<ResponseData<GetSettingAnalyticsViewData>>({
+        url: `/v1/setting/analytics-view`,
         headers: cookie ? {
             cookie
         } : {},
         method: 'GET'
     });
+}
+
+interface getSettingAnalyticsReferrersProps {
+    page: number;
+    cookie?: string;
 }
 
 export interface GetSettingAnalyticsRefererData {
@@ -150,14 +148,24 @@ export interface GetSettingAnalyticsRefererData {
     }[];
 }
 
-export async function getSettingAnalyticsSearch(cookie: string | undefined) {
-    return await axiosRequest<ResponseData<GetSettingAnalyticsgSearchData>>({
-        url: `/v1/setting/analytics-search`,
+export async function getSettingAnalyticsReferrers({
+    page,
+    cookie,
+}: getSettingAnalyticsReferrersProps) {
+    return await axiosRequest<ResponseData<GetSettingAnalyticsRefererData>>({
+        url: `/v1/setting/analytics-referer`,
+        params: {
+            page
+        },
         headers: cookie ? {
             cookie
         } : {},
         method: 'GET'
     });
+}
+
+interface getSettingAnalyticsSearchProps {
+    cookie?: string;
 }
 
 export interface GetSettingAnalyticsgSearchData {
@@ -173,6 +181,18 @@ export interface GetSettingAnalyticsgSearchData {
         platform: string;
         count: number;
     }[];
+}
+
+export async function getSettingAnalyticsSearch({
+    cookie
+}: getSettingAnalyticsSearchProps) {
+    return await axiosRequest<ResponseData<GetSettingAnalyticsgSearchData>>({
+        url: `/v1/setting/analytics-search`,
+        headers: cookie ? {
+            cookie
+        } : {},
+        method: 'GET'
+    });
 }
 
 export async function getSettingForms(cookie: string | undefined) {
