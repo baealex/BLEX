@@ -12,7 +12,7 @@ from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
 from board.models import Comment, Post
-from modules.markdown import parse_to_html
+from modules.markdown import parse_to_html, ParseData
 from modules.response import StatusDone, StatusError
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
@@ -25,10 +25,10 @@ def comment(request, pk=None):
             body = QueryDict(request.body)
 
             text_md = body.get('comment_md')
-            text_html = parse_to_html(settings.SITE_URL, {
+            text_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
                 'text': text_md,
-                'token': settings.API_KEY
-            })
+                'token': settings.API_KEY,
+            }))
             
             comment = Comment(
                 post=post,
@@ -123,10 +123,10 @@ def comment(request, pk=None):
                     return StatusError('DU')
 
                 text_md = body.get('comment_md')
-                text_html = parse_to_html(settings.SITE_URL, {
+                text_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
                     'text': text_md,
-                    'token': settings.API_KEY
-                })
+                    'token': settings.API_KEY,
+                }))
                 
                 comment.text_md = text_md
                 comment.text_html = text_html

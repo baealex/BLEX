@@ -14,7 +14,7 @@ from board.models import *
 from board.modules.analytics import view_count
 from modules.response import StatusDone, StatusError
 from modules.requests import BooleanType
-from modules.markdown import parse_to_html
+from modules.markdown import parse_to_html, ParseData
 from board.views import function as fn
 
 def temp_posts(request, token=None):
@@ -87,10 +87,10 @@ def posts(request):
             return StatusError('NL')
 
         text_md = request.POST.get('text_md', '')
-        text_html = parse_to_html(settings.SITE_URL, {
+        text_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
             'text': text_md,
-            'token': settings.API_KEY
-        })
+            'token': settings.API_KEY,
+        }))
 
         post = Post()
         post.title = request.POST.get('title', '')
@@ -499,10 +499,10 @@ def user_posts(request, username, url=None):
             fn.compere_user(request.user, post.author, give_404_if='different')
 
             text_md = request.POST.get('text_md', '')
-            text_html = parse_to_html(settings.SITE_URL, {
+            text_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
                 'text': text_md,
-                'token': settings.API_KEY
-            })
+                'token': settings.API_KEY,
+            }))
 
             post.title = request.POST.get('title', '')
             post.updated_date = timezone.now()
