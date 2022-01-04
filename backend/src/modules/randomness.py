@@ -1,19 +1,23 @@
 import random
 
-def random_pick_char(pick_char, length):
-    pick_char_len = len(pick_char) - 1
+from typing import Union
+
+def randpick(items: Union[str, list], length: int):
+    items_len = len(items) - 1
 
     result = ''
     for i in range(length):
-        result += pick_char[random.randint(0, pick_char_len)]
+        result += str(items[random.randint(0, items_len)])
     return result
 
-def randnum(length):
-    return random_pick_char('0123456789', length)
+def randnum(length: int):
+    return randpick('0123456789', length)
 
-def randstr(length):
-    return random_pick_char('0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ', length)
+def randstr(length: int):
+    return randpick('0123456789abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ', length)
 
 if __name__ == '__main__':
-    print(randnum(10))
-    print(randstr(20))
+    print('randpick', randpick([0, 1], 10))
+    print('randpick', randpick('!@#$%^&*()', 10))
+    print('randnum', randnum(10))
+    print('randstr', randstr(20))

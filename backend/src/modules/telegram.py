@@ -1,6 +1,5 @@
 import requests
 import json
-import threading
 
 class TelegramBot:
     def __init__(self, token):
