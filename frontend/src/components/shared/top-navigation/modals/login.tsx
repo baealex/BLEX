@@ -1,7 +1,9 @@
 import React from 'react';
 
-import { SplitLine } from '@design-system';
-import { Modal } from '@components/shared';
+import {
+    Modal,
+    SplitLine,
+} from '@design-system';
 
 import { snackBar } from '@modules/snack-bar';
 

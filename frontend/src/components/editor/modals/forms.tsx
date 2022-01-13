@@ -1,13 +1,13 @@
-import { Card } from '@design-system';
 import {
+    Card,
     Modal,
-} from '@components/integrated';
+} from '@design-system';
 
 import * as API from '@modules/api';
 
 interface Props {
     isOpen: boolean;
-    close: Function;
+    onClose: () => void;
     forms?: API.GetSettingFormsDataForms[];
     onFetch: (id: number) => void;
 }
@@ -21,7 +21,7 @@ export function FormsModal(props: Props) {
         <Modal
             title="서식"
             isOpen={props.isOpen}
-            onClose={() => props.close()}
+            onClose={props.onClose}
         >
             <>
                 {forms.map((item, idx) => (

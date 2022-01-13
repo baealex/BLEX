@@ -6,13 +6,10 @@ import { useEffect, useState } from 'react';
 
 import {
     CheckBox,
-    Loading,
     PopOver,
-} from '@design-system';
-import {
+    Loading,
     Modal,
-} from '@components/integrated';
-
+} from '@design-system';
 
 import { EditorTitle } from '../editor-title';
 import { EditorContent } from '../editor-content';
@@ -278,19 +275,19 @@ export function Layout(props: Props) {
 
                 <ImageModal
                     isOpen={isOepnImageModal}
-                    close={() => setIsOpenImageModal(false)}
-                    onUpload={(image: File) => onUploadImage(image)}
+                    onClose={() => setIsOpenImageModal(false)}
+                    onUpload={(image) => image && onUploadImage(image)}
                 />
 
                 <YoutubeModal
                     isOpen={isOepnYoutubeModal}
-                    close={() => setIsOpenYoutubeModal(false)}
-                    onUpload={(id: string) => onUploadYoutube(id)}
+                    onClose={() => setIsOpenYoutubeModal(false)}
+                    onUpload={(id) => onUploadYoutube(id)}
                 />
 
                 <FormsModal
                     isOpen={isOepnFormsModal}
-                    close={() => setIsOpenFormsModal(false)}
+                    onClose={() => setIsOpenFormsModal(false)}
                     forms={forms}
                     onFetch={onFetchForm}
                 />

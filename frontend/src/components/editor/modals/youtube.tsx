@@ -4,12 +4,12 @@ import { snackBar } from '@modules/snack-bar';
 
 import {
     Modal,
-} from '@components/integrated';
+} from '@design-system';
 
 interface Props {
     isOpen: boolean;
-    close: Function;
-    onUpload: Function;
+    onClose: () => void;
+    onUpload: (id: string) => void;
 }
 
 export function YoutubeModal(props: Props) {
@@ -20,11 +20,11 @@ export function YoutubeModal(props: Props) {
         <Modal
             title="유튜브 영상"
             isOpen={props.isOpen}
-            onClose={() => props.close()}
+            onClose={props.onClose}
             submitText="영상을 추가합니다"
             onSubmit={() => {
                 props.onUpload(id);
-                props.close();
+                props.onClose();
 
                 setText('');
                 setId('');
@@ -32,7 +32,9 @@ export function YoutubeModal(props: Props) {
         >
             <div className="input-group mb-3">
                 <div className="input-group-prepend">
-                    <span className="input-group-text">영상링크</span>
+                    <span className="input-group-text">
+                        영상링크
+                    </span>
                 </div>
                 <input
                     type="text"

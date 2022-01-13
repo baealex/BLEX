@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
     Modal,
- } from '@components/integrated';
+ } from '@design-system';
 
 import { snackBar } from '@modules/snack-bar';
 
@@ -10,7 +10,7 @@ import * as API from '@modules/api';
 
 interface Props {
     isOpen: boolean;
-    onClose: Function;
+    onClose: () => void;
 }
 
 interface State {
@@ -41,7 +41,7 @@ export class TelegramSyncModal extends React.Component<Props, State> {
             <Modal
                 title="텔레그램 연동"
                 isOpen={this.props.isOpen}
-                onClose={() => this.props.onClose(false)}
+                onClose={this.props.onClose}
             >
                 <>
                     텔레그램과 연동하면 어떤 효과가 있나요?

@@ -2,12 +2,10 @@ export * from './adsense';
 export * from './footer';
 export * from './glitch-text'
 export * from './heatmap';
-export * from './modal';
 export * from './page-navigation';
 export * from './pagination';
 export * from './search-box';
 export * from './seo';
 export * from './social';
 export * from './speech-bubble';
-export * from './sticker';
 export * from './top-navigation';

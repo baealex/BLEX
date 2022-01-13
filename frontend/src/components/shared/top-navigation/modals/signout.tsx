@@ -3,7 +3,7 @@ import Router from 'next/router';
 
 import {
     Modal,
- } from '@components/integrated';
+ } from '@design-system';
 
 import { snackBar } from '@modules/snack-bar';
 

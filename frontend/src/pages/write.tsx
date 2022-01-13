@@ -343,7 +343,7 @@ class Write extends React.Component<Props, State> {
                         <TempArticleModal
                             token={this.state.token}
                             isOpen={this.state.isOpenArticleModal}
-                            close={() => this.setState({isOpenArticleModal: false})}
+                            onClose={() => this.setState({isOpenArticleModal: false})}
                             isAutoSave={this.state.isAutoSave}
                             onCheckAutoSave={this.onCheckAutoSave.bind(this)}
                             tempPosts={tempPosts}

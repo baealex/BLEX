@@ -1,7 +1,10 @@
 import React from 'react';
 
-import { SplitLine, Alert } from '@design-system';
-import { Modal } from '@components/shared';
+import { 
+    Alert,
+    Modal,
+    SplitLine,
+} from '@design-system';
 
 import { snackBar } from '@modules/snack-bar';
 
@@ -12,7 +15,7 @@ import { modalContext } from '@state/modal';
 
 interface Props {
     isOpen: boolean;
-    onClose: Function;
+    onClose: () => void;
 }
 
 interface State {

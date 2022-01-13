@@ -10,11 +10,11 @@ import ReactFrappeChart from 'react-frappe-charts';
 import { snackBar } from '@modules/snack-bar';
 
 import {
-    Dropdown,
-    Card,
     Alert,
+    Card,
+    Dropdown,
+    Modal,
 } from '@design-system';
-import { Modal } from '@components/integrated';
 import { Layout } from '@components/setting';
 import { TagBadge } from '@components/tag';
 

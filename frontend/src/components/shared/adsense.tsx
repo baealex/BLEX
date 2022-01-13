@@ -9,7 +9,6 @@ type Props = {
     layoutKey?: string;
     format?: string;
     responsive?: string;
-    // eslint-disable-next-line react/boolean-prop-naming
     pageLevelAds?: boolean;
 };
 

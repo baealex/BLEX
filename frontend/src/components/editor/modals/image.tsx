@@ -2,14 +2,14 @@ import { useState } from 'react';
 
 import {
     Modal,
-} from '@components/integrated';
+} from '@design-system';
 
 import { ImageForm } from '../forms';
 
 interface Props {
     isOpen: boolean;
-    close: Function;
-    onUpload: Function;
+    onClose: () => void;
+    onUpload: (image?: File) => void;
 }
 
 let image: File | undefined;
@@ -22,11 +22,11 @@ export function ImageModal(props: Props) {
         <Modal
             title="이미지 업로드"
             isOpen={props.isOpen}
-            onClose={() => props.close()}
+            onClose={props.onClose}
             submitText="이미지를 추가합니다"
             onSubmit={() => {
                 props.onUpload(image);
-                props.close();
+                props.onClose();
 
                 setImagePath('');
                 setImagePreview('');

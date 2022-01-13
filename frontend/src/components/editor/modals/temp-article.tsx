@@ -1,20 +1,21 @@
-import { Card, Toggle } from '@design-system';
 import {
+    Card,
     Modal,
-} from '@components/integrated';
+    Toggle,
+} from '@design-system';
 
 import * as API from '@modules/api';
 
 interface Props {
     isOpen: boolean;
-    close: Function;
+    onClose: () => void;
     token: string;
     isAutoSave: boolean;
-    onCheckAutoSave: Function;
+    onCheckAutoSave: (checked: boolean) => void;
     tempPosts: API.GetTempPostsDataTemp[];
-    onFecth: Function;
-    onDelete: Function;
-    onSave: Function;
+    onSave: () => void;
+    onFecth: (token: string) => void;
+    onDelete: (token: string) => void;
 }
 
 export function TempArticleModal(props: Props) {
@@ -22,16 +23,16 @@ export function TempArticleModal(props: Props) {
         <Modal
             title="임시 저장된 글"
             isOpen={props.isOpen}
-            onClose={() => props.close()}
+            onClose={props.onClose}
             footer={[
                 <Toggle
                     label="자동 저장"
                     defaultChecked={props.isAutoSave}
-                    onClick={(checked: boolean) => props.onCheckAutoSave(checked)}
+                    onClick={(checked) => props.onCheckAutoSave(checked)}
                 />
             ]}
             submitText="현재 글을 저장합니다"
-            onSubmit={() => props.onSave()}
+            onSubmit={props.onSave}
         >
             <>
                 {props.tempPosts.map((item, idx) => (
