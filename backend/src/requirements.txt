@@ -9,7 +9,7 @@ django-cors-headers==3.10.1
 django-smtp-ssl==1.0
 idna==3.3
 oauthlib==3.1.1
-Pillow==8.4.0
+Pillow==9.0.0
 pyhumps==3.0.2
 pytz==2021.3
 requests==2.26.0
