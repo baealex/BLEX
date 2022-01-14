@@ -4,12 +4,16 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Badge, Card, PopOver } from '@design-system';
+import {
+    Badge,
+    Card,
+    PopOver,
+} from '@design-system';
 
 import {
     getPostsImage,
     getUserImage,
-} from '@modules/image';
+} from '@modules/utility/image';
 
 export interface ArticleCardProps {
     number?: number;

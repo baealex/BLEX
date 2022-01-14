@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from 'next';
 import { useState } from 'react';
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { Card } from '@design-system';
 import { Layout } from '@components/setting';

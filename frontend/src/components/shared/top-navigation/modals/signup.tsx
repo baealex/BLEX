@@ -6,9 +6,9 @@ import {
     SplitLine,
 } from '@design-system';
 
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
-import { oauth } from '@modules/oauth';
+import { oauth } from '@modules/utility/oauth';
 import * as API from '@modules/api';
 
 import { modalContext } from '@state/modal';

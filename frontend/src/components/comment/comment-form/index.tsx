@@ -8,11 +8,11 @@ import {
     useState,
 } from 'react';
 
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { Card } from '@design-system';
 
-import { dropImage } from '@modules/image';
+import { dropImage } from '@modules/utility/image';
 
 export interface CommentFormProps {
     content: string;

@@ -11,7 +11,7 @@ import {
 import { CONFIG } from '@modules/settings';
 import {
     lazyLoadResource
-} from '@modules/lazy';
+} from '@modules/optimize/lazy';
 
 import { loadingContext } from '@state/loading';
 

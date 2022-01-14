@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GetServerSidePropsContext } from 'next';
 
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import {
     Alert,

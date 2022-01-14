@@ -11,7 +11,7 @@ import {
 } from '@components/integrated';
 
 import * as API from '@modules/api';
-import { lazyLoadResource } from '@modules/lazy';
+import { lazyLoadResource } from '@modules/optimize/lazy';
 
 import { GetServerSidePropsContext } from 'next';
 

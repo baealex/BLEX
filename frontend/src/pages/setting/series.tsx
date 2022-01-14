@@ -7,7 +7,7 @@ import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
 import { loadingContext } from '@state/loading';
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 interface Props extends API.GetSettingSeriesData {}
 

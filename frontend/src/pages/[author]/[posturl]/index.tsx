@@ -1,5 +1,5 @@
 import React from 'react';
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 import Head from 'next/head';
 import Router from 'next/router';
 import Link from 'next/link';
@@ -25,8 +25,8 @@ import prism from '@modules/library/prism';
 import * as API from '@modules/api';
 import {
     lazyLoadResource
-} from '@modules/lazy';
-import { getPostsImage } from '@modules/image';
+} from '@modules/optimize/lazy';
+import { getPostsImage } from '@modules/utility/image';
 
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';

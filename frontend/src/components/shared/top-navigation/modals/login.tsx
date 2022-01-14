@@ -5,10 +5,9 @@ import {
     SplitLine,
 } from '@design-system';
 
-import { snackBar } from '@modules/snack-bar';
-
 import * as API from '@modules/api';
-import { oauth } from '@modules/oauth';
+import { snackBar } from '@modules/ui/snack-bar';
+import { oauth } from '@modules/utility/oauth';
 
 import { authContext } from '@state/auth';
 import { modalContext } from '@state/modal';

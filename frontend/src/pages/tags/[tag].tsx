@@ -13,7 +13,7 @@ import {
 import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
-import { getUserImage } from '@modules/image';
+import { getUserImage } from '@modules/utility/image';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {

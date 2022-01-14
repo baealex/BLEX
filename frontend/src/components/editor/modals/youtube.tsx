@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import {
     Modal,

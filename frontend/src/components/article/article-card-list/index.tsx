@@ -6,7 +6,9 @@ import Link from 'next/link';
 
 import { TagBadge } from '@components/tag';
 
-import { getPostsImage } from '@modules/image';
+import {
+    getPostsImage
+} from '@modules/utility/image';
 
 export interface ArticleCardListProps {
     url: string;

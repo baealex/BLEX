@@ -6,10 +6,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { snackBar } from '@modules/snack-bar';
-
-import * as API from '@modules/api';
-import { getUserImage } from '@modules/image';
 import {
     LoginModal,
     SignupModal,
@@ -20,10 +16,13 @@ import {
 } from './modals';
 import { DayNight } from './day-night';
 import { AllPages } from './all-pages';
-
 import { Dropdown } from '@design-system';
 
-import { optimizedEvent } from '@modules/event';
+import * as API from '@modules/api';
+import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
+import { getUserImage } from '@modules/utility/image';
+import { optimizedEvent } from '@modules/optimize/event';
 
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';
@@ -199,23 +198,23 @@ export function TopNavigation() {
     }, [isMenuOpen]);
 
     const onClickLogout = async () => {
-        if(confirm('😮 정말 로그아웃 하시겠습니까?')) {
+        if (confirm(message('CONFIRM', '정말 로그아웃 하시겠습니까?'))) {
             const { data } = await API.postLogout();
             if(data.status === 'DONE') {
                 authContext.logout();
-                snackBar('😀 로그아웃 되었습니다.');
+                snackBar(message('AFTER_REQ_DONE', '로그아웃 되었습니다.'));
             }
         }
     }
 
     const unsync = async () => {
-        if(confirm('😥 정말 연동을 해제할까요?')) {
+        if(confirm(message('CONFIRM', '정말 연동을 해제할까요?'))) {
             const { data } = await API.postTelegram('unsync');
             if (data.status === 'ERROR') {
-                snackBar(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+                snackBar(message('AFTER_REQ_ERR', data.errorMessage));
                 return;
             }
-            snackBar('😀 텔레그램과 연동이 해제되었습니다.');
+            snackBar(message('AFTER_REQ_DONE', '연동이 해제되었습니다.'));
             setState((prevState) => ({
                 ...prevState,
                 isTelegramSync: false
@@ -224,7 +223,7 @@ export function TopNavigation() {
     }
 
     const onReadNotify = async (pk: number, url: string) => {
-        const { data } = await API.putSetting('notify', { pk: pk });
+        const { data } = await API.putSetting('notify', { pk });
         if(data.status === 'DONE') {
             setState((prevState) => ({
                 ...prevState,

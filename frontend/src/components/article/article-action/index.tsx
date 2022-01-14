@@ -3,9 +3,9 @@ import classNames from 'classnames/bind';
 const cn = classNames.bind(styles);
 
 import { useEffect, useState } from 'react';
-import { snackBar } from '@modules/snack-bar';
 
 import * as API from '@modules/api';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { modalContext } from '@state/modal';
 

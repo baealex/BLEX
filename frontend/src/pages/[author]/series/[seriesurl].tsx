@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 import React from 'react';
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import {
     Card,
@@ -19,7 +19,7 @@ import { SeriesArticleCard } from '@components/series';
 import * as API from '@modules/api';
 import {
     getUserImage,
-} from '@modules/image';
+} from '@modules/utility/image';
 
 import { authContext } from '@state/auth';
 import { configContext } from '@state/config';

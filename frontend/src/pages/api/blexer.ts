@@ -1,4 +1,4 @@
-import blexer from '@modules/blexer';
+import blexer from '@modules/utility/blexer';
 import { CONFIG } from '@modules/settings';
 
 import { NextApiRequest, NextApiResponse } from 'next';

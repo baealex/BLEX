@@ -3,11 +3,11 @@ import React, {
     useEffect,
     useState
 } from 'react';
+import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import ReactFrappeChart from 'react-frappe-charts';
-import { snackBar } from '@modules/snack-bar';
 
 import {
     Alert,
@@ -18,16 +18,12 @@ import {
 import { Layout } from '@components/setting';
 import { TagBadge } from '@components/tag';
 
-import { getLocache, setLocache } from '@modules/locache';
+import * as API from '@modules/api';
 import {
-    deleteAnUserPosts,
-    getPostAnalytics,
-    getSettingPosts,
-    putAnUserPosts,
-    GetSettingPostsData
-} from '@modules/api';
-
-import { GetServerSidePropsContext } from 'next';
+    getLocache,
+    setLocache
+} from '@modules/utility/locache';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authContext } from '@state/auth';
 import { loadingContext } from '@state/loading';
@@ -92,7 +88,7 @@ export default function PostsSetting() {
     const [ search, setSearch ] = useState('');
 
     const [ isModalOpen, setModalOpen ] = useState(false);
-    const [ posts, setPosts ] = useState<GetSettingPostsData[]>([]);
+    const [ posts, setPosts ] = useState<API.GetSettingPostsData[]>([]);
 
     const [ apNow, setApNow ] = useState('');
     const [ analytics, setAnalytics ] = useState(Object());
@@ -103,7 +99,7 @@ export default function PostsSetting() {
         loadingContext.start();
 
         const initPosts = async () => {
-            const { data } = await getSettingPosts();
+            const { data } = await API.getSettingPosts();
             return data.body;
         }
 
@@ -130,7 +126,7 @@ export default function PostsSetting() {
         }, order);
 
         const shouldReverse = order.includes('-');
-        const orderName = order.replace('-', '') as keyof GetSettingPostsData;
+        const orderName = order.replace('-', '') as keyof API.GetSettingPostsData;
 
         setPosts((prevPosts) => {
             return [...prevPosts].sort((a, b) => {
@@ -154,7 +150,7 @@ export default function PostsSetting() {
     const postsAnalytics = useCallback(async (url: string) => {
         setApNow(url);
         if (!analytics[url]) {
-            const { data } = await getPostAnalytics(url);
+            const { data } = await API.getPostAnalytics(url);
             const { items, referers } = data.body;
 
             const dates = [];
@@ -179,7 +175,7 @@ export default function PostsSetting() {
 
     const handlePostsDelete = useCallback(async (username: string, url: string) => {
         if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { data } = await deleteAnUserPosts('@' + username, url);
+            const { data } = await API.deleteAnUserPosts('@' + username, url);
             
             if (data.status === 'DONE') {
                 setPosts((prevPosts) => [...prevPosts.filter(
@@ -191,7 +187,7 @@ export default function PostsSetting() {
     }, []);
 
     const handlePostsHide = useCallback(async (username: string, url: string) => {
-        const { data } = await putAnUserPosts('@' + username, url, 'hide');
+        const { data } = await API.putAnUserPosts('@' + username, url, 'hide');
         setPosts(prevPosts => [...prevPosts.map(post => (
             post.url == url ? ({
                 ...post,
@@ -210,7 +206,7 @@ export default function PostsSetting() {
     }, []);
 
     const handleTagSubmit = useCallback(async (username: string, url: string, tag: string) => {
-        const { data } = await putAnUserPosts('@' + username, url, 'tag', {
+        const { data } = await API.putAnUserPosts('@' + username, url, 'tag', {
             tag
         });
 

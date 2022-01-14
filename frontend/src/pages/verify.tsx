@@ -3,7 +3,7 @@ import Router from 'next/router';
 
 import { Footer } from '@components/shared';
 
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import { GetServerSidePropsContext } from 'next';

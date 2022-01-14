@@ -1,6 +1,9 @@
 import BState from 'bstate';
 
-import cookie from '@modules/cookie';
+import {
+    getCookie,
+    setCookie,
+} from '@modules/utility/cookie';
 
 type Theme = 'default' | 'dark' | 'black' | 'neon' | 'pastel';
 
@@ -30,7 +33,7 @@ class ConfigContext extends BState<ConfigContextState> {
     }
 
     isFirstVisit() {
-        const configure = cookie.get('configure');
+        const configure = getCookie('configure');
         if (configure) {
             return false;
         }
@@ -38,7 +41,7 @@ class ConfigContext extends BState<ConfigContextState> {
     }
 
     clientSideInject() {
-        const configure = cookie.get('configure');
+        const configure = getCookie('configure');
         if (configure) {
             this.setState((state) => ({
                 ...state,
@@ -60,7 +63,7 @@ class ConfigContext extends BState<ConfigContextState> {
     }
 
     configSave() {
-        cookie.set('configure', JSON.stringify(this.state), {
+        setCookie('configure', JSON.stringify(this.state), {
             path: '/',
             expire: 365,
         });

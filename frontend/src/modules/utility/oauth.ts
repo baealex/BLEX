@@ -1,8 +1,10 @@
-import Cookie from '@modules/cookie';
 import { CONFIG } from '@modules/settings';
+import { setCookie } from '@modules/utility/cookie';
 
-export function oauth(social: 'google' | 'github') {
-    Cookie.set('oauth_redirect', location.href, {
+export type OauthSocial =  'google' | 'github';
+
+export function oauth(social: OauthSocial) {
+    setCookie('oauth_redirect', location.href, {
         path: '/',
         expire: 0.1,
     });

@@ -6,10 +6,10 @@ import { Layout } from '@components/profile';
 import { ArticleContent } from '@components/article';
 import { Alert } from '@design-system';
 
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api'
-import blexer from '@modules/blexer';
+import blexer from '@modules/utility/blexer';
 
 import { authContext } from '@state/auth';
 import { SEO } from '@components/shared';

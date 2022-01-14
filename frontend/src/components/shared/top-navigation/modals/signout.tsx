@@ -5,7 +5,7 @@ import {
     Modal,
  } from '@design-system';
 
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
 

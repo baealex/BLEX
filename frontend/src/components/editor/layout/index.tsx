@@ -25,7 +25,7 @@ import {
 } from '../modals';
 
 import * as API from '@modules/api';
-import { dropImage, uploadImage } from '@modules/image';
+import { dropImage, uploadImage } from '@modules/utility/image';
 
 import { modalContext } from '@state/modal';
 

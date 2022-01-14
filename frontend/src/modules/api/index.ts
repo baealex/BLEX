@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig } from 'axios';
+
 import { CONFIG } from '@modules/settings';
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
 
 export default async function axiosRequest<T>(config: AxiosRequestConfig) {
     const { request } = axios.create({
@@ -12,25 +14,13 @@ export default async function axiosRequest<T>(config: AxiosRequestConfig) {
         return await request<T>(config);
     } catch(e) {
         if (typeof window !== 'undefined') {
-            snackBar(EMOJI.SYSTEM_ERR + '시스템 오류가 발생했습니다.');
+            snackBar(message('SYSTEM_ERR', '시스템 오류가 발생했습니다.'));
         } else {
             console.log(e);
         }
         throw e;
     }
 }
-
-export * from './auth';
-export * from './comments';
-export * from './forms';
-export * from './image';
-export * from './posts';
-export * from './search';
-export * from './series';
-export * from './setting';
-export * from './tags';
-export * from './telegram';
-export * from './users';
 
 export const ERROR = {
     REJECT: 'error:RJ',
@@ -46,13 +36,6 @@ export const ERROR = {
     EMAIL_NOT_MATCH: 'error:EN',
     USERNAME_NOT_MATCH: 'error:UN',
 };
-
-export const EMOJI = {
-    SYSTEM_ERR: '😱 ',
-    BEFORE_REQ_ERR: '🤔 ',
-    AFTER_REQ_ERR: '😥 ',
-    AFTER_REQ_DONE: '😀 '
-}
 
 type ErrorCode =
     'error:RJ' | 'error:EP' | 'error:NL' | 'error:SU' |
@@ -83,3 +66,15 @@ export function objectToForm(obj: {
     });
     return form;
 }
+
+export * from './auth';
+export * from './comments';
+export * from './forms';
+export * from './image';
+export * from './posts';
+export * from './search';
+export * from './series';
+export * from './setting';
+export * from './tags';
+export * from './telegram';
+export * from './users';

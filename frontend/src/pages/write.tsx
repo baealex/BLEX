@@ -12,10 +12,10 @@ import * as API from '@modules/api';
 import {
     debounceEvent,
     DebounceEventRunner
-} from '@modules/event';
+} from '@modules/optimize/event';
 import {
     snackBar
-} from '@modules/snack-bar';
+} from '@modules/ui/snack-bar';
 
 import { configContext } from '@state/config';
 import { authContext } from '@state/auth';

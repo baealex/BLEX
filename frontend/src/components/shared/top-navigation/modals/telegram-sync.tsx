@@ -4,7 +4,8 @@ import {
     Modal,
  } from '@design-system';
 
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
 
 import * as API from '@modules/api';
 
@@ -29,7 +30,7 @@ export class TelegramSyncModal extends React.Component<Props, State> {
         if(this.props.isOpen && !this.state.token) {
             const { data } = await API.postTelegram('makeToken');
             if (data.status === 'ERROR') {
-                snackBar(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+                snackBar(message('AFTER_REQ_ERR', data.errorMessage));
                 return;
             }
             this.setState({token: data.body.token || ''});

@@ -1,4 +1,5 @@
-import { snackBar } from '@modules/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
 
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
@@ -53,7 +54,7 @@ export async function dropImage(e: any) {
     e.preventDefault();
     const { files } = e.dataTransfer;
     if (files.length > 1) {
-        snackBar('🤔 하나씩 업로드 할 수 있습니다.');
+        snackBar(message('BEFORE_REQ_ERR', '하나씩 업로드 할 수 있습니다.'));
         return;
     }
     const [ file ] = files;
@@ -62,7 +63,7 @@ export async function dropImage(e: any) {
 
 export async function uploadImage(file: File) {
     if (!isImage(file)) {
-        snackBar('🤔 이미지 파일이 아닙니다.');
+        snackBar(message('BEFORE_REQ_ERR', '이미지 파일이 아닙니다.'));
         return;
     }
     try {
@@ -70,7 +71,7 @@ export async function uploadImage(file: File) {
         const { data } = await API.postImage(file);
         loadingContext.end();
         if (data.status === 'ERROR') {
-            snackBar(API.EMOJI.AFTER_REQ_ERR + data.errorMessage);
+            snackBar(message('AFTER_REQ_ERR', data.errorMessage));
             return;
         }
         return data.body.url;
@@ -78,11 +79,11 @@ export async function uploadImage(file: File) {
         loadingContext.end();
         const { status } = error.response;
         if (status == 404) {
-            snackBar('🤔 로그인이 필요합니다.');
+            snackBar(message('AFTER_REQ_ERR', '로그인이 필요합니다.'));
             return;
         }
         if (status > 500) {
-            snackBar('🤔 이미지 파일이 아닙니다.');
+            snackBar(message('AFTER_REQ_ERR', '이미지 파일이 아닙니다.'));
             return;
         }
     }

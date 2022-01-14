@@ -7,7 +7,7 @@ import { Card } from '@design-system';
 
 import {
     getPostsImage,
-} from '@modules/image';
+} from '@modules/utility/image';
 
 export interface ArticleCardSmallProps {
     author: string;

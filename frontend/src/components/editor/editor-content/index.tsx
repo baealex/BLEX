@@ -10,8 +10,8 @@ import React, {
 import { ArticleContent } from '@components/article';
 
 import prism from '@modules/library/prism';
-import blexer from '@modules/blexer';
-import { lazyLoadResource } from '@modules/lazy';
+import blexer from '@modules/utility/blexer';
+import { lazyLoadResource } from '@modules/optimize/lazy';
 
 export interface EditorContentProps {
     refer: (el: HTMLTextAreaElement | null) => void;

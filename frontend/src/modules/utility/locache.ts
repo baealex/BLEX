@@ -11,28 +11,26 @@ interface Storage {
 }
 
 export function setLocache(props: LocacheProps, data: any) {
-    if ('localStorage' in window) {
+    if ('sessionStorage' in window) {
         const storage = {
             owner: props.owner || '',
             created: new Date().toString(),
             data
         } as Storage;
-        localStorage.setItem(props.key, JSON.stringify(storage));
+        sessionStorage.setItem(props.key, JSON.stringify(storage));
     }
     return data;
 }
 
 export async function getLocache(props: LocacheProps, initValue: any): Promise<any> {
-    if ('localStorage' in window) {
-        const storage = localStorage.getItem(props.key);
+    if ('sessionStorage' in window) {
+        const storage = sessionStorage.getItem(props.key);
         if (!storage) {
             return setLocache(props, await initValue());
         }
 
         const {
-            owner,
-            created,
-            data,
+            owner, created, data
         } = JSON.parse(storage) as Storage;
 
         if (data === undefined) {
@@ -55,7 +53,7 @@ export async function getLocache(props: LocacheProps, initValue: any): Promise<a
 }
 
 export function destroyLocache(key: string) {
-    if ('localStorage' in window) {
-        localStorage.removeItem(key);
+    if ('sessionStorage' in window) {
+        sessionStorage.removeItem(key);
     }
 }

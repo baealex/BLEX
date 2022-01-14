@@ -6,7 +6,7 @@ import { Layout } from '@components/editor';
 import * as API from '@modules/api';
 import {
     snackBar
-} from '@modules/snack-bar';
+} from '@modules/ui/snack-bar';
 
 import { GetServerSidePropsContext } from 'next';
 

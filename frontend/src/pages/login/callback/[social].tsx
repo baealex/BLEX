@@ -4,9 +4,10 @@ import { GetServerSidePropsContext } from 'next';
 
 import { Loading } from '@design-system';
 
-import { snackBar } from '@modules/snack-bar';
 import * as API from '@modules/api';
-import Cookie from '@modules/cookie';
+import { snackBar } from '@modules/ui/snack-bar';
+import { getCookie } from '@modules/utility/cookie';
+import { message } from '@modules/utility/message';
 
 import { authContext } from '@state/auth';
 import { modalContext } from '@state/modal';
@@ -36,33 +37,30 @@ export default function SocialLogin(props: Props) {
         
         if (data.status === 'DONE') {
             if (data.body.security) {
-                snackBar('😃 2차 인증 코드를 입력해 주세요.');
+                snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
                 modalContext.onOpenModal('isTwoFactorAuthModalOpen');
                 return;
             }
-            snackBar(`😃 로그인 되었습니다.`);
+            snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
 
             authContext.setState({
                 isLogin: true,
                 ...data.body
             });
         } else {
-            snackBar('😥 인증이 실패했습니다.');
+            snackBar(message('AFTER_REQ_ERR', '소셜 인증을 실패했습니다.'));
         }
     }
 
     useEffect(() => {
-        const {
-            social,
-            code
-        } = props;
+        const { social, code } = props;
 
-        if(!social || !code) {
+        if (!social || !code) {
             return;
         }
 
         onSocialLogin(social, code).then(() => {
-            const oauthRedirect = Cookie.get('oauth_redirect');
+            const oauthRedirect = getCookie('oauth_redirect');
             oauthRedirect
                 ? Router.replace(oauthRedirect)
                 : Router.replace('/');  

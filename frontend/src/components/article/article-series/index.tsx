@@ -9,7 +9,7 @@ import { SpeechBubble } from '@components/shared';
 
 import {
     getUserImage,
-} from '@modules/image';
+} from '@modules/utility/image';
 
 export interface ArticleSeriesProps {
     url: string;

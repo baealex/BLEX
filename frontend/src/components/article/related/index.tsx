@@ -7,7 +7,7 @@ import * as API from '@modules/api';
 import {
     lazyLoadResource,
     lazyIntersection
-} from '@modules/lazy';
+} from '@modules/optimize/lazy';
 
 export interface RelatedProps {
     author: string;

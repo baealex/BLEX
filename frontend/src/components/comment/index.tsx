@@ -11,14 +11,15 @@ import { CommentCard } from './comment-card';
 import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';
 
-import { snackBar } from '@modules/snack-bar';
-
 import * as API from '@modules/api';
-import blexer from '@modules/blexer';
+import {
+    snackBar
+} from '@modules/ui/snack-bar';
+import blexer from '@modules/utility/blexer';
 import {
     lazyLoadResource,
     lazyIntersection
-} from '@modules/lazy';
+} from '@modules/optimize/lazy';
 import { Alert } from '@design-system';
 
 import { authContext } from '@state/auth';
