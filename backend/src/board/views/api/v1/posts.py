@@ -12,6 +12,7 @@ from django.utils.timesince import timesince
 
 from board.models import *
 from board.modules.analytics import view_count
+from board.modules.notify import create_notify
 from modules.response import StatusDone, StatusError
 from modules.requests import BooleanType
 from modules.markdown import parse_to_html, ParseData
@@ -553,7 +554,7 @@ def user_posts(request, username, url=None):
                 else:
                     PostLikes(post=post, user=user).save()
                     send_notify_content = '\''+ post.title +'\'글을 @'+ user.username +'님께서 추천했습니다.'
-                    fn.create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+                    create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })

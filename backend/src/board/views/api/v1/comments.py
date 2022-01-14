@@ -12,11 +12,11 @@ from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
 from board.models import Comment, Post
+from board.modules.notify import create_notify
 from modules.markdown import parse_to_html, ParseData
 from modules.response import StatusDone, StatusError
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
-from board.views import function as fn
 
 def comment(request, pk=None):
     if not pk:
@@ -45,7 +45,7 @@ def comment(request, pk=None):
                     f"'{post.title}'글에 "
                     f"@{comment.author.username}님이 댓글을 남겼습니다. "
                     f"> {content} …")
-                fn.create_notify(
+                create_notify(
                     user=post.author,
                     url=post.get_absolute_url(),
                     infomation=send_notify_content)
@@ -66,7 +66,7 @@ def comment(request, pk=None):
                                 f"'{post.title}' 글에서 "
                                 f"@{request.user.username}님이 "
                                 f"회원님을 태그했습니다. #{comment.pk}")
-                            fn.create_notify(
+                            create_notify(
                                 user=_user,
                                 url=post.get_absolute_url(),
                                 infomation=send_notify_content)
@@ -110,7 +110,7 @@ def comment(request, pk=None):
                         f"'{comment.post.title}'글에 작성한 "
                         f"회원님의 #{comment.pk} 댓글을 "
                         f"@{user.username}님께서 추천했습니다.")
-                    fn.create_notify(
+                    create_notify(
                         user=comment.author,
                         url=comment.post.get_absolute_url(),
                         infomation=send_notify_content)

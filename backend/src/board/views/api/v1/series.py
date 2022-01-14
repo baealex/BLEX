@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import slugify
 
-from board.models import *
+from board.models import User, Post, Series, convert_to_localtime
 from modules.response import StatusDone, StatusError
 from board.views import function as fn
 

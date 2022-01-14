@@ -15,12 +15,14 @@ from django.utils import timezone
 from django.utils.timesince import timesince
 
 from board.models import Notify, TwoFactorAuth, Config, Profile
+from board.modules.notify import create_notify
+from modules.challenge import auth_hcaptcha
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
+from modules.oauth import auth_github, auth_google
 from modules.randomness import randnum, randstr
 from modules.response import StatusDone, StatusError
 from modules.scrap import download_image
-from board.views import function as fn
 
 def login_response(user):
     username = user.username
@@ -153,7 +155,7 @@ def sign_social(request, social):
     if request.method == 'POST':
         if social == 'github':
             if request.POST.get('code'):
-                state = fn.auth_github(request.POST.get('code'))
+                state = auth_github(request.POST.get('code'))
                 if state['status']:
                     node_id = state['user'].get('node_id')
                     try:
@@ -186,7 +188,7 @@ def sign_social(request, social):
                     config = Config(user=new_user)
                     config.save()
 
-                    fn.create_notify(
+                    create_notify(
                         user=new_user,
                         url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
                         infomation=(
@@ -201,7 +203,7 @@ def sign_social(request, social):
         
         if social == 'google':
             if request.POST.get('code'):
-                state = fn.auth_google(request.POST.get('code'))
+                state = auth_google(request.POST.get('code'))
                 if state['status']:
                     node_id = state['user'].get('id')
                     try:
@@ -233,7 +235,7 @@ def sign_social(request, social):
                     config = Config(user=new_user)
                     config.save()
 
-                    fn.create_notify(
+                    create_notify(
                         user=new_user,
                         url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
                         infomation=(
@@ -267,7 +269,7 @@ def email_verify(request, token):
             hctoken = request.POST.get('hctoken', '')
             if not hctoken:
                 return StatusError('RJ')
-            if not fn.auth_hcaptcha(hctoken):
+            if not auth_hcaptcha(hctoken):
                 return StatusError('RJ')
         
         user.is_active = True
@@ -280,7 +282,7 @@ def email_verify(request, token):
         config = Config(user=user)
         config.save()
         
-        fn.create_notify(
+        create_notify(
             user=user,
             url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
             infomation=(
