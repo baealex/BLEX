@@ -21,6 +21,7 @@ import { Dropdown } from '@design-system';
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { syncTheme } from '@modules/utility/darkmode';
 import { getUserImage } from '@modules/utility/image';
 import { optimizedEvent } from '@modules/optimize/event';
 
@@ -84,37 +85,15 @@ export function TopNavigation() {
     }, []);
 
     useEffect(() => {
-        try {
-            const isFirstVisit = configContext.isFirstVisit();
-            const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-
-            if (systemDark && isFirstVisit) {
-                if(systemDark.matches) {
-                    document.body.classList.add('dark');
-                    configContext.setState((state) => ({
-                        ...state,
-                        theme: 'dark',
-                    }));
-                    setIsNight(true);
-                }
+        syncTheme((isDark) => {
+            if (isDark) {
+                configContext.setTheme('dark');
+                setIsNight(true);
             } else {
-                document.body.classList.add(configContext.state.theme);
+                configContext.setTheme('default');
+                setIsNight(false);
             }
-
-            systemDark.addEventListener('change', e => {
-                if (configContext.state.theme === 'default' || configContext.state.theme === 'dark') {
-                    if (e.matches) {
-                        configContext.setTheme('dark');
-                        setIsNight(true);
-                    } else {
-                        configContext.setTheme('default');
-                        setIsNight(false);
-                    }
-                }
-            });
-        } catch(e) {
-            document.body.classList.add(configContext.state.theme);
-        }
+        }, configContext.isFirstVisit());
     }, []);
 
     useEffect(() => {
