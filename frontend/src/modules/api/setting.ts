@@ -1,5 +1,6 @@
 import axiosRequest, {
     ResponseData,
+    Headers,
     serializeObject,
 } from './index';
 
@@ -65,27 +66,36 @@ export interface GetSettingProfileData {
     instagram: string;
 }
 
-export async function getSettingPosts() {
+interface GetSettingPostsQuery {
+    order: string;
+    page: number;
+}
+
+export async function getSettingPosts({ order, page }: GetSettingPostsQuery, headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingPostsData>>({
-        url: `/v1/setting/posts`,
-        method: 'GET'
+        url: `/v1/setting/posts?order=${order}&page=${page}`,
+        method: 'GET',
+        headers,
     });
 }
 
 export interface GetSettingPostsData {
-    author: string
-    url: string;
-    title: string;
-    createdDate: string;
-    updatedDate: string;
-    isHide: boolean;
-    totalLikes: number;
-    totalComments: number;
-    todayCount: number;
-    readTime: number;
-    yesterdayCount: number;
-    tag: string;
-};
+    username: string;
+    posts: {
+        url: string;
+        title: string;
+        createdDate: string;
+        updatedDate: string;
+        isHide: boolean;
+        totalLikes: number;
+        totalComments: number;
+        todayCount: number;
+        readTime: number;
+        yesterdayCount: number;
+        tag: string;
+    }[];
+    lastPage: number;
+}
 
 export interface GetSettingSeriesData {
     username: string;

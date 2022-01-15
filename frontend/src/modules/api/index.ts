@@ -4,6 +4,11 @@ import { CONFIG } from '@modules/settings';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
+export interface Headers {
+    'Cookie'?: string;
+    'Content-Type'?: string;
+}
+
 export default async function axiosRequest<T>(config: AxiosRequestConfig) {
     const { request } = axios.create({
         baseURL: CONFIG.API_SERVER,

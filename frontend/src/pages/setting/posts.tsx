@@ -1,137 +1,125 @@
-import React, {
-    useCallback,
-    useEffect,
-    useState
-} from 'react';
-import { GetServerSidePropsContext } from 'next';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { GetServerSidePropsContext } from 'next';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
 import {
     Alert,
-    Card,
     Dropdown,
     Modal,
+    Card,
 } from '@design-system';
+import { Pagination } from '@components/integrated';
 import { Layout } from '@components/setting';
 import { TagBadge } from '@components/tag';
 
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
-
-import { authContext } from '@state/auth';
-import { loadingContext } from '@state/loading';
+import { message } from '@modules/utility/message';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+    const {
+        page = 1,
+        order = '',
+    } = context.query;
+
     const { req, res } = context;
-    if(!req.headers.cookie) {
+    if (!req.headers.cookie) {
+        res.writeHead(302, { Location: '/' });
+        res.end();
+    }
+
+    const { data } = await API.getSettingPosts(
+        { order: order as string , page: page as number },
+        { 'Cookie': req.headers.cookie }
+    );
+    if (data.status === 'ERROR') {
         res.writeHead(302, { Location: '/' });
         res.end();
     }
     return {
-        props: {}
+        props: {
+            page,
+            ...data.body
+        }
     };
 }
 
 const POSTS_ORDER = [
     {
         name: '제목',
-        order: 'title',
+        order: '-title',
     },
     {
         name: '분량',
-        order: 'readTime',
+        order: '-read_time',
     },
     {
         name: '생성',
-        order: 'createdDate',
+        order: '-created_date',
     },
     {
         name: '수정',
-        order: 'updatedDate',
+        order: '-updated_date',
     },
     {
         name: '태그',
-        order: 'tag',
+        order: '-tag',
     },
     {
         name: '추천',
-        order: 'totalLikes',
+        order: '-total_like_count',
     },
     {
         name: '댓글',
-        order: 'totalComments',
+        order: '-total_comment_count',
     },
     {
         name: '숨김',
-        order: 'isHide',
+        order: '-hide',
     },
     {
         name: '오늘 조회수',
-        order: 'todayCount',
+        order: '-today_count',
     },
     {
         name: '어제 조회수',
-        order: 'yesterdayCount',
+        order: '-yesterday_count',
     },
 ];
 
-export default function PostsSetting() {
-    const [ username , setUsername ] = useState(authContext.state.username);
-    const [ order , setOrder ] = useState('');
-    const [ search, setSearch ] = useState('');
+interface Props extends API.GetSettingPostsData {
+    page: number;
+}
 
+export default function PostsSetting(props: Props) {
     const [ isModalOpen, setModalOpen ] = useState(false);
-    const [ posts, setPosts ] = useState<API.GetSettingPostsData[]>([]);
+    const [ posts, setPosts ] = useState(props.posts);
 
     const [ apNow, setApNow ] = useState('');
     const [ analytics, setAnalytics ] = useState(Object());
 
-    useEffect(authContext.syncValue('username', setUsername), []);
-
     useEffect(() => {
-        loadingContext.start();
-
-        API.getSettingPosts().then(({ data }) => {
-            if (Array.isArray(data.body)) {
-                setPosts(data.body);
-            }
-            loadingContext.end();
-        });
-    }, []);
-
-    useEffect(() => {
-        const shouldReverse = order.includes('-');
-        const orderName = order.replace('-', '') as keyof API.GetSettingPostsData;
-
-        setPosts((prevPosts) => {
-            return [...prevPosts].sort((a, b) => {
-                if (shouldReverse) {
-                    return a[orderName] > b[orderName] ? 1 : -1    
-                }
-                return a[orderName] > b[orderName] ? -1 : 1
-            });
-        })
-    }, [username, order])
+        setPosts(props.posts);
+    }, [props.posts])
 
     const router = useRouter();
 
-    const postsAnalytics = useCallback(async (url: string) => {
+    const postsAnalytics = async (url: string) => {
         setApNow(url);
-        if (!analytics[url]) {
+        if(!analytics[url]) {
             const { data } = await API.getPostAnalytics(url);
-            const { items, referers } = data.body;
-
             const dates = [];
             const counts = [];
-
-            for (const item of items) {
-                dates.unshift(item.date.slice(-2));
-                counts.unshift(item.count);
+            for(const item of data.body.items) {
+                dates.push(item.date.slice(-2) + 'th');
+                counts.push(item.count);
             }
-
+            dates.reverse();
+            counts.reverse();
+            const { referers } = data.body;
             setAnalytics({
                 ...analytics,
                 [url]: {
@@ -142,88 +130,86 @@ export default function PostsSetting() {
             });
         };
         setModalOpen(true);
-    }, []);
+    };
 
-    const handlePostsDelete = useCallback(async (username: string, url: string) => {
-        if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { data } = await API.deleteAnUserPosts('@' + username, url);
-            
-            if (data.status === 'DONE') {
-                setPosts((prevPosts) => [...prevPosts.filter(
-                    post => post.url != url
-                )]);
-                snackBar('😀 포스트가 삭제되었습니다.');
+    const onPostsDelete = async (url: string) => {
+        if(confirm(message('CONFIRM', '정말 이 포스트를 삭제할까요?'))) {
+            const { data } = await API.deleteAnUserPosts('@' + props.username, url);
+            if(data.status === 'DONE') {
+                router.replace(router.asPath, '', { scroll: false });
+                snackBar(message('AFTER_REQ_DONE', '포스트가 삭제되었습니다.'));
             }   
         }
-    }, []);
+    };
 
-    const handlePostsHide = useCallback(async (username: string, url: string) => {
-        const { data } = await API.putAnUserPosts('@' + username, url, 'hide');
-        setPosts(prevPosts => [...prevPosts.map(post => (
+    const onPostsHide = async (url: string) => {
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'hide');
+        setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
                 isHide: data.body.isHide as boolean,
             }) : post
         ))]);
-    }, []);
+    };
 
-    const handleTagValueChange = useCallback((url: string, value: string) => {
-        setPosts(prevPosts => [...prevPosts.map(post => (
+    const onTagChange = (url: string, value: string) => {
+        setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
                 tag: value
             }) : post
         ))]);
-    }, []);
+    };
 
-    const handleTagSubmit = useCallback(async (username: string, url: string, tag: string) => {
-        const { data } = await API.putAnUserPosts('@' + username, url, 'tag', {
-            tag
+    const onTagSubmit = async (url: string) => {
+        const thisPost = posts.find(post => post.url == url);
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', {
+            tag: thisPost?.tag
         });
-
-        setPosts(prevPosts => [...prevPosts.map(post => (
+        setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
-                tag: data.body.tag || '',
+                tag: data.body.tag  as string,
+                fixedTag: data.body.tag as string
             }) : post
         ))]);
-        snackBar('😀 태그가 수정되었습니다.');
-    }, []);
+        snackBar(message('AFTER_REQ_DONE', '태그가 수정되었습니다.'));
+    };
 
     return (
         <>
             <TagBadge items={POSTS_ORDER.map((item) => (
-                <a onClick={() => order != item.order
-                    ? setOrder(item.order)
-                    : setOrder('-' + item.order)}
+                <Link
+                    href={{
+                        query: {
+                            ...router.query,
+                            order: router.query.order === item.order
+                                ? item.order.replace('-' , '')
+                                : item.order,
+                            page: 1,
+                        }
+                    }}
+                    scroll={false}
                 >
-                    {item.name}&nbsp;
-                    {order.includes(item.order.replace('-' , '')) && (
-                        order.includes('-') ? (
-                            <i className="fas fa-sort-down"/>
-                        ) : (
-                            <i className="fas fa-sort-up"/>
-                        )
-                    )}
-                </a>
+                    <a>
+                        {item.name}&nbsp;
+                        {router.query.order?.includes(item.order.replace('-' , '')) && (
+                            router.query.order?.includes('-') ? (
+                                <i className="fas fa-sort-up"/>
+                            ) : (
+                                <i className="fas fa-sort-down"/>
+                            )
+                        )}
+                    </a>
+                </Link>
             ))}/>
-            <div className="input-group mb-3">
-                <input
-                    type="text"
-                    placeholder="포스트 검색"
-                    className="form-control"
-                    maxLength={50}
-                    onChange={(e) => setSearch(e.target.value)}
-                    value={search}
-                />
-            </div>
             <>
-                {posts.filter(post => post.title.toLowerCase().includes(search)).map((post, idx) => (
+                {posts.map((post, idx) => (
                     <Card key={idx} hasShadow isRounded className="mb-3">
                         <div className="p-3 mb-1">
                             <div className="d-flex justify-content-between mb-1">
                                 <span>
-                                    <Link href="/[author]/[posturl]" as={`/@${username}/${post.url}`}>
+                                    <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
                                         <a className="deep-dark">
                                             {post.title}
                                         </a>
@@ -236,11 +222,11 @@ export default function PostsSetting() {
                                     menus={[
                                         {
                                             name: '수정',
-                                            onClick: () => router.push(`/@${username}/${post.url}/edit`)
+                                            onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
                                         },
                                         {
                                             name: '삭제',
-                                            onClick: () => handlePostsDelete(username, post.url)
+                                            onClick: () => onPostsDelete(post.url)
                                         },
                                         {
                                             name: '분석',
@@ -263,16 +249,12 @@ export default function PostsSetting() {
                                     type="text"
                                     name="tag"
                                     value={post.tag}
-                                    onChange={(e) => handleTagValueChange(post.url, e.target.value)}
+                                    onChange={(e) => onTagChange(post.url, e.target.value)}
                                     className="form-control"
                                     maxLength={255}
                                 />
                                 <div className="input-group-prepend">
-                                    <button
-                                        type="button"
-                                        className="btn btn-dark"
-                                        onClick={() => handleTagSubmit(username, post.url, post.tag)}
-                                    >
+                                    <button type="button" className="btn btn-dark" onClick={() => onTagSubmit(post.url)}>
                                         변경
                                     </button>
                                 </div>
@@ -289,7 +271,7 @@ export default function PostsSetting() {
                             <div className="d-flex justify-content-between align-items-center shallow-dark ns">
                                 <ul className="none-list mb-0">
                                     <li>
-                                        <a onClick={() => handlePostsHide(username, post.url)} className="element-lock c-pointer">
+                                        <a onClick={() => onPostsHide(post.url)} className="element-lock c-pointer">
                                             {post.isHide
                                                 ? <i className="fas fa-lock"/>
                                                 : <i className="fas fa-lock-open"/>
@@ -311,6 +293,10 @@ export default function PostsSetting() {
                     </Card>
                 ))}
             </>
+            <Pagination
+                page={props.page}
+                last={props.lastPage}
+            />
             <Modal
                 title="포스트 분석"
                 isOpen={isModalOpen}
@@ -331,13 +317,11 @@ export default function PostsSetting() {
                                         }
                                     ]
                                 }}
-                                colors={['#A076F1']}
+                                colors={['purple']}
                             />
                             <ul>
                                 {analytics[apNow].referers.map((item: any, idx: number) => (
-                                    <li key={idx}>
-                                        {item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a>
-                                    </li>
+                                    <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a></li>
                                 ))}
                             </ul>
                         </>
