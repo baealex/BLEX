@@ -81,17 +81,3 @@ export async function putUserAbout(author: string, aboutMarkdown: string, aboutM
         }),
     });
 }
-
-export async function putUsername(username: string, newUsername: string) {
-    return await axiosRequest<ResponseData<any>>({
-        url: `/v1/users/@${encodeURIComponent(username)}`,
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            username: username,
-            new_username: newUsername
-        }),
-    });
-}

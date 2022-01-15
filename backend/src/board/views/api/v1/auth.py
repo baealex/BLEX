@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.timesince import timesince
 
-from board.models import Notify, TwoFactorAuth, Config, Profile
+from board.models import Notify, TwoFactorAuth, Config, Profile, Post, Comment
 from board.modules.notify import create_notify
 from modules.challenge import auth_hcaptcha
 from modules.subtask import sub_task_manager
@@ -24,7 +24,21 @@ from modules.randomness import randnum, randstr
 from modules.response import StatusDone, StatusError
 from modules.scrap import download_image
 
-def login_response(user):
+def check_username(username: str):
+    has_username = User.objects.filter(username=username)
+    if has_username.exists():
+        return '이미 사용중인 사용자 이름 입니다.'
+    
+    regex = re.compile('[a-z0-9]{4,15}')
+    if not regex.match(username) or not len(regex.match(username).group()) == len(username):
+        return '사용자 이름은 4~15자 사이의 소문자 영어, 숫자만 가능합니다.'
+
+def check_email(email: str):
+    regex = re.compile('[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}')
+    if not regex.match(email) or not len(regex.match(email).group()) == len(email):
+        return '올바른 이메일 주소가 아닙니다.'
+
+def login_response(user, is_first_login=False):
     username = user.username
     avatar = str(user.profile.avatar)
     notify = Notify.objects.filter(
@@ -34,6 +48,8 @@ def login_response(user):
 
     return StatusDone({
         'username': user.username,
+        'realname': user.first_name,
+        'email': user.email,
         'avatar': avatar,
         'notify': list(map(lambda item: {
             'pk': item.pk,
@@ -42,6 +58,7 @@ def login_response(user):
             'content': item.infomation,
             'created_date': timesince(item.created_date)
         }, notify)),
+        'is_first_login': True,
         'is_telegram_sync': user.config.has_telegram_id(),
         'is_2fa_sync': user.config.has_two_factor_auth(),
     })
@@ -91,24 +108,29 @@ def logout(request):
     raise Http404
 
 def sign(request):
+    if request.method == 'GET':
+        if User.objects.filter(username=username).exists():
+            return StatusDone({
+                'is_available': False,
+            })
+        return StatusDone({
+            'is_available': True,
+        })
+    
     if request.method == 'POST':
         username = request.POST.get('username', '')
         realname = request.POST.get('realname', '')
         password = request.POST.get('password', '')
         email = request.POST.get('email', '')
 
-        has_username = User.objects.filter(username=username)
-        if has_username.exists():
-            return StatusError('AE', '😥 이미 사용중인 사용자 이름 입니다.')
+        result_check_username = check_username(username)
+        if result_check_username:
+            return StatusError('RJ', result_check_username)
         
-        regex = re.compile('[a-z0-9]{4,15}')
-        if not regex.match(username) or not len(regex.match(username).group()) == len(username):
-            return StatusError('UN', '😥 사용자 이름은 4~15자 사이의 영어, 숫자만 가능합니다.')
-
-        regex = re.compile('[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}')
-        if not regex.match(email) or not len(regex.match(email).group()) == len(email):
-            return StatusError('EN', '😥 올바른 이메일 주소가 아닙니다.')
-
+        result_check_email = check_email(email)
+        if result_check_email:
+            return StatusError('RJ', result_check_email)
+        
         token = randstr(35)
         has_token = User.objects.filter(last_name=token)
         while has_token.exists():
@@ -143,6 +165,33 @@ def sign(request):
             config.save()
         
         return StatusDone()
+    
+    if request.method == 'PATCH':
+        user = request.user
+        body = QueryDict(request.body)
+
+        if body.get('username', ''):
+            if Post.objects.filter(author=request.user).count() > 0:
+                return StatusError('RJ', '이미 작성하신 포스트가 있습니다.')
+
+            if Comment.objects.filter(author=request.user).count() > 0:
+                return StatusError('RJ', '이미 작성하신 댓글이 있습니다.')
+
+            username = body.get('username', '')
+
+            result_check_username = check_username(username)
+            if result_check_username:
+                return StatusError('RJ', result_check_username)
+            
+            user.username = username
+        
+        if body.get('realname', ''):
+            user.first_name = body.get('realname', '')
+        
+        user.save()
+        return StatusDone()
+
+    raise Http404
     
     if request.method == 'DELETE':
         request.user.delete()
@@ -198,7 +247,7 @@ def sign_social(request, social):
                         )
                     )
                     auth.login(request, new_user)
-                    return login_response(request.user)
+                    return login_response(request.user, is_first_login=True)
                 return StatusError('RJ')
         
         if social == 'google':
@@ -246,7 +295,7 @@ def sign_social(request, social):
                     )
 
                     auth.login(request, new_user)
-                    return login_response(request.user)
+                    return login_response(request.user, is_first_login=True)
                 return StatusError('RJ')
     raise Http404
 

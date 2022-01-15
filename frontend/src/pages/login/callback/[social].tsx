@@ -41,7 +41,14 @@ export default function SocialLogin(props: Props) {
                 modalContext.onOpenModal('isTwoFactorAuthModalOpen');
                 return;
             }
-            snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
+
+            if (data.body.isFirstLogin) {
+                snackBar(message('AFTER_REQ_DONE', '소셜 회원가입을 환영합니다. 계정 관리에서 사용자 이름을 변경할 수 있습니다.'), {
+                    onClick: () => Router.push('/setting/account')
+                });
+            } else {
+                snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
+            }
 
             authContext.setState({
                 isLogin: true,

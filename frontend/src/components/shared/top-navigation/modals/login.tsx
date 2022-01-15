@@ -7,6 +7,7 @@ import {
 
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
 import { oauth } from '@modules/utility/oauth';
 
 import { authContext } from '@state/auth';
@@ -73,18 +74,18 @@ export class LoginModal extends React.Component<Props, State> {
 
     async loginCheck(data: API.ResponseData<API.PostLoginData>) {
         if (data.status === 'ERROR') {
-            snackBar('😥 사용자 이름 혹은 패스워드를 확인해 주세요.');
+            snackBar(message('AFTER_REQ_ERR', '사용자 이름 혹은 패스워드를 확인해 주세요.'));
         }
 
         if (data.status === 'DONE') {
             if (data.body.security) {
-                snackBar('😃 2차 인증 코드를 입력해 주세요.');
+                snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
                 modalContext.onOpenModal('isTwoFactorAuthModalOpen');
                 this.props.onClose();
                 return;
             }
 
-            snackBar(`😃 로그인 되었습니다.`);
+            snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
             authContext.setState({
                 isLogin: true,
                 ...data.body,

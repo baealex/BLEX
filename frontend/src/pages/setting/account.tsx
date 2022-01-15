@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { GetServerSidePropsContext } from 'next';
 
-import { snackBar } from '@modules/ui/snack-bar';
-
 import {
     Alert,
     Button,
@@ -12,6 +10,8 @@ import {
 import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
+import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
 
 import { authContext } from '@state/auth';
 import { modalContext } from '@state/modal';
@@ -48,21 +48,12 @@ export default function AccountSetting(props: Props) {
     useEffect(authContext.syncValue('is2faSync', setIs2faSync), []);
 
     const onChangeUsername = async () => {
-        const { data } = await API.putUsername(
-            authContext.state.username,
-            username
-        );
+        const { data } = await API.patchSign({ username });
         if (data.status === 'ERROR') {
-            if (data.errorCode == API.ERROR.REJECT) {
-                snackBar('😥 작성한 댓글과 포스트가 존재하여 변경할 수 없습니다.');
-                setUsername(props.username);
-                setChangeUsername(false);
-                return;
-            }
-            if (data.errorCode == API.ERROR.ALREADY_EXISTS) {
-                snackBar('😥 이미 존재하는 아이디입니다.');
-                return;
-            }
+            snackBar(message('AFTER_REQ_ERR', data.errorMessage));
+            setUsername(props.username);
+            setChangeUsername(false);
+            return;
         }
         if (data.status === 'DONE') {
             snackBar('😀 아이디가 변경되었습니다.');

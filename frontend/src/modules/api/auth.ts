@@ -15,6 +15,8 @@ export async function getLogin(cookie='') {
 
 export interface GetLoginData {
     username: string;
+    realname: string;
+    email: string;
     avatar: string;
     notify: {
         pk: number;
@@ -23,8 +25,25 @@ export interface GetLoginData {
         content: string;
         createdDate: string;
     }[];
+    isFirstLogin: boolean;
     isTelegramSync: boolean;
     is2faSync: boolean;
+}
+
+interface PatchSignData {
+    username?: string;
+    realname?: string;
+}
+
+export async function patchSign(data: PatchSignData) {
+    return await axiosRequest<ResponseData<unknown>>({
+        url: `/v1/sign`,
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject(data),
+    });
 }
 
 export async function postLogin(username: string, password: string) {

@@ -202,22 +202,4 @@ def users(request, username):
                 profile.save()
             
             return StatusDone()
-        
-        if put.get('username'):
-            if not request.user == user:
-                return StatusError('DU')
-            posts = Post.objects.filter(author=request.user)
-            comments = Comment.objects.filter(author=request.user)
-            if posts.count() > 0 or comments.count() > 0:
-                return StatusError('RJ')
-
-            new_username = put.get('new_username')
-            has_username = User.objects.filter(username=new_username)
-            if has_username.exists():
-                return StatusError('AE')
-            
-            user.username = new_username
-            user.save()
-            return StatusDone()
-    
     raise Http404

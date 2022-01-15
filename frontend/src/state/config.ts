@@ -70,8 +70,7 @@ class ConfigContext extends BState<ConfigContextState> {
     }
 
     setTheme(theme: Theme) {
-        document.body.className = '';
-        document.body.classList.add(theme);
+        document.body.className = theme;
         this.setState({
             ...this.state,
             theme: theme,

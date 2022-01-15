@@ -9,8 +9,11 @@ export interface AuthContextState extends GetLoginData {
 const INIT_STATE = {
     isLogin: false,
     username: '',
+    realname: '',
+    email: '',
     avatar: '',
     notify: [],
+    isFirstLogin: false,
     isTelegramSync: false,
     is2faSync: false,
 }
