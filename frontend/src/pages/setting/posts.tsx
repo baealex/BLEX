@@ -19,10 +19,6 @@ import { Layout } from '@components/setting';
 import { TagBadge } from '@components/tag';
 
 import * as API from '@modules/api';
-import {
-    getLocache,
-    setLocache
-} from '@modules/utility/locache';
 import { snackBar } from '@modules/ui/snack-bar';
 
 import { authContext } from '@state/auth';
@@ -98,33 +94,15 @@ export default function PostsSetting() {
     useEffect(() => {
         loadingContext.start();
 
-        const initPosts = async () => {
-            const { data } = await API.getSettingPosts();
-            return data.body;
-        }
-
-        getLocache({
-            key: 'settingPostsOrder',
-            owner: username,
-            refreshSeconds: 60 * 5,
-        }, () => '').then(setOrder);
-
-        getLocache({
-            key: 'settingPosts',
-            owner: username,
-            refreshSeconds: 60 * 5,
-        }, initPosts).then((posts) => {
-            setPosts(posts);
+        API.getSettingPosts().then(({ data }) => {
+            if (Array.isArray(data.body)) {
+                setPosts(data.body);
+            }
             loadingContext.end();
         });
-    }, [])
+    }, []);
 
     useEffect(() => {
-        setLocache({
-            key: 'settingPostsOrder',
-            owner: username,
-        }, order);
-
         const shouldReverse = order.includes('-');
         const orderName = order.replace('-', '') as keyof API.GetSettingPostsData;
 
@@ -137,13 +115,6 @@ export default function PostsSetting() {
             });
         })
     }, [username, order])
-
-    useEffect(() => {
-        setLocache({
-            key: 'settingPosts',
-            owner: username,
-        }, posts);
-    }, [username, posts])
 
     const router = useRouter();
 
