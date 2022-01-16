@@ -31,6 +31,9 @@ export async function getServerSideProps({
     req,
 }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
+    const { cookies } = req;
+    configContext.serverSideInject(cookies);
+
     const { cookie } = req.headers;
     const { data } = await API.getLogin({
         'Cookie': cookie,

@@ -60,12 +60,12 @@ export interface GetSettingProfileData {
     instagram: string;
 }
 
-interface GetSettingPostsPrams {
+interface GetSettingPostsParams {
     order: string;
     page: number;
 }
 
-export async function getSettingPosts(params: GetSettingPostsPrams, headers?: Headers) {
+export async function getSettingPosts(params: GetSettingPostsParams, headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingPostsData>>({
         url: `/v1/setting/posts`,
         method: 'GET',
