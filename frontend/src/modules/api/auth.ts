@@ -1,15 +1,14 @@
 import axiosRequest, {
+    Headers,
     ResponseData,
     serializeObject,
 } from './index';
 
-export async function getLogin(cookie='') {
+export async function getLogin(headers?: Headers) {
     return await axiosRequest<ResponseData<GetLoginData>>({
         url: `/v1/login`,
         method: 'GET',
-        headers: cookie ? {
-            'Cookie': cookie
-        } : {}
+        headers,
     });
 }
 

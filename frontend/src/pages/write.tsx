@@ -1,6 +1,9 @@
 import React from 'react';
-import { GetServerSidePropsContext } from 'next';
 import Router from 'next/router';
+import type {
+    GetServerSidePropsContext,
+    GetServerSidePropsResult,
+} from 'next';
 
 import {
     Layout,
@@ -11,7 +14,7 @@ import { PopOver } from '@design-system';
 import * as API from '@modules/api';
 import {
     debounceEvent,
-    DebounceEventRunner
+    DebounceEventRunner,
 } from '@modules/optimize/event';
 import {
     snackBar
@@ -20,16 +23,22 @@ import {
 import { configContext } from '@state/config';
 import { authContext } from '@state/auth';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const { cookies } = context.req;
-    configContext.serverSideInject(cookies);
+interface Props {
+    username: string;
+};
 
-    const { cookie } = context.req.headers;
-    const { data } = await API.getLogin(cookie);
+export async function getServerSideProps({
+    req,
+}: GetServerSidePropsContext
+): Promise<GetServerSidePropsResult<Props>> {
+    const { cookie } = req.headers;
+    const { data } = await API.getLogin({
+        'Cookie': cookie,
+    });
 
-    if(data.status !== 'DONE') {
+    if (data.status !== 'DONE') {
         return {
-            notFound: true
+            notFound: true,
         };
     }
     
@@ -39,10 +48,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         }
     };
 }
-
-interface Props {
-    username: string;
-};
 
 interface State {
     username: string;

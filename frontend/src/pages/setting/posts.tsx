@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { GetServerSidePropsContext } from 'next';
+import type {
+    GetServerSidePropsContext,
+    GetServerSidePropsResult,
+} from 'next';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
@@ -19,29 +22,32 @@ import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        page = 1,
-        order = '',
-    } = context.query;
+interface Props extends API.GetSettingPostsData {
+    page: number;
+}
 
-    const { req, res } = context;
-    if (!req.headers.cookie) {
-        res.writeHead(302, { Location: '/' });
-        res.end();
-    }
-
+export async function getServerSideProps({
+    query,
+    req,
+}: GetServerSidePropsContext
+): Promise<GetServerSidePropsResult<Props>> {
+    const { page = 1, order = '' } = query;
+    
     const { data } = await API.getSettingPosts(
-        { order: order as string , page: page as number },
+        { order: String(order) , page: Number(page) },
         { 'Cookie': req.headers.cookie }
     );
     if (data.status === 'ERROR') {
-        res.writeHead(302, { Location: '/' });
-        res.end();
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false,
+            }
+        }
     }
     return {
         props: {
-            page,
+            page: Number(page),
             ...data.body
         }
     };
@@ -89,10 +95,6 @@ const POSTS_ORDER = [
         order: '-yesterday_count',
     },
 ];
-
-interface Props extends API.GetSettingPostsData {
-    page: number;
-}
 
 export default function PostsSetting(props: Props) {
     const [ isModalOpen, setModalOpen ] = useState(false);

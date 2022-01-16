@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { GetServerSidePropsContext } from 'next';
+import type {
+    GetServerSidePropsContext,
+    GetServerSidePropsResult,
+} from 'next';
 
 import {
     Alert,
@@ -18,16 +21,20 @@ import { modalContext } from '@state/modal';
 
 interface Props extends API.GetSettingAccountData {}
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const { req, res } = context;
-    if (!req.headers.cookie) {
-        res.writeHead(302, { Location: '/' });
-        res.end();
-    }
-    const { data } = await API.getSettingAcount(req.headers.cookie);
-    if (data.status === 'ERROR') {
-        res.writeHead(302, { Location: '/' });
-        res.end();
+export async function getServerSideProps({
+    req,
+}: GetServerSidePropsContext
+): Promise<GetServerSidePropsResult<Props>> {
+    const { data } = await API.getSettingAcount({
+        'Cookie': req.headers.cookie,
+    });
+    if (data.errorCode === API.ERROR.NOT_LOGIN) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false,
+            }
+        }
     }
     return {
         props: data.body

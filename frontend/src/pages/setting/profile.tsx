@@ -1,6 +1,8 @@
-import { GetServerSidePropsContext } from 'next';
 import React, { useState } from 'react';
-import { snackBar } from '@modules/ui/snack-bar';
+import type {
+    GetServerSidePropsContext,
+    GetServerSidePropsResult,
+} from 'next';
 
 import { 
     Alert,
@@ -11,21 +13,27 @@ import {
 import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
+import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
 
 import { loadingContext } from '@state/loading'
 
 interface Props extends API.GetSettingProfileData {}
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const { req, res } = context;
-    if(!req.headers.cookie) {
-        res.writeHead(302, { Location: '/' });
-        res.end();
-    }
-    const { data } = await API.getSettingProfile(req.headers.cookie);
-    if(data.status === 'ERROR') {
-        res.writeHead(302, { Location: '/' });
-        res.end();
+export async function getServerSideProps({
+    req,
+}: GetServerSidePropsContext
+): Promise<GetServerSidePropsResult<Props>> {
+    const { data } = await API.getSettingProfile({
+        'Cookie': req.headers.cookie,
+    });
+    if (data.status === 'ERROR') {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false,
+            }
+        }
     }
     return {
         props: data.body
@@ -55,7 +63,7 @@ export default function ProfileSetting(props: Props) {
 
         const { data } = await API.putSetting('profile', sendData);
         if(data.status === 'DONE') {
-            snackBar('😀 프로필이 업데이트 되었습니다.');
+            snackBar(message('AFTER_REQ_DONE', '프로필이 업데이트 되었습니다.'));
         }
     };
     

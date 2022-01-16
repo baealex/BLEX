@@ -2,8 +2,9 @@ import axiosRequest, { ResponseData } from './index';
 
 export async function getTags(page: number) {
     return await axiosRequest<ResponseData<GetTagsData>>({
-        url: `/v1/tags?page=${page}`,
-        method: 'GET'
+        url: '/v1/tags',
+        method: 'GET',
+        params: { page },
     });
 }
 
@@ -17,8 +18,9 @@ export interface GetTagsData {
 
 export async function getTag(tag: string, page: number) {
     return await axiosRequest<ResponseData<GetTagData>>({
-        url: `/v1/tags/${encodeURIComponent(tag)}?page=${page}`,
-        method: 'GET'
+        url: `/v1/tags/${encodeURIComponent(tag)}`,
+        method: 'GET',
+        params: { page },
     });
 }
 

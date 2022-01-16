@@ -4,7 +4,12 @@ import axiosRequest, {
 
 export async function getSearch(query: string, page=1, username='') {
     return await axiosRequest<ResponseData<GetSearchData>>({
-        url: `/v1/search?q=${encodeURIComponent(query)}&page=${page}&username=${username}`,
+        url: '/v1/search',
+        params: {
+            q: query,
+            page,
+            username,
+        },
         method: 'GET',
     });
 }

@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
+
 import ReactFrappeChart from 'react-frappe-charts';
-
-import { Layout } from '@components/setting';
-
-import * as API from '@modules/api';
 
 import {
     Accordion,
     Card,
     Table,
 } from '@design-system';
+import { Layout } from '@components/setting';
+
+import * as API from '@modules/api';
+
 import { loadingContext } from '@state/loading';
 
 export default function AnalyticsSetting() {
@@ -20,9 +21,12 @@ export default function AnalyticsSetting() {
     useEffect(() => {
         loadingContext.start();
         Promise.all([
-            API.getSettingAnalyticsView({}).then(({data}) => setViews(data.body)),
-            API.getSettingAnalyticsSearch({}).then(({data}) => setSearches(data.body)),
-            API.getSettingAnalyticsReferrers({ page: 1 }).then(({data}) => setReferers(data.body)),
+            API.getSettingAnalyticsView()
+                .then(({data}) => setViews(data.body)),
+            API.getSettingAnalyticsSearch()
+                .then(({data}) => setSearches(data.body)),
+            API.getSettingAnalyticsReferrers()
+                .then(({data}) => setReferers(data.body)),
         ]).then(() => {
             loadingContext.end();
         })

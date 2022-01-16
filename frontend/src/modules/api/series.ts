@@ -5,8 +5,9 @@ import axiosRequest, {
 
 export async function getUserSeries(author: string, page: number) {
     return await axiosRequest<ResponseData<GetUserSeriesData>>({
-        url: `/v1/users/${encodeURIComponent(author)}/series?page=${page}`,
-        method: 'GET'
+        url: `/v1/users/${encodeURIComponent(author)}/series`,
+        method: 'GET',
+        params: { page },
     });
 }
 

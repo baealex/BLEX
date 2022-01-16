@@ -1,27 +1,15 @@
-import { GetServerSidePropsContext } from 'next';
 import { useState } from 'react';
-import { snackBar } from '@modules/ui/snack-bar';
+import type {
+    GetServerSidePropsContext,
+    GetServerSidePropsResult,
+} from 'next';
 
 import { Card } from '@design-system';
 import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
-
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const { req, res } = context;
-    if(!req.headers.cookie) {
-        res.writeHead(302, { Location: '/' });
-        res.end();
-    }
-    const { data } = await API.getSettingForms(req.headers.cookie);
-    if(data.status === 'ERROR') {
-        res.writeHead(302, { Location: '/' });
-        res.end();
-    }
-    return {
-        props: data.body
-    };
-}
+import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
 
 interface Props {
     forms: {
@@ -31,6 +19,26 @@ interface Props {
     }[];
 };
 
+export async function getServerSideProps({
+    req,
+}: GetServerSidePropsContext
+): Promise<GetServerSidePropsResult<Props>> {
+    const { data } = await API.getSettingForms({
+        'Cookie': req.headers.cookie,
+    });
+    if (data.status === 'ERROR') {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false,
+            }
+        }
+    }
+    return {
+        props: data.body
+    };
+}
+
 export default function FormsSetting(props: Props) {
     const [ title, setTitle ] = useState('');
     const [ content, setContent ] = useState('');
@@ -38,11 +46,11 @@ export default function FormsSetting(props: Props) {
 
     const onSubmit = async () => {
         if (!title) {
-            snackBar('😅 서식의 제목을 입력하세요.');
+            snackBar(message('BEFORE_REQ_ERR', '서식의 제목을 입력하세요.'));
             return;
         }
         if (!content) {
-            snackBar('😅 서식의 내용을 입력하세요.');
+            snackBar(message('BEFORE_REQ_ERR', '서식의 내용을 입력하세요.'));
             return;
         }
         const { data } = await API.postForms(title, content);
@@ -51,17 +59,17 @@ export default function FormsSetting(props: Props) {
             title,
             createdDate: '',
         }]);
-        snackBar('😀 서식이 생성되었습니다.');
+        snackBar(message('AFTER_REQ_DONE', '서식이 생성되었습니다.'));
         setTitle('');
         setContent('');
     };
 
     const onDelete = async (id: number) => {
-        if (confirm('😮 정말 이 서식을 삭제할까요?')) {
+        if (confirm(message('CONFIRM', '정말 이 서식을 삭제할까요?'))) {
             const { data } = await API.deleteForms(id);
             if (data.status === 'DONE') {
                 setForms(forms.filter(item => item.id !== id));
-                snackBar('😀 서식이 삭제되었습니다.');
+                snackBar(message('AFTER_REQ_DONE', '서식이 삭제되었습니다.'));
             }
         }
     }

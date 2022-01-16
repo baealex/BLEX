@@ -87,12 +87,12 @@ export function Layout(props: Props) {
     useEffect(modalContext.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
     
     useEffect(() => {
-        API.getSettingForms('').then((response) => {
+        API.getSettingForms().then((response) => {
             const { data } = response;
             setForms(data.body.forms);
         });
 
-        API.getSettingSeries('').then((response) => {
+        API.getSettingSeries().then((response) => {
             const { data } = response;
             setSeries(data.body.series);
         })

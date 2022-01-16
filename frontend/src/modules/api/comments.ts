@@ -6,8 +6,9 @@ import axiosRequest, {
 
 export async function postComments(url: string, content: string) {
     return await axiosRequest<ResponseData<PostCommentsData>>({
-        url: `/v1/comments?url=${url}`,
+        url: `/v1/comments`,
         method: 'POST',
+        params: { url },
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },

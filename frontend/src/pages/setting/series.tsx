@@ -1,26 +1,35 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { GetServerSidePropsContext } from 'next';
+import type {
+    GetServerSidePropsContext,
+    GetServerSidePropsResult,
+} from 'next';
 
 import { Card } from '@design-system';
 import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
-import { loadingContext } from '@state/loading';
 import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '@modules/utility/message';
+
+import { loadingContext } from '@state/loading';
 
 interface Props extends API.GetSettingSeriesData {}
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const { req, res } = context;
-    if(!req.headers.cookie) {
-        res.writeHead(302, { Location: '/' });
-        res.end();
-    }
-    const { data } = await API.getSettingSeries(req.headers.cookie);
-    if(data.status === 'ERROR') {
-        res.writeHead(302, { Location: '/' });
-        res.end();
+export async function getServerSideProps({
+    req,
+}: GetServerSidePropsContext
+): Promise<GetServerSidePropsResult<Props>> {
+    const { data } = await API.getSettingSeries({
+        'Cookie': req.headers.cookie,
+    });
+    if (data.status === 'ERROR') {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false,
+            }
+        }
     }
     return {
         props: data.body
@@ -33,27 +42,26 @@ export default function SeriesSetting(props: Props) {
 
     const onSeriesCreate = async () => {
         if (!newSeries) {
-            snackBar('😅 시리즈의 이름을 입력하세요.');
+            snackBar(message('BEFORE_REQ_ERR', '시리즈의 이름을 입력하세요.'));
             return;
         }
         const { data } = await API.postUserSeries('@' + props.username, newSeries);
-        snackBar('😀 시리즈가 생성되었습니다.');
+        snackBar(message('AFTER_REQ_DONE', '시리즈가 생성되었습니다.'));
         setSeries((prevSeries) => [{
             url: data.body.url,
             title: newSeries,
             totalPosts: 0
-        }, ...prevSeries]);
+        }].concat(prevSeries));
         setNewSeries('');
     };
 
     const onSeriesDelete = async (url: string) => {
-        if (confirm('😮 정말 이 시리즈를 삭제할까요?')) {
+        if (confirm(message('CONFIRM', '정말 이 시리즈를 삭제할까요?'))) {
             const { data } = await API.deleteUserSeries('@' + props.username, url);
             if(data.status === 'DONE') {
-                setSeries([...series.filter(series => (
-                    series.url !== url
-                ))]);
-                snackBar('😀 시리즈가 삭제되었습니다.');
+                setSeries((prevSeries) => prevSeries
+                    .filter(series => series.url !== url));
+                snackBar(message('AFTER_REQ_DONE', '시리즈가 삭제되었습니다.'));
             }   
         }
     };

@@ -10,19 +10,29 @@ export interface Headers {
 }
 
 export default async function axiosRequest<T>(config: AxiosRequestConfig) {
+    const isBrowser = typeof window !== 'undefined';
+    
     const { request } = axios.create({
         baseURL: CONFIG.API_SERVER,
         withCredentials: true,
     });
 
+    if (config.headers) {
+        Object.keys(config.headers).forEach(key => {
+            if (config.headers[key] === undefined) {
+                delete config.headers[key];
+            }
+        });
+    }
+
     try {
         return await request<T>(config);
     } catch(e) {
-        if (typeof window !== 'undefined') {
+        if (isBrowser) {
             snackBar(message('SYSTEM_ERR', '시스템 오류가 발생했습니다.'));
-        } else {
-            console.log(e);
+            throw e;
         }
+        console.log(e);
         throw e;
     }
 }
