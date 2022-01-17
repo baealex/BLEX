@@ -26,7 +26,7 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
     const { data } = await API.getSettingAcount({
-        'Cookie': req.headers.cookie,
+        'Cookie': req.headers.cookie || '',
     });
     if (data.errorCode === API.ERROR.NOT_LOGIN) {
         return {

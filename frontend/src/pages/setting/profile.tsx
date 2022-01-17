@@ -25,7 +25,7 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
     const { data } = await API.getSettingProfile({
-        'Cookie': req.headers.cookie,
+        'Cookie': req.headers.cookie || '',
     });
     if (data.status === 'ERROR') {
         return {

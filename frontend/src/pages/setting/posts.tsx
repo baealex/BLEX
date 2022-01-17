@@ -35,7 +35,7 @@ export async function getServerSideProps({
     
     const { data } = await API.getSettingPosts(
         { order: String(order) , page: Number(page) },
-        { 'Cookie': req.headers.cookie }
+        { 'Cookie': req.headers.cookie || '' }
     );
     if (data.status === 'ERROR') {
         return {

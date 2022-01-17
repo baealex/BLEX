@@ -7,7 +7,7 @@ import { CONFIG } from '@modules/settings';
 import { loadingContext } from '@state/loading';
 
 export function getImage(path: string) {
-    return `https://${CONFIG.STATIC_SERVER}/${path}`;
+    return `${CONFIG.STATIC_SERVER}/${path}`;
 }
 
 interface GetPostsImageOptions {

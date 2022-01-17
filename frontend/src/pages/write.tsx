@@ -36,7 +36,7 @@ export async function getServerSideProps({
 
     const { cookie } = req.headers;
     const { data } = await API.getLogin({
-        'Cookie': cookie,
+        'Cookie': cookie || '',
     });
 
     if (data.status !== 'DONE') {

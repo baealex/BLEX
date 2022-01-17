@@ -1,13 +1,16 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, {
+    AxiosRequestConfig,
+    AxiosRequestHeaders,
+} from 'axios';
 
 import { CONFIG } from '@modules/settings';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
-export interface Headers {
+export type Headers = AxiosRequestHeaders & {
     'Cookie'?: string;
     'Content-Type'?: string;
-}
+};
 
 export default async function axiosRequest<T>(config: AxiosRequestConfig) {
     const isBrowser = typeof window !== 'undefined';
@@ -18,11 +21,13 @@ export default async function axiosRequest<T>(config: AxiosRequestConfig) {
     });
 
     if (config.headers) {
-        Object.keys(config.headers).forEach(key => {
-            if (config.headers[key] === undefined) {
-                delete config.headers[key];
+        const { headers } = config;
+        Object.keys(headers).forEach(key => {
+            if (!headers[key]) {
+                delete headers[key];
             }
         });
+        config.headers = headers;
     }
 
     try {

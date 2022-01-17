@@ -9,8 +9,8 @@
         "test": "jest"
     },
     "dependencies": {
-        "@hcaptcha/react-hcaptcha": "^0.3.9",
-        "axios": "^0.21.4",
+        "@hcaptcha/react-hcaptcha": "^1.0.0",
+        "axios": "^0.24.0",
         "bstate": "^3.0.1",
         "classnames": "^2.3.1",
         "frappe-charts": "^1.6.1",
@@ -22,6 +22,7 @@
         "three-dots": "^0.2.3"
     },
     "devDependencies": {
+        "@babel/runtime": "^7.0.0-beta.56",
         "@types/hcaptcha__react-hcaptcha": "^0.1.5",
         "@types/jest": "^27.4.0",
         "@types/node": "^16.11.12",
