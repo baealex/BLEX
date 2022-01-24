@@ -73,6 +73,9 @@ class PostAdmin(admin.ModelAdmin):
     list_filter = ['author']
     list_per_page = 30
 
+admin.site.register(PostContent)
+admin.site.register(PostConfig)
+
 @admin.register(PostAnalytics)
 class PostAnalyticsAdmin(admin.ModelAdmin):
     list_display = ['posts', 'view_count', 'created_date']

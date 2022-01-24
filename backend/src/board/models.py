@@ -335,6 +335,9 @@ class PostContent(models.Model):
     text_html     = models.TextField(blank=True)
     text_block    = models.TextField(blank=True)
 
+    def __str__(self):
+        return self.posts.title
+
 class PostConfig(models.Model):
     posts         = models.OneToOneField('board.Post', related_name='config', on_delete=models.CASCADE)
     hide          = models.BooleanField(default=False)
@@ -342,6 +345,9 @@ class PostConfig(models.Model):
     pinned        = models.BooleanField(default=False)
     advertise     = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.posts.title
 
 class PostAnalytics(models.Model):
     posts        = models.ForeignKey('board.Post', related_name='analytics', on_delete=models.CASCADE)
