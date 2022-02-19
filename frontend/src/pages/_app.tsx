@@ -1,5 +1,6 @@
 import App, { AppProps } from 'next/app';
 import Head from 'next/head';
+import Script from 'next/script';
 import Router from 'next/router';
 
 import { Loading } from '@design-system';
@@ -17,6 +18,10 @@ import { loadingContext } from '@state/loading';
 
 import '../styles/main.scss';
 
+Router.events.on('routeChangeComplete', () => {
+    lazyLoadResource();
+});
+
 function minify(str: string) {
     str = str.replace(/\s/g, '');
     str = str.replace(/function/g, 'function ');
@@ -24,16 +29,6 @@ function minify(str: string) {
     str = str.replace(/new/g, 'new ');
     return str;
 }
-
-Router.events.on('routeChangeStart', () => {
-
-});
-Router.events.on('routeChangeComplete', () => {
-    lazyLoadResource();
-});
-Router.events.on('routeChangeError', () => {
-
-});
 
 class Main extends App<AppProps> {
     state = {
@@ -67,21 +62,34 @@ class Main extends App<AppProps> {
             <>
                 <Head>
                     <title>BLEX</title>
-                    {CONFIG.GOOGLE_ANALYTICS_V4 && (
-                        <>
-                            <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>
-                            <script dangerouslySetInnerHTML={{ __html: minify(`
+                </Head>
+
+                <SEO
+                    title="BLEX"
+                    image="https://static.blex.me/assets/images/default-post.png"
+                    description="모든 글은 경험에서 나오고, 그 경험은 곧 당신이 됩니다. 당신의 경험을 빛나게 할 블로그."
+                />
+
+                {CONFIG.GOOGLE_ANALYTICS_V4 && (
+                    <>
+                        <Script src={`https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_V4}`}/>
+                        <Script
+                            id="gtag-init"
+                            dangerouslySetInnerHTML={{ __html: minify(`
                                 window.dataLayer = window.dataLayer || [];
                                 function gtag() {
                                     dataLayer.push(arguments);
                                 }
                                 gtag('js', new Date());
                                 gtag('config', '${CONFIG.GOOGLE_ANALYTICS_V4}');
-                            `)}}/>
-                        </>
-                    )}
-                    {CONFIG.MICROSOFT_CLARITY && (
-                        <script dangerouslySetInnerHTML={{ __html: minify(`
+                            `)}}
+                        />
+                    </>
+                )}
+                {CONFIG.MICROSOFT_CLARITY && (
+                    <Script
+                        id="clarity-init"
+                        dangerouslySetInnerHTML={{ __html: minify(`
                             (function(c, l, a, r, i, t, y) {
                                 c[a] = c[a] || function() {
                                     (c[a].q = c[a].q || []).push(arguments)
@@ -92,20 +100,15 @@ class Main extends App<AppProps> {
                                 y = l.getElementsByTagName(r)[0];
                                 y.parentNode.insertBefore(t,y);
                             })(window, document, "clarity", "script", "${CONFIG.MICROSOFT_CLARITY}");
-                        `)}}/>
-                    )}
-                    {CONFIG.GOOGLE_ADSENSE_CLIENT_ID && (
-                        <script
-                            async
-                            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-                        />
-                    )}
-                </Head>
-                <SEO
-                    title="BLEX"
-                    image="https://static.blex.me/assets/images/default-post.png"
-                    description="모든 글은 경험에서 나오고, 그 경험은 곧 당신이 됩니다. 당신의 경험을 빛나게 할 블로그."
-                />
+                        `)}}
+                    />
+                )}
+                {CONFIG.GOOGLE_ADSENSE_CLIENT_ID && (
+                    <Script
+                        async
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+                    />
+                )}
 
                 <TopNavigation/>
                 
