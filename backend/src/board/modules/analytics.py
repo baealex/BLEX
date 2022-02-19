@@ -11,13 +11,14 @@ from modules.hash import get_sha256
 
 UNVAILD_REFERERS = [
     settings.SITE_URL.split('//')[-1],
-    'in-vm',
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://in-vm',
     'AND',
     'OR',
     'IF',
     'CASE',
     'SELECT',
-    '127.0.0.1'
 ]
 
 NONE_HUMANS = [
@@ -36,39 +37,26 @@ NONE_HUMANS = [
 ]
 
 BOT_TYPES = [
-    'amazonbot',
+    'ahrefs',
     'applebot',
     'bingbot',
-    'bitlybot',
+    'coccoc',
     'commoncrawl',
-    'datagnionbot',
-    'embedly',
+    'dataforseo',
     'google',
-    'petal',
-    'notion',
-    'mail.ru_bot',
-    'naver',
-    'neeva',
     'kakao',
-    'slack',
-    'twitter',
-    'telegram',
-    'semrush',
+    'mail.ru_bot',
     'mj12',
+    'naver',
+    'petal',
+    'semrush',
     'seznam',
-    'blex',
+    'slack',
+    'telegram',
+    'twitter',
     'yandex',
     'zoominfo',
-    'dot',
-    'cocolyze',
-    'bnf',
-    'ads',
-    'linkdex',
-    'similartech',
-    'coccoc',
-    'ahrefs',
-    'baidu',
-    'facebook'
+    'facebook',
 ]
 
 def get_network_addr(request):
