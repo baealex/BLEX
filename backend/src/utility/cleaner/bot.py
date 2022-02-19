@@ -12,7 +12,7 @@ django.setup()
 from django.conf import settings
 
 from board.models import *
-from board.modules.analytics import NONE_HUMANS, BOT_TYPES
+from board.modules.analytics import NONE_HUMANS, BOT_TYPES, bot_check
 
 if __name__ == '__main__':
     humans = History.objects.exclude(category__contains='bot')
@@ -28,13 +28,11 @@ if __name__ == '__main__':
     bots = History.objects.filter(category__contains='bot')
 
     for bot in bots:
-        temp_categry = bot.category
-        for bot_type in BOT_TYPES:
-            if bot_type in bot.agent.lower():
-                bot.category = bot_type + '-bot'
-                break
+        prev_category = bot.category
+        next_category = bot_check(bot.category)
         
-        if temp_categry != bot.category:
-            print(f'{temp_categry} ==> {bot.category}')
+        if prev_category != next_category:
+            print(f'{prev_category} ==> {next_category}')
+            bot.category = next_category
             bot.save()
             time.sleep(0.1)

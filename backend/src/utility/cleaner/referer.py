@@ -19,5 +19,7 @@ if __name__ == '__main__':
         rfs = RefererFrom.objects.filter(location__contains=item)
 
         for rf in rfs:
-            rf.delete()
-            time.sleep(0.1)
+            if item in rf.location:
+                print(f'Remove referer : {rf.pk} - {rf.location}')
+                rf.delete()
+                time.sleep(0.1)

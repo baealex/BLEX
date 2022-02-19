@@ -17,24 +17,27 @@ django.setup()
 
 from board.models import Post, Comment, TempPosts, ImageCache
 
+def get_clean_filename(filename):
+    if 'preview' in filename:
+        filename = filename.split('.preview')[0]
+    if 'minify' in filename:
+        filename = filename.split('.minify')[0]
+    return filename
+
 if __name__ == '__main__':
-    image_dict = dict()
+    used_filename_dict = dict()
 
     posts = Post.objects.all()
 
     for post in posts:
         if post.image:
-            image_dict[str(post.image).split('/')[-1]] = True
+            used_filename_dict[str(post.image).split('/')[-1]] = True
     
     for (path, dir, files) in os.walk(TITLE_IMAGE_DIR):
         for filename in files:
-            fname = filename
-            if 'preview' in fname:
-                fname = fname.split('.preview')[0]
-            if 'minify' in fname:
-                fname = fname.split('.minify')[0]
+            filename_for_search = get_clean_filename(filename)
             
-            if not fname in image_dict:
-                print(path + '/' + filename)
+            if not filename_for_search in used_filename_dict:
+                print(f'Remove file : {path}/{filename}')
                 os.remove(path + '/' + filename)
                 time.sleep(0.1)

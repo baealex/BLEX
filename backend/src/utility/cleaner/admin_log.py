@@ -10,4 +10,5 @@ django.setup()
 
 from django.contrib.admin.models import LogEntry
 
-LogEntry.objects.all().delete()
+if __name__ == '__main__':
+    LogEntry.objects.all().delete()

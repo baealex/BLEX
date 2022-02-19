@@ -19,12 +19,19 @@ from django.db.models import F
 
 from board.models import Post, Comment, TempPosts, ImageCache
 
+def get_clean_filename(filename):
+    if 'preview' in filename:
+        filename = filename.split('.preview')[0]
+    if 'minify' in filename:
+        filename = filename.split('.minify')[0]
+    return filename
+
 if __name__ == '__main__':
     image_parser = re.compile(r'\!\[.*\]\(([^\s\"]*).*\)')
     video_parser = re.compile(r'\@gif\[(.*)\]')
     src_parser = re.compile(r'src=[\'\"]([^\'\"]*)[\'\"]')
 
-    image_dict = dict()
+    used_filename_dict = dict()
 
     posts = Post.objects.all().annotate(
         text_md=F('content__text_md'),
@@ -42,32 +49,24 @@ if __name__ == '__main__':
         else:
             etc = src_parser.findall(item.text_md)
         
-        for image in chain(images, videos, etc):
-            fname = image.split('/')[-1]
-            if 'preview' in fname:
-                fname = fname.split('.preview')[0]
-            if 'minify' in fname:
-                fname = fname.split('.minify')[0]
-            image_dict[fname] = True
+        for path in chain(images, videos, etc):
+            filename = get_clean_filename(path.split('/')[-1])
+            used_filename_dict[filename] = True
         
     for (path, dir, files) in os.walk(CONTENT_IMAGE_DIR):
         for filename in files:
-            fname = filename
-            if 'preview' in fname:
-                fname = fname.split('.preview')[0]
-            if 'minify' in fname:
-                fname = fname.split('.minify')[0]
+            filename_for_search = get_clean_filename(filename)
             
-            if not fname in image_dict:
-                print(path + '/' + filename)
+            if not filename_for_search in used_filename_dict:
+                print(f'Remove file : {path}/{filename}')
                 os.remove(path + '/' + filename)
                 time.sleep(0.1)
 
     for image_cache in ImageCache.objects.all():
-        fname = image_cache.path.split('/')[-1]
+        cache_filename = image_cache.path.split('/')[-1]
         
-        if not fname in image_dict:
-            print(f'{image_cache.pk} : {image_cache.path}')
+        if not cache_filename in used_filename_dict:
+            print(f'Remove cache : {image_cache.pk} - {image_cache.path}')
             image_cache.delete()
             time.sleep(0.1)
             
