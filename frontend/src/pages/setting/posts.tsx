@@ -71,10 +71,6 @@ const POSTS_ORDER = [
         order: '-updated_date',
     },
     {
-        name: '태그',
-        order: '-tag',
-    },
-    {
         name: '추천',
         order: '-total_like_count',
     },
