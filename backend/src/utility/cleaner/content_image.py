@@ -15,6 +15,8 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
+from django.db.models import F
+
 from board.models import Post, Comment, TempPosts, ImageCache
 
 if __name__ == '__main__':
@@ -24,7 +26,10 @@ if __name__ == '__main__':
 
     image_dict = dict()
 
-    posts = Post.objects.all()
+    posts = Post.objects.all().annotate(
+        text_md=F('content__text_md'),
+        text_html=F('content__text_html')
+    )
     comments = Comment.objects.all()
     temp_posts = TempPosts.objects.all()
     
