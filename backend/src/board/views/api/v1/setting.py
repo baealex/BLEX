@@ -74,7 +74,6 @@ def setting(request, item):
                 'read_time',
                 'created_date',
                 'updated_date',
-                'tag',
                 'total_like_count',
                 'total_comment_count',
                 'hide',
@@ -90,6 +89,10 @@ def setting(request, item):
                 if not is_vaild:
                     raise Http404
 
+                if 'hide' in order:
+                    posts = posts.annotate(
+                        hide=F('config__hide'),
+                    )
                 if 'today_count' in order:
                     today = timezone.now()
                     posts = posts.annotate(today_count=Count(
