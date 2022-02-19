@@ -66,7 +66,7 @@ class Main extends App<AppProps> {
         return (
             <>
                 <Head>
-                    <title>BLOG EXPRESS ME</title>
+                    <title>BLEX</title>
                     {CONFIG.GOOGLE_ANALYTICS_V4 && (
                         <>
                             <script async src="https://www.googletagmanager.com/gtag/js?id=G-VD3ZLTR4ZQ"></script>
@@ -104,7 +104,7 @@ class Main extends App<AppProps> {
                 <SEO
                     title="BLEX"
                     image="https://static.blex.me/assets/images/default-post.png"
-                    description="경험은 글이 되고 글은 나를 표현한다. 나를 표현하는 블렉스"
+                    description="모든 글은 경험에서 나오고, 그 경험은 곧 당신이 됩니다. 당신의 경험을 빛나게 할 블로그."
                 />
 
                 <TopNavigation/>
