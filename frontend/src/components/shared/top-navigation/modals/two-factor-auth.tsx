@@ -8,7 +8,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
 
-import { authContext } from '@state/auth';
+import { authStore } from 'stores/auth';
 
 interface Props {
     isOpen: boolean;
@@ -88,7 +88,7 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
 
         if (data.status == 'DONE') {
             snackBar(`😃 로그인 되었습니다.`);
-            authContext.setState({
+            authStore.setState({
                 isLogin: true,
                 ...data.body,
             });

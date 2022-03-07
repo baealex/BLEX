@@ -11,7 +11,7 @@ import {
 
 import * as API from '@modules/api';
 
-import { configContext } from '@state/config';
+import { configStore } from 'stores/config';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -47,14 +47,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface Props extends API.GetUserProfileData {};
 
 export default function Overview(props: Props) {
-    const [ isNightMode, setIsNightMode ] = useState(configContext.state.theme === 'dark');
+    const [ isNightMode, setIsNightMode ] = useState(configStore.state.theme === 'dark');
 
     useEffect(() => {
-        const updateKey = configContext.append((state) => {
+        const updateKey = configStore.subscribe((state) => {
             setIsNightMode(state.theme === 'dark');
         });
 
-        return () => configContext.pop(updateKey);
+        return () => configStore.unsubscribe(updateKey);
     }, []);
 
     return (

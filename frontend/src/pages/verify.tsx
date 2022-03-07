@@ -10,7 +10,7 @@ import { GetServerSidePropsContext } from 'next';
 
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
-import { authContext } from '@state/auth';
+import { authStore } from 'stores/auth';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { token } = context.query;
@@ -57,7 +57,7 @@ export default function Verify(props: Props) {
         }
         if(data.status === 'DONE') {
             snackBar(`😆 ${props.username}님! 환영합니다 🎉`);
-            authContext.setState({
+            authStore.setState({
                 isLogin: true,
                 ...data.body,
             })

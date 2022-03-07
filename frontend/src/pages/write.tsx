@@ -20,8 +20,8 @@ import {
     snackBar
 } from '@modules/ui/snack-bar';
 
-import { configContext } from '@state/config';
-import { authContext } from '@state/auth';
+import { configStore } from 'stores/config';
+import { authStore } from 'stores/auth';
 
 interface Props {
     username: string;
@@ -32,7 +32,7 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
     const { cookies } = req;
-    configContext.serverSideInject(cookies);
+    configStore.serverSideInject(cookies);
 
     const { cookie } = req.headers;
     const { data } = await API.getLogin({
@@ -91,17 +91,17 @@ class Write extends React.Component<Props, State> {
             isHide: false,
             isAd: false,
             image: undefined,
-            isAutoSave: configContext.state.isAutoSave,
+            isAutoSave: configStore.state.isAutoSave,
             isOpenArticleModal: false,
             tempPosts: [],
             tempPostsCache: {}
         };
-        this.authUpdateKey = authContext.append((state) => {
+        this.authUpdateKey = authStore.subscribe((state) => {
             this.setState({
                 username: state.username,
             });
         });
-        this.configUpdateKey = configContext.append((state) => {
+        this.configUpdateKey = configStore.subscribe((state) => {
             this.setState({
                 isAutoSave: state.isAutoSave,
             });
@@ -115,8 +115,8 @@ class Write extends React.Component<Props, State> {
     /* Component Method */
 
     componentWillUnmount() {
-        configContext.pop(this.configUpdateKey);
-        authContext.pop(this.authUpdateKey);
+        configStore.unsubscribe(this.configUpdateKey);
+        authStore.unsubscribe(this.authUpdateKey);
     }
 
     async componentDidMount() {
@@ -278,7 +278,7 @@ class Write extends React.Component<Props, State> {
 
     onCheckAutoSave(checked: boolean) {
         !checked && this.saver.clear();
-        configContext.setState((state) => ({
+        configStore.setState((state) => ({
             ...state,
             isAutoSave: checked
         }));

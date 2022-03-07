@@ -3,7 +3,7 @@ import styles from './ArticleContent.module.scss';
 import { useState, useEffect } from 'react';
 import Router from 'next/router';
 
-import { configContext } from '@state/config';
+import { configStore } from 'stores/config';
 
 function onInnerLinkClickEvent(this: HTMLAnchorElement, e: any) {
     if(this.href.includes(`${location.protocol}//${location.host}/`)) {
@@ -21,9 +21,9 @@ export function ArticleContent(props: {
     html: string;
     isEdit?: boolean;
 }) {
-    const [ isOpenNewTab, setIsOpenNewTab ] = useState(configContext.state.isOpenNewTab);
+    const [ isOpenNewTab, setIsOpenNewTab ] = useState(configStore.state.isOpenNewTab);
 
-    useEffect(configContext.syncValue('isOpenNewTab', setIsOpenNewTab), []);
+    useEffect(configStore.syncValue('isOpenNewTab', setIsOpenNewTab), []);
 
     useEffect(() => {
         if(typeof window !== "undefined") {

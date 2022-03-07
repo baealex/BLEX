@@ -10,8 +10,8 @@ import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 import { oauth } from '@modules/utility/oauth';
 
-import { authContext } from '@state/auth';
-import { modalContext } from '@state/modal';
+import { authStore } from 'stores/auth';
+import { modalStore } from 'stores/modal';
 
 interface Props {
     isOpen: boolean;
@@ -29,16 +29,16 @@ export class LoginModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            username: authContext.state.username,
+            username: authStore.state.username,
             password: ''
         }
-        this.updateKey = authContext.append((state) => this.setState({
+        this.updateKey = authStore.subscribe((state) => this.setState({
             username: state.username,
         }));
     }
 
     componentWillUnmount() {
-        authContext.pop(this.updateKey);
+        authStore.unsubscribe(this.updateKey);
     }
 
     onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -80,13 +80,13 @@ export class LoginModal extends React.Component<Props, State> {
         if (data.status === 'DONE') {
             if (data.body.security) {
                 snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
-                modalContext.onOpenModal('isTwoFactorAuthModalOpen');
+                modalStore.onOpenModal('isTwoFactorAuthModalOpen');
                 this.props.onClose();
                 return;
             }
 
             snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
-            authContext.setState({
+            authStore.setState({
                 isLogin: true,
                 ...data.body,
             });
@@ -143,8 +143,8 @@ export class LoginModal extends React.Component<Props, State> {
                 <div className="login-hint">
                     <button
                         onClick={async () => {
-                            await modalContext.onCloseModal('isLoginModalOpen');
-                            await modalContext.onOpenModal('isSignupModalOpen');
+                            await modalStore.onCloseModal('isLoginModalOpen');
+                            await modalStore.onOpenModal('isSignupModalOpen');
                         }}
                     >
                         아직 회원이 아니세요?

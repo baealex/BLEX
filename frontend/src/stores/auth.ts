@@ -2,7 +2,7 @@ import BState from 'bstate';
 
 import { GetLoginData } from '@modules/api';
 
-export interface AuthContextState extends GetLoginData {
+export interface AuthStoreState extends GetLoginData {
     isLogin: boolean;
 }
 
@@ -18,7 +18,7 @@ const INIT_STATE = {
     is2faSync: false,
 }
 
-class AuthContext extends BState<AuthContextState> {
+class AuthStore extends BState<AuthStoreState> {
     constructor() {
         super();
         this.state = { ...INIT_STATE };
@@ -29,4 +29,4 @@ class AuthContext extends BState<AuthContextState> {
     }
 }
 
-export const authContext = new AuthContext();
+export const authStore = new AuthStore();

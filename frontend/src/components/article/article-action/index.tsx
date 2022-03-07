@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 
-import { modalContext } from '@state/modal';
+import { modalStore } from 'stores/modal';
 
 export interface ArticleActionProps extends API.GetAnUserPostsViewData {}
 
@@ -64,7 +64,7 @@ export function ArticleAction(props: ArticleActionProps) {
             if (data.errorCode === API.ERROR.NOT_LOGIN) {
                 snackBar('😅 로그인이 필요합니다.', {
                     onClick:() => {
-                        modalContext.onOpenModal('isLoginModalOpen');
+                        modalStore.onOpenModal('isLoginModalOpen');
                     }
                 });
             }

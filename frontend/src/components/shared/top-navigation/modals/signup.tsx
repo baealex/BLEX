@@ -11,7 +11,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 import { oauth } from '@modules/utility/oauth';
 import * as API from '@modules/api';
 
-import { modalContext } from '@state/modal';
+import { modalStore } from 'stores/modal';
 
 interface Props {
     isOpen: boolean;
@@ -176,8 +176,8 @@ export class SignupModal extends React.Component<Props, State> {
                     <div className="login-hint">
                         <button
                             onClick={async () => {
-                                await modalContext.onCloseModal('isSignupModalOpen');
-                                await modalContext.onOpenModal('isLoginModalOpen');
+                                await modalStore.onCloseModal('isSignupModalOpen');
+                                await modalStore.onOpenModal('isLoginModalOpen');
                             }}
                         >
                             이미 회원이신가요?

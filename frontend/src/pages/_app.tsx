@@ -13,8 +13,11 @@ import { CONFIG } from '@modules/settings';
 import {
     lazyLoadResource
 } from '@modules/optimize/lazy';
+import {
+    minify
+} from '@modules/utility/string';
 
-import { loadingContext } from '@state/loading';
+import { loadingStore } from 'stores/loading';
 
 import '../styles/main.scss';
 
@@ -22,22 +25,14 @@ Router.events.on('routeChangeComplete', () => {
     lazyLoadResource();
 });
 
-function minify(str: string) {
-    str = str.replace(/\s/g, '');
-    str = str.replace(/function/g, 'function ');
-    str = str.replace(/var/g, 'var ');
-    str = str.replace(/new/g, 'new ');
-    return str;
-}
-
 class Main extends App<AppProps> {
     state = {
-        isLoading: loadingContext.state.isLoading,
+        isLoading: loadingStore.state.isLoading,
     }
 
     constructor(props: AppProps) {
         super(props);
-        loadingContext.append((state) => {
+        loadingStore.subscribe((state) => {
             this.setState({
                 isLoading: state.isLoading,
             });

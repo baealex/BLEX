@@ -16,7 +16,7 @@ import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
-import { loadingContext } from '@state/loading'
+import { loadingStore } from 'stores/loading'
 
 interface Props extends API.GetSettingProfileData {}
 
@@ -79,14 +79,14 @@ export default function ProfileSetting(props: Props) {
                     url={avatar}
                     label="이미지 변경"
                     onChange={async (file) => {
-                        loadingContext.setState({
+                        loadingStore.setState({
                             isLoading: true,
                         })
                         const formData = new FormData();
                         formData.append('avatar', file);
                         const { data } = await API.postSettingAvatar(formData);
                         setAvatar(data.body.url);
-                        loadingContext.setState({
+                        loadingStore.setState({
                             isLoading: false,
                         })
                     }}

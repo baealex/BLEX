@@ -11,7 +11,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 import * as API from '@modules/api'
 import blexer from '@modules/utility/blexer';
 
-import { authContext } from '@state/auth';
+import { authStore } from 'stores/auth';
 import { SEO } from '@components/shared';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -46,14 +46,14 @@ export default function UserAbout(props: Props) {
     const [ isEdit, setIsEdit ] = useState(false);
     const [ aboutHTML, setAboutHTML ] = useState(props.about);
     const [ aboutMd, setAboutMd ] = useState<string | undefined>(undefined);
-    const [ username, setUsername ] = useState(authContext.state.username);
+    const [ username, setUsername ] = useState(authStore.state.username);
 
     useEffect(() => {
-        const updateKey = authContext.append((state) => {
+        const updateKey = authStore.subscribe((state) => {
             setUsername(state.username);
         });
 
-        return () => authContext.pop(updateKey);
+        return () => authStore.unsubscribe(updateKey);
     }, []);
 
     const handleClickEdit = async () => {

@@ -25,9 +25,9 @@ import { syncTheme } from '@modules/utility/darkmode';
 import { getUserImage } from '@modules/utility/image';
 import { optimizedEvent } from '@modules/optimize/event';
 
-import { authContext } from '@state/auth';
-import { configContext } from '@state/config';
-import { modalContext } from '@state/modal';
+import { authStore } from 'stores/auth';
+import { configStore } from 'stores/config';
+import { modalStore } from 'stores/modal';
 
 export function TopNavigation() {
     const router = useRouter();
@@ -41,36 +41,36 @@ export function TopNavigation() {
     const [isNotifyOpen, setIsNotifyOpen] = useState(false);
     const [isNight, setIsNight] = useState(false);
     const [state, setState] = useState({
-        ...authContext.state,
-        ...modalContext.state,
+        ...authStore.state,
+        ...modalStore.state,
     });
 
     useEffect(() => {
-        setIsNight(configContext.state.theme === 'dark');
+        setIsNight(configStore.state.theme === 'dark');
     }, [])
 
     useEffect(() => {
         if (isNight) {
-            configContext.setTheme('dark');
+            configStore.setTheme('dark');
         } else {
-            configContext.setTheme('default');
+            configStore.setTheme('default');
         }
     }, [isNight])
 
     useEffect(() => {
-        const authUpdateKey = authContext.append((nextState) => {
+        const authUpdateKey = authStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
                 ...nextState,
             }));
         });
-        const configUpdateKey = configContext.append((nextState) => {
+        const configUpdateKey = configStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
                 theme: nextState.theme,
             }))
         });
-        const modalUpdateKey = modalContext.append((nextState) => {
+        const modalUpdateKey = modalStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
                 ...nextState,
@@ -78,28 +78,28 @@ export function TopNavigation() {
         });
 
         return () => {
-            authContext.pop(authUpdateKey);
-            configContext.pop(configUpdateKey);
-            modalContext.pop(modalUpdateKey);
+            authStore.unsubscribe(authUpdateKey);
+            configStore.unsubscribe(configUpdateKey);
+            modalStore.unsubscribe(modalUpdateKey);
         }
     }, []);
 
     useEffect(() => {
         syncTheme((isDark) => {
             if (isDark) {
-                configContext.setTheme('dark');
+                configStore.setTheme('dark');
                 setIsNight(true);
             } else {
-                configContext.setTheme('default');
+                configStore.setTheme('default');
                 setIsNight(false);
             }
-        }, configContext.isFirstVisit());
+        }, configStore.isFirstVisit());
     }, []);
 
     useEffect(() => {
         API.getLogin().then(({data}) => {
             if (data.status === 'DONE') {
-                authContext.setState({
+                authStore.setState({
                     isLogin: true,
                     ...data.body,
                 });
@@ -180,7 +180,7 @@ export function TopNavigation() {
         if (confirm(message('CONFIRM', '정말 로그아웃 하시겠습니까?'))) {
             const { data } = await API.postLogout();
             if(data.status === 'DONE') {
-                authContext.logout();
+                authStore.logout();
                 snackBar(message('AFTER_REQ_DONE', '로그아웃 되었습니다.'));
             }
         }
@@ -216,27 +216,27 @@ export function TopNavigation() {
         <>
             <LoginModal
                 isOpen={state.isLoginModalOpen}
-                onClose={() => modalContext.onCloseModal('isLoginModalOpen')}
+                onClose={() => modalStore.onCloseModal('isLoginModalOpen')}
             />
             <SignupModal
                 isOpen={state.isSignupModalOpen}
-                onClose={() => modalContext.onCloseModal('isSignupModalOpen')}
+                onClose={() => modalStore.onCloseModal('isSignupModalOpen')}
             />
             <SignoutModal
                 isOpen={state.isSignoutModalOpen}
-                onClose={() => modalContext.onCloseModal('isSignoutModalOpen')}
+                onClose={() => modalStore.onCloseModal('isSignoutModalOpen')}
             />
             <TelegramSyncModal
                 isOpen={state.isTelegramSyncModalOpen}
-                onClose={() => modalContext.onCloseModal('isTelegramSyncModalOpen')}
+                onClose={() => modalStore.onCloseModal('isTelegramSyncModalOpen')}
             />
             <TwoFactorAuthModal
                 isOpen={state.isTwoFactorAuthModalOpen}
-                onClose={() => modalContext.onCloseModal('isTwoFactorAuthModalOpen')}
+                onClose={() => modalStore.onCloseModal('isTwoFactorAuthModalOpen')}
             />
             <TwoFactorAuthSyncModal
                 isOpen={state.isTwoFactorAuthSyncModalOpen}
-                onClose={() => modalContext.onCloseModal('isTwoFactorAuthSyncModalOpen')}
+                onClose={() => modalStore.onCloseModal('isTwoFactorAuthSyncModalOpen')}
             />
             <nav className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
@@ -271,7 +271,7 @@ export function TopNavigation() {
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
                                                 </div>
                                             ) : (
-                                                <div className={cn('telegram')} onClick={() => modalContext.onOpenModal('isTelegramSyncModalOpen')}>
+                                                <div className={cn('telegram')} onClick={() => modalStore.onOpenModal('isTelegramSyncModalOpen')}>
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동
                                                 </div>
                                             )}
@@ -288,7 +288,7 @@ export function TopNavigation() {
                                     </li>
                                     {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
                                         <li
-                                            onClick={() => modalContext.onOpenModal('isPublishModalOpen')}
+                                            onClick={() => modalStore.onOpenModal('isPublishModalOpen')}
                                             className={cn('get-start')}
                                         >
                                             {path.lastIndexOf('/write') > -1
@@ -339,11 +339,11 @@ export function TopNavigation() {
                                 </>
                             ) : (
                                 <>
-                                    <li onClick={() => modalContext.onOpenModal('isLoginModalOpen')}>
+                                    <li onClick={() => modalStore.onOpenModal('isLoginModalOpen')}>
                                         로그인
                                     </li>
                                     <li
-                                        onClick={() => modalContext.onOpenModal('isSignupModalOpen')}
+                                        onClick={() => modalStore.onOpenModal('isSignupModalOpen')}
                                         className={cn('get-start')}
                                     >
                                         블로그 시작

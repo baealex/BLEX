@@ -8,8 +8,8 @@ import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
 
-import { modalContext } from '@state/modal';
-import { authContext } from '@state/auth';
+import { modalStore } from 'stores/modal';
+import { authStore } from 'stores/auth';
 
 interface Props {
     isOpen: boolean;
@@ -37,7 +37,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
             }
             if (data.errorCode === API.ERROR.NEED_TELEGRAM) {
                 snackBar('😥 텔레그램 연동이 필요합니다.', {
-                    onClick: () => modalContext.onOpenModal('isTelegramSyncModalOpen')
+                    onClick: () => modalStore.onOpenModal('isTelegramSyncModalOpen')
                 });
                 return;
             }
@@ -48,7 +48,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
         }
         if (data.status === 'DONE') {
             snackBar('😀 2차 인증이 등록되었습니다.');
-            authContext.setState((prevState) => ({
+            authStore.setState((prevState) => ({
                 ...prevState,
                 is2faSync: true,
             }));

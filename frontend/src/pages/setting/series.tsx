@@ -12,7 +12,7 @@ import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
-import { loadingContext } from '@state/loading';
+import { loadingStore } from 'stores/loading';
 
 interface Props extends API.GetSettingSeriesData {}
 
@@ -69,7 +69,7 @@ export default function SeriesSetting(props: Props) {
     const onSeriesChangeIndex = async (url: string, prevIdx: number, nextIdx: number) => {
         if (nextIdx < 0 || nextIdx > series.length - 1) return;
         
-        loadingContext.start();
+        loadingStore.start();
 
         const nextIndexies = series.map((item, idx) => {
             if (item.url === url) {
@@ -86,7 +86,7 @@ export default function SeriesSetting(props: Props) {
         const { data } = await API.putUserSeriesIndex('@' + props.username, nextIndexies);
         setSeries(data.body.series);
 
-        loadingContext.end();
+        loadingStore.end();
     }
 
     return (

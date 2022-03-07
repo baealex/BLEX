@@ -1,6 +1,6 @@
 import BState from 'bstate';
 
-export interface ModalContextState {
+export interface ModalStoreState {
     isLoginModalOpen: boolean;
     isSignupModalOpen: boolean;
     isSignoutModalOpen: boolean;
@@ -10,9 +10,9 @@ export interface ModalContextState {
     isTwoFactorAuthSyncModalOpen: boolean;
 }
 
-type ModalName = keyof ModalContextState;
+type ModalName = keyof ModalStoreState;
 
-class ModalContext extends BState<ModalContextState> {
+class ModalStore extends BState<ModalStoreState> {
     constructor() {
         super();
         this.state = {
@@ -39,4 +39,4 @@ class ModalContext extends BState<ModalContextState> {
     }
 }
 
-export const modalContext = new ModalContext();
+export const modalStore = new ModalStore();

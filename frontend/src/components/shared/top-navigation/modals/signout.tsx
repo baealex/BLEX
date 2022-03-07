@@ -9,7 +9,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
 
-import { authContext } from '@state/auth';
+import { authStore } from 'stores/auth';
 
 interface Props {
     isOpen: boolean;
@@ -32,7 +32,7 @@ export class SignoutModal extends React.Component<Props, State> {
         const { data } = await API.deleteSign();
         if (data.status === 'DONE') {
             snackBar('😀 계정이 삭제되었습니다.');
-            authContext.logout();
+            authStore.logout();
             this.props.onClose();
             Router.push('/');
         }

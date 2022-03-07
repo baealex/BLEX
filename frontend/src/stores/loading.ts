@@ -1,10 +1,10 @@
 import BState from 'bstate';
 
-export interface LoadingContextState {
+export interface LoadingStoreState {
     isLoading: boolean;
 }
 
-class LoadingContext extends BState<LoadingContextState> {
+class LoadingStore extends BState<LoadingStoreState> {
     constructor() {
         super();
         this.state = {
@@ -27,4 +27,4 @@ class LoadingContext extends BState<LoadingContextState> {
     }
 }
 
-export const loadingContext = new LoadingContext();
+export const loadingStore = new LoadingStore();

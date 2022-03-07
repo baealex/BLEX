@@ -23,7 +23,7 @@
         "./modules/*"
       ],
       "@state/*": [
-        "./state/*"
+        "stores/*"
       ]
     },
     "jsx": "preserve",

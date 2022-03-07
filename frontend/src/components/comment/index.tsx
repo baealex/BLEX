@@ -22,8 +22,8 @@ import {
 } from '@modules/optimize/lazy';
 import { Alert } from '@design-system';
 
-import { authContext } from '@state/auth';
-import { modalContext } from '@state/modal';
+import { authStore } from 'stores/auth';
+import { modalStore } from 'stores/modal';
 
 export interface CommentProps {
     author: string;
@@ -37,8 +37,8 @@ interface Comment extends API.GetPostCommentDataComment {
 }
 
 export function Comment(props: CommentProps) {
-    const [ isLogin, setIsLogin ] = useState(authContext.state.isLogin);
-    const [ username, setUsername ] = useState(authContext.state.username);
+    const [ isLogin, setIsLogin ] = useState(authStore.state.isLogin);
+    const [ username, setUsername ] = useState(authStore.state.username);
     const [ comments, setComments ] = useState<Comment[]>([]);
     const [ commentText, setCommentText ] = useState('');
 
@@ -74,7 +74,7 @@ export function Comment(props: CommentProps) {
                 case API.ERROR.NOT_LOGIN:
                     snackBar('😅 로그인이 필요합니다.', {
                         onClick:() => {
-                            modalContext.onOpenModal('isLoginModalOpen');
+                            modalStore.onOpenModal('isLoginModalOpen');
                         }
                     });
                     return;
@@ -113,7 +113,7 @@ export function Comment(props: CommentProps) {
     const handleTag = async (tagUsername: string) => {
         if(!username) {
             snackBar('😅 로그인이 필요합니다.', {
-                onClick: () => modalContext.onOpenModal('isLoginModalOpen')
+                onClick: () => modalStore.onOpenModal('isLoginModalOpen')
             });
             return;
         }
@@ -153,7 +153,7 @@ export function Comment(props: CommentProps) {
     }
 
     useEffect(() => {
-        const updateKey = authContext.append((state) => {
+        const updateKey = authStore.subscribe((state) => {
             setIsLogin(state.isLogin);
             setUsername(state.username);
         });
@@ -172,7 +172,7 @@ export function Comment(props: CommentProps) {
     
             return () => {
                 observer?.disconnect();
-                authContext.pop('Comment');
+                authStore.unsubscribe('Comment');
             }
         } else {
             if (comments.length > 0) {
@@ -181,7 +181,7 @@ export function Comment(props: CommentProps) {
         }
 
         return () => {
-            authContext.pop(updateKey);
+            authStore.unsubscribe(updateKey);
         }
     }, [props.url, username]);
 
@@ -240,7 +240,7 @@ export function Comment(props: CommentProps) {
                     ) : (
                         <Alert
                             type="warning"
-                            onClick={() => modalContext.onOpenModal('isLoginModalOpen')}
+                            onClick={() => modalStore.onOpenModal('isLoginModalOpen')}
                         >
                             댓글을 작성하려면 로그인이 필요합니다.
                         </Alert>

@@ -11,7 +11,7 @@ import { Layout } from '@components/setting';
 
 import * as API from '@modules/api';
 
-import { loadingContext } from '@state/loading';
+import { loadingStore } from 'stores/loading';
 
 export default function AnalyticsSetting() {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewData>();
@@ -19,7 +19,7 @@ export default function AnalyticsSetting() {
     const [ searches, setSearches ] = useState<API.GetSettingAnalyticsgSearchData>();
 
     useEffect(() => {
-        loadingContext.start();
+        loadingStore.start();
         Promise.all([
             API.getSettingAnalyticsView()
                 .then(({data}) => setViews(data.body)),
@@ -28,7 +28,7 @@ export default function AnalyticsSetting() {
             API.getSettingAnalyticsReferrers()
                 .then(({data}) => setReferers(data.body)),
         ]).then(() => {
-            loadingContext.end();
+            loadingStore.end();
         })
     }, []);
 

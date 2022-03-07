@@ -27,7 +27,7 @@ import {
 import * as API from '@modules/api';
 import { dropImage, uploadImage } from '@modules/utility/image';
 
-import { modalContext } from '@state/modal';
+import { modalStore } from 'stores/modal';
 
 interface Props {
     title: {
@@ -79,12 +79,12 @@ export function Layout(props: Props) {
     const [ isOepnFormsModal, setIsOpenFormsModal ] = useState(false);
     const [ isOepnImageModal, setIsOpenImageModal ] = useState(false);
     const [ isOepnYoutubeModal, setIsOpenYoutubeModal ] = useState(false);
-    const [ isOepnPublishModal, setIsOpenPublishModal ] = useState(modalContext.state.isPublishModalOpen);
+    const [ isOepnPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
 
     const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
 
-    useEffect(modalContext.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
+    useEffect(modalStore.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
     
     useEffect(() => {
         API.getSettingForms().then((response) => {
@@ -138,7 +138,7 @@ export function Layout(props: Props) {
     }
 
     const handleSubmit = async () => {
-        modalContext.onCloseModal('isPublishModalOpen');
+        modalStore.onCloseModal('isPublishModalOpen');
         setIsSubmit(true);
         await props.onSubmit(() => {
             setIsSubmit(false);
@@ -210,7 +210,7 @@ export function Layout(props: Props) {
                 <Modal
                     title={props.publish.title}
                     isOpen={isOepnPublishModal}
-                    onClose={() => modalContext.onCloseModal('isPublishModalOpen')}
+                    onClose={() => modalStore.onCloseModal('isPublishModalOpen')}
                     submitText={props.publish.buttonText}
                     onSubmit={() => handleSubmit()}
                 >

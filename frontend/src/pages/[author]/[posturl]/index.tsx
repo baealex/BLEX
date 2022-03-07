@@ -28,8 +28,8 @@ import {
 } from '@modules/optimize/lazy';
 import { getPostsImage } from '@modules/utility/image';
 
-import { authContext } from '@state/auth';
-import { configContext } from '@state/config';
+import { authStore } from 'stores/auth';
+import { configStore } from 'stores/config';
 
 interface Props {
     profile: API.GetUserProfileData,
@@ -53,7 +53,7 @@ interface State {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
-    configContext.serverSideInject(cookies);
+    configStore.serverSideInject(cookies);
 
     const { req } = context;
     const { author = '', posturl = '' } = context.query;
@@ -125,20 +125,20 @@ class PostDetail extends React.Component<Props, State> {
         super(props);
         this.state = {
             isLiked: props.post.isLiked,
-            isLogin: authContext.state.isLogin,
-            username: authContext.state.username,
+            isLogin: authStore.state.isLogin,
+            username: authStore.state.username,
             totalLikes: props.post.totalLikes,
             headerNav: [],
             headerNow: ''
         };
-        this.updateKey = authContext.append(() => this.setState({
-            isLogin: authContext.state.isLogin,
-            username: authContext.state.username
+        this.updateKey = authStore.subscribe(() => this.setState({
+            isLogin: authStore.state.isLogin,
+            username: authStore.state.username
         }));
     }
 
     componentWillUnmount() {
-        authContext.pop(this.updateKey);
+        authStore.unsubscribe(this.updateKey);
     }
 
     componentDidMount() {
@@ -271,13 +271,13 @@ class PostDetail extends React.Component<Props, State> {
                                 <Toggle
                                     label="링크를 새탭에서 여세요."
                                     onClick={() => {
-                                        const { isOpenNewTab } = configContext.state;
-                                        configContext.setState((prevState) => ({
+                                        const { isOpenNewTab } = configStore.state;
+                                        configStore.setState((prevState) => ({
                                             ...prevState,
                                             isOpenNewTab: !isOpenNewTab,
                                         }));
                                     }}
-                                    defaultChecked={configContext.state.isOpenNewTab}
+                                    defaultChecked={configStore.state.isOpenNewTab}
                                 />
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>

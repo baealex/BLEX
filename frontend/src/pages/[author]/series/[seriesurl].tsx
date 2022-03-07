@@ -21,12 +21,12 @@ import {
     getUserImage,
 } from '@modules/utility/image';
 
-import { authContext } from '@state/auth';
-import { configContext } from '@state/config';
+import { authStore } from 'stores/auth';
+import { configStore } from 'stores/config';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
-    configContext.serverSideInject(cookies);
+    configStore.serverSideInject(cookies);
     
     const { author = '', seriesurl = '' } = context.query;
 
@@ -74,26 +74,26 @@ class Series extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            isLogin: authContext.state.isLogin,
-            username: authContext.state.username,
+            isLogin: authStore.state.isLogin,
+            username: authStore.state.username,
             seriesTitle: props.series.name,
             seriesDescription: props.series.description,
             seriesPosts: props.series.posts,
             isSeriesModalOpen: false,
-            isSortOldFirst: configContext.state.isSortOldFirst,
+            isSortOldFirst: configStore.state.isSortOldFirst,
         }
-        this.authUpdateKey = authContext.append((state) => this.setState({
+        this.authUpdateKey = authStore.subscribe((state) => this.setState({
             isLogin: state.isLogin,
             username: state.username,
         }));
-        this.configUpdateKey = configContext.append((state) => this.setState({
+        this.configUpdateKey = configStore.subscribe((state) => this.setState({
             isSortOldFirst: state.isSortOldFirst,
         }));
     }
 
     componentWillUnmount() {
-        authContext.pop(this.authUpdateKey);
-        configContext.pop(this.configUpdateKey);
+        authStore.unsubscribe(this.authUpdateKey);
+        configStore.unsubscribe(this.configUpdateKey);
     }
 
     componentDidUpdate(prevProps: Props) {
@@ -271,7 +271,7 @@ class Series extends React.Component<Props, State> {
                                     {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
                                 </SpeechBubble>
                                 <div className="mt-5 mb-3 text-right">
-                                    <div className="btn btn-dark m-1" onClick={() => configContext.setState((prevState) => ({
+                                    <div className="btn btn-dark m-1" onClick={() => configStore.setState((prevState) => ({
                                         ...prevState,
                                         isSortOldFirst: !isSortOldFirst
                                     }))}>

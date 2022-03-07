@@ -4,7 +4,7 @@ import { message } from '@modules/utility/message';
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
 
-import { loadingContext } from '@state/loading';
+import { loadingStore } from 'stores/loading';
 
 export function getImage(path: string) {
     return `${CONFIG.STATIC_SERVER}/${path}`;
@@ -67,16 +67,16 @@ export async function uploadImage(file: File) {
         return;
     }
     try {
-        loadingContext.start();
+        loadingStore.start();
         const { data } = await API.postImage(file);
-        loadingContext.end();
+        loadingStore.end();
         if (data.status === 'ERROR') {
             snackBar(message('AFTER_REQ_ERR', data.errorMessage));
             return;
         }
         return data.body.url;
     } catch(error: any) {
-        loadingContext.end();
+        loadingStore.end();
         const { status } = error.response;
         if (status == 404) {
             snackBar(message('AFTER_REQ_ERR', '로그인이 필요합니다.'));

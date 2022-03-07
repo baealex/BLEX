@@ -16,8 +16,8 @@ import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
-import { authContext } from '@state/auth';
-import { modalContext } from '@state/modal';
+import { authStore } from 'stores/auth';
+import { modalStore } from 'stores/modal';
 
 interface Props extends API.GetSettingAccountData {}
 
@@ -46,13 +46,13 @@ export default function AccountSetting(props: Props) {
     const [ username, setUsername ] = useState(props.username);
     const [ realname, setRealname ] = useState(props.realname);
     const [ password, setPassword ] = useState('');
-    const [ is2faSync, setIs2faSync ] = useState(authContext.state.is2faSync);
+    const [ is2faSync, setIs2faSync ] = useState(authStore.state.is2faSync);
     const [ passwordCheck, setPasswordCheck ] = useState('');
     const [ showEmail, setShowEmail ] = useState(props.showEmail);
     const [ agreeEmail, setAgreeEmail ] = useState(props.agreeEmail);
     const [ agreeHistory, setAgreeHistory ] = useState(props.agreeHistory);
 
-    useEffect(authContext.syncValue('is2faSync', setIs2faSync), []);
+    useEffect(authStore.syncValue('is2faSync', setIs2faSync), []);
 
     const onChangeUsername = async () => {
         const { data } = await API.patchSign({ username });
@@ -64,7 +64,7 @@ export default function AccountSetting(props: Props) {
         }
         if (data.status === 'DONE') {
             snackBar('😀 아이디가 변경되었습니다.');
-            authContext.setState((state) => ({
+            authStore.setState((state) => ({
                 ...state,
                 username: username,
             }));
@@ -117,7 +117,7 @@ export default function AccountSetting(props: Props) {
         }
         if (data.status === 'DONE') {
             snackBar('😀 2차 인증이 해제되었습니다.');
-            authContext.setState((prevState) => ({
+            authStore.setState((prevState) => ({
                 ...prevState,
                 is2faSync: false,
             }))
@@ -237,11 +237,11 @@ export default function AccountSetting(props: Props) {
                         2차 인증 중지
                     </Button>
                 ) : (
-                    <Button gap="little" onClick={() => modalContext.onOpenModal('isTwoFactorAuthSyncModalOpen')}>
+                    <Button gap="little" onClick={() => modalStore.onOpenModal('isTwoFactorAuthSyncModalOpen')}>
                         2차 인증 등록
                     </Button>
                 )}
-                <Button onClick={() => modalContext.onOpenModal('isSignoutModalOpen')}>
+                <Button onClick={() => modalStore.onOpenModal('isSignoutModalOpen')}>
                     회원 탈퇴
                 </Button>
             </>

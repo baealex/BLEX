@@ -7,14 +7,14 @@ import {
 
 type Theme = 'default' | 'dark' | 'black' | 'neon' | 'pastel';
 
-export interface ConfigContextState {
+export interface ConfigStoreState {
     theme: Theme;
     isAutoSave: boolean;
     isOpenNewTab: boolean;
     isSortOldFirst: boolean;
 }
 
-class ConfigContext extends BState<ConfigContextState> {
+class ConfigStore extends BState<ConfigStoreState> {
     init: boolean = false;
 
     constructor() {
@@ -84,4 +84,4 @@ class ConfigContext extends BState<ConfigContextState> {
     }
 }
 
-export const configContext = new ConfigContext();
+export const configStore = new ConfigStore();

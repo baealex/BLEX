@@ -9,8 +9,8 @@ import { snackBar } from '@modules/ui/snack-bar';
 import { getCookie } from '@modules/utility/cookie';
 import { message } from '@modules/utility/message';
 
-import { authContext } from '@state/auth';
-import { modalContext } from '@state/modal';
+import { authStore } from 'stores/auth';
+import { modalStore } from 'stores/modal';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -38,7 +38,7 @@ export default function SocialLogin(props: Props) {
         if (data.status === 'DONE') {
             if (data.body.security) {
                 snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
-                modalContext.onOpenModal('isTwoFactorAuthModalOpen');
+                modalStore.onOpenModal('isTwoFactorAuthModalOpen');
                 return;
             }
 
@@ -50,7 +50,7 @@ export default function SocialLogin(props: Props) {
                 snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
             }
 
-            authContext.setState({
+            authStore.setState({
                 isLogin: true,
                 ...data.body
             });
