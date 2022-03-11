@@ -14,9 +14,9 @@ import {
     Modal,
     Card,
 } from '@design-system';
-import { Pagination } from '@components/integrated';
-import { Layout } from '@components/setting';
-import { TagBadge } from '@components/tag';
+import { Pagination } from '@system-design/shared';
+import { SettingLayout } from '@system-design/setting';
+import { TagBadges } from '@system-design/tag';
 
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
@@ -176,7 +176,7 @@ export default function PostsSetting(props: Props) {
 
     return (
         <>
-            <TagBadge items={POSTS_ORDER.map((item) => (
+            <TagBadges items={POSTS_ORDER.map((item) => (
                 <Link
                     href={{
                         query: {
@@ -331,7 +331,7 @@ export default function PostsSetting(props: Props) {
 }
 
 PostsSetting.pageLayout = (page: JSX.Element) => (
-    <Layout tabname="posts" sticky={false}>
+    <SettingLayout active="posts" sticky={false}>
         {page}
-    </Layout>
+    </SettingLayout>
 )

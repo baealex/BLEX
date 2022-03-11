@@ -7,7 +7,7 @@ import { Loading } from '@design-system';
 import {
     TopNavigation,
     SEO,
-} from '@components/integrated';
+} from '@system-design/shared';
 
 import { CONFIG } from '@modules/settings';
 import {
@@ -17,7 +17,7 @@ import {
     minify
 } from '@modules/utility/string';
 
-import { loadingStore } from 'stores/loading';
+import { loadingStore } from '@stores/loading';
 
 import '../styles/main.scss';
 

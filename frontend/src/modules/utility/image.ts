@@ -4,7 +4,7 @@ import { message } from '@modules/utility/message';
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
 
-import { loadingStore } from 'stores/loading';
+import { loadingStore } from '@stores/loading';
 
 export function getImage(path: string) {
     return `${CONFIG.STATIC_SERVER}/${path}`;

@@ -1,16 +1,18 @@
 import React from 'react';
 import Router from 'next/router';
 
-import { Footer } from '@components/shared';
+import { Footer } from '@system-design/shared';
 
-import { snackBar } from '@modules/ui/snack-bar';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
-import { GetServerSidePropsContext } from 'next';
+import type { GetServerSidePropsContext } from 'next';
+
+import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
-import { authStore } from 'stores/auth';
+
+import { authStore } from '@stores/auth';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { token } = context.query;

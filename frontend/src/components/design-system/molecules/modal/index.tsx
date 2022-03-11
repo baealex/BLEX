@@ -7,21 +7,21 @@ import { Button } from '@design-system';
 interface Props {
     isOpen: boolean;
     title: string;
-    onClose: () => void;
+    footer?: React.ReactNode;
+    children: React.ReactNode;
     submitText?: string;
+    onClose: () => void;
     onSubmit?: () => void;
-    children: string | JSX.Element | JSX.Element[];
-    footer?: JSX.Element[];
 }
 
 export function Modal({
     isOpen,
     title,
-    onClose,
-    submitText,
-    onSubmit,
-    children,
     footer,
+    children,
+    submitText,
+    onClose,
+    onSubmit,
 }: Props) {
     useEffect(() => {
         if(isOpen) {

@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { GetServerSidePropsContext } from 'next';
 
-import { Heatmap, SEO } from '@components/shared';
+import { Heatmap, SEO } from '@system-design/shared';
 import {
-    Featured,
-    Layout,
+    FeaturedArticles,
+    ProfileLayout,
     RecentActivity,
-} from '@components/profile';
+} from '@system-design/profile';
 
 import * as API from '@modules/api';
 
-import { configStore } from 'stores/config';
+import { configStore } from '@stores/config';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -70,7 +70,7 @@ export default function Overview(props: Props) {
 
             <div className="container mb-4">
                 <div className="col-lg-8 mx-auto p-0">
-                    <Featured articles={props.most!}/>
+                    <FeaturedArticles articles={props.most!}/>
                     <Heatmap
                         isNightMode={isNightMode}
                         data={props.heatmap}
@@ -83,11 +83,11 @@ export default function Overview(props: Props) {
 }
 
 Overview.pageLayout = (page: JSX.Element, props: Props) => (
-    <Layout
+    <ProfileLayout
         active="overview"
         profile={props.profile}
         social={props.social!}
     >
         {page}
-    </Layout>
+    </ProfileLayout>
 )

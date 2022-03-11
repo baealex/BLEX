@@ -1,14 +1,19 @@
 import Head from 'next/head';
 import Link from 'next/link';
 
-import { Text } from '@design-system';
-import { ArticleCard } from '@components/article';
 import {
+    Text,
+    SpeechBubble,
+} from '@design-system';
+
+import {
+    SEO,
     Footer,
     Pagination,
-    SpeechBubble,
-    SEO,
-} from '@components/integrated';
+} from '@system-design/shared';
+import {
+    ArticleCard,
+} from '@system-design/article';
 
 import * as API from '@modules/api';
 

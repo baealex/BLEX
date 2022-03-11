@@ -5,7 +5,7 @@ import type {
 } from 'next';
 
 import { Card } from '@design-system';
-import { Layout } from '@components/setting';
+import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
@@ -117,7 +117,7 @@ export default function FormsSetting(props: Props) {
 }
 
 FormsSetting.pageLayout = (page: JSX.Element) => (
-    <Layout tabname="forms">
+    <SettingLayout active="forms">
         {page}
-    </Layout>
+    </SettingLayout>
 )

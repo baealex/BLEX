@@ -1,12 +1,17 @@
 import React from 'react';
 import Head from 'next/head';
+import type { GetServerSidePropsContext } from 'next';
 
-import { Pagination, SEO } from '@components/shared';
-import { Layout, UserArticles } from '@components/profile';
+import {
+    Pagination,
+    SEO
+} from '@system-design/shared';
+import {
+    ProfileLayout,
+    UserArticles
+} from '@system-design/profile';
 
 import * as API from '@modules/api';
-
-import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -70,7 +75,7 @@ export default function UserPosts(props: Props) {
 }
 
 UserPosts.pageLayout = (page: JSX.Element, props: Props) => (
-    <Layout
+    <ProfileLayout
         active="posts"
         profile={props.profile}
         social={props.social!}
@@ -86,5 +91,5 @@ UserPosts.pageLayout = (page: JSX.Element, props: Props) => (
                 {page}
             </UserArticles>
         </div>
-    </Layout>
+    </ProfileLayout>
 )

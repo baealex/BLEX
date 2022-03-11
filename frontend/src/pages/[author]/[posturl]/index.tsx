@@ -1,26 +1,23 @@
 import React from 'react';
-import { snackBar } from '@modules/ui/snack-bar';
 import Head from 'next/head';
 import Router from 'next/router';
 import Link from 'next/link';
-import { GetServerSidePropsContext } from 'next';
+import type { GetServerSidePropsContext } from 'next';
 
+import { Toggle } from '@design-system';
 import {
     ArticleAction,
     ArticleAuthor,
+    ArticleComment,
     ArticleContent,
     ArticleCover,
     ArticleSeries,
-    Related,
-} from '@components/article';
-import { Comment } from '@components/comment';
-import { TagBadge } from '@components/tag';
-import { Toggle } from '@design-system'
-import {
-    Footer,
-    SEO,
-} from '@components/integrated';
+    RelatedArticles,
+} from '@system-design/article-detail-page';
+import { SEO, Footer } from '@system-design/shared';
+import { TagBadges } from '@system-design/tag';
 
+import { snackBar } from '@modules/ui/snack-bar';
 import prism from '@modules/library/prism';
 import * as API from '@modules/api';
 import {
@@ -28,8 +25,8 @@ import {
 } from '@modules/optimize/lazy';
 import { getPostsImage } from '@modules/utility/image';
 
-import { authStore } from 'stores/auth';
-import { configStore } from 'stores/config';
+import { authStore } from '@stores/auth';
+import { configStore } from '@stores/config';
 
 interface Props {
     profile: API.GetUserProfileData,
@@ -37,7 +34,7 @@ interface Props {
     series: API.GetAnUserSeriesData,
     hasSeries: boolean;
     activeSeries: number;
-    sereisLength: number;
+    seriesLength: number;
 }
 
 interface State {
@@ -93,7 +90,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 author as string,
                 post.data.body.series
             );
-            const sereisLength = series.data.body.posts.length;
+            const seriesLength = series.data.body.posts.length;
             const activeSeries = series.data.body.posts.findIndex(
                 (item) => item.title == post.data.body.title
             );
@@ -102,7 +99,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 post: post.data.body,
                 profile: profile.data.body,
                 activeSeries,
-                sereisLength,
+                seriesLength,
                 series: series.data.body
             }}
         }
@@ -281,7 +278,7 @@ class PostDetail extends React.Component<Props, State> {
                                 />
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>
-                            <TagBadge items={this.props.post.tags.map(item => (
+                            <TagBadges items={this.props.post.tags.map(item => (
                                 <Link href={`/@${this.props.post.author}/posts/${item}`}>
                                     <a>{item}</a>
                                 </Link>
@@ -290,7 +287,7 @@ class PostDetail extends React.Component<Props, State> {
                                 <ArticleSeries
                                     {...this.props.series}
                                     activeSeries={this.props.activeSeries}
-                                    sereisLength={this.props.sereisLength}
+                                    seriesLength={this.props.seriesLength}
                                 />
                             )}
                         </div>
@@ -303,13 +300,13 @@ class PostDetail extends React.Component<Props, State> {
                         </div>
                     </div>
                 </div>
-                <Comment
+                <ArticleComment
                     author={this.props.post.author}
                     url={this.props.post.url}
                     totalComment={this.props.post.totalComment}
                 />
                 <Footer isDark>
-                    <Related
+                    <RelatedArticles
                         author={this.props.post.author}
                         realname={this.props.profile.profile.realname}
                         url={this.props.post.url}

@@ -10,13 +10,13 @@ import {
     Text,
     ImageInput
 } from '@design-system';
-import { Layout } from '@components/setting';
+import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
-import { loadingStore } from 'stores/loading'
+import { loadingStore } from '@stores/loading'
 
 interface Props extends API.GetSettingProfileData {}
 
@@ -209,7 +209,7 @@ export default function ProfileSetting(props: Props) {
 }
 
 ProfileSetting.pageLayout = (page: JSX.Element) => (
-    <Layout tabname="profile">
+    <SettingLayout active="profile">
         {page}
-    </Layout>
+    </SettingLayout>
 )

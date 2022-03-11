@@ -22,8 +22,8 @@
       "@modules/*": [
         "./modules/*"
       ],
-      "@state/*": [
-        "stores/*"
+      "@stores/*": [
+        "./stores/*"
       ]
     },
     "jsx": "preserve",

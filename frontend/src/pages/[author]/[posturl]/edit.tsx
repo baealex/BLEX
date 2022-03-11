@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import Router from 'next/router';
 
-import { Layout } from '@components/editor';
+import {
+    EditorLayout
+} from '@system-design/article-editor-page';
 
 import * as API from '@modules/api';
 import {
@@ -92,7 +94,7 @@ export default function Edit(props: Props) {
     }
     
     return (
-        <Layout
+        <EditorLayout
             title={{
                 value: title,
                 onChange: setTitle,

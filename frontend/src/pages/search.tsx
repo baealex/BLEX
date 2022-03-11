@@ -3,12 +3,13 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import { Alert } from '@design-system';
-import { ArticleCard } from '@components/article';
+
 import {
     Footer,
     Pagination,
     SearchBox,
-} from '@components/integrated';
+} from '@system-design/shared';
+import { ArticleCard } from '@system-design/article';
 
 import * as API from '@modules/api';
 import { lazyLoadResource } from '@modules/optimize/lazy';

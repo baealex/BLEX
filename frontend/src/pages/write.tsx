@@ -6,9 +6,9 @@ import type {
 } from 'next';
 
 import {
-    Layout,
+    EditorLayout,
     TempArticleModal
-} from '@components/editor';
+} from '@components/system-design/article-editor-page';
 import { PopOver } from '@design-system';
 
 import * as API from '@modules/api';
@@ -20,8 +20,8 @@ import {
     snackBar
 } from '@modules/ui/snack-bar';
 
-import { configStore } from 'stores/config';
-import { authStore } from 'stores/auth';
+import { configStore } from '@stores/config';
+import { authStore } from '@stores/auth';
 
 interface Props {
     username: string;
@@ -290,7 +290,7 @@ class Write extends React.Component<Props, State> {
         } = this.state;
 
         return (
-            <Layout
+            <EditorLayout
                 title={{
                     value: this.state.title,
                     onChange: (value: string) => this.setState({title: value}),

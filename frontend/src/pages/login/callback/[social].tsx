@@ -9,8 +9,8 @@ import { snackBar } from '@modules/ui/snack-bar';
 import { getCookie } from '@modules/utility/cookie';
 import { message } from '@modules/utility/message';
 
-import { authStore } from 'stores/auth';
-import { modalStore } from 'stores/modal';
+import { authStore } from '@stores/auth';
+import { modalStore } from '@stores/modal';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {

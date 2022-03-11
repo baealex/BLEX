@@ -2,11 +2,11 @@ import React from 'react';
 import Head from 'next/head';
 
 import { Alert } from '@design-system';
-import { Pagination, SEO } from '@components/shared';
+import { Pagination, SEO } from '@system-design/shared';
 import {
-    Layout,
+    ProfileLayout,
     UserSeries,
-} from '@components/profile';
+} from '@system-design/profile';
 
 import * as API from '@modules/api'
 import { GetServerSidePropsContext } from 'next';
@@ -85,11 +85,11 @@ export default function SeriesProfile(props: Props) {
 }
 
 SeriesProfile.pageLayout = (page: JSX.Element, props: Props) => (
-    <Layout
+    <ProfileLayout
         active="series"
         profile={props.profile}
         social={props.social!}
     >
         {page}
-    </Layout>
+    </ProfileLayout>
 )

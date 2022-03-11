@@ -6,13 +6,13 @@ import type {
 } from 'next';
 
 import { Card } from '@design-system';
-import { Layout } from '@components/setting';
+import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
-import { loadingStore } from 'stores/loading';
+import { loadingStore } from '@stores/loading';
 
 interface Props extends API.GetSettingSeriesData {}
 
@@ -135,7 +135,7 @@ export default function SeriesSetting(props: Props) {
 }
 
 SeriesSetting.pageLayout = (page: JSX.Element) => (
-    <Layout tabname="series">
+    <SettingLayout active="series">
         {page}
-    </Layout>
+    </SettingLayout>
 )

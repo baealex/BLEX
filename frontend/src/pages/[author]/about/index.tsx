@@ -2,17 +2,18 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { GetServerSidePropsContext } from 'next';
 
-import { Layout } from '@components/profile';
-import { ArticleContent } from '@components/article';
 import { Alert } from '@design-system';
+
+import { SEO } from '@system-design/shared';
+import { ProfileLayout } from '@system-design/profile';
+import { ArticleContent } from '@system-design/article-detail-page';
 
 import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api'
 import blexer from '@modules/utility/blexer';
 
-import { authStore } from 'stores/auth';
-import { SEO } from '@components/shared';
+import { authStore } from '@stores/auth';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -123,11 +124,11 @@ export default function UserAbout(props: Props) {
 }
 
 UserAbout.pageLayout = (page: JSX.Element, props: Props) => (
-    <Layout
+    <ProfileLayout
         active="about"
         profile={props.profile}
         social={props.social!}
     >
         {page}
-    </Layout>
+    </ProfileLayout>
 )

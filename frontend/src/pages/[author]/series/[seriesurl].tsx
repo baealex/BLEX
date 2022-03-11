@@ -3,26 +3,29 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 import React from 'react';
-import { snackBar } from '@modules/ui/snack-bar';
 
 import {
     Card,
     Modal,
+    SpeechBubble,
 } from '@design-system';
 
 import {
     SEO,
-    SpeechBubble,
-} from '@components/integrated';
-import { SeriesArticleCard } from '@components/series';
+} from '@system-design/shared';
+import {
+    SeriesArticleCard
+} from '@system-design/series';
+
+import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
 import {
     getUserImage,
 } from '@modules/utility/image';
 
-import { authStore } from 'stores/auth';
-import { configStore } from 'stores/config';
+import { authStore } from '@stores/auth';
+import { configStore } from '@stores/config';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;

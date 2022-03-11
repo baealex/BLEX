@@ -7,11 +7,11 @@ import {
     Card,
     Table,
 } from '@design-system';
-import { Layout } from '@components/setting';
+import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
 
-import { loadingStore } from 'stores/loading';
+import { loadingStore } from '@stores/loading';
 
 export default function AnalyticsSetting() {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewData>();
@@ -151,7 +151,7 @@ export default function AnalyticsSetting() {
 }
 
 AnalyticsSetting.pageLayout = (page: JSX.Element) => (
-    <Layout tabname="analytics">
+    <SettingLayout active="analytics">
         {page}
-    </Layout>
+    </SettingLayout>
 )

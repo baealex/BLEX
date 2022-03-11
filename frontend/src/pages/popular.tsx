@@ -1,10 +1,11 @@
-import { ArticleCard } from '@components/article';
-import { Layout } from '@components/article/collection';
 import {
     Footer,
     Pagination,
-} from '@components/shared';
-
+} from '@system-design/shared';
+import {
+    ArticleCard,
+    CollectionLayout,
+} from '@system-design/article';
 import * as API from '@modules/api';
 
 import { GetServerSidePropsContext } from 'next';
@@ -15,7 +16,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     } = context.query;
     
     try {
-        const { data } = await API.getPopualrPosts(Number(page));
+        const { data } = await API.getPopularPosts(Number(page));
 
         return {
             props: {
@@ -49,7 +50,7 @@ export default function TrendyArticles(props: Props) {
 
 TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
     <>
-        <Layout active="인기 포스트" {...props}>
+        <CollectionLayout active="인기 포스트" {...props}>
             <>
                 <div className="row">
                     {props.posts.map((item, idx) => (
@@ -62,6 +63,6 @@ TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
                 </div>
                 {page}
             </>
-        </Layout>
+        </CollectionLayout>
     </>
 )

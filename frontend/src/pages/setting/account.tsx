@@ -10,14 +10,14 @@ import {
     CheckBox,
     Text,
 } from '@design-system';
-import { Layout } from '@components/setting';
+import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 
-import { authStore } from 'stores/auth';
-import { modalStore } from 'stores/modal';
+import { authStore } from '@stores/auth';
+import { modalStore } from '@stores/modal';
 
 interface Props extends API.GetSettingAccountData {}
 
@@ -250,7 +250,7 @@ export default function AccountSetting(props: Props) {
 }
 
 AccountSetting.pageLayout = (page: JSX.Element) => (
-    <Layout tabname="account">
+    <SettingLayout active="account">
         {page}
-    </Layout>
+    </SettingLayout>
 )

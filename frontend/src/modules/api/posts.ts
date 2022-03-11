@@ -95,7 +95,7 @@ export interface GetPostsData {
     lastPage: number;
 }
 
-export async function getPopualrPosts(page: number) {
+export async function getPopularPosts(page: number) {
     return await axiosRequest<ResponseData<GetPostsData>>({
         url: `/v1/posts/popular?page=${page}`,
         method: 'GET',

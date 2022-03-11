@@ -1,18 +1,21 @@
 import React from 'react';
 import Head from 'next/head';
 
-import { Layout } from '@components/article/collection';
+import type { GetServerSidePropsContext } from 'next';
+
 import {
+    SEO,
     Footer,
     Pagination,
-    SEO
-} from '@components/shared';
+} from '@system-design/shared';
+import {
+    CollectionLayout,
+} from '@system-design/article';
+import {
+    TagCard,
+} from '@system-design/tag';
 
 import * as API from '@modules/api';
-
-import { GetServerSidePropsContext } from 'next';
-
-import { TagCard } from '@components/tag';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
@@ -60,7 +63,7 @@ export default function Tags(props: Props) {
 }
 
 Tags.pageLayout = (page: JSX.Element, props: Props) => (
-    <Layout active="태그 클라우드" {...props}>
+    <CollectionLayout active="태그 클라우드" {...props}>
         <>
             <div className="row">
                 {props.tags.map((item, idx) => (
@@ -69,5 +72,5 @@ Tags.pageLayout = (page: JSX.Element, props: Props) => (
             </div>
             {page}
         </>
-    </Layout>
+    </CollectionLayout>
 )
