@@ -122,13 +122,6 @@ export default function AnalyticsSetting() {
                             <div key={idx} className="col-lg-4 col-md-6">
                                 <Card hasShadow isRounded className="my-3">
                                     <>
-                                        {item.image && (
-                                            <div>
-                                                <a className="deep-dark" href={item.url} target="blank">
-                                                    <img className="w-100 h-150 fit-cover" src={item.image}/>
-                                                </a>
-                                            </div>
-                                        )}
                                         <div className="p-3">
                                             <div>
                                                 <a className="deep-dark" href={item.url} target="blank">
