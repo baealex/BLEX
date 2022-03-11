@@ -97,7 +97,7 @@ export default function AccountSetting(props: Props) {
 
         const { data } = await API.putSetting('account', sendData);
         if (data.status === 'DONE') {
-            snackBar('😀 기타 정보가 업데이트 되었습니다.');
+            snackBar('😀 정보가 업데이트 되었습니다.');
         }
         setPassword('');
         setPasswordCheck('');
@@ -138,7 +138,7 @@ export default function AccountSetting(props: Props) {
                 <div className="mb-5">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
-                            사용자 이름
+                            사용자 필명
                         </Text>
                         {isChangeUsername ? (
                             <div>
@@ -158,11 +158,14 @@ export default function AccountSetting(props: Props) {
                             </Button>
                         )}
                     </div>
-                    <div className="mb-2">
+                    <Alert type="warning">
+                        사용자의 필명은 로그인시 사용되며 주소(URL)에 표기되는 이름입니다.
+                    </Alert>
+                    <div className="mt-2">
                         {isChangeUsername ? (
                             <input
                                 type="text"
-                                placeholder="아이디"
+                                placeholder="사용자 필명"
                                 className="form-control"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -171,9 +174,6 @@ export default function AccountSetting(props: Props) {
                             <Text>{username}</Text>
                         )}
                     </div>
-                    <Alert type="warning">
-                        {`https://blex.me/@${username}`}
-                    </Alert>
                 </div>
                 <div className="mb-5">
                     <div className="d-flex justify-content-between mb-2">
@@ -186,20 +186,35 @@ export default function AccountSetting(props: Props) {
                 <div className="mb-5">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
-                            기타 정보
+                            사용자 실명
                         </Text>
                         <Button onClick={() => onSubmit()}>
                             업데이트
                         </Button>
                     </div>
-                    <input
-                        type="text"
-                        value={realname}
-                        placeholder="사용자 실명"
-                        className="form-control mb-2"
-                        maxLength={30}
-                        onChange={(e) => setRealname(e.target.value)}
-                    />
+                    <Alert type="warning">
+                        반드시 실명일 필요는 없으나 실명 사용을 권장합니다.
+                    </Alert>
+                    <div className="mt-2">
+                        <input
+                            type="text"
+                            value={realname}
+                            placeholder="사용자 실명"
+                            className="form-control mb-2"
+                            maxLength={30}
+                            onChange={(e) => setRealname(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="mb-5">
+                    <div className="d-flex justify-content-between mb-2">
+                        <Text fontSize={6} fontWeight={600}>
+                            비밀번호 변경
+                        </Text>
+                        <Button onClick={() => onSubmit()}>
+                            업데이트
+                        </Button>
+                    </div>
                     <input
                         type="password"
                         value={password}
@@ -216,18 +231,28 @@ export default function AccountSetting(props: Props) {
                         maxLength={200}
                         onChange={(e) => setPasswordCheck(e.target.value)}
                     />
+                </div>
+                <div className="mb-5">
+                    <div className="d-flex justify-content-between mb-2">
+                        <Text fontSize={6} fontWeight={600}>
+                            개인정보 보호
+                        </Text>
+                        <Button onClick={() => onSubmit()}>
+                            업데이트
+                        </Button>
+                    </div>
                     <CheckBox
-                        label="회원에게 이메일을 노출합니다."
+                        label="다른 사용자에게 이메일을 노출합니다."
                         defaultChecked={showEmail}
                         onClick={(value: boolean) => setShowEmail(value)}
                     />
                     <CheckBox
-                        label="이메일 전송에 동의합니다."
+                        label="서비스의 이메일 전송을 허용합니다."
                         defaultChecked={agreeEmail}
                         onClick={(value: boolean) => setAgreeEmail(value)}
                     />
                     <CheckBox
-                        label="활동 내역 수집에 동의합니다."
+                        label="서비스의 활동 내역 수집을 허용합니다."
                         defaultChecked={agreeHistory}
                         onClick={(value: boolean) => setAgreeHistory(value)}
                     />
@@ -242,7 +267,7 @@ export default function AccountSetting(props: Props) {
                     </Button>
                 )}
                 <Button onClick={() => modalStore.onOpenModal('isSignoutModalOpen')}>
-                    회원 탈퇴
+                    사용자 탈퇴
                 </Button>
             </>
         </>

@@ -1,3 +1,7 @@
+import styles from './SettingNavigation.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
+
 import { Card } from '@design-system';
 import Link from 'next/link';
 
@@ -8,62 +12,83 @@ export interface SettingNavigationProps {
 
 const NAVIGATION_ITEMS = [
     {
-        title: '계정',
+        title: '사용자 설정',
         icon: 'far fa-user',
-        name: 'account',
-        url: '/setting/account',
+        subItems: [
+            {
+                title: '계정',
+                name: 'account',
+                url: '/setting/account',
+            },
+            {
+                title: '프로필',
+                name: 'profile',
+                url: '/setting/profile',
+            },
+        ]
     },
     {
-        title: '프로필',
-        icon: 'far fa-id-badge',
-        name: 'profile',
-        url: '/setting/profile',
-    },
-    {
-        title: '포스트',
+        title: '포스트 설정',
         icon: 'fas fa-pencil-alt',
-        name: 'posts',
-        url: '/setting/posts',
+        subItems: [
+            {
+                title: '포스트',
+                name: 'posts',
+                url: '/setting/posts',
+            },
+            {
+                title: '서식',
+                name: 'forms',
+                url: '/setting/forms',
+            },
+            {
+                title: '분석',
+                name: 'analytics',
+                url: '/setting/analytics',
+            },
+        ]
     },
     {
-        title: '시리즈',
+        title: '시리즈 설정',
         icon: 'fas fa-book',
-        name: 'series',
-        url: '/setting/series',
-    },
-    {
-        title: '서식',
-        icon: 'fab fa-wpforms',
-        name: 'forms',
-        url: '/setting/forms',
-    },
-    {
-        title: '분석',
-        icon: 'fas fa-chart-line',
-        name: 'analytics',
-        url: '/setting/analytics',
+        subItems: [
+            {
+                title: '시리즈',
+                name: 'series',
+                url: '/setting/series',
+            },
+        ]
     },
 ];
 
 export function SettingNavigation(props: SettingNavigationProps) {
-    const stickyClass = props.sticky ? 'sticky-top-100 sticky-top' : ''
+    const { sticky } = props;
 
     return (
         <Card hasShadow isRounded className="mb-3">
-            <ul className={`nav ${stickyClass} d-block`}>
-                {NAVIGATION_ITEMS.map((item, idx) => (
-                    <li key={idx} className="nav-item">
-                        <Link href={item.url}>
-                            <a className={`nav-link ${
-                                props.active == item.name
-                                    ? 'deep'
-                                    : 'shallow'}-dark`}>
-                                <i className={item.icon}/> {item.title}
-                            </a>
-                        </Link>
-                    </li>
+            <div className={cn('box', 'py-3', { sticky })}>
+                {NAVIGATION_ITEMS.map((item, idx1) => (
+                    <div className={cn('section')}>
+                        <div className={cn('title', 'px-3', 'py-2')}>
+                            <i className={item.icon}/> {item.title}
+                        </div>
+                        <div key={idx1} className={cn('sub-item')}>
+                            {item.subItems?.map((subItem, idx2) => (
+                                <Link href={subItem.url}>
+                                    <a>
+                                        <div key={idx2} className={cn(
+                                            'px-3', 'py-2',
+                                            { active: props.active == subItem.name }
+                                        )}>
+                                                    {subItem.title}
+                                        </div>
+                                    </a>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
                 ))}
-            </ul>
+            </div>
         </Card>
     );
 }

@@ -1,0 +1,48 @@
+@import 'var';
+
+.box {
+    &.sticky {
+        position: sticky;
+        top: 100px;
+    }
+
+    & > .section:not(:last-child) {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+
+        :global(body.dark) & {
+            border-bottom: 1px solid #444;
+        }
+    }
+
+    .section {
+        .title {
+            font-size: 12px;
+        }
+
+        .sub-item {
+            :hover {
+                background-color: rgba(0, 0, 0, 0.02);
+
+                :global(body.dark) & {
+                    background-color: rgba(255, 255, 255, 0.02);
+                }
+            }
+
+            .active {
+                background-color: rgba(0, 0, 0, 0.06);
+
+                :global(body.dark) & {
+                    background-color: rgba(255, 255, 255, 0.06);
+                }
+            }
+
+            a {
+                @include COLOR_DARK;
+                text-decoration: none;
+            }
+        }
+    }
+}
+

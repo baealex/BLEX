@@ -73,13 +73,13 @@ let contentInput: HTMLTextAreaElement | null;
 export function EditorLayout(props: Props) {
     const [ imageName, setImageName ] = useState('');
     const [ imagePreview, setImagePreview ] = useState('');
-    const [ isSumbit, setIsSubmit ] = useState(false);
+    const [ isSubmit, setIsSubmit ] = useState(false);
     const [ isEditMode, setIsEditMode ] = useState(true);
 
-    const [ isOepnFormsModal, setIsOpenFormsModal ] = useState(false);
-    const [ isOepnImageModal, setIsOpenImageModal ] = useState(false);
-    const [ isOepnYoutubeModal, setIsOpenYoutubeModal ] = useState(false);
-    const [ isOepnPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
+    const [ isOpenFormsModal, setIsOpenFormsModal ] = useState(false);
+    const [ isOpenImageModal, setIsOpenImageModal ] = useState(false);
+    const [ isOpenYoutubeModal, setIsOpenYoutubeModal ] = useState(false);
+    const [ isOpenPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
 
     const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
@@ -209,7 +209,7 @@ export function EditorLayout(props: Props) {
 
                 <Modal
                     title={props.publish.title}
-                    isOpen={isOepnPublishModal}
+                    isOpen={isOpenPublishModal}
                     onClose={() => modalStore.onCloseModal('isPublishModalOpen')}
                     submitText={props.publish.buttonText}
                     onSubmit={() => handleSubmit()}
@@ -274,19 +274,19 @@ export function EditorLayout(props: Props) {
                 </Modal>
 
                 <ImageModal
-                    isOpen={isOepnImageModal}
+                    isOpen={isOpenImageModal}
                     onClose={() => setIsOpenImageModal(false)}
                     onUpload={(image) => image && onUploadImage(image)}
                 />
 
                 <YoutubeModal
-                    isOpen={isOepnYoutubeModal}
+                    isOpen={isOpenYoutubeModal}
                     onClose={() => setIsOpenYoutubeModal(false)}
                     onUpload={(id) => onUploadYoutube(id)}
                 />
 
                 <FormsModal
-                    isOpen={isOepnFormsModal}
+                    isOpen={isOpenFormsModal}
                     onClose={() => setIsOpenFormsModal(false)}
                     forms={forms}
                     onFetch={onFetchForm}
@@ -294,7 +294,7 @@ export function EditorLayout(props: Props) {
 
                 {props.addon?.modal}
 
-                {isSumbit ? <Loading block/> : ''}
+                {isSubmit ? <Loading block/> : ''}
             </div>
         </div>
     )

@@ -30,11 +30,6 @@ export function AllPages({
                     </li>
                     <li>
                         <Link href="/">
-                            <a>주간 트렌드</a>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/">
                             <a>최신 포스트</a>
                         </Link>
                     </li>
@@ -68,37 +63,22 @@ export function AllPages({
                             <a>새 글 작성</a>
                         </Link>
                     </li>
+                </ul>
+                <div className={cn('header')}>설정</div>
+                <ul>
+                    <li>
+                        <Link href="/setting/account">
+                            <a>사용자 설정</a>
+                        </Link>
+                    </li>
                     <li>
                         <Link href="/setting/posts">
-                            <a>포스트 관리</a>
+                            <a>포스트 설정</a>
                         </Link>
                     </li>
                     <li>
                         <Link href="/setting/series">
-                            <a>시리즈 관리</a>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/setting/forms">
-                            <a>글 서식 관리</a>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/setting/analytics">
-                            <a>조회수 및 유입 분석</a>
-                        </Link>
-                    </li>
-                </ul>
-                <div className={cn('header')}>계정</div>
-                <ul>
-                    <li>
-                        <Link href="/setting/account">
-                            <a>계정 정보 변경</a>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/setting/profile">
-                            <a>프로필 정보 변경</a>
+                            <a>시리즈 설정</a>
                         </Link>
                     </li>
                 </ul>

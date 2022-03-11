@@ -95,7 +95,7 @@ export default function ProfileSetting(props: Props) {
             <div className="mb-5">
                 <div className="d-flex justify-content-between mb-2">
                     <Text fontSize={6} fontWeight={600}>
-                        사용자 소개
+                    사용자 소개
                     </Text>
                     <Button onClick={() => onSubmit()}>
                         업데이트
