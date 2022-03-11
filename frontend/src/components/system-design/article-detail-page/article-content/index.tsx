@@ -5,44 +5,52 @@ import Router from 'next/router';
 
 import { configStore } from '@stores/config';
 
-function onInnerLinkClickEvent(this: HTMLAnchorElement, e: any) {
-    if(this.href.includes(`${location.protocol}//${location.host}/`)) {
-        e.preventDefault();
-        Router.push(this.href).then(() => window.scrollTo(0, 0));
-    }
-}
-
-function onNewTabLinkClickEvent(this: HTMLAnchorElement, e: any) {
-    e.preventDefault();
-    window.open(this.href, '_blank');
-}
-
-export function ArticleContent(props: {
+export interface ArticleContentProps {
     html: string;
     isEdit?: boolean;
-}) {
-    const [ isOpenNewTab, setIsOpenNewTab ] = useState(configStore.state.isOpenNewTab);
+}
+
+export function ArticleContent(props: ArticleContentProps) {
+    const [
+        isOpenNewTab,
+        setIsOpenNewTab
+    ] = useState(configStore.state.isOpenNewTab);
 
     useEffect(configStore.syncValue('isOpenNewTab', setIsOpenNewTab), []);
 
     useEffect(() => {
-        if(typeof window !== "undefined") {
-            Array.from(document.querySelectorAll(`.${styles.article} a`)).forEach(element => {
-                if(isOpenNewTab || props.isEdit) {
-                    element.removeEventListener('click', onInnerLinkClickEvent);
-                    element.addEventListener('click', onNewTabLinkClickEvent);
-                } else {
-                    element.removeEventListener('click', onNewTabLinkClickEvent);
-                    element.addEventListener('click', onInnerLinkClickEvent);
+        if (typeof window !== 'undefined') {
+            const handleClickAnchorTag = (e: any) => {
+                if (e.target.nodeName === 'A') {
+                    const { href } = e.target;
+
+                    if (isOpenNewTab || props.isEdit) {
+                        e.preventDefault();
+                        window.open(href, '_blank');
+                        return;
+                    }
+
+                    if(href.includes(`${location.protocol}//${location.host}/`)) {
+                        e.preventDefault();
+                        Router.push(href).then(() => window.scrollTo(0, 0));
+                        return;
+                    }
                 }
-            });
+            }
+            
+            const $article = document.querySelector(`.${styles.article}`);
+
+            $article?.addEventListener('click', handleClickAnchorTag);
+            return () => {
+                $article?.removeEventListener('click', handleClickAnchorTag);
+            }
         }
-    }, [isOpenNewTab, props.html]);
+    }, [isOpenNewTab]);
 
     return (
         <div
             className={styles.article}
-            dangerouslySetInnerHTML={{ __html: props.html }}>
-        </div>
+            dangerouslySetInnerHTML={{ __html: props.html }}
+        />
     )
 }
