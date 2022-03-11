@@ -25,6 +25,10 @@ class AuthStore extends BState<AuthStoreState> {
     }
 
     logout() {
+        if (location.pathname.startsWith('/setting')) {
+            location.href = '/';
+            return;
+        }
         this.state = { ...INIT_STATE };
     }
 }
