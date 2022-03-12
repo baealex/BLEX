@@ -65,8 +65,8 @@ export function SettingNavigation(props: SettingNavigationProps) {
     const { sticky } = props;
 
     return (
-        <Card hasShadow isRounded className="mb-3">
-            <div className={cn('box', 'py-3', { sticky })}>
+        <Card hasShadow shadowLevel="sub" className="mb-3">
+            <div className={cn('box', 'py-2', { sticky })}>
                 {NAVIGATION_ITEMS.map((item, idx1) => (
                     <div className={cn('section')}>
                         <div className={cn('title', 'px-3', 'py-2')}>
@@ -80,7 +80,7 @@ export function SettingNavigation(props: SettingNavigationProps) {
                                             'px-3', 'py-2',
                                             { active: props.active == subItem.name }
                                         )}>
-                                                    {subItem.title}
+                                            {subItem.title}
                                         </div>
                                     </a>
                                 </Link>

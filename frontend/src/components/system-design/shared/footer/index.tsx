@@ -21,22 +21,22 @@ export function Footer({
             <div className={cn('items')}>
                 <div>
                     <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
-                        Notion
+                        서비스 소개
                     </a>
                 </div>
                 <div>
                     <a target="_blank" href="https://discord.gg/d4vCnB3CSr">
-                        Discord
+                        커뮤니티 참여
                     </a>
                 </div>
                 <div>
                     <a target="_blank" href="https://github.com/baealex/BLEX">
-                        GitHub
+                        오픈소스
                     </a>
                 </div>
                 <div>
                     <a href="mailto:im@baejino.com">
-                        Contact
+                        연락처
                     </a>
                 </div>
             </div>

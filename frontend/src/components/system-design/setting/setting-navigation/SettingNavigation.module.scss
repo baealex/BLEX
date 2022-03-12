@@ -18,6 +18,7 @@
 
     .section {
         .title {
+            @include COLOR_ASHGRAY;
             font-size: 12px;
         }
 
