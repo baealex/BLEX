@@ -64,21 +64,21 @@ export function AllPages({
                         </Link>
                     </li>
                 </ul>
-                <div className={cn('header')}>설정</div>
+                <div className={cn('header')}>관리</div>
                 <ul>
                     <li>
                         <Link href="/setting/account">
-                            <a>사용자 설정</a>
+                            <a>사용자 관리</a>
                         </Link>
                     </li>
                     <li>
                         <Link href="/setting/posts">
-                            <a>포스트 설정</a>
+                            <a>포스트 관리</a>
                         </Link>
                     </li>
                     <li>
                         <Link href="/setting/series">
-                            <a>시리즈 설정</a>
+                            <a>시리즈 관리</a>
                         </Link>
                     </li>
                 </ul>

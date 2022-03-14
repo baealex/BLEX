@@ -12,7 +12,7 @@ export interface SettingNavigationProps {
 
 const NAVIGATION_ITEMS = [
     {
-        title: '사용자 설정',
+        title: '사용자 관리',
         icon: 'far fa-user',
         subItems: [
             {
@@ -28,7 +28,7 @@ const NAVIGATION_ITEMS = [
         ]
     },
     {
-        title: '포스트 설정',
+        title: '포스트 관리',
         icon: 'fas fa-pencil-alt',
         subItems: [
             {
@@ -49,7 +49,7 @@ const NAVIGATION_ITEMS = [
         ]
     },
     {
-        title: '시리즈 설정',
+        title: '시리즈 관리',
         icon: 'fas fa-book',
         subItems: [
             {

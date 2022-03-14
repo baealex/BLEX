@@ -319,7 +319,7 @@ export function TopNavigation() {
                                                     onClick: () => router.push(`/@${state.username}`),
                                                 },
                                                 {
-                                                    name: '설정',
+                                                    name: '관리',
                                                     icon: 'fas fa-cog',
                                                     onClick: () => router.push(`/setting/account`),
                                                 },
