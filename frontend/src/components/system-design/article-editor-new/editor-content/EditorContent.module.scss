@@ -1,34 +1,67 @@
+@import 'var';
+
 .layout {
-    position: relative;
-
-    textarea {
-        width: 100%;
-        height: auto;
-        border: none;
-        font-size: 1.028em;
-        font-size: 1.028em;
-        line-height: 2;
-        word-break: break-all;
-        background: none;
-        display: block;
-        resize: none;
-        overflow: hidden;
-        top: 0;
-        left: 0;
-        border: 1px solid #000;
-    
-        &:focus {
-            outline: none;    
-        }
-    
-        :global(body.dark) & {
-            color: #ccc;
-        }
-    }
-
-    & > div {
+    & > div.preview {
         cursor: pointer;
         border: 1px solid #eee;
         margin: 8px 0;
+        min-height: 40px;
+    }
+
+    & > div.editor {
+        position: relative;
+
+        & > ul.helper {
+            @include BACKGROUND;
+            @include MAIN_SHADOW;
+            position: absolute;
+            height: 40px;
+            top: -48px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+
+            & > li {
+                & > :not(:last-child)::after {
+                    content: '';
+                    display: inline-block;
+                    height: 20px;
+                    width: 1px;
+                    background: #eee;
+                }
+                
+                display: inline-block;
+                margin: 8px;
+                padding: 0px 4px;
+                cursor: pointer;
+            }
+        }
+
+        & > textarea {
+            width: 100%;
+            height: auto;
+            border: none;
+            font-size: 1.028em;
+            font-size: 1.028em;
+            line-height: 2;
+            word-break: break-all;
+            background: none;
+            display: block;
+            resize: none;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+            border: 1px solid #000;
+        
+            &:focus {
+                outline: none;    
+            }
+        
+            :global(body.dark) & {
+                color: #ccc;
+            }
+        }
     }
 }

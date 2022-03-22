@@ -171,41 +171,6 @@ export function EditorLayout(props: Props) {
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => props.content.onChange(e.target.value)}
                     />
                 </div>
-                <div className="col-lg-2">
-                    <div className="sticky-top sticky-top-100">
-                        <div className={cn('tools')}>
-                            <ul className="px-3">
-                                <li className="mx-3 mx-lg-4" onClick={() => setIsOpenImageModal(true)}>
-                                    <PopOver text="이미지 업로드">
-                                        <i className="far fa-image"/>
-                                    </PopOver>
-                                </li>
-                                <li className="mx-3 mx-lg-4" onClick={() => setIsOpenYoutubeModal(true)}>
-                                    <PopOver text="유튜브 영상">
-                                        <i className="fab fa-youtube"/>
-                                    </PopOver>
-                                </li>
-                                <li className="mx-3 mx-lg-4" onClick={() => setIsEditMode(isEditMode => !isEditMode)}>
-                                        {isEditMode ? (
-                                            <PopOver text="편집모드">
-                                                <i className="far fa-eye-slash"/>
-                                            </PopOver>
-                                        ) : (
-                                            <PopOver text="미리보기">
-                                                <i className="far fa-eye"/>
-                                            </PopOver>
-                                        )}
-                                </li>
-                                <li className="mx-3 mx-lg-4" onClick={() => setIsOpenFormsModal(true)}>
-                                    <PopOver text="서식 불러오기">
-                                        <i className="fab fa-wpforms"></i>
-                                    </PopOver>
-                                </li>
-                                {props.addon?.sideButton}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
 
                 <Modal
                     title={props.publish.title}
