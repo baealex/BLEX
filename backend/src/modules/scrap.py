@@ -10,7 +10,7 @@ from typing import Union
 from urllib.parse import urlparse
 
 headers = {
-    'user-agent': 'blexmebot/1.0 (+http://blex.me/)',
+    'user-agent': 'blexmebot-MetaTagCollector/1.0 (+https://blex.me/)',
 }
 
 def page_parser(url: str):
