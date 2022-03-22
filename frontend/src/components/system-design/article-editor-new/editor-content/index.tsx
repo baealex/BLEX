@@ -1,6 +1,4 @@
 import styles from './EditorContent.module.scss';
-import classNames from 'classnames/bind';
-const cn = classNames.bind(styles);
 
 import React, {
     useEffect,
@@ -13,7 +11,6 @@ import { ArticleContent } from '@components/system-design/article-detail-page';
 import prism from '@modules/library/prism';
 import blexer from '@modules/utility/blexer';
 import { lazyLoadResource } from '@modules/optimize/lazy';
-import TrendyArticles from 'pages';
 
 export interface EditorContentProps {
     refer: (el: HTMLTextAreaElement | null) => void;
@@ -64,7 +61,7 @@ export function EditorContent() {
         }
     }, [active]);
 
-    const handleKeydown = (e: KeyboardEvent) => {
+    const handleKeydownEditor = (e: KeyboardEvent) => {
         if (e.key === 'ArrowUp' && ref.current?.selectionStart === 0) {
             e.preventDefault();
             if (active > 0) {
@@ -102,6 +99,36 @@ export function EditorContent() {
         }
     }
 
+    const handleClickHeaderHelper = (level: 1 | 2 | 3) => {
+        level -= 1;
+
+        const h = [
+            '## ',
+            '#### ',
+            '###### ',
+        ]
+        
+        const keyword = h[level]
+
+        setContents((prevState) => {
+            const nextState = [...prevState];
+            
+            let text = nextState[active].text;
+
+            if (prevState[active].text.startsWith(keyword)) {
+                text = text.replace(keyword, '');
+                nextState[active].text = text;
+                return nextState;
+            }
+
+            for (let i=h.length-1; i>=0; i--) {
+                text = text.replace(h[i], '');
+            }
+            nextState[active].text = keyword + text;
+            return nextState;
+        })
+    }
+
     return (
         <div className={styles.layout}>
             {contents.map((content, idx) => (
@@ -109,13 +136,13 @@ export function EditorContent() {
                     <>
                         <div className={styles.editor}>
                             <ul className={styles.helper}>
-                                <li>
+                                <li onClick={() => handleClickHeaderHelper(1)}>
                                     H1
                                 </li>
-                                <li>
+                                <li onClick={() => handleClickHeaderHelper(2)}>
                                     H2
                                 </li>
-                                <li>
+                                <li onClick={() => handleClickHeaderHelper(3)}>
                                     H3
                                 </li>
                                 <li>
@@ -146,7 +173,7 @@ export function EditorContent() {
                                     nextState[active].text = e.target.value;
                                     return nextState;
                                 })}
-                                onKeyDown={handleKeydown as any}
+                                onKeyDown={handleKeydownEditor as any}
                             />
                         </div>
                     </>

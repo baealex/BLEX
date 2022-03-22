@@ -2,10 +2,10 @@
 
 .layout {
     & > div.preview {
-        cursor: pointer;
+        cursor: text;
+        margin-top: 8px;
+        min-height: 38px;
         border: 1px solid #eee;
-        margin: 8px 0;
-        min-height: 40px;
     }
 
     & > div.editor {
@@ -14,6 +14,7 @@
         & > ul.helper {
             @include BACKGROUND;
             @include MAIN_SHADOW;
+            user-select: none;
             position: absolute;
             height: 40px;
             top: -48px;
@@ -22,6 +23,10 @@
             display: flex;
             align-items: center;
             border-radius: 8px;
+            white-space: nowrap;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
 
             & > li {
                 & > :not(:last-child)::after {
@@ -32,6 +37,10 @@
                     background: #eee;
                 }
                 
+                &:hover {
+                    color: $COLOR_DEFAULT_PRIMARY;
+                }
+
                 display: inline-block;
                 margin: 8px;
                 padding: 0px 4px;
@@ -51,9 +60,7 @@
             display: block;
             resize: none;
             overflow: hidden;
-            top: 0;
-            left: 0;
-            border: 1px solid #000;
+            border: 1px solid #777;
         
             &:focus {
                 outline: none;    
