@@ -1,12 +1,7 @@
-import styles from './Layout.module.scss';
-import classNames from 'classnames/bind';
-const cn = classNames.bind(styles);
-
 import { useEffect, useState } from 'react';
 
 import {
     CheckBox,
-    PopOver,
     Loading,
     Modal,
     Carousel,
@@ -19,11 +14,6 @@ import {
     InputForm,
     SelectForm
 } from '../forms';
-import {
-    FormsModal,
-    ImageModal,
-    YoutubeModal
-} from '../modals';
 
 import * as API from '@modules/api';
 import { dropImage, uploadImage } from '@modules/utility/image';
@@ -75,11 +65,7 @@ export function EditorLayout(props: Props) {
     const [ imageName, setImageName ] = useState('');
     const [ imagePreview, setImagePreview ] = useState('');
     const [ isSubmit, setIsSubmit ] = useState(false);
-    const [ isEditMode, setIsEditMode ] = useState(true);
 
-    const [ isOpenFormsModal, setIsOpenFormsModal ] = useState(false);
-    const [ isOpenImageModal, setIsOpenImageModal ] = useState(false);
-    const [ isOpenYoutubeModal, setIsOpenYoutubeModal ] = useState(false);
     const [ isOpenPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
 
     const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
@@ -111,16 +97,6 @@ export function EditorLayout(props: Props) {
         }
     }
 
-    const onUploadImage = async (image: File) => {
-        const imageSrc = await uploadImage(image);
-        if(imageSrc) {
-            const imageMd = imageSrc.includes('.mp4')
-                ? `@gif[${imageSrc}]`
-                : `![](${imageSrc})`;
-            appendTextOnCursor(imageMd);
-        }
-    }
-
     const onDropImage = async (e: React.DragEvent<HTMLDivElement>) => {
         const imageSrc = await dropImage(e);
         if(imageSrc) {
@@ -128,13 +104,6 @@ export function EditorLayout(props: Props) {
                 ? `@gif[${imageSrc}]`
                 : `![](${imageSrc})`;
             appendTextOnCursor(imageMd);
-        }
-    }
-
-    const onUploadYoutube = (id: string) => {
-        if (id) {
-            const youtubeMd = `@youtube[${id}]`;
-            appendTextOnCursor(youtubeMd);
         }
     }
 
@@ -166,8 +135,6 @@ export function EditorLayout(props: Props) {
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.title.onChange(e.target.value)}
                     />
                     <EditorContent
-                        refer={el => contentInput = el}
-                        isEditMode={isEditMode}
                         value={props.content.value}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => props.content.onChange(e.target.value)}
                     />
@@ -177,7 +144,7 @@ export function EditorLayout(props: Props) {
                                 본문으로 이미지를 드래그하여 간편하게 업로드 할 수 있습니다.
                             </p>,
                             <p>
-                                마크다운을 이용하여 본문의 문서를 작성할 수 있습니다.
+                                마크다운을 이용하여 본문의 내용을 작성할 수 있습니다.
                             </p>,
                         ]}/>
                     </div>
@@ -248,27 +215,6 @@ export function EditorLayout(props: Props) {
                         onClick={(value: boolean) => props.isAd.onChange(value)}
                     />
                 </Modal>
-
-                <ImageModal
-                    isOpen={isOpenImageModal}
-                    onClose={() => setIsOpenImageModal(false)}
-                    onUpload={(image) => image && onUploadImage(image)}
-                />
-
-                <YoutubeModal
-                    isOpen={isOpenYoutubeModal}
-                    onClose={() => setIsOpenYoutubeModal(false)}
-                    onUpload={(id) => onUploadYoutube(id)}
-                />
-
-                <FormsModal
-                    isOpen={isOpenFormsModal}
-                    onClose={() => setIsOpenFormsModal(false)}
-                    forms={forms}
-                    onFetch={onFetchForm}
-                />
-
-                {props.addon?.modal}
 
                 {isSubmit ? <Loading block/> : ''}
             </div>

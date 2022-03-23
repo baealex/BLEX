@@ -8,6 +8,10 @@
     padding: 16px;
     margin-bottom: 56px;
 
+    :global(body.dark) & {
+        background: #151515;    
+    }
+
     button {
         position: absolute;
         top: 16px;
@@ -20,6 +24,14 @@
 
         &:hover {
             color: #000;
+        }
+
+        :global(body.dark) & {
+            color: #888;
+
+            &:hover {
+                color: #ccc;
+            }
         }
     }
 

@@ -5,7 +5,7 @@
         cursor: text;
         margin-top: 8px;
         min-height: 38px;
-        border: 1px solid #eee;
+        border-bottom: 1px solid #ccc;
     }
 
     & > div.editor {
@@ -59,7 +59,8 @@
             display: block;
             resize: none;
             overflow: hidden;
-            border: 1px solid #777;
+            border: 1px solid #A076F1;
+            margin-top: 56px;
         
             &:focus {
                 outline: none;    

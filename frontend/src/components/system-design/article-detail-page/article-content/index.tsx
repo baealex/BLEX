@@ -1,4 +1,6 @@
 import styles from './ArticleContent.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
 
 import { useState, useEffect } from 'react';
 import Router from 'next/router';
@@ -10,7 +12,10 @@ export interface ArticleContentProps {
     isEdit?: boolean;
 }
 
-export function ArticleContent(props: ArticleContentProps) {
+export function ArticleContent({
+    html,
+    isEdit,
+}: ArticleContentProps) {
     const [
         isOpenNewTab,
         setIsOpenNewTab
@@ -24,7 +29,7 @@ export function ArticleContent(props: ArticleContentProps) {
                 if (e.target.nodeName === 'A') {
                     const { href } = e.target;
 
-                    if (isOpenNewTab || props.isEdit) {
+                    if (isOpenNewTab || isEdit) {
                         e.preventDefault();
                         window.open(href, '_blank');
                         return;
@@ -41,6 +46,7 @@ export function ArticleContent(props: ArticleContentProps) {
             const $article = document.querySelector(`.${styles.article}`);
 
             $article?.addEventListener('click', handleClickAnchorTag);
+
             return () => {
                 $article?.removeEventListener('click', handleClickAnchorTag);
             }
@@ -49,8 +55,8 @@ export function ArticleContent(props: ArticleContentProps) {
 
     return (
         <div
-            className={styles.article}
-            dangerouslySetInnerHTML={{ __html: props.html }}
+            className={cn('article', { isEdit })}
+            dangerouslySetInnerHTML={{ __html: html }}
         />
     )
 }
