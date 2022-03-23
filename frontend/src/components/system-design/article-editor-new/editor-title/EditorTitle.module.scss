@@ -1,22 +1,48 @@
-.title {
-    width: 100%;
-    border: none;
-    display: block;
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 15px;
-    background: none;
-    color: #000;
+.layout {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    background: #fafafa;
+    padding: 16px;
+    margin-bottom: 56px;
 
-    &:focus {
+    button {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: none;
+        border: none;
+        padding: 8px 16px;
+        color: #555;
         outline: none;
+
+        &:hover {
+            color: #000;
+        }
     }
 
-    &::placeholder {
-        color: #ccc;
-    }
-
-    :global(body.dark) & {
-        color: #fff;
+    input {
+        width: 100%;
+        border: none;
+        display: block;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        background: none;
+        color: #000;
+    
+        &:focus {
+            outline: none;
+        }
+    
+        &::placeholder {
+            color: #ccc;
+        }
+    
+        :global(body.dark) & {
+            color: #fff;
+        }
     }
 }
