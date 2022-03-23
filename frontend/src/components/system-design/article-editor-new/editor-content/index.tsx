@@ -25,19 +25,7 @@ export function EditorContent() {
     const [ contents, setContents ] = useState([
         {
             type: 'line',
-            text: '#### 제목입니다.'
-        },
-        {
-            type: 'line',
-            text: '안녕하세요 배진오입니다. 테스트입니다.'
-        },
-        {
-            type: 'line',
-            text: '###### 소제목'
-        },
-        {
-            type: 'line',
-            text: '호호호'
+            text: ''
         },
     ]);
     const [ active, setActive ] = useState(contents.length - 1);
@@ -62,6 +50,8 @@ export function EditorContent() {
     }, [active]);
 
     const handleKeydownEditor = (e: KeyboardEvent) => {
+        console.log(e);
+
         if (e.key === 'ArrowUp' && ref.current?.selectionStart === 0) {
             e.preventDefault();
             if (active > 0) {
@@ -129,6 +119,43 @@ export function EditorContent() {
         })
     }
 
+    const handleClickContentHelper = (keyword: string) => {
+        if (!ref.current) {
+            return;
+        }
+
+        const {
+            selectionStart,
+            selectionEnd,
+        } = ref.current;
+
+        if (selectionStart === selectionEnd) {
+            return;
+        }
+
+        setContents((prevState) => {
+            const nextState = [...prevState];
+
+            const text = nextState[active].text;
+            let selectionText = text.slice(
+                selectionStart,
+                selectionEnd,
+            );
+            const textStart = text.slice(0, selectionStart);
+            const textEnd = text.slice(selectionEnd, text.length);
+
+            if (selectionText.startsWith(keyword) && selectionText.endsWith(keyword)) {
+                selectionText = selectionText.replace(keyword, '');
+                selectionText = selectionText.replace(keyword, '');
+                nextState[active].text = textStart + selectionText + textEnd;
+                return nextState;
+            }
+
+            nextState[active].text = textStart + keyword + selectionText + keyword + textEnd;
+            return nextState;
+        })
+    }
+
     return (
         <div className={styles.layout}>
             {contents.map((content, idx) => (
@@ -145,10 +172,10 @@ export function EditorContent() {
                                 <li onClick={() => handleClickHeaderHelper(3)}>
                                     H3
                                 </li>
-                                <li>
+                                <li onClick={() => handleClickContentHelper('**')}>
                                     <b>B</b>
                                 </li>
-                                <li>
+                                <li onClick={() => handleClickContentHelper('*')}>
                                     <i>I</i>
                                 </li>
                                 <li>
@@ -173,6 +200,7 @@ export function EditorContent() {
                                     nextState[active].text = e.target.value;
                                     return nextState;
                                 })}
+                                placeholder=""
                                 onKeyDown={handleKeydownEditor as any}
                             />
                         </div>

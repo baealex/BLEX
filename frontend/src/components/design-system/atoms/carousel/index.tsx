@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { useState, useEffect } from 'react';
 
 export interface CarouselProps {
-    items: JSX.Element[];
+    items: React.ReactChild[];
 }
 
 export function Carousel({
