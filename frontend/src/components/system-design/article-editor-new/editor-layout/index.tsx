@@ -9,6 +9,7 @@ import {
     PopOver,
     Loading,
     Modal,
+    Carousel,
 } from '@design-system';
 
 import { EditorTitle } from '../editor-title';
@@ -170,6 +171,16 @@ export function EditorLayout(props: Props) {
                         value={props.content.value}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => props.content.onChange(e.target.value)}
                     />
+                    <div className="shallow-dark text-center mt-3">
+                        <Carousel items={[
+                            <p>
+                                본문으로 이미지를 드래그하여 간편하게 업로드 할 수 있습니다.
+                            </p>,
+                            <p>
+                                마크다운을 이용하여 본문의 문서를 작성할 수 있습니다.
+                            </p>,
+                        ]}/>
+                    </div>
                 </div>
 
                 <Modal
