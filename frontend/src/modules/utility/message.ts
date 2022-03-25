@@ -4,7 +4,7 @@ const LEVEL = {
     BEFORE_REQ_ERR: '🤔 ',
     AFTER_REQ_ERR: '😥 ',
     AFTER_REQ_DONE: '😀 '
-}
+};
 
 type MessageLevel = keyof typeof LEVEL;
 

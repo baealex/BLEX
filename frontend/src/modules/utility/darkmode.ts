@@ -8,7 +8,7 @@ export function systemTheme() {
 }
 
 export const syncTheme = (() => {
-    let handleChange: Function;
+    let handleChange: (value: boolean) => void;
     const system = systemTheme();
 
     system?.addEventListener('change', e => {
@@ -27,5 +27,5 @@ export const syncTheme = (() => {
         }
 
         handleChange = onChange;
-    }
+    };
 })();

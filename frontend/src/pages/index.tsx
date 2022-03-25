@@ -24,7 +24,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...data.body,
                 page
             }
-        }
+        };
     } catch(error) {
         return {
             notFound: true
@@ -46,7 +46,7 @@ export default function TrendyArticles(props: Props) {
             />
             <Footer/>
         </>
-    )
+    );
 }
 
 TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
@@ -66,4 +66,4 @@ TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
             </>
         </CollectionLayout>
     </>
-)
+);
