@@ -57,9 +57,74 @@ export function EditorContent() {
         }
     }, [active]);
 
-    const handleKeydownEditor = (e: KeyboardEvent) => {
-        console.log(e);
+    const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const clipboardText = e.clipboardData.getData('text');
+        const textLines = clipboardText.split('\n');
 
+        if (textLines.length < 2) {
+            return;
+        }
+
+        e.preventDefault();
+        let textAcc = '';
+        let isCode = false;
+        let isTable = false;
+
+        const lineStack = [];
+        const newContents: {
+            type: string;
+            text: string;
+        }[] = [];
+
+        for (const textLine of textLines) {
+            if (textLine.startsWith('```')) {
+                if (!isCode) {
+                    isCode = true;
+                }
+                if (isCode) {
+                    isCode = false;
+                    const type = 'lines';
+                    const text = lineStack.join('\n');
+                    newContents.push({ type, text });
+                    lineStack.splice(0, lineStack.length);
+                    continue;
+                }
+            }
+
+            if (isCode || isTable) {
+                lineStack.push(textLine);
+                continue;
+            }
+
+            const type = 'line';
+
+            if (textLine === '' && textAcc) {
+                newContents.push({ type, text: textAcc });
+                textAcc = '';
+                continue;
+            }
+
+            if (textLine === '<br>' || textLine === '<br/>') {
+                newContents.push({ type, text: '' });
+                continue;
+            }
+
+            textAcc += !textAcc ? textLine : ` ${textLine}`;
+        }
+
+        setContents(prevState => {
+            const { text } = prevState[active];
+
+            return [
+                ...prevState.slice(0, active + (text ? 1 : 0)),
+                ...newContents,
+                ...prevState.slice(active + 1, prevState.length),
+            ];
+        });
+        setActive(active => active + newContents.length);
+    }
+
+    const handleKeydownEditor = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'ArrowUp' && ref.current?.selectionStart === 0) {
             e.preventDefault();
             if (active > 0) {
@@ -251,17 +316,21 @@ export function EditorContent() {
                                         return nextState;
                                     })}
                                     placeholder=""
-                                    onKeyDown={handleKeydownEditor as any}
+                                    onKeyDown={handleKeydownEditor}
+                                    onPaste={handlePaste}
                                 />
                             </div>
                         </>
                     ) : (
-                        <div className={styles.preview} onClick={() => setActive(idx)}>
-                            <ArticleContent
-                                isEdit
-                                html={blexer(content.text)}
-                            />
-                        </div>
+                        <>
+                            <div className={styles.dropline}/>
+                            <div className={styles.preview} onClick={() => setActive(idx)}>
+                                <ArticleContent
+                                    isEdit
+                                    html={blexer(content.text)}
+                                />
+                            </div>
+                        </>
                     )
                 ))}
             </div>

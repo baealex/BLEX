@@ -5,7 +5,20 @@
         cursor: text;
         margin-top: 8px;
         min-height: 38px;
-        border-bottom: 1px solid #ccc;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 4px;
+    }
+
+    & > div.dropline {
+        opacity: 0;
+        height: 4px;
+        margin-bottom: 4px;
+        background: rgb(177, 230, 255);
+        transition: opacity 0.5s ease;
+
+        &:hover {
+            opacity: 1;
+        }
     }
 
     & > div.editor {
