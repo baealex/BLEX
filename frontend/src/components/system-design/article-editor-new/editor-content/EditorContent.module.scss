@@ -1,6 +1,6 @@
 @import 'var';
 
-.layout {
+.layout > div.block {
     & > div.preview {
         cursor: text;
         margin-top: 8px;

@@ -23,15 +23,43 @@ export interface EditorContentProps {
     isEditMode: boolean;
 }
 
+interface Content {
+    id?: number,
+    type: 'line' | 'lines';
+    text: string;
+}
+
+let id = 0;
+
+const initialContents: Content[] = [
+    {
+        type: 'line',
+        text: ''
+    },
+];
+
 export function EditorContent() {
     const ref = useRef<HTMLTextAreaElement | null>(null);
 
-    const [ contents, setContents ] = useState([
-        {
-            type: 'line',
-            text: ''
-        },
-    ]);
+    const [ contents, handleSetContents ] = useState<Content[]>(
+        initialContents.map(content => {
+            if (!content.id) {
+                content.id = id++;
+            }
+            return content;
+        })
+    );
+
+    const setContents = (fn: (prevContents: Content[]) => Content[]) => {
+        const nextContents = fn(contents).map(content => {
+            if (!content.id) {
+                content.id = id++;
+            }
+            return content;
+        });
+        handleSetContents(nextContents);
+    }
+
     const [ active, setActive ] = useState(contents.length - 1);
     const [ modal, setModal ] = useState({
         isOpenImage: false,
@@ -71,10 +99,7 @@ export function EditorContent() {
         let isTable = false;
 
         const lineStack = [];
-        const newContents: {
-            type: string;
-            text: string;
-        }[] = [];
+        const newContents: Content[] = [];
 
         for (const textLine of textLines) {
             if (textLine.startsWith('```')) {
@@ -274,64 +299,66 @@ export function EditorContent() {
         <>
             <div className={styles.layout}>
                 {contents.map((content, idx) => (
-                    idx === active ? (
-                        <>
-                            <div className={styles.editor}>
-                                <ul className={styles.helper}>
-                                    <li onClick={() => handleClickHeaderHelper(1)}>
-                                        H1
-                                    </li>
-                                    <li onClick={() => handleClickHeaderHelper(2)}>
-                                        H2
-                                    </li>
-                                    <li onClick={() => handleClickHeaderHelper(3)}>
-                                        H3
-                                    </li>
-                                    <li onClick={() => handleClickContentHelper('**')}>
-                                        <b>B</b>
-                                    </li>
-                                    <li onClick={() => handleClickContentHelper('*')}>
-                                        <i>I</i>
-                                    </li>
-                                    <li onClick={() => handleClickBlockHelper('lines', '```javascript\n\n```')}>
-                                        <i className="fas fa-code"/>
-                                    </li>
-                                    <li onClick={() => handleClickBlockHelper('lines', '| Title1 | Title2 | Title3 |\n|---|---|---|\n| Content1 | Content2 |  Content3 |')}>
-                                        <i className="fas fa-table"/>
-                                    </li>
-                                    <li onClick={() => modalToggle('isOpenImage')}>
-                                        <i className="far fa-image"/>
-                                    </li>
-                                    <li onClick={() => modalToggle('isOpenYoutube')}>
-                                        <i className="fab fa-youtube"/>
-                                    </li>
-                                </ul>
-                                <textarea
-                                    ref={ref}
-                                    rows={1}
-                                    value={content.text}
-                                    onChange={(e) => setContents((prevState) => {
-                                        const nextState = [...prevState];
-                                        nextState[active].text = e.target.value;
-                                        return nextState;
-                                    })}
-                                    placeholder=""
-                                    onKeyDown={handleKeydownEditor}
-                                    onPaste={handlePaste}
-                                />
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <div className={styles.dropline}/>
-                            <div className={styles.preview} onClick={() => setActive(idx)}>
-                                <ArticleContent
-                                    isEdit
-                                    html={blexer(content.text)}
-                                />
-                            </div>
-                        </>
-                    )
+                    <div key={content.id} className={styles.block}>
+                        {idx === active ? (
+                            <>
+                                <div className={styles.editor}>
+                                    <ul className={styles.helper}>
+                                        <li onClick={() => handleClickHeaderHelper(1)}>
+                                            H1
+                                        </li>
+                                        <li onClick={() => handleClickHeaderHelper(2)}>
+                                            H2
+                                        </li>
+                                        <li onClick={() => handleClickHeaderHelper(3)}>
+                                            H3
+                                        </li>
+                                        <li onClick={() => handleClickContentHelper('**')}>
+                                            <b>B</b>
+                                        </li>
+                                        <li onClick={() => handleClickContentHelper('*')}>
+                                            <i>I</i>
+                                        </li>
+                                        <li onClick={() => handleClickBlockHelper('lines', '```javascript\n\n```')}>
+                                            <i className="fas fa-code"/>
+                                        </li>
+                                        <li onClick={() => handleClickBlockHelper('lines', '| Title1 | Title2 | Title3 |\n|---|---|---|\n| Content1 | Content2 |  Content3 |')}>
+                                            <i className="fas fa-table"/>
+                                        </li>
+                                        <li onClick={() => modalToggle('isOpenImage')}>
+                                            <i className="far fa-image"/>
+                                        </li>
+                                        <li onClick={() => modalToggle('isOpenYoutube')}>
+                                            <i className="fab fa-youtube"/>
+                                        </li>
+                                    </ul>
+                                    <textarea
+                                        ref={ref}
+                                        rows={1}
+                                        value={content.text}
+                                        onChange={(e) => setContents((prevState) => {
+                                            const nextState = [...prevState];
+                                            nextState[active].text = e.target.value;
+                                            return nextState;
+                                        })}
+                                        placeholder=""
+                                        onKeyDown={handleKeydownEditor}
+                                        onPaste={handlePaste}
+                                    />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className={styles.dropline}/>
+                                <div className={styles.preview} onClick={() => setActive(idx)}>
+                                    <ArticleContent
+                                        isEdit
+                                        html={blexer(content.text)}
+                                    />
+                                </div>
+                            </>
+                        )}
+                    </div>
                 ))}
             </div>
 
