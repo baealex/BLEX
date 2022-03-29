@@ -14,21 +14,17 @@ export function GlitchText(props: GlitchTextProps) {
     useEffect(() => {
         const letters = props.letters;
 
-        const skip = 4;
-        let counter = 0;
-
         const swap = function() {
-            if (counter++ == skip) {
-                const randWord = 
-                    letters[Math.floor(Math.random()*letters.length)]
-                    + letters[Math.floor(Math.random()*letters.length)]
-                    + letters[Math.floor(Math.random()*letters.length)]
-                    + letters[Math.floor(Math.random()*letters.length)];
-                setText(randWord);
-                counter = 0;
-            }
+            const randWord = 
+                letters[Math.floor(Math.random()*letters.length)]
+                + letters[Math.floor(Math.random()*letters.length)]
+                + letters[Math.floor(Math.random()*letters.length)]
+                + letters[Math.floor(Math.random()*letters.length)];
+            setText(randWord);
 
-            window.requestAnimationFrame(swap);
+            window.requestAnimationFrame(() => {
+                setTimeout(swap, 100);
+            });
         }
 
         swap();
