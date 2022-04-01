@@ -10,11 +10,13 @@ import { configStore } from '@stores/config';
 export interface ArticleContentProps {
     html: string;
     isEdit?: boolean;
+    noMargin?: boolean;
 }
 
 export function ArticleContent({
     html,
     isEdit,
+    noMargin,
 }: ArticleContentProps) {
     const [
         isOpenNewTab,
@@ -55,7 +57,7 @@ export function ArticleContent({
 
     return (
         <div
-            className={cn('article', { isEdit })}
+            className={cn('article', { noMargin })}
             dangerouslySetInnerHTML={{ __html: html }}
         />
     )

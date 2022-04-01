@@ -36,15 +36,26 @@
             }
         }
     }
+
+    @media only screen and (max-width: 991px) {
+        @include SUB_SHADOW;
+        @include BACKGROUND;
+        position: fixed;
+        top: 80px;
+        right: 15px;
+        padding-top: 16px;
+        width: 160px;
+        overflow-x: scroll;
+        border-radius: 16px;
+
+        ul {
+            white-space: nowrap;
+        }
+    }
 }
 
 .layout {
     position: relative;
-    border: 1px solid #eee;
-
-    :global(body.dark) & {
-        border: 1px solid #444;
-    }
 
     .content {
         position: absolute;

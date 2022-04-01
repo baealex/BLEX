@@ -418,10 +418,7 @@ export function EditorContent(props: EditorContentProps) {
                             </>
                         ) : (
                             <div className={styles.preview} onClick={() => setActive(idx)}>
-                                <ArticleContent
-                                    isEdit
-                                    html={blexer(content.text)}
-                                />
+                                <ArticleContent isEdit noMargin html={blexer(content.text)}/>
                             </div>
                         )}
                     </div>
