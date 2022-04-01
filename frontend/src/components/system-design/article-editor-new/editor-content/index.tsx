@@ -1,4 +1,6 @@
 import styles from './EditorContent.module.scss';
+import classNames from 'classnames/bind';
+const cn = classNames.bind(styles);
 
 import React, {
     useEffect,
@@ -10,6 +12,7 @@ import { ArticleContent } from '@components/system-design/article-detail-page';
 
 import prism from '@modules/library/prism';
 import blexer from '@modules/utility/blexer';
+import { uploadImage } from '@modules/utility/image';
 import { lazyLoadResource } from '@modules/optimize/lazy';
 import {
     ImageModal,
@@ -27,9 +30,29 @@ interface Content {
     id?: number,
     type: 'line' | 'lines';
     text: string;
+    hasDrag?: boolean;
+    hasDragEnter?: boolean;
 }
 
-let id = 0;
+const contentsManager = (() => {
+    let id = 0;
+
+    return function(content: Content) {
+        if (!content.id) {
+            content.id = id++;
+        }
+
+        if (content.hasDrag === undefined) {
+            content.hasDrag = false;
+        }
+
+        if (content.hasDragEnter === undefined) {
+            content.hasDragEnter = false;
+        }
+
+        return content;
+    }
+})();
 
 const initialContents: Content[] = [
     {
@@ -42,26 +65,17 @@ export function EditorContent() {
     const ref = useRef<HTMLTextAreaElement | null>(null);
 
     const [ contents, handleSetContents ] = useState<Content[]>(
-        initialContents.map(content => {
-            if (!content.id) {
-                content.id = id++;
-            }
-            return content;
-        })
+        initialContents.map(contentsManager)
     );
 
     const setContents = (fn: (prevContents: Content[]) => Content[]) => {
-        const nextContents = fn(contents).map(content => {
-            if (!content.id) {
-                content.id = id++;
-            }
-            return content;
-        });
+        const nextContents = fn(contents);
         handleSetContents(nextContents);
     }
 
     const [ active, setActive ] = useState(contents.length - 1);
     const [ modal, setModal ] = useState({
+        isOpenForms: false,
         isOpenImage: false,
         isOpenYoutube: false,
     })
@@ -164,17 +178,34 @@ export function EditorContent() {
             }
         }
 
-        if (e.key === 'Enter' && contents[active].type === 'line') {
-            e.preventDefault();
-            setContents(contents => [
-                ...contents.slice(0, active + 1),
-                {
-                    type: 'line',
-                    text: '',
-                },
-                ...contents.slice(active + 1, contents.length),
-            ])
-            setActive(active => active + 1);
+        if (e.key === 'Enter') {
+            if (contents[active].type === 'line') {
+                e.preventDefault();
+                setContents(contents => [
+                    ...contents.slice(0, active + 1),
+                    {
+                        type: 'line',
+                        text: '',
+                    },
+                    ...contents.slice(active + 1, contents.length),
+                ])
+                setActive(active => active + 1);
+            }
+            if (
+                contents[active].type === 'lines' &&
+                contents[active].text[contents[active].text.length - 1] === '\n'
+            ) {
+                e.preventDefault();
+                setContents(contents => [
+                    ...contents.slice(0, active + 1),
+                    {
+                        type: 'line',
+                        text: '',
+                    },
+                    ...contents.slice(active + 1, contents.length),
+                ])
+                setActive(active => active + 1);
+            }
         }
 
         if (e.key === 'Backspace' && contents[active].text === '') {
@@ -207,6 +238,7 @@ export function EditorContent() {
 
             if (prevState[active].text.startsWith(keyword)) {
                 text = text.replace(keyword, '');
+                nextState[active].type = 'line';
                 nextState[active].text = text;
                 return nextState;
             }
@@ -214,6 +246,7 @@ export function EditorContent() {
             for (let i=h.length-1; i>=0; i--) {
                 text = text.replace(h[i], '');
             }
+            nextState[active].type = 'line';
             nextState[active].text = keyword + text;
             return nextState;
         });
@@ -288,6 +321,18 @@ export function EditorContent() {
         });
     }
 
+    const handleImageUpload = async (file?: File) => {
+        if (file) {
+            const src = await uploadImage(file);
+            if (src) {
+                handleClickBlockHelper(
+                    'line',
+                    src.includes('.mp4') ? `@gif[${src}]` : `![](${src})`
+                );
+            }
+        }
+    }
+
     const modalToggle = (name: keyof typeof modal) => {
         setModal((prevState) => ({
             ...prevState,
@@ -297,9 +342,29 @@ export function EditorContent() {
 
     return (
         <>
-            <div className={styles.layout}>
+            <div
+                className={styles.layout}
+                onDragOver={(e) => {
+                    e.preventDefault();
+                }}
+                onDrop={async (e) => {
+                    const files = Array.from(e.dataTransfer.files);
+                    if (files.length > 1) {
+                        return;
+                    }
+
+                    await handleImageUpload(files[0]);
+
+                    // for (const file of files) {
+                    //     await handleImageUpload(file);
+                    // }
+                }}
+            >
                 {contents.map((content, idx) => (
-                    <div key={content.id} className={styles.block}>
+                    <div
+                        key={content.id}
+                        className={cn('block')}
+                    >
                         {idx === active ? (
                             <>
                                 <div className={styles.editor}>
@@ -319,6 +384,12 @@ export function EditorContent() {
                                         <li onClick={() => handleClickContentHelper('*')}>
                                             <i>I</i>
                                         </li>
+                                        <li onClick={() => handleClickBlockHelper('lines', '- list1\n- list2\n- list3')}>
+                                            <i className="fas fa-list-ul"/>
+                                        </li>
+                                        <li onClick={() => handleClickBlockHelper('lines', '1. list1\n1. list2\n1. list3')}>
+                                            <i className="fas fa-list-ol"/>
+                                        </li>
                                         <li onClick={() => handleClickBlockHelper('lines', '```javascript\n\n```')}>
                                             <i className="fas fa-code"/>
                                         </li>
@@ -333,30 +404,28 @@ export function EditorContent() {
                                         </li>
                                     </ul>
                                     <textarea
+                                        className={cn({ hasDragEnter: content.hasDragEnter })}
                                         ref={ref}
                                         rows={1}
                                         value={content.text}
+                                        placeholder=""
                                         onChange={(e) => setContents((prevState) => {
                                             const nextState = [...prevState];
                                             nextState[active].text = e.target.value;
                                             return nextState;
                                         })}
-                                        placeholder=""
                                         onKeyDown={handleKeydownEditor}
                                         onPaste={handlePaste}
                                     />
                                 </div>
                             </>
                         ) : (
-                            <>
-                                <div className={styles.dropline}/>
-                                <div className={styles.preview} onClick={() => setActive(idx)}>
-                                    <ArticleContent
-                                        isEdit
-                                        html={blexer(content.text)}
-                                    />
-                                </div>
-                            </>
+                            <div className={styles.preview} onClick={() => setActive(idx)}>
+                                <ArticleContent
+                                    isEdit
+                                    html={blexer(content.text)}
+                                />
+                            </div>
                         )}
                     </div>
                 ))}
@@ -365,16 +434,7 @@ export function EditorContent() {
             <ImageModal
                 isOpen={modal.isOpenImage}
                 onClose={() => modalToggle('isOpenImage')}
-                onUpload={(file) => {
-                    // TODO: Image upload
-                    const imageSrc = 'https://static.blex.me/assets/images/default-post.png';
-                    handleClickBlockHelper(
-                        'line',
-                        imageSrc.includes('.mp4')
-                            ? `@gif[${imageSrc}]`
-                            : `![](${imageSrc})`
-                    );
-                }}
+                onUpload={handleImageUpload}
             />
             
             <YoutubeModal

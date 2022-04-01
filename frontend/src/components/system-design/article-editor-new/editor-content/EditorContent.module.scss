@@ -1,86 +1,82 @@
 @import 'var';
 
-.layout > div.block {
-    & > div.preview {
-        cursor: text;
-        margin-top: 8px;
-        min-height: 38px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 4px;
-    }
+.layout {
+    div.block {
+        transition: background 0.2s ease;
 
-    & > div.dropline {
-        opacity: 0;
-        height: 4px;
-        margin-bottom: 4px;
-        background: rgb(177, 230, 255);
-        transition: opacity 0.5s ease;
-
-        &:hover {
-            opacity: 1;
+        & > div.preview {
+            cursor: text;
+            margin-top: 8px;
+            min-height: 38px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
         }
-    }
 
-    & > div.editor {
-        position: relative;
+        & > div.editor {
+            position: relative;
 
-        & > ul.helper {
-            @include BACKGROUND;
-            @include MAIN_SHADOW;
-            user-select: none;
-            position: absolute;
-            height: 40px;
-            top: -48px;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            border-radius: 8px;
-            white-space: nowrap;
-            max-width: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
+            & > ul.helper {
+                @include BACKGROUND;
+                @include MAIN_SHADOW;
+                user-select: none;
+                position: absolute;
+                height: 40px;
+                top: -48px;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                border-radius: 8px;
+                white-space: nowrap;
+                max-width: 100%;
+                overflow-x: auto;
+                overflow-y: hidden;
 
-            & > li {
-                & > :not(:last-child)::after {
-                    content: '';
+                & > li {
+                    & > :not(:last-child)::after {
+                        content: '';
+                        display: inline-block;
+                        height: 20px;
+                        width: 1px;
+                        background: #eee;
+                    }
+                    
+                    &:hover {
+                        color: $COLOR_DEFAULT_PRIMARY;
+                    }
+
                     display: inline-block;
-                    height: 20px;
-                    width: 1px;
-                    background: #eee;
+                    margin: 8px;
+                    padding: 0px 4px;
+                    cursor: pointer;
                 }
-                
-                &:hover {
-                    color: $COLOR_DEFAULT_PRIMARY;
+            }
+
+            & > textarea {
+                width: 100%;
+                height: auto;
+                border: none;
+                font-size: 1.028em;
+                line-height: 2;
+                word-break: break-all;
+                background: none;
+                display: block;
+                resize: none;
+                overflow: hidden;
+                border: 1px solid #A076F1;
+                margin-top: 56px;
+
+                &.hasDragEnter {
+                    background: rgba(141, 192, 216, 0.3);
                 }
-
-                display: inline-block;
-                margin: 8px;
-                padding: 0px 4px;
-                cursor: pointer;
-            }
-        }
-
-        & > textarea {
-            width: 100%;
-            height: auto;
-            border: none;
-            font-size: 1.028em;
-            line-height: 2;
-            word-break: break-all;
-            background: none;
-            display: block;
-            resize: none;
-            overflow: hidden;
-            border: 1px solid #A076F1;
-            margin-top: 56px;
-        
-            &:focus {
-                outline: none;    
-            }
-        
-            :global(body.dark) & {
-                color: #ccc;
+            
+                &:focus {
+                    outline: none;    
+                }
+            
+                :global(body.dark) & {
+                    color: #ccc;
+                }
             }
         }
     }

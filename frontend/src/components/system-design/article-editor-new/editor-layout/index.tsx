@@ -16,7 +16,6 @@ import {
 } from '../forms';
 
 import * as API from '@modules/api';
-import { dropImage, uploadImage } from '@modules/utility/image';
 
 import { modalStore } from '@stores/modal';
 
@@ -97,16 +96,6 @@ export function EditorLayout(props: Props) {
         }
     }
 
-    const onDropImage = async (e: React.DragEvent<HTMLDivElement>) => {
-        const imageSrc = await dropImage(e);
-        if(imageSrc) {
-            const imageMd = imageSrc.includes('.mp4')
-                ? `@gif[${imageSrc}]`
-                : `![](${imageSrc})`;
-            appendTextOnCursor(imageMd);
-        }
-    }
-
     const handleSubmit = async () => {
         modalStore.onCloseModal('isPublishModalOpen');
         setIsSubmit(true);
@@ -115,21 +104,10 @@ export function EditorLayout(props: Props) {
         });
     }
 
-    const onFetchForm = async (id: number) => {
-        const { data } = await API.getForm(id);
-        if (data.body.content) {
-            appendTextOnCursor(data.body.content);
-        }
-    }
-
     return (
         <div className="container">
             <div className="row justify-content-center">
-                <div
-                    className="col-lg-8"
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => onDropImage(e)}
-                >
+                <div className="col-lg-8">
                     <EditorTitle
                         value={props.title.value}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.title.onChange(e.target.value)}
