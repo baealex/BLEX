@@ -15,9 +15,8 @@ import blexer from '@modules/utility/blexer';
 import { uploadImage } from '@modules/utility/image';
 import { lazyLoadResource } from '@modules/optimize/lazy';
 import {
-    ImageModal,
     YoutubeModal,
-} from '../modals';
+} from '../../shared/modals';
 
 export interface EditorContentProps {
     value: [];
@@ -51,6 +50,7 @@ const initialContents: Content[] = [
 
 export function EditorContent(props: EditorContentProps) {
     const ref = useRef<HTMLTextAreaElement | null>(null);
+    const imageInput = useRef<HTMLInputElement>(null);
 
     const [ contents, handleSetContents ] = useState<Content[]>(
         initialContents.map(contentsManager)
@@ -68,9 +68,8 @@ export function EditorContent(props: EditorContentProps) {
     const [ active, setActive ] = useState(contents.length - 1);
     const [ modal, setModal ] = useState({
         isOpenForms: false,
-        isOpenImage: false,
         isOpenYoutube: false,
-    })
+    });
 
     useEffect(() => {
         if (ref.current) {
@@ -313,7 +312,7 @@ export function EditorContent(props: EditorContentProps) {
         });
     }
 
-    const handleImageUpload = async (file?: File) => {
+    const handleUploadImage = async (file?: File) => {
         if (file) {
             const src = await uploadImage(file);
             if (src) {
@@ -329,11 +328,22 @@ export function EditorContent(props: EditorContentProps) {
         setModal((prevState) => ({
             ...prevState,
             [name]: !prevState[name],
-        }))
-    }
+        }));
+    };
 
     return (
         <>
+            <input
+                ref={imageInput}
+                type="file"
+                accept="image/*"
+                style={{display: 'none'}}
+                onChange={(e) => {
+                    if (e.target.files) {
+                        handleUploadImage(e.target.files[0]);
+                    }
+                }}
+            />
             <div
                 className={styles.layout}
                 onDragOver={(e) => {
@@ -345,11 +355,7 @@ export function EditorContent(props: EditorContentProps) {
                         return;
                     }
 
-                    await handleImageUpload(files[0]);
-
-                    // for (const file of files) {
-                    //     await handleImageUpload(file);
-                    // }
+                    await handleUploadImage(files[0]);
                 }}
             >
                 {contents.map((content, idx) => (
@@ -388,7 +394,7 @@ export function EditorContent(props: EditorContentProps) {
                                         <li onClick={() => handleClickBlockHelper('lines', '| Title1 | Title2 | Title3 |\n|---|---|---|\n| Content1 | Content2 |  Content3 |')}>
                                             <i className="fas fa-table"/>
                                         </li>
-                                        <li onClick={() => modalToggle('isOpenImage')}>
+                                        <li onClick={() => imageInput.current?.click()}>
                                             <i className="far fa-image"/>
                                         </li>
                                         <li onClick={() => modalToggle('isOpenYoutube')}>
@@ -421,12 +427,6 @@ export function EditorContent(props: EditorContentProps) {
                     </div>
                 ))}
             </div>
-
-            <ImageModal
-                isOpen={modal.isOpenImage}
-                onClose={() => modalToggle('isOpenImage')}
-                onUpload={handleImageUpload}
-            />
             
             <YoutubeModal
                 isOpen={modal.isOpenYoutube}

@@ -7,7 +7,7 @@ import type {
 
 import {
     EditorLayout,
-} from '@components/system-design/article-editor-new';
+} from '@components/system-design/article-editor-page/beginner';
 
 import * as API from '@modules/api';
 import {

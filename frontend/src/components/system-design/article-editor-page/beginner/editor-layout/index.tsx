@@ -7,12 +7,12 @@ import {
     Carousel,
 } from '@design-system';
 
-import { EditorTitle } from '../editor-title';
+import { EditorTitle } from '../../shared/editor-title';
 import { EditorContent } from '../editor-content';
 import {
     InputForm,
     SelectForm
-} from '../forms';
+} from '../../shared/forms';
 
 import * as API from '@modules/api';
 
