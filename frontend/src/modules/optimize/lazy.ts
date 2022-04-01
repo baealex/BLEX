@@ -1,7 +1,7 @@
-export function lazyIntersection(className: string, callback: Function) {
-    let element = document.getElementsByClassName(className.replace('.', ''))[0];
+export function lazyIntersection(className: string, callback: () => void) {
+    const element = document.getElementsByClassName(className.replace('.', ''))[0];
 
-    if ("IntersectionObserver" in window) {
+    if ('IntersectionObserver' in window) {
         if (element) {
             const observer = new IntersectionObserver((entries, observer) => {
                 entries.forEach((entry) => {
@@ -26,14 +26,14 @@ export function lazyLoadResource() {
         });
     }
 
-    let lazyImages = Array.from(document.querySelectorAll("img.lazy"));
+    const lazyImages = Array.from(document.querySelectorAll('img.lazy'));
 
-    if ("IntersectionObserver" in window) {
+    if ('IntersectionObserver' in window) {
         const lazyImageObserver = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                    let lazyImage: any = entry.target;
-                    lazyImage.src = lazyImage.dataset.src;
+                    const lazyImage = entry.target as HTMLImageElement;
+                    lazyImage.src = lazyImage.dataset.src || '';
                     // lazyImage.classList.remove("lazy");
                     lazyImageObserver.unobserve(lazyImage);
                 }
@@ -45,20 +45,20 @@ export function lazyLoadResource() {
         });
     } else {
         lazyImages.forEach((entry) => {
-            let lazyImage: any = entry;
-            lazyImage.src = lazyImage.dataset.src;
+            const lazyImage = entry as HTMLImageElement;
+            lazyImage.src = lazyImage.dataset.src || '';
         });
     }
 
-    var lazyVideos = Array.from(document.querySelectorAll("video.lazy"));
+    const lazyVideos = Array.from(document.querySelectorAll('video.lazy'));
 
-    if ("IntersectionObserver" in window) {
+    if ('IntersectionObserver' in window) {
         const lazyVideoObserver = new IntersectionObserver((entries) => {
             entries.forEach((video: any) => {
                 if (video.isIntersecting) {
-                    for (var source in video.target.children) {
-                        var videoSource = video.target.children[source];
-                        if (typeof videoSource.tagName === "string" && videoSource.tagName === "SOURCE") {
+                    for (const source in video.target.children) {
+                        const videoSource = video.target.children[source];
+                        if (typeof videoSource.tagName === 'string' && videoSource.tagName === 'SOURCE') {
                             videoSource.src = videoSource.dataset.src;
                         }
                     }
@@ -74,8 +74,8 @@ export function lazyLoadResource() {
         });
     } else {
         lazyVideos.forEach((entry) => {
-            let lazyVideo: any = entry;
-            lazyVideo.src = lazyVideo.dataset.src;
+            const lazyVideo = entry as HTMLVideoElement;
+            lazyVideo.src = lazyVideo.dataset.src || '';
         });
     }
 }

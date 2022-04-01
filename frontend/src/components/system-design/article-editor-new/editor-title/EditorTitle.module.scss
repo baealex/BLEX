@@ -1,0 +1,57 @@
+.layout {
+    height: 200px;
+    background: #fafafa;
+    margin-bottom: 56px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    :global(body.dark) & {
+        background: #151515;    
+    }
+
+    & > div {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.5);
+
+        button {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            outline: none;
+            color: #aaa;
+    
+            &:hover {
+                color: #ccc;
+            }
+        }
+    
+        input {
+            width: 100%;
+            border: none;
+            display: block;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: none;
+            color: #fff;
+        
+            &:focus {
+                outline: none;
+            }
+        
+            &::placeholder {
+                color: #ccc;
+            }
+        }
+    }
+}

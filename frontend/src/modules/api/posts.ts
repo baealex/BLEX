@@ -132,14 +132,25 @@ interface PostPostsData {
     url: string;
 }
 
-export async function postPosts(data: {}) {
+interface PostPostsFormData {
+    token: string;
+    title: string;
+    text_md: string;
+    image?: File;
+    tag: string;
+    series: string;
+    is_hide: string;
+    is_advertise: string;
+}
+
+export async function postPosts(formData: PostPostsFormData) {
     return await axiosRequest<ResponseData<PostPostsData>>({
         url: `/v1/posts`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        data: objectToForm(data),
+        data: objectToForm(formData),
     });
 }
 

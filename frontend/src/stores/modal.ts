@@ -23,19 +23,21 @@ class ModalStore extends BState<ModalStoreState> {
             isTelegramSyncModalOpen: false,
             isTwoFactorAuthModalOpen: false,
             isTwoFactorAuthSyncModalOpen: false,
-        }
+        };
     }
 
     async onOpenModal(modalName: ModalName) {
-        await this.setState(<any>{
+        await this.setState((prevState) => ({
+            ...prevState,
             [modalName]: true
-        });
+        }));
     }
 
     async onCloseModal(modalName: ModalName) {
-        await this.setState(<any>{
+        await this.setState((prevState) => ({
+            ...prevState,
             [modalName]: false
-        });
+        }));
     }
 }
 

@@ -16,7 +16,7 @@ const INIT_STATE = {
     isFirstLogin: false,
     isTelegramSync: false,
     is2faSync: false,
-}
+};
 
 class AuthStore extends BState<AuthStoreState> {
     constructor() {

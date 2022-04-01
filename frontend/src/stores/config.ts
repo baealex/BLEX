@@ -15,7 +15,7 @@ export interface ConfigStoreState {
 }
 
 class ConfigStore extends BState<ConfigStoreState> {
-    init: boolean = false;
+    init = false;
 
     constructor() {
         super();
