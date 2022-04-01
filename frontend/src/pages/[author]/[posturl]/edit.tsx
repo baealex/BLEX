@@ -3,7 +3,7 @@ import Router from 'next/router';
 
 import {
     EditorLayout
-} from '@system-design/article-editor-page';
+} from '@system-design/article-editor-page/expert';
 
 import * as API from '@modules/api';
 import {
