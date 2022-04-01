@@ -1,13 +1,13 @@
 .layout {
     height: 200px;
-    background: #fafafa;
     margin-bottom: 56px;
+    background-color: #fafafa;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
 
     :global(body.dark) & {
-        background: #151515;    
+        background-color: #151515;  
     }
 
     & > div {
