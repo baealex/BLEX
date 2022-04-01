@@ -10,7 +10,6 @@ import {
 import { EditorTitle } from '../editor-title';
 import { EditorContent } from '../editor-content';
 import {
-    ImageForm,
     InputForm,
     SelectForm
 } from '../forms';
@@ -25,8 +24,8 @@ interface Props {
         onChange: (value: string) => void;
     },
     content: {
-        value: string;
-        onChange: (value: string) => void;
+        value: [];
+        onChange: (value: []) => void;
     }
     series: {
         value: string;
@@ -52,49 +51,23 @@ interface Props {
         onChange: (value: boolean) => void;
     }
     onSubmit: (onFail: Function) => void;
-    addon?: {
-        sideButton: JSX.Element | JSX.Element[];
-        modal: JSX.Element | JSX.Element[];
-    }
 }
 
-let contentInput: HTMLTextAreaElement | null;
-
 export function EditorLayout(props: Props) {
-    const [ imageName, setImageName ] = useState('');
-    const [ imagePreview, setImagePreview ] = useState('');
     const [ isSubmit, setIsSubmit ] = useState(false);
 
     const [ isOpenPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
 
-    const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
 
     useEffect(modalStore.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
     
     useEffect(() => {
-        API.getSettingForms().then((response) => {
-            const { data } = response;
-            setForms(data.body.forms);
-        });
-
         API.getSettingSeries().then((response) => {
             const { data } = response;
             setSeries(data.body.series);
         })
     }, []);
-
-    const appendTextOnCursor = (val: string) => {
-        const text = props.content.value;
-        const cursorPos = contentInput?.selectionStart;
-        if(cursorPos) {
-            const preText = text.substr(0, cursorPos);
-            const endText = text.substr(cursorPos, text.length - 1);
-            props.content.onChange(preText + '\n' + val + '\n' + endText);
-        } else {
-            props.content.onChange(text + '\n' + val);
-        }
-    }
 
     const handleSubmit = async () => {
         modalStore.onCloseModal('isPublishModalOpen');
@@ -110,11 +83,12 @@ export function EditorLayout(props: Props) {
                 <div className="col-lg-8">
                     <EditorTitle
                         value={props.title.value}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.title.onChange(e.target.value)}
+                        onChange={props.title.onChange}
+                        onChangeImage={props.image.onChange}
                     />
                     <EditorContent
                         value={props.content.value}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => props.content.onChange(e.target.value)}
+                        onChange={props.content.onChange}
                     />
                     <div className="shallow-dark text-center mt-3">
                         <Carousel items={[
@@ -135,28 +109,6 @@ export function EditorLayout(props: Props) {
                     submitText={props.publish.buttonText}
                     onSubmit={() => handleSubmit()}
                 >
-                    <ImageForm
-                        title="포스트 썸네일"
-                        name="image"
-                        imageName={imageName}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            const { files } = e.target;
-
-                            if(files) {
-                                const image = files[0];
-                                props.image.onChange(image);
-
-                                const reader = new FileReader();
-
-                                reader.onload = (e) => 
-                                    setImagePreview(e.target?.result as string);
-
-                                reader.readAsDataURL(image);
-                                setImageName(image.name);
-                            }
-                        }}
-                    />
-                    <img src={imagePreview} className="w-100"/>
                     <SelectForm
                         name="series"
                         title="시리즈"

@@ -8,7 +8,7 @@ import type {
 import {
     EditorLayout,
     TempArticleModal
-} from '@components/system-design/article-editor-new';
+} from '@components/system-design/article-editor-page';
 import { PopOver } from '@design-system';
 
 import * as API from '@modules/api';

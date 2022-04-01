@@ -20,18 +20,14 @@ import {
 } from '../modals';
 
 export interface EditorContentProps {
-    refer: (el: HTMLTextAreaElement | null) => void;
-    value: string;
-    onChange: Function;
-    isEditMode: boolean;
+    value: [];
+    onChange: (value: []) => void;
 }
 
 interface Content {
     id?: number,
     type: 'line' | 'lines';
     text: string;
-    hasDrag?: boolean;
-    hasDragEnter?: boolean;
 }
 
 const contentsManager = (() => {
@@ -40,14 +36,6 @@ const contentsManager = (() => {
     return function(content: Content) {
         if (!content.id) {
             content.id = id++;
-        }
-
-        if (content.hasDrag === undefined) {
-            content.hasDrag = false;
-        }
-
-        if (content.hasDragEnter === undefined) {
-            content.hasDragEnter = false;
         }
 
         return content;
@@ -61,7 +49,7 @@ const initialContents: Content[] = [
     },
 ];
 
-export function EditorContent() {
+export function EditorContent(props: EditorContentProps) {
     const ref = useRef<HTMLTextAreaElement | null>(null);
 
     const [ contents, handleSetContents ] = useState<Content[]>(
@@ -72,6 +60,10 @@ export function EditorContent() {
         const nextContents = fn(contents);
         handleSetContents(nextContents);
     }
+
+    useEffect(() => {
+        props.onChange(contents as []);
+    }, [ contents ]);
 
     const [ active, setActive ] = useState(contents.length - 1);
     const [ modal, setModal ] = useState({
@@ -404,7 +396,6 @@ export function EditorContent() {
                                         </li>
                                     </ul>
                                     <textarea
-                                        className={cn({ hasDragEnter: content.hasDragEnter })}
                                         ref={ref}
                                         rows={1}
                                         value={content.text}
