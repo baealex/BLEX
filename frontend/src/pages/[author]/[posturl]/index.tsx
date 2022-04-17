@@ -269,7 +269,7 @@ class PostDetail extends React.Component<Props, State> {
                                     label="링크를 새탭에서 여세요."
                                     onClick={() => {
                                         const { isOpenNewTab } = configStore.state;
-                                        configStore.setState((prevState) => ({
+                                        configStore.set((prevState) => ({
                                             ...prevState,
                                             isOpenNewTab: !isOpenNewTab,
                                         }));

@@ -86,7 +86,7 @@ export class LoginModal extends React.Component<Props, State> {
             }
 
             snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
-            authStore.setState({
+            authStore.set({
                 isLogin: true,
                 ...data.body,
             });

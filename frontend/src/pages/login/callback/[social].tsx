@@ -50,7 +50,7 @@ export default function SocialLogin(props: Props) {
                 snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
             }
 
-            authStore.setState({
+            authStore.set({
                 isLogin: true,
                 ...data.body
             });

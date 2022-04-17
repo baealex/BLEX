@@ -278,7 +278,7 @@ class Write extends React.Component<Props, State> {
 
     onCheckAutoSave(checked: boolean) {
         !checked && this.saver.clear();
-        configStore.setState((state) => ({
+        configStore.set((state) => ({
             ...state,
             isAutoSave: checked
         }));

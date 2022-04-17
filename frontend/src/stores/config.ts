@@ -1,4 +1,4 @@
-import BState from 'bstate';
+import Store from 'badland';
 
 import {
     getCookie,
@@ -14,7 +14,7 @@ export interface ConfigStoreState {
     isSortOldFirst: boolean;
 }
 
-class ConfigStore extends BState<ConfigStoreState> {
+class ConfigStore extends Store<ConfigStoreState> {
     init = false;
 
     constructor() {
@@ -43,7 +43,7 @@ class ConfigStore extends BState<ConfigStoreState> {
     clientSideInject() {
         const configure = getCookie('configure');
         if (configure) {
-            this.setState((state) => ({
+            this.set((state) => ({
                 ...state,
                 ...JSON.parse(configure),
             }));
@@ -55,8 +55,8 @@ class ConfigStore extends BState<ConfigStoreState> {
     }) {
         const configure = cookies['configure'];
         if (configure) {
-            this.setState((state) => ({
-                ...state,
+            this.set((prevState) => ({
+                ...prevState,
                 ...JSON.parse(configure),
             }));
         }
@@ -71,10 +71,10 @@ class ConfigStore extends BState<ConfigStoreState> {
 
     setTheme(theme: Theme) {
         document.body.className = theme;
-        this.setState({
-            ...this.state,
+        this.set((prevState) => ({
+            ...prevState,
             theme: theme,
-        });
+        }));
     }
 
     afterStateChange() {

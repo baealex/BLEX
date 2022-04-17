@@ -59,7 +59,7 @@ export default function Verify(props: Props) {
         }
         if(data.status === 'DONE') {
             snackBar(`😆 ${props.username}님! 환영합니다 🎉`);
-            authStore.setState({
+            authStore.set({
                 isLogin: true,
                 ...data.body,
             })

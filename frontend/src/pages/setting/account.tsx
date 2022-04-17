@@ -64,7 +64,7 @@ export default function AccountSetting(props: Props) {
         }
         if (data.status === 'DONE') {
             snackBar('😀 아이디가 변경되었습니다.');
-            authStore.setState((state) => ({
+            authStore.set((state) => ({
                 ...state,
                 username: username,
             }));
@@ -117,7 +117,7 @@ export default function AccountSetting(props: Props) {
         }
         if (data.status === 'DONE') {
             snackBar('😀 2차 인증이 해제되었습니다.');
-            authStore.setState((prevState) => ({
+            authStore.set((prevState) => ({
                 ...prevState,
                 is2faSync: false,
             }))

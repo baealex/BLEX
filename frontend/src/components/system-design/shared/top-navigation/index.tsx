@@ -99,7 +99,7 @@ export function TopNavigation() {
     useEffect(() => {
         API.getLogin().then(({data}) => {
             if (data.status === 'DONE') {
-                authStore.setState({
+                authStore.set({
                     isLogin: true,
                     ...data.body,
                 });

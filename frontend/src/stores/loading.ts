@@ -1,10 +1,10 @@
-import BState from 'bstate';
+import Store from 'badland';
 
 export interface LoadingStoreState {
     isLoading: boolean;
 }
 
-class LoadingStore extends BState<LoadingStoreState> {
+class LoadingStore extends Store<LoadingStoreState> {
     constructor() {
         super();
         this.state = {
@@ -13,14 +13,14 @@ class LoadingStore extends BState<LoadingStoreState> {
     }
 
     start() {
-        this.setState((prevState) => ({
+        this.set((prevState) => ({
             ...prevState,
             isLoading: true,
         }));
     }
 
     end() {
-        this.setState((prevState) => ({
+        this.set((prevState) => ({
             ...prevState,
             isLoading: false,
         }));

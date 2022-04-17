@@ -274,7 +274,7 @@ class Series extends React.Component<Props, State> {
                                     {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
                                 </SpeechBubble>
                                 <div className="mt-5 mb-3 text-right">
-                                    <div className="btn btn-dark m-1" onClick={() => configStore.setState((prevState) => ({
+                                    <div className="btn btn-dark m-1" onClick={() => configStore.set((prevState) => ({
                                         ...prevState,
                                         isSortOldFirst: !isSortOldFirst
                                     }))}>

@@ -16,7 +16,7 @@ import { loadingStore } from '@stores/loading';
 export default function AnalyticsSetting() {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewData>();
     const [ referers, setReferers ] = useState<API.GetSettingAnalyticsRefererData>();
-    const [ searches, setSearches ] = useState<API.GetSettingAnalyticsgSearchData>();
+    const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchData>();
 
     useEffect(() => {
         loadingStore.start();

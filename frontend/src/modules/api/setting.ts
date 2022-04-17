@@ -146,7 +146,7 @@ export async function getSettingAnalyticsReferrers(headers?: Headers) {
     });
 }
 
-export interface GetSettingAnalyticsgSearchData {
+export interface GetSettingAnalyticsSearchData {
     platformTotal: {
         네이버: number;
         덕덕고: number;
@@ -162,7 +162,7 @@ export interface GetSettingAnalyticsgSearchData {
 }
 
 export async function getSettingAnalyticsSearch(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingAnalyticsgSearchData>>({
+    return await axiosRequest<ResponseData<GetSettingAnalyticsSearchData>>({
         url: `/v1/setting/analytics-search`,
         method: 'GET',
         headers,

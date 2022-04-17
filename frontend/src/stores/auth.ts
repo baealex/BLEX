@@ -1,4 +1,4 @@
-import BState from 'bstate';
+import Store from 'badland';
 
 import { GetLoginData } from '@modules/api';
 
@@ -18,7 +18,7 @@ const INIT_STATE = {
     is2faSync: false,
 };
 
-class AuthStore extends BState<AuthStoreState> {
+class AuthStore extends Store<AuthStoreState> {
     constructor() {
         super();
         this.state = { ...INIT_STATE };

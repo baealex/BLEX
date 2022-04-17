@@ -1,4 +1,4 @@
-import BState from 'bstate';
+import Store from 'badland';
 
 export interface ModalStoreState {
     isLoginModalOpen: boolean;
@@ -12,7 +12,7 @@ export interface ModalStoreState {
 
 type ModalName = keyof ModalStoreState;
 
-class ModalStore extends BState<ModalStoreState> {
+class ModalStore extends Store<ModalStoreState> {
     constructor() {
         super();
         this.state = {
@@ -27,14 +27,14 @@ class ModalStore extends BState<ModalStoreState> {
     }
 
     async onOpenModal(modalName: ModalName) {
-        await this.setState((prevState) => ({
+        await this.set((prevState) => ({
             ...prevState,
             [modalName]: true
         }));
     }
 
     async onCloseModal(modalName: ModalName) {
-        await this.setState((prevState) => ({
+        await this.set((prevState) => ({
             ...prevState,
             [modalName]: false
         }));

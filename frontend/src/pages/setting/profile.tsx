@@ -79,14 +79,14 @@ export default function ProfileSetting(props: Props) {
                     url={avatar}
                     label="이미지 변경"
                     onChange={async (file) => {
-                        loadingStore.setState({
+                        loadingStore.set({
                             isLoading: true,
                         })
                         const formData = new FormData();
                         formData.append('avatar', file);
                         const { data } = await API.postSettingAvatar(formData);
                         setAvatar(data.body.url);
-                        loadingStore.setState({
+                        loadingStore.set({
                             isLoading: false,
                         })
                     }}

@@ -88,7 +88,7 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
 
         if (data.status == 'DONE') {
             snackBar(`😃 로그인 되었습니다.`);
-            authStore.setState({
+            authStore.set({
                 isLogin: true,
                 ...data.body,
             });

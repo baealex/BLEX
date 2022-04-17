@@ -48,7 +48,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
         }
         if (data.status === 'DONE') {
             snackBar('😀 2차 인증이 등록되었습니다.');
-            authStore.setState((prevState) => ({
+            authStore.set((prevState) => ({
                 ...prevState,
                 is2faSync: true,
             }));
