@@ -1,18 +1,6 @@
 version: "2.0"
 
 services:
-  # 웹서버 세팅 참고용
-  # webserver:
-  #   image: nginx
-  #   volumes:
-  #     - ./webserver/nginx.conf:/etc/nginx/nginx.conf
-  #     - ./backend/src/uwsgi_params:/www/uwsgi_params
-  #     - ./backend/src/static:/www/static
-  #   ports:
-  #     - 20201:20201
-  #     - 20202:20202
-  #     - 20203:20203
-  
   frontend:
     build:
       context: ./frontend

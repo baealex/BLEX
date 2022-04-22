@@ -1,5 +1,9 @@
-frontend/src/modules/settings.ts
+/frontend/src/modules/settings.ts
 
-backend/src/board/telegram_token.py
-backend/src/main/settings.py
-backend/src/static/images/
+/backend/src/board/telegram_token.py
+/backend/src/main/settings.py
+/backend/src/static/images/
+
+/node_modules
+/.env
+DockerfileDev

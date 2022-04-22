@@ -1,0 +1,23 @@
+{
+  "name": "blex",
+  "version": "1.0.0",
+  "description": "BLOG EXPRESS ME",
+  "scripts": {
+    "dev": "ts-node cli/dev.ts",
+    "start": "ts-node cli/start.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baealex/BLEX.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/baealex/BLEX/issues"
+  },
+  "homepage": "https://github.com/baealex/BLEX#readme",
+  "devDependencies": {
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  }
+}
