@@ -22,7 +22,7 @@
   - [ ] Editormd
   - [x] Three Dots
   - [x] Axios
-  - [x] bstate
+  - [x] badland
   - [x] Remarkable
   - [x] NProgress
   - [x] Frappe Charts
