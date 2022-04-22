@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "BLOG EXPRESS ME",
   "scripts": {
+    "dev": "ts-node cli/dev.ts",
     "start": "ts-node cli/start.ts"
   },
   "repository": {

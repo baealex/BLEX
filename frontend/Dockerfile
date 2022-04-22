@@ -9,8 +9,6 @@ RUN npm i
 
 COPY ./src/ ./
 
-RUN [ ! -f modules/settings.ts ] && cp modules/settings_1.ts modules/settings.ts ; exit 0
-
 RUN npm run build
 
 ENTRYPOINT ["npm", "run"]
