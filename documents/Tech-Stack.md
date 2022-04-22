@@ -1,33 +1,38 @@
-### Backend
+## BACKEND
 
-- Web Server
-  - [x] Nginx
-- Language & Framework
-  - [x] Python, Django
-- Database
-  - [x] SQLite
-  - [ ] PostgreSQL
-- Library
-  - [x] FFmpeg
-  - [ ] Parsedown
+**Web Server**
+- [x] Nginx
 
-### Frontend
+**Language & Framework**
+- [x] Python, Django
 
-- Language & Framework
-  - [ ] Python, Django Template
-  - [x] Typescript, React.js (Next.js)
-- Library
-  - [ ] jQuery
-  - [x] Bootstrap
-  - [ ] Editormd
-  - [x] Three Dots
-  - [x] Axios
-  - [x] badland
-  - [x] Remarkable
-  - [x] NProgress
-  - [x] Frappe Charts
+**Database**
+- [x] SQLite
+- [ ] PostgreSQL
 
-### Utilities
+**Library**
+- [x] FFmpeg
+- [ ] Parsedown
+
+<br>
+
+## FRONTEND
+
+**Language & Framework**
+- [ ] Python, Django Template
+- [x] Typescript, React.js (Next.js)
+
+**Library**
+- [x] Bootstrap
+- [ ] jQuery
+- [ ] Editormd
+- [x] Remarkable
+- [x] PrismJS
+- [x] Frappe Charts
+
+<br>
+
+## UTILITIES
 
 - [x] Font Awesome
 - [ ] CloudFlare
@@ -35,11 +40,15 @@
 - [ ] Google Analytics
 - [ ] Microsoft Clarity
 
-### DevOps
+<br>
+
+## DEVOPS
 
 - [x] GitHub
 - [x] Docker
 
-### Business Tools
+<br>
+
+## BUSINESS TOOLS
 
 - [x] Daum Mail
