@@ -8,9 +8,7 @@ RUN apt-get install -y \
     build-essential libssl-dev zlib1g-dev libbz2-dev \
     libreadline-dev libsqlite3-dev wget curl llvm \
     libncurses5-dev libncursesw5-dev xz-utils tk-dev \
-    libffi-dev liblzma-dev python-openssl git
-RUN apt-get install -y gcc
-RUN apt-get install -y ffmpeg
+    libffi-dev liblzma-dev python-openssl git gcc ffmpeg
 
 ENV LANG="C.UTF-8" \
     LC_ALL="C.UTF-8" \
@@ -33,8 +31,6 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY ./src /app
-RUN [ ! -f main/settings.py ] && cp main/settings_1.py main/settings.py ; exit 0
-RUN [ ! -f db.sqlite3 ] && python manage.py migrate && python manage.py migrate --run-syncdb ; exit 0
 
 ENTRYPOINT ["uwsgi"]
 CMD ["--socket", ":9000", "--module", "main.wsgi", "--enable-threads", "-b", "32768"]
