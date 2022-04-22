@@ -10,7 +10,7 @@ if (!existsSync(resolve('./backend/src/main/settings.py')))
 
 if (!existsSync(resolve('./backend/src/db.sqlite3')))
     copyFileSync(
-        resolve('./cli/sample/docker_dev_backend_settings.py'),
+        resolve('./cli/sample/db.sqlite3'),
         resolve('./backend/src/db.sqlite3')
     )
 
