@@ -2,6 +2,10 @@ import { spawn } from 'child_process'
 import { readFileSync, writeFileSync, copyFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
 
+if (!existsSync(resolve('.env'))) {
+    copyFileSync(resolve('./cli/sample/.env'), resolve('.env'))
+}
+
 if (!existsSync(resolve('./backend/src/main/settings.py')))
     copyFileSync(
         resolve('./cli/sample/docker_dev_backend_settings.py'),
@@ -44,13 +48,4 @@ writeFileSync(
     feDockerFile.split('RUN npm run build')[0] + feDevCommand
 )
 
-spawn('docker-compose', [
-    '-p',
-    'blex_dev',
-    '-f',
-    resolve('docker-compose.dev.yml'),
-    'up',
-    '--build'
-], {
-    stdio: 'inherit'
-})
+spawn('sh', [ resolve('./cli/shell/development.sh') ], { stdio: 'inherit' })

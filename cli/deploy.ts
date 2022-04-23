@@ -6,6 +6,4 @@ if (!existsSync(resolve('.env'))) {
     copyFileSync(resolve('./cli/sample/.env'), resolve('.env'))
 }
 
-spawn('docker-compose', ['up', '--build'], { stdio: 'inherit' })
-
-spawn('sh', [ resolve('./cli/shall/docker-clean.sh') ])
+spawn('sh', [ resolve('./cli/shell/deploy.sh') ], { stdio: 'inherit' })

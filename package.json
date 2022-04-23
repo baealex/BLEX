@@ -4,7 +4,12 @@
   "description": "BLOG EXPRESS ME",
   "scripts": {
     "dev": "ts-node cli/dev.ts",
-    "start": "ts-node cli/start.ts"
+    "start": "ts-node cli/start.ts",
+    "deploy": "ts-node cli/deploy.ts",
+    "connect:backend": "docker exec -it blex_backend_1 /bin/bash",
+    "connect:frontend": "docker exec -it blex_frontend_1 /bin/bash",
+    "connect:dev-backend": "docker exec -it blex_dev_backend_1 /bin/bash",
+    "connect:dev-frontend": "docker exec -it blex_dev_frontend_1 /bin/bash"
   },
   "repository": {
     "type": "git",
