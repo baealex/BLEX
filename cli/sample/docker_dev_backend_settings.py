@@ -2,6 +2,11 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# NOTE: Monkey patching for GraphQL in Django 4
+import django
+from django.utils.encoding import force_str
+django.utils.encoding.force_text = force_str
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'hello_blex'
 
@@ -18,8 +23,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites', 
-    'django.contrib.sitemaps', 
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
+    'graphene_django',
     'corsheaders',
     'board',
 ]
