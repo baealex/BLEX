@@ -2,7 +2,7 @@ from graphene_django import DjangoObjectType
 
 from board.models import (
     Comment, Config, Form, Notify, Tag,
-    Post, PostContent, PostConfig, Profile
+    Post, PostContent, PostConfig, Profile,
     Report, Search, Series, User)
 
 class CommentType(DjangoObjectType):

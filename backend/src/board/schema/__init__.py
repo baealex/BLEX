@@ -13,6 +13,6 @@ class Query(graphene.ObjectType):
     all_posts = graphene.List(PostType)
 
     def resolve_all_posts(root, info):
-        return Post.objects.select_related('author').all()
+        return Post.objects.select_related('author', 'config').all()
 
 schema = graphene.Schema(query=Query)
