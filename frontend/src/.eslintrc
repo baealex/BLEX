@@ -42,5 +42,6 @@
             "memberSyntaxSortOrder": ["all", "multiple", "single", "none"],
             "allowSeparatedGroups": true
         }],
+        "jsx-quotes": [ "error", "prefer-double" ]
     }
 }

@@ -1,16 +1,14 @@
+import type { GetServerSidePropsContext } from 'next';
 import React from 'react';
 import Router from 'next/router';
 
-import { Footer } from '@system-design/shared';
-
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
-import type { GetServerSidePropsContext } from 'next';
-
-import { snackBar } from '@modules/ui/snack-bar';
+import { Footer } from '@system-design/shared';
 
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
@@ -71,11 +69,13 @@ export default function Verify(props: Props) {
     return (
         <>
             <div className="text-center display-center">
-                <div className="h5 mb-4">{props.username}님이 맞으십니까?</div>
+                <div className="h5 mb-4">
+                    {props.username}님이 맞으십니까?
+                </div>
                 {CONFIG.HCAPTCHA_SITE_KEY ? (
                     <HCaptcha
                         sitekey={CONFIG.HCAPTCHA_SITE_KEY}
-                        onVerify={(token) => onSubmit(token)}
+                        onVerify={onSubmit}
                     />
                 ) : (
                     <button className="active-button" onClick={() => onSubmit()}>
