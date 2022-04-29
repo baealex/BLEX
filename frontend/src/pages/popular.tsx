@@ -49,20 +49,16 @@ export default function TrendyArticles(props: Props) {
 }
 
 TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
-    <>
-        <CollectionLayout active="인기 포스트" {...props}>
-            <>
-                <div className="row">
-                    {props.posts.map((item, idx) => (
-                        <ArticleCard
-                            key={idx}
-                            className="col-lg-4 col-md-6 mt-4"
-                            {...item}
-                        />
-                    ))}
-                </div>
-                {page}
-            </>
-        </CollectionLayout>
-    </>
+    <CollectionLayout active="인기 포스트" {...props}>
+        <div className="row">
+            {props.posts.map((item, idx) => (
+                <ArticleCard
+                    key={idx}
+                    className="col-lg-4 col-md-6 mt-4"
+                    {...item}
+                />
+            ))}
+        </div>
+        {page}
+    </CollectionLayout>
 );

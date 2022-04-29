@@ -17,7 +17,7 @@ const NAVIGATION_ITEMS = [
 
 export interface CollectionLayoutProps {
     active: '최신 포스트' | '인기 포스트' | '태그 클라우드' | string;
-    children: JSX.Element;
+    children: React.ReactNode;
     itemExpended?: (tag: typeof NAVIGATION_ITEMS) => typeof NAVIGATION_ITEMS;
 }
 
@@ -32,5 +32,5 @@ export function CollectionLayout(props: CollectionLayoutProps) {
             />
             {props.children}
         </div>
-    )
+    );
 }
