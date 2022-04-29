@@ -21,6 +21,7 @@
     "rules": {
         "indent": [ "error", 4 ],
         "semi": [ "error", "always" ],
-        "quotes": [ "error", "single" ]
+        "quotes": [ "error", "single" ],
+        "keyword-spacing": [2, { "before": true, "after": true }]
     }
 }
