@@ -22,6 +22,24 @@
         "indent": [ "error", 4 ],
         "semi": [ "error", "always" ],
         "quotes": [ "error", "single" ],
-        "keyword-spacing": [2, { "before": true, "after": true }]
+        "keyword-spacing": [ 2, {
+            "before": true,
+            "after": true
+        }],
+        "object-property-newline": "error",
+        "object-curly-newline": [ "error", {
+            "ObjectExpression": "always",
+            "ObjectPattern": { "multiline": true },
+            "ImportDeclaration": { "multiline": true, "minProperties": 2 },
+            "ExportDeclaration": { "multiline": true, "minProperties": 2 }
+        }],
+        "object-curly-spacing": [ "error", "always" ],
+        "sort-imports": [ "error", {
+            "ignoreCase": false,
+            "ignoreDeclarationSort": false,
+            "ignoreMemberSort": false,
+            "memberSyntaxSortOrder": ["all", "multiple", "single", "none"],
+            "allowSeparatedGroups": true
+        }],
     }
 }
