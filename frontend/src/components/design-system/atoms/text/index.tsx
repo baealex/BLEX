@@ -1,12 +1,12 @@
-import styles from './Text.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Text.module.scss';
 const cn = classNames.bind(styles);
 
 export interface TextProps {
-    children: any;
+    children: React.ReactNode;
     fontSize?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
     fontWeight?: 100 | 200 | 300 | 400 | 500 | 600 | 700;
-};
+}
 
 export function Text(props: TextProps) {
     const {

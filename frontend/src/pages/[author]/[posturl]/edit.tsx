@@ -1,14 +1,10 @@
-import { useState } from 'react';
 import Router from 'next/router';
+import { useState } from 'react';
 
-import {
-    EditorLayout
-} from '@system-design/article-editor-page/expert';
+import { EditorLayout } from '@system-design/article-editor-page/expert';
 
 import * as API from '@modules/api';
-import {
-    snackBar
-} from '@modules/ui/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { GetServerSidePropsContext } from 'next';
 
@@ -19,7 +15,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         posturl = ''
     } = context.query;
 
-    if(!author.includes('@') || !posturl) {
+    if (!author.includes('@') || !posturl) {
         return {
             notFound: true
         };
@@ -41,7 +37,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...posts.body
             }
         };
-    } catch(error) {
+    } catch (error) {
         return {
             notFound: true
         };
@@ -63,13 +59,13 @@ export default function Edit(props: Props) {
     const [ isHide, setIsHide ] = useState(props.isHide);
     const [ isAdvertise, setIsAdvertise ] = useState(props.isAdvertise);
 
-    const onSubmit = async (onFail: Function) => {
-        if(!title) {
+    const onSubmit = async (onFail: () => void) => {
+        if (!title) {
             snackBar('😅 제목이 비어있습니다.');
             onFail();
             return;
         }
-        if(!tags) {
+        if (!tags) {
             snackBar('😅 키워드를 작성해주세요.');
             onFail();
             return;
@@ -84,14 +80,14 @@ export default function Edit(props: Props) {
                 is_hide: JSON.stringify(isHide),
                 is_advertise: JSON.stringify(isAdvertise),
             });
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 Router.push('/[author]/[posturl]', `/${props.username}/${props.posturl}`);
             }
-        } catch(e) {
+        } catch (e) {
             snackBar('😥 글 수정중 오류가 발생했습니다.');
             onFail();
         }
-    }
+    };
     
     return (
         <EditorLayout
@@ -125,10 +121,10 @@ export default function Edit(props: Props) {
                 }
             }}
             publish={{
-                title: "포스트 수정",
-                buttonText: "이렇게 수정하겠습니다"
+                title: '포스트 수정',
+                buttonText: '이렇게 수정하겠습니다'
             }}
             onSubmit={onSubmit}
         />
-    )
+    );
 }

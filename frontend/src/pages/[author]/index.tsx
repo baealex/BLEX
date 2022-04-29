@@ -1,24 +1,28 @@
-import { useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState,
+} from 'react';
+import type { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import { GetServerSidePropsContext } from 'next';
 
-import { Heatmap, SEO } from '@system-design/shared';
 import {
     FeaturedArticles,
     ProfileLayout,
     RecentActivity,
 } from '@system-design/profile';
+import {
+    Heatmap,
+    SEO,
+} from '@system-design/shared';
 
 import * as API from '@modules/api';
 
 import { configStore } from '@stores/config';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        author = ''
-    } = context.query;
+    const { author = '' } = context.query;
     
-    if(!author.includes('@')) {
+    if (!author.includes('@')) {
         return {
             notFound: true
         };
@@ -36,15 +40,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             props: {
                 ...data.body,
             }
-        }
-    } catch(error) {
+        };
+    } catch (error) {
         return {
             notFound: true
         };
     }
 }
 
-interface Props extends API.GetUserProfileData {};
+type Props = API.GetUserProfileData;
 
 export default function Overview(props: Props) {
     const [ isNightMode, setIsNightMode ] = useState(configStore.state.theme === 'dark');
@@ -79,15 +83,15 @@ export default function Overview(props: Props) {
                 </div>
             </div>
         </>
-    )
+    );
 }
 
 Overview.pageLayout = (page: JSX.Element, props: Props) => (
     <ProfileLayout
         active="overview"
         profile={props.profile}
-        social={props.social!}
+        social={props.social}
     >
         {page}
     </ProfileLayout>
-)
+);

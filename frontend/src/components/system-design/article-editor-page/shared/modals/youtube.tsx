@@ -2,9 +2,7 @@ import { useState } from 'react';
 
 import { snackBar } from '@modules/ui/snack-bar';
 
-import {
-    Modal,
-} from '@design-system';
+import { Modal, } from '@design-system';
 
 interface Props {
     isOpen: boolean;
@@ -43,7 +41,7 @@ export function YoutubeModal(props: Props) {
                     value={text}
                     onChange={(e) => {
                         const { value } = e.target;
-                        if(
+                        if (
                             !value.includes('https://www.youtube.com/watch?v=') &&
                             !value.includes('https://youtu.be/')) {
                             snackBar('😅 올바른 링크가 아닙니다.');

@@ -1,8 +1,12 @@
-import styles from './Accordion.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Accordion.module.scss';
 const cn = classNames.bind(styles);
 
-import { useEffect, useRef, useState } from 'react';
+import {
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 
 export interface ArcodianProps {
     minHeight?: number;
@@ -10,9 +14,7 @@ export interface ArcodianProps {
 }
 
 export function Accordion(props: ArcodianProps) {
-    const {
-        minHeight = 130
-    } = props;
+    const { minHeight = 130 } = props;
 
     const [isOpen, setIsOpen] = useState(false);
     const [maxHeight, setMaxHeight] = useState(0);
@@ -40,7 +42,9 @@ export function Accordion(props: ArcodianProps) {
                 <button onClick={() => setIsOpen(!isOpen)}>
                     <i className={classNames(
                         'fas fa-chevron-up',
-                        cn({ isOpen })
+                        cn({
+                            isOpen 
+                        })
                     )}></i>
                 </button>
             </div>

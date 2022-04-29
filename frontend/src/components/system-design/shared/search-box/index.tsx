@@ -1,14 +1,18 @@
-import styles from './SearchBox.module.scss';
 import classNames from 'classnames/bind';
+import styles from './SearchBox.module.scss';
 const cn = classNames.bind(styles);
 
-import { useCallback, useEffect, useRef } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useRef,
+} from 'react';
 
 export interface SearchBoxProps {
     value: string;
     placeholder?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    button: any;
+    button: React.ReactNode;
     onClick?: () => void;
     maxLength?: number;
     history: {
@@ -57,7 +61,9 @@ export function SearchBox(props: SearchBoxProps) {
                     onChange={props.onChange}
                     onKeyPress={(e) => e.key === 'Enter' && handleClick()}
                 />
-                <button className={cn({'show' : props.value})} onClick={handleClick}>
+                <button className={cn({
+                    'show' : props.value
+                })} onClick={handleClick}>
                     {props.button}
                 </button>
             </div>
@@ -81,5 +87,5 @@ export function SearchBox(props: SearchBoxProps) {
                 </div>
             )}
         </>
-    )
+    );
 }

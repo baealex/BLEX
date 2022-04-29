@@ -1,15 +1,15 @@
-import { useState } from 'react';
 import type {
     GetServerSidePropsContext,
     GetServerSidePropsResult,
 } from 'next';
+import { useState } from 'react';
 
 import { Card } from '@design-system';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 interface Props {
     forms: {
@@ -17,11 +17,9 @@ interface Props {
         title: string;
         createdDate: string;
     }[];
-};
+}
 
-export async function getServerSideProps({
-    req,
-}: GetServerSidePropsContext
+export async function getServerSideProps({ req, }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
     const { data } = await API.getSettingForms({
         'Cookie': req.headers.cookie || '',
@@ -32,7 +30,7 @@ export async function getServerSideProps({
                 destination: '/',
                 permanent: false,
             }
-        }
+        };
     }
     return {
         props: data.body
@@ -72,7 +70,7 @@ export default function FormsSetting(props: Props) {
                 snackBar(message('AFTER_REQ_DONE', '서식이 삭제되었습니다.'));
             }
         }
-    }
+    };
 
     return (
         <>
@@ -120,4 +118,4 @@ FormsSetting.pageLayout = (page: JSX.Element) => (
     <SettingLayout active="forms">
         {page}
     </SettingLayout>
-)
+);

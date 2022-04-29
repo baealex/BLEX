@@ -1,26 +1,19 @@
-import React from 'react';
 import Head from 'next/head';
 
 import type { GetServerSidePropsContext } from 'next';
 
 import {
-    SEO,
     Footer,
     Pagination,
+    SEO,
 } from '@system-design/shared';
-import {
-    CollectionLayout,
-} from '@system-design/article';
-import {
-    TagCard,
-} from '@system-design/tag';
+import { CollectionLayout, } from '@system-design/article';
+import { TagCard, } from '@system-design/tag';
 
 import * as API from '@modules/api';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        page = 1
-    } = context.query;
+    const { page = 1 } = context.query;
     
     try {
         const { data } = await API.getTags(Number(page));
@@ -29,8 +22,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...data.body,
                 page
             }
-        }
-    } catch(error) {
+        };
+    } catch (error) {
         return {
             notFound: true
         };
@@ -59,7 +52,7 @@ export default function Tags(props: Props) {
             />
             <Footer/>
         </>
-    )
+    );
 }
 
 Tags.pageLayout = (page: JSX.Element, props: Props) => (
@@ -73,4 +66,4 @@ Tags.pageLayout = (page: JSX.Element, props: Props) => (
             {page}
         </>
     </CollectionLayout>
-)
+);

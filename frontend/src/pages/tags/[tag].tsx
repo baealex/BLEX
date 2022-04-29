@@ -1,23 +1,20 @@
+import type { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 
 import {
-    Text,
     SpeechBubble,
+    Text,
 } from '@design-system';
 
 import {
-    SEO,
     Footer,
     Pagination,
+    SEO,
 } from '@system-design/shared';
-import {
-    ArticleCard,
-} from '@system-design/article';
+import { ArticleCard } from '@system-design/article';
 
 import * as API from '@modules/api';
-
-import { GetServerSidePropsContext } from 'next';
 import { getUserImage } from '@modules/utility/image';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -33,8 +30,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...data.body,
                 page,
             }
-        }
-    } catch(error) {
+        };
+    } catch (error) {
         return {
             notFound: true
         };
@@ -88,5 +85,5 @@ export default function TagDetail(props: Props) {
             </div>
             <Footer/>
         </>
-    )
+    );
 }

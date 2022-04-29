@@ -1,5 +1,5 @@
-import styles from './SpeechBubble.module.scss';
 import classNames from 'classnames/bind';
+import styles from './SpeechBubble.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
@@ -8,7 +8,7 @@ interface SpeechBubbleProps {
     userImage: string;
     username: string;
     children: any;
-};
+}
 
 export function SpeechBubble({
     userImage,
@@ -33,5 +33,5 @@ export function SpeechBubble({
                 </div>
             </div>
         </>
-    )
+    );
 }

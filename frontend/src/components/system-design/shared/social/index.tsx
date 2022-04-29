@@ -1,5 +1,5 @@
-import styles from './Social.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Social.module.scss';
 const cn = classNames.bind(styles);
 
 export interface SocialProps {
@@ -9,7 +9,7 @@ export interface SocialProps {
     youtube?: string;
     facebook?: string;
     instagram?: string;
-};
+}
 
 export function Social(props: SocialProps) {
     return (
@@ -35,5 +35,5 @@ export function Social(props: SocialProps) {
                 </>    
             ))}
         </ul>
-    )
+    );
 }

@@ -1,5 +1,5 @@
-import styles from './ArticleCard.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleCard.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
@@ -54,8 +54,12 @@ export function ArticleCard(props: ArticleCardProps) {
                             <a> 
                                 <img
                                     className={cn('image', 'lazy')}
-                                    src={getPostsImage(props.image, { preview: true })}
-                                    data-src={getPostsImage(props.image, { minify: true })}
+                                    src={getPostsImage(props.image, {
+                                        preview: true 
+                                    })}
+                                    data-src={getPostsImage(props.image, {
+                                        minify: true 
+                                    })}
                                 />
                             </a>
                         </Link>
@@ -71,12 +75,16 @@ export function ArticleCard(props: ArticleCardProps) {
                                 <div className={cn(
                                     'title',
                                     'deep-dark',
-                                    { 'mt-3': typeof props.image !== 'undefined' }
+                                    {
+                                        'mt-3': typeof props.image !== 'undefined' 
+                                    }
                                 )}>
                                     {props.title}
                                 </div>
                                 {description && props.highlight ? (
-                                    <p className="shallow-dark" dangerouslySetInnerHTML={{__html: description}}/>
+                                    <p className="shallow-dark" dangerouslySetInnerHTML={{
+                                        __html: description
+                                    }}/>
                                 ) : (
                                     <p className="shallow-dark">{description}</p>
                                 )}
@@ -116,5 +124,5 @@ export function ArticleCard(props: ArticleCardProps) {
                 </>
             </Card>
         </div>
-    )
+    );
 }

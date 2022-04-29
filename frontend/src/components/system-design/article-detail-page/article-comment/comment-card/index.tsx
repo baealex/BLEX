@@ -1,12 +1,10 @@
-import styles from './CommentCard.module.scss';
 import classNames from 'classnames/bind';
+import styles from './CommentCard.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import {
-    Dropdown,
-} from '@design-system';
+import { Dropdown } from '@design-system';
 
 export interface CommentCardProps {
     pk: number;
@@ -22,7 +20,7 @@ export interface CommentCardProps {
     onTag?: (username: string) => void;
     html: string;
     totalLikes: number;
-};
+}
 
 export function CommentCard(props: CommentCardProps) {
     return (
@@ -34,7 +32,9 @@ export function CommentCard(props: CommentCardProps) {
                             <a>
                                 <div
                                     className={`${cn('thumbnail')} back-image thumb`}
-                                    style={{backgroundImage: `url(${props.authorImage})`}}
+                                    style={{
+                                        backgroundImage: `url(${props.authorImage})`
+                                    }}
                                 />
                             </a>
                         </Link>
@@ -71,7 +71,9 @@ export function CommentCard(props: CommentCardProps) {
                 </div>
                 <div
                     className={`${cn('content')} mt-4`}
-                    dangerouslySetInnerHTML={{ __html: props.html }}
+                    dangerouslySetInnerHTML={{
+                        __html: props.html 
+                    }}
                 />
                 <div className="my-2">
                     <ul className={`${cn('interactive')} none-list ns`}>
@@ -95,5 +97,5 @@ export function CommentCard(props: CommentCardProps) {
                 </div>
             </div>
         </>
-    )
+    );
 }

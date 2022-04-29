@@ -1,15 +1,18 @@
-import styles from './ArticleAction.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleAction.module.scss';
 const cn = classNames.bind(styles);
 
-import { useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState,
+} from 'react';
 
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 
 import { modalStore } from '@stores/modal';
 
-export interface ArticleActionProps extends API.GetAnUserPostsViewData {}
+export type ArticleActionProps = API.GetAnUserPostsViewData
 
 type Social = 'twitter' | 'facebook' | 'pinterest';
 
@@ -26,27 +29,27 @@ export function ArticleAction(props: ArticleActionProps) {
             totalLikes: props.totalLikes,
             totalComment: props.totalComment,
         });
-    }, [props])
+    }, [props]);
     
     const onClickShare = (social: Social) => {
         let href = '';
         let size = '';
-        switch(social) {
-            case 'twitter':
-                href = `https://twitter.com/intent/tweet?text=${props.title}&url=${window.location.href}`;
-                size = 'width=550,height=235';
-                break;
-            case 'facebook':
-                href = `https://facebook.com/sharer.php?u=${window.location.href}`;
-                size = 'width=550,height=435';
-                break;
-            case 'pinterest':
-                href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${props.image}&description=${props.description}`
-                size = 'width=650,height=500';
-                break;
+        switch (social) {
+        case 'twitter':
+            href = `https://twitter.com/intent/tweet?text=${props.title}&url=${window.location.href}`;
+            size = 'width=550,height=235';
+            break;
+        case 'facebook':
+            href = `https://facebook.com/sharer.php?u=${window.location.href}`;
+            size = 'width=550,height=435';
+            break;
+        case 'pinterest':
+            href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${props.image}&description=${props.description}`;
+            size = 'width=650,height=500';
+            break;
         }
         window.open(href, `${social}-share`, size);
-    }
+    };
 
     const onClickLike = async () => {
         const { author, url } = props;
@@ -72,14 +75,14 @@ export function ArticleAction(props: ArticleActionProps) {
                 snackBar('😅 자신의 글은 추천할 수 없습니다.');
             }
         }
-    }
+    };
 
     const onClickGoComment = () => {
         window.scrollTo({
             top: window.pageYOffset + document.querySelector('.comments')!.getBoundingClientRect().top - 15,
             behavior: 'smooth'
         });
-    }
+    };
 
     return (
         <>
@@ -121,5 +124,5 @@ export function ArticleAction(props: ArticleActionProps) {
                 </div>
             </div>
         </>
-    )
+    );
 }

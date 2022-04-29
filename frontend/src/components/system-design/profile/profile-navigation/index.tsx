@@ -1,5 +1,5 @@
-import styles from './Navigation.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Navigation.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
@@ -34,7 +34,9 @@ export function ProfileNavigation(props: ProfileNavigationProps) {
                 <ul>
                     {TAB_ITEMS.map((item, idx) => (
                         <li key={idx} className={cn(
-                            { active: props.active === item.active }
+                            {
+                                active: props.active === item.active 
+                            }
                         )}>
                             <Link
                                 href={`/[author]${item.location}`}
@@ -50,5 +52,5 @@ export function ProfileNavigation(props: ProfileNavigationProps) {
                 </ul>
             </div>
         </div>
-    )
+    );
 }

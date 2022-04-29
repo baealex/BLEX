@@ -1,19 +1,18 @@
-import {
-    Footer,
-    Pagination,
-} from '@system-design/shared';
+import type { GetServerSidePropsContext } from 'next';
+
 import {
     ArticleCard,
     CollectionLayout,
 } from '@system-design/article';
+import {
+    Footer,
+    Pagination,
+} from '@system-design/shared';
+
 import * as API from '@modules/api';
 
-import { GetServerSidePropsContext } from 'next';
-
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        page = 1
-    } = context.query;
+    const { page = 1 } = context.query;
     
     try {
         const { data } = await API.getPopularPosts(Number(page));
@@ -24,7 +23,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 page
             }
         };
-    } catch(error) {
+    } catch (error) {
         return {
             notFound: true
         };

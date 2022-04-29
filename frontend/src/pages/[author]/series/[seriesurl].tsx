@@ -1,28 +1,21 @@
-import { GetServerSidePropsContext } from 'next';
+import type { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import Router from 'next/router';
 import React from 'react';
+import Router from 'next/router';
 
 import {
     Card,
     Modal,
     SpeechBubble,
 } from '@design-system';
-
-import {
-    SEO,
-} from '@system-design/shared';
-import {
-    SeriesArticleCard
-} from '@system-design/series';
+import { SEO } from '@system-design/shared';
+import { SeriesArticleCard } from '@system-design/series';
 
 import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
-import {
-    getUserImage,
-} from '@modules/utility/image';
+import { getUserImage, } from '@modules/utility/image';
 
 import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
@@ -33,7 +26,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     
     const { author = '', seriesurl = '' } = context.query;
 
-    if(!author.includes('@')) {
+    if (!author.includes('@')) {
         return {
             notFound: true
         };
@@ -48,8 +41,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             props: {
                 series: data.body
             }
-        }
-    } catch(error) {
+        };
+    } catch (error) {
         return {
             notFound: true
         };
@@ -58,7 +51,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 interface Props {
     series: API.GetAnUserSeriesData,
-};
+}
 
 interface State {
     isLogin: boolean;
@@ -68,7 +61,7 @@ interface State {
     seriesPosts: API.GetAnUserSeriesDataPosts[];
     isSeriesModalOpen: boolean;
     isSortOldFirst: boolean;
-};
+}
 
 class Series extends React.Component<Props, State> {
     private authUpdateKey: string;
@@ -84,7 +77,7 @@ class Series extends React.Component<Props, State> {
             seriesPosts: props.series.posts,
             isSeriesModalOpen: false,
             isSortOldFirst: configStore.state.isSortOldFirst,
-        }
+        };
         this.authUpdateKey = authStore.subscribe((state) => this.setState({
             isLogin: state.isLogin,
             username: state.username,
@@ -100,7 +93,7 @@ class Series extends React.Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Props) {
-        if(
+        if (
             prevProps.series.name !== this.props.series.name ||
             prevProps.series.description !== this.props.series.description ||
             prevProps.series.posts !== this.props.series.posts
@@ -141,8 +134,8 @@ class Series extends React.Component<Props, State> {
                 description: this.state.seriesDescription
             }
         );
-        if(data.status === 'DONE') {
-            if(data.body.url) {
+        if (data.status === 'DONE') {
+            if (data.body.url) {
                 Router.replace(
                     '/[author]/series/[seriesurl]',
                     `/@${this.state.username}/series/${data.body.url}`
@@ -229,9 +222,7 @@ class Series extends React.Component<Props, State> {
             </Modal>
         ) : '';
 
-        const {
-            isSortOldFirst
-        } = this.state;
+        const { isSortOldFirst } = this.state;
 
         return (
             <>
@@ -246,7 +237,9 @@ class Series extends React.Component<Props, State> {
                 {SereisModal}
                 
                 <div className="container">
-                    <div className="back-image series-title-image" style={{backgroundImage: `url(${this.props.series.image})`}}>
+                    <div className="back-image series-title-image" style={{
+                        backgroundImage: `url(${this.props.series.image})`
+                    }}>
                         <div className="fade-mask"></div>
                     </div>
                     <div className="series-list">
@@ -309,8 +302,8 @@ class Series extends React.Component<Props, State> {
                     </div>
                 </div>
             </>
-        )
+        );
     }
 }
 
-export default Series
+export default Series;

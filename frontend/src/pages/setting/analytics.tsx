@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState,
+} from 'react';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
@@ -22,14 +25,14 @@ export default function AnalyticsSetting() {
         loadingStore.start();
         Promise.all([
             API.getSettingAnalyticsView()
-                .then(({data}) => setViews(data.body)),
+                .then(({ data }) => setViews(data.body)),
             API.getSettingAnalyticsSearch()
-                .then(({data}) => setSearches(data.body)),
+                .then(({ data }) => setSearches(data.body)),
             API.getSettingAnalyticsReferrers()
-                .then(({data}) => setReferers(data.body)),
+                .then(({ data }) => setReferers(data.body)),
         ]).then(() => {
             loadingStore.end();
-        })
+        });
     }, []);
 
     return (
@@ -154,4 +157,4 @@ AnalyticsSetting.pageLayout = (page: JSX.Element) => (
     <SettingLayout active="analytics">
         {page}
     </SettingLayout>
-)
+);

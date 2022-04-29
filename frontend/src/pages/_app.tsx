@@ -1,21 +1,17 @@
 import App, { AppProps } from 'next/app';
 import Head from 'next/head';
-import Script from 'next/script';
 import Router from 'next/router';
+import Script from 'next/script';
 
-import { Loading } from '@design-system';
 import {
-    TopNavigation,
     SEO,
+    TopNavigation,
 } from '@system-design/shared';
+import { Loading } from '@design-system';
 
 import { CONFIG } from '@modules/settings';
-import {
-    lazyLoadResource
-} from '@modules/optimize/lazy';
-import {
-    minify
-} from '@modules/utility/string';
+import { lazyLoadResource } from '@modules/optimize/lazy';
+import { minify } from '@modules/utility/string';
 
 import { loadingStore } from '@stores/loading';
 
@@ -28,7 +24,7 @@ Router.events.on('routeChangeComplete', () => {
 class Main extends App<AppProps> {
     state = {
         isLoading: loadingStore.state.isLoading,
-    }
+    };
 
     constructor(props: AppProps) {
         super(props);
@@ -36,7 +32,7 @@ class Main extends App<AppProps> {
             this.setState({
                 isLoading: state.isLoading,
             });
-        })
+        });
     }
 
     componentDidMount() {
@@ -46,7 +42,7 @@ class Main extends App<AppProps> {
     render() {
         const { Component, pageProps } = this.props;
         
-        const getLayout = (page: JSX.Element, props: Object) => {
+        const getLayout = (page: JSX.Element, props: any) => {
             if ((Component as any).pageLayout) {
                 return (Component as any).pageLayout(page, props);
             }
@@ -71,21 +67,24 @@ class Main extends App<AppProps> {
                         <Script src={`https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_V4}`}/>
                         <Script
                             id="gtag-init"
-                            dangerouslySetInnerHTML={{ __html: minify(`
+                            dangerouslySetInnerHTML={{
+                                __html: minify(`
                                 window.dataLayer = window.dataLayer || [];
                                 function gtag() {
                                     dataLayer.push(arguments);
                                 }
                                 gtag('js', new Date());
                                 gtag('config', '${CONFIG.GOOGLE_ANALYTICS_V4}');
-                            `)}}
+                            `)
+                            }}
                         />
                     </>
                 )}
                 {CONFIG.MICROSOFT_CLARITY && (
                     <Script
                         id="clarity-init"
-                        dangerouslySetInnerHTML={{ __html: minify(`
+                        dangerouslySetInnerHTML={{
+                            __html: minify(`
                             (function(c, l, a, r, i, t, y) {
                                 c[a] = c[a] || function() {
                                     (c[a].q = c[a].q || []).push(arguments)
@@ -96,7 +95,8 @@ class Main extends App<AppProps> {
                                 y = l.getElementsByTagName(r)[0];
                                 y.parentNode.insertBefore(t,y);
                             })(window, document, "clarity", "script", "${CONFIG.MICROSOFT_CLARITY}");
-                        `)}}
+                        `)
+                        }}
                     />
                 )}
                 {CONFIG.GOOGLE_ADSENSE_CLIENT_ID && (
@@ -116,7 +116,7 @@ class Main extends App<AppProps> {
                     {getLayout(<Component {...pageProps}/>, pageProps)}
                 </div>
             </>
-        )
+        );
     }
 }
 

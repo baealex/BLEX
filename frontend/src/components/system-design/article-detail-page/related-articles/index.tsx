@@ -1,12 +1,16 @@
-import { useEffect, useState, useRef } from 'react';
+import {
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import Link from 'next/link';
 
 import { ArticleCard } from '../../article/article-card';
 
 import * as API from '@modules/api';
 import {
-    lazyLoadResource,
-    lazyIntersection
+    lazyIntersection,
+    lazyLoadResource
 } from '@modules/optimize/lazy';
 
 export interface RelatedProps {
@@ -48,5 +52,5 @@ export function RelatedArticles(props: RelatedProps) {
                 ))}
             </div>
         </div>
-    )
+    );
 }

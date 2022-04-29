@@ -1,11 +1,11 @@
 import axiosRequest, {
-    objectToForm,
     ResponseData,
+    objectToForm,
 } from './index';
 
 export async function postImage(file: File) {
     return await axiosRequest<ResponseData<PostImageData>>({
-        url: `/v1/image`,
+        url: '/v1/image',
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'

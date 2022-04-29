@@ -1,8 +1,10 @@
-import styles from './PageNavigation.module.scss';
 import classNames from 'classnames/bind';
+import styles from './PageNavigation.module.scss';
 const cn = classNames.bind(styles);
 
-import { useEffect, useState } from 'react';
+import {
+    useEffect, useState 
+} from 'react';
 import Link from 'next/link';
 
 export interface PageNavigationProps {
@@ -18,8 +20,8 @@ export function PageNavigation(props: PageNavigationProps) {
     const [active, setActive] = useState(props.items.findIndex((item) => item.name === props.active));
 
     useEffect(() => {
-        setActive(props.items.findIndex((item) => item.name === props.active))
-    }, [props.active])
+        setActive(props.items.findIndex((item) => item.name === props.active));
+    }, [props.active]);
 
     return (
         <>
@@ -40,5 +42,5 @@ export function PageNavigation(props: PageNavigationProps) {
                 ))}
             </ul>
         </>
-    )
+    );
 }

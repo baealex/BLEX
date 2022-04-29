@@ -6,16 +6,16 @@ import {
 } from '@design-system';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 import { oauth } from '@modules/utility/oauth';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 import { modalStore } from '@stores/modal';
 
 interface Props {
     isOpen: boolean;
-    onClose: Function;
+    onClose: () => void;
 }
 
 interface State {
@@ -31,7 +31,7 @@ export class LoginModal extends React.Component<Props, State> {
         this.state = {
             username: authStore.state.username,
             password: ''
-        }
+        };
         this.updateKey = authStore.subscribe((state) => this.setState({
             username: state.username,
         }));
@@ -42,7 +42,7 @@ export class LoginModal extends React.Component<Props, State> {
     }
 
     onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
-        if(e.key == 'Enter') {
+        if (e.key == 'Enter') {
             this.onSubmitLogin();
         }
     }
@@ -55,11 +55,11 @@ export class LoginModal extends React.Component<Props, State> {
     }
 
     async onSubmitLogin() {
-        if(this.state.username == '') {
+        if (this.state.username == '') {
             snackBar('😅 사용자 이름을 입력해주세요!');
             return;
         }
-        if(this.state.password == '') {
+        if (this.state.password == '') {
             snackBar('😅 비밀번호를 입력해주세요!');
             return;
         }
@@ -130,13 +130,13 @@ export class LoginModal extends React.Component<Props, State> {
                 <SplitLine/>
                 <button
                     className="login-button google"
-                    onClick={() => oauth("google")}
+                    onClick={() => oauth('google')}
                 >
                     <i className="fab fa-google"></i> Google 계정으로 로그인
                 </button>
                 <button
                     className="login-button github"
-                    onClick={() => oauth("github")}
+                    onClick={() => oauth('github')}
                 >
                     <i className="fab fa-github"></i> GitHub 계정으로 로그인
                 </button>

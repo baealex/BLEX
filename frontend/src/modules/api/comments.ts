@@ -1,14 +1,16 @@
 import axiosRequest, {
+    GetPostCommentDataComment,
     ResponseData,
     serializeObject,
-    GetPostCommentDataComment,
 } from './index';
 
 export async function postComments(url: string, content: string) {
     return await axiosRequest<ResponseData<PostCommentsData>>({
-        url: `/v1/comments`,
+        url: '/v1/comments',
         method: 'POST',
-        params: { url },
+        params: {
+            url 
+        },
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
@@ -18,7 +20,7 @@ export async function postComments(url: string, content: string) {
     });
 }
 
-export interface PostCommentsData extends GetPostCommentDataComment {};
+export type PostCommentsData = GetPostCommentDataComment;
 
 export async function putCommentLike(pk: number) {
     return await axiosRequest<ResponseData<PutCommentLike>>({

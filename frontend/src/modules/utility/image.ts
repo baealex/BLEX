@@ -1,5 +1,5 @@
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
@@ -75,7 +75,7 @@ export async function uploadImage(file: File) {
             return;
         }
         return data.body.url;
-    } catch(error: any) {
+    } catch (error: any) {
         loadingStore.end();
         const { status } = error.response;
         if (status == 404) {

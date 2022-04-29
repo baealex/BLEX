@@ -9,7 +9,7 @@ export function optimizedEvent(func: (e?: Event) => void) {
             ticking = false;
         });
         ticking = true;
-    }
+    };
 }
 
 export interface DebounceEventRunner {
@@ -24,11 +24,11 @@ export function debounceEvent(func: (e?: Event) => void, timing: number): Deboun
         if (timer) clearTimeout(timer);
         timer = setTimeout(() => func(e), timing);
         return true;
-    }
+    };
 
     runner.clear = function() {
         if (timer) clearTimeout(timer);
-    }
+    };
 
     return runner;
 }
@@ -44,5 +44,5 @@ export function throttleEvent(func: (e?: Event) => void, timing: number) {
                 isReady = true;
             }, timing);
         }
-    }
+    };
 }

@@ -1,6 +1,4 @@
-import axiosRequest, {
-    ResponseData,
-} from './index';
+import axiosRequest, { ResponseData, } from './index';
 
 export async function getSearch(query: string, page=1, username='') {
     return await axiosRequest<ResponseData<GetSearchData>>({

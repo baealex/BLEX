@@ -1,12 +1,12 @@
 import axiosRequest, {
-    ResponseData,
     Headers,
+    ResponseData,
     serializeObject,
 } from './index';
 
 export async function getSettingNotify(headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingNotifyData>>({
-        url: `/v1/setting/notify`,
+        url: '/v1/setting/notify',
         method: 'GET',
         headers,
     });
@@ -25,7 +25,7 @@ export interface GetSettingNotifyData {
 
 export async function getSettingAcount(headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingAccountData>>({
-        url: `/v1/setting/account`,
+        url: '/v1/setting/account',
         method: 'GET',
         headers,
     });
@@ -43,7 +43,7 @@ export interface GetSettingAccountData {
 
 export async function getSettingProfile(headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingProfileData>>({
-        url: `/v1/setting/profile`,
+        url: '/v1/setting/profile',
         method: 'GET',
         headers,
     });
@@ -67,7 +67,7 @@ interface GetSettingPostsParams {
 
 export async function getSettingPosts(params: GetSettingPostsParams, headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingPostsData>>({
-        url: `/v1/setting/posts`,
+        url: '/v1/setting/posts',
         method: 'GET',
         params,
         headers,
@@ -105,7 +105,7 @@ export interface GetSettingSeriesDataSeries {
 
 export async function getSettingSeries(headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingSeriesData>>({
-        url: `/v1/setting/series`,
+        url: '/v1/setting/series',
         method: 'GET',
         headers,
     });
@@ -122,7 +122,7 @@ export interface GetSettingAnalyticsViewData {
 
 export async function getSettingAnalyticsView(headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingAnalyticsViewData>>({
-        url: `/v1/setting/analytics-view`,
+        url: '/v1/setting/analytics-view',
         method: 'GET',
         headers
     });
@@ -140,7 +140,7 @@ export interface GetSettingAnalyticsRefererData {
 
 export async function getSettingAnalyticsReferrers(headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingAnalyticsRefererData>>({
-        url: `/v1/setting/analytics-referer`,
+        url: '/v1/setting/analytics-referer',
         method: 'GET',
         headers,
     });
@@ -163,7 +163,7 @@ export interface GetSettingAnalyticsSearchData {
 
 export async function getSettingAnalyticsSearch(headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingAnalyticsSearchData>>({
-        url: `/v1/setting/analytics-search`,
+        url: '/v1/setting/analytics-search',
         method: 'GET',
         headers,
     });
@@ -171,7 +171,7 @@ export async function getSettingAnalyticsSearch(headers?: Headers) {
 
 export async function getSettingForms(headers?: Headers) {
     return await axiosRequest<ResponseData<GetSettingFormsData>>({
-        url: `/v1/setting/forms`,
+        url: '/v1/setting/forms',
         method: 'GET',
         headers,
     });
@@ -200,7 +200,7 @@ export async function putSetting(item: string, data: object) {
 
 export async function postSettingAvatar(data: FormData) {
     return await axiosRequest<ResponseData<PostSettingAvatarData>>({
-        url: `/v1/setting/avatar`,
+        url: '/v1/setting/avatar',
         method: 'POST',
         data: data,
     });

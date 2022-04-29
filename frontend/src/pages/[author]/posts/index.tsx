@@ -1,6 +1,6 @@
-import React from 'react';
-import Head from 'next/head';
 import type { GetServerSidePropsContext } from 'next';
+import Head from 'next/head';
+import React from 'react';
 
 import {
     Pagination,
@@ -20,7 +20,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     } = context.query;
 
     try {
-        if(!author.includes('@')) {
+        if (!author.includes('@')) {
             throw 'invalid author';
         }
 
@@ -42,8 +42,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...userProfile.data.body,
                 ...userPosts.data.body
             }
-        }
-    } catch(error) {
+        };
+    } catch (error) {
         return {
             notFound: true
         };
@@ -71,14 +71,14 @@ export default function UserPosts(props: Props) {
                 last={props.lastPage}
             />
         </>
-    )
+    );
 }
 
 UserPosts.pageLayout = (page: JSX.Element, props: Props) => (
     <ProfileLayout
         active="posts"
         profile={props.profile}
-        social={props.social!}
+        social={props.social}
     >
         <div className="container">
             <UserArticles
@@ -92,4 +92,4 @@ UserPosts.pageLayout = (page: JSX.Element, props: Props) => (
             </UserArticles>
         </div>
     </ProfileLayout>
-)
+);

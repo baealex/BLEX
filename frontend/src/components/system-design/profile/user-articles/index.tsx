@@ -1,4 +1,7 @@
-import { Tags, TagProps } from './tags';
+import {
+    TagProps,
+    Tags,
+} from './tags';
 import { Articles } from './articles';
 
 interface PostsProps {

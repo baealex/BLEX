@@ -14,7 +14,9 @@ type Props = {
 
 export const Adsense = ({
     className = '',
-    style = { display: 'block' },
+    style = {
+        display: 'block' 
+    },
     client,
     slot,
     layout = '',
@@ -25,7 +27,8 @@ export const Adsense = ({
     ...rest
 }: Props) => {
     useEffect(() => {
-        const p: any = {};
+        const p: any = {
+        };
         if (pageLevelAds) {
             p.google_ad_client = client;
             p.enable_page_level_ads = true;
@@ -35,7 +38,9 @@ export const Adsense = ({
             if (typeof window === 'object') {
                 ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push(p);
             }
-        } catch { }
+        } catch (e) {
+            // pass
+        }
     }, []);
 
     return (

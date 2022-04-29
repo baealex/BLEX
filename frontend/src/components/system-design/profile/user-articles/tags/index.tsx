@@ -1,9 +1,9 @@
-import styles from './Tags.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Tags.module.scss';
 const cn = classNames.bind(styles);
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { Dropdown } from '@design-system';
 
@@ -70,7 +70,9 @@ export function Tags(props: TagsProps) {
                         <a className={classNames(
                             'ns',
                             'shallow-dark',
-                            cn({ active: props.active === 'all' })
+                            cn({
+                                active: props.active === 'all' 
+                            })
                         )}>
                             전체 포스트 ({props.allCount})
                         </a>
@@ -87,7 +89,9 @@ export function Tags(props: TagsProps) {
                             <a className={classNames(
                                 'ns',
                                 'shallow-dark',
-                                cn({ active: props.active === item.name })
+                                cn({
+                                    active: props.active === item.name 
+                                })
                             )}>
                                 {item.name} ({item.count})
                             </a>

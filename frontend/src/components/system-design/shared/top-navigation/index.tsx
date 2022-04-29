@@ -1,29 +1,31 @@
-import styles from './TopNavigation.module.scss';
 import classNames from 'classnames/bind';
+import styles from './TopNavigation.module.scss';
 const cn = classNames.bind(styles);
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+    useEffect, useRef, useState 
+} from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import {
     LoginModal,
-    SignupModal,
     SignoutModal,
+    SignupModal,
     TelegramSyncModal,
     TwoFactorAuthModal,
     TwoFactorAuthSyncModal,
 } from './modals';
-import { DayNight } from './day-night';
 import { AllPages } from './all-pages';
+import { DayNight } from './day-night';
 import { Dropdown } from '@design-system';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
-import { message } from '@modules/utility/message';
-import { syncTheme } from '@modules/utility/darkmode';
 import { getUserImage } from '@modules/utility/image';
+import { message } from '@modules/utility/message';
 import { optimizedEvent } from '@modules/optimize/event';
+import { snackBar } from '@modules/ui/snack-bar';
+import { syncTheme } from '@modules/utility/darkmode';
 
 import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
@@ -47,7 +49,7 @@ export function TopNavigation() {
 
     useEffect(() => {
         setIsNight(configStore.state.theme === 'dark');
-    }, [])
+    }, []);
 
     useEffect(() => {
         if (isNight) {
@@ -55,7 +57,7 @@ export function TopNavigation() {
         } else {
             configStore.setTheme('default');
         }
-    }, [isNight])
+    }, [isNight]);
 
     useEffect(() => {
         const authUpdateKey = authStore.subscribe((nextState) => {
@@ -68,7 +70,7 @@ export function TopNavigation() {
             setState((prevState) => ({
                 ...prevState,
                 theme: nextState.theme,
-            }))
+            }));
         });
         const modalUpdateKey = modalStore.subscribe((nextState) => {
             setState((prevState) => ({
@@ -81,7 +83,7 @@ export function TopNavigation() {
             authStore.unsubscribe(authUpdateKey);
             configStore.unsubscribe(configUpdateKey);
             modalStore.unsubscribe(modalUpdateKey);
-        }
+        };
     }, []);
 
     useEffect(() => {
@@ -97,7 +99,7 @@ export function TopNavigation() {
     }, []);
 
     useEffect(() => {
-        API.getLogin().then(({data}) => {
+        API.getLogin().then(({ data }) => {
             if (data.status === 'DONE') {
                 authStore.set({
                     isLogin: true,
@@ -155,7 +157,7 @@ export function TopNavigation() {
         document.addEventListener('click', handleClick);
         return () => {
             document.removeEventListener('click', handleClick);
-        }
+        };
     }, []);
 
     useEffect(() => {
@@ -179,15 +181,15 @@ export function TopNavigation() {
     const onClickLogout = async () => {
         if (confirm(message('CONFIRM', '정말 로그아웃 하시겠습니까?'))) {
             const { data } = await API.postLogout();
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 authStore.logout();
                 snackBar(message('AFTER_REQ_DONE', '로그아웃 되었습니다.'));
             }
         }
-    }
+    };
 
     const unsync = async () => {
-        if(confirm(message('CONFIRM', '정말 연동을 해제할까요?'))) {
+        if (confirm(message('CONFIRM', '정말 연동을 해제할까요?'))) {
             const { data } = await API.postTelegram('unsync');
             if (data.status === 'ERROR') {
                 snackBar(message('AFTER_REQ_ERR', data.errorMessage));
@@ -199,18 +201,20 @@ export function TopNavigation() {
                 isTelegramSync: false
             }));
         }
-    }
+    };
 
     const onReadNotify = async (pk: number, url: string) => {
-        const { data } = await API.putSetting('notify', { pk });
-        if(data.status === 'DONE') {
+        const { data } = await API.putSetting('notify', {
+            pk 
+        });
+        if (data.status === 'DONE') {
             setState((prevState) => ({
                 ...prevState,
                 notify : prevState.notify.filter(item => pk != item.pk),
             }));
             router.push(url);
         }
-    }
+    };
 
     return (
         <>
@@ -238,7 +242,9 @@ export function TopNavigation() {
                 isOpen={state.isTwoFactorAuthSyncModalOpen}
                 onClose={() => modalStore.onCloseModal('isTwoFactorAuthSyncModalOpen')}
             />
-            <nav className={cn('top-nav', { isRollup })}>
+            <nav className={cn('top-nav', {
+                isRollup 
+            })}>
                 <div className={cn('container', 'h-100')}>
                     <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
                         <div className={cn('logo')}>
@@ -265,7 +271,9 @@ export function TopNavigation() {
                                                 {state.notify.length}
                                             </span>
                                         )}
-                                        <div ref={notifyBox} className={cn('notify-box', { isOpen: isNotifyOpen })}>
+                                        <div ref={notifyBox} className={cn('notify-box', {
+                                            isOpen: isNotifyOpen 
+                                        })}>
                                             {state.isTelegramSync ? (
                                                 <div className={cn('telegram')} onClick={() => unsync()}>
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
@@ -321,7 +329,7 @@ export function TopNavigation() {
                                                 {
                                                     name: '관리',
                                                     icon: 'fas fa-cog',
-                                                    onClick: () => router.push(`/setting/account`),
+                                                    onClick: () => router.push('/setting/account'),
                                                 },
                                                 {
                                                     name: '전체',
@@ -363,5 +371,5 @@ export function TopNavigation() {
             )}
             <DayNight isNight={isNight} onChange={setIsNight}/>
         </>
-    )
+    );
 }

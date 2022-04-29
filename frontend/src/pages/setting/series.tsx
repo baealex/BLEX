@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
-import Link from 'next/link';
 import type {
     GetServerSidePropsContext,
     GetServerSidePropsResult,
 } from 'next';
+import React, { useState } from 'react';
+import Link from 'next/link';
 
 import { Card } from '@design-system';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { loadingStore } from '@stores/loading';
 
-interface Props extends API.GetSettingSeriesData {}
+type Props = API.GetSettingSeriesData
 
-export async function getServerSideProps({
-    req,
-}: GetServerSidePropsContext
+export async function getServerSideProps({ req, }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
     const { data } = await API.getSettingSeries({
         'Cookie': req.headers.cookie || '',
@@ -29,7 +27,7 @@ export async function getServerSideProps({
                 destination: '/',
                 permanent: false,
             }
-        }
+        };
     }
     return {
         props: data.body
@@ -58,7 +56,7 @@ export default function SeriesSetting(props: Props) {
     const onSeriesDelete = async (url: string) => {
         if (confirm(message('CONFIRM', '정말 이 시리즈를 삭제할까요?'))) {
             const { data } = await API.deleteUserSeries('@' + props.username, url);
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 setSeries((prevSeries) => prevSeries
                     .filter(series => series.url !== url));
                 snackBar(message('AFTER_REQ_DONE', '시리즈가 삭제되었습니다.'));
@@ -80,14 +78,14 @@ export default function SeriesSetting(props: Props) {
                 return [item.url, prevIdx];
             }
 
-            return [item.url, idx]
+            return [item.url, idx];
         });
 
         const { data } = await API.putUserSeriesIndex('@' + props.username, nextIndexies);
         setSeries(data.body.series);
 
         loadingStore.end();
-    }
+    };
 
     return (
         <>
@@ -104,32 +102,30 @@ export default function SeriesSetting(props: Props) {
                     <button type="button" className="btn btn-dark" onClick={() => onSeriesCreate()}>새 시리즈 만들기</button>
                 </div>
             </div>
-            <>
-                {series.map((item, idx) => (
-                    <div key={idx} className="d-flex mb-3">
-                        <div className="d-flex flex-column justify-content-between mr-3">
-                            <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx-1)}>
-                                <i className="fas fa-angle-up"></i>
-                            </div>
-                            <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx+1)}>
-                                <i className="fas fa-angle-down"></i>
-                            </div>
+            {series.map((item, idx) => (
+                <div key={idx} className="d-flex mb-3">
+                    <div className="d-flex flex-column justify-content-between mr-3">
+                        <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx-1)}>
+                            <i className="fas fa-angle-up"></i>
                         </div>
-                        <Card hasShadow isRounded className="p-3">
-                            <div className="d-flex justify-content-between">
-                                <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
-                                    <a className="deep-dark">
-                                        {item.title} <span className="vs">{item.totalPosts}</span>
-                                    </a>
-                                </Link>
-                                <a onClick={() => onSeriesDelete(item.url)}>
-                                    <i className="fas fa-times"></i>
-                                </a>
-                            </div>
-                        </Card>
+                        <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx+1)}>
+                            <i className="fas fa-angle-down"></i>
+                        </div>
                     </div>
-                ))}
-            </>
+                    <Card hasShadow isRounded className="p-3">
+                        <div className="d-flex justify-content-between">
+                            <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
+                                <a className="deep-dark">
+                                    {item.title} <span className="vs">{item.totalPosts}</span>
+                                </a>
+                            </Link>
+                            <a onClick={() => onSeriesDelete(item.url)}>
+                                <i className="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </Card>
+                </div>
+            ))}
         </>
     );
 }
@@ -138,4 +134,4 @@ SeriesSetting.pageLayout = (page: JSX.Element) => (
     <SettingLayout active="series">
         {page}
     </SettingLayout>
-)
+);

@@ -1,5 +1,5 @@
-import styles from './TagCard.module.scss';
 import classNames from 'classnames/bind';
+import styles from './TagCard.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
@@ -20,5 +20,5 @@ export function TagCard(props: TagCardProps) {
                 </Link>
             </div>
         </div>
-    )
+    );
 }

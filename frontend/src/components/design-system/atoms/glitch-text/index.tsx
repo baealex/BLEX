@@ -1,8 +1,11 @@
-import styles from './GlitchText.module.scss';
 import classNames from 'classnames/bind';
+import styles from './GlitchText.module.scss';
 const cn = classNames.bind(styles);
 
-import { useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState,
+} from 'react';
 
 export interface GlitchTextProps {
     letters: string[];
@@ -25,7 +28,7 @@ export function GlitchText(props: GlitchTextProps) {
             window.requestAnimationFrame(() => {
                 setTimeout(swap, 100);
             });
-        }
+        };
 
         swap();
     }, []);
@@ -36,5 +39,5 @@ export function GlitchText(props: GlitchTextProps) {
                 {text}
             </div>
         </>
-    )
+    );
 }

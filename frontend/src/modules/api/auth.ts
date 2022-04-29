@@ -6,7 +6,7 @@ import axiosRequest, {
 
 export async function getLogin(headers?: Headers) {
     return await axiosRequest<ResponseData<GetLoginData>>({
-        url: `/v1/login`,
+        url: '/v1/login',
         method: 'GET',
         headers,
     });
@@ -36,7 +36,7 @@ interface PatchSignData {
 
 export async function patchSign(data: PatchSignData) {
     return await axiosRequest<ResponseData<unknown>>({
-        url: `/v1/sign`,
+        url: '/v1/sign',
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -47,7 +47,7 @@ export async function patchSign(data: PatchSignData) {
 
 export async function postLogin(username: string, password: string) {
     return await axiosRequest<ResponseData<PostLoginData>>({
-        url: `/v1/login`,
+        url: '/v1/login',
         method: 'POST',
         headers: {
             'content-type': 'application/x-www-form-urlencoded'
@@ -65,14 +65,14 @@ export interface PostLoginData extends GetLoginData {
 
 export async function postLogout() {
     return await axiosRequest<ResponseData<any>>({
-        url: `/v1/logout`,
+        url: '/v1/logout',
         method: 'POST'
     });
 }
 
 export async function postSign(username: string, password: string, email: string, realname: string) {
     return await axiosRequest<ResponseData<any>>({
-        url: `/v1/sign`,
+        url: '/v1/sign',
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -88,7 +88,7 @@ export async function postSign(username: string, password: string, email: string
 
 export async function deleteSign() {
     return await axiosRequest<ResponseData<any>>({
-        url: `/v1/sign`,
+        url: '/v1/sign',
         method: 'DELETE',
     });
 }
@@ -108,21 +108,21 @@ export async function postSignSocialLogin(social: string, code: string) {
 
 export async function postSecurity() {
     return await axiosRequest<ResponseData<any>>({
-        url: `/v1/auth/security`,
+        url: '/v1/auth/security',
         method: 'POST',
     });
 }
 
 export async function deleteSecurity() {
     return await axiosRequest<ResponseData<any>>({
-        url: `/v1/auth/security`,
+        url: '/v1/auth/security',
         method: 'DELETE',
     });
 }
 
 export async function postSecuritySend(authToken: string) {
     return await axiosRequest<ResponseData<GetLoginData>>({
-        url: `/v1/auth/security/send`,
+        url: '/v1/auth/security/send',
         method: 'POST',
         data: serializeObject({
             auth_token: authToken

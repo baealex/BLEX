@@ -1,5 +1,5 @@
-import styles from './Button.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Button.module.scss';
 const cn = classNames.bind(styles);
 
 import { useRef } from 'react'; 
@@ -7,7 +7,7 @@ import { useRef } from 'react';
 export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
-    children: String;
+    children: string;
     gap?: 'none' | 'little';
     space?: 'default' | 'spare';
     color?: 'default' | 'primary' | 'secondary' | 'point';
@@ -44,7 +44,7 @@ export function Button(props: ButtonProps) {
         }, 0);
 
         setTimeout(() => {
-            button.current?.removeChild(ripple)
+            button.current?.removeChild(ripple);
         }, 1000);
     };
 
@@ -62,5 +62,5 @@ export function Button(props: ButtonProps) {
         >
             {props.children}
         </button>
-    )
+    );
 }

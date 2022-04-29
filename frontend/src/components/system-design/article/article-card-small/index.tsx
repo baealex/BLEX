@@ -1,13 +1,11 @@
-import styles from './ArticleCardSmall.module.scss';
 import classNames from 'classnames';
+import styles from './ArticleCardSmall.module.scss';
 
 import Link from 'next/link';
 
 import { Card } from '@design-system';
 
-import {
-    getPostsImage,
-} from '@modules/utility/image';
+import { getPostsImage } from '@modules/utility/image';
 
 export interface ArticleCardSmallProps {
     author: string;
@@ -29,8 +27,12 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
                                 styles.image,
                                 'lazy'
                             )}
-                            src={getPostsImage(props.image, { preview: true })}
-                            data-src={getPostsImage(props.image, { minify: true })}
+                            src={getPostsImage(props.image, {
+                                preview: true 
+                            })}
+                            data-src={getPostsImage(props.image, {
+                                minify: true 
+                            })}
                         />
                         <div className="p-3">
                             <div>
@@ -44,5 +46,5 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
                 </Link>
             </Card>
         </div>
-    )
+    );
 }

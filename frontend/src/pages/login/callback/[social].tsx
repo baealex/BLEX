@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
+import type { GetServerSidePropsContext } from 'next';
 import Router from 'next/router';
-import { GetServerSidePropsContext } from 'next';
+import { useEffect } from 'react';
 
 import { Loading } from '@design-system';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { getCookie } from '@modules/utility/cookie';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 import { modalStore } from '@stores/modal';
@@ -57,7 +57,7 @@ export default function SocialLogin(props: Props) {
         } else {
             snackBar(message('AFTER_REQ_ERR', '소셜 인증을 실패했습니다.'));
         }
-    }
+    };
 
     useEffect(() => {
         const { social, code } = props;

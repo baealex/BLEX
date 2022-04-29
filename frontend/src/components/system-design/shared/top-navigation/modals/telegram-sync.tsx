@@ -1,13 +1,10 @@
 import React from 'react';
 
-import {
-    Modal,
- } from '@design-system';
-
-import { snackBar } from '@modules/ui/snack-bar';
-import { message } from '@modules/utility/message';
+import { Modal } from '@design-system';
 
 import * as API from '@modules/api';
+import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 interface Props {
     isOpen: boolean;
@@ -23,17 +20,19 @@ export class TelegramSyncModal extends React.Component<Props, State> {
         super(props);
         this.state = {
             token: '',
-        }
+        };
     }
 
     async componentDidUpdate() {
-        if(this.props.isOpen && !this.state.token) {
+        if (this.props.isOpen && !this.state.token) {
             const { data } = await API.postTelegram('makeToken');
             if (data.status === 'ERROR') {
                 snackBar(message('AFTER_REQ_ERR', data.errorMessage));
                 return;
             }
-            this.setState({token: data.body.token || ''});
+            this.setState({
+                token: data.body.token || ''
+            });
         }
     }
     

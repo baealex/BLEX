@@ -35,5 +35,5 @@ export function Table({
                 </tbody>
             </table>
         </div>
-    )
+    );
 }

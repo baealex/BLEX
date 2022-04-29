@@ -9,7 +9,7 @@ export interface EditorTitleProps {
     value: string;
     onChange: (value: string) => void;
     onChangeImage: (image: File) => void;
-};
+}
 
 export function EditorTitle(props: EditorTitleProps) {
     const ref = useRef<HTMLInputElement>(null);
@@ -38,7 +38,9 @@ export function EditorTitle(props: EditorTitleProps) {
                 ref={ref}
                 type="file"
                 accept="image/*"
-                style={{display: 'none'}}
+                style={{
+                    display: 'none'
+                }}
                 onChange={handleChangeImage}
             />
             <div

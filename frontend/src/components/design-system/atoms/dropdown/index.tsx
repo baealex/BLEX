@@ -1,5 +1,5 @@
-import styles from './Dropdown.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Dropdown.module.scss';
 const cn = classNames.bind(styles);
 
 import {
@@ -20,9 +20,7 @@ export interface DropdownProps {
 }
 
 export function Dropdown(props: DropdownProps) {
-    const {
-        position = 'left'
-    } = props;
+    const { position = 'left' } = props;
 
     const box = useRef<HTMLDivElement>(null);
     const toggle = useRef<HTMLSpanElement>(null);
@@ -44,7 +42,7 @@ export function Dropdown(props: DropdownProps) {
         document.addEventListener('click', handleClick);
         return () => {
             document.removeEventListener('click', handleClick);
-        }
+        };
     }, []);
 
     return (
@@ -58,7 +56,9 @@ export function Dropdown(props: DropdownProps) {
                         <div className={cn('menu', position)}>
                             <ul>
                                 {props.menus.map((menu, idx) => (
-                                    <li key={idx} onClick={menu.onClick} className={cn({ disable: menu.disable })}>
+                                    <li key={idx} onClick={menu.onClick} className={cn({
+                                        disable: menu.disable 
+                                    })}>
                                         <span>
                                             {menu.name}
                                         </span>
@@ -73,5 +73,5 @@ export function Dropdown(props: DropdownProps) {
                 </div>
             </div>
         </>
-    )
+    );
 }

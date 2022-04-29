@@ -1,10 +1,9 @@
-import React from 'react';
-import Head from 'next/head';
-import Router from 'next/router';
-import Link from 'next/link';
 import type { GetServerSidePropsContext } from 'next';
+import Head from 'next/head';
+import Link from 'next/link';
+import React from 'react';
+import Router from 'next/router';
 
-import { Toggle } from '@design-system';
 import {
     ArticleAction,
     ArticleAuthor,
@@ -14,16 +13,17 @@ import {
     ArticleSeries,
     RelatedArticles,
 } from '@system-design/article-detail-page';
-import { SEO, Footer } from '@system-design/shared';
-import { TagBadges } from '@system-design/tag';
-
-import { snackBar } from '@modules/ui/snack-bar';
-import prism from '@modules/library/prism';
-import * as API from '@modules/api';
 import {
-    lazyLoadResource
-} from '@modules/optimize/lazy';
+    Footer, SEO 
+} from '@system-design/shared';
+import { TagBadges } from '@system-design/tag';
+import { Toggle } from '@design-system';
+
+import * as API from '@modules/api';
 import { getPostsImage } from '@modules/utility/image';
+import { lazyLoadResource } from '@modules/optimize/lazy';
+import prism from '@modules/library/prism';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
@@ -55,7 +55,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { req } = context;
     const { author = '', posturl = '' } = context.query;
     
-    if(!author.includes('@') || !posturl) {
+    if (!author.includes('@') || !posturl) {
         return {
             notFound: true
         };
@@ -72,13 +72,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
         try {
             API.postPostAnalytics(posturl as string, {
-                user_agent: req.headers["user-agent"],
+                user_agent: req.headers['user-agent'],
                 referer: req.headers.referer ? req.headers.referer : '',
-                ip: req.headers["x-real-ip"] || req.socket.remoteAddress,
+                ip: req.headers['x-real-ip'] || req.socket.remoteAddress,
                 time: new Date().getTime(),
             }, cookie);
         } catch (e) {
-
+            // pass
         }
 
         const profile = await API.getUserProfile(author as string, [
@@ -86,7 +86,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         ]);
         
         if (post.data.body.series) {
-            let series = await API.getAnUserSeries(
+            const series = await API.getAnUserSeries(
                 author as string,
                 post.data.body.series
             );
@@ -94,21 +94,25 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             const activeSeries = series.data.body.posts.findIndex(
                 (item) => item.title == post.data.body.title
             );
-            return { props: {
-                hasSeries: true,
-                post: post.data.body,
-                profile: profile.data.body,
-                activeSeries,
-                seriesLength,
-                series: series.data.body
-            }}
+            return {
+                props: {
+                    hasSeries: true,
+                    post: post.data.body,
+                    profile: profile.data.body,
+                    activeSeries,
+                    seriesLength,
+                    series: series.data.body
+                }
+            };
         }
-        return { props: {
-            hasSeries: false,
-            post: post.data.body,
-            profile: profile.data.body
-        }};
-    } catch(error) {
+        return {
+            props: {
+                hasSeries: false,
+                post: post.data.body,
+                profile: profile.data.body
+            }
+        };
+    } catch (error) {
         return {
             notFound: true
         };
@@ -161,7 +165,7 @@ class PostDetail extends React.Component<Props, State> {
             this.makeHeaderNav();
         }
 
-        if(needSyntaxUpdate) {
+        if (needSyntaxUpdate) {
             prism.highlightAll();
             lazyLoadResource();
         }
@@ -169,12 +173,12 @@ class PostDetail extends React.Component<Props, State> {
 
     makeHeaderNav() {
         const headersTags = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
-        if ("IntersectionObserver" in window) {
+        if ('IntersectionObserver' in window) {
             const headerNav: string[][] = [];
             
-            let observer = new IntersectionObserver(entries => {
+            const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
-                    if(entry.isIntersecting) {
+                    if (entry.isIntersecting) {
                         this.setState({
                             headerNow: entry.target.id
                         });
@@ -185,21 +189,21 @@ class PostDetail extends React.Component<Props, State> {
             });
             
             headersTags.forEach(header => {
-                if(header.id) {
+                if (header.id) {
                     let idNumber = 0;
-                    switch(header.tagName.toUpperCase()) {
-                        case 'H1':
-                        case 'H2':
-                            idNumber = 1;
-                            break;
-                        case 'H3':
-                        case 'H4':
-                            idNumber = 2;
-                            break;
-                        case 'H5':
-                        case 'H6':
-                            idNumber = 3;
-                            break;
+                    switch (header.tagName.toUpperCase()) {
+                    case 'H1':
+                    case 'H2':
+                        idNumber = 1;
+                        break;
+                    case 'H3':
+                    case 'H4':
+                        idNumber = 2;
+                        break;
+                    case 'H5':
+                    case 'H6':
+                        idNumber = 3;
+                        break;
                     }
                     headerNav.push([
                         idNumber.toString(), header.id, header.textContent ? header.textContent : '' 
@@ -220,10 +224,10 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     async onDelete() {
-        if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
+        if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
             const { author, url } = this.props.post;
             const { data } = await API.deleteAnUserPosts('@' + author, url);
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 snackBar('😀 포스트가 삭제되었습니다.');
             }   
         }
@@ -244,7 +248,7 @@ class PostDetail extends React.Component<Props, State> {
                     isArticle={true}
                 />
                 <ArticleCover
-                    series={this.props.series?.name!}
+                    series={this.props.series?.name}
                     image={this.props.post.image}
                     title={this.props.post.title}
                     isAd={this.props.post.isAd}
@@ -313,7 +317,7 @@ class PostDetail extends React.Component<Props, State> {
                     />
                 </Footer>
             </>
-        )
+        );
     }
 }
 

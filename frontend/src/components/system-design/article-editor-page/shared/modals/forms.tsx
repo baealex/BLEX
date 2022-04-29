@@ -13,9 +13,7 @@ interface Props {
 }
 
 export function FormsModal(props: Props) {
-    const {
-        forms = []
-    } = props;
+    const { forms = [] } = props;
 
     return (
         <Modal

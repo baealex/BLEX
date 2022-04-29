@@ -1,8 +1,11 @@
-import styles from './RecentActivity.module.scss';
 import classNames from 'classnames/bind';
+import styles from './RecentActivity.module.scss';
 const cn = classNames.bind(styles);
 
-import {ActivityItem, ActivityItemProps} from './activity-item';
+import {
+    ActivityItem,
+    ActivityItemProps,
+} from './activity-item';
 
 import { Alert } from '@design-system';
 
@@ -28,5 +31,5 @@ export function RecentActivity(props: RecentActivityProps) {
                 </Alert>
             )}
         </>
-    )
+    );
 }

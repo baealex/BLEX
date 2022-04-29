@@ -1,15 +1,13 @@
-import styles from './ArticleSeries.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleSeries.module.scss';
 const cn = classNames.bind(styles);
 
-import React from 'react';
 import Link from 'next/link';
+import React from 'react';
 
 import { SpeechBubble } from '@design-system';
 
-import {
-    getUserImage,
-} from '@modules/utility/image';
+import { getUserImage } from '@modules/utility/image';
 
 export interface ArticleSeriesProps {
     url: string;
@@ -23,7 +21,7 @@ export interface ArticleSeriesProps {
     }[];
     seriesLength: number;
     activeSeries: number;
-};
+}
 
 export function ArticleSeries(props: ArticleSeriesProps) {
     return (
@@ -62,5 +60,5 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                 ))}
             </ul>
         </div>
-    )
+    );
 }

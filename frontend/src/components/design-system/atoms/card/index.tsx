@@ -1,5 +1,5 @@
-import styles from './Card.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Card.module.scss';
 
 const cn = classNames.bind(styles);
 
@@ -24,13 +24,19 @@ export function Card(props: CardProps) {
     return (
         <div className={cn(
             'card',
-            { ir: isRounded },
-            { hs: hasShadow },
+            {
+                ir: isRounded 
+            },
+            {
+                hs: hasShadow 
+            },
             hasShadow && 'sl-' + shadowLevel,
-            { fb: fillBack },
+            {
+                fb: fillBack 
+            },
             className,
         )}>
             {props.children}
         </div>
-    )
+    );
 }

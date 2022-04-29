@@ -4,7 +4,7 @@ export interface CheckBoxProps {
     label: string;
     onClick: (value: boolean) => void;
     defaultChecked: boolean;
-};
+}
 
 export function CheckBox(props: CheckBoxProps) {
     const checkbox = useRef<HTMLInputElement>(null);

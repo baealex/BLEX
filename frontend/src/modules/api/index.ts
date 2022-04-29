@@ -4,8 +4,8 @@ import axios, {
 } from 'axios';
 
 import { CONFIG } from '@modules/settings';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 export type Headers = AxiosRequestHeaders & {
     'Cookie'?: string;
@@ -32,7 +32,7 @@ export default async function axiosRequest<T>(config: AxiosRequestConfig) {
 
     try {
         return await request<T>(config);
-    } catch(e) {
+    } catch (e) {
         if (isBrowser) {
             snackBar(message('SYSTEM_ERR', '시스템 오류가 발생했습니다.'));
             throw e;

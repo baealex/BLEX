@@ -1,14 +1,12 @@
-import styles from './ArticleCardList.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleCardList.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
 import { TagBadges } from '../../tag';
 
-import {
-    getPostsImage
-} from '@modules/utility/image';
+import { getPostsImage } from '@modules/utility/image';
 
 export interface ArticleCardListProps {
     url: string;
@@ -29,8 +27,12 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     {props.image && (
                         <img
                             className="lazy"
-                            src={getPostsImage(props.image, { preview: true })}
-                            data-src={getPostsImage(props.image, { minify: true })}
+                            src={getPostsImage(props.image, {
+                                preview: true 
+                            })}
+                            data-src={getPostsImage(props.image, {
+                                minify: true 
+                            })}
                             height="400"
                         />
                     )}
@@ -59,5 +61,5 @@ export function ArticleCardList(props: ArticleCardListProps) {
                 </Link>
             ))}/>
         </div>
-    )
+    );
 }

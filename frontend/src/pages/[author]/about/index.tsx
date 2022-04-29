@@ -1,27 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+    useEffect,
+    useState,
+} from 'react';
+import type { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import { GetServerSidePropsContext } from 'next';
 
 import { Alert } from '@design-system';
-
-import { SEO } from '@system-design/shared';
-import { ProfileLayout } from '@system-design/profile';
 import { ArticleContent } from '@system-design/article-detail-page';
+import { ProfileLayout } from '@system-design/profile';
+import { SEO } from '@system-design/shared';
 
-import { snackBar } from '@modules/ui/snack-bar';
-
-import * as API from '@modules/api'
+import * as API from '@modules/api';
 import blexer from '@modules/utility/blexer';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        author = ''
-    } = context.query;
+    const { author = '' } = context.query;
 
     try {
-        if(!author.includes('@')) {
+        if (!author.includes('@')) {
             throw 'invalid author';
         }
 
@@ -33,15 +32,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
         return {
             props: userProfile.data.body
-        }
-    } catch(error) {
+        };
+    } catch (error) {
         return {
             notFound: true
         };
     }
 }
 
-interface Props extends API.GetUserProfileData {}
+type Props = API.GetUserProfileData
 
 export default function UserAbout(props: Props) {
     const [ isEdit, setIsEdit ] = useState(false);
@@ -60,7 +59,7 @@ export default function UserAbout(props: Props) {
     const handleClickEdit = async () => {
         if (!isEdit) {
             // 편집버튼 누른 상태
-            if(aboutMd === undefined) {
+            if (aboutMd === undefined) {
                 const { data } = await API.getUserAbout('@' + username);
                 setAboutMd(data.body.aboutMd);
             }
@@ -120,15 +119,15 @@ export default function UserAbout(props: Props) {
                 </div>
             </div>
         </>
-    )
+    );
 }
 
 UserAbout.pageLayout = (page: JSX.Element, props: Props) => (
     <ProfileLayout
         active="about"
         profile={props.profile}
-        social={props.social!}
+        social={props.social}
     >
         {page}
     </ProfileLayout>
-)
+);

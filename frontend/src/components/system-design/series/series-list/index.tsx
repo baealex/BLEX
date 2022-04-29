@@ -1,5 +1,5 @@
-import styles from './SeriesList.module.scss';
 import classNames from 'classnames/bind';
+import styles from './SeriesList.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
@@ -14,7 +14,9 @@ export interface SeriesListProps {
 
 export function SeriesList(props: SeriesListProps) {
     return (
-        <div className={cn('card')} style={{backgroundImage: `url(${props.image})`}}>
+        <div className={cn('card')} style={{
+            backgroundImage: `url(${props.image})`
+        }}>
             <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <a className={cn('title')}>
                     <div className={cn('mask')}>
@@ -28,5 +30,5 @@ export function SeriesList(props: SeriesListProps) {
                 </a>
             </Link>
         </div>
-    )
+    );
 }

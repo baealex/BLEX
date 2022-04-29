@@ -1,5 +1,5 @@
-import styles from './PopOver.module.scss';
 import classNames from 'classnames/bind';
+import styles from './PopOver.module.scss';
 const cn = classNames.bind(styles);
 
 import { useState } from 'react';
@@ -15,7 +15,9 @@ export function PopOver(props: PopOverProps) {
     return (
         <>
             <div>
-                <div className={cn('popover', { hover })}>
+                <div className={cn('popover', {
+                    hover 
+                })}>
                     {props.text}
                 </div>
                 <div
@@ -26,5 +28,5 @@ export function PopOver(props: PopOverProps) {
                 </div>
             </div>
         </>
-    )
+    );
 }

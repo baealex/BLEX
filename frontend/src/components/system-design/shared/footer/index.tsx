@@ -1,18 +1,20 @@
-import styles from './Footer.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Footer.module.scss';
 const cn = classNames.bind(styles);
 
 export interface FooterProps {
     isDark?: boolean;
     children?: JSX.Element;
-};
+}
 
 export function Footer({
     isDark = false,
     children,
 }: FooterProps) {
     return (
-        <footer className={cn('footer', { isDark })}>
+        <footer className={cn('footer', {
+            isDark 
+        })}>
             {children && (
                 <div className={cn('content')}>
                     {children}

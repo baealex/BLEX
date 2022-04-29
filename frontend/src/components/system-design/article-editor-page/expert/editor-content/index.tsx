@@ -1,5 +1,5 @@
-import styles from './EditorContent.module.scss';
 import classNames from 'classnames/bind';
+import styles from './EditorContent.module.scss';
 const cn = classNames.bind(styles);
 
 import React, {
@@ -8,13 +8,9 @@ import React, {
     useState,
 } from 'react';
 
-import {
-    PopOver
-} from '@components/design-system';
+import { PopOver } from '@components/design-system';
 
-import {
-    ArticleContent
-} from '@components/system-design/article-detail-page';
+import { ArticleContent } from '@components/system-design/article-detail-page';
 
 import {
     FormsModal,
@@ -22,10 +18,13 @@ import {
 } from '../../shared/modals';
 
 import * as API from '@modules/api';
-import prism from '@modules/library/prism';
+import {
+    dropImage,
+    uploadImage,
+} from '@modules/utility/image';
 import blexer from '@modules/utility/blexer';
-import { dropImage, uploadImage } from '@modules/utility/image';
 import { lazyLoadResource } from '@modules/optimize/lazy';
+import prism from '@modules/library/prism';
 
 export interface EditorContentProps {
     value: string;
@@ -98,41 +97,41 @@ export function EditorContent(props: EditorContentProps) {
 
             props.onChange(props.value + appendText);
         }
-    }
+    };
 
     const handleUploadImage = async (image: File) => {
         const imageSrc = await uploadImage(image);
-        if(imageSrc) {
-            const imageMd = imageSrc.includes('.mp4')
-                ? `@gif[${imageSrc}]`
-                : `![](${imageSrc})`;
-                appendTextAfterCursor(imageMd);
-        }
-    }
-
-    const handleDropImage = async (e: React.DragEvent<HTMLDivElement>) => {
-        const imageSrc = await dropImage(e);
-        if(imageSrc) {
+        if (imageSrc) {
             const imageMd = imageSrc.includes('.mp4')
                 ? `@gif[${imageSrc}]`
                 : `![](${imageSrc})`;
             appendTextAfterCursor(imageMd);
         }
-    }
+    };
+
+    const handleDropImage = async (e: React.DragEvent<HTMLDivElement>) => {
+        const imageSrc = await dropImage(e);
+        if (imageSrc) {
+            const imageMd = imageSrc.includes('.mp4')
+                ? `@gif[${imageSrc}]`
+                : `![](${imageSrc})`;
+            appendTextAfterCursor(imageMd);
+        }
+    };
 
     const onFetchForm = async (id: number) => {
         const { data } = await API.getForm(id);
         if (data.body.content) {
             appendTextAfterCursor(data.body.content);
         }
-    }
+    };
 
     const handleUploadYoutube = (id: string) => {
         if (id) {
             const youtubeMd = `@youtube[${id}]`;
             appendTextAfterCursor(youtubeMd);
         }
-    }
+    };
 
     const modalToggle = (name: keyof typeof modal) => {
         setModal((prevState) => ({
@@ -147,7 +146,9 @@ export function EditorContent(props: EditorContentProps) {
                 ref={imageInput}
                 type="file"
                 accept="image/*"
-                style={{display: 'none'}}
+                style={{
+                    display: 'none'
+                }}
                 onChange={(e) => {
                     if (e.target.files) {
                         handleUploadImage(e.target.files[0]);
@@ -165,7 +166,9 @@ export function EditorContent(props: EditorContentProps) {
                             ref={textarea}
                             className={cn(
                                 'content',
-                                { isEdit }
+                                {
+                                    isEdit 
+                                }
                             )}
                             value={props.value}
                             placeholder="마크다운으로 글을 작성하세요."
@@ -175,7 +178,9 @@ export function EditorContent(props: EditorContentProps) {
                             ref={preview}
                             className={cn(
                                 'preview',
-                                { isEdit }
+                                {
+                                    isEdit 
+                                }
                             )}
                         >
                             <ArticleContent isEdit html={blexer(props.value)} />
@@ -197,15 +202,15 @@ export function EditorContent(props: EditorContentProps) {
                                     </PopOver>
                                 </li>
                                 <li className="mx-3 mx-lg-4" onClick={() => setIsEdit(isEdit => !isEdit)}>
-                                        {isEdit ? (
-                                            <PopOver text="편집모드">
-                                                <i className="far fa-eye-slash"/>
-                                            </PopOver>
-                                        ) : (
-                                            <PopOver text="미리보기">
-                                                <i className="far fa-eye"/>
-                                            </PopOver>
-                                        )}
+                                    {isEdit ? (
+                                        <PopOver text="편집모드">
+                                            <i className="far fa-eye-slash"/>
+                                        </PopOver>
+                                    ) : (
+                                        <PopOver text="미리보기">
+                                            <i className="far fa-eye"/>
+                                        </PopOver>
+                                    )}
                                 </li>
                                 <li className="mx-3 mx-lg-4" onClick={() => modalToggle('isOpenForms')}>
                                     <PopOver text="서식 불러오기">
@@ -232,5 +237,5 @@ export function EditorContent(props: EditorContentProps) {
                 forms={forms}
             />
         </>
-    )
+    );
 }

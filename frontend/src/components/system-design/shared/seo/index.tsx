@@ -8,7 +8,7 @@ export interface SEOProps {
     url?: string;
     image?: string;
     isArticle?: boolean;
-};
+}
 
 export function SEO(props: SEOProps) {
     const deTag = [];
@@ -17,8 +17,8 @@ export function SEO(props: SEOProps) {
 
     let key = 0;
 
-    if(props.title) {
-        if(props.author) {
+    if (props.title) {
+        if (props.author) {
             twTag.push(<meta key={key++} name="twitter:title" content={`${props.title} — ${props.author}`}/>);
             ogTag.push(<meta key={key++} property="og:title" content={`${props.title} — ${props.author}`}/>);
         } else {
@@ -27,31 +27,31 @@ export function SEO(props: SEOProps) {
         }
     }
 
-    if(props.description) {
+    if (props.description) {
         deTag.push(<meta key={key++} name="description" content={props.description}/>);
         twTag.push(<meta key={key++} name="twitter:description" content={props.description}/>);
         ogTag.push(<meta key={key++} property="og:description" content={props.description}/>);
     }
 
-    if(props.author) {
+    if (props.author) {
         deTag.push(<meta key={key++} name="author" content={props.author}/>);
     }
 
-    if(props.keywords) {
+    if (props.keywords) {
         deTag.push(<meta key={key++} name="keywords" content={props.keywords}/>);
     }
 
-    if(props.url) {
+    if (props.url) {
         twTag.push(<meta key={key++} name="twitter:url" content={props.url}/>);
         ogTag.push(<meta key={key++} property="og:url" content={props.url}/>);
     }
 
-    if(props.image) {
+    if (props.image) {
         twTag.push(<meta key={key++} name="twitter:image" content={props.image}/>);
         ogTag.push(<meta key={key++} property="og:image" content={props.image}/>);
     }
 
-    if(props.isArticle) {
+    if (props.isArticle) {
         twTag.push(<meta key={key++} name="twitter:card" content="summary"/>);
         ogTag.push(<meta key={key++} property="og:type" content="blog"/>);
     }
@@ -63,5 +63,5 @@ export function SEO(props: SEOProps) {
             {ogTag}
             {twTag}
         </Head>
-    )
+    );
 }

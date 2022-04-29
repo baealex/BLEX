@@ -2,9 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import {
-    GlitchText
-} from '@design-system';
+import { GlitchText } from '@design-system';
 
 export default function NotFound() {
     const letters = useMemo(() => '404페이지를찾을수없습니다PAGENOTFOUND!@#$'.split(''), []);
@@ -39,5 +37,5 @@ export default function NotFound() {
                 }
             `}</style>
         </>
-    )
+    );
 }

@@ -1,13 +1,10 @@
 import React from 'react';
 import Router from 'next/router';
 
-import {
-    Modal,
- } from '@design-system';
-
-import { snackBar } from '@modules/ui/snack-bar';
+import { Modal } from '@design-system';
 
 import * as API from '@modules/api';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
@@ -25,7 +22,7 @@ export class SignoutModal extends React.Component<Props, State> {
         super(props);
         this.state = {
             token: '',
-        }
+        };
     }
 
     async onSignOut() {
@@ -36,7 +33,7 @@ export class SignoutModal extends React.Component<Props, State> {
             this.props.onClose();
             Router.push('/');
         }
-    };
+    }
 
     render() {
         return (

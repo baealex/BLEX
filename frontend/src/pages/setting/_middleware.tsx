@@ -1,4 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {
+    NextRequest,
+    NextResponse,
+} from 'next/server';
 
 export async function middleware(req: NextRequest) {
     const cookie = req.headers.get('Cookie');

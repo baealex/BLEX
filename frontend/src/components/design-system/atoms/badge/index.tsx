@@ -1,5 +1,5 @@
-import styles from './Badge.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Badge.module.scss';
 const cn = classNames.bind(styles);
 
 interface BadgeProps {
@@ -21,12 +21,18 @@ export function Badge(props: BadgeProps) {
     return (
         <div className={cn(
             'badge',
-            { ir: isRounded },
-            { hs: hasSharp },
-            { is: isSolo },
+            {
+                ir: isRounded 
+            },
+            {
+                hs: hasSharp 
+            },
+            {
+                is: isSolo 
+            },
             size !== 'normal' && 'size-' + size
         )}>
             {props.children}
         </div>
-    )
+    );
 }

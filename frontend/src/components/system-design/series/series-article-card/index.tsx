@@ -28,5 +28,5 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
                 <p className="vs">{props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span></p>
             </div>
         </Card>
-    )
+    );
 }

@@ -24,8 +24,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 token,
                 username: data.body.firstName
             }
-        }
-    } catch(error) {
+        };
+    } catch (error) {
         return {
             notFound: true
         };
@@ -39,8 +39,8 @@ interface Props {
 
 export default function Verify(props: Props) {
     const onSubmit = async (hctoken?: string) => {
-        if(CONFIG.HCAPTCHA_SITE_KEY) {
-            if(!hctoken) {
+        if (CONFIG.HCAPTCHA_SITE_KEY) {
+            if (!hctoken) {
                 snackBar('😅 체크박스를 눌러주세요!');
                 return;
             }
@@ -57,16 +57,16 @@ export default function Verify(props: Props) {
                 snackBar('😥 인증이 실패했습니다.');
             }
         }
-        if(data.status === 'DONE') {
+        if (data.status === 'DONE') {
             snackBar(`😆 ${props.username}님! 환영합니다 🎉`);
             authStore.set({
                 isLogin: true,
                 ...data.body,
-            })
+            });
             Router.replace('/');
         }
         return;
-    }
+    };
 
     return (
         <>

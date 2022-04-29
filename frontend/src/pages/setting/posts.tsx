@@ -1,26 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
 import type {
     GetServerSidePropsContext,
     GetServerSidePropsResult,
 } from 'next';
+import React, {
+    useEffect,
+    useState,
+} from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
 import {
     Alert,
+    Card,
     Dropdown,
     Modal,
-    Card,
 } from '@design-system';
 import { Pagination } from '@system-design/shared';
 import { SettingLayout } from '@system-design/setting';
 import { TagBadges } from '@system-design/tag';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 interface Props extends API.GetSettingPostsData {
     page: number;
@@ -34,8 +37,13 @@ export async function getServerSideProps({
     const { page = 1, order = '' } = query;
     
     const { data } = await API.getSettingPosts(
-        { order: String(order) , page: Number(page) },
-        { 'Cookie': req.headers.cookie || '' }
+        {
+            order: String(order) ,
+            page: Number(page) 
+        },
+        {
+            'Cookie': req.headers.cookie || '' 
+        }
     );
     if (data.status === 'ERROR') {
         return {
@@ -43,7 +51,7 @@ export async function getServerSideProps({
                 destination: '/',
                 permanent: false,
             }
-        }
+        };
     }
     return {
         props: {
@@ -101,17 +109,17 @@ export default function PostsSetting(props: Props) {
 
     useEffect(() => {
         setPosts(props.posts);
-    }, [props.posts])
+    }, [props.posts]);
 
     const router = useRouter();
 
     const postsAnalytics = async (url: string) => {
         setApNow(url);
-        if(!analytics[url]) {
+        if (!analytics[url]) {
             const { data } = await API.getPostAnalytics(url);
             const dates = [];
             const counts = [];
-            for(const item of data.body.items) {
+            for (const item of data.body.items) {
                 dates.push(item.date.slice(-2) + 'th');
                 counts.push(item.count);
             }
@@ -126,15 +134,17 @@ export default function PostsSetting(props: Props) {
                     referers
                 },
             });
-        };
+        }
         setModalOpen(true);
     };
 
     const onPostsDelete = async (url: string) => {
-        if(confirm(message('CONFIRM', '정말 이 포스트를 삭제할까요?'))) {
+        if (confirm(message('CONFIRM', '정말 이 포스트를 삭제할까요?'))) {
             const { data } = await API.deleteAnUserPosts('@' + props.username, url);
-            if(data.status === 'DONE') {
-                router.replace(router.asPath, '', { scroll: false });
+            if (data.status === 'DONE') {
+                router.replace(router.asPath, '', {
+                    scroll: false 
+                });
                 snackBar(message('AFTER_REQ_DONE', '포스트가 삭제되었습니다.'));
             }   
         }
@@ -334,4 +344,4 @@ PostsSetting.pageLayout = (page: JSX.Element) => (
     <SettingLayout active="posts" sticky={false}>
         {page}
     </SettingLayout>
-)
+);

@@ -1,8 +1,11 @@
-import styles from './ArticleContent.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleContent.module.scss';
 const cn = classNames.bind(styles);
 
-import { useState, useEffect } from 'react';
+import {
+    useEffect,
+    useState,
+} from 'react';
 import Router from 'next/router';
 
 import { configStore } from '@stores/config';
@@ -37,13 +40,13 @@ export function ArticleContent({
                         return;
                     }
 
-                    if(href.includes(`${location.protocol}//${location.host}/`)) {
+                    if (href.includes(`${location.protocol}//${location.host}/`)) {
                         e.preventDefault();
                         Router.push(href).then(() => window.scrollTo(0, 0));
                         return;
                     }
                 }
-            }
+            };
             
             const $article = document.querySelector(`.${styles.article}`);
 
@@ -51,14 +54,18 @@ export function ArticleContent({
 
             return () => {
                 $article?.removeEventListener('click', handleClickAnchorTag);
-            }
+            };
         }
     }, [isOpenNewTab]);
 
     return (
         <div
-            className={cn('article', { noMargin })}
-            dangerouslySetInnerHTML={{ __html: html }}
+            className={cn('article', {
+                noMargin 
+            })}
+            dangerouslySetInnerHTML={{
+                __html: html 
+            }}
         />
-    )
+    );
 }

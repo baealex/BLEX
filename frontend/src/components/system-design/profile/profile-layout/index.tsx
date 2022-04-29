@@ -1,5 +1,5 @@
-import styles from './Layout.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Layout.module.scss';
 const cn = classNames.bind(styles);
 
 import {
@@ -7,9 +7,7 @@ import {
     Social,
     SocialProps,
 } from '@system-design/shared';
-import {
-    ProfileNavigation
-} from '@system-design/profile';
+import { ProfileNavigation } from '@system-design/profile';
 
 export interface ProfileLayoutProps {
     profile: {
@@ -18,10 +16,10 @@ export interface ProfileLayoutProps {
         username: string;
         bio: string;
     },
-    social: SocialProps;
+    social?: SocialProps;
     active: string;
     children?: JSX.Element;
-};
+}
 
 export function ProfileLayout(props: ProfileLayoutProps) {
     return (
@@ -31,7 +29,9 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                     <img className={cn('avatar')} src={props.profile.image}/>
                     <div className={cn('realname')}>{props.profile.realname}</div>
                     <div className={cn('username')}>@{props.profile.username}</div>
-                    <Social {...props.social}/>
+                    {props.social && (
+                        <Social {...props.social}/>
+                    )}
                 </div>
             </div>
             <ProfileNavigation
@@ -41,5 +41,5 @@ export function ProfileLayout(props: ProfileLayoutProps) {
             {props.children}
             <Footer/>
         </>
-    )
+    );
 }

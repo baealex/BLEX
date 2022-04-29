@@ -7,7 +7,9 @@ export async function getUserSeries(author: string, page: number) {
     return await axiosRequest<ResponseData<GetUserSeriesData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series`,
         method: 'GET',
-        params: { page },
+        params: {
+            page 
+        },
     });
 }
 

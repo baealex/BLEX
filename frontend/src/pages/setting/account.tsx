@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
 import type {
     GetServerSidePropsContext,
     GetServerSidePropsResult,
 } from 'next';
+import React, {
+    useEffect,
+    useState,
+} from 'react';
 
 import {
     Alert,
@@ -13,17 +16,15 @@ import {
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 import { modalStore } from '@stores/modal';
 
-interface Props extends API.GetSettingAccountData {}
+type Props = API.GetSettingAccountData
 
-export async function getServerSideProps({
-    req,
-}: GetServerSidePropsContext
+export async function getServerSideProps({ req, }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
     const { data } = await API.getSettingAcount({
         'Cookie': req.headers.cookie || '',
@@ -34,7 +35,7 @@ export async function getServerSideProps({
                 destination: '/',
                 permanent: false,
             }
-        }
+        };
     }
     return {
         props: data.body
@@ -55,7 +56,9 @@ export default function AccountSetting(props: Props) {
     useEffect(authStore.syncValue('is2faSync', setIs2faSync), []);
 
     const onChangeUsername = async () => {
-        const { data } = await API.patchSign({ username });
+        const { data } = await API.patchSign({
+            username 
+        });
         if (data.status === 'ERROR') {
             snackBar(message('AFTER_REQ_ERR', data.errorMessage));
             setUsername(props.username);
@@ -73,7 +76,8 @@ export default function AccountSetting(props: Props) {
     };
 
     const onSubmit = async () => {
-        let sendData: any = {};
+        const sendData: any = {
+        };
         if (!realname) {
             snackBar('🤔 이름은 비워둘 수 없습니다.');
             return;
@@ -120,11 +124,11 @@ export default function AccountSetting(props: Props) {
             authStore.set((prevState) => ({
                 ...prevState,
                 is2faSync: false,
-            }))
+            }));
             return;
         }
         snackBar('😥 해제중 오류가 발생했습니다.');
-    }
+    };
 
     return (
         <>
@@ -278,4 +282,4 @@ AccountSetting.pageLayout = (page: JSX.Element) => (
     <SettingLayout active="account">
         {page}
     </SettingLayout>
-)
+);

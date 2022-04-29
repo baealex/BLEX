@@ -6,5 +6,5 @@ export function SplitLine() {
             <div className={styles.line}/>
             <span>또는</span>
         </div>
-    )
+    );
 }

@@ -1,28 +1,26 @@
-import React, { useState } from 'react';
 import type {
     GetServerSidePropsContext,
     GetServerSidePropsResult,
 } from 'next';
+import React, { useState } from 'react';
 
 import { 
     Alert,
     Button,
-    Text,
-    ImageInput
+    ImageInput,
+    Text
 } from '@design-system';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
-import { loadingStore } from '@stores/loading'
+import { loadingStore } from '@stores/loading';
 
-interface Props extends API.GetSettingProfileData {}
+type Props = API.GetSettingProfileData
 
-export async function getServerSideProps({
-    req,
-}: GetServerSidePropsContext
+export async function getServerSideProps({ req, }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
     const { data } = await API.getSettingProfile({
         'Cookie': req.headers.cookie || '',
@@ -33,7 +31,7 @@ export async function getServerSideProps({
                 destination: '/',
                 permanent: false,
             }
-        }
+        };
     }
     return {
         props: data.body
@@ -51,7 +49,8 @@ export default function ProfileSetting(props: Props) {
     const [ youtube, setYoutube ] = useState(props.youtube);
 
     const onSubmit = async () => {
-        let sendData: any = {};
+        const sendData: any = {
+        };
 
         sendData['bio'] = bio;
         sendData['homepage'] = homepage;
@@ -62,7 +61,7 @@ export default function ProfileSetting(props: Props) {
         sendData['youtube'] = youtube;
 
         const { data } = await API.putSetting('profile', sendData);
-        if(data.status === 'DONE') {
+        if (data.status === 'DONE') {
             snackBar(message('AFTER_REQ_DONE', '프로필이 업데이트 되었습니다.'));
         }
     };
@@ -81,14 +80,14 @@ export default function ProfileSetting(props: Props) {
                     onChange={async (file) => {
                         loadingStore.set({
                             isLoading: true,
-                        })
+                        });
                         const formData = new FormData();
                         formData.append('avatar', file);
                         const { data } = await API.postSettingAvatar(formData);
                         setAvatar(data.body.url);
                         loadingStore.set({
                             isLoading: false,
-                        })
+                        });
                     }}
                 />
             </div>
@@ -212,4 +211,4 @@ ProfileSetting.pageLayout = (page: JSX.Element) => (
     <SettingLayout active="profile">
         {page}
     </SettingLayout>
-)
+);

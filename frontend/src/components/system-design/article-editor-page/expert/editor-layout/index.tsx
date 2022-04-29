@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import {
+    useEffect, useState 
+} from 'react';
 
 import {
     CheckBox,
@@ -6,12 +8,12 @@ import {
     Modal,
 } from '@design-system';
 
-import { EditorTitle } from '../../shared/editor-title';
-import { EditorContent } from '../editor-content';
 import {
     InputForm,
     SelectForm
 } from '../../shared/forms';
+import { EditorContent } from '../editor-content';
+import { EditorTitle } from '../../shared/editor-title';
 
 import * as API from '@modules/api';
 
@@ -49,7 +51,7 @@ interface Props {
         value: boolean;
         onChange: (value: boolean) => void;
     }
-    onSubmit: (onFail: Function) => void;
+    onSubmit: (onFail: () => void) => void;
     addon?: {
         sideButton: JSX.Element | JSX.Element[];
         modal: JSX.Element | JSX.Element[];
@@ -73,7 +75,7 @@ export function EditorLayout(props: Props) {
 
         const handleDropEvent = (e: DragEvent) => {
             e.preventDefault();
-        }
+        };
 
         document.body.addEventListener('dragover', handleDropEvent);
         document.body.addEventListener('drop', handleDropEvent);
@@ -81,7 +83,7 @@ export function EditorLayout(props: Props) {
         return () => {
             document.body.removeEventListener('dragover', handleDropEvent);
             document.body.removeEventListener('drop', handleDropEvent);
-        }
+        };
     }, []);
 
     const handleSubmit = async () => {
@@ -90,7 +92,7 @@ export function EditorLayout(props: Props) {
         await props.onSubmit(() => {
             setIsSubmit(false);
         });
-    }
+    };
 
     return (
         <div className="container">
@@ -118,7 +120,7 @@ export function EditorLayout(props: Props) {
                 <SelectForm
                     name="series"
                     title="시리즈"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.series.onChange(e.target.value)}>
+                    onChange={(e) => props.series.onChange(e.target.value)}>
                     <>
                         <option value="">선택하지 않음</option>
                         {series?.map((item, idx) => (
@@ -156,5 +158,5 @@ export function EditorLayout(props: Props) {
 
             {isSubmit ? <Loading block/> : ''}
         </div>
-    )
+    );
 }

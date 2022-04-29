@@ -4,7 +4,7 @@ export interface ToggleProps {
     label: string;
     onClick: (value: boolean) => void;
     defaultChecked?: boolean;
-};
+}
 
 export function Toggle(props: ToggleProps) {
     const checkbox = useRef<HTMLInputElement>(null);
@@ -28,5 +28,5 @@ export function Toggle(props: ToggleProps) {
                 </label>
             )}
         </div>
-    )
+    );
 }

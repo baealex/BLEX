@@ -1,5 +1,5 @@
-import styles from './SettingNavigation.module.scss';
 import classNames from 'classnames/bind';
+import styles from './SettingNavigation.module.scss';
 const cn = classNames.bind(styles);
 
 import { Card } from '@design-system';
@@ -66,7 +66,9 @@ export function SettingNavigation(props: SettingNavigationProps) {
 
     return (
         <Card hasShadow shadowLevel="sub" className="mb-3">
-            <div className={cn('box', 'py-2', { sticky })}>
+            <div className={cn('box', 'py-2', {
+                sticky 
+            })}>
                 {NAVIGATION_ITEMS.map((item, idx1) => (
                     <div className={cn('section')}>
                         <div className={cn('title', 'px-3', 'py-2')}>
@@ -78,7 +80,9 @@ export function SettingNavigation(props: SettingNavigationProps) {
                                     <a>
                                         <div key={idx2} className={cn(
                                             'px-3', 'py-2',
-                                            { active: props.active == subItem.name }
+                                            {
+                                                active: props.active == subItem.name 
+                                            }
                                         )}>
                                             {subItem.title}
                                         </div>

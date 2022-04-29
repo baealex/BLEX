@@ -1,14 +1,17 @@
-import React from 'react';
 import Head from 'next/head';
+import React from 'react';
 
-import { Alert } from '@design-system';
-import { Pagination, SEO } from '@system-design/shared';
+import {
+    Pagination,
+    SEO,
+} from '@system-design/shared';
 import {
     ProfileLayout,
     UserSeries,
 } from '@system-design/profile';
+import { Alert } from '@design-system';
 
-import * as API from '@modules/api'
+import * as API from '@modules/api';
 import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -18,7 +21,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     } = context.query;
 
     try {
-        if(!author.includes('@')) {
+        if (!author.includes('@')) {
             throw 'invalid author';
         }
 
@@ -38,16 +41,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...userProfile.data.body,
                 ...userSeries.data.body,
             }
-        }
-    } catch(error) {
+        };
+    } catch (error) {
         return {
             notFound: true
         };
     }
 }
-
-
-interface Props extends API.GetUserProfileData {};
 
 interface Props extends API.GetUserProfileData, API.GetUserSeriesData {
     page: number,
@@ -81,15 +81,15 @@ export default function SeriesProfile(props: Props) {
                 </div>
             </UserSeries>
         </>
-    )
+    );
 }
 
 SeriesProfile.pageLayout = (page: JSX.Element, props: Props) => (
     <ProfileLayout
         active="series"
         profile={props.profile}
-        social={props.social!}
+        social={props.social}
     >
         {page}
     </ProfileLayout>
-)
+);

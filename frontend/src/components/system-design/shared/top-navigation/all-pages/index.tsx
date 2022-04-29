@@ -1,5 +1,5 @@
-import styles from './AllPages.module.scss';
 import classNames from 'classnames/bind';
+import styles from './AllPages.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
@@ -16,7 +16,9 @@ export function AllPages({
     username
 }: AllPagesProps) {
     return (
-        <div className={cn('box', { isOpen })}>
+        <div className={cn('box', {
+            isOpen 
+        })}>
             <div className={cn('close')} onClick={() => onClose(false)}>
                 <i className="fas fa-times"/>
             </div>
@@ -84,5 +86,5 @@ export function AllPages({
                 </ul>
             </div>
         </div>
-    )
+    );
 }
