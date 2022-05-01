@@ -125,15 +125,15 @@ def create_history(ip, user_agent):
     key = get_sha256(ip)
     try:
         history = History.objects.get(key=key)
-        will_save = False
+        should_save = False
         if not history.ip:
             history.ip = ip
-            will_save = True
+            should_save = True
         if not history.agent == user_agent[:200]:
             history.agent = user_agent[:200]
             history.category = bot_check(user_agent)
-            will_save = True
-        if will_save:
+            should_save = True
+        if should_save:
             history.save()
             history.refresh_from_db()
     except:

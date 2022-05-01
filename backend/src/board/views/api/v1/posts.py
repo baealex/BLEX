@@ -11,7 +11,7 @@ from django.utils.text import slugify
 from django.utils.timesince import timesince
 
 from board.models import *
-from board.modules.analytics import view_count
+from board.modules.analytics import create_history, get_network_addr, view_count
 from board.modules.notify import create_notify
 from modules.response import StatusDone, StatusError
 from modules.requests import BooleanType
@@ -558,6 +558,38 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })
+            if request.GET.get('thanks', ''):
+                if request.user == post.author:
+                    return StatusError('SU')
+                user_addr = get_network_addr(request)
+                user_agent = request.META['HTTP_USER_AGENT']
+                history = create_history(user_addr, user_agent)
+                
+                post_nothanks = post.nothanks.filter(history=history)
+                if post_nothanks.exists():
+                    post_nothanks.delete()
+
+                post_thanks = post.thanks.filter(history=history)
+                if not post_thanks.exists():
+                    PostThanks(post=post, history=history).save()
+
+                return StatusDone()
+            if request.GET.get('nothanks', ''):
+                if request.user == post.author:
+                    return StatusError('SU')
+                user_addr = get_network_addr(request)
+                user_agent = request.META['HTTP_USER_AGENT']
+                history = create_history(user_addr, user_agent)
+
+                post_thanks = post.thanks.filter(history=history)
+                if post_thanks.exists():
+                    post_thanks.delete()
+
+                post_nothanks = post.nothanks.filter(history=history)
+                if not post_nothanks.exists():
+                    PostNoThanks(post=post, history=history).save()
+                
+                return StatusDone()
             if request.GET.get('hide', ''):
                 fn.compere_user(request.user, post.author, give_404_if='different')
                 post.config.hide = not post.config.hide
