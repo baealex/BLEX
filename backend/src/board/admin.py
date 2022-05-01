@@ -221,7 +221,7 @@ class LoginHistoryAdmin(admin.ModelAdmin):
 
 @admin.register(PostThanks)
 class PostThanksAdmin(admin.ModelAdmin):
-    list_display = ['history', 'post']
+    list_display = ['post', 'created_date', 'history']
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['history', 'post']
@@ -229,7 +229,7 @@ class PostThanksAdmin(admin.ModelAdmin):
 
 @admin.register(PostNoThanks)
 class PostNoThanksAdmin(admin.ModelAdmin):
-    list_display = ['history', 'post']
+    list_display = ['post', 'created_date', 'history']
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['history', 'post']
