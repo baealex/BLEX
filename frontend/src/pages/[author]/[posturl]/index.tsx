@@ -11,6 +11,7 @@ import {
     ArticleContent,
     ArticleCover,
     ArticleSeries,
+    ArticleThanks,
     RelatedArticles,
 } from '@system-design/article-detail-page';
 import {
@@ -287,6 +288,10 @@ class PostDetail extends React.Component<Props, State> {
                                     <a>{item}</a>
                                 </Link>
                             ))}/>
+                            <ArticleThanks
+                                author={this.props.post.author}
+                                url={this.props.post.url}
+                            />
                             {this.props.hasSeries && (
                                 <ArticleSeries
                                     {...this.props.series}
