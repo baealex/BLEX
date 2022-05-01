@@ -218,3 +218,19 @@ class LoginHistoryAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['his_ptr']
         return super().get_form(request, obj, **kwargs)
+
+@admin.register(PostThanks)
+class PostThanksAdmin(admin.ModelAdmin):
+    list_display = ['history', 'post']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['history', 'post']
+        return super().get_form(request, obj, **kwargs)
+
+@admin.register(PostNoThanks)
+class PostNoThanksAdmin(admin.ModelAdmin):
+    list_display = ['history', 'post']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['history', 'post']
+        return super().get_form(request, obj, **kwargs)
