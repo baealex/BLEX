@@ -59,7 +59,7 @@ export function ArticleThanks({ author, url }: ArticleThanks) {
                 space="spare"
                 onClick={() => noThanksEvent()}
             >
-                도움이 안돼요 😢
+                도움안돼요 😢
             </Button>
         </div>
     );
