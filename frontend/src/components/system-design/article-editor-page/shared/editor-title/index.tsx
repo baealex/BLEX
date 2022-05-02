@@ -46,7 +46,7 @@ export function EditorTitle(props: EditorTitleProps) {
             <div
                 className={styles.layout}
                 style={{
-                    backgroundImage: `url(${preview})`,
+                    backgroundImage: preview ? `url(${preview})` : '',
                 }}
                 onDragOver={(e) => e.preventDefault()}
             >
