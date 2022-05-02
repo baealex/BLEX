@@ -21,17 +21,15 @@ export function FormsModal(props: Props) {
             isOpen={props.isOpen}
             onClose={props.onClose}
         >
-            <>
-                {forms.map((item, idx) => (
-                    <Card key={idx} hasShadow isRounded className="p-3 mb-3">
-                        <div className="d-flex justify-content-between">
-                            <span onClick={() => props.onFetch(item.id)} className="c-pointer">
-                                {item.title}
-                            </span>
-                        </div>
-                    </Card>
-                ))}
-            </>
+            {forms.map((item, idx) => (
+                <Card key={idx} hasShadow isRounded className="p-3 mb-3">
+                    <div className="d-flex justify-content-between">
+                        <span onClick={() => props.onFetch(item.id)} className="c-pointer">
+                            {item.title}
+                        </span>
+                    </div>
+                </Card>
+            ))}
         </Modal>
     );
 }

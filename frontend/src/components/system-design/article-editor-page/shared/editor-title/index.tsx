@@ -33,7 +33,13 @@ export function EditorTitle(props: EditorTitleProps) {
     };
 
     return (
-        <>
+        <div
+            className={styles.layout}
+            style={{
+                backgroundImage: preview ? `url(${preview})` : '',
+            }}
+            onDragOver={(e) => e.preventDefault()}
+        >
             <input
                 ref={ref}
                 type="file"
@@ -43,26 +49,18 @@ export function EditorTitle(props: EditorTitleProps) {
                 }}
                 onChange={handleChangeImage}
             />
-            <div
-                className={styles.layout}
-                style={{
-                    backgroundImage: preview ? `url(${preview})` : '',
-                }}
-                onDragOver={(e) => e.preventDefault()}
-            >
-                <div>
-                    <button onClick={() => ref.current?.click()}>
-                        <i className="far fa-image"/> 표지 이미지
-                    </button>
-                    <input
-                        name="title"
-                        placeholder="제목을 입력하세요."
-                        maxLength={50}
-                        value={props.value}
-                        onChange={(e) => props.onChange(e.target.value)}
-                    />
-                </div>
+            <div>
+                <button onClick={() => ref.current?.click()}>
+                    <i className="far fa-image"/> 표지 이미지
+                </button>
+                <input
+                    name="title"
+                    placeholder="제목을 입력하세요."
+                    maxLength={50}
+                    value={props.value}
+                    onChange={(e) => props.onChange(e.target.value)}
+                />
             </div>
-        </>
+        </div>
     );
 }

@@ -134,7 +134,7 @@ class Write extends React.Component<Props, State> {
 
     /* Inner Method */
 
-    async fecthTempPosts(token='') {
+    async fetchTempPosts(token='') {
         if (token) {
             const { tempPostsCache } = this.state;
             
@@ -373,7 +373,7 @@ class Write extends React.Component<Props, State> {
                             onCheckAutoSave={this.onCheckAutoSave.bind(this)}
                             tempPosts={tempPosts}
                             onDelete={this.onDeleteTempPost.bind(this)}
-                            onFecth={this.fecthTempPosts.bind(this)}
+                            onFetch={this.fetchTempPosts.bind(this)}
                             onSave={() => {
                                 const { token, title, content, tags } = this.state;
                                 this.onTempSave(token, title, content, tags);
