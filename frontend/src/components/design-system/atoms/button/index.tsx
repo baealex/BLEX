@@ -2,7 +2,7 @@ import classNames from 'classnames/bind';
 import styles from './Button.module.scss';
 const cn = classNames.bind(styles);
 
-import { useRef } from 'react'; 
+import { useRef } from 'react';
 
 export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
@@ -14,19 +14,19 @@ export interface ButtonProps {
     display?: 'inline-block' | 'block';
 }
 
-export function Button(props: ButtonProps) {
-    const {
-        gap = 'none',
-        space = 'default',
-        color = 'default',
-        display = 'inline-block',
-    } = props;
-
+export function Button({
+    gap = 'none',
+    space = 'default',
+    color = 'default',
+    display = 'inline-block',
+    onClick,
+    children,
+}: ButtonProps) {
     const button = useRef<HTMLButtonElement>(null);
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        if (props.onClick) {
-            props.onClick(e);
+        if (onClick) {
+            onClick(e);
         }
         
         const ripple = document.createElement('span');
@@ -35,10 +35,10 @@ export function Button(props: ButtonProps) {
 
         setTimeout(() => {
             const absoluteTop = (button.current?.getBoundingClientRect().top || 0) + window.scrollY;
-            const absoliteLeft = (button.current?.getBoundingClientRect().left || 0) + window.scrollX;
+            const absoluteLeft = (button.current?.getBoundingClientRect().left || 0) + window.scrollX;
 
             ripple.style.top = e.pageY - absoluteTop - 25 + 'px';
-            ripple.style.left = e.pageX - absoliteLeft - 25 + 'px';
+            ripple.style.left = e.pageX - absoluteLeft - 25 + 'px';
             ripple.style.opacity = '0';
             ripple.style.transform = 'scale(5)';
         }, 0);
@@ -60,7 +60,7 @@ export function Button(props: ButtonProps) {
             )}
             onClick={handleClick}
         >
-            {props.children}
+            {children}
         </button>
     );
 }

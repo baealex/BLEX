@@ -12,6 +12,10 @@
     position: relative;
     overflow: hidden;
     background: #333;
+    
+    &:focus {
+        outline: none;
+    }
 
     &.g-little { // gap
         margin-right: 5px;

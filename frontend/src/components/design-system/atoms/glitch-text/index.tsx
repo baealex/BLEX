@@ -16,28 +16,24 @@ export function GlitchText(props: GlitchTextProps) {
 
     useEffect(() => {
         const letters = props.letters;
-
-        const swap = function() {
-            const randWord = 
-                letters[Math.floor(Math.random()*letters.length)]
-                + letters[Math.floor(Math.random()*letters.length)]
-                + letters[Math.floor(Math.random()*letters.length)]
-                + letters[Math.floor(Math.random()*letters.length)];
-            setText(randWord);
-
-            window.requestAnimationFrame(() => {
-                setTimeout(swap, 100);
-            });
+        const pick = () => {
+            return Math.floor(Math.random() * letters.length);
         };
 
-        swap();
+        (function swap() {
+            setText(
+                letters[pick()] +
+                letters[pick()] +
+                letters[pick()] +
+                letters[pick()]
+            );
+            setTimeout(swap, 100);
+        })();
     }, []);
 
     return (
-        <>
-            <div className={(cn('header'))} data-text={text}>
-                {text}
-            </div>
-        </>
+        <div className={(cn('header'))} data-text={text}>
+            {text}
+        </div>
     );
 }

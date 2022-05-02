@@ -12,15 +12,14 @@ export interface CardProps {
     className?: string;
 }
 
-export function Card(props: CardProps) {
-    const {
-        isRounded = false,
-        hasShadow = false,
-        shadowLevel = 'main',
-        fillBack = false,
-        className = '',
-    } = props;
-
+export function Card({
+    isRounded = false,
+    hasShadow = false,
+    shadowLevel = 'main',
+    fillBack = false,
+    className = '',
+    children,
+}: CardProps) {
     return (
         <div className={cn(
             'card',
@@ -36,7 +35,7 @@ export function Card(props: CardProps) {
             },
             className,
         )}>
-            {props.children}
+            {children}
         </div>
     );
 }

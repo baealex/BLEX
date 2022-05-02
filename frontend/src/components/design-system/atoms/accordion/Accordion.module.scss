@@ -5,11 +5,11 @@
     overflow: hidden;
     position: relative;
 
-    div {
+    & > div {
         display: block;
     }
 
-    button {
+    & > button {
         @include BACKGROUND;
         color: #ccc;
         border: none;

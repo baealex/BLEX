@@ -17,10 +17,10 @@ export function Toggle(props: ToggleProps) {
         <div className="d-flex align-items-center custom-control custom-switch">
             <input
                 ref={checkbox}
-                onClick={(e: any) => props.onClick(e.target.checked)}
                 type="checkbox"
-                className="custom-control-input c-pointer"
                 defaultChecked={props.defaultChecked}
+                className="custom-control-input c-pointer"
+                onClick={(e) => props.onClick(e.currentTarget.checked)}
             />
             {props.label && (
                 <label className="custom-control-label none-drag c-pointer" onClick={() => onClickCheckbox()}>

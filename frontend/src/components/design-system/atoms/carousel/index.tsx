@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 export interface CarouselProps {
-    items: React.ReactChild[];
+    items: React.ReactNode[];
 }
 
 export function Carousel({ items }: CarouselProps) {
@@ -34,10 +34,15 @@ export function Carousel({ items }: CarouselProps) {
     );
 }
 
+interface ItemProps {
+    item: React.ReactNode;
+    focus: number;
+}
+
 function Item({
     item,
     focus,
-}: any) {
+}: ItemProps) {
     return (
         <>
             <span>{item}</span>

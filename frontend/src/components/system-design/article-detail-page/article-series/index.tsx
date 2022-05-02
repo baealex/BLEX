@@ -34,8 +34,9 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                 </a>
             </Link>
             <SpeechBubble
-                username={props.owner}
-                userImage={getUserImage(props.ownerImage)}
+                href={`/@${props.owner}`}
+                alt={props.owner}
+                src={getUserImage(props.ownerImage)}
             >
                 {props.description ? props.description : '이 시리즈에 대한 설명이 없습니다.'}
             </SpeechBubble>

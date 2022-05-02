@@ -15,7 +15,7 @@ $ITEM_WIDTH: 100px;
         border-bottom: 1px solid #555;
     }
 
-    li {
+    & > li {
         display: block;
 	    margin: 10px 0;
         width: $ITEM_WIDTH;
@@ -24,12 +24,12 @@ $ITEM_WIDTH: 100px;
         overflow: hidden;
         text-overflow: ellipsis;
 
-        a {
+        & > a {
             @include COLOR_GRAY;
             text-decoration: none;
         }
 
-        &.active, &.active a {
+        &.active, &.active > a {
             @include COLOR_DARK;
             font-weight: bold;
         }

@@ -32,7 +32,10 @@ export function ImageInput(props: ImageInputProps) {
     };
 
     return (
-        <>
+        <div
+            onClick={onClickButton}
+            className={cn('image')}
+        >
             <input
                 ref={input}
                 type="file"
@@ -42,15 +45,10 @@ export function ImageInput(props: ImageInputProps) {
                 accept="image/*"
                 onChange={(e) => onChangeImage(e)}
             />
-            <div
-                onClick={onClickButton}
-                className={cn('image')}
-            >
-                <img src={props.url}/>
-                <div className={cn('cover')}>
-                    {props.label}
-                </div>
+            <img src={props.url}/>
+            <div className={cn('cover')}>
+                {props.label}
             </div>
-        </>
+        </div>
     );
 }

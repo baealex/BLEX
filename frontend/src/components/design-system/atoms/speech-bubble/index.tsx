@@ -5,29 +5,30 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 
 interface SpeechBubbleProps {
-    userImage: string;
-    username: string;
-    children: any;
+    src: string;
+    alt: string;
+    href: string;
+    className?: string;
+    children: React.ReactNode;
 }
 
 export function SpeechBubble({
-    userImage,
-    username,
+    alt,
+    src,
+    href,
+    className,
     children,
 }: SpeechBubbleProps) {
     return (
         <>
-            <div className={classNames(cn('bubble'), 'mb-3')}>
+            <div className={classNames(cn('bubble'), className)}>
                 <blockquote>
                     {children}
                 </blockquote>
                 <div className={cn('user')}>
-                    <Link href="/[author]" as={`/@${username}`}>
+                    <Link href={href}>
                         <a>
-                            <img
-                                alt={username}
-                                src={userImage}
-                            />
+                            <img alt={alt} src={src}/>
                         </a>
                     </Link>
                 </div>

@@ -261,8 +261,9 @@ class Series extends React.Component<Props, State> {
                                     </div>
                                 )}
                                 <SpeechBubble
-                                    username={this.props.series.owner}
-                                    userImage={getUserImage(this.props.series.ownerImage)}
+                                    href={`/@${this.props.series.owner}`}
+                                    alt={this.props.series.owner}
+                                    src={getUserImage(this.props.series.ownerImage)}
                                 >
                                     {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
                                 </SpeechBubble>

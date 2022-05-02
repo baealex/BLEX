@@ -10,7 +10,7 @@ import Link from 'next/link';
 export interface PageNavigationProps {
     active: string;
     items: {
-        link?: string;
+        link: string;
         name: string;
     }[];
     disableLink?: boolean;
@@ -24,23 +24,21 @@ export function PageNavigation(props: PageNavigationProps) {
     }, [props.active]);
 
     return (
-        <>
-            <ul className={cn('nav')}>
-                <span className={cn('line', 'active-' + active)}/>
-                {props.items.map((item, idx) => (
-                    <li key={idx} className={cn({
-                        active: item.name === props.active
-                    })}>
-                        {props.disableLink ? (
-                            <>{item.name}</>
-                        ) : (
-                            <Link href={item.link!}>
-                                <a>{item.name}</a>
-                            </Link>
-                        )}
-                    </li>
-                ))}
-            </ul>
-        </>
+        <ul className={cn('nav')}>
+            <span className={cn('line', 'active-' + active)}/>
+            {props.items.map((item, idx) => (
+                <li key={idx} className={cn({
+                    active: item.name === props.active
+                })}>
+                    {props.disableLink ? (
+                        item.name
+                    ) : (
+                        <Link href={item.link}>
+                            <a>{item.name}</a>
+                        </Link>
+                    )}
+                </li>
+            ))}
+        </ul>
     );
 }
