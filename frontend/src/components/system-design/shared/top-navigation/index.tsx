@@ -16,7 +16,6 @@ import {
     TwoFactorAuthModal,
     TwoFactorAuthSyncModal,
 } from './modals';
-import { AllPages } from './all-pages';
 import { DayNight } from './day-night';
 import { Dropdown } from '@design-system';
 
@@ -39,7 +38,6 @@ export function TopNavigation() {
 
     const [path, setPath] = useState(router.pathname);
     const [isRollup, setIsRollup] = useState(false);
-    const [isMenuOpen, setisMenuOpen] = useState(false);
     const [isNotifyOpen, setIsNotifyOpen] = useState(false);
     const [isNight, setIsNight] = useState(false);
     const [state, setState] = useState({
@@ -161,22 +159,10 @@ export function TopNavigation() {
     }, []);
 
     useEffect(() => {
-        router.events.on('routeChangeStart', () => {
-            setisMenuOpen(false);
-        });
-
         router.events.on('routeChangeComplete', (url) => {
             setPath(url);
         });
     }, []);
-
-    useEffect(() => {
-        if (isMenuOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-    }, [isMenuOpen]);
 
     const onClickLogout = async () => {
         if (confirm(message('CONFIRM', '정말 로그아웃 하시겠습니까?'))) {
@@ -334,7 +320,7 @@ export function TopNavigation() {
                                                 {
                                                     name: '전체',
                                                     icon: 'fas fa-th-large',
-                                                    onClick: () => setisMenuOpen(true),
+                                                    onClick: () => router.push('/map'),
                                                 },
                                                 {
                                                     name: '로그아웃',
@@ -362,13 +348,6 @@ export function TopNavigation() {
                     </div>
                 </div>
             </nav>
-            {state.isLogin && (
-                <AllPages
-                    isOpen={isMenuOpen}
-                    onClose={setisMenuOpen}
-                    username={state.username}
-                />
-            )}
             <DayNight isNight={isNight} onChange={setIsNight}/>
         </>
     );
