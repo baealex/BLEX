@@ -93,7 +93,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             );
             const seriesLength = series.data.body.posts.length;
             const activeSeries = series.data.body.posts.findIndex(
-                (item) => item.title == post.data.body.title
+                (item) => item.url == post.data.body.url
             );
             return {
                 props: {
