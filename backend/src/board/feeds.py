@@ -30,14 +30,17 @@ class SitePostsFeed(Feed):
     description = 'BLOG EXPRESS ME'
 
     def items(self):
-        posts = Post.objects.filter(created_date__lte=timezone.now(), hide=False).order_by('-created_date')
+        posts = Post.objects.filter(
+            config__hide=False,
+            created_date__lte=timezone.now(),
+        ).select_related('content').order_by('-created_date')
         return posts[:20]
 
     def item_title(self, item):
         return item.title
 
     def item_description(self, item):
-        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.text_html)
+        return re.sub(r'[\x00-\x08\x0B-\x0C\x0E-\x1F]', '', item.content.text_html)
 
     def item_link(self, item):
         return item.get_absolute_url()
