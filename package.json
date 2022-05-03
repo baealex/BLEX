@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "BLOG EXPRESS ME",
   "scripts": {
-    "dev": "ts-node cli/dev.ts",
-    "start": "ts-node cli/start.ts",
-    "deploy": "ts-node cli/deploy.ts",
+    "dev": "ts-node dev-tools/dev.ts",
+    "start": "ts-node dev-tools/start.ts",
+    "deploy": "ts-node dev-tools/deploy.ts",
     "connect:backend": "docker exec -it blex_backend_1 /bin/bash",
     "connect:frontend": "docker exec -it blex_frontend_1 /bin/bash",
     "connect:dev-backend": "docker exec -it blex_dev_backend_1 /bin/bash",
