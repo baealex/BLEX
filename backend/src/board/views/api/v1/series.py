@@ -1,7 +1,7 @@
 import traceback
 
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Count
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -52,12 +52,16 @@ def user_series(request, username, url=None):
                         series_item.index = next_index
                         series_item.save()
                 
-                series = Series.objects.filter(owner=request.user).order_by('index')
+                series = Series.objects.filter(
+                    owner=request.user
+                ).annotate(
+                    total_posts=Count('posts')
+                ).order_by('index')
                 return StatusDone({
                     'series': list(map(lambda item: {
                         'url': item.url,
                         'title': item.name,
-                        'total_posts': item.posts.count()
+                        'total_posts': item.total_posts
                     }, series))
                 })
         

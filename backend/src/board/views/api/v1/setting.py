@@ -148,13 +148,17 @@ def setting(request, item):
             })
         
         if item == 'series':
-            series = Series.objects.filter(owner=user).order_by('index', '-id')
+            series = Series.objects.filter(
+                owner=user
+            ).annotate(
+                total_posts=Count('posts')
+            ).order_by('index', '-id')
             return StatusDone({
                 'username': user.username,
                 'series': list(map(lambda item: {
                     'url': item.url,
                     'title': item.name,
-                    'total_posts': item.posts.count()
+                    'total_posts': item.total_posts
                 }, series))
             })
         
