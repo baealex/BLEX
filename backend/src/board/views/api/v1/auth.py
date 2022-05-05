@@ -58,7 +58,7 @@ def login_response(user, is_first_login=False):
             'content': item.infomation,
             'created_date': timesince(item.created_date)
         }, notify)),
-        'is_first_login': True,
+        'is_first_login': is_first_login,
         'is_telegram_sync': user.config.has_telegram_id(),
         'is_2fa_sync': user.config.has_two_factor_auth(),
     })
