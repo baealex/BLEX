@@ -39,9 +39,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'main.middlewawre.DisableCSRF',
-    'main.middlewawre.AccessAdminOnlyStaff',
+    'main.middleware.DisableCSRF',
 ]
+
+if DEBUG:
+    MIDDLEWARE.append('main.middleware.QueryDebugger')
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
