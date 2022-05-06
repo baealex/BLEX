@@ -8,12 +8,12 @@
         display: inline;
         margin: 2px;
 
-        a {
+        & > a {
             @include COLOR_DARK;
-        }
 
-        i {
-            font-size: 24px;
+            & > i {
+                font-size: 24px;
+            }
         }
     }
 }

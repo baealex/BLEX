@@ -16,7 +16,7 @@ export interface ProfileLayoutProps {
         username: string;
         bio: string;
     },
-    social?: SocialProps;
+    social?: { homepage?: string; } & SocialProps;
     active: string;
     children?: JSX.Element;
 }
@@ -31,6 +31,25 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                     <div className={cn('username')}>@{props.profile.username}</div>
                     {props.social && (
                         <Social {...props.social}/>
+                    )}
+                    {(props.social?.homepage || props.profile.bio) && (
+                        <div className="d-flex justify-content-center align-items-center">
+                            {props.social?.homepage && (
+                                <div className={cn('homepage')}>
+                                    <a href={`https://${props.social?.homepage}`}>
+                                        {props.social?.homepage.split('/')[0]}
+                                    </a>
+                                </div>
+                            )}
+                            {(props.social?.homepage && props.profile.bio) && (
+                                <div className={cn('divider')}>·</div>
+                            )}
+                            {props.profile.bio && (
+                                <div className={cn('bio')}>
+                                    {props.profile.bio}
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

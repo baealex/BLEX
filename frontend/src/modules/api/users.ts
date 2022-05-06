@@ -21,6 +21,7 @@ export interface GetUserProfileData {
     },
     social?: {
         username: string;
+        homepage?: string;
         github?: string;
         twitter?: string;
         youtube?: string;

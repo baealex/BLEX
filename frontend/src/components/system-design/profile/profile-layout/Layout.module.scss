@@ -38,4 +38,24 @@
         font-size: 16px;
         margin-bottom: 8px;
     }
+
+    .bio, .homepage, .divider {
+        font-size: 16px;
+        margin-top: 32px;
+        margin-bottom: 8px;
+    }
+
+    .divider {
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+
+    .homepage {
+        font-weight: bold;
+
+        & > a {
+            @include COLOR_DARK;
+            text-decoration: none;
+        }
+    }
 }
