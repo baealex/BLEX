@@ -18,12 +18,24 @@ def users(request, username):
             user_profile = Profile.objects.get(user=user)
             data = dict()
             for include in set(includes):
+                if include == 'subscribe':
+                    data[include] = {
+                        'has_subscribe': Follow.objects.filter(
+                            follower__id=request.user.id,
+                            following=user.profile
+                        ).exists()
+                    }
+
                 if include == 'profile':
                     data[include] = {
                         'image': user_profile.get_thumbnail(),
                         'username': user.username,
                         'realname': user.first_name,
-                        'bio': user_profile.bio
+                        'bio': user_profile.bio,
+                        'has_subscribe': Follow.objects.filter(
+                            follower__id=request.user.id,
+                            following=user.profile
+                        ).exists()
                     }
                 
                 elif include == 'social':
@@ -173,18 +185,16 @@ def users(request, username):
                 return StatusError('SU')
             
             follower = User.objects.get(username=request.user)
-            if hasattr(user, 'profile'):
-                if user.profile.subscriber.filter(id = follower.id).exists():
-                    user.profile.subscriber.remove(follower)
-                else:
-                    user.profile.subscriber.add(follower)
+            follow_query = Follow.objects.filter(
+                follower=follower,
+                following=user.profile
+            )
+            if follow_query.exists():
+                follow_query.delete()
+                return StatusDone({ 'has_subscribe': False })
             else:
-                profile = Profile(user=user)
-                profile.save()
-                profile.subscriber.add(follower)
-            return StatusDone({
-                'total_subscriber': user.profile.total_subscriber()
-            })
+                Follow(follower=follower, following=user.profile).save()
+                return StatusDone({ 'has_subscribe': True })
         
         if put.get('about'):
             if not request.user == user:

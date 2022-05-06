@@ -74,12 +74,12 @@ export default function Overview(props: Props) {
 
             <div className="container mb-4">
                 <div className="col-lg-8 mx-auto p-0">
-                    <FeaturedArticles articles={props.most!}/>
+                    <FeaturedArticles articles={props.most || []}/>
                     <Heatmap
                         isNightMode={isNightMode}
                         data={props.heatmap}
                     />
-                    <RecentActivity data={props.recent!}/>
+                    <RecentActivity data={props.recent || []}/>
                 </div>
             </div>
         </>

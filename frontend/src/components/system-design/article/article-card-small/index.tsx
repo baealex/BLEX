@@ -20,7 +20,7 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
     return (
         <div className="col-md-4 mt-3">
             <Card hasShadow isRounded>
-                <Link href="/[author]/[posturl]" as={`@${props.author}/${props.url}`}>
+                <Link href={`/@${props.author}/${props.url}`}>
                     <a className="deep-dark">
                         <img
                             className={classNames(

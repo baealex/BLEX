@@ -10,9 +10,12 @@ export async function getUserProfile(author: string, includes: GetUserProfileInc
     });
 }
 
-type GetUserProfileInclude = 'profile' | 'social' | 'heatmap' | 'tags' | 'view' | 'most' | 'recent' | 'about';
+type GetUserProfileInclude = 'subscribe' | 'profile' | 'social' | 'heatmap' | 'tags' | 'view' | 'most' | 'recent' | 'about';
 
 export interface GetUserProfileData {
+    subscribe: {
+        hasSubscribe: boolean;
+    },
     profile: {
         image: string;
         username: string;
@@ -61,6 +64,20 @@ export async function getUserAbout(author: string) {
     return await axiosRequest<ResponseData<GetUserAboutData>>({
         url: `/v1/users/${encodeURIComponent(author)}?get=about`,
         method: 'GET'
+    });
+}
+
+interface PutUserFollow {
+    hasSubscribe: boolean;
+}
+
+export async function putUserFollow(author: string) {
+    return await axiosRequest<ResponseData<PutUserFollow>>({
+        url: `/v1/users/${encodeURIComponent(author)}`,
+        method: 'PUT',
+        data: serializeObject({
+            follow: author 
+        })
     });
 }
 

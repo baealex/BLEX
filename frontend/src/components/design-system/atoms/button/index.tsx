@@ -6,8 +6,9 @@ import { useRef } from 'react';
 
 export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
+    isRounded?: boolean;
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
-    children: string;
+    children: React.ReactNode;
     gap?: 'none' | 'little';
     space?: 'default' | 'spare';
     color?: 'default' | 'primary' | 'secondary' | 'point';
@@ -16,6 +17,7 @@ export interface ButtonProps {
 
 export function Button({
     gap = 'none',
+    isRounded = false,
     space = 'default',
     color = 'default',
     display = 'inline-block',
@@ -44,7 +46,9 @@ export function Button({
         }, 0);
 
         setTimeout(() => {
-            button.current?.removeChild(ripple);
+            if (button.current?.contains(ripple)) {
+                button.current?.removeChild(ripple);
+            }
         }, 1000);
     };
 
@@ -53,6 +57,9 @@ export function Button({
             ref={button}
             className={cn(
                 'button',
+                {
+                    isRounded 
+                },
                 gap != 'none' && `g-${gap}`,
                 space != 'default' && `s-${space}`,
                 color != 'default' && `c-${color}`,

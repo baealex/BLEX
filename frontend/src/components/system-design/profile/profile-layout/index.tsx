@@ -3,11 +3,21 @@ import styles from './Layout.module.scss';
 const cn = classNames.bind(styles);
 
 import {
+    useEffect, useState 
+} from 'react';
+import { useRouter } from 'next/router';
+
+import {
     Footer,
     Social,
     SocialProps,
 } from '@system-design/shared';
+import { Button } from '@components/design-system';
 import { ProfileNavigation } from '@system-design/profile';
+
+import * as API from '@modules/api';
+
+import { authStore } from '@stores/auth';
 
 export interface ProfileLayoutProps {
     profile: {
@@ -22,6 +32,25 @@ export interface ProfileLayoutProps {
 }
 
 export function ProfileLayout(props: ProfileLayoutProps) {
+    const router = useRouter();
+
+    const [ hasSubscribe, setHasSubscribe ] = useState(false);
+    const [ isLogin, setIsLogin ] = useState(authStore.state.isLogin);
+    const [ username, setUsername ] = useState(authStore.state.username);
+
+    useEffect(authStore.syncValue('isLogin', setIsLogin), []);
+    useEffect(authStore.syncValue('username', setUsername), []);
+
+    useEffect(() => {
+        if (isLogin) {
+            if (username !== props.profile.username) {
+                API.getUserProfile('@' + props.profile.username, ['subscribe']).then(({ data }) => {
+                    setHasSubscribe(data.body.subscribe.hasSubscribe);
+                });
+            }
+        }
+    }, [isLogin, username, props.profile.username]);
+
     return (
         <>
             <div className="col-md-12">
@@ -50,6 +79,30 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                                 </div>
                             )}
                         </div>
+                    )}
+                    {isLogin && (
+                        username === props.profile.username ? (
+                            <Button
+                                isRounded
+                                space="spare"
+                                gap="little"
+                                onClick={() => router.push('/setting/profile')}
+                            >
+                                프로필 편집
+                            </Button>
+                        ) : (
+                            <Button
+                                isRounded
+                                space="spare"
+                                gap="little"
+                                color={hasSubscribe ? 'secondary' : 'default'}
+                                onClick={() => API.putUserFollow('@' + props.profile.username).then(({ data }) => setHasSubscribe(data.body.hasSubscribe))}
+                            >
+                                <>
+                                    { hasSubscribe ? '구독해제' : '구독하기' }
+                                </>
+                            </Button>
+                        )
                     )}
                 </div>
             </div>
