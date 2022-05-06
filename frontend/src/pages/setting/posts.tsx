@@ -34,11 +34,12 @@ export async function getServerSideProps({
     req,
 }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
-    const { page = 1, order = '' } = query;
+    const { page = 1, order = '', tag_filter = '' } = query;
     
     const { data } = await API.getSettingPosts(
         {
-            order: String(order) ,
+            tag_filter: String(tag_filter),
+            order: String(order),
             page: Number(page) 
         },
         {

@@ -69,8 +69,12 @@ def setting(request, item):
             ).filter(
                 author=user
             ).order_by('-created_date')
+
+            tag_filter = request.GET.get('tag_filter', '')
+            if tag_filter:
+                posts = posts.filter(tags__value=tag_filter)
             
-            vaild_orders = [
+            valid_orders = [
                 'title',
                 'read_time',
                 'created_date',
@@ -83,11 +87,11 @@ def setting(request, item):
             ]
             order = request.GET.get('order', '')
             if order:
-                is_vaild = False
-                for vaild_order in vaild_orders:
-                    if order == vaild_order or order == '-' + vaild_order:
-                        is_vaild = True
-                if not is_vaild:
+                is_valid = False
+                for valid_order in valid_orders:
+                    if order == valid_order or order == '-' + valid_order:
+                        is_valid = True
+                if not is_valid:
                     raise Http404
 
                 if 'hide' in order:

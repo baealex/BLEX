@@ -61,6 +61,7 @@ export interface GetSettingProfileData {
 }
 
 interface GetSettingPostsParams {
+    tag_filter: string;
     order: string;
     page: number;
 }
