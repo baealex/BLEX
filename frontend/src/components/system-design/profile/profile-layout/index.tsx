@@ -53,8 +53,8 @@ export function ProfileLayout(props: ProfileLayoutProps) {
 
     return (
         <>
-            <div className="col-md-12">
-                <div className={`${cn('user')} gothic`}>
+            <div className="container">
+                <div className={`${cn('user')}`}>
                     <img className={cn('avatar')} src={props.profile.image}/>
                     <div className={cn('realname')}>{props.profile.realname}</div>
                     <div className={cn('username')}>@{props.profile.username}</div>

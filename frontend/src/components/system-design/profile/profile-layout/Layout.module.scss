@@ -3,13 +3,13 @@
 .user {
     margin: 0 auto;
     text-align: center;
-    max-width: 400px;
 
     .avatar {
-        width: 250px; height: 250px;
+        width: 250px;
+        height: 250px;
         background: #fff;
         border-radius: 100%;
-        margin: 16px;
+        margin: 16px 0;
         object-fit: cover;
     
         body.dark & {
@@ -52,6 +52,7 @@
 
     .homepage {
         font-weight: bold;
+        white-space: nowrap;
 
         & > a {
             @include COLOR_DARK;
