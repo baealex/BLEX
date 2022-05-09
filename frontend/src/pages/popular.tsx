@@ -8,7 +8,7 @@ import {
     Footer,
     Pagination,
 } from '@system-design/shared';
-import type { PageComponent } from '@types';
+import type { PageComponent } from '@components';
 
 import * as API from '@modules/api';
 

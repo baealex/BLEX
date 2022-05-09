@@ -6,7 +6,7 @@ import Script from 'next/script';
 import type {
     PageComponent,
     PageLayout
-} from '@types';
+} from '@components';
 import {
     SEO,
     TopNavigation,
