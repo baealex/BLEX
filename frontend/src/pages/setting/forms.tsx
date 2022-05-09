@@ -5,6 +5,7 @@ import type {
 import { useState } from 'react';
 
 import { Card } from '@design-system';
+import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
@@ -37,7 +38,7 @@ export async function getServerSideProps({ req, }: GetServerSidePropsContext
     };
 }
 
-export default function FormsSetting(props: Props) {
+const FormsSetting: PageComponent<Props> = (props) => {
     const [ title, setTitle ] = useState('');
     const [ content, setContent ] = useState('');
     const [ forms, setForms ] = useState(props.forms);
@@ -112,10 +113,12 @@ export default function FormsSetting(props: Props) {
             </div>
         </>
     );
-}
+};
 
-FormsSetting.pageLayout = (page: JSX.Element) => (
+FormsSetting.pageLayout = (page) => (
     <SettingLayout active="forms">
         {page}
     </SettingLayout>
 );
+
+export default FormsSetting;

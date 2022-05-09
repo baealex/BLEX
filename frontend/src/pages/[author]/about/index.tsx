@@ -7,6 +7,7 @@ import Head from 'next/head';
 
 import { Alert } from '@design-system';
 import { ArticleContent } from '@system-design/article-detail-page';
+import type { PageComponent } from '@components';
 import { ProfileLayout } from '@system-design/profile';
 import { SEO } from '@system-design/shared';
 
@@ -42,7 +43,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 type Props = API.GetUserProfileData
 
-export default function UserAbout(props: Props) {
+const UserAbout: PageComponent<Props> = (props) => {
     const [ isEdit, setIsEdit ] = useState(false);
     const [ aboutHTML, setAboutHTML ] = useState(props.about);
     const [ aboutMd, setAboutMd ] = useState<string | undefined>(undefined);
@@ -120,9 +121,9 @@ export default function UserAbout(props: Props) {
             </div>
         </>
     );
-}
+};
 
-UserAbout.pageLayout = (page: JSX.Element, props: Props) => (
+UserAbout.pageLayout = (page, props) => (
     <ProfileLayout
         active="about"
         profile={props.profile}
@@ -131,3 +132,5 @@ UserAbout.pageLayout = (page: JSX.Element, props: Props) => (
         {page}
     </ProfileLayout>
 );
+
+export default UserAbout;

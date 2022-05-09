@@ -10,6 +10,7 @@ import {
     ProfileLayout,
     UserArticles
 } from '@system-design/profile';
+import type { PageComponent } from '@components';
 
 import * as API from '@modules/api';
 
@@ -55,7 +56,7 @@ interface Props extends API.GetUserProfileData, API.GetUserPostsData {
     tag: string;
 }
 
-export default function UserPosts(props: Props) {
+const UserPosts: PageComponent<Props> = (props) => {
     return (
         <>
             <Head>
@@ -72,9 +73,9 @@ export default function UserPosts(props: Props) {
             />
         </>
     );
-}
+};
 
-UserPosts.pageLayout = (page: JSX.Element, props: Props) => (
+UserPosts.pageLayout = (page, props) => (
     <ProfileLayout
         active="posts"
         profile={props.profile}
@@ -93,3 +94,5 @@ UserPosts.pageLayout = (page: JSX.Element, props: Props) => (
         </div>
     </ProfileLayout>
 );
+
+export default UserPosts;

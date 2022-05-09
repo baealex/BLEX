@@ -17,6 +17,7 @@ import {
     Dropdown,
     Modal,
 } from '@design-system';
+import type { PageComponent } from '@components';
 import { Pagination } from '@system-design/shared';
 import { SettingLayout } from '@system-design/setting';
 import { TagBadges } from '@system-design/tag';
@@ -101,7 +102,7 @@ const POSTS_ORDER = [
     },
 ];
 
-export default function PostsSetting(props: Props) {
+const PostsSetting: PageComponent<Props> = (props) => {
     const [ isModalOpen, setModalOpen ] = useState(false);
     const [ posts, setPosts ] = useState(props.posts);
 
@@ -339,10 +340,12 @@ export default function PostsSetting(props: Props) {
             </Modal>
         </>
     );
-}
+};
 
-PostsSetting.pageLayout = (page: JSX.Element) => (
+PostsSetting.pageLayout = (page) => (
     <SettingLayout active="posts" sticky={false}>
         {page}
     </SettingLayout>
 );
+
+export default PostsSetting;

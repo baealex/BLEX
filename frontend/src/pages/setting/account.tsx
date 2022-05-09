@@ -13,6 +13,7 @@ import {
     CheckBox,
     Text,
 } from '@design-system';
+import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
@@ -42,7 +43,7 @@ export async function getServerSideProps({ req, }: GetServerSidePropsContext
     };
 }
 
-export default function AccountSetting(props: Props) {
+const AccountSetting: PageComponent<Props> = (props) => {
     const [ isChangeUsername, setChangeUsername ] = useState(false);
     const [ username, setUsername ] = useState(props.username);
     const [ realname, setRealname ] = useState(props.realname);
@@ -276,10 +277,12 @@ export default function AccountSetting(props: Props) {
             </>
         </>
     );
-}
+};
 
-AccountSetting.pageLayout = (page: JSX.Element) => (
+AccountSetting.pageLayout = (page) => (
     <SettingLayout active="account">
         {page}
     </SettingLayout>
 );
+
+export default AccountSetting;

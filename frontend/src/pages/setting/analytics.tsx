@@ -10,13 +10,14 @@ import {
     Card,
     Table,
 } from '@design-system';
+import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
 
 import { loadingStore } from '@stores/loading';
 
-export default function AnalyticsSetting() {
+const AnalyticsSetting: PageComponent<undefined> = () => {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewData>();
     const [ referers, setReferers ] = useState<API.GetSettingAnalyticsRefererData>();
     const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchData>();
@@ -151,10 +152,12 @@ export default function AnalyticsSetting() {
             )}
         </>
     );
-}
+};
 
-AnalyticsSetting.pageLayout = (page: JSX.Element) => (
+AnalyticsSetting.pageLayout = (page) => (
     <SettingLayout active="analytics">
         {page}
     </SettingLayout>
 );
+
+export default AnalyticsSetting;

@@ -7,8 +7,9 @@ import {
     Pagination,
     SEO,
 } from '@system-design/shared';
-import { CollectionLayout, } from '@system-design/article';
-import { TagCard, } from '@system-design/tag';
+import { CollectionLayout } from '@system-design/article';
+import type { PageComponent } from '@components';
+import { TagCard } from '@system-design/tag';
 
 import * as API from '@modules/api';
 
@@ -34,7 +35,7 @@ interface Props extends API.GetTagsData {
     page: number;
 }
 
-export default function Tags(props: Props) {
+const Tags: PageComponent<Props> = (props) => {
 
     return (
         <>
@@ -53,9 +54,9 @@ export default function Tags(props: Props) {
             <Footer/>
         </>
     );
-}
+};
 
-Tags.pageLayout = (page: JSX.Element, props: Props) => (
+Tags.pageLayout = (page, props) => (
     <CollectionLayout active="태그 클라우드" {...props}>
         <>
             <div className="row">
@@ -67,3 +68,5 @@ Tags.pageLayout = (page: JSX.Element, props: Props) => (
         </>
     </CollectionLayout>
 );
+
+export default Tags;

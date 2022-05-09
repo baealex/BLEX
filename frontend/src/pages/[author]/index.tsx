@@ -14,6 +14,7 @@ import {
     Heatmap,
     SEO,
 } from '@system-design/shared';
+import type { PageComponent } from '@components';
 
 import * as API from '@modules/api';
 
@@ -50,7 +51,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 type Props = API.GetUserProfileData;
 
-export default function Overview(props: Props) {
+const Overview: PageComponent<Props> = (props) => {
     const [ isNightMode, setIsNightMode ] = useState(configStore.state.theme === 'dark');
 
     useEffect(() => {
@@ -84,9 +85,9 @@ export default function Overview(props: Props) {
             </div>
         </>
     );
-}
+};
 
-Overview.pageLayout = (page: JSX.Element, props: Props) => (
+Overview.pageLayout = (page, props) => (
     <ProfileLayout
         active="overview"
         profile={props.profile}
@@ -95,3 +96,5 @@ Overview.pageLayout = (page: JSX.Element, props: Props) => (
         {page}
     </ProfileLayout>
 );
+
+export default Overview;

@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 
 import { Card } from '@design-system';
+import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
@@ -34,7 +35,7 @@ export async function getServerSideProps({ req, }: GetServerSidePropsContext
     };
 }
 
-export default function SeriesSetting(props: Props) {
+const SeriesSetting: PageComponent<Props> = (props) => {
     const [ newSeries, setNewSeries ] = useState('');
     const [ series, setSeries ] = useState(props.series);
 
@@ -128,10 +129,12 @@ export default function SeriesSetting(props: Props) {
             ))}
         </>
     );
-}
+};
 
-SeriesSetting.pageLayout = (page: JSX.Element) => (
+SeriesSetting.pageLayout = (page) => (
     <SettingLayout active="series">
         {page}
     </SettingLayout>
 );
+
+export default SeriesSetting;

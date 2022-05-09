@@ -76,7 +76,7 @@ export function SettingNavigation(props: SettingNavigationProps) {
                         </div>
                         <div className={cn('sub-item')}>
                             {item.subItems?.map(subItem => (
-                                <Link key={subItem.url} href={subItem.url}>
+                                <Link key={subItem.url} href={subItem.url} scroll={false}>
                                     <a>
                                         <div key={subItem.url} className={cn(
                                             'px-3', 'py-2',

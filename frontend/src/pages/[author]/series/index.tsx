@@ -10,6 +10,7 @@ import {
     UserSeries,
 } from '@system-design/profile';
 import { Alert } from '@design-system';
+import type { PageComponent } from '@components';
 
 import * as API from '@modules/api';
 import { GetServerSidePropsContext } from 'next';
@@ -53,7 +54,7 @@ interface Props extends API.GetUserProfileData, API.GetUserSeriesData {
     page: number,
 }
 
-export default function SeriesProfile(props: Props) {
+const SeriesProfile: PageComponent<Props> = (props) => {
     return (
         <>
             <Head>
@@ -82,9 +83,9 @@ export default function SeriesProfile(props: Props) {
             </UserSeries>
         </>
     );
-}
+};
 
-SeriesProfile.pageLayout = (page: JSX.Element, props: Props) => (
+SeriesProfile.pageLayout = (page, props) => (
     <ProfileLayout
         active="series"
         profile={props.profile}
@@ -93,3 +94,5 @@ SeriesProfile.pageLayout = (page: JSX.Element, props: Props) => (
         {page}
     </ProfileLayout>
 );
+
+export default SeriesProfile;

@@ -10,6 +10,7 @@ import {
     ImageInput,
     Text
 } from '@design-system';
+import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
@@ -38,7 +39,7 @@ export async function getServerSideProps({ req, }: GetServerSidePropsContext
     };
 }
 
-export default function ProfileSetting(props: Props) {
+const ProfileSetting: PageComponent<Props> = (props) => {
     const [ avatar, setAvatar ] = useState(props.avatar);
     const [ bio, setBio ] = useState(props.bio);
     const [ homepage, setHomepage ] = useState(props.homepage);
@@ -205,10 +206,12 @@ export default function ProfileSetting(props: Props) {
             </div>
         </>
     );
-}
+};
 
-ProfileSetting.pageLayout = (page: JSX.Element) => (
+ProfileSetting.pageLayout = (page) => (
     <SettingLayout active="profile">
         {page}
     </SettingLayout>
 );
+
+export default ProfileSetting;
