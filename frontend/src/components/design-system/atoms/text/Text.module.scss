@@ -8,7 +8,7 @@
     }
 
     @each $sizeName, $size in $fontSizes {
-        &.si-#{$sizeName} {
+        &.fs-#{$sizeName} {
             font-size: $size;
         }
     }

@@ -18,7 +18,7 @@ export function Text(props: TextProps) {
             <div
                 className={cn(
                     'text',
-                    `si-${fontSize}`,
+                    `fs-${fontSize}`,
                     fontWeight !== 400 && `fw-${fontWeight / 100}`,
                 )}
             >
