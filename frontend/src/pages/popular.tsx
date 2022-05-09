@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSideProps } from 'next';
 
 import {
     ArticleCard,
@@ -8,10 +8,11 @@ import {
     Footer,
     Pagination,
 } from '@system-design/shared';
+import type { PageComponent } from '@types';
 
 import * as API from '@modules/api';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;
     
     try {
@@ -28,14 +29,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             notFound: true
         };
     }
-}
+};
 
 interface Props extends API.GetPostsData {
     trendy?: API.GetPostsData,
     page: number;
 }
 
-export default function TrendyArticles(props: Props) {
+const TrendyArticles: PageComponent<Props> = (props) => {
     return (
         <>
             <Pagination
@@ -45,14 +46,14 @@ export default function TrendyArticles(props: Props) {
             <Footer/>
         </>
     );
-}
+};
 
-TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
+TrendyArticles.pageLayout = (page, props) => (
     <CollectionLayout active="인기 포스트" {...props}>
         <div className="row">
-            {props.posts.map((item, idx) => (
+            {props.posts.map(item => (
                 <ArticleCard
-                    key={idx}
+                    key={item.url}
                     className="col-lg-4 col-md-6 mt-4"
                     {...item}
                 />
@@ -61,3 +62,5 @@ TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
         {page}
     </CollectionLayout>
 );
+
+export default TrendyArticles;

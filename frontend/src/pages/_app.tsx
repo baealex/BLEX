@@ -3,6 +3,10 @@ import Head from 'next/head';
 import Router from 'next/router';
 import Script from 'next/script';
 
+import type {
+    PageComponent,
+    PageLayout
+} from '@types';
 import {
     SEO,
     TopNavigation,
@@ -42,10 +46,13 @@ class Main extends App<AppProps> {
     render() {
         const { Component, pageProps } = this.props;
         
-        const getLayout = (page: JSX.Element, props: any) => {
-            if ((Component as any).pageLayout) {
-                return (Component as any).pageLayout(page, props);
+        const getLayout: PageLayout<typeof pageProps> = (page, props) => {
+            const pageComponent = Component as PageComponent<typeof props>;
+            
+            if (pageComponent.pageLayout) {
+                return pageComponent.pageLayout(page, props);
             }
+            
             return page;
         };
 

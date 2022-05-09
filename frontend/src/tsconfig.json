@@ -24,6 +24,12 @@
       ],
       "@stores/*": [
         "./stores/*"
+      ],
+      "@types": [
+        "./types"
+      ],
+      "@types/*": [
+        "./types/*"
       ]
     },
     "jsx": "preserve",
