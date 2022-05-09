@@ -103,7 +103,7 @@ export default function SeriesSetting(props: Props) {
                 </div>
             </div>
             {series.map((item, idx) => (
-                <div key={idx} className="d-flex mb-3">
+                <div key={item.url} className="d-flex mb-3">
                     <div className="d-flex flex-column justify-content-between mr-3">
                         <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx-1)}>
                             <i className="fas fa-angle-up"></i>

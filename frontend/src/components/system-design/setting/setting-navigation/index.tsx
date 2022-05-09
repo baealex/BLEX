@@ -69,16 +69,16 @@ export function SettingNavigation(props: SettingNavigationProps) {
             <div className={cn('box', 'py-2', {
                 sticky 
             })}>
-                {NAVIGATION_ITEMS.map((item, idx1) => (
-                    <div className={cn('section')}>
+                {NAVIGATION_ITEMS.map(item => (
+                    <div key={item.title} className={cn('section')}>
                         <div className={cn('title', 'px-3', 'py-2')}>
                             <i className={item.icon}/> {item.title}
                         </div>
-                        <div key={idx1} className={cn('sub-item')}>
-                            {item.subItems?.map((subItem, idx2) => (
-                                <Link href={subItem.url}>
+                        <div className={cn('sub-item')}>
+                            {item.subItems?.map(subItem => (
+                                <Link key={subItem.url} href={subItem.url}>
                                     <a>
-                                        <div key={idx2} className={cn(
+                                        <div key={subItem.url} className={cn(
                                             'px-3', 'py-2',
                                             {
                                                 active: props.active == subItem.name 
