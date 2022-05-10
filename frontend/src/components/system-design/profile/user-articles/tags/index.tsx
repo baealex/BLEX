@@ -7,6 +7,8 @@ import { useState } from 'react';
 
 import { Dropdown } from '@design-system';
 
+import { sorted } from '@modules/utility/object';
+
 export interface TagProps {
     name: string;
     count: number;
@@ -17,16 +19,6 @@ export interface TagsProps {
     active: string;
     author: string;
     tags: TagProps[];
-}
-
-function sorted(key: string, list: any) {
-    return list.sort((left: any, right: any) => 
-        left[key] > right[key]
-            ? -1
-            : left[key] < right[key]
-                ? 1
-                : 0
-    );
 }
 
 export function Tags(props: TagsProps) {
@@ -52,11 +44,16 @@ export function Tags(props: TagsProps) {
                         menus={[
                             {
                                 name: '이름순',
-                                onClick: () => setTags([...sorted('name', tags).reverse()])
+                                onClick: () => setTags(sorted(tags, {
+                                    key: 'name',
+                                }))
                             },
                             {
                                 name: '작성 갯수순',
-                                onClick: () => setTags([...sorted('count', tags)])
+                                onClick: () => setTags(sorted(tags, {
+                                    key: 'count',
+                                    reverse: true,
+                                }))
                             },
                         ]}
                     />
