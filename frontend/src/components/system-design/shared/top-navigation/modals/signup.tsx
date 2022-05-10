@@ -160,7 +160,7 @@ export class SignupModal extends React.Component<Props, State> {
                         <button
                             className="login-button"
                             onClick={() => this.onSubmitLogin()}>
-                        등록 후 이메일 인증
+                            등록 후 이메일 인증
                         </button>
                         <SplitLine/>
                         <button
@@ -180,7 +180,7 @@ export class SignupModal extends React.Component<Props, State> {
                                     await modalStore.onOpenModal('isLoginModalOpen');
                                 }}
                             >
-                            이미 회원이신가요?
+                                이미 회원이신가요?
                             </button>
                         </div>
                     </>

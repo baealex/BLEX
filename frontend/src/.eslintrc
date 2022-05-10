@@ -13,7 +13,8 @@
         "sourceType": "module"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "react"
     ],
     "extends": [
         "eslint:recommended",
@@ -42,6 +43,7 @@
             "memberSyntaxSortOrder": ["all", "multiple", "single", "none"],
             "allowSeparatedGroups": true
         }],
+        "react/jsx-indent": [ "error", 4 ],
         "jsx-quotes": [ "error", "prefer-double" ]
     }
 }
