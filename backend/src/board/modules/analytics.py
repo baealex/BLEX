@@ -14,6 +14,8 @@ UNVAILD_REFERERS = [
     'http://localhost',
     'http://127.0.0.1',
     'http://in-vm',
+    'https://www.blex.kr',
+    'https://blex.kr',
     'AND',
     'OR',
     'IF',
