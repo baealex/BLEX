@@ -28,9 +28,9 @@ export function ArticleSeries(props: ArticleSeriesProps) {
         <div className={cn('series', 'my-5')}>
             <Link href={`/@${props.owner}/series/${props.url}`}>
                 <a className="deep-dark">
-                    <h4 className="font-weight-bold mb-3">
+                    <div className="font-weight-bold mb-3 h5">
                         '{props.name}' 시리즈
-                    </h4>
+                    </div>
                 </a>
             </Link>
             <SpeechBubble

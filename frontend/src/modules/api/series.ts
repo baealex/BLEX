@@ -82,6 +82,7 @@ export interface GetAnUserSeriesData {
 export interface GetAnUserSeriesDataPosts {
     url: string;
     title: string;
+    image: string;
     readTime: number;
     description: string;
     createdDate: string;

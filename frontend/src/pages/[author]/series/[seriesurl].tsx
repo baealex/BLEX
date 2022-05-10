@@ -5,11 +5,14 @@ import React from 'react';
 import Router from 'next/router';
 
 import {
+    Button,
     Card,
     Modal,
     SpeechBubble,
 } from '@design-system';
-import { SEO } from '@system-design/shared';
+import {
+    Footer, SEO 
+} from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
 
 import { snackBar } from '@modules/ui/snack-bar';
@@ -34,8 +37,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
     try {
         const { data } = await API.getAnUserSeries(
-            author as string,
-            seriesurl as string
+            author.toString(),
+            seriesurl.toString()
         );
         return {
             props: {
@@ -173,7 +176,7 @@ class Series extends React.Component<Props, State> {
             seriesPosts
         } = this.state;
 
-        const SereisModal = this.props.series.owner == this.state.username ? (
+        const SeriesModal = this.props.series.owner == this.state.username && (
             <Modal
                 title="시리즈 수정"
                 isOpen={this.state.isSeriesModalOpen}
@@ -181,46 +184,44 @@ class Series extends React.Component<Props, State> {
                 submitText="시리즈를 수정합니다"
                 onSubmit={() => this.seriesUpdate()}
             >
-                <>
-                    <div className="input-group mb-3 mr-sm-2 mt-3">
-                        <div className="input-group-prepend">
-                            <div className="input-group-text">시리즈명</div>
-                        </div>
-                        <input
-                            type="text"
-                            name="seriesTitle"
-                            value={seriesTitle}
-                            placeholder="시리즈의 이름"
-                            className="form-control"
-                            maxLength={50}
-                            required
-                            onChange={(e) => this.onInputChange(e)}
-                        />
+                <div className="input-group mb-3 mr-sm-2 mt-3">
+                    <div className="input-group-prepend">
+                        <div className="input-group-text">시리즈명</div>
                     </div>
-                    <textarea
-                        name="seriesDescription"
-                        cols={40}
-                        rows={5}
-                        placeholder="설명을 작성하세요."
+                    <input
+                        type="text"
+                        name="seriesTitle"
+                        value={seriesTitle}
+                        placeholder="시리즈의 이름"
                         className="form-control"
+                        maxLength={50}
+                        required
                         onChange={(e) => this.onInputChange(e)}
-                        value={seriesDescription}
                     />
-                    {seriesPosts.map((post, idx) => (
-                        <Card key={idx} hasShadow isRounded className="p-3 mt-3">
-                            <div className="d-flex justify-content-between">
-                                <span className="deep-dark">
-                                    {idx + 1}. {post.title}
-                                </span>
-                                <a onClick={() => this.onPostsRemoveInSeries(post.url)}>
-                                    <i className="fas fa-times"></i>
-                                </a>
-                            </div>
-                        </Card>
-                    ))}
-                </>
+                </div>
+                <textarea
+                    name="seriesDescription"
+                    cols={40}
+                    rows={5}
+                    placeholder="설명을 작성하세요."
+                    className="form-control"
+                    onChange={(e) => this.onInputChange(e)}
+                    value={seriesDescription}
+                />
+                {seriesPosts.map((post, idx) => (
+                    <Card key={idx} hasShadow isRounded className="p-3 mt-3">
+                        <div className="d-flex justify-content-between">
+                            <span className="deep-dark">
+                                {idx + 1}. {post.title}
+                            </span>
+                            <a onClick={() => this.onPostsRemoveInSeries(post.url)}>
+                                <i className="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </Card>
+                ))}
             </Modal>
-        ) : '';
+        );
 
         const { isSortOldFirst } = this.state;
 
@@ -234,74 +235,66 @@ class Series extends React.Component<Props, State> {
                     image={this.props.series.image}
                 />
 
-                {SereisModal}
+                {SeriesModal}
                 
                 <div className="container">
-                    <div className="back-image series-title-image" style={{
-                        backgroundImage: `url(${this.props.series.image})`
-                    }}>
-                        <div className="fade-mask"></div>
-                    </div>
-                    <div className="series-list">
-                        <div className="row">
-                            <div className="col-lg-8 mx-auto">
-                                <h2 className="font-weight-bold">
-                                    '{seriesTitle}' 시리즈
-                                </h2>
-                                <Link href="/[author]" as={`/@${this.props.series.owner}`}>
-                                    <a className="post-series deep-dark font-weight-bold mb-3">
-                                        Created by {this.props.series.owner}
-                                    </a>
-                                </Link>
-                                {this.props.series.owner == this.state.username && (
-                                    <div className="mb-3">
-                                        <div className="btn btn-block btn-dark" onClick={() => this.onOpenModal('isSeriesModalOpen')}>
-                                            시리즈 수정
-                                        </div>
-                                    </div>
-                                )}
-                                <SpeechBubble
-                                    href={`/@${this.props.series.owner}`}
-                                    alt={this.props.series.owner}
-                                    src={getUserImage(this.props.series.ownerImage)}
-                                >
-                                    {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
-                                </SpeechBubble>
-                                <div className="mt-5 mb-3 text-right">
-                                    <div className="btn btn-dark m-1" onClick={() => configStore.set((prevState) => ({
-                                        ...prevState,
-                                        isSortOldFirst: !isSortOldFirst
-                                    }))}>
-                                        {isSortOldFirst ? (
-                                            <>
-                                                <i className="fas fa-sort-up"/> 과거부터
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className="fas fa-sort-down"/> 최근부터
-                                            </>
-                                        )}
+                    <div className="row">
+                        <div className="col-lg-8 mx-auto">
+                            <h2 className="font-weight-bold h5 mb-3">
+                                '{seriesTitle}' 시리즈
+                            </h2>
+                            {this.props.series.owner == this.state.username && (
+                                <div className="mb-3">
+                                    <div className="btn btn-block btn-dark" onClick={() => this.onOpenModal('isSeriesModalOpen')}>
+                                        시리즈 수정
                                     </div>
                                 </div>
-                                {isSortOldFirst ? seriesPosts.map((post, idx) => (
-                                    <SeriesArticleCard
-                                        key={idx}
-                                        idx={idx}
-                                        author={this.props.series.owner}
-                                        {...post}
-                                    />
-                                )) : seriesPosts.map((post, idx) => (
-                                    <SeriesArticleCard
-                                        key={idx}
-                                        idx={idx}
-                                        author={this.props.series.owner}
-                                        {...post}
-                                    />
-                                )).reverse()}
+                            )}
+                            <SpeechBubble
+                                href={`/@${this.props.series.owner}`}
+                                alt={this.props.series.owner}
+                                src={getUserImage(this.props.series.ownerImage)}
+                            >
+                                {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
+                            </SpeechBubble>
+                            <div className="mt-5 mb-3 text-right">
+                                <Button
+                                    space="spare"
+                                    onClick={() => configStore.set((prevState) => ({
+                                        ...prevState,
+                                        isSortOldFirst: !isSortOldFirst
+                                    }))}
+                                >
+                                    {isSortOldFirst ? (
+                                        <>
+                                            <i className="fas fa-sort-up"/> 과거부터
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fas fa-sort-down"/> 최근부터
+                                        </>
+                                    )}
+                                </Button>
                             </div>
+                            {isSortOldFirst ? seriesPosts.map((post, idx) => (
+                                <SeriesArticleCard
+                                    key={idx}
+                                    idx={idx}
+                                    author={this.props.series.owner}
+                                    {...post}
+                                />
+                            )) : seriesPosts.map((post, idx) => (
+                                <SeriesArticleCard
+                                    key={idx}
+                                    idx={idx}
+                                    author={this.props.series.owner}
+                                    {...post}
+                                />
+                            )).reverse()}
                         </div>
                     </div>
                 </div>
+                <Footer/>
             </>
         );
     }

@@ -42,7 +42,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
     useEffect(authStore.syncValue('username', setUsername), []);
 
     useEffect(() => {
-        if (isLogin) {
+        if (isLogin && username) {
             if (username !== props.profile.username) {
                 API.getUserProfile('@' + props.profile.username, ['subscribe']).then(({ data }) => {
                     setHasSubscribe(data.body.subscribe.hasSubscribe);
