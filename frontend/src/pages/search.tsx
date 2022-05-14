@@ -1,6 +1,6 @@
 import React, {
     useEffect,
-    useState,
+    useState
 } from 'react';
 import type { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import {
     Footer,
     Pagination,
-    SearchBox,
+    SearchBox
 } from '@system-design/shared';
 import { Alert } from '@design-system';
 import { ArticleCard } from '@system-design/article';
@@ -20,14 +20,14 @@ import { lazyLoadResource } from '@modules/optimize/lazy';
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
         q = '',
-        page = 1,
+        page = 1
     } = context.query;
 
     return {
         props: {
             query: q,
-            page 
-        } 
+            page
+        }
     };
 }
 

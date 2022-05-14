@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { 
+import {
     Alert,
     Modal,
-    SplitLine,
+    SplitLine
 } from '@design-system';
 
 import { snackBar } from '@modules/ui/snack-bar';
@@ -75,7 +75,7 @@ export class SignupModal extends React.Component<Props, State> {
             return;
         }
         const { data } = await API.postSign(
-            this.state.username, 
+            this.state.username,
             this.state.password,
             this.state.email,
             this.state.realname
@@ -89,12 +89,10 @@ export class SignupModal extends React.Component<Props, State> {
             }
         }
         if (data.status === 'DONE') {
-            this.setState({
-                isDone: true
-            });
+            this.setState({ isDone: true });
         }
     }
-    
+
     render() {
         return (
             <Modal title="회원등록" isOpen={this.props.isOpen} onClose={() => this.props.onClose()}>

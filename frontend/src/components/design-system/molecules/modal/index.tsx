@@ -21,7 +21,7 @@ export function Modal({
     children,
     submitText,
     onClose,
-    onSubmit,
+    onSubmit
 }: Props) {
     useEffect(() => {
         if (isOpen) {
@@ -75,4 +75,4 @@ export function Modal({
             )}
         </>
     );
-} 
+}

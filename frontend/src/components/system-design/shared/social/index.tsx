@@ -22,11 +22,12 @@ export function Social(props: SocialProps) {
             {['github', 'twitter', 'youtube', 'facebook', 'instagram'].map((name) => (
                 props[name as keyof SocialProps] && (
                     <li key={name}>
-                        <a href={(
-                            name === 'youtube'
-                                ? `https://youtube.com/channel/${props.youtube}`
-                                : `https://${name}.com/${props[name as keyof SocialProps]}`
-                        )}>
+                        <a
+                            href={(
+                                name === 'youtube'
+                                    ? `https://youtube.com/channel/${props.youtube}`
+                                    : `https://${name}.com/${props[name as keyof SocialProps]}`
+                            )}>
                             <i className={`fab fa-${name}-square`}/>
                         </a>
                     </li>

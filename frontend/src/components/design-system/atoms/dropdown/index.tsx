@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import {
     useEffect,
     useRef,
-    useState,
+    useState
 } from 'react';
 
 export interface DropdownProps {
@@ -55,9 +55,10 @@ export function Dropdown(props: DropdownProps) {
                     <div className={cn('menu', position)}>
                         <ul>
                             {props.menus.map((menu, idx) => (
-                                <li key={idx} onClick={menu.onClick} className={cn({
-                                    disable: menu.disable 
-                                })}>
+                                <li
+                                    key={idx}
+                                    onClick={menu.onClick}
+                                    className={cn({ disable: menu.disable })}>
                                     <span>
                                         {menu.name}
                                     </span>

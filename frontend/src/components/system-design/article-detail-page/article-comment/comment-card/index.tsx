@@ -32,9 +32,7 @@ export function CommentCard(props: CommentCardProps) {
                             <a>
                                 <div
                                     className={`${cn('thumbnail')} back-image thumb`}
-                                    style={{
-                                        backgroundImage: `url(${props.authorImage})`
-                                    }}
+                                    style={{ backgroundImage: `url(${props.authorImage})` }}
                                 />
                             </a>
                         </Link>
@@ -71,9 +69,7 @@ export function CommentCard(props: CommentCardProps) {
                 </div>
                 <div
                     className={`${cn('content')} mt-4`}
-                    dangerouslySetInnerHTML={{
-                        __html: props.html 
-                    }}
+                    dangerouslySetInnerHTML={{ __html: props.html }}
                 />
                 <div className="my-2">
                     <ul className={`${cn('interactive')} none-list ns`}>

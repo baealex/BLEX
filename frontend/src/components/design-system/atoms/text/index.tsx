@@ -11,7 +11,7 @@ export interface TextProps {
 export function Text(props: TextProps) {
     const {
         fontSize = 4,
-        fontWeight = 400,
+        fontWeight = 400
     } = props;
     return (
         <>
@@ -19,7 +19,7 @@ export function Text(props: TextProps) {
                 className={cn(
                     'text',
                     `fs-${fontSize}`,
-                    fontWeight !== 400 && `fw-${fontWeight / 100}`,
+                    fontWeight !== 400 && `fw-${fontWeight / 100}`
                 )}
             >
                 {props.children}

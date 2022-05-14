@@ -3,14 +3,14 @@ import styles from './Layout.module.scss';
 const cn = classNames.bind(styles);
 
 import {
-    useEffect, useState 
+    useEffect, useState
 } from 'react';
 import { useRouter } from 'next/router';
 
 import {
     Footer,
     Social,
-    SocialProps,
+    SocialProps
 } from '@system-design/shared';
 import { Button } from '@components/design-system';
 import { ProfileNavigation } from '@system-design/profile';

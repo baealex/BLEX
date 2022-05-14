@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import {
     useEffect,
-    useState,
+    useState
 } from 'react';
 
 import { Alert } from '@design-system';
@@ -88,7 +88,7 @@ export function ArticleComment(props: ArticleCommentProps) {
             comment.pk === pk ? ({
                 ...comment,
                 isLiked: !comment.isLiked,
-                totalLikes: data.body.totalLikes,
+                totalLikes: data.body.totalLikes
             }) : comment
         )));
     };
@@ -110,15 +110,13 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const handleTag = async (tagUsername: string) => {
         if (!username) {
-            snackBar('😅 로그인이 필요합니다.', {
-                onClick: () => modalStore.onOpenModal('isLoginModalOpen')
-            });
+            snackBar('😅 로그인이 필요합니다.', { onClick: () => modalStore.onOpenModal('isLoginModalOpen') });
             return;
         }
 
         if (commentText.includes(`\`@${tagUsername}\``)) {
             snackBar(`😅 이미 ${tagUsername}님을 태그했습니다.`);
-            return; 
+            return;
         }
 
         setCommentText(commentText + ` \`@${tagUsername}\``);
@@ -133,7 +131,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                     ...comment,
                     isEdit: false,
                     isEdited: true,
-                    textHtml: blexer(content),
+                    textHtml: blexer(content)
                 }) : comment
             )));
             snackBar('😀 댓글이 수정되었습니다.');
@@ -145,7 +143,7 @@ export function ArticleComment(props: ArticleCommentProps) {
         setComments(comments.map(comment => (
             comment.pk == pk ? ({
                 ...comment,
-                isEdit: false,
+                isEdit: false
             }) : comment
         )));
     };
@@ -162,12 +160,12 @@ export function ArticleComment(props: ArticleCommentProps) {
                     setComments(response.data.body.comments.map(comment => ({
                         ...comment,
                         isEdit: false,
-                        textMarkdown: '',
+                        textMarkdown: ''
                     })));
                     lazyLoadResource();
                 });
             });
-    
+
             return () => {
                 observer?.disconnect();
                 authStore.unsubscribe('Comment');

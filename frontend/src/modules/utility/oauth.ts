@@ -6,7 +6,7 @@ export type OauthSocial =  'google' | 'github';
 export function oauth(social: OauthSocial) {
     setCookie('oauth_redirect', location.href, {
         path: '/',
-        expire: 0.1,
+        expire: 0.1
     });
     let url = '';
     switch (social) {

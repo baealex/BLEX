@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { Card } from '@design-system';
 import Link from 'next/link';
 
-export interface SettingNavigationProps { 
+export interface SettingNavigationProps {
     sticky?: boolean;
     active?: string;
 }
@@ -18,13 +18,13 @@ const NAVIGATION_ITEMS = [
             {
                 title: '계정',
                 name: 'account',
-                url: '/setting/account',
+                url: '/setting/account'
             },
             {
                 title: '프로필',
                 name: 'profile',
-                url: '/setting/profile',
-            },
+                url: '/setting/profile'
+            }
         ]
     },
     {
@@ -34,18 +34,18 @@ const NAVIGATION_ITEMS = [
             {
                 title: '포스트',
                 name: 'posts',
-                url: '/setting/posts',
+                url: '/setting/posts'
             },
             {
                 title: '서식',
                 name: 'forms',
-                url: '/setting/forms',
+                url: '/setting/forms'
             },
             {
                 title: '분석',
                 name: 'analytics',
-                url: '/setting/analytics',
-            },
+                url: '/setting/analytics'
+            }
         ]
     },
     {
@@ -55,10 +55,10 @@ const NAVIGATION_ITEMS = [
             {
                 title: '시리즈',
                 name: 'series',
-                url: '/setting/series',
-            },
+                url: '/setting/series'
+            }
         ]
-    },
+    }
 ];
 
 export function SettingNavigation(props: SettingNavigationProps) {
@@ -66,9 +66,8 @@ export function SettingNavigation(props: SettingNavigationProps) {
 
     return (
         <Card hasShadow shadowLevel="sub" className="mb-3">
-            <div className={cn('box', 'py-2', {
-                sticky 
-            })}>
+            <div
+                className={cn('box', 'py-2', { sticky })}>
                 {NAVIGATION_ITEMS.map(item => (
                     <div key={item.title} className={cn('section')}>
                         <div className={cn('title', 'px-3', 'py-2')}>
@@ -78,12 +77,13 @@ export function SettingNavigation(props: SettingNavigationProps) {
                             {item.subItems?.map(subItem => (
                                 <Link key={subItem.url} href={subItem.url} scroll={false}>
                                     <a>
-                                        <div key={subItem.url} className={cn(
-                                            'px-3', 'py-2',
-                                            {
-                                                active: props.active == subItem.name 
-                                            }
-                                        )}>
+                                        <div
+                                            key={subItem.url}
+                                            className={cn(
+                                                'px-3',
+                                                'py-2',
+                                                { active: props.active == subItem.name }
+                                            )}>
                                             {subItem.title}
                                         </div>
                                     </a>

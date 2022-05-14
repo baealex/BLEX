@@ -1,6 +1,6 @@
 import {
     TagProps,
-    Tags,
+    Tags
 } from './tags';
 import { Articles } from './articles';
 

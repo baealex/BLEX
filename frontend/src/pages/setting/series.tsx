@@ -1,6 +1,6 @@
 import type {
     GetServerSidePropsContext,
-    GetServerSidePropsResult,
+    GetServerSidePropsResult
 } from 'next';
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -17,22 +17,19 @@ import { loadingStore } from '@stores/loading';
 
 type Props = API.GetSettingSeriesData
 
-export async function getServerSideProps({ req, }: GetServerSidePropsContext
+export async function getServerSideProps({ req }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
-    const { data } = await API.getSettingSeries({
-        'Cookie': req.headers.cookie || '',
-    });
+    const { data } = await API.getSettingSeries({ 'Cookie': req.headers.cookie || '' });
+
     if (data.status === 'ERROR') {
         return {
             redirect: {
                 destination: '/',
-                permanent: false,
+                permanent: false
             }
         };
     }
-    return {
-        props: data.body
-    };
+    return { props: data.body };
 }
 
 const SeriesSetting: PageComponent<Props> = (props) => {
@@ -61,13 +58,13 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                 setSeries((prevSeries) => prevSeries
                     .filter(series => series.url !== url));
                 snackBar(message('AFTER_REQ_DONE', '시리즈가 삭제되었습니다.'));
-            }   
+            }
         }
     };
 
     const onSeriesChangeIndex = async (url: string, prevIdx: number, nextIdx: number) => {
         if (nextIdx < 0 || nextIdx > series.length - 1) return;
-        
+
         loadingStore.start();
 
         const nextIndexies = series.map((item, idx) => {

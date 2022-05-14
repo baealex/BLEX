@@ -15,7 +15,7 @@ const INIT_STATE = {
     notify: [],
     isFirstLogin: false,
     isTelegramSync: false,
-    is2faSync: false,
+    is2faSync: false
 };
 
 class AuthStore extends Store<AuthStoreState> {

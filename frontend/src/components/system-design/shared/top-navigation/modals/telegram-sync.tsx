@@ -18,9 +18,7 @@ interface State {
 export class TelegramSyncModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {
-            token: '',
-        };
+        this.state = { token: '' };
     }
 
     async componentDidUpdate() {
@@ -30,12 +28,10 @@ export class TelegramSyncModal extends React.Component<Props, State> {
                 snackBar(message('AFTER_REQ_ERR', data.errorMessage));
                 return;
             }
-            this.setState({
-                token: data.body.token || ''
-            });
+            this.setState({ token: data.body.token || '' });
         }
     }
-    
+
     render() {
         return (
             <Modal

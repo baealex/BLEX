@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import React, {
     useEffect,
     useRef,
-    useState,
+    useState
 } from 'react';
 
 import { ArticleContent } from '@components/system-design/article-detail-page';
@@ -43,7 +43,7 @@ const initialContents: Content[] = [
     {
         type: 'line',
         text: ''
-    },
+    }
 ];
 
 export function EditorContent(props: EditorContentProps) {
@@ -66,7 +66,7 @@ export function EditorContent(props: EditorContentProps) {
     const [ active, setActive ] = useState(contents.length - 1);
     const [ modal, setModal ] = useState({
         isOpenForms: false,
-        isOpenYoutube: false,
+        isOpenYoutube: false
     });
 
     useEffect(() => {
@@ -115,7 +115,7 @@ export function EditorContent(props: EditorContentProps) {
                     const text = lineStack.join('\n');
                     newContents.push({
                         type,
-                        text 
+                        text
                     });
                     lineStack.splice(0, lineStack.length);
                     continue;
@@ -132,7 +132,7 @@ export function EditorContent(props: EditorContentProps) {
             if (textLine === '' && textAcc) {
                 newContents.push({
                     type,
-                    text: textAcc 
+                    text: textAcc
                 });
                 textAcc = '';
                 continue;
@@ -141,7 +141,7 @@ export function EditorContent(props: EditorContentProps) {
             if (textLine === '<br>' || textLine === '<br/>') {
                 newContents.push({
                     type,
-                    text: '' 
+                    text: ''
                 });
                 continue;
             }
@@ -155,7 +155,7 @@ export function EditorContent(props: EditorContentProps) {
             return [
                 ...prevState.slice(0, active + (text ? 1 : 0)),
                 ...newContents,
-                ...prevState.slice(active + 1, prevState.length),
+                ...prevState.slice(active + 1, prevState.length)
             ];
         });
         setActive(active => active + newContents.length);
@@ -183,9 +183,9 @@ export function EditorContent(props: EditorContentProps) {
                     ...contents.slice(0, active + 1),
                     {
                         type: 'line',
-                        text: '',
+                        text: ''
                     },
-                    ...contents.slice(active + 1, contents.length),
+                    ...contents.slice(active + 1, contents.length)
                 ]);
                 setActive(active => active + 1);
             }
@@ -198,9 +198,9 @@ export function EditorContent(props: EditorContentProps) {
                     ...contents.slice(0, active + 1),
                     {
                         type: 'line',
-                        text: '',
+                        text: ''
                     },
-                    ...contents.slice(active + 1, contents.length),
+                    ...contents.slice(active + 1, contents.length)
                 ]);
                 setActive(active => active + 1);
             }
@@ -211,7 +211,7 @@ export function EditorContent(props: EditorContentProps) {
             if (active > 0) {
                 setContents(contents => [
                     ...contents.slice(0, active),
-                    ...contents.slice(active + 1, contents.length),
+                    ...contents.slice(active + 1, contents.length)
                 ]);
                 setActive(active => active - 1);
             }
@@ -224,14 +224,14 @@ export function EditorContent(props: EditorContentProps) {
         const h = [
             '## ',
             '#### ',
-            '###### ',
+            '###### '
         ];
-        
+
         const keyword = h[level];
 
         setContents((prevState) => {
             const nextState = [...prevState];
-            
+
             let text = nextState[active].text;
 
             if (prevState[active].text.startsWith(keyword)) {
@@ -257,7 +257,7 @@ export function EditorContent(props: EditorContentProps) {
 
         const {
             selectionStart,
-            selectionEnd,
+            selectionEnd
         } = ref.current;
 
         if (selectionStart === selectionEnd) {
@@ -270,7 +270,7 @@ export function EditorContent(props: EditorContentProps) {
             const text = nextState[active].text;
             let selectionText = text.slice(
                 selectionStart,
-                selectionEnd,
+                selectionEnd
             );
             const textStart = text.slice(0, selectionStart);
             const textEnd = text.slice(selectionEnd, text.length);
@@ -290,7 +290,7 @@ export function EditorContent(props: EditorContentProps) {
     const handleClickBlockHelper = (type: 'line' | 'lines', data: string) => {
         setContents((prevState) => {
             const nextState = [...prevState];
-            
+
             const text = nextState[active].text;
 
             if (!text) {
@@ -305,14 +305,14 @@ export function EditorContent(props: EditorContentProps) {
                     ...prevState.slice(0, active + 1),
                     {
                         type,
-                        text: data,
+                        text: data
                     },
                     {
                         type: 'line',
-                        text: '',
+                        text: ''
                     },
-                    ...prevState.slice(active + 1, prevState.length),
-                ];   
+                    ...prevState.slice(active + 1, prevState.length)
+                ];
             }
 
             return nextState;
@@ -334,7 +334,7 @@ export function EditorContent(props: EditorContentProps) {
     const modalToggle = (name: keyof typeof modal) => {
         setModal((prevState) => ({
             ...prevState,
-            [name]: !prevState[name],
+            [name]: !prevState[name]
         }));
     };
 
@@ -344,9 +344,7 @@ export function EditorContent(props: EditorContentProps) {
                 ref={imageInput}
                 type="file"
                 accept="image/*"
-                style={{
-                    display: 'none'
-                }}
+                style={{ display: 'none' }}
                 onChange={(e) => {
                     if (e.target.files) {
                         handleUploadImage(e.target.files[0]);
@@ -433,7 +431,7 @@ export function EditorContent(props: EditorContentProps) {
                     </div>
                 ))}
             </div>
-            
+
             <YoutubeModal
                 isOpen={modal.isOpenYoutube}
                 onClose={() => modalToggle('isOpenYoutube')}

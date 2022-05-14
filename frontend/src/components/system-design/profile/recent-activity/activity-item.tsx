@@ -8,7 +8,7 @@ export interface ActivityItemProps {
 
 export function ActivityItem(props: ActivityItemProps) {
     const className = `fas fa-${props.type}`;
-    
+
     let desc = '';
     switch (props.type) {
     case 'edit':

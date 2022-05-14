@@ -1,6 +1,6 @@
 import type {
     GetServerSidePropsContext,
-    GetServerSidePropsResult,
+    GetServerSidePropsResult
 } from 'next';
 import React from 'react';
 import Router from 'next/router';
@@ -14,7 +14,7 @@ import { PopOver } from '@design-system';
 import * as API from '@modules/api';
 import {
     DebounceEventRunner,
-    debounceEvent,
+    debounceEvent
 } from '@modules/optimize/event';
 import { snackBar } from '@modules/ui/snack-bar';
 
@@ -25,27 +25,19 @@ interface Props {
     username: string;
 }
 
-export async function getServerSideProps({ req, }: GetServerSidePropsContext
+export async function getServerSideProps({ req }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
     const { cookies } = req;
     configStore.serverSideInject(cookies);
 
     const { cookie } = req.headers;
-    const { data } = await API.getLogin({
-        'Cookie': cookie || '',
-    });
+    const { data } = await API.getLogin({ 'Cookie': cookie || '' });
 
     if (data.status !== 'DONE') {
-        return {
-            notFound: true,
-        };
+        return { notFound: true };
     }
-    
-    return {
-        props: {
-            username: data.body.username
-        }
-    };
+
+    return { props: { username: data.body.username } };
 }
 
 interface State {
@@ -90,21 +82,18 @@ class Write extends React.Component<Props, State> {
             isAutoSave: configStore.state.isAutoSave,
             isOpenArticleModal: false,
             tempPosts: [],
-            tempPostsCache: {
-            }
+            tempPostsCache: {}
         };
         this.authUpdateKey = authStore.subscribe((state) => {
-            this.setState({
-                username: state.username,
-            });
+            this.setState({ username: state.username });
         });
         this.configUpdateKey = configStore.subscribe((state) => {
-            this.setState({
-                isAutoSave: state.isAutoSave,
-            });
+            this.setState({ isAutoSave: state.isAutoSave });
         });
         this.saver = debounceEvent(() => {
-            const { token, title, content, tags } = this.state;
+            const {
+                token, title, content, tags
+            } = this.state;
             this.onTempSave(token, title, content, tags);
         }, 5000);
     }
@@ -119,14 +108,10 @@ class Write extends React.Component<Props, State> {
     async componentDidMount() {
         const { data } = await API.getTempPosts();
         if (data.body.temps.length > 0) {
-            this.setState({
-                tempPosts: data.body.temps
-            });
+            this.setState({ tempPosts: data.body.temps });
             snackBar('😀 작성하던 포스트가 있으시네요!', {
                 onClick: () => {
-                    this.setState({
-                        isOpenArticleModal: true
-                    });
+                    this.setState({ isOpenArticleModal: true });
                 }
             });
         }
@@ -137,10 +122,12 @@ class Write extends React.Component<Props, State> {
     async fetchTempPosts(token='') {
         if (token) {
             const { tempPostsCache } = this.state;
-            
+
             // 캐시가 존재하는 경우
             if (tempPostsCache[token]) {
-                const { title, content, tags } = tempPostsCache[token];
+                const {
+                    title, content, tags
+                } = tempPostsCache[token];
                 this.setState({
                     title,
                     content,
@@ -162,7 +149,7 @@ class Write extends React.Component<Props, State> {
                     [data.body.token]: {
                         title: data.body.title,
                         content: data.body.textMd,
-                        tags: data.body.tags.join(','),
+                        tags: data.body.tags.join(',')
                     }
                 }
             });
@@ -201,7 +188,7 @@ class Write extends React.Component<Props, State> {
                 tag: this.state.tags,
                 series: this.state.series,
                 is_hide: JSON.stringify(this.state.isHide),
-                is_advertise: JSON.stringify(this.state.isAd),
+                is_advertise: JSON.stringify(this.state.isAd)
             });
             Router.push('/[author]/[posturl]', `/@${this.state.username}/${data.body.url}`);
         } catch (e) {
@@ -216,7 +203,7 @@ class Write extends React.Component<Props, State> {
             if (data.status === 'DONE') {
                 this.setState({
                     token: '',
-                    tempPosts: this.state.tempPosts.filter(post => 
+                    tempPosts: this.state.tempPosts.filter(post =>
                         post.token !== token
                     )
                 });
@@ -230,9 +217,7 @@ class Write extends React.Component<Props, State> {
             const date = new Date();
             title = date.toLocaleString();
             if (this.state.token == token) {
-                this.setState({
-                    title 
-                });
+                this.setState({ title });
             }
         }
 
@@ -262,7 +247,7 @@ class Write extends React.Component<Props, State> {
             if (data.status === 'ERROR') {
                 if (data.errorCode === API.ERROR.OVER_FLOW) {
                     snackBar('😥 임시 저장글 갯수가 초과했습니다');
-                    return;    
+                    return;
                 }
             }
             this.setState({
@@ -286,56 +271,40 @@ class Write extends React.Component<Props, State> {
     }
 
     render() {
-        const { tempPosts, } = this.state;
+        const { tempPosts } = this.state;
 
         return (
             <EditorLayout
                 title={{
                     value: this.state.title,
-                    onChange: (value: string) => this.setState({
-                        title: value
-                    }),
+                    onChange: (value: string) => this.setState({ title: value })
                 }}
                 content={{
                     value: this.state.content,
                     onChange: (value: string) => {
-                        this.setState({
-                            content: value
-                        });
+                        this.setState({ content: value });
                         if (this.state.isAutoSave) {
                             this.saver();
                         }
-                    },
+                    }
                 }}
                 series={{
                     value: this.state.series,
-                    onChange: (value) => this.setState({
-                        series: value
-                    }),
+                    onChange: (value) => this.setState({ series: value })
                 }}
                 tags={{
                     value: this.state.tags,
-                    onChange: (value) => this.setState({
-                        tags: value
-                    }),
+                    onChange: (value) => this.setState({ tags: value })
                 }}
                 isHide={{
                     value: this.state.isHide,
-                    onChange: (value) => this.setState({
-                        isHide: value
-                    })
+                    onChange: (value) => this.setState({ isHide: value })
                 }}
                 isAd={{
                     value: this.state.isAd,
-                    onChange: (value) => this.setState({
-                        isAd: value
-                    })
+                    onChange: (value) => this.setState({ isAd: value })
                 }}
-                image={{
-                    onChange: (image) => this.setState({
-                        image: image
-                    })
-                }}
+                image={{ onChange: (image) => this.setState({ image: image }) }}
                 publish={{
                     title: '포스트 발행',
                     buttonText: '이대로 발행하겠습니다'
@@ -344,18 +313,22 @@ class Write extends React.Component<Props, State> {
                 addon={{
                     sideButton: (
                         <>
-                            <li className="mx-3 mx-lg-4" onClick={() => this.setState({
-                                isOpenArticleModal: true
-                            })}>
+                            <li
+                                className="mx-3 mx-lg-4"
+                                onClick={() => this.setState({ isOpenArticleModal: true })}>
                                 <PopOver text="임시 저장된 글">
                                     <i className="far fa-save"/>
                                 </PopOver>
                             </li>
-                            <li className="mx-3 mx-lg-4" onClick={() => {
-                                if (confirm('🤔 이 링크는 노션으로 연결됩니다. 연결하시겠습니까?')) {
-                                    window.open('about:blank')!.location.href = '//notion.so/b3901e0837ec40e3983d16589314b59a';
-                                }
-                            }}>
+                            <li
+                                className="mx-3 mx-lg-4"
+                                onClick={() => {
+                                    if (confirm('🤔 이 링크는 노션으로 연결됩니다. 연결하시겠습니까?')) {
+                                        window.open('about:blank')!.location.href = (
+                                            '//notion.so/b3901e0837ec40e3983d16589314b59a'
+                                        );
+                                    }
+                                }}>
                                 <PopOver text="도움말 보기">
                                     <i className="fas fa-question"></i>
                                 </PopOver>
@@ -366,16 +339,16 @@ class Write extends React.Component<Props, State> {
                         <TempArticleModal
                             token={this.state.token}
                             isOpen={this.state.isOpenArticleModal}
-                            onClose={() => this.setState({
-                                isOpenArticleModal: false
-                            })}
+                            onClose={() => this.setState({ isOpenArticleModal: false })}
                             isAutoSave={this.state.isAutoSave}
                             onCheckAutoSave={this.onCheckAutoSave.bind(this)}
                             tempPosts={tempPosts}
                             onDelete={this.onDeleteTempPost.bind(this)}
                             onFetch={this.fetchTempPosts.bind(this)}
                             onSave={() => {
-                                const { token, title, content, tags } = this.state;
+                                const {
+                                    token, title, content, tags
+                                } = this.state;
                                 this.onTempSave(token, title, content, tags);
                             }}
                         />

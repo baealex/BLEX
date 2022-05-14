@@ -1,17 +1,17 @@
 import type {
     GetServerSidePropsContext,
-    GetServerSidePropsResult,
+    GetServerSidePropsResult
 } from 'next';
 import React, {
     useEffect,
-    useState,
+    useState
 } from 'react';
 
 import {
     Alert,
     Button,
     CheckBox,
-    Text,
+    Text
 } from '@design-system';
 import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
@@ -25,22 +25,20 @@ import { modalStore } from '@stores/modal';
 
 type Props = API.GetSettingAccountData
 
-export async function getServerSideProps({ req, }: GetServerSidePropsContext
+export async function getServerSideProps({ req }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
-    const { data } = await API.getSettingAcount({
-        'Cookie': req.headers.cookie || '',
-    });
+    const { data } = await API.getSettingAcount({ 'Cookie': req.headers.cookie || '' });
+
     if (data.errorCode === API.ERROR.NOT_LOGIN) {
         return {
             redirect: {
                 destination: '/',
-                permanent: false,
+                permanent: false
             }
         };
     }
-    return {
-        props: data.body
-    };
+
+    return { props: data.body };
 }
 
 const AccountSetting: PageComponent<Props> = (props) => {
@@ -57,9 +55,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
     useEffect(authStore.syncValue('is2faSync', setIs2faSync), []);
 
     const onChangeUsername = async () => {
-        const { data } = await API.patchSign({
-            username 
-        });
+        const { data } = await API.patchSign({ username });
         if (data.status === 'ERROR') {
             snackBar(message('AFTER_REQ_ERR', data.errorMessage));
             setUsername(props.username);
@@ -70,15 +66,14 @@ const AccountSetting: PageComponent<Props> = (props) => {
             snackBar('😀 아이디가 변경되었습니다.');
             authStore.set((state) => ({
                 ...state,
-                username: username,
+                username: username
             }));
             setChangeUsername(false);
         }
     };
 
     const onSubmit = async () => {
-        const sendData: any = {
-        };
+        const sendData: any = {};
         if (!realname) {
             snackBar('🤔 이름은 비워둘 수 없습니다.');
             return;
@@ -124,7 +119,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
             snackBar('😀 2차 인증이 해제되었습니다.');
             authStore.set((prevState) => ({
                 ...prevState,
-                is2faSync: false,
+                is2faSync: false
             }));
             return;
         }
@@ -150,10 +145,11 @@ const AccountSetting: PageComponent<Props> = (props) => {
                                 <Button gap="little" onClick={() => onChangeUsername()}>
                                     업데이트
                                 </Button>
-                                <Button onClick={() => {
-                                    setChangeUsername(false);
-                                    setUsername(props.username);
-                                }}>
+                                <Button
+                                    onClick={() => {
+                                        setChangeUsername(false);
+                                        setUsername(props.username);
+                                    }}>
                                     취소
                                 </Button>
                             </div>

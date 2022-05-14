@@ -1,6 +1,6 @@
 import {
     ArticleCardSmall,
-    ArticleCardSmallProps,
+    ArticleCardSmallProps
 } from '@system-design/article';
 
 export interface FeaturedArticlesProps {

@@ -7,7 +7,7 @@ export interface TableProps {
 
 export function Table({
     head,
-    body,
+    body
 }: TableProps) {
     return (
         <div className={styles.wrap}>
@@ -15,7 +15,7 @@ export function Table({
                 <thead>
                     <tr>
                         {head.map((text, idx) => (
-                            <th key={idx}>{text}</th>    
+                            <th key={idx}>{text}</th>
                         ))}
                     </tr>
                 </thead>

@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import {
     ChangeEvent,
-    useRef,
+    useRef
 } from 'react';
 
 export interface ImageInputProps {
@@ -39,9 +39,7 @@ export function ImageInput(props: ImageInputProps) {
             <input
                 ref={input}
                 type="file"
-                style={{
-                    display: 'none'
-                }}
+                style={{ display: 'none' }}
                 accept="image/*"
                 onChange={(e) => onChangeImage(e)}
             />

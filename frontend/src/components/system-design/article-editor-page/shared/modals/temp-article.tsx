@@ -1,7 +1,7 @@
 import {
     Card,
     Modal,
-    Toggle,
+    Toggle
 } from '@design-system';
 
 import * as API from '@modules/api';

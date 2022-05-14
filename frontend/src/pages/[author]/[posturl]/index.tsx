@@ -12,10 +12,10 @@ import {
     ArticleCover,
     ArticleSeries,
     ArticleThanks,
-    RelatedArticles,
+    RelatedArticles
 } from '@system-design/article-detail-page';
 import {
-    Footer, SEO 
+    Footer, SEO
 } from '@system-design/shared';
 import { TagBadges } from '@system-design/tag';
 import { Toggle } from '@design-system';
@@ -54,12 +54,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     configStore.serverSideInject(cookies);
 
     const { req } = context;
-    const { author = '', posturl = '' } = context.query;
-    
+    const {
+        author = '', posturl = ''
+    } = context.query;
+
     if (!author.includes('@') || !posturl) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     const { cookie } = context.req.headers;
@@ -76,7 +76,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 user_agent: req.headers['user-agent'],
                 referer: req.headers.referer ? req.headers.referer : '',
                 ip: req.headers['x-real-ip'] || req.socket.remoteAddress,
-                time: new Date().getTime(),
+                time: new Date().getTime()
             }, cookie);
         } catch (e) {
             // pass
@@ -85,7 +85,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         const profile = await API.getUserProfile(author as string, [
             'profile'
         ]);
-        
+
         if (post.data.body.series) {
             const series = await API.getAnUserSeries(
                 author as string,
@@ -114,9 +114,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 
@@ -176,19 +174,15 @@ class PostDetail extends React.Component<Props, State> {
         const headersTags = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
         if ('IntersectionObserver' in window) {
             const headerNav: string[][] = [];
-            
+
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        this.setState({
-                            headerNow: entry.target.id
-                        });
+                        this.setState({ headerNow: entry.target.id });
                     }
                 });
-            }, {
-                rootMargin: '0px 0px -95%',
-            });
-            
+            }, { rootMargin: '0px 0px -95%' });
+
             headersTags.forEach(header => {
                 if (header.id) {
                     let idNumber = 0;
@@ -207,30 +201,32 @@ class PostDetail extends React.Component<Props, State> {
                         break;
                     }
                     headerNav.push([
-                        idNumber.toString(), header.id, header.textContent ? header.textContent : '' 
+                        idNumber.toString(), header.id, header.textContent ? header.textContent : ''
                     ]);
                     observer.observe(header);
                 }
             });
 
-            this.setState({
-                headerNav
-            });
+            this.setState({ headerNav });
         }
     }
 
     onEdit() {
-        const { author, url } = this.props.post;
+        const {
+            author, url
+        } = this.props.post;
         Router.push(`/@${author}/${url}/edit`);
     }
 
     async onDelete() {
         if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { author, url } = this.props.post;
+            const {
+                author, url
+            } = this.props.post;
             const { data } = await API.deleteAnUserPosts('@' + author, url);
             if (data.status === 'DONE') {
                 snackBar('😀 포스트가 삭제되었습니다.');
-            }   
+            }
         }
     }
 
@@ -276,18 +272,19 @@ class PostDetail extends React.Component<Props, State> {
                                         const { isOpenNewTab } = configStore.state;
                                         configStore.set((prevState) => ({
                                             ...prevState,
-                                            isOpenNewTab: !isOpenNewTab,
+                                            isOpenNewTab: !isOpenNewTab
                                         }));
                                     }}
                                     defaultChecked={configStore.state.isOpenNewTab}
                                 />
                             </div>
                             <ArticleContent html={this.props.post.textHtml}/>
-                            <TagBadges items={this.props.post.tags.map(item => (
-                                <Link href={`/@${this.props.post.author}/posts/${item}`}>
-                                    <a>{item}</a>
-                                </Link>
-                            ))}/>
+                            <TagBadges
+                                items={this.props.post.tags.map(item => (
+                                    <Link href={`/@${this.props.post.author}/posts/${item}`}>
+                                        <a>{item}</a>
+                                    </Link>
+                                ))}/>
                             <ArticleThanks
                                 author={this.props.post.author}
                                 url={this.props.post.url}

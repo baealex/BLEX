@@ -27,12 +27,8 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
                                 styles.image,
                                 'lazy'
                             )}
-                            src={getPostsImage(props.image, {
-                                preview: true 
-                            })}
-                            data-src={getPostsImage(props.image, {
-                                minify: true 
-                            })}
+                            src={getPostsImage(props.image, { preview: true })}
+                            data-src={getPostsImage(props.image, { minify: true })}
                         />
                         <div className="p-3">
                             <div>

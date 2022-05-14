@@ -45,11 +45,12 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                     props.activeSeries >= idx - 2 && props.activeSeries <= idx + 2 && (
                         <li key={idx}>
                             <Link href="/[author]/[posturl]" as={`/@${props.owner}/${post.url}`}>
-                                <a className={cn(
-                                    idx == props.activeSeries
-                                        ? 'deep-dark'
-                                        : 'shallow-dark',
-                                )}>
+                                <a
+                                    className={cn(
+                                        idx == props.activeSeries
+                                            ? 'deep-dark'
+                                            : 'shallow-dark'
+                                    )}>
                                     {post.title}
                                 </a>
                             </Link>

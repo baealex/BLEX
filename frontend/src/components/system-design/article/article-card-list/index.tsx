@@ -27,12 +27,8 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     {props.image && (
                         <img
                             className="lazy"
-                            src={getPostsImage(props.image, {
-                                preview: true 
-                            })}
-                            data-src={getPostsImage(props.image, {
-                                minify: true 
-                            })}
+                            src={getPostsImage(props.image, { preview: true })}
+                            data-src={getPostsImage(props.image, { minify: true })}
                             height="400"
                         />
                     )}
@@ -55,11 +51,12 @@ export function ArticleCardList(props: ArticleCardListProps) {
             <p className="vs">
                 {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
             </p>
-            <TagBadges items={props.tags.map(item => (
-                <Link href={`/@${props.author}/posts/${item}`}>
-                    <a>{item}</a>
-                </Link>
-            ))}/>
+            <TagBadges
+                items={props.tags.map(item => (
+                    <Link href={`/@${props.author}/posts/${item}`}>
+                        <a>{item}</a>
+                    </Link>
+                ))}/>
         </div>
     );
 }

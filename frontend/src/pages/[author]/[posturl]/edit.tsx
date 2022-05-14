@@ -16,20 +16,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     } = context.query;
 
     if (!author.includes('@') || !posturl) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     try {
         const cookie = req.headers.cookie;
-        
+
         const posts = (await API.getAnUserPostsEdit(
             author as string,
             posturl as string,
             cookie)
         ).data;
-    
+
         return {
             props: {
                 posturl: posturl,
@@ -38,9 +36,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 
@@ -78,7 +74,7 @@ export default function Edit(props: Props) {
                 tag: tags,
                 series,
                 is_hide: JSON.stringify(isHide),
-                is_advertise: JSON.stringify(isAdvertise),
+                is_advertise: JSON.stringify(isAdvertise)
             });
             if (data.status === 'DONE') {
                 Router.push('/[author]/[posturl]', `/${props.username}/${props.posturl}`);
@@ -88,32 +84,32 @@ export default function Edit(props: Props) {
             onFail();
         }
     };
-    
+
     return (
         <EditorLayout
             title={{
                 value: title,
-                onChange: setTitle,
+                onChange: setTitle
             }}
             content={{
                 value: content,
-                onChange: setContent,
+                onChange: setContent
             }}
             series={{
                 value: series,
-                onChange: setSeries,
+                onChange: setSeries
             }}
             tags={{
                 value: tags,
-                onChange: setTags,
+                onChange: setTags
             }}
             isHide={{
                 value: isHide,
-                onChange: setIsHide,
+                onChange: setIsHide
             }}
             isAd={{
                 value: isAdvertise,
-                onChange: setIsAdvertise,
+                onChange: setIsAdvertise
             }}
             image={{
                 onChange: (image) => {

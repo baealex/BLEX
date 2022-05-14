@@ -28,7 +28,7 @@ export function clearSnackBar() {
 
 export function snackBar(text: string, options?: SnackBarOptions) {
     clearSnackBar();
-    
+
     const snackBar = document.createElement('div');
     snackBar.textContent = text;
     snackBar.classList.add(style['snack-bar']);

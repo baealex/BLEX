@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import React, {
     useEffect,
     useRef,
-    useState,
+    useState
 } from 'react';
 
 import { PopOver } from '@components/design-system';
@@ -20,7 +20,7 @@ import {
 import * as API from '@modules/api';
 import {
     dropImage,
-    uploadImage,
+    uploadImage
 } from '@modules/utility/image';
 import blexer from '@modules/utility/blexer';
 import { lazyLoadResource } from '@modules/optimize/lazy';
@@ -43,7 +43,7 @@ export function EditorContent(props: EditorContentProps) {
     const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
     const [ modal, setModal ] = useState({
         isOpenForms: false,
-        isOpenYoutube: false,
+        isOpenYoutube: false
     });
 
     useEffect(() => {
@@ -136,7 +136,7 @@ export function EditorContent(props: EditorContentProps) {
     const modalToggle = (name: keyof typeof modal) => {
         setModal((prevState) => ({
             ...prevState,
-            [name]: !prevState[name],
+            [name]: !prevState[name]
         }));
     };
 
@@ -146,9 +146,7 @@ export function EditorContent(props: EditorContentProps) {
                 ref={imageInput}
                 type="file"
                 accept="image/*"
-                style={{
-                    display: 'none'
-                }}
+                style={{ display: 'none' }}
                 onChange={(e) => {
                     if (e.target.files) {
                         handleUploadImage(e.target.files[0]);
@@ -166,9 +164,7 @@ export function EditorContent(props: EditorContentProps) {
                             ref={textarea}
                             className={cn(
                                 'content',
-                                {
-                                    isEdit 
-                                }
+                                { isEdit }
                             )}
                             value={props.value}
                             placeholder="마크다운으로 글을 작성하세요."
@@ -178,9 +174,7 @@ export function EditorContent(props: EditorContentProps) {
                             ref={preview}
                             className={cn(
                                 'preview',
-                                {
-                                    isEdit 
-                                }
+                                { isEdit }
                             )}
                         >
                             <ArticleContent isEdit html={blexer(props.value)} />
@@ -223,7 +217,7 @@ export function EditorContent(props: EditorContentProps) {
                     </div>
                 </div>
             </div>
-            
+
             <YoutubeModal
                 isOpen={modal.isOpenYoutube}
                 onClose={() => modalToggle('isOpenYoutube')}

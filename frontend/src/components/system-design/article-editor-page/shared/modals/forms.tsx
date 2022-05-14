@@ -1,6 +1,6 @@
 import {
     Card,
-    Modal,
+    Modal
 } from '@design-system';
 
 import * as API from '@modules/api';

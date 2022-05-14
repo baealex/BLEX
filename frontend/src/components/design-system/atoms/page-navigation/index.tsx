@@ -3,7 +3,7 @@ import styles from './PageNavigation.module.scss';
 const cn = classNames.bind(styles);
 
 import {
-    useEffect, useState 
+    useEffect, useState
 } from 'react';
 import Link from 'next/link';
 
@@ -27,9 +27,9 @@ export function PageNavigation(props: PageNavigationProps) {
         <ul className={cn('nav')}>
             <span className={cn('line', 'active-' + active)}/>
             {props.items.map((item, idx) => (
-                <li key={idx} className={cn({
-                    active: item.name === props.active
-                })}>
+                <li
+                    key={idx}
+                    className={cn({ active: item.name === props.active })}>
                     {props.disableLink ? (
                         item.name
                     ) : (

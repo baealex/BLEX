@@ -2,7 +2,7 @@ import { Alert } from '@design-system';
 
 import {
     ArticleCardList,
-    ArticleCardListProps,
+    ArticleCardListProps
 } from '@system-design/article';
 
 export interface ArticlesProps {

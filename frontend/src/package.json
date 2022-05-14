@@ -6,7 +6,8 @@
         "dev": "next dev",
         "build": "next build",
         "start": "NODE_OPTIONS=--max_old_space_size=4096 next start",
-        "test": "jest"
+        "test": "jest",
+        "eslint": "eslint ."
     },
     "dependencies": {
         "@hcaptcha/react-hcaptcha": "^1.0.0",

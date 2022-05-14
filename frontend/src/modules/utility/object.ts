@@ -5,12 +5,12 @@ interface SortedOptions<T> {
 
 export function sorted<T>(list: readonly T[], {
     key = undefined,
-    reverse = false,
+    reverse = false
 }: SortedOptions<T>) {
     const newList = [...list];
 
     if (key) {
-        newList.sort((left, right) => 
+        newList.sort((left, right) =>
             left[key] < right[key]
                 ? -1
                 : left[key] > right[key]

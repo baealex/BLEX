@@ -18,23 +18,18 @@ export function Card({
     shadowLevel = 'main',
     fillBack = false,
     className = '',
-    children,
+    children
 }: CardProps) {
     return (
-        <div className={cn(
-            'card',
-            {
-                ir: isRounded 
-            },
-            {
-                hs: hasShadow 
-            },
-            hasShadow && 'sl-' + shadowLevel,
-            {
-                fb: fillBack 
-            },
-            className,
-        )}>
+        <div
+            className={cn(
+                'card',
+                { ir: isRounded },
+                { hs: hasShadow },
+                hasShadow && 'sl-' + shadowLevel,
+                { fb: fillBack },
+                className
+            )}>
             {children}
         </div>
     );

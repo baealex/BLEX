@@ -1,7 +1,7 @@
 import {
     useEffect,
     useRef,
-    useState,
+    useState
 } from 'react';
 import Link from 'next/link';
 
@@ -25,7 +25,10 @@ export function RelatedArticles(props: RelatedProps) {
 
     useEffect(() => {
         const observer = lazyIntersection('.feature-articles', async () => {
-            const { author, url } = props;
+            const {
+                author,
+                url
+            } = props;
             const { data } = await API.getFeaturePosts('@'+ author, url);
             setPosts(data.body.posts);
             lazyLoadResource();

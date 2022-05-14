@@ -1,6 +1,6 @@
 import {
     useEffect,
-    useState,
+    useState
 } from 'react';
 import type { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
@@ -8,11 +8,11 @@ import Head from 'next/head';
 import {
     FeaturedArticles,
     ProfileLayout,
-    RecentActivity,
+    RecentActivity
 } from '@system-design/profile';
 import {
     Heatmap,
-    SEO,
+    SEO
 } from '@system-design/shared';
 import type { PageComponent } from '@components';
 
@@ -22,13 +22,11 @@ import { configStore } from '@stores/config';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { author = '' } = context.query;
-    
+
     if (!author.includes('@')) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
-    
+
     try {
         const { data } = await API.getUserProfile(author as string, [
             'profile',
@@ -37,15 +35,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'most',
             'recent'
         ]);
-        return {
-            props: {
-                ...data.body,
-            }
-        };
+        return { props: { ...data.body } };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 

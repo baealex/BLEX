@@ -22,23 +22,19 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
         super(props);
         this.state = {
             code: '',
-            timer: 0,
+            timer: 0
         };
     }
 
     componentDidUpdate(prevProps: Props) {
         if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-            this.setState({
-                timer: 60 * 5
-            });
+            this.setState({ timer: 60 * 5 });
             const timerEvent = setInterval(() => {
                 if (this.state.timer <= 0) {
                     clearInterval(timerEvent);
                     return;
                 }
-                this.setState({
-                    timer: this.state.timer - 1
-                });
+                this.setState({ timer: this.state.timer - 1 });
             }, 1000);
         }
     }
@@ -83,7 +79,7 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
 
             this.setState({
                 ...this.state,
-                code: '',
+                code: ''
             });
         }
 
@@ -91,13 +87,13 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
             snackBar('😃 로그인 되었습니다.');
             authStore.set({
                 isLogin: true,
-                ...data.body,
+                ...data.body
             });
-            
+
             this.props.onClose();
         }
     }
-    
+
     render() {
         const remainMinute = Math.floor(this.state.timer / 60);
         const remainSecond = this.state.timer % 60;

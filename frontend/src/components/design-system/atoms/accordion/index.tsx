@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import {
     useEffect,
     useRef,
-    useState,
+    useState
 } from 'react';
 
 export interface AccordionProps {
@@ -15,7 +15,7 @@ export interface AccordionProps {
 
 export function Accordion({
     minHeight = 130,
-    children,
+    children
 }: AccordionProps) {
     const ref = useRef<HTMLDivElement>(null);
 
@@ -32,7 +32,7 @@ export function Accordion({
         <div
             className={cn('Accordion')}
             style={{
-                height: isOpen 
+                height: isOpen
                     ? `${maxHeight}px`
                     : `${maxHeight < minHeight ? maxHeight : minHeight}px`
             }}
@@ -41,12 +41,11 @@ export function Accordion({
                 {children}
             </div>
             <button onClick={() => setIsOpen(!isOpen)}>
-                <i className={classNames(
-                    'fas fa-chevron-up',
-                    cn({
-                        isOpen
-                    })
-                )}></i>
+                <i
+                    className={classNames(
+                        'fas fa-chevron-up',
+                        cn({ isOpen })
+                    )}></i>
             </button>
         </div>
     );

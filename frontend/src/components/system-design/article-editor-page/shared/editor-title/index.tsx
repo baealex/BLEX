@@ -2,7 +2,7 @@ import styles from './EditorTitle.module.scss';
 
 import React, {
     useRef,
-    useState,
+    useState
 } from 'react';
 
 export interface EditorTitleProps {
@@ -17,7 +17,7 @@ export function EditorTitle(props: EditorTitleProps) {
 
     const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
-        
+
         const { files } = e.target;
         if (files) {
             const file = files[0];
@@ -25,7 +25,7 @@ export function EditorTitle(props: EditorTitleProps) {
 
             const reader = new FileReader();
 
-            reader.onload = (e) => 
+            reader.onload = (e) =>
                 setPreview(e.target?.result as ArrayBuffer);
 
             reader.readAsDataURL(file);
@@ -36,7 +36,9 @@ export function EditorTitle(props: EditorTitleProps) {
         <div
             className={styles.layout}
             style={{
-                backgroundImage: preview ? `url(${preview})` : '',
+                backgroundImage: preview
+                    ? `url(${preview})`
+                    : ''
             }}
             onDragOver={(e) => e.preventDefault()}
         >
@@ -44,9 +46,7 @@ export function EditorTitle(props: EditorTitleProps) {
                 ref={ref}
                 type="file"
                 accept="image/*"
-                style={{
-                    display: 'none'
-                }}
+                style={{ display: 'none' }}
                 onChange={handleChangeImage}
             />
             <div>

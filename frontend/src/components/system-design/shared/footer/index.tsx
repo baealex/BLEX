@@ -9,12 +9,11 @@ export interface FooterProps {
 
 export function Footer({
     isDark = false,
-    children,
+    children
 }: FooterProps) {
     return (
-        <footer className={cn('footer', {
-            isDark 
-        })}>
+        <footer
+            className={cn('footer', { isDark })}>
             {children && (
                 <div className={cn('content')}>
                     {children}

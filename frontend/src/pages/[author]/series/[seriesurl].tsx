@@ -7,17 +7,17 @@ import {
     Button,
     Card,
     Modal,
-    SpeechBubble,
+    SpeechBubble
 } from '@design-system';
 import {
-    Footer, SEO 
+    Footer, SEO
 } from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
 
 import { snackBar } from '@modules/ui/snack-bar';
 
 import * as API from '@modules/api';
-import { getUserImage, } from '@modules/utility/image';
+import { getUserImage } from '@modules/utility/image';
 
 import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
@@ -25,13 +25,13 @@ import { configStore } from '@stores/config';
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { cookies } = context.req;
     configStore.serverSideInject(cookies);
-    
-    const { author = '', seriesurl = '' } = context.query;
+
+    const {
+        author = '', seriesurl = ''
+    } = context.query;
 
     if (!author.includes('@')) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     try {
@@ -39,15 +39,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             author.toString(),
             seriesurl.toString()
         );
-        return {
-            props: {
-                series: data.body
-            }
-        };
+        return { props: { series: data.body } };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 
@@ -78,15 +72,13 @@ class Series extends React.Component<Props, State> {
             seriesDescription: props.series.description,
             seriesPosts: props.series.posts,
             isSeriesModalOpen: false,
-            isSortOldFirst: configStore.state.isSortOldFirst,
+            isSortOldFirst: configStore.state.isSortOldFirst
         };
         this.authUpdateKey = authStore.subscribe((state) => this.setState({
             isLogin: state.isLogin,
-            username: state.username,
+            username: state.username
         }));
-        this.configUpdateKey = configStore.subscribe((state) => this.setState({
-            isSortOldFirst: state.isSortOldFirst,
-        }));
+        this.configUpdateKey = configStore.subscribe((state) => this.setState({ isSortOldFirst: state.isSortOldFirst }));
     }
 
     componentWillUnmount() {
@@ -109,15 +101,11 @@ class Series extends React.Component<Props, State> {
     }
 
     onOpenModal(modalName: 'isSeriesModalOpen') {
-        this.setState({
-            [modalName]: true
-        });
+        this.setState({ [modalName]: true });
     }
 
     onCloseModal(modalName: 'isSeriesModalOpen') {
-        this.setState({
-            [modalName]: false
-        });
+        this.setState({ [modalName]: false });
     }
 
     onInputChange(e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) {
@@ -158,9 +146,7 @@ class Series extends React.Component<Props, State> {
                 seriesPosts = seriesPosts.filter(post => (
                     post.url !== url
                 ));
-                this.setState({
-                    seriesPosts
-                });
+                this.setState({ seriesPosts });
                 snackBar('😀 시리즈가 업데이트 되었습니다.');
             } else {
                 snackBar('😯 변경중 오류가 발생했습니다.');
@@ -235,7 +221,7 @@ class Series extends React.Component<Props, State> {
                 />
 
                 {SeriesModal}
-                
+
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-8 mx-auto">

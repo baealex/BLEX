@@ -17,7 +17,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         social,
         code
     } = context.query;
-    
+
     return {
         props: {
             social,
@@ -34,7 +34,7 @@ interface Props {
 export default function SocialLogin(props: Props) {
     const onSocialLogin = async (social: string, code: string) => {
         const { data } = await API.postSignSocialLogin(social, code);
-        
+
         if (data.status === 'DONE') {
             if (data.body.security) {
                 snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
@@ -43,9 +43,7 @@ export default function SocialLogin(props: Props) {
             }
 
             if (data.body.isFirstLogin) {
-                snackBar(message('AFTER_REQ_DONE', '소셜 회원가입을 환영합니다. 계정 관리에서 사용자 이름을 변경할 수 있습니다.'), {
-                    onClick: () => Router.push('/setting/account')
-                });
+                snackBar(message('AFTER_REQ_DONE', '소셜 회원가입을 환영합니다. 계정 관리에서 사용자 이름을 변경할 수 있습니다.'), { onClick: () => Router.push('/setting/account') });
             } else {
                 snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
             }
@@ -60,7 +58,9 @@ export default function SocialLogin(props: Props) {
     };
 
     useEffect(() => {
-        const { social, code } = props;
+        const {
+            social, code
+        } = props;
 
         if (!social || !code) {
             return;
@@ -70,7 +70,7 @@ export default function SocialLogin(props: Props) {
             const oauthRedirect = getCookie('oauth_redirect');
             oauthRedirect
                 ? Router.replace(oauthRedirect)
-                : Router.replace('/');  
+                : Router.replace('/');
         });
     }, []);
 

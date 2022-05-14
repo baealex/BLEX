@@ -22,7 +22,7 @@ export function Button({
     color = 'default',
     display = 'inline-block',
     onClick,
-    children,
+    children
 }: ButtonProps) {
     const button = useRef<HTMLButtonElement>(null);
 
@@ -30,7 +30,7 @@ export function Button({
         if (onClick) {
             onClick(e);
         }
-        
+
         const ripple = document.createElement('span');
         ripple.classList.add(cn('ripple'));
         button.current?.appendChild(ripple);
@@ -57,9 +57,7 @@ export function Button({
             ref={button}
             className={cn(
                 'button',
-                {
-                    isRounded 
-                },
+                { isRounded },
                 gap != 'none' && `g-${gap}`,
                 space != 'default' && `s-${space}`,
                 color != 'default' && `c-${color}`,

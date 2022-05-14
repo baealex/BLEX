@@ -3,7 +3,7 @@ export function optimizedEvent(func: (e?: Event) => void) {
 
     return (e?: Event) => {
         if (ticking) return;
-        
+
         window.requestAnimationFrame(() => {
             func(e);
             ticking = false;

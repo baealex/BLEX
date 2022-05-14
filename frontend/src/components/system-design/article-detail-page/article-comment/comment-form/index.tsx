@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import {
     useEffect,
     useRef,
-    useState,
+    useState
 } from 'react';
 
 import { Card } from '@design-system';
@@ -80,9 +80,7 @@ export function CommentForm(props: CommentFormProps) {
                 ref={box}
                 className={cn(
                     'form',
-                    {
-                        isOpen 
-                    }
+                    { isOpen }
                 )}
                 onClick={() => {
                     !isOpen && setIsOpen(true);
@@ -93,18 +91,14 @@ export function CommentForm(props: CommentFormProps) {
                     isRounded
                     className={`p-3 mb-3 ${cn(
                         'card',
-                        {
-                            isOpen 
-                        }
+                        { isOpen }
                     )}`}
                 >
                     <>
                         <textarea
                             ref={input}
                             rows={5}
-                            className={cn({
-                                isOpen 
-                            })}
+                            className={cn({ isOpen })}
                             onChange={(e) => props.onChange(e.target.value)}
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={(e) => onDrop(e)}
@@ -113,9 +107,7 @@ export function CommentForm(props: CommentFormProps) {
                             value={props.content}>
                         </textarea>
                         <div
-                            className={cn('submit', {
-                                isOpen 
-                            })}
+                            className={cn('submit', { isOpen })}
                             onClick={() => {
                                 isOpen && handleSubmit();
                             }}

@@ -1,6 +1,6 @@
 import type {
     GetServerSidePropsContext,
-    GetServerSidePropsResult,
+    GetServerSidePropsResult
 } from 'next';
 import { useState } from 'react';
 
@@ -20,22 +20,19 @@ interface Props {
     }[];
 }
 
-export async function getServerSideProps({ req, }: GetServerSidePropsContext
+export async function getServerSideProps({ req }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
-    const { data } = await API.getSettingForms({
-        'Cookie': req.headers.cookie || '',
-    });
+    const { data } = await API.getSettingForms({ 'Cookie': req.headers.cookie || '' });
+
     if (data.status === 'ERROR') {
         return {
             redirect: {
                 destination: '/',
-                permanent: false,
+                permanent: false
             }
         };
     }
-    return {
-        props: data.body
-    };
+    return { props: data.body };
 }
 
 const FormsSetting: PageComponent<Props> = (props) => {
@@ -56,7 +53,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
         setForms([...forms, {
             id: data.body.id,
             title,
-            createdDate: '',
+            createdDate: ''
         }]);
         snackBar(message('AFTER_REQ_DONE', '서식이 생성되었습니다.'));
         setTitle('');

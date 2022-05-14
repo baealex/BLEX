@@ -22,7 +22,7 @@ class ModalStore extends Store<ModalStoreState> {
             isPublishModalOpen: false,
             isTelegramSyncModalOpen: false,
             isTwoFactorAuthModalOpen: false,
-            isTwoFactorAuthSyncModalOpen: false,
+            isTwoFactorAuthSyncModalOpen: false
         };
     }
 

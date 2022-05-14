@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { snackBar } from '@modules/ui/snack-bar';
 
-import { Modal, } from '@design-system';
+import { Modal } from '@design-system';
 
 interface Props {
     isOpen: boolean;
@@ -13,7 +13,7 @@ interface Props {
 export function YoutubeModal(props: Props) {
     const [ text, setText ] = useState('');
     const [ id, setId ] = useState('');
-    
+
     return (
         <Modal
             title="유튜브 영상"

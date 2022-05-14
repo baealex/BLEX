@@ -14,7 +14,7 @@ import { authStore } from '@stores/auth';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { token } = context.query;
-    
+
     try {
         const { data } = await API.getEmailVerify(token as string);
         return {
@@ -24,9 +24,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 
@@ -59,7 +57,7 @@ export default function Verify(props: Props) {
             snackBar(`😆 ${props.username}님! 환영합니다 🎉`);
             authStore.set({
                 isLogin: true,
-                ...data.body,
+                ...data.body
             });
             Router.replace('/');
         }

@@ -1,6 +1,6 @@
 import axiosRequest, {
     ResponseData,
-    serializeObject,
+    serializeObject
 } from './index';
 
 export async function getUserProfile(author: string, includes: GetUserProfileInclude[]) {
@@ -75,9 +75,7 @@ export async function putUserFollow(author: string) {
     return await axiosRequest<ResponseData<PutUserFollow>>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
-        data: serializeObject({
-            follow: author 
-        })
+        data: serializeObject({ follow: author })
     });
 }
 
@@ -89,13 +87,11 @@ export async function putUserAbout(author: string, aboutMarkdown: string, aboutM
     return await axiosRequest<ResponseData<any>>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject({
             about: author,
             about_md: aboutMarkdown,
             about_html: aboutMarkup
-        }),
+        })
     });
 }

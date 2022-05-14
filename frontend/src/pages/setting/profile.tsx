@@ -1,10 +1,10 @@
 import type {
     GetServerSidePropsContext,
-    GetServerSidePropsResult,
+    GetServerSidePropsResult
 } from 'next';
 import React, { useState } from 'react';
 
-import { 
+import {
     Alert,
     Button,
     ImageInput,
@@ -21,22 +21,19 @@ import { loadingStore } from '@stores/loading';
 
 type Props = API.GetSettingProfileData
 
-export async function getServerSideProps({ req, }: GetServerSidePropsContext
+export async function getServerSideProps({ req }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
-    const { data } = await API.getSettingProfile({
-        'Cookie': req.headers.cookie || '',
-    });
+    const { data } = await API.getSettingProfile({ 'Cookie': req.headers.cookie || '' });
+
     if (data.status === 'ERROR') {
         return {
             redirect: {
                 destination: '/',
-                permanent: false,
+                permanent: false
             }
         };
     }
-    return {
-        props: data.body
-    };
+    return { props: data.body };
 }
 
 const ProfileSetting: PageComponent<Props> = (props) => {
@@ -50,8 +47,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
     const [ youtube, setYoutube ] = useState(props.youtube);
 
     const onSubmit = async () => {
-        const sendData: any = {
-        };
+        const sendData: any = {};
 
         sendData['bio'] = bio;
         sendData['homepage'] = homepage;
@@ -66,7 +62,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
             snackBar(message('AFTER_REQ_DONE', '프로필이 업데이트 되었습니다.'));
         }
     };
-    
+
     return (
         <>
             <div className="mb-5">
@@ -79,16 +75,12 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     url={avatar}
                     label="이미지 변경"
                     onChange={async (file) => {
-                        loadingStore.set({
-                            isLoading: true,
-                        });
+                        loadingStore.set({ isLoading: true });
                         const formData = new FormData();
                         formData.append('avatar', file);
                         const { data } = await API.postSettingAvatar(formData);
                         setAvatar(data.body.url);
-                        loadingStore.set({
-                            isLoading: false,
-                        });
+                        loadingStore.set({ isLoading: false });
                     }}
                 />
             </div>

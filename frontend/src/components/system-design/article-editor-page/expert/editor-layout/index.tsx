@@ -1,11 +1,11 @@
 import {
-    useEffect, useState 
+    useEffect, useState
 } from 'react';
 
 import {
     CheckBox,
     Loading,
-    Modal,
+    Modal
 } from '@design-system';
 
 import {
@@ -66,7 +66,7 @@ export function EditorLayout(props: Props) {
     const [ isOpenPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
 
     useEffect(modalStore.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
-    
+
     useEffect(() => {
         API.getSettingSeries().then((response) => {
             const { data } = response;

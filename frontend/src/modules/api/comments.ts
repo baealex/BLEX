@@ -1,22 +1,16 @@
 import axiosRequest, {
     GetPostCommentDataComment,
     ResponseData,
-    serializeObject,
+    serializeObject
 } from './index';
 
 export async function postComments(url: string, content: string) {
     return await axiosRequest<ResponseData<PostCommentsData>>({
         url: '/v1/comments',
         method: 'POST',
-        params: {
-            url 
-        },
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            comment_md: content
-        }),
+        params: { url },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject({ comment_md: content })
     });
 }
 
@@ -26,12 +20,8 @@ export async function putCommentLike(pk: number) {
     return await axiosRequest<ResponseData<PutCommentLike>>({
         url: `/v1/comments/${pk}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            like: pk
-        }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject({ like: pk })
     });
 }
 
@@ -54,20 +44,18 @@ export async function putComment(pk: number, content: string) {
     return await axiosRequest<ResponseData<any>>({
         url: `/v1/comments/${pk}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject({
             comment: 'comment',
-            comment_md: content,
-        }),
+            comment_md: content
+        })
     });
 }
 
 export async function deleteComment(pk: number) {
     return await axiosRequest<ResponseData<DeleteComment>>({
         url: `/v1/comments/${pk}`,
-        method: 'DELETE',
+        method: 'DELETE'
     });
 }
 

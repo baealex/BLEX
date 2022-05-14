@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import {
     ActivityItem,
-    ActivityItemProps,
+    ActivityItemProps
 } from './activity-item';
 
 import { Alert } from '@design-system';

@@ -56,7 +56,7 @@ export function SEO(props: SEOProps) {
         ogTag.push(<meta key={key++} property="og:type" content="blog"/>);
     }
     ogTag.push(<meta key={key++} property="og:locale" content="ko_KR"/>);
-    
+
     return (
         <Head>
             {deTag}

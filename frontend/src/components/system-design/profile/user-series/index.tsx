@@ -1,6 +1,6 @@
 import {
     SeriesList,
-    SeriesListProps,
+    SeriesListProps
 } from '../../series/series-list';
 
 export interface SeriesProps {

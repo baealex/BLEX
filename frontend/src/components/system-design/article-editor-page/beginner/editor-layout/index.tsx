@@ -1,12 +1,12 @@
 import {
-    useEffect, useState 
+    useEffect, useState
 } from 'react';
 
 import {
     Carousel,
     CheckBox,
     Loading,
-    Modal,
+    Modal
 } from '@design-system';
 
 import {
@@ -63,7 +63,7 @@ export function EditorLayout(props: Props) {
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
 
     useEffect(modalStore.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
-    
+
     useEffect(() => {
         API.getSettingSeries().then((response) => {
             const { data } = response;
@@ -93,14 +93,15 @@ export function EditorLayout(props: Props) {
                         onChange={props.content.onChange}
                     />
                     <div className="shallow-dark text-center mt-3">
-                        <Carousel items={[
-                            <p>
-                                본문으로 이미지를 드래그하여 간편하게 업로드 할 수 있습니다.
-                            </p>,
-                            <p>
-                                마크다운을 이용하여 본문의 내용을 작성할 수 있습니다.
-                            </p>,
-                        ]}/>
+                        <Carousel
+                            items={[
+                                <p>
+                                    본문으로 이미지를 드래그하여 간편하게 업로드 할 수 있습니다.
+                                </p>,
+                                <p>
+                                    마크다운을 이용하여 본문의 내용을 작성할 수 있습니다.
+                                </p>
+                            ]}/>
                     </div>
                 </div>
 

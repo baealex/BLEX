@@ -9,11 +9,11 @@ const {
     GOOGLE_ANALYTICS_V4 = '',
     MICROSOFT_CLARITY = '',
     HCAPTCHA_SITE_KEY = '',
-    GOOGLE_ADSENSE_CLIENT_ID = '',
+    GOOGLE_ADSENSE_CLIENT_ID = ''
 } = process.env;
 
 fs.writeFileSync('modules/settings.ts',
-`export const CONFIG = {
+    `export const CONFIG = {
     "API_KEY": "${API_KEY}",
     "API_SERVER": "${API_SERVER}",
     "STATIC_SERVER": "${STATIC_SERVER}",
@@ -23,4 +23,4 @@ fs.writeFileSync('modules/settings.ts',
     "MICROSOFT_CLARITY": "${MICROSOFT_CLARITY}",
     "HCAPTCHA_SITE_KEY": "${HCAPTCHA_SITE_KEY}",
     "GOOGLE_ADSENSE_CLIENT_ID": "${GOOGLE_ADSENSE_CLIENT_ID}",
-}`)
+}`);

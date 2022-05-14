@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import {
     useCallback,
     useEffect,
-    useRef,
+    useRef
 } from 'react';
 
 export interface SearchBoxProps {
@@ -61,9 +61,9 @@ export function SearchBox(props: SearchBoxProps) {
                     onChange={props.onChange}
                     onKeyPress={(e) => e.key === 'Enter' && handleClick()}
                 />
-                <button className={cn({
-                    'show' : props.value
-                })} onClick={handleClick}>
+                <button
+                    className={cn({ 'show' : props.value })}
+                    onClick={handleClick}>
                     {props.button}
                 </button>
             </div>

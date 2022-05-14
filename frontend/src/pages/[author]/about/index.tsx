@@ -1,6 +1,6 @@
 import React, {
     useEffect,
-    useState,
+    useState
 } from 'react';
 import type { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
@@ -31,13 +31,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'about'
         ]);
 
-        return {
-            props: userProfile.data.body
-        };
+        return { props: userProfile.data.body };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 
@@ -70,7 +66,7 @@ const UserAbout: PageComponent<Props> = (props) => {
             const { data } = await API.putUserAbout(
                 '@' + username,
                 aboutMd || '',
-                aboutMarkup,
+                aboutMarkup
             );
             if (data.status === 'DONE') {
                 setAboutHTML(aboutMarkup);

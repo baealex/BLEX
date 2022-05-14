@@ -4,13 +4,13 @@ import Link from 'next/link';
 
 import {
     SpeechBubble,
-    Text,
+    Text
 } from '@design-system';
 
 import {
     Footer,
     Pagination,
-    SEO,
+    SEO
 } from '@system-design/shared';
 import { ArticleCard } from '@system-design/article';
 
@@ -22,19 +22,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         tag,
         page = 1
     } = context.query;
-    
+
     try {
         const { data } = await API.getTag(String(tag), Number(page));
         return {
             props: {
                 ...data.body,
-                page,
+                page
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 
@@ -73,7 +71,7 @@ export default function TagDetail(props: Props) {
                 )}
                 <div className="row">
                     {props.posts.map((item, idx) => (
-                        <ArticleCard 
+                        <ArticleCard
                             key={idx}
                             className="col-lg-4 col-md-6 mt-4"
                             {...item}

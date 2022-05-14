@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import {
     useEffect,
-    useState,
+    useState
 } from 'react';
 
 export interface CarouselProps {
@@ -41,7 +41,7 @@ interface ItemProps {
 
 function Item({
     item,
-    focus,
+    focus
 }: ItemProps) {
     return (
         <>

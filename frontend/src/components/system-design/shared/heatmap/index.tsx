@@ -13,10 +13,7 @@ export interface HeatmapProps {
 }
 
 export function Heatmap(props: HeatmapProps) {
-    const {
-        data = {
-        },
-    } = props;
+    const { data = {} } = props;
 
     useEffect(() => {
         new Chart('#heatmap', {

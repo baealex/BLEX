@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import {
     useEffect,
-    useState,
+    useState
 } from 'react';
 
 import * as API from '@modules/api';
@@ -20,17 +20,17 @@ export function ArticleAction(props: ArticleActionProps) {
     const [ state, setState ] = useState({
         isLiked: props.isLiked,
         totalLikes: props.totalLikes,
-        totalComment: props.totalComment,
+        totalComment: props.totalComment
     });
 
     useEffect(() => {
         setState({
             isLiked: props.isLiked,
             totalLikes: props.totalLikes,
-            totalComment: props.totalComment,
+            totalComment: props.totalComment
         });
     }, [props]);
-    
+
     const onClickShare = (social: Social) => {
         let href = '';
         let size = '';
@@ -52,14 +52,16 @@ export function ArticleAction(props: ArticleActionProps) {
     };
 
     const onClickLike = async () => {
-        const { author, url } = props;
+        const {
+            author, url
+        } = props;
         const { data } = await API.putAnUserPosts('@' + author, url, 'like');
         if (data.status === 'DONE') {
             if (typeof data.body.totalLikes === 'number') {
                 setState((prevState) => ({
                     ...prevState,
                     isLiked: !prevState.isLiked,
-                    totalLikes: data.body.totalLikes || 0,
+                    totalLikes: data.body.totalLikes || 0
                 }));
             }
         }

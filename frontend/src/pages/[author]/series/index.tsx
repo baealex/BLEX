@@ -3,11 +3,11 @@ import React from 'react';
 
 import {
     Pagination,
-    SEO,
+    SEO
 } from '@system-design/shared';
 import {
     ProfileLayout,
-    UserSeries,
+    UserSeries
 } from '@system-design/profile';
 import { Alert } from '@design-system';
 import type { PageComponent } from '@components';
@@ -18,7 +18,7 @@ import { GetServerSidePropsContext } from 'next';
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
         author = '',
-        page = 1,
+        page = 1
     } = context.query;
 
     try {
@@ -28,25 +28,23 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
         const userProfile = await API.getUserProfile(author as string, [
             'profile',
-            'social',
+            'social'
         ]);
 
         const userSeries = await API.getUserSeries(
             author as string,
             Number(page)
         );
-        
+
         return {
             props: {
                 page,
                 ...userProfile.data.body,
-                ...userSeries.data.body,
+                ...userSeries.data.body
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 

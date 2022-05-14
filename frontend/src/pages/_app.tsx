@@ -9,7 +9,7 @@ import type {
 } from '@components';
 import {
     SEO,
-    TopNavigation,
+    TopNavigation
 } from '@system-design/shared';
 import { Loading } from '@design-system';
 
@@ -26,16 +26,12 @@ Router.events.on('routeChangeComplete', () => {
 });
 
 class Main extends App<AppProps> {
-    state = {
-        isLoading: loadingStore.state.isLoading,
-    };
+    state = { isLoading: loadingStore.state.isLoading };
 
     constructor(props: AppProps) {
         super(props);
         loadingStore.subscribe((state) => {
-            this.setState({
-                isLoading: state.isLoading,
-            });
+            this.setState({ isLoading: state.isLoading });
         });
     }
 
@@ -44,15 +40,18 @@ class Main extends App<AppProps> {
     }
 
     render() {
-        const { Component, pageProps } = this.props;
-        
+        const {
+            Component,
+            pageProps
+        } = this.props;
+
         const getLayout: PageLayout<typeof pageProps> = (page, props) => {
             const pageComponent = Component as PageComponent<typeof props>;
-            
+
             if (pageComponent.pageLayout) {
                 return pageComponent.pageLayout(page, props);
             }
-            
+
             return page;
         };
 
@@ -114,11 +113,11 @@ class Main extends App<AppProps> {
                 )}
 
                 <TopNavigation/>
-                
+
                 {this.state.isLoading && (
                     <Loading/>
                 )}
-                
+
                 <div className="content">
                     {getLayout(<Component {...pageProps}/>, pageProps)}
                 </div>

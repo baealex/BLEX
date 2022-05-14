@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import {
     useEffect,
-    useState,
+    useState
 } from 'react';
 import Router from 'next/router';
 
@@ -19,7 +19,7 @@ export interface ArticleContentProps {
 export function ArticleContent({
     html,
     isEdit,
-    noMargin,
+    noMargin
 }: ArticleContentProps) {
     const [
         isOpenNewTab,
@@ -47,7 +47,7 @@ export function ArticleContent({
                     }
                 }
             };
-            
+
             const $article = document.querySelector(`.${styles.article}`);
 
             $article?.addEventListener('click', handleClickAnchorTag);
@@ -60,12 +60,8 @@ export function ArticleContent({
 
     return (
         <div
-            className={cn('article', {
-                noMargin 
-            })}
-            dangerouslySetInnerHTML={{
-                __html: html 
-            }}
+            className={cn('article', { noMargin })}
+            dangerouslySetInnerHTML={{ __html: html }}
         />
     );
 }

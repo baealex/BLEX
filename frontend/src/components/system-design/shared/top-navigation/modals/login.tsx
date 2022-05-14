@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
     Modal,
-    SplitLine,
+    SplitLine
 } from '@design-system';
 
 import * as API from '@modules/api';
@@ -32,9 +32,7 @@ export class LoginModal extends React.Component<Props, State> {
             username: authStore.state.username,
             password: ''
         };
-        this.updateKey = authStore.subscribe((state) => this.setState({
-            username: state.username,
-        }));
+        this.updateKey = authStore.subscribe((state) => this.setState({ username: state.username }));
     }
 
     componentWillUnmount() {
@@ -88,16 +86,14 @@ export class LoginModal extends React.Component<Props, State> {
             snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
             authStore.set({
                 isLogin: true,
-                ...data.body,
+                ...data.body
             });
 
             this.props.onClose();
         }
-        this.setState({
-            password: ''
-        });
+        this.setState({ password: '' });
     }
-    
+
     render() {
         return (
             <Modal

@@ -5,7 +5,7 @@ import type { GetServerSidePropsContext } from 'next';
 import {
     Footer,
     Pagination,
-    SEO,
+    SEO
 } from '@system-design/shared';
 import { CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '@components';
@@ -15,7 +15,7 @@ import * as API from '@modules/api';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { page = 1 } = context.query;
-    
+
     try {
         const { data } = await API.getTags(Number(page));
         return {
@@ -25,9 +25,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 

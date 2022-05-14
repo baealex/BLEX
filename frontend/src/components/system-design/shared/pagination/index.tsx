@@ -14,7 +14,7 @@ export interface Props {
 
 export function Pagination(props: Props) {
     const router = useRouter();
-    
+
     const pageRange = [];
     const page = Number(props.page);
     const last = Number(props.last);
@@ -49,7 +49,7 @@ export function Pagination(props: Props) {
 
     const gotoPage = (num: number) => {
         const visibleQueries = [
-            'q',
+            'q'
         ];
 
         const asQuery = visibleQueries.reduce((acc, cur) => {
@@ -60,23 +60,22 @@ export function Pagination(props: Props) {
                 };
             }
             return acc;
-        }, {
-        });
+        }, {});
 
         return {
             as: {
                 pathname: router.asPath.split('?')[0],
                 query: {
                     ...asQuery,
-                    page: num,
+                    page: num
                 }
             },
             href: {
                 pathname: router.pathname,
                 query: {
                     ...router.query,
-                    page: num,
-                },
+                    page: num
+                }
             }
         };
     };
@@ -117,9 +116,9 @@ export function Pagination(props: Props) {
                         </>
                     )}
                     {pageRange.map((item, idx) => (
-                        <div key={idx} className={cn('item', {
-                            active: page == item
-                        })}>
+                        <div
+                            key={idx}
+                            className={cn('item', { active: page == item })}>
                             <Link {...gotoPage(item)}>
                                 <a className={cn('link')}>
                                     {item}
@@ -151,7 +150,7 @@ export function Pagination(props: Props) {
                                     <i className="fa fa-angle-double-right"></i>
                                 </a>
                             </div>
-                            <div className={cn('item', 'disabled')}>    
+                            <div className={cn('item', 'disabled')}>
                                 <a className={cn('link')}>
                                     <i className="fas fa-arrow-right"></i>
                                 </a>

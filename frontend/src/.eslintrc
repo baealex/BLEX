@@ -6,7 +6,10 @@
         "jest": true,
         "node": true
     },
-    "ignorePatterns": "**/library/*.js",
+    "ignorePatterns": [
+        "**/library/*.js",
+        "next.config.js"
+    ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 2017,
@@ -21,21 +24,23 @@
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
+        "comma-dangle": [ "error", "never" ],
         "indent": [ "error", 4 ],
         "semi": [ "error", "always" ],
         "quotes": [ "error", "single" ],
-        "keyword-spacing": [ 2, {
+        "keyword-spacing": [ "error", {
             "before": true,
             "after": true
         }],
-        "object-property-newline": "error",
         "object-curly-newline": [ "error", {
-            "ObjectExpression": "always",
-            "ObjectPattern": { "multiline": true },
+            "ObjectExpression": { "multiline": true, "minProperties": 2 },
+            "ObjectPattern": { "multiline": true, "minProperties": 2 },
             "ImportDeclaration": { "multiline": true, "minProperties": 2 },
             "ExportDeclaration": { "multiline": true, "minProperties": 2 }
         }],
         "object-curly-spacing": [ "error", "always" ],
+        "object-property-newline": "error",
+        "no-trailing-spaces": "error",
         "sort-imports": [ "error", {
             "ignoreCase": false,
             "ignoreDeclarationSort": false,
@@ -44,6 +49,16 @@
             "allowSeparatedGroups": true
         }],
         "react/jsx-indent": [ "error", 4 ],
+        "react/jsx-first-prop-new-line": [ "error", "multiline" ],
+        "react/jsx-max-props-per-line": [
+            "error",
+            {
+                "maximum": {
+                    "single": 4,
+                    "multi": 1
+                }
+            }
+          ],
         "jsx-quotes": [ "error", "prefer-double" ]
     }
 }

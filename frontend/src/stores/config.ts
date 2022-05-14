@@ -2,7 +2,7 @@ import Store from 'badland';
 
 import {
     getCookie,
-    setCookie,
+    setCookie
 } from '@modules/utility/cookie';
 
 type Theme = 'default' | 'dark' | 'black' | 'neon' | 'pastel';
@@ -23,7 +23,7 @@ class ConfigStore extends Store<ConfigStoreState> {
             theme: 'default' as Theme,
             isAutoSave: true,
             isOpenNewTab: false,
-            isSortOldFirst: false,
+            isSortOldFirst: false
         };
 
         if (typeof window !== 'undefined') {
@@ -45,7 +45,7 @@ class ConfigStore extends Store<ConfigStoreState> {
         if (configure) {
             this.set((state) => ({
                 ...state,
-                ...JSON.parse(configure),
+                ...JSON.parse(configure)
             }));
         }
     }
@@ -57,7 +57,7 @@ class ConfigStore extends Store<ConfigStoreState> {
         if (configure) {
             this.set((prevState) => ({
                 ...prevState,
-                ...JSON.parse(configure),
+                ...JSON.parse(configure)
             }));
         }
     }
@@ -65,7 +65,7 @@ class ConfigStore extends Store<ConfigStoreState> {
     configSave() {
         setCookie('configure', JSON.stringify(this.state), {
             path: '/',
-            expire: 365,
+            expire: 365
         });
     }
 
@@ -73,7 +73,7 @@ class ConfigStore extends Store<ConfigStoreState> {
         document.body.className = theme;
         this.set((prevState) => ({
             ...prevState,
-            theme: theme,
+            theme: theme
         }));
     }
 

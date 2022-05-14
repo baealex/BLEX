@@ -1,10 +1,10 @@
 import type {
     GetServerSidePropsContext,
-    GetServerSidePropsResult,
+    GetServerSidePropsResult
 } from 'next';
 import React, {
     useEffect,
-    useState,
+    useState
 } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -15,7 +15,7 @@ import {
     Alert,
     Card,
     Dropdown,
-    Modal,
+    Modal
 } from '@design-system';
 import type { PageComponent } from '@components';
 import { Pagination } from '@system-design/shared';
@@ -32,26 +32,26 @@ interface Props extends API.GetSettingPostsData {
 
 export async function getServerSideProps({
     query,
-    req,
+    req
 }: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Props>> {
-    const { page = 1, order = '', tag_filter = '' } = query;
-    
+    const {
+        page = 1, order = '', tag_filter = ''
+    } = query;
+
     const { data } = await API.getSettingPosts(
         {
             tag_filter: String(tag_filter),
             order: String(order),
-            page: Number(page) 
+            page: Number(page)
         },
-        {
-            'Cookie': req.headers.cookie || '' 
-        }
+        { 'Cookie': req.headers.cookie || '' }
     );
     if (data.status === 'ERROR') {
         return {
             redirect: {
                 destination: '/',
-                permanent: false,
+                permanent: false
             }
         };
     }
@@ -66,40 +66,40 @@ export async function getServerSideProps({
 const POSTS_ORDER = [
     {
         name: '제목',
-        order: '-title',
+        order: '-title'
     },
     {
         name: '분량',
-        order: '-read_time',
+        order: '-read_time'
     },
     {
         name: '생성',
-        order: '-created_date',
+        order: '-created_date'
     },
     {
         name: '수정',
-        order: '-updated_date',
+        order: '-updated_date'
     },
     {
         name: '추천',
-        order: '-total_like_count',
+        order: '-total_like_count'
     },
     {
         name: '댓글',
-        order: '-total_comment_count',
+        order: '-total_comment_count'
     },
     {
         name: '숨김',
-        order: '-hide',
+        order: '-hide'
     },
     {
         name: '오늘 조회수',
-        order: '-today_count',
+        order: '-today_count'
     },
     {
         name: '어제 조회수',
-        order: '-yesterday_count',
-    },
+        order: '-yesterday_count'
+    }
 ];
 
 const PostsSetting: PageComponent<Props> = (props) => {
@@ -134,7 +134,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                     dates,
                     counts,
                     referers
-                },
+                }
             });
         }
         setModalOpen(true);
@@ -144,11 +144,9 @@ const PostsSetting: PageComponent<Props> = (props) => {
         if (confirm(message('CONFIRM', '정말 이 포스트를 삭제할까요?'))) {
             const { data } = await API.deleteAnUserPosts('@' + props.username, url);
             if (data.status === 'DONE') {
-                router.replace(router.asPath, '', {
-                    scroll: false 
-                });
+                router.replace(router.asPath, '', { scroll: false });
                 snackBar(message('AFTER_REQ_DONE', '포스트가 삭제되었습니다.'));
-            }   
+            }
         }
     };
 
@@ -157,7 +155,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
         setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
-                isHide: data.body.isHide as boolean,
+                isHide: data.body.isHide as boolean
             }) : post
         ))]);
     };
@@ -173,9 +171,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
 
     const onTagSubmit = async (url: string) => {
         const thisPost = posts.find(post => post.url == url);
-        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', {
-            tag: thisPost?.tag
-        });
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', { tag: thisPost?.tag });
         setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
@@ -188,31 +184,32 @@ const PostsSetting: PageComponent<Props> = (props) => {
 
     return (
         <>
-            <TagBadges items={POSTS_ORDER.map((item) => (
-                <Link
-                    href={{
-                        query: {
-                            ...router.query,
-                            order: router.query.order === item.order
-                                ? item.order.replace('-' , '')
-                                : item.order,
-                            page: 1,
-                        }
-                    }}
-                    scroll={false}
-                >
-                    <a>
-                        {item.name}&nbsp;
-                        {router.query.order?.includes(item.order.replace('-' , '')) && (
-                            router.query.order?.includes('-') ? (
-                                <i className="fas fa-sort-up"/>
-                            ) : (
-                                <i className="fas fa-sort-down"/>
-                            )
-                        )}
-                    </a>
-                </Link>
-            ))}/>
+            <TagBadges
+                items={POSTS_ORDER.map((item) => (
+                    <Link
+                        href={{
+                            query: {
+                                ...router.query,
+                                order: router.query.order === item.order
+                                    ? item.order.replace('-' , '')
+                                    : item.order,
+                                page: 1
+                            }
+                        }}
+                        scroll={false}
+                    >
+                        <a>
+                            {item.name}&nbsp;
+                            {router.query.order?.includes(item.order.replace('-' , '')) && (
+                                router.query.order?.includes('-') ? (
+                                    <i className="fas fa-sort-up"/>
+                                ) : (
+                                    <i className="fas fa-sort-down"/>
+                                )
+                            )}
+                        </a>
+                    </Link>
+                ))}/>
             <>
                 {posts.map((post, idx) => (
                     <Card key={idx} hasShadow isRounded className="mb-3">
@@ -241,7 +238,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                         {
                                             name: '분석',
                                             onClick: () => postsAnalytics(post.url)
-                                        },
+                                        }
                                     ]}
                                 />
                             </div>

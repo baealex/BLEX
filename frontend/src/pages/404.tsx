@@ -12,7 +12,7 @@ export default function NotFound() {
             <Head>
                 <title>404 Not Found</title>
             </Head>
-            
+
             <div className="container h-100">
                 <div className="d-flex justify-content-center align-items-center flex-wrap h-100">
                     <div className="text-center">

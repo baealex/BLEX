@@ -17,7 +17,7 @@ import * as API from '@modules/api';
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const {
         author = '',
-        page = 1,
+        page = 1
     } = context.query;
 
     try {
@@ -30,10 +30,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'social',
             'tags'
         ]);
-        
+
         const userPosts = await API.getUserPosts(
-            author as string, 
-            Number(page),
+            author as string,
+            Number(page)
         );
 
         return {
@@ -45,9 +45,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 }
 

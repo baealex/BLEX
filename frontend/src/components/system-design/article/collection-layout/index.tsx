@@ -12,7 +12,7 @@ const NAVIGATION_ITEMS = [
     {
         link: '/tags',
         name: '태그 클라우드'
-    },
+    }
 ];
 
 export interface CollectionLayoutProps {
@@ -25,7 +25,7 @@ export function CollectionLayout(props: CollectionLayoutProps) {
     return (
         <div className="container">
             <PageNavigation
-                items={props.itemExpended 
+                items={props.itemExpended
                     ? props.itemExpended(NAVIGATION_ITEMS)
                     : NAVIGATION_ITEMS}
                 active={props.active}

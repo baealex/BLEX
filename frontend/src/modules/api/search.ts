@@ -1,4 +1,4 @@
-import axiosRequest, { ResponseData, } from './index';
+import axiosRequest, { ResponseData } from './index';
 
 export async function getSearch(query: string, page=1, username='') {
     return await axiosRequest<ResponseData<GetSearchData>>({
@@ -6,9 +6,9 @@ export async function getSearch(query: string, page=1, username='') {
         params: {
             q: query,
             page,
-            username,
+            username
         },
-        method: 'GET',
+        method: 'GET'
     });
 }
 
@@ -31,7 +31,7 @@ export interface GetSearchData {
 export async function getSearchHistory() {
     return await axiosRequest<ResponseData<GetSearchHistoryData>>({
         url: '/v1/search/history',
-        method: 'GET',
+        method: 'GET'
     });
 }
 
@@ -48,6 +48,6 @@ export interface GetSearchHistorySearch {
 export async function deleteSearchHistory(pk: number) {
     return await axiosRequest<ResponseData<any>>({
         url: `/v1/search/history/${pk}`,
-        method: 'DELETE',
+        method: 'DELETE'
     });
 }

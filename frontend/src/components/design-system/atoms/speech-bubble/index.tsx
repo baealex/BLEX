@@ -17,7 +17,7 @@ export function SpeechBubble({
     src,
     href,
     className,
-    children,
+    children
 }: SpeechBubbleProps) {
     return (
         <>

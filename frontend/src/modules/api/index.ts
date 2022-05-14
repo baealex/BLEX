@@ -1,6 +1,6 @@
 import axios, {
     AxiosRequestConfig,
-    AxiosRequestHeaders,
+    AxiosRequestHeaders
 } from 'axios';
 
 import { CONFIG } from '@modules/settings';
@@ -14,10 +14,10 @@ export type Headers = AxiosRequestHeaders & {
 
 export default async function axiosRequest<T>(config: AxiosRequestConfig) {
     const isBrowser = typeof window !== 'undefined';
-    
+
     const { request } = axios.create({
         baseURL: CONFIG.API_SERVER,
-        withCredentials: true,
+        withCredentials: true
     });
 
     if (config.headers) {
@@ -54,7 +54,7 @@ export const ERROR = {
     ALREADY_EXISTS: 'error:AE',
     NEED_TELEGRAM: 'error:NT',
     EMAIL_NOT_MATCH: 'error:EN',
-    USERNAME_NOT_MATCH: 'error:UN',
+    USERNAME_NOT_MATCH: 'error:UN'
 };
 
 type ErrorCode =

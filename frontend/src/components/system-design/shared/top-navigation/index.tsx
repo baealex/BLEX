@@ -3,7 +3,7 @@ import styles from './TopNavigation.module.scss';
 const cn = classNames.bind(styles);
 
 import React, {
-    useEffect, useRef, useState 
+    useEffect, useRef, useState
 } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -14,7 +14,7 @@ import {
     SignupModal,
     TelegramSyncModal,
     TwoFactorAuthModal,
-    TwoFactorAuthSyncModal,
+    TwoFactorAuthSyncModal
 } from './modals';
 import { DayNight } from './day-night';
 import { Dropdown } from '@design-system';
@@ -42,7 +42,7 @@ export function TopNavigation() {
     const [isNight, setIsNight] = useState(false);
     const [state, setState] = useState({
         ...authStore.state,
-        ...modalStore.state,
+        ...modalStore.state
     });
 
     useEffect(() => {
@@ -61,19 +61,19 @@ export function TopNavigation() {
         const authUpdateKey = authStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
-                ...nextState,
+                ...nextState
             }));
         });
         const configUpdateKey = configStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
-                theme: nextState.theme,
+                theme: nextState.theme
             }));
         });
         const modalUpdateKey = modalStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
-                ...nextState,
+                ...nextState
             }));
         });
 
@@ -101,7 +101,7 @@ export function TopNavigation() {
             if (data.status === 'DONE') {
                 authStore.set({
                     isLogin: true,
-                    ...data.body,
+                    ...data.body
                 });
             }
         });
@@ -125,7 +125,7 @@ export function TopNavigation() {
                 setIsRollup(false);
                 accScrollY = 0;
             }
-            
+
             if (accScrollY < -80) {
                 setIsNotifyOpen(false);
                 setIsRollup(true);
@@ -190,13 +190,11 @@ export function TopNavigation() {
     };
 
     const onReadNotify = async (pk: number, url: string) => {
-        const { data } = await API.putSetting('notify', {
-            pk 
-        });
+        const { data } = await API.putSetting('notify', { pk });
         if (data.status === 'DONE') {
             setState((prevState) => ({
                 ...prevState,
-                notify : prevState.notify.filter(item => pk != item.pk),
+                notify : prevState.notify.filter(item => pk != item.pk)
             }));
             router.push(url);
         }
@@ -228,9 +226,7 @@ export function TopNavigation() {
                 isOpen={state.isTwoFactorAuthSyncModalOpen}
                 onClose={() => modalStore.onCloseModal('isTwoFactorAuthSyncModalOpen')}
             />
-            <nav className={cn('top-nav', {
-                isRollup 
-            })}>
+            <nav className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
                     <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
                         <div className={cn('logo')}>
@@ -257,9 +253,9 @@ export function TopNavigation() {
                                                 {state.notify.length}
                                             </span>
                                         )}
-                                        <div ref={notifyBox} className={cn('notify-box', {
-                                            isOpen: isNotifyOpen 
-                                        })}>
+                                        <div
+                                            ref={notifyBox}
+                                            className={cn('notify-box', { isOpen: isNotifyOpen })}>
                                             {state.isTelegramSync ? (
                                                 <div className={cn('telegram')} onClick={() => unsync()}>
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
@@ -286,7 +282,7 @@ export function TopNavigation() {
                                             className={cn('get-start')}
                                         >
                                             {path.lastIndexOf('/write') > -1
-                                                ? '글 발행하기' 
+                                                ? '글 발행하기'
                                                 : '글 수정하기'}
                                         </li>
                                     ) : (
@@ -310,23 +306,23 @@ export function TopNavigation() {
                                                 {
                                                     name: '내 블로그',
                                                     icon: 'far fa-user',
-                                                    onClick: () => router.push(`/@${state.username}`),
+                                                    onClick: () => router.push(`/@${state.username}`)
                                                 },
                                                 {
                                                     name: '관리',
                                                     icon: 'fas fa-cog',
-                                                    onClick: () => router.push('/setting/account'),
+                                                    onClick: () => router.push('/setting/account')
                                                 },
                                                 {
                                                     name: '전체',
                                                     icon: 'fas fa-th-large',
-                                                    onClick: () => router.push('/map'),
+                                                    onClick: () => router.push('/map')
                                                 },
                                                 {
                                                     name: '로그아웃',
                                                     icon: 'fas fa-sign-out-alt',
-                                                    onClick: onClickLogout,
-                                                },
+                                                    onClick: onClickLogout
+                                                }
                                             ]}
                                         />
                                     </li>

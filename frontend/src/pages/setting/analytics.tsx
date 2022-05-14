@@ -1,6 +1,6 @@
 import {
     useEffect,
-    useState,
+    useState
 } from 'react';
 
 import ReactFrappeChart from 'react-frappe-charts';
@@ -8,7 +8,7 @@ import ReactFrappeChart from 'react-frappe-charts';
 import {
     Accordion,
     Card,
-    Table,
+    Table
 } from '@design-system';
 import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
@@ -30,7 +30,7 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
             API.getSettingAnalyticsSearch()
                 .then(({ data }) => setSearches(data.body)),
             API.getSettingAnalyticsReferrers()
-                .then(({ data }) => setReferers(data.body)),
+                .then(({ data }) => setReferers(data.body))
         ]).then(() => {
             loadingStore.end();
         });
@@ -65,12 +65,8 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
                                 ]
                             }}
                             colors={['#A076F1']}
-                            lineOptions={{
-                                hideDots: 1
-                            }}
-                            axisOptions={{
-                                xIsSeries: 1
-                            }}
+                            lineOptions={{ hideDots: 1 }}
+                            axisOptions={{ xIsSeries: 1 }}
                         />
                     </Card>
                 </>
@@ -107,7 +103,7 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
                                         body={searches.topSearches.map((item) => [
                                             item.count.toString(),
                                             item.keyword,
-                                            item.platform,
+                                            item.platform
                                         ])}
                                     />
                                 </Accordion>

@@ -21,12 +21,8 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
                     <a>
                         <img
                             className="thumbnail lazy"
-                            src={getPostsImage(props.image, {
-                                preview: true 
-                            })}
-                            data-src={getPostsImage(props.image, {
-                                minify: true,
-                            })}
+                            src={getPostsImage(props.image, { preview: true })}
+                            data-src={getPostsImage(props.image, { minify: true })}
                         />
                         <div className="mask">
                             <div className="title">

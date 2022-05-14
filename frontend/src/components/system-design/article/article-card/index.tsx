@@ -7,12 +7,12 @@ import Link from 'next/link';
 import {
     Badge,
     Card,
-    PopOver,
+    PopOver
 } from '@design-system';
 
 import {
     getPostsImage,
-    getUserImage,
+    getUserImage
 } from '@modules/utility/image';
 
 export interface ArticleCardProps {
@@ -35,8 +35,8 @@ export interface ArticleCardProps {
 
 export function ArticleCard(props: ArticleCardProps) {
     const {
-        hasShadow = true, 
-        isRounded = true,
+        hasShadow = true,
+        isRounded = true
     } = props;
 
     const url = props.author ? `/@${props.author}/${props.url}` : props.url;
@@ -51,15 +51,11 @@ export function ArticleCard(props: ArticleCardProps) {
                 <>
                     {typeof props.image !== 'undefined' && (
                         <Link href={url}>
-                            <a> 
+                            <a>
                                 <img
                                     className={cn('image', 'lazy')}
-                                    src={getPostsImage(props.image, {
-                                        preview: true 
-                                    })}
-                                    data-src={getPostsImage(props.image, {
-                                        minify: true 
-                                    })}
+                                    src={getPostsImage(props.image, { preview: true })}
+                                    data-src={getPostsImage(props.image, { minify: true })}
                                 />
                             </a>
                         </Link>
@@ -72,19 +68,18 @@ export function ArticleCard(props: ArticleCardProps) {
                         )}
                         <Link href={url}>
                             <a>
-                                <div className={cn(
-                                    'title',
-                                    'deep-dark',
-                                    {
-                                        'mt-3': typeof props.image !== 'undefined' 
-                                    }
-                                )}>
+                                <div
+                                    className={cn(
+                                        'title',
+                                        'deep-dark',
+                                        { 'mt-3': typeof props.image !== 'undefined' }
+                                    )}>
                                     {props.title}
                                 </div>
                                 {description && props.highlight ? (
-                                    <p className="shallow-dark" dangerouslySetInnerHTML={{
-                                        __html: description
-                                    }}/>
+                                    <p
+                                        className="shallow-dark"
+                                        dangerouslySetInnerHTML={{ __html: description }}/>
                                 ) : (
                                     <p className="shallow-dark">{description}</p>
                                 )}

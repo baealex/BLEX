@@ -1,15 +1,13 @@
 import axiosRequest, {
     ResponseData,
-    serializeObject,
+    serializeObject
 } from './index';
 
 export async function getUserSeries(author: string, page: number) {
     return await axiosRequest<ResponseData<GetUserSeriesData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series`,
         method: 'GET',
-        params: {
-            page 
-        },
+        params: { page }
     });
 }
 
@@ -28,12 +26,8 @@ export async function postUserSeries(author: string, title: string) {
     return await axiosRequest<ResponseData<PostUserSeriesData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            title
-        }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject({ title })
     });
 }
 
@@ -41,12 +35,8 @@ export async function putUserSeriesIndex(author: string, items: (string | number
     return await axiosRequest<ResponseData<PutUserSeriesIndexData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series?kind=index`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            series: items.map(item => `${item[0]}=${item[1]}`).join(','),
-        }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject({ series: items.map(item => `${item[0]}=${item[1]}`).join(',') })
     });
 }
 
@@ -92,10 +82,8 @@ export async function putUserSeries(author: string, url: string, data: object) {
     return await axiosRequest<ResponseData<putUserSeriesData>>({
         url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject(data),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject(data)
     });
 }
 
@@ -106,6 +94,6 @@ export interface putUserSeriesData {
 export async function deleteUserSeries(author: string, url: string) {
     return await axiosRequest<ResponseData<any>>({
         url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
-        method: 'DELETE',
+        method: 'DELETE'
     });
 }

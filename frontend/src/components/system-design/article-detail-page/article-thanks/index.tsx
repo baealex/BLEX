@@ -1,6 +1,6 @@
 import {
     useEffect,
-    useMemo, useState 
+    useMemo, useState
 } from 'react';
 
 import { Button } from '@design-system';
@@ -15,7 +15,10 @@ interface ArticleThanks {
   url: string;
 }
 
-export function ArticleThanks({ author, url }: ArticleThanks) {
+export function ArticleThanks({
+    author,
+    url
+}: ArticleThanks) {
     const [active, setActive] = useState<0 | 1 | null>(null);
 
     useEffect(() => {

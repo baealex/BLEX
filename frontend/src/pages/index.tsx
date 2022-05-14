@@ -2,11 +2,11 @@ import type { GetServerSideProps } from 'next';
 
 import {
     ArticleCard,
-    CollectionLayout,
+    CollectionLayout
 } from '@system-design/article';
 import {
     Footer,
-    Pagination,
+    Pagination
 } from '@system-design/shared';
 import type { PageComponent } from '@components';
 
@@ -14,7 +14,7 @@ import * as API from '@modules/api';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;
-    
+
     try {
         const { data } = await API.getNewestPosts(Number(page));
 
@@ -25,9 +25,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 };
 

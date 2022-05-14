@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import {
     useEffect,
-    useState,
+    useState
 } from 'react';
 
 export interface GlitchTextProps {

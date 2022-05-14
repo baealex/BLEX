@@ -25,15 +25,17 @@ export function Tags(props: TagsProps) {
     const [tags, setTags] = useState(props.tags);
 
     return (
-        <div className={classNames(
-            cn('tags'),
-            'col-lg-3',
-        )}>
+        <div
+            className={classNames(
+                'col-lg-3',
+                cn('tags')
+            )}>
             <ul className="mt-4">
-                <div className={classNames(
-                    'd-flex justify-content-between',
-                    cn('category'),
-                )}>
+                <div
+                    className={classNames(
+                        'd-flex justify-content-between',
+                        cn('category')
+                    )}>
                     <div className="h6 font-weight-bold">
                         카테고리
                     </div>
@@ -44,33 +46,30 @@ export function Tags(props: TagsProps) {
                         menus={[
                             {
                                 name: '이름순',
-                                onClick: () => setTags(sorted(tags, {
-                                    key: 'name',
-                                }))
+                                onClick: () => setTags(sorted(tags, { key: 'name' }))
                             },
                             {
                                 name: '작성 갯수순',
                                 onClick: () => setTags(sorted(tags, {
                                     key: 'count',
-                                    reverse: true,
+                                    reverse: true
                                 }))
-                            },
+                            }
                         ]}
                     />
                 </div>
                 <Link
                     href="/[author]/posts"
-                    as={`/@${props.author}/posts`} 
+                    as={`/@${props.author}/posts`}
                     scroll={false}
                 >
                     <li>
-                        <a className={classNames(
-                            'ns',
-                            'shallow-dark',
-                            cn({
-                                active: props.active === 'all' 
-                            })
-                        )}>
+                        <a
+                            className={classNames(
+                                'ns',
+                                'shallow-dark',
+                                cn({ active: props.active === 'all' })
+                            )}>
                             전체 포스트 ({props.allCount})
                         </a>
                     </li>
@@ -79,17 +78,16 @@ export function Tags(props: TagsProps) {
                     <Link
                         key={idx}
                         href="/[author]/posts/[tag]"
-                        as={`/@${props.author}/posts/${item.name}`} 
+                        as={`/@${props.author}/posts/${item.name}`}
                         scroll={false}
                     >
                         <li>
-                            <a className={classNames(
-                                'ns',
-                                'shallow-dark',
-                                cn({
-                                    active: props.active === item.name 
-                                })
-                            )}>
+                            <a
+                                className={classNames(
+                                    'ns',
+                                    'shallow-dark',
+                                    cn({ active: props.active === item.name })
+                                )}>
                                 {item.name} ({item.count})
                             </a>
                         </li>

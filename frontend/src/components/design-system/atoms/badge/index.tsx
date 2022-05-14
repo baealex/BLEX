@@ -15,22 +15,17 @@ export function Badge({
     hasSharp = false,
     isSolo = false,
     size = 'normal',
-    children,
+    children
 }: BadgeProps) {
     return (
-        <div className={cn(
-            'badge',
-            {
-                ir: isRounded 
-            },
-            {
-                hs: hasSharp 
-            },
-            {
-                is: isSolo 
-            },
-            size !== 'normal' && 'size-' + size
-        )}>
+        <div
+            className={cn(
+                'badge',
+                { ir: isRounded },
+                { hs: hasSharp },
+                { is: isSolo },
+                size !== 'normal' && 'size-' + size
+            )}>
             {children}
         </div>
     );
