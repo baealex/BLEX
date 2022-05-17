@@ -48,6 +48,10 @@
             "memberSyntaxSortOrder": ["all", "multiple", "single", "none"],
             "allowSeparatedGroups": true
         }],
+        "react/jsx-closing-bracket-location": [ "error", {
+            "selfClosing": "tag-aligned",
+            "nonEmpty": "after-props"
+        }],
         "react/jsx-indent": [ "error", 4 ],
         "react/jsx-first-prop-new-line": [ "error", "multiline" ],
         "react/jsx-max-props-per-line": [
@@ -58,7 +62,7 @@
                     "multi": 1
                 }
             }
-          ],
+        ],
         "jsx-quotes": [ "error", "prefer-double" ]
     }
 }
