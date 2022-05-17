@@ -40,8 +40,7 @@ export function EditorTitle(props: EditorTitleProps) {
                     ? `url(${preview})`
                     : ''
             }}
-            onDragOver={(e) => e.preventDefault()}
-        >
+            onDragOver={(e) => e.preventDefault()}>
             <input
                 ref={ref}
                 type="file"

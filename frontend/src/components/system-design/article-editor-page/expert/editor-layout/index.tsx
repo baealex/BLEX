@@ -115,8 +115,7 @@ export function EditorLayout(props: Props) {
                 isOpen={isOpenPublishModal}
                 onClose={() => modalStore.onCloseModal('isPublishModalOpen')}
                 submitText={props.publish.buttonText}
-                onSubmit={() => handleSubmit()}
-            >
+                onSubmit={() => handleSubmit()}>
                 <SelectForm
                     name="series"
                     title="시리즈"

@@ -99,8 +99,7 @@ export class LoginModal extends React.Component<Props, State> {
             <Modal
                 title="로그인"
                 isOpen={this.props.isOpen}
-                onClose={() => this.props.onClose()}
-            >
+                onClose={() => this.props.onClose()}>
                 <input
                     className="login-form"
                     name="username"
@@ -126,14 +125,12 @@ export class LoginModal extends React.Component<Props, State> {
                 <SplitLine/>
                 <button
                     className="login-button google"
-                    onClick={() => oauth('google')}
-                >
+                    onClick={() => oauth('google')}>
                     <i className="fab fa-google"></i> Google 계정으로 로그인
                 </button>
                 <button
                     className="login-button github"
-                    onClick={() => oauth('github')}
-                >
+                    onClick={() => oauth('github')}>
                     <i className="fab fa-github"></i> GitHub 계정으로 로그인
                 </button>
                 <div className="login-hint">
@@ -141,8 +138,7 @@ export class LoginModal extends React.Component<Props, State> {
                         onClick={async () => {
                             await modalStore.onCloseModal('isLoginModalOpen');
                             await modalStore.onOpenModal('isSignupModalOpen');
-                        }}
-                    >
+                        }}>
                         아직 회원이 아니세요?
                     </button>
                 </div>

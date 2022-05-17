@@ -61,8 +61,7 @@ export function Tags(props: TagsProps) {
                 <Link
                     href="/[author]/posts"
                     as={`/@${props.author}/posts`}
-                    scroll={false}
-                >
+                    scroll={false}>
                     <li>
                         <a
                             className={classNames(
@@ -79,8 +78,7 @@ export function Tags(props: TagsProps) {
                         key={idx}
                         href="/[author]/posts/[tag]"
                         as={`/@${props.author}/posts/${item.name}`}
-                        scroll={false}
-                    >
+                        scroll={false}>
                         <li>
                             <a
                                 className={classNames(

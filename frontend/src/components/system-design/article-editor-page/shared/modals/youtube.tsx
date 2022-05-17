@@ -26,8 +26,7 @@ export function YoutubeModal(props: Props) {
 
                 setText('');
                 setId('');
-            }}
-        >
+            }}>
             <div className="input-group mb-3">
                 <div className="input-group-prepend">
                     <span className="input-group-text">

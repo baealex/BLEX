@@ -40,8 +40,7 @@ export class SignoutModal extends React.Component<Props, State> {
                 isOpen={this.props.isOpen}
                 onClose={this.props.onClose}
                 submitText="네 탈퇴할게요."
-                onSubmit={this.onSignOut.bind(this)}
-            >
+                onSubmit={this.onSignOut.bind(this)}>
                 <>
                     다음 정보가 즉시 삭제됩니다.
                     <ul>

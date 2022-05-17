@@ -59,8 +59,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
                 isOpen={this.props.isOpen}
                 onClose={this.props.onClose}
                 submitText="네 사용할게요."
-                onSubmit={this.onCreateTwoFactorAuth.bind(this)}
-            >
+                onSubmit={this.onCreateTwoFactorAuth.bind(this)}>
                 <>
                     다음과 같은 요구사항이 필요합니다.
                     <ul>

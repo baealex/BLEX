@@ -52,16 +52,14 @@ export function ArticleThanks({
                 color={active === 0 ? 'secondary' : 'default'}
                 gap="little"
                 space="spare"
-                onClick={() => thanksEvent()}
-            >
+                onClick={() => thanksEvent()}>
                 도움됐어요 😆
             </Button>
             <Button
                 color={active === 1 ? 'secondary' : 'default'}
                 gap="little"
                 space="spare"
-                onClick={() => noThanksEvent()}
-            >
+                onClick={() => noThanksEvent()}>
                 도움안돼요 😢
             </Button>
         </div>

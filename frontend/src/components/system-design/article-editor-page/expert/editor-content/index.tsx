@@ -157,8 +157,7 @@ export function EditorContent(props: EditorContentProps) {
                 <div
                     className="col-lg-8"
                     onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => handleDropImage(e)}
-                >
+                    onDrop={(e) => handleDropImage(e)}>
                     <div className={cn('layout')}>
                         <textarea
                             ref={textarea}
@@ -175,8 +174,7 @@ export function EditorContent(props: EditorContentProps) {
                             className={cn(
                                 'preview',
                                 { isEdit }
-                            )}
-                        >
+                            )}>
                             <ArticleContent isEdit html={blexer(props.value)} />
                         </div>
                     </div>

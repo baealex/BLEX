@@ -77,16 +77,14 @@ UserPosts.pageLayout = (page, props) => (
     <ProfileLayout
         active="posts"
         profile={props.profile}
-        social={props.social}
-    >
+        social={props.social}>
         <div className="container">
             <UserArticles
                 allCount={props.allCount}
                 active={props.tag}
                 author={props.profile.username}
                 tags={props.tags!}
-                posts={props.posts}
-            >
+                posts={props.posts}>
                 {page}
             </UserArticles>
         </div>

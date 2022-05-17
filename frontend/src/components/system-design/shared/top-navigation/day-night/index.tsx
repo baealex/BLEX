@@ -14,7 +14,8 @@ export function DayNight({
     return (
         <div className={cn('box')} onClick={() => onChange(!isNight)}>
             <div
-                className={cn('ball', { isNight })}/>
+                className={cn('ball', { isNight })}
+            />
             <div className={cn('icon-cover')}>
                 <div className={cn('icon', 'day')}>
                     <svg viewBox="0 0 16 16" fill={isNight ? '#333' : '#ef9530'} role="img" xmlns="http://www.w3.org/2000/svg">

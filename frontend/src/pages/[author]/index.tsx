@@ -83,8 +83,7 @@ Overview.pageLayout = (page, props) => (
     <ProfileLayout
         active="overview"
         profile={props.profile}
-        social={props.social}
-    >
+        social={props.social}>
         {page}
     </ProfileLayout>
 );

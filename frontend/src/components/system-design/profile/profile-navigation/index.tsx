@@ -41,8 +41,7 @@ export function ProfileNavigation(props: ProfileNavigationProps) {
                             <Link
                                 href={`/[author]${item.location}`}
                                 as={`/@${props.username}${item.location}`}
-                                scroll={false}
-                            >
+                                scroll={false}>
                                 <a>
                                     {item.title}
                                 </a>

@@ -32,8 +32,7 @@ export function TempArticleModal(props: Props) {
                 />
             ]}
             submitText="현재 글을 저장합니다"
-            onSubmit={props.onSave}
-        >
+            onSubmit={props.onSave}>
             {props.tempPosts.map((item, idx) => (
                 <Card key={idx} hasShadow isRounded className="p-3 mb-3">
                     <div className="d-flex justify-content-between">

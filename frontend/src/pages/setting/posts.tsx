@@ -196,8 +196,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 page: 1
                             }
                         }}
-                        scroll={false}
-                    >
+                        scroll={false}>
                         <a>
                             {item.name}&nbsp;
                             {router.query.order?.includes(item.order.replace('-' , '')) && (
@@ -209,7 +208,8 @@ const PostsSetting: PageComponent<Props> = (props) => {
                             )}
                         </a>
                     </Link>
-                ))}/>
+                ))}
+            />
             <>
                 {posts.map((post, idx) => (
                     <Card key={idx} hasShadow isRounded className="mb-3">
@@ -307,8 +307,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
             <Modal
                 title="포스트 분석"
                 isOpen={isModalOpen}
-                onClose={() => setModalOpen(false)}
-            >
+                onClose={() => setModalOpen(false)}>
                 <>
                     {analytics[apNow] ? (
                         <>

@@ -56,7 +56,8 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     <Link href={`/@${props.author}/posts/${item}`}>
                         <a>{item}</a>
                     </Link>
-                ))}/>
+                ))}
+            />
         </div>
     );
 }

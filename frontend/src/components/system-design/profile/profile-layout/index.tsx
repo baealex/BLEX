@@ -86,8 +86,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                                 isRounded
                                 space="spare"
                                 gap="little"
-                                onClick={() => router.push('/setting/profile')}
-                            >
+                                onClick={() => router.push('/setting/profile')}>
                                 프로필 편집
                             </Button>
                         ) : (
@@ -96,8 +95,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                                 space="spare"
                                 gap="little"
                                 color={hasSubscribe ? 'secondary' : 'default'}
-                                onClick={() => API.putUserFollow('@' + props.profile.username).then(({ data }) => setHasSubscribe(data.body.hasSubscribe))}
-                            >
+                                onClick={() => API.putUserFollow('@' + props.profile.username).then(({ data }) => setHasSubscribe(data.body.hasSubscribe))}>
                                 <>
                                     { hasSubscribe ? '구독해제' : '구독하기' }
                                 </>

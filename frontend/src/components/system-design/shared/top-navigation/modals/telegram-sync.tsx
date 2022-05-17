@@ -37,8 +37,7 @@ export class TelegramSyncModal extends React.Component<Props, State> {
             <Modal
                 title="텔레그램 연동"
                 isOpen={this.props.isOpen}
-                onClose={this.props.onClose}
-            >
+                onClose={this.props.onClose}>
                 <>
                     텔레그램과 연동하면 어떤 효과가 있나요?
                     <ul>

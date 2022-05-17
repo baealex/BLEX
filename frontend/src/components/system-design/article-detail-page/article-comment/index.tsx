@@ -236,8 +236,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                     ) : (
                         <Alert
                             type="warning"
-                            onClick={() => modalStore.onOpenModal('isLoginModalOpen')}
-                        >
+                            onClick={() => modalStore.onOpenModal('isLoginModalOpen')}>
                             댓글을 작성하려면 로그인이 필요합니다.
                         </Alert>
                     )}

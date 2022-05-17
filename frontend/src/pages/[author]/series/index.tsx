@@ -87,8 +87,7 @@ SeriesProfile.pageLayout = (page, props) => (
     <ProfileLayout
         active="series"
         profile={props.profile}
-        social={props.social}
-    >
+        social={props.social}>
         {page}
     </ProfileLayout>
 );

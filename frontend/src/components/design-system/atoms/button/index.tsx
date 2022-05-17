@@ -63,8 +63,7 @@ export function Button({
                 color != 'default' && `c-${color}`,
                 display != 'inline-block' && `d-${display}`
             )}
-            onClick={handleClick}
-        >
+            onClick={handleClick}>
             {children}
         </button>
     );

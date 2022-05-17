@@ -167,8 +167,7 @@ class Series extends React.Component<Props, State> {
                 isOpen={this.state.isSeriesModalOpen}
                 onClose={() => this.onCloseModal('isSeriesModalOpen')}
                 submitText="시리즈를 수정합니다"
-                onSubmit={() => this.seriesUpdate()}
-            >
+                onSubmit={() => this.seriesUpdate()}>
                 <div className="input-group mb-3 mr-sm-2 mt-3">
                     <div className="input-group-prepend">
                         <div className="input-group-text">시리즈명</div>
@@ -238,8 +237,7 @@ class Series extends React.Component<Props, State> {
                             <SpeechBubble
                                 href={`/@${this.props.series.owner}`}
                                 alt={this.props.series.owner}
-                                src={getUserImage(this.props.series.ownerImage)}
-                            >
+                                src={getUserImage(this.props.series.ownerImage)}>
                                 {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
                             </SpeechBubble>
                             <div className="mt-5 mb-3 text-right">
@@ -248,8 +246,7 @@ class Series extends React.Component<Props, State> {
                                     onClick={() => configStore.set((prevState) => ({
                                         ...prevState,
                                         isSortOldFirst: !isSortOldFirst
-                                    }))}
-                                >
+                                    }))}>
                                     {isSortOldFirst ? (
                                         <>
                                             <i className="fas fa-sort-up"/> 과거부터

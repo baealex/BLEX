@@ -25,8 +25,7 @@ export function Table({
                             {row.map((text, rowIdx) => (
                                 <td
                                     key={rowIdx}
-                                    data-title={head[rowIdx]}
-                                >
+                                    data-title={head[rowIdx]}>
                                     {text}
                                 </td>
                             ))}

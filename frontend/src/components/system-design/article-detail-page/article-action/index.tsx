@@ -103,8 +103,7 @@ export function ArticleAction(props: ArticleActionProps) {
                             <li
                                 key={idx}
                                 className="mx-3 mx-lg-4"
-                                onClick={() => onClickShare(social as Social)}
-                            >
+                                onClick={() => onClickShare(social as Social)}>
                                 <i className={`fab fa-${social}`}/>
                             </li>
                         ))}

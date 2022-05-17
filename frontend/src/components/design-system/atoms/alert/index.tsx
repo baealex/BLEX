@@ -19,8 +19,7 @@ export function Alert(props: AlertProps) {
                 'alert',
                 props.type,
                 { canClick: props.onClick }
-            ) + `${props.className ? ` ${props.className}` : ''}`}
-        >
+            ) + `${props.className ? ` ${props.className}` : ''}`}>
             {props.children}
         </div>
     );

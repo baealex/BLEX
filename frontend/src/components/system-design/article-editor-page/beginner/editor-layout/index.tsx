@@ -101,7 +101,8 @@ export function EditorLayout(props: Props) {
                                 <p>
                                     마크다운을 이용하여 본문의 내용을 작성할 수 있습니다.
                                 </p>
-                            ]}/>
+                            ]}
+                        />
                     </div>
                 </div>
 
@@ -110,8 +111,7 @@ export function EditorLayout(props: Props) {
                     isOpen={isOpenPublishModal}
                     onClose={() => modalStore.onCloseModal('isPublishModalOpen')}
                     submitText={props.publish.buttonText}
-                    onSubmit={() => handleSubmit()}
-                >
+                    onSubmit={() => handleSubmit()}>
                     <SelectForm
                         name="series"
                         title="시리즈"

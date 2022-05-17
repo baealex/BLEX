@@ -284,7 +284,8 @@ class PostDetail extends React.Component<Props, State> {
                                     <Link href={`/@${this.props.post.author}/posts/${item}`}>
                                         <a>{item}</a>
                                     </Link>
-                                ))}/>
+                                ))}
+                            />
                             <ArticleThanks
                                 author={this.props.post.author}
                                 url={this.props.post.url}

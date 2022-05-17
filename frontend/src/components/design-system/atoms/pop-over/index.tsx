@@ -20,8 +20,7 @@ export function PopOver(props: PopOverProps) {
             </div>
             <div
                 onMouseOver={() => setHover(true)}
-                onMouseLeave={() => setHover(false)}
-            >
+                onMouseLeave={() => setHover(false)}>
                 {props.children}
             </div>
         </div>

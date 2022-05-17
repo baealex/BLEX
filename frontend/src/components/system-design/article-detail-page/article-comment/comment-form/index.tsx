@@ -85,15 +85,13 @@ export function CommentForm(props: CommentFormProps) {
                 onClick={() => {
                     !isOpen && setIsOpen(true);
                     input.current?.focus();
-                }}
-            >
+                }}>
                 <Card
                     isRounded
                     className={`p-3 mb-3 ${cn(
                         'card',
                         { isOpen }
-                    )}`}
-                >
+                    )}`}>
                     <>
                         <textarea
                             ref={input}
@@ -110,8 +108,7 @@ export function CommentForm(props: CommentFormProps) {
                             className={cn('submit', { isOpen })}
                             onClick={() => {
                                 isOpen && handleSubmit();
-                            }}
-                        >
+                            }}>
                             <i className="fas fa-pencil-alt"/> 댓글 작성
                         </div>
                     </>

@@ -58,8 +58,7 @@ export default function TagDetail(props: Props) {
                         <SpeechBubble
                             href={`/@${props.desc.author}`}
                             alt={props.desc.author}
-                            src={getUserImage(props.desc.authorImage)}
-                        >
+                            src={getUserImage(props.desc.authorImage)}>
                             {props.desc.description}
                             <Link href={`/@${props.desc.author}/${props.desc.url}`}>
                                 <a className="ml-1 shallow-dark">

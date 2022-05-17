@@ -176,8 +176,7 @@ export class SignupModal extends React.Component<Props, State> {
                                 onClick={async () => {
                                     await modalStore.onCloseModal('isSignupModalOpen');
                                     await modalStore.onOpenModal('isLoginModalOpen');
-                                }}
-                            >
+                                }}>
                                 이미 회원이신가요?
                             </button>
                         </div>

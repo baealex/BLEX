@@ -79,7 +79,8 @@ export function ArticleCard(props: ArticleCardProps) {
                                 {description && props.highlight ? (
                                     <p
                                         className="shallow-dark"
-                                        dangerouslySetInnerHTML={{ __html: description }}/>
+                                        dangerouslySetInnerHTML={{ __html: description }}
+                                    />
                                 ) : (
                                     <p className="shallow-dark">{description}</p>
                                 )}

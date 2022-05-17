@@ -123,8 +123,7 @@ UserAbout.pageLayout = (page, props) => (
     <ProfileLayout
         active="about"
         profile={props.profile}
-        social={props.social}
-    >
+        social={props.social}>
         {page}
     </ProfileLayout>
 );

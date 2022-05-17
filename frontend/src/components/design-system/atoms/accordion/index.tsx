@@ -35,8 +35,7 @@ export function Accordion({
                 height: isOpen
                     ? `${maxHeight}px`
                     : `${maxHeight < minHeight ? maxHeight : minHeight}px`
-            }}
-        >
+            }}>
             <div ref={ref}>
                 {children}
             </div>

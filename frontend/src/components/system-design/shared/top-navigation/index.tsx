@@ -245,8 +245,7 @@ export function TopNavigation() {
                                     <li
                                         ref={notifyToggle}
                                         onClick={() => setIsNotifyOpen((prev) => !prev)}
-                                        className={cn('notify')}
-                                    >
+                                        className={cn('notify')}>
                                         <i className="far fa-bell"/>
                                         {state.notify.length > 0 && (
                                             <span>
@@ -279,8 +278,7 @@ export function TopNavigation() {
                                     {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
                                         <li
                                             onClick={() => modalStore.onOpenModal('isPublishModalOpen')}
-                                            className={cn('get-start')}
-                                        >
+                                            className={cn('get-start')}>
                                             {path.lastIndexOf('/write') > -1
                                                 ? '글 발행하기'
                                                 : '글 수정하기'}
@@ -288,8 +286,7 @@ export function TopNavigation() {
                                     ) : (
                                         <li
                                             onClick={() => router.push('/write')}
-                                            className={cn('get-start', 'outline')}
-                                        >
+                                            className={cn('get-start', 'outline')}>
                                             글 작성하기
                                         </li>
                                     )}
@@ -334,8 +331,7 @@ export function TopNavigation() {
                                     </li>
                                     <li
                                         onClick={() => modalStore.onOpenModal('isSignupModalOpen')}
-                                        className={cn('get-start')}
-                                    >
+                                        className={cn('get-start')}>
                                         블로그 시작
                                     </li>
                                 </>

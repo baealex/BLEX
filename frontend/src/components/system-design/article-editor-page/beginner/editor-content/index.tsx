@@ -363,13 +363,11 @@ export function EditorContent(props: EditorContentProps) {
                     }
 
                     await handleUploadImage(files[0]);
-                }}
-            >
+                }}>
                 {contents.map((content, idx) => (
                     <div
                         key={content.id}
-                        className={cn('block')}
-                    >
+                        className={cn('block')}>
                         {idx === active ? (
                             <>
                                 <div className={styles.editor}>

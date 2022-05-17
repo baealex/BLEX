@@ -20,8 +20,7 @@ export function Text(props: TextProps) {
                     'text',
                     `fs-${fontSize}`,
                     fontWeight !== 400 && `fw-${fontWeight / 100}`
-                )}
-            >
+                )}>
                 {props.children}
             </div>
         </>

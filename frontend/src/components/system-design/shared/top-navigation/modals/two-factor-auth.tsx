@@ -102,8 +102,7 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
             <Modal
                 title="2차 인증"
                 isOpen={this.props.isOpen}
-                onClose={this.props.onClose}
-            >
+                onClose={this.props.onClose}>
                 <p>
                     텔레그램으로 전송된 2차 인증코드를 입력하세요.
                     인증코드 유효 시간 {remainTime}

@@ -34,8 +34,7 @@ export function ImageInput(props: ImageInputProps) {
     return (
         <div
             onClick={onClickButton}
-            className={cn('image')}
-        >
+            className={cn('image')}>
             <input
                 ref={input}
                 type="file"

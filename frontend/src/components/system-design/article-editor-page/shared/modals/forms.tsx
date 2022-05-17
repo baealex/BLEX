@@ -19,8 +19,7 @@ export function FormsModal(props: Props) {
         <Modal
             title="서식"
             isOpen={props.isOpen}
-            onClose={props.onClose}
-        >
+            onClose={props.onClose}>
             {forms.map((item, idx) => (
                 <Card key={idx} hasShadow isRounded className="p-3 mb-3">
                     <div className="d-flex justify-content-between">
