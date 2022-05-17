@@ -3,11 +3,11 @@ import { PageNavigation } from '@design-system';
 const NAVIGATION_ITEMS = [
     {
         link: '/',
-        name: '최신 포스트'
+        name: '인기 포스트'
     },
     {
-        link: '/popular',
-        name: '인기 포스트'
+        link: '/newest',
+        name: '최신 포스트'
     },
     {
         link: '/tags',
@@ -16,7 +16,7 @@ const NAVIGATION_ITEMS = [
 ];
 
 export interface CollectionLayoutProps {
-    active: '최신 포스트' | '인기 포스트' | '태그 클라우드' | string;
+    active: '인기 포스트' | '최신 포스트' | '태그 클라우드' | string;
     children: React.ReactNode;
     itemExpended?: (tag: typeof NAVIGATION_ITEMS) => typeof NAVIGATION_ITEMS;
 }

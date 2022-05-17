@@ -16,7 +16,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;
 
     try {
-        const { data } = await API.getPopularPosts(Number(page));
+        const { data } = await API.getNewestPosts(Number(page));
 
         return {
             props: {
@@ -47,7 +47,7 @@ const TrendyArticles: PageComponent<Props> = (props) => {
 };
 
 TrendyArticles.pageLayout = (page, props) => (
-    <CollectionLayout active="인기 포스트" {...props}>
+    <CollectionLayout active="최신 포스트" {...props}>
         <div className="row">
             {props.posts.map(item => (
                 <ArticleCard
