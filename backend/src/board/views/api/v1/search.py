@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from board.models import Post, Search, SearchValue, History, convert_to_localtime
 from board.modules.analytics import create_history, get_network_addr
-from modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError
 from modules.subtask import sub_task_manager
 
 def search(request):

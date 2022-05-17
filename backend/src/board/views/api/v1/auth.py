@@ -16,12 +16,12 @@ from django.utils.timesince import timesince
 
 from board.models import Notify, TwoFactorAuth, Config, Profile, Post, Comment
 from board.modules.notify import create_notify
+from board.modules.response import StatusDone, StatusError
 from modules.challenge import auth_hcaptcha
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 from modules.oauth import auth_github, auth_google
 from modules.randomness import randnum, randstr
-from modules.response import StatusDone, StatusError
 from modules.scrap import download_image
 
 def check_username(username: str):

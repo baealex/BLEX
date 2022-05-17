@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from board.models import Tag, Post, convert_to_localtime
 from modules.telegram import TelegramBot
-from modules.response import StatusDone
+from board.modules.response import StatusDone
 from board.views import function as fn
 
 def tags(request, tag=None):

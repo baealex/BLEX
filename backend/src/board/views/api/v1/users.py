@@ -1,3 +1,5 @@
+import datetime
+
 from itertools import chain
 from django.core.cache import cache
 from django.db.models import F, Count, Case, When
@@ -5,8 +7,10 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.models import *
-from modules.response import StatusDone, StatusError
+from board.models import (
+    User, Post, Profile, Series,
+    Comment, Follow, Tag, convert_to_localtime, timestamp)
+from board.modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def users(request, username):
