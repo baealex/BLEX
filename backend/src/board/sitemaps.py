@@ -1,5 +1,6 @@
 from django.contrib.sitemaps import Sitemap
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.urls import reverse
 from itertools import chain
 
@@ -10,7 +11,24 @@ class StaticSitemap(Sitemap):
     priority = 1.0
     
     def items(self):
-        return ('', '/popular', '/tags')
+        return ('', '/newest', '/tags')
+    
+    def location(self, item):
+        return str(item)
+
+class StaticPaginationSitemap(Sitemap):
+    changefreq = 'daily'
+    priority = 1.0
+    
+    def items(self):
+        posts = Post.objects.filter(config__hide=False).order_by('-updated_date')
+        posts = Paginator(posts, 24)
+
+        items = []
+        for i in range(2, posts.num_pages + 1):
+            items.append(f"/?page={i}")
+        
+        return items
     
     def location(self, item):
         return str(item)
@@ -47,6 +65,7 @@ class UserSitemap(Sitemap):
 
 sitemaps = {
     'static_sitemap': StaticSitemap,
-    'posts_sitemap': PostsSitemap,
+    'static_pagination_sitemap': StaticPaginationSitemap,
     'user_sitemap': UserSitemap,
+    # 'posts_sitemap': PostsSitemap,
 }
