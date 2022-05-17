@@ -10,10 +10,20 @@
   }
   ```
 
-  - 레이아웃이 포함된 페이지 단위의 컴포넌트
+  - 레이아웃이 포함된 컴포넌트
   ```typescript
-  const Component: PageComponent<Props>(props) {
-      return;
+  const Component: PageComponent<Props> = (props) => {
+      return (
+          <></>
+      );
+  }
+
+  Component.pageLayout = (page, props) => {
+      return (
+          <Layout>
+              {page}
+          </Layout>
+      );
   }
 
   export default Component;
