@@ -3,7 +3,6 @@ import datetime
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.paginator import Paginator
 from django.db.models import (
     F, Q, Case, Exists, When,
     Value, OuterRef, Count)
@@ -18,6 +17,7 @@ from board.models import (
     Referer, PostAnalytics, convert_to_localtime)
 from board.modules.analytics import create_history, get_network_addr, view_count
 from board.modules.notify import create_notify
+from board.modules.paginator import Paginator
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
 from modules.markdown import parse_to_html, ParseData
@@ -191,8 +191,6 @@ def top_trendy(request):
 
 def popular_posts(request):
     if request.method == 'GET':
-        page = request.GET.get('page', 1)
-
         cache_key = 'popular_posts'
         posts = cache.get(cache_key)
         if not posts:
@@ -209,9 +207,11 @@ def popular_posts(request):
             posts = sorted(posts, key=lambda instance: instance.trendy(), reverse=True)
             cache.set(cache_key, posts, 7200)
 
-        paginator = Paginator(posts, 24)
-        fn.page_check(page, paginator)
-        posts = paginator.get_page(page)
+        posts = Paginator(
+            objects=posts,
+            offset=24,
+            page=request.GET.get('page', 1)
+        )
         return StatusDone({
             'posts': list(map(lambda post: {
                 'url': post.url,
@@ -229,8 +229,6 @@ def popular_posts(request):
 
 def newest_posts(request):
     if request.method == 'GET':
-        page = request.GET.get('page', 1)
-
         posts = Post.objects.select_related(
             'config', 'content'
         ).filter(
@@ -242,9 +240,11 @@ def newest_posts(request):
             author_image=F('author__profile__avatar')
         ).order_by('-created_date')
 
-        paginator = Paginator(posts, 24)
-        fn.page_check(page, paginator)
-        posts = paginator.get_page(page)
+        posts = Paginator(
+            objects=posts,
+            offset=24,
+            page=request.GET.get('page', 1)
+        )
         return StatusDone({
             'posts': list(map(lambda post: {
                 'url': post.url,
@@ -436,10 +436,11 @@ def user_posts(request, username, url=None):
                 posts = posts.filter(tags__value=tag)
             posts = posts.order_by('-created_date')
             
-            page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 10)
-            fn.page_check(page, paginator)
-            posts = paginator.get_page(page)
+            posts = Paginator(
+                objects=posts,
+                offset=10,
+                page=request.GET.get('page', 1)
+            )
             return StatusDone({
                 'all_count': all_count,
                 'posts': list(map(lambda post: {

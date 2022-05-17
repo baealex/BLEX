@@ -2,7 +2,6 @@ import time
 import datetime
 
 from django.contrib import auth
-from django.core.paginator import Paginator
 from django.db.models import (
     Q, F, Count, Case, When, Sum)
 from django.http import JsonResponse, Http404, QueryDict
@@ -15,9 +14,9 @@ from board.models import (
     User, RefererFrom, Series,
     PostAnalytics, Form, Post,
     Profile, convert_to_localtime)
+from board.modules.paginator import Paginator
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
-from board.views import function as fn
 
 def setting(request, item):
     if not request.user.is_active:
@@ -133,11 +132,11 @@ def setting(request, item):
                 except:
                     pass
 
-            page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 10)
-            fn.page_check(page, paginator)
-            posts = paginator.get_page(page)
-
+            posts = Paginator(
+                objects=posts,
+                offset=10,
+                page=request.GET.get('page', 1)
+            )
             return StatusDone({
                 'username': request.user.username,
                 'posts': list(map(lambda post: {
