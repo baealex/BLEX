@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { TagBadges } from '../../tag';
 
 import { getPostsImage } from '@modules/utility/image';
+import { unescape } from '@modules/utility/string';
 
 export interface ArticleCardListProps {
     url: string;
@@ -44,7 +45,7 @@ export function ArticleCardList(props: ArticleCardListProps) {
             <p>
                 <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                     <a className="shallow-dark">
-                        {props.description}
+                        {unescape(props.description)}
                     </a>
                 </Link>
             </p>

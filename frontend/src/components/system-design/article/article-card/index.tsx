@@ -14,6 +14,7 @@ import {
     getPostsImage,
     getUserImage
 } from '@modules/utility/image';
+import { unescape } from '@modules/utility/string';
 
 export interface ArticleCardProps {
     number?: number;
@@ -82,7 +83,7 @@ export function ArticleCard(props: ArticleCardProps) {
                                         dangerouslySetInnerHTML={{ __html: description }}
                                     />
                                 ) : (
-                                    <p className="shallow-dark">{description}</p>
+                                    <p className="shallow-dark">{unescape(description || '')}</p>
                                 )}
                             </a>
                         </Link>

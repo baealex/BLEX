@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { getPostsImage } from '@modules/utility/image';
+import { unescape } from '@modules/utility/string';
 
 export interface SeriesArticleCardProps {
     idx: number;
@@ -29,7 +30,7 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
                                 {props.idx + 1}. {props.title}
                             </div>
                             <div className="describe">
-                                {props.description}
+                                {unescape(props.description)}
                             </div>
                         </div>
                     </a>

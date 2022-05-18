@@ -1,7 +1,12 @@
-export function minify(str: string) {
-    str = str.replace(/\s/g, '');
-    str = str.replace(/function/g, 'function ');
-    str = str.replace(/var/g, 'var ');
-    str = str.replace(/new/g, 'new ');
-    return str;
+export function minify(text: string) {
+    return text.replace(/\s/g, '')
+        .replace(/function/g, 'function ')
+        .replace(/var/g, 'var ')
+        .replace(/new/g, 'new ');
+}
+
+export function unescape(text: string) {
+    return text.replace(/&lt;/g,'<')
+        .replace(/&gt;/g,'>')
+        .replace(/&amp;/g,'&');
 }
