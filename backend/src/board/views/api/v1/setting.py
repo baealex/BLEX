@@ -12,8 +12,8 @@ from django.utils.timesince import timesince
 
 from board.models import (
     User, RefererFrom, Series,
-    PostAnalytics, Form, Post,
-    Profile, convert_to_localtime)
+    Post, PostAnalytics, Form,
+    Profile, Notify, convert_to_localtime)
 from board.modules.paginator import Paginator
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
