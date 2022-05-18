@@ -190,8 +190,6 @@ def sign(request):
         
         user.save()
         return StatusDone()
-
-    raise Http404
     
     if request.method == 'DELETE':
         request.user.delete()
