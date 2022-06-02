@@ -13,9 +13,9 @@ from django.utils.text import slugify
 from django.utils.timesince import timesince
 
 from board.models import (
-    Comment, Referer, PostAnalytics, Series,
+    User, Comment, Referer, PostAnalytics, Series,
     TempPosts, Post, PostContent, PostConfig,
-    PostThanks, PostNoThanks, calc_read_time, convert_to_localtime)
+    PostLikes, PostThanks, PostNoThanks, calc_read_time, convert_to_localtime)
 from board.modules.analytics import create_history, get_network_addr, view_count
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
