@@ -31,8 +31,13 @@ export function Heatmap(props: HeatmapProps) {
     }, [props.isNightMode]);
 
     return (
-        <div className={`${cn('heatmap')} mt-5`}>
-            <div id="heatmap"/>
-        </div>
+        <>
+            <div className="h4 font-weight-bold mt-5">
+                최근 활동
+            </div>
+            <div className={`${cn('heatmap')} mt-3`}>
+                <div id="heatmap"/>
+            </div>
+        </>
     );
 }

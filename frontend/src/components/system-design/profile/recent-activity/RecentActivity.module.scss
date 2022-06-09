@@ -1,7 +1,8 @@
 .activity {
     li {
         list-style: none;
-        border: 3px solid #eee;
+        border: 1px solid #eee;
+        border-radius: 18px;
         margin: 10px 0;
         padding: 20px;
         overflow: hidden;
@@ -12,7 +13,7 @@
         }
 
         :global(body.dark) & {
-            border: 3px solid #444;
+            border: 1px solid #444;
         }
     }
 }
