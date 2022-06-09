@@ -31,7 +31,7 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
                             data-src={getPostsImage(props.image, { minify: true })}
                         />
                         <div className="p-3">
-                            <div>
+                            <div className={styles.title}>
                                 {props.title}
                             </div>
                             <div className="vs mt-2">
