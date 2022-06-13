@@ -16,6 +16,10 @@
     background: $COLOR_DEFAULT_SECONDARY;
 }
 
+body {
+    overflow-x: hidden;
+}
+
 .content {
     margin-top: 120px;
     word-break: break-all;
