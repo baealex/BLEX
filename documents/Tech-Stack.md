@@ -11,6 +11,7 @@
 - [ ] PostgreSQL
 
 **Library**
+- [x] Pillow
 - [x] FFmpeg
 - [ ] Parsedown
 

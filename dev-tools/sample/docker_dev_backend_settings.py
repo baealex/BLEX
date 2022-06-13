@@ -154,6 +154,11 @@ TELEGRAM_CHANNEL_ID   = ''
 TELEGRAM_ADMIN_ID  = ''
 
 
+# Discord notification
+
+DISCORD_NEW_POSTS_WEBHOOK = ''
+
+
 # OAuth key
 
 OAUTH_USE = False
