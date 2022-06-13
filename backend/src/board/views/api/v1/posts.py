@@ -1,6 +1,5 @@
 import datetime
 import random
-import requests
 import traceback
 
 from django.conf import settings
@@ -25,8 +24,9 @@ from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
 from board.views import function as fn
 from modules.markdown import parse_to_html, ParseData
-from modules.randomness import randstr
+from modules.randomness import randstr, randpick
 from modules.subtask import sub_task_manager
+from modules.discord import Discord
 
 def temp_posts(request, token=None):
     if not request.user.is_active:
@@ -148,16 +148,16 @@ def posts(request):
         post_config.advertise = BooleanType(request.POST.get('is_advertise', ''))
         post_config.save()
 
-        if settings.DISCORD_NEW_POSTS_WEBHOOK:
+        if not post_config.hide and settings.DISCORD_NEW_POSTS_WEBHOOK:
             def func():
-                emojis = ['🤔', '😆', '✍️', '👍']
-                picked_emoji = emojis[random.randint(0, len(emojis) - 1)]
+                emoji = randpick(['🤔', '😆', '✍️', '👍'], 1)
                 post_url = settings.SITE_URL + post.get_absolute_url()
-                req_url = settings.DISCORD_NEW_POSTS_WEBHOOK
-                req_data = {
-                    'content': f'{post.author}님이 "[{post.title}]({post_url})" 글을 작성했어요! {picked_emoji}'
-                }
-                requests.post(req_url, req_data)
+
+                content = f'{post.author}님이 "[{post.title}]({post_url})" 글을 작성했어요! {emoji}'
+                Discord.send_webhook(
+                    url=settings.DISCORD_NEW_POSTS_WEBHOOK,
+                    content=content
+                )
             sub_task_manager.append(func)
 
         token = request.POST.get('token')
