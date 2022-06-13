@@ -2,13 +2,9 @@ import classNames from 'classnames/bind';
 import styles from './ArticleContent.module.scss';
 const cn = classNames.bind(styles);
 
-import {
-    useEffect,
-    useState
-} from 'react';
 import Router from 'next/router';
+import { useEffect } from 'react';
 
-import { configStore } from '@stores/config';
 
 export interface ArticleContentProps {
     html: string;
@@ -21,30 +17,22 @@ export function ArticleContent({
     isEdit,
     noMargin
 }: ArticleContentProps) {
-    const [
-        isOpenNewTab,
-        setIsOpenNewTab
-    ] = useState(configStore.state.isOpenNewTab);
-
-    useEffect(configStore.syncValue('isOpenNewTab', setIsOpenNewTab), []);
-
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const handleClickAnchorTag = (e: any) => {
                 if (e.target.nodeName === 'A') {
                     const { href } = e.target;
+                    const isSameOrigin = href.includes(`${location.protocol}//${location.host}/`);
 
-                    if (isOpenNewTab || isEdit) {
-                        e.preventDefault();
-                        window.open(href, '_blank');
-                        return;
-                    }
-
-                    if (href.includes(`${location.protocol}//${location.host}/`)) {
+                    if (!isEdit && isSameOrigin) {
                         e.preventDefault();
                         Router.push(href).then(() => window.scrollTo(0, 0));
                         return;
                     }
+
+                    e.preventDefault();
+                    window.open(href, '_blank');
+                    return;
                 }
             };
 
@@ -56,7 +44,7 @@ export function ArticleContent({
                 $article?.removeEventListener('click', handleClickAnchorTag);
             };
         }
-    }, [isOpenNewTab]);
+    }, []);
 
     return (
         <div

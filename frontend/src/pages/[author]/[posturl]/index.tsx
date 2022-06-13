@@ -18,7 +18,6 @@ import {
     Footer, SEO
 } from '@system-design/shared';
 import { TagBadges } from '@system-design/tag';
-import { Toggle } from '@design-system';
 
 import * as API from '@modules/api';
 import { getPostsImage } from '@modules/utility/image';
@@ -265,19 +264,6 @@ class PostDetail extends React.Component<Props, State> {
                                 </div>
                             )}
                             <ArticleAuthor {...this.props.profile}/>
-                            <div className="my-3">
-                                <Toggle
-                                    label="링크를 새탭에서 여세요."
-                                    onClick={() => {
-                                        const { isOpenNewTab } = configStore.state;
-                                        configStore.set((prevState) => ({
-                                            ...prevState,
-                                            isOpenNewTab: !isOpenNewTab
-                                        }));
-                                    }}
-                                    defaultChecked={configStore.state.isOpenNewTab}
-                                />
-                            </div>
                             <ArticleContent html={this.props.post.textHtml}/>
                             <TagBadges
                                 items={this.props.post.tags.map(item => (
