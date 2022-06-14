@@ -24,7 +24,7 @@ from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
 from board.views import function as fn
 from modules.markdown import parse_to_html, ParseData
-from modules.randomness import randstr, randpick
+from modules.randomness import randstr
 from modules.subtask import sub_task_manager
 from modules.discord import Discord
 
@@ -150,13 +150,9 @@ def posts(request):
 
         if not post_config.hide and settings.DISCORD_NEW_POSTS_WEBHOOK:
             def func():
-                emoji = randpick(['🤔', '😆', '✍️', '👍'], 1)
-                post_url = settings.SITE_URL + post.get_absolute_url()
-
-                content = f'{post.author}님이 "[{post.title}]({post_url})" 글을 작성했어요! {emoji}'
                 Discord.send_webhook(
                     url=settings.DISCORD_NEW_POSTS_WEBHOOK,
-                    content=content
+                    content=settings.SITE_URL + post.get_absolute_url()
                 )
             sub_task_manager.append(func)
 
