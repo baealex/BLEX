@@ -151,11 +151,9 @@ def posts(request):
         if not post_config.hide and settings.DISCORD_NEW_POSTS_WEBHOOK:
             def func():
                 post_url = settings.SITE_URL + post.get_absolute_url()
-
-                content = f'[새 글이 발행되었어요!]({post_url})'
                 Discord.send_webhook(
                     url=settings.DISCORD_NEW_POSTS_WEBHOOK,
-                    content=settings.SITE_URL + post.get_absolute_url()
+                    content=f'[새 글이 발행되었어요!]({post_url})'
                 )
             sub_task_manager.append(func)
 
