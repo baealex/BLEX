@@ -10,6 +10,7 @@ import React, {
 import {
     Alert,
     Button,
+    Card,
     CheckBox,
     Text
 } from '@design-system';
@@ -129,13 +130,13 @@ const AccountSetting: PageComponent<Props> = (props) => {
     return (
         <>
             <>
-                <div className="mb-5">
+                <Card hasBackground isRounded className="mb-4 p-3">
                     <Text fontSize={6} fontWeight={600}>
                         가입일
                     </Text>
                     <Text>{props.createdDate}</Text>
-                </div>
-                <div className="mb-5">
+                </Card>
+                <Card hasBackground isRounded className="mb-4 p-3">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
                             사용자 필명
@@ -175,16 +176,16 @@ const AccountSetting: PageComponent<Props> = (props) => {
                             <Text>{username}</Text>
                         )}
                     </div>
-                </div>
-                <div className="mb-5">
+                </Card>
+                <Card hasBackground isRounded className="mb-4 p-3">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
                             이메일
                         </Text>
                     </div>
                     <Text>{props.email}</Text>
-                </div>
-                <div className="mb-5">
+                </Card>
+                <Card hasBackground isRounded className="mb-4 p-3">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
                             사용자 실명
@@ -206,8 +207,8 @@ const AccountSetting: PageComponent<Props> = (props) => {
                             onChange={(e) => setRealname(e.target.value)}
                         />
                     </div>
-                </div>
-                <div className="mb-5">
+                </Card>
+                <Card hasBackground isRounded className="mb-4 p-3">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
                             비밀번호 변경
@@ -232,8 +233,8 @@ const AccountSetting: PageComponent<Props> = (props) => {
                         maxLength={200}
                         onChange={(e) => setPasswordCheck(e.target.value)}
                     />
-                </div>
-                <div className="mb-5">
+                </Card>
+                <Card hasBackground isRounded className="mb-4 p-3">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
                             개인정보 보호
@@ -257,7 +258,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                         defaultChecked={agreeHistory}
                         onClick={(value: boolean) => setAgreeHistory(value)}
                     />
-                </div>
+                </Card>
                 {is2faSync ? (
                     <Button gap="little" onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') ? onDeleteTwoFactorAuth() : ''}>
                         2차 인증 중지

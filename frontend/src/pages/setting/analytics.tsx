@@ -43,7 +43,7 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
                     <div className="h5 font-weight-bold mt-lg-0 mt-3 mb-3">
                         조회수 추이
                     </div>
-                    <Card hasShadow isRounded>
+                    <Card hasBackground isRounded>
                         <div className="pt-3 px-3 d-flex justify-content-between">
                             <div className="ns shallow-dark">
                                 총 조회수 : {views.total.toLocaleString()}
@@ -76,7 +76,7 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
                     <div className="h5 font-weight-bold mt-5 mb-3">
                         검색 유입 분석
                     </div>
-                    <Card hasShadow isRounded>
+                    <Card hasBackground isRounded>
                         <>
                             <div className="pt-3 px-3">
                                 <div className="ns shallow-dark text-right">
@@ -120,7 +120,7 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
                     <div className="row">
                         {referers.referers.map((item, idx: number) => (
                             <div key={idx} className="col-lg-4 col-md-6">
-                                <Card hasShadow isRounded className="my-3">
+                                <Card isRounded hasBackground className="my-3">
                                     <>
                                         <div className="p-3">
                                             <div>

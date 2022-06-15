@@ -14,13 +14,18 @@
     }
 
     &.fb { // fillBack
-        @include BACKGROUND;
+        &.fb-background {
+            @include BACKGROUND;
+        }
+        &.fb-card {
+            @include CARD_BACKGROUND;
+        }
     }
 
     &.ir { // isRounded
         border-radius: 8px;
 
-        :global(img) {
+        & > :global(img) {
             border-radius: 8px 8px 0 0;
         }
     }

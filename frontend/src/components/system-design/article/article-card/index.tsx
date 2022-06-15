@@ -48,7 +48,12 @@ export function ArticleCard(props: ArticleCardProps) {
 
     return (
         <div className={props.className}>
-            <Card hasShadow={hasShadow} isRounded={isRounded} className={cn('posts')}>
+            <Card
+                hasBackground
+                backgroundType="background"
+                hasShadow={hasShadow}
+                isRounded={isRounded}
+                className={cn('posts')}>
                 <>
                     {typeof props.image !== 'undefined' && (
                         <Link href={url}>

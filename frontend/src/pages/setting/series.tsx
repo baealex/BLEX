@@ -110,7 +110,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                             <i className="fas fa-angle-down"></i>
                         </div>
                     </div>
-                    <Card hasShadow isRounded className="p-3">
+                    <Card hasBackground isRounded className="p-3">
                         <div className="d-flex justify-content-between">
                             <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
                                 <a className="deep-dark">

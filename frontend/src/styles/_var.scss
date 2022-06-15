@@ -46,6 +46,14 @@ $fontSizes: (
     }
 }
 
+@mixin CARD_BACKGROUND {
+    background: #F5F5F8;
+
+    :global(body.dark) & {
+        background: #2A2A2A;
+    }
+}
+
 @mixin COLOR_PRIMARY {
     color: $COLOR_DEFAULT_PRIMARY;
 

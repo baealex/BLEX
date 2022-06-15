@@ -96,7 +96,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
             </button>
             <div className="mt-3">
                 {forms.map((item, idx) => (
-                    <Card key={idx} hasShadow isRounded className="p-3 mb-3">
+                    <Card key={idx} hasBackground isRounded className="p-3 mb-3">
                         <div className="d-flex justify-content-between">
                             <a className="deep-dark">
                                 {item.title}

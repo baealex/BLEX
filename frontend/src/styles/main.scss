@@ -21,11 +21,11 @@ body {
 }
 
 .content {
-    margin-top: 120px;
+    padding-top: 120px;
     word-break: break-all;
 
     @media only screen and (max-width: 991px) {
-        margin-top: 100px;
+        padding-top: 100px;
     }
 }
 
@@ -107,13 +107,6 @@ mark {
 /* ------------------------------ */
 /* SETTING */
 .setting-info {
-    background-color: #fafafa;
-    border-radius: 0px 0px 5px 5px;
-
-    body.dark & {
-        background-color: #1e1e1e;
-    }
-
     .element-lock {
         .fa-lock {
             color: #b00;

@@ -7,7 +7,8 @@ export interface CardProps {
     isRounded?: boolean;
     hasShadow?: boolean;
     shadowLevel?: 'main' | 'sub';
-    fillBack?: boolean;
+    hasBackground?: boolean;
+    backgroundType?: 'background' | 'card';
     children?: string | JSX.Element | JSX.Element[];
     className?: string;
 }
@@ -16,7 +17,8 @@ export function Card({
     isRounded = false,
     hasShadow = false,
     shadowLevel = 'main',
-    fillBack = false,
+    hasBackground = false,
+    backgroundType = 'card',
     className = '',
     children
 }: CardProps) {
@@ -26,8 +28,9 @@ export function Card({
                 'card',
                 { ir: isRounded },
                 { hs: hasShadow },
-                hasShadow && 'sl-' + shadowLevel,
-                { fb: fillBack },
+                (hasShadow && shadowLevel) && 'sl-' + shadowLevel,
+                { fb: hasBackground },
+                (hasBackground && backgroundType) && 'fb-' + backgroundType,
                 className
             )}>
             {children}

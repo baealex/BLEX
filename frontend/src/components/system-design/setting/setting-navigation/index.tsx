@@ -65,7 +65,7 @@ export function SettingNavigation(props: SettingNavigationProps) {
     const { sticky } = props;
 
     return (
-        <Card hasShadow shadowLevel="sub" className="mb-3">
+        <Card className="mb-3">
             <div
                 className={cn('box', 'py-2', { sticky })}>
                 {NAVIGATION_ITEMS.map(item => (

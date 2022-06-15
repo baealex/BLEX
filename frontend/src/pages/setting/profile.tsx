@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import {
     Alert,
     Button,
+    Card,
     ImageInput,
     Text
 } from '@design-system';
@@ -65,7 +66,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
 
     return (
         <>
-            <div className="mb-5">
+            <Card hasBackground isRounded className="mb-4 p-3">
                 <div className="mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         사용자 이미지
@@ -83,8 +84,8 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                         loadingStore.set({ isLoading: false });
                     }}
                 />
-            </div>
-            <div className="mb-5">
+            </Card>
+            <Card hasBackground isRounded className="mb-4 p-3">
                 <div className="d-flex justify-content-between mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         사용자 소개
@@ -107,8 +108,8 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     onChange={(e) => setBio(e.target.value)}
                     value={bio}
                 />
-            </div>
-            <div className="mb-5">
+            </Card>
+            <Card hasBackground isRounded className="mb-4 p-3">
                 <div className="d-flex justify-content-between mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         소셜 정보
@@ -195,7 +196,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                         onChange={(e) => setYoutube(e.target.value)}
                     />
                 </div>
-            </div>
+            </Card>
         </>
     );
 };
