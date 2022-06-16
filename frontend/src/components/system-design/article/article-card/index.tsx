@@ -37,7 +37,6 @@ export interface ArticleCardProps {
 
 export function ArticleCard(props: ArticleCardProps) {
     const {
-        hasBackground = true,
         hasShadow = true,
         isRounded = true
     } = props;
@@ -51,8 +50,6 @@ export function ArticleCard(props: ArticleCardProps) {
     return (
         <div className={props.className}>
             <Card
-                hasBackground={hasBackground}
-                backgroundType="background"
                 hasShadow={hasShadow}
                 isRounded={isRounded}
                 className={cn('posts')}>

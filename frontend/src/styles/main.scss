@@ -12,12 +12,14 @@
 
 @import 'three-dots/sass/three-dots.scss';
 
-#nprogress .bar {
-    background: $COLOR_DEFAULT_SECONDARY;
-}
-
 body {
     overflow-x: hidden;
+
+    &.dark {
+        img, video {
+            filter: brightness(.8) contrast(1.2);
+        }
+    }
 }
 
 .content {
@@ -31,12 +33,6 @@ body {
 
 input, textarea, select {
     font-size: 16px;
-}
-
-body.dark {
-    img, video {
-        filter: brightness(.8) contrast(1.2);
-    }
 }
 
 mark {
@@ -232,39 +228,6 @@ body.dark .card-body {
 
 body.dark .btn {
     color: #fff;
-}
-
-.Toastify__toast-container--top-right {
-    top: calc(72px + 1em);
-    right: 1em;
-}
-
-.Toastify__toast--default {
-    background: #fff !important;
-    color: #555 !important;
-
-    body.dark & {
-        background: #000 !important;
-        color: #ccc !important;
-    }
-}
-
-.Toastify__progress-bar {
-    height: 3px !important;
-}
-
-.Toastify__progress-bar--default {
-    background: $COLOR_DEFAULT_PRIMARY !important;
-
-    body.dark & {
-        background: $COLOR_DARK_PRIMARY !important;
-    }
-}
-
-.Toastify__close-button--default {
-    body.dark & {
-        color: #fff !important;
-    }
 }
 
 .active-button {

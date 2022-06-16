@@ -5,6 +5,8 @@ const cn = classNames.bind(styles);
 import { Chart } from 'frappe-charts';
 import { useEffect } from 'react';
 
+import { Card } from '@components/design-system';
+
 export interface HeatmapProps {
     isNightMode: boolean;
     data?: {
@@ -35,9 +37,9 @@ export function Heatmap(props: HeatmapProps) {
             <div className="h4 font-weight-bold mt-5">
                 최근 활동
             </div>
-            <div className={`${cn('heatmap')} mt-3`}>
+            <Card isRounded className={`${cn('heatmap')} mt-3`}>
                 <div id="heatmap"/>
-            </div>
+            </Card>
         </>
     );
 }

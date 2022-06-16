@@ -44,15 +44,12 @@ export function RelatedArticles(props: RelatedProps) {
                     <a className="font-weight-bold deep-dark">
                         {props.realname}
                     </a>
-                </Link>님이 작성한 다른 글</p>
+                </Link>
+                님이 작성한 다른 글
+            </p>
             <div className="row">
                 {posts.map((item, idx) => (
-                    <ArticleCard
-                        key={idx}
-                        hasBackground={false}
-                        className="col-lg-4 col-md-6 mt-4"
-                        {...item}
-                    />
+                    <ArticleCard key={idx} className="col-lg-4 col-md-6 mt-4" {...item} />
                 ))}
             </div>
         </div>

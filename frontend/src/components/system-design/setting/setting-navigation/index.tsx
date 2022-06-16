@@ -2,7 +2,6 @@ import classNames from 'classnames/bind';
 import styles from './SettingNavigation.module.scss';
 const cn = classNames.bind(styles);
 
-import { Card } from '@design-system';
 import Link from 'next/link';
 
 export interface SettingNavigationProps {
@@ -65,34 +64,32 @@ export function SettingNavigation(props: SettingNavigationProps) {
     const { sticky } = props;
 
     return (
-        <Card className="mb-3">
-            <div
-                className={cn('box', 'py-2', { sticky })}>
-                {NAVIGATION_ITEMS.map(item => (
-                    <div key={item.title} className={cn('section')}>
-                        <div className={cn('title', 'px-3', 'py-2')}>
-                            <i className={item.icon}/> {item.title}
-                        </div>
-                        <div className={cn('sub-item')}>
-                            {item.subItems?.map(subItem => (
-                                <Link key={subItem.url} href={subItem.url} scroll={false}>
-                                    <a>
-                                        <div
-                                            key={subItem.url}
-                                            className={cn(
-                                                'px-3',
-                                                'py-2',
-                                                { active: props.active == subItem.name }
-                                            )}>
-                                            {subItem.title}
-                                        </div>
-                                    </a>
-                                </Link>
-                            ))}
-                        </div>
+        <div
+            className={cn('box', 'py-2', { sticky })}>
+            {NAVIGATION_ITEMS.map(item => (
+                <div key={item.title} className={cn('section')}>
+                    <div className={cn('title', 'px-3', 'py-2')}>
+                        <i className={item.icon}/> {item.title}
                     </div>
-                ))}
-            </div>
-        </Card>
+                    <div className={cn('sub-item')}>
+                        {item.subItems?.map(subItem => (
+                            <Link key={subItem.url} href={subItem.url} scroll={false}>
+                                <a>
+                                    <div
+                                        key={subItem.url}
+                                        className={cn(
+                                            'px-3',
+                                            'py-2',
+                                            { active: props.active == subItem.name }
+                                        )}>
+                                        {subItem.title}
+                                    </div>
+                                </a>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
     );
 }

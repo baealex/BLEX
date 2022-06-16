@@ -1,19 +1,11 @@
 .activity {
     li {
         list-style: none;
-        border: 1px solid #eee;
-        border-radius: 18px;
-        margin: 10px 0;
-        padding: 20px;
         overflow: hidden;
         word-wrap: break-word;
 
         i {
             margin-right: 10px;
-        }
-
-        :global(body.dark) & {
-            border: 1px solid #444;
         }
     }
 }

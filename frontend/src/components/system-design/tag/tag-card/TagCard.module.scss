@@ -1,19 +1,13 @@
 .card {
     display: flex;
     justify-content: space-between;
-    padding: 1rem;
     border-radius: 16px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    background: #f8f8f8;
-    :global(body.dark) & {
-        background: #2a2a2a;
-    }
 
     a {
         text-decoration: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         color: #555;
         :global(body.dark) & {

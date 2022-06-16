@@ -9,7 +9,7 @@ export interface CardProps {
     shadowLevel?: 'main' | 'sub';
     hasBackground?: boolean;
     backgroundType?: 'background' | 'card';
-    children?: string | JSX.Element | JSX.Element[];
+    children?: React.ReactNode;
     className?: string;
 }
 

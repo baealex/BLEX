@@ -3,8 +3,19 @@
 .card {
     width: 100%;
     display: block;
+    border: 1px solid #eee;
+
+    :global(body.dark) & {
+        border: 1px solid #444;
+    }
 
     &.hs { // hasShadow
+        border: none;
+
+        :global(body.dark) & {
+            border: none;
+        }
+
         &.sl-main {
             @include MAIN_SHADOW;
         }

@@ -58,8 +58,10 @@ Tags.pageLayout = (page, props) => (
     <CollectionLayout active="태그 클라우드" {...props}>
         <>
             <div className="row">
-                {props.tags.map((item, idx) => (
-                    <TagCard key={idx} {...item}/>
+                {props.tags.map((item) => (
+                    <div key={item.name} className="col-sm-6 col-md-4 col-lg-3">
+                        <TagCard {...item}/>
+                    </div>
                 ))}
             </div>
             {page}
