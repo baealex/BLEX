@@ -78,7 +78,7 @@ export class LoginModal extends React.Component<Props, State> {
         if (data.status === 'DONE') {
             if (data.body.security) {
                 snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
-                modalStore.onOpenModal('isTwoFactorAuthModalOpen');
+                modalStore.open('is2FAModalOpen');
                 this.props.onClose();
                 return;
             }
@@ -136,8 +136,8 @@ export class LoginModal extends React.Component<Props, State> {
                 <div className="login-hint">
                     <button
                         onClick={async () => {
-                            await modalStore.onCloseModal('isLoginModalOpen');
-                            await modalStore.onOpenModal('isSignupModalOpen');
+                            await modalStore.close('isLoginModalOpen');
+                            await modalStore.open('isSignupModalOpen');
                         }}>
                         아직 회원이 아니세요?
                     </button>

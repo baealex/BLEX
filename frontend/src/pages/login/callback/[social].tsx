@@ -35,7 +35,7 @@ export default function SocialLogin(props: Props) {
         if (data.status === 'DONE') {
             if (data.body.security) {
                 snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
-                modalStore.onOpenModal('isTwoFactorAuthModalOpen');
+                modalStore.open('is2FAModalOpen');
                 return;
             }
 

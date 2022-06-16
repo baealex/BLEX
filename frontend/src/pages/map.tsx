@@ -1,7 +1,3 @@
-import {
-    useEffect,
-    useState
-} from 'react';
 import Link from 'next/link';
 import { useValue } from 'badland-react';
 

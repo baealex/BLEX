@@ -204,27 +204,27 @@ export function TopNavigation() {
         <>
             <LoginModal
                 isOpen={state.isLoginModalOpen}
-                onClose={() => modalStore.onCloseModal('isLoginModalOpen')}
+                onClose={() => modalStore.close('isLoginModalOpen')}
             />
             <SignupModal
                 isOpen={state.isSignupModalOpen}
-                onClose={() => modalStore.onCloseModal('isSignupModalOpen')}
+                onClose={() => modalStore.close('isSignupModalOpen')}
             />
             <SignoutModal
                 isOpen={state.isSignoutModalOpen}
-                onClose={() => modalStore.onCloseModal('isSignoutModalOpen')}
+                onClose={() => modalStore.close('isSignoutModalOpen')}
             />
             <TelegramSyncModal
                 isOpen={state.isTelegramSyncModalOpen}
-                onClose={() => modalStore.onCloseModal('isTelegramSyncModalOpen')}
+                onClose={() => modalStore.close('isTelegramSyncModalOpen')}
             />
             <TwoFactorAuthModal
-                isOpen={state.isTwoFactorAuthModalOpen}
-                onClose={() => modalStore.onCloseModal('isTwoFactorAuthModalOpen')}
+                isOpen={state.is2FAModalOpen}
+                onClose={() => modalStore.close('is2FAModalOpen')}
             />
             <TwoFactorAuthSyncModal
-                isOpen={state.isTwoFactorAuthSyncModalOpen}
-                onClose={() => modalStore.onCloseModal('isTwoFactorAuthSyncModalOpen')}
+                isOpen={state.is2FASyncModalOpen}
+                onClose={() => modalStore.close('is2FASyncModalOpen')}
             />
             <nav className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
@@ -260,7 +260,7 @@ export function TopNavigation() {
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
                                                 </div>
                                             ) : (
-                                                <div className={cn('telegram')} onClick={() => modalStore.onOpenModal('isTelegramSyncModalOpen')}>
+                                                <div className={cn('telegram')} onClick={() => modalStore.open('isTelegramSyncModalOpen')}>
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동
                                                 </div>
                                             )}
@@ -277,7 +277,7 @@ export function TopNavigation() {
                                     </li>
                                     {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
                                         <li
-                                            onClick={() => modalStore.onOpenModal('isPublishModalOpen')}
+                                            onClick={() => modalStore.open('isPublishModalOpen')}
                                             className={cn('get-start')}>
                                             {path.lastIndexOf('/write') > -1
                                                 ? '글 발행하기'
@@ -326,11 +326,11 @@ export function TopNavigation() {
                                 </>
                             ) : (
                                 <>
-                                    <li onClick={() => modalStore.onOpenModal('isLoginModalOpen')}>
+                                    <li onClick={() => modalStore.open('isLoginModalOpen')}>
                                         로그인
                                     </li>
                                     <li
-                                        onClick={() => modalStore.onOpenModal('isSignupModalOpen')}
+                                        onClick={() => modalStore.open('isSignupModalOpen')}
                                         className={cn('get-start')}>
                                         블로그 시작
                                     </li>

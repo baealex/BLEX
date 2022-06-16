@@ -174,8 +174,8 @@ export class SignupModal extends React.Component<Props, State> {
                         <div className="login-hint">
                             <button
                                 onClick={async () => {
-                                    await modalStore.onCloseModal('isSignupModalOpen');
-                                    await modalStore.onOpenModal('isLoginModalOpen');
+                                    await modalStore.close('isSignupModalOpen');
+                                    await modalStore.open('isLoginModalOpen');
                                 }}>
                                 이미 회원이신가요?
                             </button>

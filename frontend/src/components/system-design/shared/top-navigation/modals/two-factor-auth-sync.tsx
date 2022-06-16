@@ -31,7 +31,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
                 return;
             }
             if (data.errorCode === API.ERROR.NEED_TELEGRAM) {
-                snackBar('😥 텔레그램 연동이 필요합니다.', { onClick: () => modalStore.onOpenModal('isTelegramSyncModalOpen') });
+                snackBar('😥 텔레그램 연동이 필요합니다.', { onClick: () => modalStore.open('isTelegramSyncModalOpen') });
                 return;
             }
             if (data.errorCode === API.ERROR.ALREADY_EXISTS) {

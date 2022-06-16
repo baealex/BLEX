@@ -242,29 +242,29 @@ const AccountSetting: PageComponent<Props> = (props) => {
                     <CheckBox
                         label="다른 사용자에게 이메일을 노출합니다."
                         defaultChecked={showEmail}
-                        onClick={(value: boolean) => setShowEmail(value)}
+                        onClick={(value) => setShowEmail(value)}
                     />
                     <CheckBox
                         label="서비스의 이메일 전송을 허용합니다."
                         defaultChecked={agreeEmail}
-                        onClick={(value: boolean) => setAgreeEmail(value)}
+                        onClick={(value) => setAgreeEmail(value)}
                     />
                     <CheckBox
                         label="서비스의 활동 내역 수집을 허용합니다."
                         defaultChecked={agreeHistory}
-                        onClick={(value: boolean) => setAgreeHistory(value)}
+                        onClick={(value) => setAgreeHistory(value)}
                     />
                 </Card>
                 {is2faSync ? (
-                    <Button gap="little" onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') ? onDeleteTwoFactorAuth() : ''}>
+                    <Button gap="little" onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') && onDeleteTwoFactorAuth()}>
                         2차 인증 중지
                     </Button>
                 ) : (
-                    <Button gap="little" onClick={() => modalStore.onOpenModal('isTwoFactorAuthSyncModalOpen')}>
+                    <Button gap="little" onClick={() => modalStore.open('is2FASyncModalOpen')}>
                         2차 인증 등록
                     </Button>
                 )}
-                <Button onClick={() => modalStore.onOpenModal('isSignoutModalOpen')}>
+                <Button onClick={() => modalStore.open('isSignoutModalOpen')}>
                     사용자 탈퇴
                 </Button>
             </>

@@ -72,7 +72,7 @@ export function EditorLayout(props: Props) {
     }, []);
 
     const handleSubmit = async () => {
-        modalStore.onCloseModal('isPublishModalOpen');
+        modalStore.close('isPublishModalOpen');
         setIsSubmit(true);
         await props.onSubmit(() => {
             setIsSubmit(false);
@@ -109,7 +109,7 @@ export function EditorLayout(props: Props) {
                 <Modal
                     title={props.publish.title}
                     isOpen={isOpenPublishModal}
-                    onClose={() => modalStore.onCloseModal('isPublishModalOpen')}
+                    onClose={() => modalStore.close('isPublishModalOpen')}
                     submitText={props.publish.buttonText}
                     onSubmit={() => handleSubmit()}>
                     <SelectForm

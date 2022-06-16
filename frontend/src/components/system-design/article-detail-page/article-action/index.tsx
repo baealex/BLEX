@@ -69,7 +69,7 @@ export function ArticleAction(props: ArticleActionProps) {
             if (data.errorCode === API.ERROR.NOT_LOGIN) {
                 snackBar('😅 로그인이 필요합니다.', {
                     onClick:() => {
-                        modalStore.onOpenModal('isLoginModalOpen');
+                        modalStore.open('isLoginModalOpen');
                     }
                 });
             }

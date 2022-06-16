@@ -6,8 +6,8 @@ export interface ModalStoreState {
     isSignoutModalOpen: boolean;
     isPublishModalOpen: boolean;
     isTelegramSyncModalOpen: boolean;
-    isTwoFactorAuthModalOpen: boolean;
-    isTwoFactorAuthSyncModalOpen: boolean;
+    is2FAModalOpen: boolean;
+    is2FASyncModalOpen: boolean;
 }
 
 type ModalName = keyof ModalStoreState;
@@ -21,19 +21,19 @@ class ModalStore extends Store<ModalStoreState> {
             isSignoutModalOpen: false,
             isPublishModalOpen: false,
             isTelegramSyncModalOpen: false,
-            isTwoFactorAuthModalOpen: false,
-            isTwoFactorAuthSyncModalOpen: false
+            is2FAModalOpen: false,
+            is2FASyncModalOpen: false
         };
     }
 
-    async onOpenModal(modalName: ModalName) {
+    async open(modalName: ModalName) {
         await this.set((prevState) => ({
             ...prevState,
             [modalName]: true
         }));
     }
 
-    async onCloseModal(modalName: ModalName) {
+    async close(modalName: ModalName) {
         await this.set((prevState) => ({
             ...prevState,
             [modalName]: false
