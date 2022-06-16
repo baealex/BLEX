@@ -50,7 +50,7 @@ export function Dropdown(props: DropdownProps) {
             <span ref={toggle} className={cn('button')}>
                 {props.button}
             </span>
-            <div ref={box}>
+            <div className={cn('box')} ref={box}>
                 {isOpen && (
                     <div className={cn('menu', position)}>
                         <ul>
