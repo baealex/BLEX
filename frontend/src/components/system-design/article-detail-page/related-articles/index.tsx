@@ -49,6 +49,7 @@ export function RelatedArticles(props: RelatedProps) {
                 {posts.map((item, idx) => (
                     <ArticleCard
                         key={idx}
+                        hasBackground={false}
                         className="col-lg-4 col-md-6 mt-4"
                         {...item}
                     />

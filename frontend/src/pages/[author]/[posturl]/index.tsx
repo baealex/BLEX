@@ -15,7 +15,8 @@ import {
     RelatedArticles
 } from '@system-design/article-detail-page';
 import {
-    Footer, SEO
+    Footer,
+    SEO
 } from '@system-design/shared';
 import { TagBadges } from '@system-design/tag';
 

@@ -29,6 +29,7 @@ export interface ArticleCardProps {
     isAd?: boolean;
     className?: string;
     children?: JSX.Element;
+    hasBackground?: boolean;
     hasShadow?: boolean;
     isRounded?: boolean;
     highlight?: string;
@@ -36,6 +37,7 @@ export interface ArticleCardProps {
 
 export function ArticleCard(props: ArticleCardProps) {
     const {
+        hasBackground = true,
         hasShadow = true,
         isRounded = true
     } = props;
@@ -49,7 +51,7 @@ export function ArticleCard(props: ArticleCardProps) {
     return (
         <div className={props.className}>
             <Card
-                hasBackground
+                hasBackground={hasBackground}
                 backgroundType="background"
                 hasShadow={hasShadow}
                 isRounded={isRounded}
