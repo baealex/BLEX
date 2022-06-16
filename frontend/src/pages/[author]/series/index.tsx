@@ -9,8 +9,8 @@ import {
     ProfileLayout,
     UserSeries
 } from '@system-design/profile';
-import { Alert } from '@design-system';
 import type { PageComponent } from '@components';
+import { Text } from '@design-system';
 
 import * as API from '@modules/api';
 import { GetServerSidePropsContext } from 'next';
@@ -63,15 +63,9 @@ const SeriesProfile: PageComponent<Props> = (props) => {
                 image={props.profile.image}
                 description={`${props.profile.realname}님이 생성한 모든 시리즈를 만나보세요.`}
             />
-
             <UserSeries series={props.series}>
                 <div className="container">
                     <div className="col-lg-8 mx-auto">
-                        {props.series.length > 0 ? '' : (
-                            <Alert className="mt-4">
-                                아직 생성된 시리즈가 없습니다.
-                            </Alert>
-                        )}
                         <Pagination
                             page={props.page}
                             last={props.lastPage}
@@ -88,7 +82,18 @@ SeriesProfile.pageLayout = (page, props) => (
         active="series"
         profile={props.profile}
         social={props.social}>
-        {page}
+        {props.series.length <= 0 ? (
+            <div className="container">
+                <div className="col-lg-8 mx-auto p-0 my-4">
+                    <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                        <img className="w-100" src="/illustrators/focus.svg" />
+                        <Text className="mt-5" fontSize={6}>
+                            아직 생성된 시리즈가 없습니다.
+                        </Text>
+                    </div>
+                </div>
+            </div>
+        ) : page}
     </ProfileLayout>
 );
 

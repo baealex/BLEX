@@ -5,11 +5,11 @@ import React, {
 import type { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 
-import { Alert } from '@design-system';
 import { ArticleContent } from '@system-design/article-detail-page';
 import type { PageComponent } from '@components';
 import { ProfileLayout } from '@system-design/profile';
 import { SEO } from '@system-design/shared';
+import { Text } from '@design-system';
 
 import * as API from '@modules/api';
 import blexer from '@modules/utility/blexer';
@@ -87,7 +87,7 @@ const UserAbout: PageComponent<Props> = (props) => {
                 description={props.profile.bio}
             />
             <div className="container">
-                <div className="col-lg-9 mx-auto p-0 my-4">
+                <div className="col-lg-8 mx-auto p-0 my-4">
                     {isEdit ? (
                         <textarea
                             cols={40}
@@ -98,21 +98,24 @@ const UserAbout: PageComponent<Props> = (props) => {
                             value={aboutMd}
                         />
                     ) : (
-                        (aboutHTML || '').length > 0 ? (
-                            <ArticleContent html={aboutHTML || ''}/>
+                        (props.about || '').length <= 0 ? (
+                            <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                                <img className="w-100" src="/illustrators/doll-play.svg" />
+                                <Text className="mt-5" fontSize={6}>
+                                    아직 작성된 소개가 없습니다.
+                                </Text>
+                            </div>
                         ) : (
-                            <Alert>
-                                아직 작성된 소개가 없습니다.
-                            </Alert>
+                            <ArticleContent html={aboutHTML || ''} />
                         )
                     )}
-                    {props.profile.username == username ? (
+                    {props.profile.username == username && (
                         <button
                             className="btn btn-dark btn-block mt-3 edit"
                             onClick={() => handleClickEdit()}>
                             {isEdit ? '완료' : '편집'}
                         </button>
-                    ) : ''}
+                    )}
                 </div>
             </div>
         </>

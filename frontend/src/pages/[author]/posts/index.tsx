@@ -11,6 +11,7 @@ import {
     UserArticles
 } from '@system-design/profile';
 import type { PageComponent } from '@components';
+import { Text } from '@design-system';
 
 import * as API from '@modules/api';
 
@@ -78,16 +79,29 @@ UserPosts.pageLayout = (page, props) => (
         active="posts"
         profile={props.profile}
         social={props.social}>
-        <div className="container">
-            <UserArticles
-                allCount={props.allCount}
-                active={props.tag}
-                author={props.profile.username}
-                tags={props.tags!}
-                posts={props.posts}>
-                {page}
-            </UserArticles>
-        </div>
+        {props.posts.length <= 0 ? (
+            <div className="container">
+                <div className="col-lg-8 mx-auto p-0 my-4">
+                    <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                        <img className="w-100" src="/illustrators/notify.svg" />
+                        <Text className="mt-5" fontSize={6}>
+                            아직 작성된 포스트가 없습니다.
+                        </Text>
+                    </div>
+                </div>
+            </div>
+        ) : (
+            <div className="container">
+                <UserArticles
+                    allCount={props.allCount}
+                    active={props.tag}
+                    author={props.profile.username}
+                    tags={props.tags!}
+                    posts={props.posts}>
+                    {page}
+                </UserArticles>
+            </div>
+        )}
     </ProfileLayout>
 );
 

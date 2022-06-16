@@ -57,8 +57,11 @@
     "isolatedModules": true,
     "incremental": true
   },
-  "include": [
+  "files": [
     "next-env.d.ts",
+    "types/svg.d.ts",
+  ],
+  "include": [
     "**/*.ts",
     "**/*.tsx"
   ],
