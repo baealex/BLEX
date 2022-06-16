@@ -13,10 +13,7 @@ import { authStore } from '@stores/auth';
 import { modalStore } from '@stores/modal';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        social,
-        code
-    } = context.query;
+    const { social, code } = context.query;
 
     return {
         props: {
@@ -58,9 +55,7 @@ export default function SocialLogin(props: Props) {
     };
 
     useEffect(() => {
-        const {
-            social, code
-        } = props;
+        const { social, code } = props;
 
         if (!social || !code) {
             return;
@@ -74,5 +69,5 @@ export default function SocialLogin(props: Props) {
         });
     }, []);
 
-    return <Loading block/>;
+    return <Loading isFullPage />;
 }

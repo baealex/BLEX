@@ -3,15 +3,14 @@ import {
     useState
 } from 'react';
 import Link from 'next/link';
+import { useValue } from 'badland-react';
 
 import { Text } from '@design-system';
 
 import { authStore } from '@stores/auth';
 
 export default function Map() {
-    const [isLogin, setIsLogin] = useState(authStore.state.isLogin);
-
-    useEffect(authStore.syncValue('isLogin', setIsLogin), []);
+    const [ isLogin ] = useValue(authStore, 'isLogin');
 
     return (
         <div className="container">

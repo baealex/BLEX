@@ -2,10 +2,8 @@ import type {
     GetServerSidePropsContext,
     GetServerSidePropsResult
 } from 'next';
-import React, {
-    useEffect,
-    useState
-} from 'react';
+import React, { useState } from 'react';
+import { useValue } from 'badland-react';
 
 import {
     Alert,
@@ -47,13 +45,11 @@ const AccountSetting: PageComponent<Props> = (props) => {
     const [ username, setUsername ] = useState(props.username);
     const [ realname, setRealname ] = useState(props.realname);
     const [ password, setPassword ] = useState('');
-    const [ is2faSync, setIs2faSync ] = useState(authStore.state.is2faSync);
+    const [ is2faSync ] = useValue(authStore, 'is2faSync');
     const [ passwordCheck, setPasswordCheck ] = useState('');
     const [ showEmail, setShowEmail ] = useState(props.showEmail);
     const [ agreeEmail, setAgreeEmail ] = useState(props.agreeEmail);
     const [ agreeHistory, setAgreeHistory ] = useState(props.agreeHistory);
-
-    useEffect(authStore.syncValue('is2faSync', setIs2faSync), []);
 
     const onChangeUsername = async () => {
         const { data } = await API.patchSign({ username });

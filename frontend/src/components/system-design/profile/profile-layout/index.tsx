@@ -3,9 +3,11 @@ import styles from './Layout.module.scss';
 const cn = classNames.bind(styles);
 
 import {
-    useEffect, useState
+    useEffect,
+    useState
 } from 'react';
 import { useRouter } from 'next/router';
+import { useValue } from 'badland-react';
 
 import {
     Footer,
@@ -35,11 +37,8 @@ export function ProfileLayout(props: ProfileLayoutProps) {
     const router = useRouter();
 
     const [ hasSubscribe, setHasSubscribe ] = useState(false);
-    const [ isLogin, setIsLogin ] = useState(authStore.state.isLogin);
-    const [ username, setUsername ] = useState(authStore.state.username);
-
-    useEffect(authStore.syncValue('isLogin', setIsLogin), []);
-    useEffect(authStore.syncValue('username', setUsername), []);
+    const [ isLogin ] = useValue(authStore, 'isLogin');
+    const [ username ] = useValue(authStore, 'username');
 
     useEffect(() => {
         if (isLogin && username) {

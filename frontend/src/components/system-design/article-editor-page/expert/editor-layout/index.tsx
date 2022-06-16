@@ -1,6 +1,8 @@
 import {
-    useEffect, useState
+    useEffect,
+    useState
 } from 'react';
+import { useValue } from 'badland-react';
 
 import {
     CheckBox,
@@ -61,11 +63,9 @@ interface Props {
 export function EditorLayout(props: Props) {
     const [ isSubmit, setIsSubmit ] = useState(false);
 
+    const [ isOpenPublishModal ] = useValue(modalStore, 'isPublishModalOpen');
+
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
-
-    const [ isOpenPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
-
-    useEffect(modalStore.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
 
     useEffect(() => {
         API.getSettingSeries().then((response) => {
@@ -155,7 +155,7 @@ export function EditorLayout(props: Props) {
 
             {props.addon?.modal}
 
-            {isSubmit ? <Loading block/> : ''}
+            {isSubmit && <Loading isFullPage />}
         </div>
     );
 }

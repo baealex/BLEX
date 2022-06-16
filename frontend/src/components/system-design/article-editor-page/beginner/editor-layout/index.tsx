@@ -1,6 +1,8 @@
 import {
-    useEffect, useState
+    useEffect,
+    useState
 } from 'react';
+import { useValue } from 'badland-react';
 
 import {
     Carousel,
@@ -58,11 +60,9 @@ interface Props {
 export function EditorLayout(props: Props) {
     const [ isSubmit, setIsSubmit ] = useState(false);
 
-    const [ isOpenPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
+    const [ isOpenPublishModal ] = useValue(modalStore, 'isPublishModalOpen');
 
     const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
-
-    useEffect(modalStore.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
 
     useEffect(() => {
         API.getSettingSeries().then((response) => {
@@ -149,7 +149,7 @@ export function EditorLayout(props: Props) {
                     />
                 </Modal>
 
-                {isSubmit ? <Loading block/> : ''}
+                {isSubmit && <Loading isFullPage />}
             </div>
         </div>
     );
