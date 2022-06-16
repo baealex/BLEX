@@ -59,7 +59,6 @@
   },
   "files": [
     "next-env.d.ts",
-    "types/svg.d.ts",
   ],
   "include": [
     "**/*.ts",

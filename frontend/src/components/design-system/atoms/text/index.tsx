@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 export interface TextProps {
     children: React.ReactNode;
-    className: string;
+    className?: string;
     fontSize?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
     fontWeight?: 100 | 200 | 300 | 400 | 500 | 600 | 700;
 }

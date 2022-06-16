@@ -1,5 +1,3 @@
-import { Text } from '@design-system';
-
 import {
     ArticleCardList,
     ArticleCardListProps
