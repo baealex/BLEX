@@ -6,6 +6,23 @@
     line-height: 2;
     word-break: break-all;
 
+    :global(.CodeMirror) {
+        height: auto;
+
+        :global(.CodeMirror-scroll) {
+            padding-bottom: 0;
+            overflow: hidden !important;
+        }
+        
+        :global(.cm-error) {
+            background: none;
+        }
+
+        div {
+            margin: 0;
+        }
+    }
+
     * {
         max-width: 100%;
     }
@@ -77,10 +94,6 @@
         padding: 1em;
         font-size: 1em;
         line-height: 1.5;
-
-        :global(body.dark) & {
-            background: #000;
-        }
 
         code {
             padding: 0;

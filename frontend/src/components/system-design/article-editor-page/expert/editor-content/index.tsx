@@ -23,8 +23,8 @@ import {
     uploadImage
 } from '@modules/utility/image';
 import blexer from '@modules/utility/blexer';
+import { codeMirrorAll } from '@modules/library/codemirror';
 import { lazyLoadResource } from '@modules/optimize/lazy';
-import prism from '@modules/library/prism';
 
 export interface EditorContentProps {
     value: string;
@@ -66,7 +66,7 @@ export function EditorContent(props: EditorContentProps) {
 
     useEffect(() => {
         if (!isEdit) {
-            prism.highlightAll();
+            codeMirrorAll();
             lazyLoadResource();
         }
     }, [isEdit]);
@@ -175,7 +175,7 @@ export function EditorContent(props: EditorContentProps) {
                                 'preview',
                                 { isEdit }
                             )}>
-                            <ArticleContent isEdit html={blexer(props.value)} />
+                            <ArticleContent isEdit html={!isEdit ? blexer(props.value) : ''} />
                         </div>
                     </div>
                 </div>

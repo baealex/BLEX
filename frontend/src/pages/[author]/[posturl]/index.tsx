@@ -21,9 +21,9 @@ import {
 import { TagBadges } from '@system-design/tag';
 
 import * as API from '@modules/api';
+import { codeMirrorAll } from '@modules/library/codemirror';
 import { getPostsImage } from '@modules/utility/image';
 import { lazyLoadResource } from '@modules/optimize/lazy';
-import prism from '@modules/library/prism';
 import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
@@ -142,7 +142,7 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        prism.highlightAll();
+        codeMirrorAll();
         lazyLoadResource();
         this.makeHeaderNav();
     }
@@ -165,7 +165,7 @@ class PostDetail extends React.Component<Props, State> {
         }
 
         if (needSyntaxUpdate) {
-            prism.highlightAll();
+            codeMirrorAll();
             lazyLoadResource();
         }
     }

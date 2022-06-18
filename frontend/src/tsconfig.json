@@ -63,7 +63,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "modules/library/codemirror.helper.js"  ],
   "exclude": [
     "node_modules"
   ]

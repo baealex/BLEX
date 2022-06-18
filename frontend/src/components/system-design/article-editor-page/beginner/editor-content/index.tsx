@@ -12,8 +12,8 @@ import { ArticleContent } from '@components/system-design/article-detail-page';
 import { YoutubeModal } from '../../shared/modals';
 
 import blexer from '@modules/utility/blexer';
+import { codeMirrorAll } from '@modules/library/codemirror';
 import { lazyLoadResource } from '@modules/optimize/lazy';
-import prism from '@modules/library/prism';
 import { uploadImage } from '@modules/utility/image';
 
 export interface EditorContentProps {
@@ -77,7 +77,7 @@ export function EditorContent(props: EditorContentProps) {
     }, [contents]);
 
     useEffect(() => {
-        prism.highlightAll();
+        codeMirrorAll();
         lazyLoadResource();
         if (ref.current) {
             const end = ref.current.value.length;

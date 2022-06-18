@@ -28,7 +28,8 @@
 - [ ] jQuery
 - [ ] Editormd
 - [x] Remarkable
-- [x] PrismJS
+- [ ] PrismJS
+- [X] CodeMirror
 - [x] Frappe Charts
 
 <br>
