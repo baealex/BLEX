@@ -11,11 +11,19 @@
 
         :global(.CodeMirror-scroll) {
             padding-bottom: 0;
-            overflow: hidden !important;
+            overflow: initial !important;
         }
         
+        :global(.CodeMirror-vscrollbar) {
+            display: none !important;
+        }
+
         :global(.cm-error) {
             background: none;
+        }
+
+        :global(.cm-comment) {
+            color: #6a9955;
         }
 
         div {
