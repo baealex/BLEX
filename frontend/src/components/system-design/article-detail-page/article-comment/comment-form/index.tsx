@@ -88,6 +88,9 @@ export function CommentForm(props: CommentFormProps) {
                 }}>
                 <Card
                     isRounded
+                    hasShadow
+                    hasBackground
+                    backgroundType="background"
                     className={`p-3 mb-3 ${cn(
                         'card',
                         { isOpen }
