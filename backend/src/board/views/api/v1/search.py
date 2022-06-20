@@ -78,38 +78,37 @@ def search(request):
             'word': x[2],
         }, results))
 
-        if total_size > 0:
-            user_addr = get_network_addr(request)
-            user_agent = request.META['HTTP_USER_AGENT']
-            history = create_history(user_addr, user_agent)
+        user_addr = get_network_addr(request)
+        user_agent = request.META['HTTP_USER_AGENT']
+        history = create_history(user_addr, user_agent)
 
-            search_value = None
-            try:
-                search_value = SearchValue.objects.get(value=query)
-            except:
-                search_value = SearchValue(value=query)
-                search_value.save()
-                search_value.refresh_from_db()
+        search_value = None
+        try:
+            search_value = SearchValue.objects.get(value=query)
+        except:
+            search_value = SearchValue(value=query)
+            search_value.save()
+            search_value.refresh_from_db()
 
-            recent = timezone.now() - datetime.timedelta(hours=6)
-            has_search = Search.objects.filter(
-                searcher=history,
-                search_value=search_value,
-                created_date__gt=recent,
-            ).exists()
-            
-            if not has_search:
-                if request.user.id:
-                    Search(
-                        user=request.user,
-                        searcher=history,
-                        search_value=search_value,
-                    ).save()
-                else:
-                    Search(
-                        searcher=history,
-                        search_value=search_value,
-                    ).save()
+        recent = timezone.now() - datetime.timedelta(hours=6)
+        has_search = Search.objects.filter(
+            searcher=history,
+            search_value=search_value,
+            created_date__gt=recent,
+        ).exists()
+        
+        if not has_search:
+            if request.user.id:
+                Search(
+                    user=request.user,
+                    searcher=history,
+                    search_value=search_value,
+                ).save()
+            else:
+                Search(
+                    searcher=history,
+                    search_value=search_value,
+                ).save()
 
         return StatusDone({
             'elapsed_time': elapsed_time,
