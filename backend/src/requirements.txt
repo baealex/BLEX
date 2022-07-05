@@ -4,7 +4,7 @@ certifi==2022.6.15
 chardet==4.0.0
 charset-normalizer==2.0.12
 defusedxml==0.7.1
-Django==4.0.5
+Django==4.0.6
 django-cors-headers==3.13.0
 django-smtp-ssl==1.0
 idna==3.3
