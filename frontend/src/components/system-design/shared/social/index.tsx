@@ -15,7 +15,7 @@ export function Social(props: SocialProps) {
     return (
         <ul className={cn('social')}>
             <li key={'rss'}>
-                <a href={`/rss/@${props.username}`}>
+                <a href={`/rss/@${props.username}`} data-name="rss">
                     <i className="fas fa-rss-square"/>
                 </a>
             </li>
@@ -23,12 +23,13 @@ export function Social(props: SocialProps) {
                 props[name as keyof SocialProps] && (
                     <li key={name}>
                         <a
+                            data-name={name}
                             href={(
                                 name === 'youtube'
                                     ? `https://youtube.com/channel/${props.youtube}`
                                     : `https://${name}.com/${props[name as keyof SocialProps]}`
                             )}>
-                            <i className={`fab fa-${name}-square`}/>
+                            <i className={`fab fa-${name}`}/>
                         </a>
                     </li>
                 )

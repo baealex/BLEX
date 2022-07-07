@@ -57,9 +57,6 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                     <img className={cn('avatar')} src={props.profile.image}/>
                     <div className={cn('realname')}>{props.profile.realname}</div>
                     <div className={cn('username')}>@{props.profile.username}</div>
-                    {props.social && (
-                        <Social {...props.social}/>
-                    )}
                     {(props.social?.homepage || props.profile.bio) && (
                         <div className="d-flex justify-content-center align-items-center">
                             {props.social?.homepage && (
@@ -78,6 +75,9 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                                 </div>
                             )}
                         </div>
+                    )}
+                    {props.social && (
+                        <Social {...props.social}/>
                     )}
                     {isLogin && (
                         username === props.profile.username ? (
