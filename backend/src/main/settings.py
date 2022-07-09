@@ -48,7 +48,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN').split(':')[0].split('//')[1]
+SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN')
 
 ROOT_URLCONF = 'main.urls'
 
