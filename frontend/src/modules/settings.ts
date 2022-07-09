@@ -1,13 +1,23 @@
-export const CONFIG = {
-    "API_KEY": process.env.API_KEY,
-    "API_SERVER": typeof window === "undefined"
-        ? process.env.PROXY_API_SERVER
-        : process.env.NEXT_PUBLIC_API_SERVER,
-    "STATIC_SERVER": process.env.NEXT_PUBLIC_STATIC_SERVER,
-    "GOOGLE_OAUTH_CLIENT_ID": process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
-    "GITHUB_OAUTH_CLIENT_ID": process.env.NEXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID,
-    "GOOGLE_ANALYTICS_V4": process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_V4,
-    "MICROSOFT_CLARITY": process.env.NEXT_PUBLIC_MICROSFT_CLARITY,
-    "HCAPTCHA_SITE_KEY": process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY,
-    "GOOGLE_ADSENSE_CLIENT_ID": process.env.NEXT_PUBLIC_GOOGLE_ADSENESE_CLIENT_ID,
+import getConfig from 'next/config';
+
+interface Config {
+    API_KEY?: string;
+    API_SERVER: string;
+    STATIC_SERVER: string;
+    GOOGLE_OAUTH_CLIENT_ID: string;
+    GITHUB_OAUTH_CLIENT_ID: string;
+    GOOGLE_ANALYTICS_V4: string;
+    MICROSOFT_CLARITY: string;
+    HCAPTCHA_SITE_KEY: string;
+    GOOGLE_ADSENSE_CLIENT_ID: string;
+}
+
+const {
+    publicRuntimeConfig,
+    serverRuntimeConfig
+} = getConfig();
+
+export const CONFIG: Config = {
+    ...publicRuntimeConfig,
+    ...serverRuntimeConfig,
 };
