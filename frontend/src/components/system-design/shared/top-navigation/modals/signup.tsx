@@ -55,7 +55,7 @@ export class SignupModal extends React.Component<Props, State> {
 
     async onSubmitLogin() {
         if (this.state.username == '') {
-            snackBar('😅 사용자 이름을 입력해주세요!');
+            snackBar('😅 아이디(필명)을 입력해주세요!');
             return;
         }
         if (this.state.password == '') {
@@ -110,7 +110,7 @@ export class SignupModal extends React.Component<Props, State> {
                         <input
                             className="login-form"
                             name="username"
-                            placeholder="사용자 이름"
+                            placeholder="아이디"
                             onChange={(e) => this.onInputChange(e)}
                             value={this.state.username}
                             onKeyPress={(e) => this.onEnterLogin(e)}
@@ -141,7 +141,7 @@ export class SignupModal extends React.Component<Props, State> {
                         <input
                             className="login-form"
                             name="realname"
-                            placeholder="사용자 실명"
+                            placeholder="이름"
                             onChange={(e) => this.onInputChange(e)}
                             value={this.state.realname}
                             onKeyPress={(e) => this.onEnterLogin(e)}

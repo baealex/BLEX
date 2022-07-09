@@ -54,7 +54,7 @@ export class LoginModal extends React.Component<Props, State> {
 
     async onSubmitLogin() {
         if (this.state.username == '') {
-            snackBar('😅 사용자 이름을 입력해주세요!');
+            snackBar('😅 아이디를 입력해주세요!');
             return;
         }
         if (this.state.password == '') {
@@ -72,7 +72,7 @@ export class LoginModal extends React.Component<Props, State> {
 
     async loginCheck(data: API.ResponseData<API.PostLoginData>) {
         if (data.status === 'ERROR') {
-            snackBar(message('AFTER_REQ_ERR', '사용자 이름 혹은 패스워드를 확인해 주세요.'));
+            snackBar(message('AFTER_REQ_ERR', '아이디 혹은 비밀번호를 확인해 주세요.'));
         }
 
         if (data.status === 'DONE') {
@@ -103,7 +103,7 @@ export class LoginModal extends React.Component<Props, State> {
                 <input
                     className="login-form"
                     name="username"
-                    placeholder="사용자 이름"
+                    placeholder="아이디"
                     onChange={(e) => this.onInputChange(e)}
                     value={this.state.username}
                     onKeyPress={(e) => this.onEnterLogin(e)}
@@ -112,7 +112,7 @@ export class LoginModal extends React.Component<Props, State> {
                     className="login-form"
                     name="password"
                     type="password"
-                    placeholder="패스워드"
+                    placeholder="비밀번호"
                     onChange={(e) => this.onInputChange(e)}
                     value={this.state.password}
                     onKeyPress={(e) => this.onEnterLogin(e)}
