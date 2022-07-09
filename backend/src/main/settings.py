@@ -48,7 +48,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# SESSION_COOKIE_DOMAIN = ".localhost"
+SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN').split(':')[0].split('//')[1]
 
 ROOT_URLCONF = 'main.urls'
 
@@ -125,7 +125,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
 EMAIL_VERIFY_USE = os.environ.get('EMAIL_VERIFY_USE') == 'TRUE'
 EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
-EMAIL_PORT = '465'
+EMAIL_PORT = os.environ.get('EMAIL_PORT')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
