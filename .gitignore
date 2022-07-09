@@ -1,10 +1,10 @@
-/frontend/src/modules/settings.ts
+/frontend/.env
 
-/backend/src/board/telegram_token.py
-/backend/src/main/settings.py
+/backend/.env
 /backend/src/static/images/
 
 /node_modules
+
 /.env
 /*.log
 DockerfileDev

@@ -5,6 +5,7 @@ services:
     build:
       context: ./frontend
       dockerfile: ./Dockerfile
+    env_file: ./frontend/.env
     restart: always
     ports:
       - 20011:3000
@@ -14,9 +15,7 @@ services:
       context: ./backend
       dockerfile: ./Dockerfile
     restart: always
-    environment:
-      TZ: "Asia/Seoul"
-      LANG: "C.UTF-8"
+    env_file: ./backend/.env
     volumes:
       - ./backend/src/:/app/
     ports:

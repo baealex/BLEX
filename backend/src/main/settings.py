@@ -2,15 +2,12 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hello_blex'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG') == 'TRUE'
 
 ALLOWED_HOSTS = ['*']
 
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,7 +43,7 @@ if DEBUG:
     MIDDLEWARE.append('main.middleware.QueryDebugger')
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    os.environ.get('SITE_URL'),
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -77,19 +74,12 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-# Password validation
-# https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -106,13 +96,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/2.0/topics/i18n/
-
 LANGUAGE_CODE = 'ko'
 
-TIME_ZONE = 'Asia/Seoul'
+TIME_ZONE = os.environ.get('TZ')
 
 USE_I18N = True
 
@@ -124,52 +110,51 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-SITE_URL = 'http://host.docker.internal:3000'
-API_KEY = ''
+SITE_URL = os.environ.get('SITE_URL')
+API_KEY = os.environ.get('API_KEY')
 
-STATIC_URL = 'http://localhost:3000/assets/'
+STATIC_URL = os.environ.get('STATIC_URL') + '/assets/'
 STAITC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
 
-MEDIA_URL = 'http://localhost:3000/'
+MEDIA_URL = os.environ.get('STATIC_URL') + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
 
 
-# Email verify
+# Extension (Email)
 
-EMAIL_VERIFY_USE = False
+EMAIL_VERIFY_USE = os.environ.get('EMAIL_VERIFY_USE') == 'TRUE'
 EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
-EMAIL_HOST = 'smtp.****.com'
-EMAIL_PORT = '465'
-EMAIL_HOST_USER = '********@****.com'
-EMAIL_HOST_PASSWORD = '********'
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = 443
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-# Telegram notification
+# Extension (Telegram)
 
-TELEGRAM_USE = False
-TELEGRAM_BOT_TOKEN = ''
-TELEGRAM_CHANNEL_ID   = ''
-TELEGRAM_ADMIN_ID  = ''
-
-
-# Discord notification
-
-DISCORD_NEW_POSTS_WEBHOOK = ''
+TELEGRAM_USE = os.environ.get('TELEGRAM_USE') == 'TRUE'
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+TELEGRAM_CHANNEL_ID = os.environ.get('TELEGRAM_CHANNEL_ID')
+TELEGRAM_ADMIN_ID = os.environ.get('TELEGRAM_ADMIN_ID')
 
 
-# OAuth key
+# Extension (Discord)
 
-OAUTH_USE = False
-GOOGLE_OAUTH_CLIENT_ID = ''
-GOOGLE_OAUTH_CLIENT_SECRET = ''
-
-GITHUB_OAUTH_CLIENT_ID = ''
-GITHUB_OAUTH_CLIENT_SECRET = ''
+DISCORD_NEW_POSTS_WEBHOOK = os.environ.get('DISCORD_NEW_POSTS_WEBHOOK')
 
 
-# Captcha key
+# Extension (OAuth)
 
-CAPTCHA_USE = False
-HCAPTCHA_SECRET_KEY = ''
+OAUTH_USE = os.environ.get('OAUTH_USE') == 'TRUE'
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
+GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
+GITHUB_OAUTH_CLIENT_ID = os.environ.get('GITHUB_OAUTH_CLIENT_ID')
+GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET')
+
+
+# Extention (Captcha)
+
+CAPTCHA_USE = os.environ.get('CAPTCHA_USE') == 'TRUE'
+HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
