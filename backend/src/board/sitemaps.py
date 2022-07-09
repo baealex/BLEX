@@ -11,24 +11,7 @@ class StaticSitemap(Sitemap):
     priority = 1.0
     
     def items(self):
-        return ('', '/newest', '/tags')
-    
-    def location(self, item):
-        return str(item)
-
-class StaticPaginationSitemap(Sitemap):
-    changefreq = 'daily'
-    priority = 1.0
-    
-    def items(self):
-        posts = Post.objects.filter(config__hide=False).order_by('-updated_date')
-        posts = Paginator(posts, 24)
-
-        items = []
-        for i in range(2, posts.num_pages + 1):
-            items.append(f"/?page={i}")
-        
-        return items
+        return ('', '/newest', '/tags', '/map')
     
     def location(self, item):
         return str(item)
@@ -65,7 +48,6 @@ class UserSitemap(Sitemap):
 
 sitemaps = {
     'static_sitemap': StaticSitemap,
-    'static_pagination_sitemap': StaticPaginationSitemap,
+    'posts_sitemap': PostsSitemap,
     'user_sitemap': UserSitemap,
-    # 'posts_sitemap': PostsSitemap,
 }
