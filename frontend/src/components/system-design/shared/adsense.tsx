@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-type Props = {
+interface Props {
     className?: string;
     style?: React.CSSProperties;
     client: string;
@@ -10,7 +10,7 @@ type Props = {
     format?: string;
     responsive?: string;
     pageLevelAds?: boolean;
-};
+}
 
 export const Adsense = ({
     className = '',

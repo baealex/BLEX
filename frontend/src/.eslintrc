@@ -25,6 +25,7 @@
     ],
     "rules": {
         "comma-dangle": [ "error", "never" ],
+        "default-param-last": "off",
         "indent": "off",
         "semi": "off",
         "quotes": [ "error", "single" ],
@@ -59,6 +60,8 @@
         ],
         "jsx-quotes": [ "error", "prefer-double" ],
         "@typescript-eslint/semi": [ "error" ],
-        "@typescript-eslint/indent": [ "error", 4 ]
+        "@typescript-eslint/indent": [ "error", 4 ],
+        "@typescript-eslint/default-param-last": [ "error" ],
+        "@typescript-eslint/consistent-type-definitions": [ "error", "interface" ]
     }
 }
