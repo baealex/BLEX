@@ -30,7 +30,7 @@ from modules.discord import Discord
 
 def temp_posts(request, token=None):
     if not request.user.is_active:
-        return HttpResponse('error:NL')
+        return StatusError('NL')
     
     if not token:
         if request.GET.get('get') == 'list':

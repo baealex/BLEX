@@ -4,6 +4,7 @@ from .comments import *
 from .forms import *
 from .image import *
 from .posts import *
+from .report import *
 from .search import *
 from .series import *
 from .setting import *

@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.mail import send_mail
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse, Http404, QueryDict
+from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.timesince import timesince
