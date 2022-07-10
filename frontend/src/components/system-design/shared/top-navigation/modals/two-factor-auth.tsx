@@ -67,7 +67,7 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
         this.loginCheck(data);
     }
 
-    async loginCheck(data: API.ResponseData<API.PostLoginData>) {
+    async loginCheck(data: API.ResponseData<API.PostLoginResponseData>) {
         if (data.status === 'ERROR') {
             if (data.errorCode === API.ERROR.EXPIRE) {
                 snackBar('😥 코드가 만료되었습니다.');

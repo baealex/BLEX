@@ -1,32 +1,29 @@
-import axiosRequest, {
-    ResponseData,
+import request, {
     objectToForm,
     serializeObject
 } from './index';
 
-export interface GetTempPostsDataTemp {
-    token: string;
-    title: string;
-    createdDate: string;
-}
-
-export interface GetTempPostsData {
-    temps: GetTempPostsDataTemp[];
+export interface GetTempPostsResponseData {
+    temps: {
+        token: string;
+        title: string;
+        createdDate: string;
+    }[];
 }
 
 export async function getTempPosts() {
-    return await axiosRequest<ResponseData<GetTempPostsData>>({
+    return await request<GetTempPostsResponseData>({
         url: '/v1/posts/temp?get=list',
         method: 'GET'
     });
 }
 
-export interface PostTempPostsData {
+export interface PostTempPostsResponseData {
     token: string;
 }
 
 export async function postTempPosts(title: string, text_md: string, tag: string) {
-    return await axiosRequest<ResponseData<PostTempPostsData>>({
+    return await request<PostTempPostsResponseData>({
         url: '/v1/posts/temp',
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -38,7 +35,7 @@ export async function postTempPosts(title: string, text_md: string, tag: string)
     });
 }
 
-export interface GetAnTempPostsData {
+export interface GetAnTempPostsResponseData {
     title: string;
     token: string;
     textMd: string;
@@ -47,14 +44,14 @@ export interface GetAnTempPostsData {
 }
 
 export async function getAnTempPosts(token: string) {
-    return await axiosRequest<ResponseData<GetAnTempPostsData>>({
+    return await request<GetAnTempPostsResponseData>({
         url: `/v1/posts/temp/${token}`,
         method: 'GET'
     });
 }
 
 export async function putTempPosts(token: string, title: string, text_md: string, tag: string) {
-    return await axiosRequest<ResponseData<any>>({
+    return await request<any>({
         url: `/v1/posts/temp/${token}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -67,14 +64,14 @@ export async function putTempPosts(token: string, title: string, text_md: string
 }
 
 export async function deleteTempPosts(token: string) {
-    return await axiosRequest<ResponseData<any>>({
+    return await request<any>({
         url: `/v1/posts/temp/${token}`,
         method: 'DELETE',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
 }
 
-export interface GetPostsData {
+export interface GetPostsResponseData {
     posts: {
         url: string;
         title: string;
@@ -90,20 +87,20 @@ export interface GetPostsData {
 }
 
 export async function getPopularPosts(page: number) {
-    return await axiosRequest<ResponseData<GetPostsData>>({
+    return await request<GetPostsResponseData>({
         url: `/v1/posts/popular?page=${page}`,
         method: 'GET'
     });
 }
 
 export async function getNewestPosts(page: number) {
-    return await axiosRequest<ResponseData<GetPostsData>>({
+    return await request<GetPostsResponseData>({
         url: `/v1/posts/newest?page=${page}`,
         method: 'GET'
     });
 }
 
-export interface GetTopTrendyPostsData {
+export interface GetTopTrendyPostsResponseData {
     posts: {
         url: string;
         title: string;
@@ -116,17 +113,13 @@ export interface GetTopTrendyPostsData {
 }
 
 export async function getTrendyTopPosts() {
-    return await axiosRequest<ResponseData<GetTopTrendyPostsData>>({
+    return await request<GetTopTrendyPostsResponseData>({
         url: '/v1/posts/top-trendy',
         method: 'GET'
     });
 }
 
-interface PostPostsData {
-    url: string;
-}
-
-interface PostPostsFormData {
+interface PostPostsRequestData {
     token: string;
     title: string;
     text_md: string;
@@ -137,42 +130,44 @@ interface PostPostsFormData {
     is_advertise: string;
 }
 
-export async function postPosts(formData: PostPostsFormData) {
-    return await axiosRequest<ResponseData<PostPostsData>>({
+interface PostPostsResponseData {
+    url: string;
+}
+
+export async function postPosts(data: PostPostsRequestData) {
+    return await request<PostPostsResponseData>({
         url: '/v1/posts',
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        data: objectToForm(formData)
+        data: objectToForm(data)
     });
 }
 
-export interface GetUserPostsDataPosts {
-    url: string;
-    title: string;
-    image: string;
-    readTime: number;
-    description: string;
-    createdDate: string;
-    authorImage: string;
-    author: string;
-    isAd: boolean;
-    tags: string[];
-}
-
-export interface GetUserPostsData {
+export interface GetUserPostsResponseData {
     allCount: number;
-    posts: GetUserPostsDataPosts[];
+    posts: {
+        url: string;
+        title: string;
+        image: string;
+        readTime: number;
+        description: string;
+        createdDate: string;
+        authorImage: string;
+        author: string;
+        isAd: boolean;
+        tags: string[];
+    }[];
     lastPage: number;
 }
 
 export async function getUserPosts(author: string, page: number, tag='') {
-    return await axiosRequest<ResponseData<GetUserPostsData>>({
+    return await request<GetUserPostsResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
         method: 'GET'
     });
 }
 
-export interface GetAnUserPostsViewData {
+export interface GetAnUserPostsViewResponseData {
     url: string;
     title: string;
     image: string;
@@ -192,14 +187,14 @@ export interface GetAnUserPostsViewData {
 }
 
 export async function getAnUserPostsView(username: string, url: string, cookie?: string) {
-    return await axiosRequest<ResponseData<GetAnUserPostsViewData>>({
+    return await request<GetAnUserPostsViewResponseData>({
         url: `/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=view`,
         method: 'GET',
         headers: cookie ? { cookie } : undefined
     });
 }
 
-export interface GetAnUserPostsEditData {
+export interface GetAnUserPostsEditResponseData {
     image: string;
     title: string;
     series: string;
@@ -210,7 +205,7 @@ export interface GetAnUserPostsEditData {
 }
 
 export async function getAnUserPostsEdit(username: string, url: string, cookie?: string) {
-    return await axiosRequest<ResponseData<GetAnUserPostsEditData>>({
+    return await request<GetAnUserPostsEditResponseData>({
         url: `/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=edit`,
         method: 'GET',
         headers: cookie ? { cookie } : undefined
@@ -218,7 +213,7 @@ export async function getAnUserPostsEdit(username: string, url: string, cookie?:
 }
 
 export async function postAnUserPosts(author: string, url: string, data: object) {
-    return await axiosRequest<ResponseData<object>>({
+    return await request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -226,14 +221,14 @@ export async function postAnUserPosts(author: string, url: string, data: object)
     });
 }
 
-export interface PutAnUserPostsData {
+export interface PutAnUserPostsResponseData {
     totalLikes?: number;
     isHide?: boolean;
     tag?: string;
 }
 
 export async function putAnUserPosts(author: string, url: string, item: string, data = {}) {
-    return await axiosRequest<ResponseData<PutAnUserPostsData>>({
+    return await request<PutAnUserPostsResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${item}=${item}`,
         method: 'PUT',
 
@@ -242,28 +237,26 @@ export async function putAnUserPosts(author: string, url: string, item: string, 
 }
 
 export async function deleteAnUserPosts(author: string, url: string) {
-    return await axiosRequest<ResponseData<any>>({
+    return await request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
         method: 'DELETE'
     });
 }
 
-export interface GetFeaturePostsDataPosts {
-    url: string;
-    title: string;
-    image: string;
-    readTime: number;
-    createdDate: string;
-    authorImage: string;
-    author: string;
-}
-
-export interface GetFeaturePostsData {
-    posts: GetFeaturePostsDataPosts[];
+export interface GetFeaturePostsResponseData {
+    posts: {
+        url: string;
+        title: string;
+        image: string;
+        readTime: number;
+        createdDate: string;
+        authorImage: string;
+        author: string;
+    }[];
 }
 
 export async function getFeaturePosts(username: string, exclude: string) {
-    return await axiosRequest<ResponseData<GetFeaturePostsData>>({
+    return await request<GetFeaturePostsResponseData>({
         url: `/v1/posts/feature?${serializeObject({
             username,
             exclude
@@ -272,7 +265,7 @@ export async function getFeaturePosts(username: string, exclude: string) {
     });
 }
 
-export interface GetFeatureTagPostsData {
+export interface GetFeatureTagPostsResponseData {
     posts: {
         url: string;
         title: string;
@@ -285,29 +278,27 @@ export interface GetFeatureTagPostsData {
 }
 
 export async function getFeatureTagPosts(tag: string, exclude: string) {
-    return await axiosRequest<ResponseData<GetFeatureTagPostsData>>({
+    return await request<GetFeatureTagPostsResponseData>({
         url: `/v1/posts/feature/${tag}?${serializeObject({ exclude })}`,
         method: 'GET'
     });
 }
 
-export interface GetPostCommentDataComment {
-    pk: number;
-    author: string;
-    authorImage: string;
-    isEdited: boolean;
-    textHtml: string;
-    timeSince: string;
-    totalLikes: number;
-    isLiked: boolean;
-}
-
-export interface GetPostCommentData {
-    comments: GetPostCommentDataComment[];
+export interface GetPostCommentResponseData {
+    comments: {
+        pk: number;
+        author: string;
+        authorImage: string;
+        isEdited: boolean;
+        textHtml: string;
+        timeSince: string;
+        totalLikes: number;
+        isLiked: boolean;
+    }[];
 }
 
 export async function getPostComments(url: string) {
-    return await axiosRequest<ResponseData<GetPostCommentData>>({
+    return await request<GetPostCommentResponseData>({
         url: `/v1/posts/${encodeURIComponent(url)}/comments`,
         method: 'GET'
     });
@@ -326,7 +317,7 @@ export interface GetPostAnalytics {
 }
 
 export async function getPostAnalytics(url: string) {
-    return await axiosRequest<ResponseData<GetPostAnalytics>>({
+    return await request<GetPostAnalytics>({
         url: `/v1/posts/${encodeURIComponent(url)}/analytics`,
         method: 'GET'
     });
@@ -337,7 +328,7 @@ export interface PostPostAnalyticsData {
 }
 
 export async function postPostAnalytics(url: string, data: object, cookie?: string) {
-    return await axiosRequest<ResponseData<PostPostAnalyticsData>>({
+    return await request<PostPostAnalyticsData>({
         url: `/v1/posts/${encodeURIComponent(url)}/analytics`,
         method: 'POST',
         headers: cookie ? { cookie } : undefined,

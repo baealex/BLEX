@@ -1,8 +1,8 @@
 import Store from 'badland';
 
-import { GetLoginData } from '@modules/api';
+import type { GetLoginResponseData } from '@modules/api';
 
-export interface AuthStoreState extends GetLoginData {
+export interface AuthStoreState extends GetLoginResponseData {
     isLogin: boolean;
 }
 

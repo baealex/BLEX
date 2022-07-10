@@ -1,18 +1,6 @@
-import axiosRequest, { ResponseData } from './index';
+import request from './index';
 
-export async function getSearch(query: string, page=1, username='') {
-    return await axiosRequest<ResponseData<GetSearchData>>({
-        url: '/v1/search',
-        params: {
-            q: query,
-            page,
-            username
-        },
-        method: 'GET'
-    });
-}
-
-export interface GetSearchData {
+export interface GetSearchResponseData {
     elapsedTime: number;
     totalSize: number;
     lastPage: number;
@@ -28,25 +16,35 @@ export interface GetSearchData {
     }[];
 }
 
+export async function getSearch(query: string, page=1, username='') {
+    return await request<GetSearchResponseData>({
+        url: '/v1/search',
+        params: {
+            q: query,
+            page,
+            username
+        },
+        method: 'GET'
+    });
+}
+
+export interface GetSearchHistoryResponseData {
+    searches: {
+        pk: number;
+        value: string;
+        createdDate: string;
+    }[];
+}
+
 export async function getSearchHistory() {
-    return await axiosRequest<ResponseData<GetSearchHistoryData>>({
+    return await request<GetSearchHistoryResponseData>({
         url: '/v1/search/history',
         method: 'GET'
     });
 }
 
-export interface GetSearchHistoryData {
-    searches: GetSearchHistorySearch[];
-}
-
-export interface GetSearchHistorySearch {
-    pk: number,
-    value: string,
-    createdDate: string,
-}
-
 export async function deleteSearchHistory(pk: number) {
-    return await axiosRequest<ResponseData<any>>({
+    return await request<unknown>({
         url: `/v1/search/history/${pk}`,
         method: 'DELETE'
     });

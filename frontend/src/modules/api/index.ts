@@ -7,41 +7,6 @@ import { CONFIG } from '@modules/settings';
 import { message } from '@modules/utility/message';
 import { snackBar } from '@modules/ui/snack-bar';
 
-export type Headers = AxiosRequestHeaders & {
-    'Cookie'?: string;
-    'Content-Type'?: string;
-};
-
-const { request } = axios.create({
-    baseURL: CONFIG.API_SERVER,
-    withCredentials: true
-});
-
-export default async function axiosRequest<T>(config: AxiosRequestConfig) {
-    const isBrowser = typeof window !== 'undefined';
-
-    if (config.headers) {
-        const { headers } = config;
-        Object.keys(headers).forEach(key => {
-            if (!headers[key]) {
-                delete headers[key];
-            }
-        });
-        config.headers = headers;
-    }
-
-    try {
-        return await request<T>(config);
-    } catch (e) {
-        if (isBrowser) {
-            snackBar(message('SYSTEM_ERR', '시스템 오류가 발생했습니다.'));
-            throw e;
-        }
-        console.log(e);
-        throw e;
-    }
-}
-
 export const ERROR = {
     REJECT: 'error:RJ',
     EXPIRE: 'error:EP',
@@ -67,6 +32,41 @@ export interface ResponseData<T> {
     errorCode?: ErrorCode,
     errorMessage?: string,
     body: T
+}
+
+export type Headers = AxiosRequestHeaders & {
+    'Cookie'?: string;
+    'Content-Type'?: string;
+};
+
+const { request } = axios.create({
+    baseURL: CONFIG.API_SERVER,
+    withCredentials: true
+});
+
+export default async function axiosRequest<T>(config: AxiosRequestConfig) {
+    const isBrowser = typeof window !== 'undefined';
+
+    if (config.headers) {
+        const { headers } = config;
+        Object.keys(headers).forEach(key => {
+            if (!headers[key]) {
+                delete headers[key];
+            }
+        });
+        config.headers = headers;
+    }
+
+    try {
+        return await request<ResponseData<T>>(config);
+    } catch (e) {
+        if (isBrowser) {
+            snackBar(message('SYSTEM_ERR', '시스템 오류가 발생했습니다.'));
+            throw e;
+        }
+        console.log(e);
+        throw e;
+    }
 }
 
 export function serializeObject(obj: {

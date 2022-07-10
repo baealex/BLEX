@@ -21,7 +21,7 @@ export interface RelatedProps {
 
 export function RelatedArticles(props: RelatedProps) {
     const element = useRef<HTMLDivElement>(null);
-    const [ posts, setPosts ] = useState<API.GetFeaturePostsDataPosts[]>([]);
+    const [ posts, setPosts ] = useState<API.GetFeaturePostsResponseData['posts']>([]);
 
     useEffect(() => {
         const observer = lazyIntersection('.feature-articles', async () => {

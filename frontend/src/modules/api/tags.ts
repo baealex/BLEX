@@ -1,14 +1,6 @@
-import axiosRequest, { ResponseData } from './index';
+import request from './index';
 
-export async function getTags(page: number) {
-    return await axiosRequest<ResponseData<GetTagsData>>({
-        url: '/v1/tags',
-        method: 'GET',
-        params: { page }
-    });
-}
-
-export interface GetTagsData {
+export interface GetTagsResponseData {
     tags: {
         name: string;
         count: number;
@@ -16,15 +8,15 @@ export interface GetTagsData {
     lastPage: number;
 }
 
-export async function getTag(tag: string, page: number) {
-    return await axiosRequest<ResponseData<GetTagData>>({
-        url: `/v1/tags/${encodeURIComponent(tag)}`,
+export async function getTags(page: number) {
+    return await request<GetTagsResponseData>({
+        url: '/v1/tags',
         method: 'GET',
         params: { page }
     });
 }
 
-export interface GetTagData {
+export interface GetTagResponseData {
     tag: string;
     desc: {
         url: string;
@@ -42,4 +34,12 @@ export interface GetTagData {
         authorImage: string;
     }[];
     lastPage: number;
+}
+
+export async function getTag(tag: string, page: number) {
+    return await request<GetTagResponseData>({
+        url: `/v1/tags/${encodeURIComponent(tag)}`,
+        method: 'GET',
+        params: { page }
+    });
 }

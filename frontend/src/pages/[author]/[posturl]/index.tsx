@@ -30,9 +30,9 @@ import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
 
 interface Props {
-    profile: API.GetUserProfileData,
-    post: API.GetAnUserPostsViewData,
-    series: API.GetAnUserSeriesData,
+    profile: API.GetUserProfileResponseData,
+    post: API.GetAnUserPostsViewResponseData,
+    series: API.GetAnUserSeriesResponseData,
     hasSeries: boolean;
     activeSeries: number;
     seriesLength: number;
@@ -46,7 +46,7 @@ interface State {
     selectedTag?: string;
     headerNav: string[][];
     headerNow: string;
-    featurePosts?: API.GetFeaturePostsData;
+    featurePosts?: API.GetFeaturePostsResponseData;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {

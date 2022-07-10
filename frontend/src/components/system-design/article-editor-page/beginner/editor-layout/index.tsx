@@ -62,7 +62,7 @@ export function EditorLayout(props: Props) {
 
     const [ isOpenPublishModal ] = useValue(modalStore, 'isPublishModalOpen');
 
-    const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
+    const [ series, setSeries ] = useState<API.GetSettingSeriesResponseData['series']>();
 
     useEffect(() => {
         API.getSettingSeries().then((response) => {

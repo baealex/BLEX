@@ -40,7 +40,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
-interface Props extends API.GetAnUserPostsEditData {
+interface Props extends API.GetAnUserPostsEditResponseData {
     posturl: string;
     username: string;
 }

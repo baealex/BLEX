@@ -40,7 +40,7 @@ export function EditorContent(props: EditorContentProps) {
     const imageInput = useRef<HTMLInputElement>(null);
 
     const [ isEdit, setIsEdit] = useState(true);
-    const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
+    const [ forms, setForms ] = useState<API.GetSettingFormsResponseData['forms']>();
     const [ modal, setModal ] = useState({
         isOpenForms: false,
         isOpenYoutube: false

@@ -70,7 +70,7 @@ export class LoginModal extends React.Component<Props, State> {
         this.loginCheck(data);
     }
 
-    async loginCheck(data: API.ResponseData<API.PostLoginData>) {
+    async loginCheck(data: API.ResponseData<API.PostLoginResponseData>) {
         if (data.status === 'ERROR') {
             snackBar(message('AFTER_REQ_ERR', '아이디 혹은 비밀번호를 확인해 주세요.'));
         }

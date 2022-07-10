@@ -18,9 +18,9 @@ import * as API from '@modules/api';
 import { loadingStore } from '@stores/loading';
 
 const AnalyticsSetting: PageComponent<undefined> = () => {
-    const [ views, setViews ] = useState<API.GetSettingAnalyticsViewData>();
-    const [ referers, setReferers ] = useState<API.GetSettingAnalyticsRefererData>();
-    const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchData>();
+    const [ views, setViews ] = useState<API.GetSettingAnalyticsViewResponseData>();
+    const [ referers, setReferers ] = useState<API.GetSettingAnalyticsRefererResponseData>();
+    const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchResponseData>();
 
     useEffect(() => {
         loadingStore.start();

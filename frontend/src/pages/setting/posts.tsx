@@ -23,7 +23,7 @@ import * as API from '@modules/api';
 import { message } from '@modules/utility/message';
 import { snackBar } from '@modules/ui/snack-bar';
 
-interface Props extends API.GetSettingPostsData {
+interface Props extends API.GetSettingPostsResponseData {
     page: number;
 }
 

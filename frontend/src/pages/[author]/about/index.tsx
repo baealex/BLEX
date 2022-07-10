@@ -37,7 +37,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
-type Props = API.GetUserProfileData;
+type Props = API.GetUserProfileResponseData;
 
 const UserAbout: PageComponent<Props> = (props) => {
     const [ isEdit, setIsEdit ] = useState(false);

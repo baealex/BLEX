@@ -19,7 +19,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 import { authStore } from '@stores/auth';
 import { modalStore } from '@stores/modal';
 
-type Props = API.GetSettingAccountData;
+type Props = API.GetSettingAccountResponseData;
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { data } = await API.getSettingAcount({ 'Cookie': req.headers.cookie || '' });

@@ -51,7 +51,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
-interface Props extends API.GetUserProfileData, API.GetUserPostsData {
+interface Props extends API.GetUserProfileResponseData, API.GetUserPostsResponseData {
     page: number;
     tag: string;
 }

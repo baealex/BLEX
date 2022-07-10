@@ -29,7 +29,9 @@ export interface ArticleCommentProps {
     totalComment: number;
 }
 
-interface CommentsStateItem extends API.GetPostCommentDataComment {
+type Comment = API.GetPostCommentResponseData['comments'][0];
+
+interface CommentsStateItem extends Comment {
     isEdit: boolean;
     textMarkdown: string
 }

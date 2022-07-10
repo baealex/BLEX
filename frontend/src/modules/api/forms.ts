@@ -1,10 +1,11 @@
-import axiosRequest, {
-    ResponseData,
-    serializeObject
-} from './index';
+import request, { serializeObject } from './index';
+
+export interface PostFormsResponseData {
+    id: number;
+}
 
 export async function postForms(title: string, content: string) {
-    return axiosRequest<ResponseData<PostFormsData>>({
+    return request<PostFormsResponseData>({
         url: '/v1/forms',
         method: 'POST',
         data: serializeObject({
@@ -14,25 +15,21 @@ export async function postForms(title: string, content: string) {
     });
 }
 
-export interface PostFormsData {
-    id: number;
-}
-
 export async function deleteForms(id: number) {
-    return axiosRequest<ResponseData<any>>({
+    return request<unknown>({
         url: `/v1/forms/${id}`,
         method: 'DELETE'
     });
 }
 
 export async function getForm(id: number) {
-    return axiosRequest<ResponseData<GetFormData>>({
+    return request<GetFormResponseData>({
         url: `/v1/forms/${id}`,
         method: 'GET'
     });
 }
 
-export interface GetFormData {
+export interface GetFormResponseData {
     title: string;
     content: string;
 }

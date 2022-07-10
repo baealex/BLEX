@@ -29,8 +29,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
-interface Props extends API.GetPostsData {
-    trendy?: API.GetPostsData,
+interface Props extends API.GetPostsResponseData {
+    trendy?: API.GetPostsResponseData,
     page: number;
 }
 

@@ -36,7 +36,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
-interface Props extends API.GetTagData {
+interface Props extends API.GetTagResponseData {
     page: number;
 }
 

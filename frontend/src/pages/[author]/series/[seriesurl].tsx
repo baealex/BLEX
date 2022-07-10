@@ -46,7 +46,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 interface Props {
-    series: API.GetAnUserSeriesData,
+    series: API.GetAnUserSeriesResponseData,
 }
 
 interface State {
@@ -54,7 +54,7 @@ interface State {
     username: string;
     seriesTitle: string;
     seriesDescription: string;
-    seriesPosts: API.GetAnUserSeriesDataPosts[];
+    seriesPosts: API.GetAnUserSeriesResponseData['posts'];
     isSeriesModalOpen: boolean;
     isSortOldFirst: boolean;
 }

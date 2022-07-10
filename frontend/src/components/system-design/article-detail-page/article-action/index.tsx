@@ -12,7 +12,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 
 import { modalStore } from '@stores/modal';
 
-export type ArticleActionProps = API.GetAnUserPostsViewData;
+export type ArticleActionProps = API.GetAnUserPostsViewResponseData;
 
 type Social = 'twitter' | 'facebook' | 'pinterest';
 

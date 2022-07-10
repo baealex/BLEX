@@ -40,7 +40,7 @@ interface State {
     isHide: boolean;
     isAd: boolean;
     isOpenArticleModal: boolean;
-    tempPosts: API.GetTempPostsDataTemp[],
+    tempPosts: API.GetTempPostsResponseData['temps'],
     tempPostsCache: {
         [token: string]: {
             title: string;

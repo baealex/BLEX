@@ -12,7 +12,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 
 import { loadingStore } from '@stores/loading';
 
-type Props = API.GetSettingSeriesData;
+type Props = API.GetSettingSeriesResponseData;
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { data } = await API.getSettingSeries({ 'Cookie': req.headers.cookie || '' });

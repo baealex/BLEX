@@ -41,7 +41,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
-type Props = API.GetUserProfileData;
+type Props = API.GetUserProfileResponseData;
 
 const Overview: PageComponent<Props> = (props) => {
     const [ isNightMode, setIsNightMode ] = useState(configStore.state.theme === 'dark');

@@ -12,7 +12,7 @@ interface Props {
     token: string;
     isAutoSave: boolean;
     onCheckAutoSave: (checked: boolean) => void;
-    tempPosts: API.GetTempPostsDataTemp[];
+    tempPosts: API.GetTempPostsResponseData['temps'];
     onSave: () => void;
     onFetch: (token: string) => void;
     onDelete: (token: string) => void;

@@ -1,18 +1,8 @@
-import axiosRequest, {
-    ResponseData,
-    serializeObject
-} from './index';
-
-export async function getUserProfile(author: string, includes: GetUserProfileInclude[]) {
-    return await axiosRequest<ResponseData<GetUserProfileData>>({
-        url: `/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
-        method: 'GET'
-    });
-}
+import request, { serializeObject } from './index';
 
 type GetUserProfileInclude = 'subscribe' | 'profile' | 'social' | 'heatmap' | 'tags' | 'view' | 'most' | 'recent' | 'about';
 
-export interface GetUserProfileData {
+export interface GetUserProfileResponseData {
     subscribe: {
         hasSubscribe: boolean;
     },
@@ -60,31 +50,38 @@ export interface GetUserProfileData {
     about?: string;
 }
 
+export async function getUserProfile(author: string, includes: GetUserProfileInclude[]) {
+    return await request<GetUserProfileResponseData>({
+        url: `/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
+        method: 'GET'
+    });
+}
+
+export interface GetUserAboutResponseData {
+    aboutMd: string;
+}
+
 export async function getUserAbout(author: string) {
-    return await axiosRequest<ResponseData<GetUserAboutData>>({
+    return await request<GetUserAboutResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}?get=about`,
         method: 'GET'
     });
 }
 
-interface PutUserFollow {
+interface PutUserFollowResponseData {
     hasSubscribe: boolean;
 }
 
 export async function putUserFollow(author: string) {
-    return await axiosRequest<ResponseData<PutUserFollow>>({
+    return await request<PutUserFollowResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
         data: serializeObject({ follow: author })
     });
 }
 
-export interface GetUserAboutData {
-    aboutMd: string;
-}
-
 export async function putUserAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
-    return await axiosRequest<ResponseData<any>>({
+    return await request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

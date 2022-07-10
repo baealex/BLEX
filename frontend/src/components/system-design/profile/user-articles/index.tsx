@@ -1,11 +1,8 @@
-import {
-    TagProps,
-    Tags
-} from './tags';
-import { Articles } from './articles';
+import { Articles, ArticlesProps } from './articles';
+import { TagProps, Tags } from './tags';
 
 interface PostsProps {
-    posts: any;
+    posts: ArticlesProps['posts'];
     allCount: number;
     active: string;
     author: string;

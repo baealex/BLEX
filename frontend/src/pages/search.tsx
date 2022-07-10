@@ -40,8 +40,8 @@ export default function Search(props: Props) {
     const router = useRouter();
 
     const [ search, setSearch ] = useState(props.query);
-    const [ response, setResponse ] = useState<API.ResponseData<API.GetSearchData>>();
-    const [ history, setHistory ] = useState<API.GetSearchHistorySearch[]>([]);
+    const [ response, setResponse ] = useState<API.ResponseData<API.GetSearchResponseData>>();
+    const [ history, setHistory ] = useState<API.GetSearchHistoryResponseData['searches']>([]);
 
     useEffect(() => {
         API.getSearchHistory().then(({ data }) => {
