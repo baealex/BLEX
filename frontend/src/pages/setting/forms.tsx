@@ -1,7 +1,4 @@
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult
-} from 'next';
+import type { GetServerSideProps } from 'next';
 import { useState } from 'react';
 
 import { Card } from '@design-system';
@@ -20,8 +17,7 @@ interface Props {
     }[];
 }
 
-export async function getServerSideProps({ req }: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { data } = await API.getSettingForms({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {

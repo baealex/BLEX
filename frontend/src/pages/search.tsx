@@ -2,7 +2,7 @@ import React, {
     useEffect,
     useState
 } from 'react';
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
@@ -17,7 +17,7 @@ import { ArticleCard } from '@system-design/article';
 import * as API from '@modules/api';
 import { lazyLoadResource } from '@modules/optimize/lazy';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
         q = '',
         page = 1

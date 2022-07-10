@@ -1,7 +1,4 @@
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult
-} from 'next';
+import type { GetServerSideProps } from 'next';
 import React, { useState } from 'react';
 import { useValue } from 'badland-react';
 
@@ -24,8 +21,7 @@ import { modalStore } from '@stores/modal';
 
 type Props = API.GetSettingAccountData
 
-export async function getServerSideProps({ req }: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { data } = await API.getSettingAcount({ 'Cookie': req.headers.cookie || '' });
 
     if (data.errorCode === API.ERROR.NOT_LOGIN) {

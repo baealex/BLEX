@@ -1,7 +1,4 @@
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult
-} from 'next';
+import type { GetServerSideProps } from 'next';
 import React, {
     useEffect,
     useState
@@ -30,11 +27,7 @@ interface Props extends API.GetSettingPostsData {
     page: number;
 }
 
-export async function getServerSideProps({
-    query,
-    req
-}: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
     const {
         page = 1, order = '', tag_filter = ''
     } = query;

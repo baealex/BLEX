@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import React from 'react';
@@ -49,7 +49,7 @@ interface State {
     featurePosts?: API.GetFeaturePostsData;
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { cookies } = context.req;
     configStore.serverSideInject(cookies);
 

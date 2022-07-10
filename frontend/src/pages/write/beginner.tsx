@@ -1,7 +1,4 @@
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult
-} from 'next';
+import type { GetServerSideProps } from 'next';
 import React from 'react';
 import Router from 'next/router';
 
@@ -17,8 +14,7 @@ interface Props {
     username: string;
 }
 
-export async function getServerSideProps({ req }: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { cookies } = req;
     configStore.serverSideInject(cookies);
 

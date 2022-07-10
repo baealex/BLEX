@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 
@@ -17,7 +17,7 @@ import { ArticleCard } from '@system-design/article';
 import * as API from '@modules/api';
 import { getUserImage } from '@modules/utility/image';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
         tag,
         page = 1

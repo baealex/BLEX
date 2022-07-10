@@ -1,7 +1,4 @@
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult
-} from 'next';
+import type { GetServerSideProps } from 'next';
 import React, { useState } from 'react';
 
 import {
@@ -22,8 +19,7 @@ import { loadingStore } from '@stores/loading';
 
 type Props = API.GetSettingProfileData
 
-export async function getServerSideProps({ req }: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { data } = await API.getSettingProfile({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {

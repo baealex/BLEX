@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSideProps } from 'next';
 import React from 'react';
 import Router from 'next/router';
 
@@ -12,7 +12,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { token } = context.query;
 
     try {

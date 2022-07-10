@@ -1,6 +1,5 @@
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
-
-import type { GetServerSidePropsContext } from 'next';
 
 import {
     Footer,
@@ -13,7 +12,7 @@ import { TagCard } from '@system-design/tag';
 
 import * as API from '@modules/api';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;
 
     try {

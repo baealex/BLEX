@@ -2,7 +2,7 @@ import {
     useEffect,
     useState
 } from 'react';
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 
 import {
@@ -20,7 +20,7 @@ import * as API from '@modules/api';
 
 import { configStore } from '@stores/config';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { author = '' } = context.query;
 
     if (!author.includes('@')) {

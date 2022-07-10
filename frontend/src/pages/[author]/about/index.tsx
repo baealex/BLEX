@@ -2,7 +2,7 @@ import React, {
     useEffect,
     useState
 } from 'react';
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 
 import { ArticleContent } from '@system-design/article-detail-page';
@@ -17,7 +17,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { author = '' } = context.query;
 
     try {

@@ -6,9 +6,9 @@ import { EditorLayout } from '@system-design/article-editor-page/expert';
 import * as API from '@modules/api';
 import { snackBar } from '@modules/ui/snack-bar';
 
-import { GetServerSidePropsContext } from 'next';
+import { GetServerSideProps } from 'next';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { req } = context;
     const {
         author = '',

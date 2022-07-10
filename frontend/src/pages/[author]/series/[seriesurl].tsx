@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext } from 'next';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import React from 'react';
 import Router from 'next/router';
@@ -22,7 +22,7 @@ import { getUserImage } from '@modules/utility/image';
 import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { cookies } = context.req;
     configStore.serverSideInject(cookies);
 

@@ -1,3 +1,4 @@
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import React from 'react';
 
@@ -13,9 +14,8 @@ import type { PageComponent } from '@components';
 import { Text } from '@design-system';
 
 import * as API from '@modules/api';
-import { GetServerSidePropsContext } from 'next';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
         author = '',
         page = 1
