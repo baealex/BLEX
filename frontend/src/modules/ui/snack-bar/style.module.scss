@@ -24,7 +24,10 @@
     pointer-events: none;
     position: fixed;
     z-index: 9999;
-    width: 100%;
+    box-sizing: border-box;
+    width: 500px;
+    border-radius: 16px 16px 0 0;
+    max-width: 100%;
     bottom: 0;
     left: 50%;
     padding: 16px;
