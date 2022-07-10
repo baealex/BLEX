@@ -69,19 +69,19 @@ export function ArticleComment(props: ArticleCommentProps) {
         const { data } = await API.putCommentLike(pk);
         if (data.status === 'ERROR') {
             switch (data.errorCode) {
-            case API.ERROR.NOT_LOGIN:
-                snackBar('😅 로그인이 필요합니다.', {
-                    onClick:() => {
-                        modalStore.open('isLoginModalOpen');
-                    }
-                });
-                return;
-            case API.ERROR.SAME_USER:
-                snackBar('😅 자신의 댓글은 추천할 수 없습니다.');
-                return;
-            case API.ERROR.REJECT:
-                snackBar('😅 삭제된 댓글은 추천할 수 없습니다.');
-                return;
+                case API.ERROR.NOT_LOGIN:
+                    snackBar('😅 로그인이 필요합니다.', {
+                        onClick:() => {
+                            modalStore.open('isLoginModalOpen');
+                        }
+                    });
+                    return;
+                case API.ERROR.SAME_USER:
+                    snackBar('😅 자신의 댓글은 추천할 수 없습니다.');
+                    return;
+                case API.ERROR.REJECT:
+                    snackBar('😅 삭제된 댓글은 추천할 수 없습니다.');
+                    return;
             }
         }
         setComments(comments.map(comment => (

@@ -35,18 +35,18 @@ export function ArticleAction(props: ArticleActionProps) {
         let href = '';
         let size = '';
         switch (social) {
-        case 'twitter':
-            href = `https://twitter.com/intent/tweet?text=${props.title}&url=${window.location.href}`;
-            size = 'width=550,height=235';
-            break;
-        case 'facebook':
-            href = `https://facebook.com/sharer.php?u=${window.location.href}`;
-            size = 'width=550,height=435';
-            break;
-        case 'pinterest':
-            href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${props.image}&description=${props.description}`;
-            size = 'width=650,height=500';
-            break;
+            case 'twitter':
+                href = `https://twitter.com/intent/tweet?text=${props.title}&url=${window.location.href}`;
+                size = 'width=550,height=235';
+                break;
+            case 'facebook':
+                href = `https://facebook.com/sharer.php?u=${window.location.href}`;
+                size = 'width=550,height=435';
+                break;
+            case 'pinterest':
+                href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${props.image}&description=${props.description}`;
+                size = 'width=650,height=500';
+                break;
         }
         window.open(href, `${social}-share`, size);
     };

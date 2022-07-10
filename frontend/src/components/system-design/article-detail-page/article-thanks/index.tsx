@@ -11,8 +11,8 @@ import { message } from '@modules/utility/message';
 import { snackBar } from '@modules/ui/snack-bar';
 
 interface ArticleThanks {
-  author: string;
-  url: string;
+    author: string;
+    url: string;
 }
 
 export function ArticleThanks({

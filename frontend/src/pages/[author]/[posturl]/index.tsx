@@ -187,18 +187,18 @@ class PostDetail extends React.Component<Props, State> {
                 if (header.id) {
                     let idNumber = 0;
                     switch (header.tagName.toUpperCase()) {
-                    case 'H1':
-                    case 'H2':
-                        idNumber = 1;
-                        break;
-                    case 'H3':
-                    case 'H4':
-                        idNumber = 2;
-                        break;
-                    case 'H5':
-                    case 'H6':
-                        idNumber = 3;
-                        break;
+                        case 'H1':
+                        case 'H2':
+                            idNumber = 1;
+                            break;
+                        case 'H3':
+                        case 'H4':
+                            idNumber = 2;
+                            break;
+                        case 'H5':
+                        case 'H6':
+                            idNumber = 3;
+                            break;
                     }
                     headerNav.push([
                         idNumber.toString(), header.id, header.textContent ? header.textContent : ''

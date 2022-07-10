@@ -4,9 +4,9 @@ import axiosRequest, {
 } from './index';
 
 export interface PostReportErrorRequestData {
-  user?: string;
-  path: string;
-  content: string;
+    user?: string;
+    path: string;
+    content: string;
 }
 
 export async function postReportError(data: PostReportErrorRequestData) {

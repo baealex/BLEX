@@ -25,7 +25,7 @@
     ],
     "rules": {
         "comma-dangle": [ "error", "never" ],
-        "indent": [ "error", 4 ],
+        "indent": "off",
         "semi": "off",
         "quotes": [ "error", "single" ],
         "keyword-spacing": [ "error", {
@@ -58,6 +58,7 @@
             }
         ],
         "jsx-quotes": [ "error", "prefer-double" ],
-        "@typescript-eslint/semi": ["error"]
+        "@typescript-eslint/semi": [ "error" ],
+        "@typescript-eslint/indent": [ "error", 4 ]
     }
 }

@@ -1,6 +1,6 @@
 interface SortedOptions<T> {
-  key?: keyof T;
-  reverse?: boolean;
+    key?: keyof T;
+    reverse?: boolean;
 }
 
 export function sorted<T>(list: readonly T[], {
