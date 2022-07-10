@@ -44,15 +44,15 @@ const ProfileSetting: PageComponent<Props> = (props) => {
     const [ youtube, setYoutube ] = useState(props.youtube);
 
     const onSubmit = async () => {
-        const sendData: any = {};
-
-        sendData['bio'] = bio;
-        sendData['homepage'] = homepage;
-        sendData['github'] = github;
-        sendData['twitter'] = twitter;
-        sendData['facebook'] = facebook;
-        sendData['instagram'] = instagram;
-        sendData['youtube'] = youtube;
+        const sendData = {
+            bio,
+            homepage,
+            github,
+            twitter,
+            facebook,
+            instagram,
+            youtube
+        };
 
         const { data } = await API.putSetting('profile', sendData);
         if (data.status === 'DONE') {

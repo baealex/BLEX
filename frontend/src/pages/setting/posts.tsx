@@ -27,6 +27,18 @@ interface Props extends API.GetSettingPostsData {
     page: number;
 }
 
+interface Analytics {
+    [key: string]: {
+        dates: string[];
+        counts: number[];
+        referers: {
+            time: string;
+            from: string;
+            title: string;
+        }[];
+    }
+}
+
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
     const {
         page = 1, order = '', tag_filter = ''
@@ -100,7 +112,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
     const [ posts, setPosts ] = useState(props.posts);
 
     const [ apNow, setApNow ] = useState('');
-    const [ analytics, setAnalytics ] = useState(Object());
+    const [ analytics, setAnalytics ] = useState<Analytics>({});
 
     useEffect(() => {
         setPosts(props.posts);
@@ -319,7 +331,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 colors={['purple']}
                             />
                             <ul>
-                                {analytics[apNow].referers.map((item: any, idx: number) => (
+                                {analytics[apNow].referers.map((item, idx) => (
                                     <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a></li>
                                 ))}
                             </ul>
