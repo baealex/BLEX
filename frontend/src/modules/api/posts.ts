@@ -51,7 +51,7 @@ export async function getAnTempPosts(token: string) {
 }
 
 export async function putTempPosts(token: string, title: string, text_md: string, tag: string) {
-    return await request<any>({
+    return await request<unknown>({
         url: `/v1/posts/temp/${token}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -64,7 +64,7 @@ export async function putTempPosts(token: string, title: string, text_md: string
 }
 
 export async function deleteTempPosts(token: string) {
-    return await request<any>({
+    return await request<unknown>({
         url: `/v1/posts/temp/${token}`,
         method: 'DELETE',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }

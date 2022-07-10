@@ -96,14 +96,14 @@ export async function postSignSocialLogin(social: string, code: string) {
 }
 
 export async function postSecurity() {
-    return await request<any>({
+    return await request<unknown>({
         url: '/v1/auth/security',
         method: 'POST'
     });
 }
 
 export async function deleteSecurity() {
-    return await request<any>({
+    return await request<unknown>({
         url: '/v1/auth/security',
         method: 'DELETE'
     });

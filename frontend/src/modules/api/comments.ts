@@ -40,7 +40,7 @@ export async function getComment(pk: number) {
 }
 
 export async function putComment(pk: number, content: string) {
-    return await request<any>({
+    return await request<unknown>({
         url: `/v1/comments/${pk}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
