@@ -12,37 +12,34 @@ export function optimizedEvent(func: (e?: Event) => void) {
     };
 }
 
-export interface DebounceEventRunner {
-    (e?: Event): boolean;
+export interface DebounceEventRunner<T> {
+    (e?: T): void;
     clear(): void;
 }
 
-export function debounceEvent(func: (e?: Event) => void, timing: number): DebounceEventRunner {
+export function debounceEvent<T>(callback: (value?: T) => void, ms: number) {
     let timer: NodeJS.Timeout;
 
-    const runner = function(e?: Event) {
+    const runner: DebounceEventRunner<T> = (value) => {
         if (timer) clearTimeout(timer);
-        timer = setTimeout(() => func(e), timing);
-        return true;
+        timer = setTimeout(() => callback(value), ms);
     };
 
-    runner.clear = function() {
+    runner.clear = () => {
         if (timer) clearTimeout(timer);
     };
 
     return runner;
 }
 
-export function throttleEvent(func: (e?: Event) => void, timing: number) {
+export function throttleEvent<T>(callback: (value?: T) => void, timing: number) {
     let isReady = true;
 
-    return (e?: Event) => {
+    return (value?: T) => {
         if (isReady) {
             isReady = false;
-            func(e);
-            setTimeout(() => {
-                isReady = true;
-            }, timing);
+            callback(value);
+            setTimeout(() => isReady = true, timing);
         }
     };
 }

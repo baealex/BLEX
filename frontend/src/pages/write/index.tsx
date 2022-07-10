@@ -59,7 +59,7 @@ interface State {
 }
 
 class Write extends React.Component<Props, State> {
-    private saver: DebounceEventRunner;
+    private saver: DebounceEventRunner<unknown>;
     private authUpdateKey: string;
     private configUpdateKey: string;
 
