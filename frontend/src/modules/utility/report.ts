@@ -1,12 +1,15 @@
-import axios from '@modules/api';
+import { postReportError } from '@modules/api';
+
+import { authStore } from '@stores/auth';
 
 export function bindErrorReport() {
     if (typeof window !== 'undefined') {
         window.onerror = (e) => {
-            axios({
-                method: 'POST',
-                url: '/v1/report/error',
-                data: JSON.stringify(e)
+            const { pathname: path } = window.location;
+            postReportError({
+                user: authStore.state.username,
+                path,
+                content: JSON.stringify(e)
             });
         };
     }
