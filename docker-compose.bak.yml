@@ -10,8 +10,8 @@ services:
   
   backend:
     image: baealex/blex-backend
-    restart: always
     env_file: ./backend/.env
+    restart: always
     volumes:
       - ./backend/src/:/app/
     ports:
