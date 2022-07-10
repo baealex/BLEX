@@ -1,5 +1,5 @@
-import type { GetServerSideProps } from 'next';
 import React, { useState } from 'react';
+import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
 import { Card } from '@design-system';
@@ -26,7 +26,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         };
     }
     return { props: data.body };
-}
+};
 
 const SeriesSetting: PageComponent<Props> = (props) => {
     const [ newSeries, setNewSeries ] = useState('');

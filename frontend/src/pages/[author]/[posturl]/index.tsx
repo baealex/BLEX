@@ -116,7 +116,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     } catch (error) {
         return { notFound: true };
     }
-}
+};
 
 class PostDetail extends React.Component<Props, State> {
     private updateKey: string;

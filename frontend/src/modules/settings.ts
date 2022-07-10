@@ -19,5 +19,5 @@ const {
 
 export const CONFIG: Config = {
     ...publicRuntimeConfig,
-    ...serverRuntimeConfig,
+    ...serverRuntimeConfig
 };

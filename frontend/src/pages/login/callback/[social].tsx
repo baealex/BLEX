@@ -21,7 +21,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             code
         }
     };
-}
+};
 
 interface Props {
     social: string;

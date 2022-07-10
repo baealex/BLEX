@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     } catch (error) {
         return { notFound: true };
     }
-}
+};
 
 interface Props {
     series: API.GetAnUserSeriesData,

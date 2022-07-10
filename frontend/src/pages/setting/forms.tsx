@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         };
     }
     return { props: data.body };
-}
+};
 
 const FormsSetting: PageComponent<Props> = (props) => {
     const [ title, setTitle ] = useState('');

@@ -26,7 +26,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     } catch (error) {
         return { notFound: true };
     }
-}
+};
 
 interface Props extends API.GetTagsData {
     page: number;

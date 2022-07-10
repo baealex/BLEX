@@ -1,5 +1,5 @@
-import type { GetServerSideProps } from 'next';
 import React, { useState } from 'react';
+import type { GetServerSideProps } from 'next';
 import { useValue } from 'badland-react';
 
 import {
@@ -34,7 +34,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     }
 
     return { props: data.body };
-}
+};
 
 const AccountSetting: PageComponent<Props> = (props) => {
     const [ isChangeUsername, setChangeUsername ] = useState(false);

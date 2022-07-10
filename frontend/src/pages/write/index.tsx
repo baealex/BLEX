@@ -34,7 +34,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     }
 
     return { props: { username: data.body.username } };
-}
+};
 
 interface State {
     username: string;

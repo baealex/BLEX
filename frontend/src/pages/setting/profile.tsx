@@ -1,5 +1,5 @@
-import type { GetServerSideProps } from 'next';
 import React, { useState } from 'react';
+import type { GetServerSideProps } from 'next';
 
 import {
     Alert,
@@ -31,7 +31,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         };
     }
     return { props: data.body };
-}
+};
 
 const ProfileSetting: PageComponent<Props> = (props) => {
     const [ avatar, setAvatar ] = useState(props.avatar);

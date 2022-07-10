@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             page
         }
     };
-}
+};
 
 interface Props {
     query: string;

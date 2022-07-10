@@ -1,8 +1,8 @@
-import type { GetServerSideProps } from 'next';
 import React, {
     useEffect,
     useState
 } from 'react';
+import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -54,7 +54,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             ...data.body
         }
     };
-}
+};
 
 const POSTS_ORDER = [
     {

@@ -35,7 +35,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     } catch (error) {
         return { notFound: true };
     }
-}
+};
 
 type Props = API.GetUserProfileData
 
