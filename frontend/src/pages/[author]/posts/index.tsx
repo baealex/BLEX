@@ -96,7 +96,7 @@ UserPosts.pageLayout = (page, props) => (
                     allCount={props.allCount}
                     active={props.tag}
                     author={props.profile.username}
-                    tags={props.tags!}
+                    tags={props.tags}
                     posts={props.posts}>
                     {page}
                 </UserArticles>

@@ -9,7 +9,7 @@ interface PostsProps {
     allCount: number;
     active: string;
     author: string;
-    tags: TagProps[];
+    tags?: TagProps[];
     children: JSX.Element;
 }
 

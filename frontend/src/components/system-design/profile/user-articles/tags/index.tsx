@@ -18,11 +18,11 @@ export interface TagsProps {
     allCount: number;
     active: string;
     author: string;
-    tags: TagProps[];
+    tags?: TagProps[];
 }
 
 export function Tags(props: TagsProps) {
-    const [tags, setTags] = useState(props.tags);
+    const [tags, setTags] = useState(props.tags || []);
 
     return (
         <div
