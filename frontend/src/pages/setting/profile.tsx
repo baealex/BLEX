@@ -17,7 +17,7 @@ import { snackBar } from '@modules/ui/snack-bar';
 
 import { loadingStore } from '@stores/loading';
 
-type Props = API.GetSettingProfileData
+type Props = API.GetSettingProfileData;
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { data } = await API.getSettingProfile({ 'Cookie': req.headers.cookie || '' });
