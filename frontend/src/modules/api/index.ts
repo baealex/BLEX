@@ -12,13 +12,13 @@ export type Headers = AxiosRequestHeaders & {
     'Content-Type'?: string;
 };
 
+const { request } = axios.create({
+    baseURL: CONFIG.API_SERVER,
+    withCredentials: true
+});
+
 export default async function axiosRequest<T>(config: AxiosRequestConfig) {
     const isBrowser = typeof window !== 'undefined';
-
-    const { request } = axios.create({
-        baseURL: CONFIG.API_SERVER,
-        withCredentials: true
-    });
 
     if (config.headers) {
         const { headers } = config;
