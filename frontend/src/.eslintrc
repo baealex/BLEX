@@ -24,18 +24,22 @@
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
+        "@typescript-eslint/consistent-type-definitions": [ "error", "interface" ],
+        "@typescript-eslint/default-param-last": [ "error" ],
+        "@typescript-eslint/indent": [ "error", 4 ],
+        "@typescript-eslint/semi": [ "error" ],
         "comma-dangle": [ "error", "never" ],
         "default-param-last": "off",
         "indent": "off",
-        "semi": "off",
-        "quotes": [ "error", "single" ],
         "keyword-spacing": [ "error", {
             "before": true,
             "after": true
         }],
+        "no-trailing-spaces": "error",
         "object-curly-spacing": [ "error", "always" ],
         "object-property-newline": "error",
-        "no-trailing-spaces": "error",
+        "quotes": [ "error", "single" ],
+        "semi": "off",
         "sort-imports": [ "error", {
             "ignoreCase": false,
             "ignoreDeclarationSort": false,
@@ -47,8 +51,8 @@
             "selfClosing": "tag-aligned",
             "nonEmpty": "after-props"
         }],
-        "react/jsx-indent": [ "error", 4 ],
         "react/jsx-first-prop-new-line": [ "error", "multiline" ],
+        "react/jsx-indent": [ "error", 4 ],
         "react/jsx-max-props-per-line": [
             "error",
             {
@@ -58,10 +62,6 @@
                 }
             }
         ],
-        "jsx-quotes": [ "error", "prefer-double" ],
-        "@typescript-eslint/semi": [ "error" ],
-        "@typescript-eslint/indent": [ "error", 4 ],
-        "@typescript-eslint/default-param-last": [ "error" ],
-        "@typescript-eslint/consistent-type-definitions": [ "error", "interface" ]
+        "jsx-quotes": [ "error", "prefer-double" ]
     }
 }
