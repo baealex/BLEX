@@ -122,7 +122,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Extension (Email)
 
-EMAIL_VERIFY_USE = os.environ.get('EMAIL_VERIFY_USE') == 'TRUE'
 EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_PORT = os.environ.get('EMAIL_PORT')
@@ -134,10 +133,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Extension (Telegram)
 
-TELEGRAM_USE = os.environ.get('TELEGRAM_USE') == 'TRUE'
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHANNEL_ID = os.environ.get('TELEGRAM_CHANNEL_ID')
-TELEGRAM_ADMIN_ID = os.environ.get('TELEGRAM_ADMIN_ID')
+TELEGRAM_ERROR_REPORT_ID = os.environ.get('TELEGRAM_ERROR_REPORT_ID')
 
 
 # Extension (Discord)
@@ -147,7 +145,6 @@ DISCORD_NEW_POSTS_WEBHOOK = os.environ.get('DISCORD_NEW_POSTS_WEBHOOK')
 
 # Extension (OAuth)
 
-OAUTH_USE = os.environ.get('OAUTH_USE') == 'TRUE'
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
 GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
 GITHUB_OAUTH_CLIENT_ID = os.environ.get('GITHUB_OAUTH_CLIENT_ID')
@@ -156,5 +153,4 @@ GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET')
 
 # Extention (Captcha)
 
-CAPTCHA_USE = os.environ.get('CAPTCHA_USE') == 'TRUE'
 HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
