@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./backend/src
     strategy:
       max-parallel: 4
       matrix:
