@@ -8,15 +8,9 @@ on:
       - 'backend/**'
   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: ./backend/src
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./backend/src
     strategy:
       max-parallel: 4
       matrix:
@@ -28,7 +22,7 @@ jobs:
     - name: Load .env file
       uses: xom9ikk/dotenv@v1.0.2
       with:
-        path: /dev-tools/sample/BE.env
+        path: ./dev-tools/sample/BE.env
         mode: development
 
     - name: Set up Python ${{ matrix.python-version }}
