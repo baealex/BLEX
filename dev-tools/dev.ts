@@ -4,7 +4,7 @@ import { runScript } from './core'
 
 if (!existsSync(resolve('./backend/.env')))
     copyFileSync(
-        resolve('./dev-tools/sample/BE.env'),
+        resolve('./dev-tools/sample/backend/.env'),
         resolve('./backend/.env')
     )
 
@@ -28,7 +28,7 @@ writeFileSync(
 
 if (!existsSync(resolve('./frontend/.env')))
     copyFileSync(
-        resolve('./dev-tools/sample/FE.env'),
+        resolve('./dev-tools/sample/frontend/.env'),
         resolve('./frontend/.env')
     )
 
