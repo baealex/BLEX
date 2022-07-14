@@ -4,13 +4,13 @@ import { runScript } from './core'
 
 if (!existsSync(resolve('./backend/.env')))
     copyFileSync(
-        resolve('./dev-tools/sample/BE.env'),
+        resolve('./dev-tools/sample/backend/.env'),
         resolve('./backend/.env')
     )
 
 if (!existsSync(resolve('./backend/src/db.sqlite3')))
     copyFileSync(
-        resolve('./dev-tools/sample/db.sqlite3'),
+        resolve('./dev-tools/sample/backend/db.sqlite3'),
         resolve('./backend/src/db.sqlite3')
     )
 
@@ -28,7 +28,7 @@ writeFileSync(
 
 if (!existsSync(resolve('./frontend/.env')))
     copyFileSync(
-        resolve('./dev-tools/sample/FE.env'),
+        resolve('./dev-tools/sample/frontend/.env'),
         resolve('./frontend/.env')
     )
 

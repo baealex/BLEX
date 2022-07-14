@@ -1,8 +1,9 @@
 /node_modules
 /backend/src/static/images/
+/frontend/**.env
+/backend/**.env
 
 /*.sh
 /*.log
 
-.env
 DockerfileDev
