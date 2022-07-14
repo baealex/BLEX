@@ -27,7 +27,7 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
 
     # GraphQL
-    path('graphql', GraphQLView.as_view(graphiql=True)),
+    # path('graphql', GraphQLView.as_view(graphiql=True)),
 
     # API V1
     path('v1/login', api_v1.login),

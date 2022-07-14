@@ -7,10 +7,6 @@ on:
     paths:
       - 'frontend/**'
 
-defaults:
-  run:
-    working-directory: ./frontend/src
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,8 +20,7 @@ jobs:
     - name: Load .env file
       uses: xom9ikk/dotenv@v1.0.2
       with:
-        path: ./dev-tools/sample/FE.env
-        mode: development
+        path: dev-tools/sample/frontend
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
@@ -34,12 +29,16 @@ jobs:
 
     - name: Install
       run: npm i
+      working-directory: frontend/src
     
     - name: Lint
       run: npm run eslint
+      working-directory: frontend/src
     
     - name: Test
       run: npm run jest
+      working-directory: frontend/src
     
     - name: Build
       run: npm run build
+      working-directory: frontend/src

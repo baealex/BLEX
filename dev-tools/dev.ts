@@ -10,7 +10,7 @@ if (!existsSync(resolve('./backend/.env')))
 
 if (!existsSync(resolve('./backend/src/db.sqlite3')))
     copyFileSync(
-        resolve('./dev-tools/sample/db.sqlite3'),
+        resolve('./dev-tools/sample/backend/db.sqlite3'),
         resolve('./backend/src/db.sqlite3')
     )
 
