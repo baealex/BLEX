@@ -7,10 +7,6 @@ on:
     paths:
       - 'backend/**'
 
-defaults:
-  run:
-    working-directory: ./backend/src
-
 jobs:
   build:
     runs-on: ubuntu-latest
