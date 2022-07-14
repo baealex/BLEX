@@ -21,6 +21,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Load .env file
+      uses: xom9ikk/dotenv@v1.0.2
+      with:
+        path: ./dev-tools/sample/FE.env
+        mode: development
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
@@ -31,6 +37,9 @@ jobs:
     
     - name: Lint
       run: npm run eslint
+    
+    - name: Test
+      run: npm run jest
     
     - name: Build
       run: npm run build
