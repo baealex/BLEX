@@ -1,4 +1,4 @@
-name: BUILD FE IMAGE
+name: BUILD FE DEV IMAGE
 on:
   push:
     branches:
@@ -10,9 +10,26 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_ACTION: TRUE
+    strategy:
+      matrix:
+        node-version: [16.x]
+
     steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Install
+        run: npm i
+
+      - name: Create Dev Dockerfile
+        run: npm run dev
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -27,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./frontend
-          file: ./frontend/Dockerfile
+          file: ./frontend/DockerfileDev
           platforms: linux/amd64
           push: true
-          tags: baealex/blex-frontend:latest
+          tags: baealex/blex-dev-frontend:latest
