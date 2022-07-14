@@ -22,6 +22,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Load .env file
+      uses: xom9ikk/dotenv@v1.0.2
+      with:
+        path: ./dev-tools/sample/BE.env
+        mode: development
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
