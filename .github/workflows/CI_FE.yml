@@ -10,7 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env:
+      working-directory: ./frontend/src
     strategy:
       matrix:
         node-version: [16.x]
