@@ -7,10 +7,13 @@ on:
     paths:
       - 'frontend/**'
 
+defaults:
+  run:
+    working-directory: ./frontend/src
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [16.x]
