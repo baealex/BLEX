@@ -25,7 +25,7 @@ jobs:
     - name: Load .env file
       uses: xom9ikk/dotenv@v1.0.2
       with:
-        path: /dev-tools/sample/backend/.env
+        path: /dev-tools/sample/backend
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
