@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'backend/**'
+  workflow_dispatch:
 
 defaults:
   run:
@@ -27,7 +28,7 @@ jobs:
     - name: Load .env file
       uses: xom9ikk/dotenv@v1.0.2
       with:
-        path: ./dev-tools/sample/BE.env
+        path: /dev-tools/sample/BE.env
         mode: development
 
     - name: Set up Python ${{ matrix.python-version }}
