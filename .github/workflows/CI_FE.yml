@@ -1,7 +1,7 @@
 name: FE CI
 
 on:
-  push:
+  pull_request:
     branches:
       - master
     paths:
@@ -36,7 +36,7 @@ jobs:
       working-directory: frontend/src
     
     - name: Test
-      run: npm run jest
+      run: npm run test
       working-directory: frontend/src
     
     - name: Build
