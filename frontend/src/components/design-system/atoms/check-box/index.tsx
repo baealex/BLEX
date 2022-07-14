@@ -4,7 +4,7 @@ export interface CheckBoxProps {
     label: string;
     onClick: (value: boolean) => void;
     defaultChecked: boolean;
-};
+}
 
 export function CheckBox(props: CheckBoxProps) {
     const checkbox = useRef<HTMLInputElement>(null);
@@ -17,7 +17,7 @@ export function CheckBox(props: CheckBoxProps) {
         <div className="d-flex align-items-center form-group form-check">
             <input
                 ref={checkbox}
-                onClick={(e: any) => props.onClick(e.target.checked)}
+                onClick={(e) => props.onClick(e.currentTarget.checked)}
                 type="checkbox"
                 className="form-check-input c-pointer"
                 defaultChecked={props.defaultChecked}

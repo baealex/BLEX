@@ -1,35 +1,39 @@
-import { useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState
+} from 'react';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
 import {
     Accordion,
     Card,
-    Table,
+    Table
 } from '@design-system';
+import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
 
 import { loadingStore } from '@stores/loading';
 
-export default function AnalyticsSetting() {
-    const [ views, setViews ] = useState<API.GetSettingAnalyticsViewData>();
-    const [ referers, setReferers ] = useState<API.GetSettingAnalyticsRefererData>();
-    const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchData>();
+const AnalyticsSetting: PageComponent<undefined> = () => {
+    const [ views, setViews ] = useState<API.GetSettingAnalyticsViewResponseData>();
+    const [ referers, setReferers ] = useState<API.GetSettingAnalyticsRefererResponseData>();
+    const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchResponseData>();
 
     useEffect(() => {
         loadingStore.start();
         Promise.all([
             API.getSettingAnalyticsView()
-                .then(({data}) => setViews(data.body)),
+                .then(({ data }) => setViews(data.body)),
             API.getSettingAnalyticsSearch()
-                .then(({data}) => setSearches(data.body)),
+                .then(({ data }) => setSearches(data.body)),
             API.getSettingAnalyticsReferrers()
-                .then(({data}) => setReferers(data.body)),
+                .then(({ data }) => setReferers(data.body))
         ]).then(() => {
             loadingStore.end();
-        })
+        });
     }, []);
 
     return (
@@ -39,7 +43,7 @@ export default function AnalyticsSetting() {
                     <div className="h5 font-weight-bold mt-lg-0 mt-3 mb-3">
                         조회수 추이
                     </div>
-                    <Card hasShadow isRounded>
+                    <Card hasBackground isRounded>
                         <div className="pt-3 px-3 d-flex justify-content-between">
                             <div className="ns shallow-dark">
                                 총 조회수 : {views.total.toLocaleString()}
@@ -61,12 +65,8 @@ export default function AnalyticsSetting() {
                                 ]
                             }}
                             colors={['#A076F1']}
-                            lineOptions={{
-                                hideDots: 1
-                            }}
-                            axisOptions={{
-                                xIsSeries: 1
-                            }}
+                            lineOptions={{ hideDots: 1 }}
+                            axisOptions={{ xIsSeries: 1 }}
                         />
                     </Card>
                 </>
@@ -76,7 +76,7 @@ export default function AnalyticsSetting() {
                     <div className="h5 font-weight-bold mt-5 mb-3">
                         검색 유입 분석
                     </div>
-                    <Card hasShadow isRounded>
+                    <Card hasBackground isRounded>
                         <>
                             <div className="pt-3 px-3">
                                 <div className="ns shallow-dark text-right">
@@ -103,7 +103,7 @@ export default function AnalyticsSetting() {
                                         body={searches.topSearches.map((item) => [
                                             item.count.toString(),
                                             item.keyword,
-                                            item.platform,
+                                            item.platform
                                         ])}
                                     />
                                 </Accordion>
@@ -120,7 +120,7 @@ export default function AnalyticsSetting() {
                     <div className="row">
                         {referers.referers.map((item, idx: number) => (
                             <div key={idx} className="col-lg-4 col-md-6">
-                                <Card hasShadow isRounded className="my-3">
+                                <Card isRounded hasBackground className="my-3">
                                     <>
                                         <div className="p-3">
                                             <div>
@@ -148,10 +148,12 @@ export default function AnalyticsSetting() {
             )}
         </>
     );
-}
+};
 
-AnalyticsSetting.pageLayout = (page: JSX.Element) => (
+AnalyticsSetting.pageLayout = (page) => (
     <SettingLayout active="analytics">
         {page}
     </SettingLayout>
-)
+);
+
+export default AnalyticsSetting;

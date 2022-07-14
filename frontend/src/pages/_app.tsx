@@ -1,42 +1,41 @@
 import App, { AppProps } from 'next/app';
 import Head from 'next/head';
-import Script from 'next/script';
 import Router from 'next/router';
+import Script from 'next/script';
 
-import { Loading } from '@design-system';
+import type {
+    PageComponent,
+    PageLayout
+} from '@components';
 import {
-    TopNavigation,
     SEO,
+    TopNavigation
 } from '@system-design/shared';
+import { Loading } from '@design-system';
 
 import { CONFIG } from '@modules/settings';
-import {
-    lazyLoadResource
-} from '@modules/optimize/lazy';
-import {
-    minify
-} from '@modules/utility/string';
+import { bindErrorReport } from '@modules/utility/report';
+import { lazyLoadResource } from '@modules/optimize/lazy';
+import { minify } from '@modules/utility/string';
 
 import { loadingStore } from '@stores/loading';
 
 import '../styles/main.scss';
+
+bindErrorReport();
 
 Router.events.on('routeChangeComplete', () => {
     lazyLoadResource();
 });
 
 class Main extends App<AppProps> {
-    state = {
-        isLoading: loadingStore.state.isLoading,
-    }
+    state = { isLoading: loadingStore.state.isLoading };
 
     constructor(props: AppProps) {
         super(props);
         loadingStore.subscribe((state) => {
-            this.setState({
-                isLoading: state.isLoading,
-            });
-        })
+            this.setState({ isLoading: state.isLoading });
+        });
     }
 
     componentDidMount() {
@@ -44,12 +43,18 @@ class Main extends App<AppProps> {
     }
 
     render() {
-        const { Component, pageProps } = this.props;
-        
-        const getLayout = (page: JSX.Element, props: Object) => {
-            if ((Component as any).pageLayout) {
-                return (Component as any).pageLayout(page, props);
+        const {
+            Component,
+            pageProps
+        } = this.props;
+
+        const getLayout: PageLayout<typeof pageProps> = (page, props) => {
+            const pageComponent = Component as PageComponent<typeof props>;
+
+            if (pageComponent.pageLayout) {
+                return pageComponent.pageLayout(page, props);
             }
+
             return page;
         };
 
@@ -71,21 +76,24 @@ class Main extends App<AppProps> {
                         <Script src={`https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_V4}`}/>
                         <Script
                             id="gtag-init"
-                            dangerouslySetInnerHTML={{ __html: minify(`
+                            dangerouslySetInnerHTML={{
+                                __html: minify(`
                                 window.dataLayer = window.dataLayer || [];
                                 function gtag() {
                                     dataLayer.push(arguments);
                                 }
                                 gtag('js', new Date());
                                 gtag('config', '${CONFIG.GOOGLE_ANALYTICS_V4}');
-                            `)}}
+                            `)
+                            }}
                         />
                     </>
                 )}
                 {CONFIG.MICROSOFT_CLARITY && (
                     <Script
                         id="clarity-init"
-                        dangerouslySetInnerHTML={{ __html: minify(`
+                        dangerouslySetInnerHTML={{
+                            __html: minify(`
                             (function(c, l, a, r, i, t, y) {
                                 c[a] = c[a] || function() {
                                     (c[a].q = c[a].q || []).push(arguments)
@@ -96,7 +104,8 @@ class Main extends App<AppProps> {
                                 y = l.getElementsByTagName(r)[0];
                                 y.parentNode.insertBefore(t,y);
                             })(window, document, "clarity", "script", "${CONFIG.MICROSOFT_CLARITY}");
-                        `)}}
+                        `)
+                        }}
                     />
                 )}
                 {CONFIG.GOOGLE_ADSENSE_CLIENT_ID && (
@@ -107,16 +116,16 @@ class Main extends App<AppProps> {
                 )}
 
                 <TopNavigation/>
-                
+
                 {this.state.isLoading && (
                     <Loading/>
                 )}
-                
+
                 <div className="content">
                     {getLayout(<Component {...pageProps}/>, pageProps)}
                 </div>
             </>
-        )
+        );
     }
 }
 

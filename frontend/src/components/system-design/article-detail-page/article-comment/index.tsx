@@ -1,26 +1,24 @@
-import styles from './Comment.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Comment.module.scss';
 const cn = classNames.bind(styles);
 
 import {
-    useState,
     useEffect,
+    useState
 } from 'react';
 
+import { Alert } from '@design-system';
 import { CommentCard } from './comment-card';
 import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';
 
 import * as API from '@modules/api';
 import {
-    snackBar
-} from '@modules/ui/snack-bar';
-import blexer from '@modules/utility/blexer';
-import {
-    lazyLoadResource,
-    lazyIntersection
+    lazyIntersection,
+    lazyLoadResource
 } from '@modules/optimize/lazy';
-import { Alert } from '@design-system';
+import blexer from '@modules/utility/blexer';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 import { modalStore } from '@stores/modal';
@@ -31,7 +29,9 @@ export interface ArticleCommentProps {
     totalComment: number;
 }
 
-interface CommentsStateItem extends API.GetPostCommentDataComment {
+type Comment = API.GetPostCommentResponseData['comments'][0];
+
+interface CommentsStateItem extends Comment {
     isEdit: boolean;
     textMarkdown: string
 }
@@ -44,7 +44,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const handleSubmit = async (content: string) => {
         const { data } = await API.postComments(props.url, content);
-        if(data.status !== 'DONE') {
+        if (data.status !== 'DONE') {
             snackBar('😅 댓글 작성중 오류가 발생했습니다!');
             return;
         }
@@ -65,7 +65,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 textMarkdown: data.body.textMd
             }) : comment
         )));
-    }
+    };
 
     const handleLike = async (pk: number) => {
         const { data } = await API.putCommentLike(pk);
@@ -74,7 +74,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 case API.ERROR.NOT_LOGIN:
                     snackBar('😅 로그인이 필요합니다.', {
                         onClick:() => {
-                            modalStore.onOpenModal('isLoginModalOpen');
+                            modalStore.open('isLoginModalOpen');
                         }
                     });
                     return;
@@ -90,15 +90,15 @@ export function ArticleComment(props: ArticleCommentProps) {
             comment.pk === pk ? ({
                 ...comment,
                 isLiked: !comment.isLiked,
-                totalLikes: data.body.totalLikes,
+                totalLikes: data.body.totalLikes
             }) : comment
         )));
-    }
+    };
 
     const handleDelte = async (pk: number) => {
-        if(confirm('😮 정말 이 댓글을 삭제할까요?')) {
+        if (confirm('😮 정말 이 댓글을 삭제할까요?')) {
             const { data } = await API.deleteComment(pk);
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 setComments(comments.map(comment => (
                     comment.pk === pk ? ({
                         ...comment,
@@ -108,49 +108,47 @@ export function ArticleComment(props: ArticleCommentProps) {
                 snackBar('😀 댓글이 삭제되었습니다.');
             }
         }
-    }
+    };
 
     const handleTag = async (tagUsername: string) => {
-        if(!username) {
-            snackBar('😅 로그인이 필요합니다.', {
-                onClick: () => modalStore.onOpenModal('isLoginModalOpen')
-            });
+        if (!username) {
+            snackBar('😅 로그인이 필요합니다.', { onClick: () => modalStore.open('isLoginModalOpen') });
             return;
         }
 
-        if(commentText.includes(`\`@${tagUsername}\``)) {
+        if (commentText.includes(`\`@${tagUsername}\``)) {
             snackBar(`😅 이미 ${tagUsername}님을 태그했습니다.`);
-            return; 
+            return;
         }
 
         setCommentText(commentText + ` \`@${tagUsername}\``);
         snackBar(`😀 ${tagUsername}님을 태그했습니다.`);
-    }
+    };
 
     const handleEditSubmit = async (pk: number, content: string) => {
         const { data } = await API.putComment(pk, content);
-        if(data.status === 'DONE') {
+        if (data.status === 'DONE') {
             setComments(comments.map(comment => (
                 comment.pk === pk ? ({
                     ...comment,
                     isEdit: false,
                     isEdited: true,
-                    textHtml: blexer(content),
+                    textHtml: blexer(content)
                 }) : comment
             )));
             snackBar('😀 댓글이 수정되었습니다.');
             lazyLoadResource();
         }
-    }
+    };
 
     const handleEditCancle = async (pk: number) => {
         setComments(comments.map(comment => (
             comment.pk == pk ? ({
                 ...comment,
-                isEdit: false,
+                isEdit: false
             }) : comment
         )));
-    }
+    };
 
     useEffect(() => {
         const updateKey = authStore.subscribe((state) => {
@@ -164,16 +162,16 @@ export function ArticleComment(props: ArticleCommentProps) {
                     setComments(response.data.body.comments.map(comment => ({
                         ...comment,
                         isEdit: false,
-                        textMarkdown: '',
+                        textMarkdown: ''
                     })));
                     lazyLoadResource();
                 });
             });
-    
+
             return () => {
                 observer?.disconnect();
                 authStore.unsubscribe('Comment');
-            }
+            };
         } else {
             if (comments.length > 0) {
                 setComments([]);
@@ -182,7 +180,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
         return () => {
             authStore.unsubscribe(updateKey);
-        }
+        };
     }, [props.url, username]);
 
     return (
@@ -227,8 +225,8 @@ export function ArticleComment(props: ArticleCommentProps) {
                             isOwner={false}
                             totalLikes={0}
                             isLiked={false}
-                            onEdit={() => {}}
-                            onDelete={() => {}}
+                            onEdit={() => 0}
+                            onDelete={() => 0}
                         />
                     )}
                     {isLogin ? (
@@ -240,13 +238,12 @@ export function ArticleComment(props: ArticleCommentProps) {
                     ) : (
                         <Alert
                             type="warning"
-                            onClick={() => modalStore.onOpenModal('isLoginModalOpen')}
-                        >
+                            onClick={() => modalStore.open('isLoginModalOpen')}>
                             댓글을 작성하려면 로그인이 필요합니다.
                         </Alert>
                     )}
                 </div>
             </div>
         </div>
-    )
+    );
 }

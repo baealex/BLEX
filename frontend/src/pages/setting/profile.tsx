@@ -1,46 +1,39 @@
 import React, { useState } from 'react';
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult,
-} from 'next';
+import type { GetServerSideProps } from 'next';
 
-import { 
+import {
     Alert,
     Button,
-    Text,
-    ImageInput
+    Card,
+    ImageInput,
+    Text
 } from '@design-system';
+import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
-import { loadingStore } from '@stores/loading'
+import { loadingStore } from '@stores/loading';
 
-interface Props extends API.GetSettingProfileData {}
+type Props = API.GetSettingProfileResponseData;
 
-export async function getServerSideProps({
-    req,
-}: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
-    const { data } = await API.getSettingProfile({
-        'Cookie': req.headers.cookie || '',
-    });
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+    const { data } = await API.getSettingProfile({ 'Cookie': req.headers.cookie || '' });
+
     if (data.status === 'ERROR') {
         return {
             redirect: {
                 destination: '/',
-                permanent: false,
+                permanent: false
             }
-        }
+        };
     }
-    return {
-        props: data.body
-    };
-}
+    return { props: data.body };
+};
 
-export default function ProfileSetting(props: Props) {
+const ProfileSetting: PageComponent<Props> = (props) => {
     const [ avatar, setAvatar ] = useState(props.avatar);
     const [ bio, setBio ] = useState(props.bio);
     const [ homepage, setHomepage ] = useState(props.homepage);
@@ -51,25 +44,25 @@ export default function ProfileSetting(props: Props) {
     const [ youtube, setYoutube ] = useState(props.youtube);
 
     const onSubmit = async () => {
-        let sendData: any = {};
-
-        sendData['bio'] = bio;
-        sendData['homepage'] = homepage;
-        sendData['github'] = github;
-        sendData['twitter'] = twitter;
-        sendData['facebook'] = facebook;
-        sendData['instagram'] = instagram;
-        sendData['youtube'] = youtube;
+        const sendData = {
+            bio,
+            homepage,
+            github,
+            twitter,
+            facebook,
+            instagram,
+            youtube
+        };
 
         const { data } = await API.putSetting('profile', sendData);
-        if(data.status === 'DONE') {
+        if (data.status === 'DONE') {
             snackBar(message('AFTER_REQ_DONE', '프로필이 업데이트 되었습니다.'));
         }
     };
-    
+
     return (
         <>
-            <div className="mb-5">
+            <Card hasBackground isRounded className="mb-4 p-3">
                 <div className="mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         사용자 이미지
@@ -79,23 +72,19 @@ export default function ProfileSetting(props: Props) {
                     url={avatar}
                     label="이미지 변경"
                     onChange={async (file) => {
-                        loadingStore.set({
-                            isLoading: true,
-                        })
+                        loadingStore.set({ isLoading: true });
                         const formData = new FormData();
                         formData.append('avatar', file);
                         const { data } = await API.postSettingAvatar(formData);
                         setAvatar(data.body.url);
-                        loadingStore.set({
-                            isLoading: false,
-                        })
+                        loadingStore.set({ isLoading: false });
                     }}
                 />
-            </div>
-            <div className="mb-5">
+            </Card>
+            <Card hasBackground isRounded className="mb-4 p-3">
                 <div className="d-flex justify-content-between mb-2">
                     <Text fontSize={6} fontWeight={600}>
-                    사용자 소개
+                        사용자 소개
                     </Text>
                     <Button onClick={() => onSubmit()}>
                         업데이트
@@ -115,8 +104,8 @@ export default function ProfileSetting(props: Props) {
                     onChange={(e) => setBio(e.target.value)}
                     value={bio}
                 />
-            </div>
-            <div className="mb-5">
+            </Card>
+            <Card hasBackground isRounded className="mb-4 p-3">
                 <div className="d-flex justify-content-between mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         소셜 정보
@@ -203,13 +192,15 @@ export default function ProfileSetting(props: Props) {
                         onChange={(e) => setYoutube(e.target.value)}
                     />
                 </div>
-            </div>
+            </Card>
         </>
     );
-}
+};
 
-ProfileSetting.pageLayout = (page: JSX.Element) => (
+ProfileSetting.pageLayout = (page) => (
     <SettingLayout active="profile">
         {page}
     </SettingLayout>
-)
+);
+
+export default ProfileSetting;

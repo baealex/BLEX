@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from board.models import Form, convert_to_localtime
-from modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError
 
 def forms(request, pk=None):
     if not request.user.is_active:

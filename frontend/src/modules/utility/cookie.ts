@@ -7,7 +7,7 @@ interface CookieOption {
 function createCookie(name: string, value: string, {
     expire,
     domain,
-    path,
+    path
 }: CookieOption) {
     let cookie = `${name}=${value};`;
     if (expire) {

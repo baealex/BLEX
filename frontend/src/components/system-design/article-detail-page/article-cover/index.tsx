@@ -1,8 +1,6 @@
-import styles from './ArticleCover.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleCover.module.scss';
 const cn = classNames.bind(styles);
-
-import { useEffect } from 'react';
 
 export function ArticleCover(props: {
     series?: string;
@@ -12,16 +10,14 @@ export function ArticleCover(props: {
     createdDate: string;
     updatedDate: string;
 }) {
-    useEffect(() => {
-
-    }, [props.image])
-
     return (
         <div className={cn('full-cover')}>
             <div className={cn('image-cover')}>
-                <div style={props.image ? {
-                    backgroundImage: 'url(https://static.blex.me/' + props.image + ')'
-                } : undefined}></div>
+                <div
+                    style={props.image ?
+                        { backgroundImage: 'url(https://static.blex.me/' + props.image + ')' }
+                        : undefined}>
+                </div>
             </div>
             <div className={cn('inner')}>
                 <div className={cn('container')}>
@@ -41,5 +37,5 @@ export function ArticleCover(props: {
                 </div>
             )}
         </div>
-    )
+    );
 }

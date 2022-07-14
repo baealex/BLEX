@@ -1,5 +1,5 @@
-import styles from './Pagination.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Pagination.module.scss';
 const cn = classNames.bind(styles);
 
 import React, { useState } from 'react';
@@ -8,33 +8,33 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 export interface Props {
-    page: Number,
-    last: Number
+    page: number,
+    last: number
 }
 
 export function Pagination(props: Props) {
     const router = useRouter();
-    
+
     const pageRange = [];
     const page = Number(props.page);
     const last = Number(props.last);
-    for(let num = 1; num < last + 1; num++) {
-        if(page == num) {
+    for (let num = 1; num < last + 1; num++) {
+        if (page == num) {
             pageRange.push(num);
         }
-        else if(page == 1 && num < page + 5) {
+        else if (page == 1 && num < page + 5) {
             pageRange.push(num);
         }
-        else if(page == 2 && num < page + 4) {
+        else if (page == 2 && num < page + 4) {
             pageRange.push(num);
         }
-        else if(num > page - 3 && num < page + 3) {
+        else if (num > page - 3 && num < page + 3) {
             pageRange.push(num);
         }
-        else if(page == last - 1 && num > page - 4) {
+        else if (page == last - 1 && num > page - 4) {
             pageRange.push(num);
         }
-        else if(page == last && num > page - 5) {
+        else if (page == last && num > page - 5) {
             pageRange.push(num);
         }
     }
@@ -42,14 +42,14 @@ export function Pagination(props: Props) {
     const [ inputPage, setInputPage ] = useState('');
 
     const getPageRange = (num: number) => {
-        if(num < 1)    return 1;
-        if(num > last) return last;
+        if (num < 1)    return 1;
+        if (num > last) return last;
         return num;
     };
 
     const gotoPage = (num: number) => {
         const visibleQueries = [
-            'q',
+            'q'
         ];
 
         const asQuery = visibleQueries.reduce((acc, cur) => {
@@ -67,18 +67,18 @@ export function Pagination(props: Props) {
                 pathname: router.asPath.split('?')[0],
                 query: {
                     ...asQuery,
-                    page: num,
+                    page: num
                 }
             },
             href: {
                 pathname: router.pathname,
                 query: {
                     ...router.query,
-                    page: num,
-                },
+                    page: num
+                }
             }
-        }
-    }
+        };
+    };
 
     return (
         <>
@@ -116,7 +116,9 @@ export function Pagination(props: Props) {
                         </>
                     )}
                     {pageRange.map((item, idx) => (
-                        <div key={idx} className={cn('item', { active: page == item})}>
+                        <div
+                            key={idx}
+                            className={cn('item', { active: page == item })}>
                             <Link {...gotoPage(item)}>
                                 <a className={cn('link')}>
                                     {item}
@@ -148,7 +150,7 @@ export function Pagination(props: Props) {
                                     <i className="fa fa-angle-double-right"></i>
                                 </a>
                             </div>
-                            <div className={cn('item', 'disabled')}>    
+                            <div className={cn('item', 'disabled')}>
                                 <a className={cn('link')}>
                                     <i className="fas fa-arrow-right"></i>
                                 </a>
@@ -176,5 +178,5 @@ export function Pagination(props: Props) {
                 </div>
             </nav>
         </>
-    )
+    );
 }

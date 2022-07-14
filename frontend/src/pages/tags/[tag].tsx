@@ -1,47 +1,42 @@
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 
 import {
-    Text,
     SpeechBubble,
+    Text
 } from '@design-system';
 
 import {
-    SEO,
     Footer,
     Pagination,
+    SEO
 } from '@system-design/shared';
-import {
-    ArticleCard,
-} from '@system-design/article';
+import { ArticleCard } from '@system-design/article';
 
 import * as API from '@modules/api';
-
-import { GetServerSidePropsContext } from 'next';
 import { getUserImage } from '@modules/utility/image';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
         tag,
         page = 1
     } = context.query;
-    
+
     try {
-        const { data } = await API.getTag(tag as string, Number(page));
+        const { data } = await API.getTag(String(tag), Number(page));
         return {
             props: {
                 ...data.body,
-                page,
+                page
             }
-        }
-    } catch(error) {
-        return {
-            notFound: true
         };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
-interface Props extends API.GetTagData {
+interface Props extends API.GetTagResponseData {
     page: number;
 }
 
@@ -60,21 +55,22 @@ export default function TagDetail(props: Props) {
                 <Text fontSize={8} fontWeight={600}>— {props.tag} —</Text>
                 {props.desc.url && (
                     <div className="mt-3">
-                        <SpeechBubble username={props.desc.author} userImage={getUserImage(props.desc.authorImage)}>
-                            <>
-                                {props.desc.description}
-                                <Link href={`/@${props.desc.author}/${props.desc.url}`}>
-                                    <a className="ml-1 shallow-dark">
-                                        더보기
-                                    </a>
-                                </Link>
-                            </>
+                        <SpeechBubble
+                            href={`/@${props.desc.author}`}
+                            alt={props.desc.author}
+                            src={getUserImage(props.desc.authorImage)}>
+                            {props.desc.description}
+                            <Link href={`/@${props.desc.author}/${props.desc.url}`}>
+                                <a className="ml-1 shallow-dark">
+                                    더보기
+                                </a>
+                            </Link>
                         </SpeechBubble>
                     </div>
                 )}
                 <div className="row">
                     {props.posts.map((item, idx) => (
-                        <ArticleCard 
+                        <ArticleCard
                             key={idx}
                             className="col-lg-4 col-md-6 mt-4"
                             {...item}
@@ -88,5 +84,5 @@ export default function TagDetail(props: Props) {
             </div>
             <Footer/>
         </>
-    )
+    );
 }

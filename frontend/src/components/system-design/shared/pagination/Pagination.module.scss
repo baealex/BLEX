@@ -26,12 +26,13 @@
             ::before {
                 content: '';
                 position: absolute;
+                top: 50%;
                 left: 50%;
                 border-radius: 100%;
                 border: 2px solid #9b59b6;
                 width: 30px;
                 height: 30px;
-                transform: translate(-50%, -2px);
+                transform: translate(-50%, -50%);
 
                 :global(body.dark) & {
                     border: 2px solid $COLOR_DARK_PRIMARY;

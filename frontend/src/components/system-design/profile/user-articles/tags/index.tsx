@@ -1,11 +1,13 @@
-import styles from './Tags.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Tags.module.scss';
 const cn = classNames.bind(styles);
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { Dropdown } from '@design-system';
+
+import { sorted } from '@modules/utility/object';
 
 export interface TagProps {
     name: string;
@@ -16,32 +18,24 @@ export interface TagsProps {
     allCount: number;
     active: string;
     author: string;
-    tags: TagProps[];
-}
-
-function sorted(key: string, list: any) {
-    return list.sort((left: any, right: any) => 
-        left[key] > right[key]
-            ? -1
-            : left[key] < right[key]
-                ? 1
-                : 0
-    );
+    tags?: TagProps[];
 }
 
 export function Tags(props: TagsProps) {
-    const [tags, setTags] = useState(props.tags);
+    const [tags, setTags] = useState(props.tags || []);
 
     return (
-        <div className={classNames(
-            cn('tags'),
-            'col-lg-3',
-        )}>
+        <div
+            className={classNames(
+                'col-lg-3',
+                cn('tags')
+            )}>
             <ul className="mt-4">
-                <div className={classNames(
-                    'd-flex justify-content-between',
-                    cn('category'),
-                )}>
+                <div
+                    className={classNames(
+                        'd-flex justify-content-between',
+                        cn('category')
+                    )}>
                     <div className="h6 font-weight-bold">
                         카테고리
                     </div>
@@ -52,26 +46,29 @@ export function Tags(props: TagsProps) {
                         menus={[
                             {
                                 name: '이름순',
-                                onClick: () => setTags([...sorted('name', tags).reverse()])
+                                onClick: () => setTags(sorted(tags, { key: 'name' }))
                             },
                             {
                                 name: '작성 갯수순',
-                                onClick: () => setTags([...sorted('count', tags)])
-                            },
+                                onClick: () => setTags(sorted(tags, {
+                                    key: 'count',
+                                    reverse: true
+                                }))
+                            }
                         ]}
                     />
                 </div>
                 <Link
                     href="/[author]/posts"
-                    as={`/@${props.author}/posts`} 
-                    scroll={false}
-                >
+                    as={`/@${props.author}/posts`}
+                    scroll={false}>
                     <li>
-                        <a className={classNames(
-                            'ns',
-                            'shallow-dark',
-                            cn({ active: props.active === 'all' })
-                        )}>
+                        <a
+                            className={classNames(
+                                'ns',
+                                'shallow-dark',
+                                cn({ active: props.active === 'all' })
+                            )}>
                             전체 포스트 ({props.allCount})
                         </a>
                     </li>
@@ -80,15 +77,15 @@ export function Tags(props: TagsProps) {
                     <Link
                         key={idx}
                         href="/[author]/posts/[tag]"
-                        as={`/@${props.author}/posts/${item.name}`} 
-                        scroll={false}
-                    >
+                        as={`/@${props.author}/posts/${item.name}`}
+                        scroll={false}>
                         <li>
-                            <a className={classNames(
-                                'ns',
-                                'shallow-dark',
-                                cn({ active: props.active === item.name })
-                            )}>
+                            <a
+                                className={classNames(
+                                    'ns',
+                                    'shallow-dark',
+                                    cn({ active: props.active === item.name })
+                                )}>
                                 {item.name} ({item.count})
                             </a>
                         </li>

@@ -1,14 +1,14 @@
 import {
     SeriesList,
-    SeriesListProps,
+    SeriesListProps
 } from '../../series/series-list';
 
-export interface SereisProps {
+export interface SeriesProps {
     series: SeriesListProps[];
     children: JSX.Element;
 }
 
-export function UserSeries(props: SereisProps) {
+export function UserSeries(props: SeriesProps) {
     return (
         <>
             {props.series.map((item, idx: number) => (
@@ -16,5 +16,5 @@ export function UserSeries(props: SereisProps) {
             ))}
             {props.children}
         </>
-    )
+    );
 }

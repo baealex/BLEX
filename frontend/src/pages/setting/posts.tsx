@@ -1,49 +1,64 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+    useEffect,
+    useState
+} from 'react';
+import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult,
-} from 'next';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
 import {
     Alert,
-    Dropdown,
-    Modal,
     Card,
+    Dropdown,
+    Modal
 } from '@design-system';
+import type { PageComponent } from '@components';
 import { Pagination } from '@system-design/shared';
 import { SettingLayout } from '@system-design/setting';
 import { TagBadges } from '@system-design/tag';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
-interface Props extends API.GetSettingPostsData {
+interface Props extends API.GetSettingPostsResponseData {
     page: number;
 }
 
-export async function getServerSideProps({
-    query,
-    req,
-}: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
-    const { page = 1, order = '' } = query;
-    
+interface Analytics {
+    [key: string]: {
+        dates: string[];
+        counts: number[];
+        referers: {
+            time: string;
+            from: string;
+            title: string;
+        }[];
+    }
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+    const {
+        page = 1, order = '', tag_filter = ''
+    } = query;
+
     const { data } = await API.getSettingPosts(
-        { order: String(order) , page: Number(page) },
+        {
+            tag_filter: String(tag_filter),
+            order: String(order),
+            page: Number(page)
+        },
         { 'Cookie': req.headers.cookie || '' }
     );
     if (data.status === 'ERROR') {
         return {
             redirect: {
                 destination: '/',
-                permanent: false,
+                permanent: false
             }
-        }
+        };
     }
     return {
         props: {
@@ -51,67 +66,67 @@ export async function getServerSideProps({
             ...data.body
         }
     };
-}
+};
 
 const POSTS_ORDER = [
     {
         name: '제목',
-        order: '-title',
+        order: '-title'
     },
     {
         name: '분량',
-        order: '-read_time',
+        order: '-read_time'
     },
     {
         name: '생성',
-        order: '-created_date',
+        order: '-created_date'
     },
     {
         name: '수정',
-        order: '-updated_date',
+        order: '-updated_date'
     },
     {
         name: '추천',
-        order: '-total_like_count',
+        order: '-total_like_count'
     },
     {
         name: '댓글',
-        order: '-total_comment_count',
+        order: '-total_comment_count'
     },
     {
         name: '숨김',
-        order: '-hide',
+        order: '-hide'
     },
     {
         name: '오늘 조회수',
-        order: '-today_count',
+        order: '-today_count'
     },
     {
         name: '어제 조회수',
-        order: '-yesterday_count',
-    },
+        order: '-yesterday_count'
+    }
 ];
 
-export default function PostsSetting(props: Props) {
+const PostsSetting: PageComponent<Props> = (props) => {
     const [ isModalOpen, setModalOpen ] = useState(false);
     const [ posts, setPosts ] = useState(props.posts);
 
     const [ apNow, setApNow ] = useState('');
-    const [ analytics, setAnalytics ] = useState(Object());
+    const [ analytics, setAnalytics ] = useState<Analytics>({});
 
     useEffect(() => {
         setPosts(props.posts);
-    }, [props.posts])
+    }, [props.posts]);
 
     const router = useRouter();
 
     const postsAnalytics = async (url: string) => {
         setApNow(url);
-        if(!analytics[url]) {
+        if (!analytics[url]) {
             const { data } = await API.getPostAnalytics(url);
             const dates = [];
             const counts = [];
-            for(const item of data.body.items) {
+            for (const item of data.body.items) {
                 dates.push(item.date.slice(-2) + 'th');
                 counts.push(item.count);
             }
@@ -124,19 +139,19 @@ export default function PostsSetting(props: Props) {
                     dates,
                     counts,
                     referers
-                },
+                }
             });
-        };
+        }
         setModalOpen(true);
     };
 
     const onPostsDelete = async (url: string) => {
-        if(confirm(message('CONFIRM', '정말 이 포스트를 삭제할까요?'))) {
+        if (confirm(message('CONFIRM', '정말 이 포스트를 삭제할까요?'))) {
             const { data } = await API.deleteAnUserPosts('@' + props.username, url);
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 router.replace(router.asPath, '', { scroll: false });
                 snackBar(message('AFTER_REQ_DONE', '포스트가 삭제되었습니다.'));
-            }   
+            }
         }
     };
 
@@ -145,7 +160,7 @@ export default function PostsSetting(props: Props) {
         setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
-                isHide: data.body.isHide as boolean,
+                isHide: data.body.isHide as boolean
             }) : post
         ))]);
     };
@@ -161,9 +176,7 @@ export default function PostsSetting(props: Props) {
 
     const onTagSubmit = async (url: string) => {
         const thisPost = posts.find(post => post.url == url);
-        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', {
-            tag: thisPost?.tag
-        });
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', { tag: thisPost?.tag });
         setPosts([...posts.map(post => (
             post.url == url ? ({
                 ...post,
@@ -176,34 +189,35 @@ export default function PostsSetting(props: Props) {
 
     return (
         <>
-            <TagBadges items={POSTS_ORDER.map((item) => (
-                <Link
-                    href={{
-                        query: {
-                            ...router.query,
-                            order: router.query.order === item.order
-                                ? item.order.replace('-' , '')
-                                : item.order,
-                            page: 1,
-                        }
-                    }}
-                    scroll={false}
-                >
-                    <a>
-                        {item.name}&nbsp;
-                        {router.query.order?.includes(item.order.replace('-' , '')) && (
-                            router.query.order?.includes('-') ? (
-                                <i className="fas fa-sort-up"/>
-                            ) : (
-                                <i className="fas fa-sort-down"/>
-                            )
-                        )}
-                    </a>
-                </Link>
-            ))}/>
+            <TagBadges
+                items={POSTS_ORDER.map((item) => (
+                    <Link
+                        href={{
+                            query: {
+                                ...router.query,
+                                order: router.query.order === item.order
+                                    ? item.order.replace('-' , '')
+                                    : item.order,
+                                page: 1
+                            }
+                        }}
+                        scroll={false}>
+                        <a>
+                            {item.name}&nbsp;
+                            {router.query.order?.includes(item.order.replace('-' , '')) && (
+                                router.query.order?.includes('-') ? (
+                                    <i className="fas fa-sort-up"/>
+                                ) : (
+                                    <i className="fas fa-sort-down"/>
+                                )
+                            )}
+                        </a>
+                    </Link>
+                ))}
+            />
             <>
                 {posts.map((post, idx) => (
-                    <Card key={idx} hasShadow isRounded className="mb-3">
+                    <Card key={idx} isRounded hasBackground className="mb-4">
                         <div className="p-3 mb-1">
                             <div className="d-flex justify-content-between mb-1">
                                 <span>
@@ -229,7 +243,7 @@ export default function PostsSetting(props: Props) {
                                         {
                                             name: '분석',
                                             onClick: () => postsAnalytics(post.url)
-                                        },
+                                        }
                                     ]}
                                 />
                             </div>
@@ -298,8 +312,7 @@ export default function PostsSetting(props: Props) {
             <Modal
                 title="포스트 분석"
                 isOpen={isModalOpen}
-                onClose={() => setModalOpen(false)}
-            >
+                onClose={() => setModalOpen(false)}>
                 <>
                     {analytics[apNow] ? (
                         <>
@@ -318,7 +331,7 @@ export default function PostsSetting(props: Props) {
                                 colors={['purple']}
                             />
                             <ul>
-                                {analytics[apNow].referers.map((item: any, idx: number) => (
+                                {analytics[apNow].referers.map((item, idx) => (
                                     <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a></li>
                                 ))}
                             </ul>
@@ -328,10 +341,12 @@ export default function PostsSetting(props: Props) {
             </Modal>
         </>
     );
-}
+};
 
-PostsSetting.pageLayout = (page: JSX.Element) => (
+PostsSetting.pageLayout = (page) => (
     <SettingLayout active="posts" sticky={false}>
         {page}
     </SettingLayout>
-)
+);
+
+export default PostsSetting;

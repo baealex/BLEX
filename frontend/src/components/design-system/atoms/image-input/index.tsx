@@ -1,8 +1,11 @@
-import styles from './ImageInput.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ImageInput.module.scss';
 const cn = classNames.bind(styles);
 
-import { useRef, ChangeEvent } from 'react';
+import {
+    ChangeEvent,
+    useRef
+} from 'react';
 
 export interface ImageInputProps {
     url: string;
@@ -15,37 +18,34 @@ export function ImageInput(props: ImageInputProps) {
 
     const onClickButton = () => {
         input.current?.click();
-    }
+    };
 
     const onChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
         const { files } = e.target;
 
-        if(files) {
-            if(props.onChange) {
+        if (files) {
+            if (props.onChange) {
                 const image = files[0];
                 props.onChange(image);
             }
         }
-    }
+    };
 
     return (
-        <>
+        <div
+            onClick={onClickButton}
+            className={cn('image')}>
             <input
                 ref={input}
                 type="file"
-                style={{display: 'none'}}
+                style={{ display: 'none' }}
                 accept="image/*"
                 onChange={(e) => onChangeImage(e)}
             />
-            <div
-                onClick={onClickButton}
-                className={cn('image')}
-            >
-                <img src={props.url}/>
-                <div className={cn('cover')}>
-                    {props.label}
-                </div>
+            <img src={props.url}/>
+            <div className={cn('cover')}>
+                {props.label}
             </div>
-        </>
-    )
+        </div>
+    );
 }

@@ -401,7 +401,7 @@ class Profile(models.Model):
 
     def collect_social(self):
         result = dict()
-        for social in ['github', 'twitter', 'youtube', 'facebook', 'instagram']:
+        for social in ['homepage', 'github', 'twitter', 'youtube', 'facebook', 'instagram']:
             if getattr(self, social):
                 result[social] = getattr(self, social)
         return result

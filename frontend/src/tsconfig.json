@@ -4,6 +4,9 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
+      "@components": [
+        "./components"
+      ],
       "@components/*": [
         "./components/*"
       ],
@@ -24,6 +27,12 @@
       ],
       "@stores/*": [
         "./stores/*"
+      ],
+      "@types": [
+        "./types"
+      ],
+      "@types/*": [
+        "./types/*"
       ]
     },
     "jsx": "preserve",
@@ -48,11 +57,13 @@
     "isolatedModules": true,
     "incremental": true
   },
-  "include": [
+  "files": [
     "next-env.d.ts",
+  ],
+  "include": [
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "modules/library/codemirror.helper.js"  ],
   "exclude": [
     "node_modules"
   ]

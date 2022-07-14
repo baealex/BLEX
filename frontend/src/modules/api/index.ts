@@ -1,46 +1,11 @@
 import axios, {
     AxiosRequestConfig,
-    AxiosRequestHeaders,
+    AxiosRequestHeaders
 } from 'axios';
 
 import { CONFIG } from '@modules/settings';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
-
-export type Headers = AxiosRequestHeaders & {
-    'Cookie'?: string;
-    'Content-Type'?: string;
-};
-
-export default async function axiosRequest<T>(config: AxiosRequestConfig) {
-    const isBrowser = typeof window !== 'undefined';
-    
-    const { request } = axios.create({
-        baseURL: CONFIG.API_SERVER,
-        withCredentials: true,
-    });
-
-    if (config.headers) {
-        const { headers } = config;
-        Object.keys(headers).forEach(key => {
-            if (!headers[key]) {
-                delete headers[key];
-            }
-        });
-        config.headers = headers;
-    }
-
-    try {
-        return await request<T>(config);
-    } catch(e) {
-        if (isBrowser) {
-            snackBar(message('SYSTEM_ERR', '시스템 오류가 발생했습니다.'));
-            throw e;
-        }
-        console.log(e);
-        throw e;
-    }
-}
+import { snackBar } from '@modules/ui/snack-bar';
 
 export const ERROR = {
     REJECT: 'error:RJ',
@@ -54,7 +19,7 @@ export const ERROR = {
     ALREADY_EXISTS: 'error:AE',
     NEED_TELEGRAM: 'error:NT',
     EMAIL_NOT_MATCH: 'error:EN',
-    USERNAME_NOT_MATCH: 'error:UN',
+    USERNAME_NOT_MATCH: 'error:UN'
 };
 
 type ErrorCode =
@@ -67,6 +32,41 @@ export interface ResponseData<T> {
     errorCode?: ErrorCode,
     errorMessage?: string,
     body: T
+}
+
+export type Headers = AxiosRequestHeaders & {
+    'Cookie'?: string;
+    'Content-Type'?: string;
+};
+
+const { request } = axios.create({
+    baseURL: CONFIG.API_SERVER,
+    withCredentials: true
+});
+
+export default async function axiosRequest<T>(config: AxiosRequestConfig) {
+    const isBrowser = typeof window !== 'undefined';
+
+    if (config.headers) {
+        const { headers } = config;
+        Object.keys(headers).forEach(key => {
+            if (!headers[key]) {
+                delete headers[key];
+            }
+        });
+        config.headers = headers;
+    }
+
+    try {
+        return await request<ResponseData<T>>(config);
+    } catch (e) {
+        if (isBrowser) {
+            snackBar(message('SYSTEM_ERR', '시스템 오류가 발생했습니다.'));
+            throw e;
+        }
+        console.log(e);
+        throw e;
+    }
 }
 
 export function serializeObject(obj: {
@@ -92,6 +92,7 @@ export * from './comments';
 export * from './forms';
 export * from './image';
 export * from './posts';
+export * from './report';
 export * from './search';
 export * from './series';
 export * from './setting';

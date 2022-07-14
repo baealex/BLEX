@@ -1,5 +1,5 @@
-import styles from './Alert.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Alert.module.scss';
 const cn = classNames.bind(styles);
 
 import React from 'react';
@@ -19,9 +19,8 @@ export function Alert(props: AlertProps) {
                 'alert',
                 props.type,
                 { canClick: props.onClick }
-            ) + `${props.className ? ` ${props.className}` : ''}`}
-        >
+            ) + `${props.className ? ` ${props.className}` : ''}`}>
             {props.children}
         </div>
-    )
+    );
 }

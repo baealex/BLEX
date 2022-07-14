@@ -3,29 +3,30 @@ import { linkify } from 'remarkable/linkify';
 
 export function strip(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || "";
-};
+    return doc.body.textContent || '';
+}
 
 export function slugify(text) {
-    return text ? text
-        .toString()
-        .toLowerCase()
-        .trim()
-        .replace(/\[([^\]]*)\]\([^\)]*\)/gi, '$1')
-        .replace(/\s+/g, '-')
-        .replace(/[^가-힣a-z0-9\-]/g, '')
-        .replace(/--+/g, '-')
-        .slice(0, 25)
-    : 'header'
-};
+    return text
+        ? text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\[([^\]]*)\]\([^)]*\)/gi, '$1')
+            .replace(/\s+/g, '-')
+            .replace(/[^가-힣a-z0-9-]/g, '')
+            .replace(/--+/g, '-')
+            .slice(0, 25)
+        : 'header';
+}
 
 export function headerHash(remarkable) {
     const ids = [];
     const makeID = (text) => {
         const id = slugify(text);
-        for(let idx=0; ; idx++) {
+        for (let idx=0; ; idx++) {
             let tempId = id + (idx != 0 ? `-${idx}` : '');
-            if(!ids.includes(tempId)) {
+            if (!ids.includes(tempId)) {
                 ids.push(tempId);
                 return tempId;
             }
@@ -54,7 +55,7 @@ export function lazyImage(remarkable) {
         const title = tokens[idx].title ? (' title="' + tokens[idx].title + '"') : '';
         const alt = ' alt="' + (tokens[idx].alt ? tokens[idx].alt : '') + '"';
         return '<img class="lazy"' + dataSrc + src + alt + title + '>';
-    }
+    };
 }
 
 export default function blexer(md) {
@@ -77,9 +78,9 @@ export default function blexer(md) {
     html = html.replace(/>\[x\]\s/g, '><input type="checkbox" disabled checked> ');
 
     // Allow Markup
-    html = html.replace(/&lt;br\/?&gt;/g, "<br/>");
-    html = html.replace(/&lt;center&gt;/g, "<div style=\"text-align: center;\">");
-    html = html.replace(/&lt;\/center&gt;/g, "</div>");
+    html = html.replace(/&lt;br\/?&gt;/g, '<br/>');
+    html = html.replace(/&lt;center&gt;/g, '<div style="text-align: center;">');
+    html = html.replace(/&lt;\/center&gt;/g, '</div>');
 
     return html;
 }

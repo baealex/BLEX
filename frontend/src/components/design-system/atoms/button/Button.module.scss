@@ -13,6 +13,14 @@
     overflow: hidden;
     background: #333;
 
+    &.isRounded {
+        border-radius: 50px;
+    }
+    
+    &:focus {
+        outline: none;
+    }
+
     &.g-little { // gap
         margin-right: 5px;
     }

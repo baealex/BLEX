@@ -4,7 +4,7 @@
     position: relative;
 
     textarea {
-        transition: all 0.5s ease;
+        transition: height 0.5s ease;
         height: 0px;
         width: 100%;
         display: block;
@@ -24,13 +24,8 @@
     }
 
     .card {
-        transition: all 0.5s ease;
-        @include BACKGROUND;
-        @include SUB_SHADOW;
-        
         &:hover {
             cursor: text;
-            @include MAIN_SHADOW;
 
             &.isOpen {
                 cursor: initial;

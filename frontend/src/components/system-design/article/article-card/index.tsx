@@ -1,5 +1,5 @@
-import styles from './ArticleCard.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleCard.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
@@ -7,13 +7,14 @@ import Link from 'next/link';
 import {
     Badge,
     Card,
-    PopOver,
+    PopOver
 } from '@design-system';
 
 import {
     getPostsImage,
-    getUserImage,
+    getUserImage
 } from '@modules/utility/image';
+import { unescape } from '@modules/utility/string';
 
 export interface ArticleCardProps {
     number?: number;
@@ -28,6 +29,7 @@ export interface ArticleCardProps {
     isAd?: boolean;
     className?: string;
     children?: JSX.Element;
+    hasBackground?: boolean;
     hasShadow?: boolean;
     isRounded?: boolean;
     highlight?: string;
@@ -35,8 +37,8 @@ export interface ArticleCardProps {
 
 export function ArticleCard(props: ArticleCardProps) {
     const {
-        hasShadow = true, 
-        isRounded = true,
+        hasShadow = true,
+        isRounded = true
     } = props;
 
     const url = props.author ? `/@${props.author}/${props.url}` : props.url;
@@ -47,11 +49,14 @@ export function ArticleCard(props: ArticleCardProps) {
 
     return (
         <div className={props.className}>
-            <Card hasShadow={hasShadow} isRounded={isRounded} className={cn('posts')}>
+            <Card
+                hasShadow={hasShadow}
+                isRounded={isRounded}
+                className={cn('posts')}>
                 <>
                     {typeof props.image !== 'undefined' && (
                         <Link href={url}>
-                            <a> 
+                            <a>
                                 <img
                                     className={cn('image', 'lazy')}
                                     src={getPostsImage(props.image, { preview: true })}
@@ -68,17 +73,21 @@ export function ArticleCard(props: ArticleCardProps) {
                         )}
                         <Link href={url}>
                             <a>
-                                <div className={cn(
-                                    'title',
-                                    'deep-dark',
-                                    { 'mt-3': typeof props.image !== 'undefined' }
-                                )}>
+                                <div
+                                    className={cn(
+                                        'title',
+                                        'deep-dark',
+                                        { 'mt-3': typeof props.image !== 'undefined' }
+                                    )}>
                                     {props.title}
                                 </div>
                                 {description && props.highlight ? (
-                                    <p className="shallow-dark" dangerouslySetInnerHTML={{__html: description}}/>
+                                    <p
+                                        className="shallow-dark"
+                                        dangerouslySetInnerHTML={{ __html: description }}
+                                    />
                                 ) : (
-                                    <p className="shallow-dark">{description}</p>
+                                    <p className="shallow-dark">{unescape(description || '')}</p>
                                 )}
                             </a>
                         </Link>
@@ -116,5 +125,5 @@ export function ArticleCard(props: ArticleCardProps) {
                 </>
             </Card>
         </div>
-    )
+    );
 }

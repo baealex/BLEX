@@ -1,29 +1,32 @@
-import { useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState
+} from 'react';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import { GetServerSidePropsContext } from 'next';
 
-import { Heatmap, SEO } from '@system-design/shared';
 import {
     FeaturedArticles,
     ProfileLayout,
-    RecentActivity,
+    RecentActivity
 } from '@system-design/profile';
+import {
+    Heatmap,
+    SEO
+} from '@system-design/shared';
+import type { PageComponent } from '@components';
 
 import * as API from '@modules/api';
 
 import { configStore } from '@stores/config';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        author = ''
-    } = context.query;
-    
-    if(!author.includes('@')) {
-        return {
-            notFound: true
-        };
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { author = '' } = context.query;
+
+    if (!author.includes('@')) {
+        return { notFound: true };
     }
-    
+
     try {
         const { data } = await API.getUserProfile(author as string, [
             'profile',
@@ -32,21 +35,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'most',
             'recent'
         ]);
-        return {
-            props: {
-                ...data.body,
-            }
-        }
-    } catch(error) {
-        return {
-            notFound: true
-        };
+        return { props: { ...data.body } };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
-interface Props extends API.GetUserProfileData {};
+type Props = API.GetUserProfileResponseData;
 
-export default function Overview(props: Props) {
+const Overview: PageComponent<Props> = (props) => {
     const [ isNightMode, setIsNightMode ] = useState(configStore.state.theme === 'dark');
 
     useEffect(() => {
@@ -70,24 +67,25 @@ export default function Overview(props: Props) {
 
             <div className="container mb-4">
                 <div className="col-lg-8 mx-auto p-0">
-                    <FeaturedArticles articles={props.most!}/>
+                    <FeaturedArticles articles={props.most || []}/>
                     <Heatmap
                         isNightMode={isNightMode}
                         data={props.heatmap}
                     />
-                    <RecentActivity data={props.recent!}/>
+                    <RecentActivity data={props.recent || []}/>
                 </div>
             </div>
         </>
-    )
-}
+    );
+};
 
-Overview.pageLayout = (page: JSX.Element, props: Props) => (
+Overview.pageLayout = (page, props) => (
     <ProfileLayout
         active="overview"
         profile={props.profile}
-        social={props.social!}
-    >
+        social={props.social}>
         {page}
     </ProfileLayout>
-)
+);
+
+export default Overview;

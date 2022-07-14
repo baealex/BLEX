@@ -1,18 +1,9 @@
-import axiosRequest, {
-    ResponseData,
+import request, {
     Headers,
-    serializeObject,
+    serializeObject
 } from './index';
 
-export async function getSettingNotify(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingNotifyData>>({
-        url: `/v1/setting/notify`,
-        method: 'GET',
-        headers,
-    });
-}
-
-export interface GetSettingNotifyData {
+export interface GetSettingNotifyResponseData {
     notify: {
         pk: number;
         url: string;
@@ -23,15 +14,15 @@ export interface GetSettingNotifyData {
     isTelegramSync: boolean;
 }
 
-export async function getSettingAcount(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingAccountData>>({
-        url: `/v1/setting/account`,
+export async function getSettingNotify(headers?: Headers) {
+    return await request<GetSettingNotifyResponseData>({
+        url: '/v1/setting/notify',
         method: 'GET',
-        headers,
+        headers
     });
 }
 
-export interface GetSettingAccountData {
+export interface GetSettingAccountResponseData {
     username: string;
     realname: string;
     createdDate: string;
@@ -41,15 +32,15 @@ export interface GetSettingAccountData {
     agreeHistory: boolean;
 }
 
-export async function getSettingProfile(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingProfileData>>({
-        url: `/v1/setting/profile`,
+export async function getSettingAcount(headers?: Headers) {
+    return await request<GetSettingAccountResponseData>({
+        url: '/v1/setting/account',
         method: 'GET',
-        headers,
+        headers
     });
 }
 
-export interface GetSettingProfileData {
+export interface GetSettingProfileResponseData {
     avatar: string;
     bio: string;
     homepage: string;
@@ -60,21 +51,21 @@ export interface GetSettingProfileData {
     instagram: string;
 }
 
+export async function getSettingProfile(headers?: Headers) {
+    return await request<GetSettingProfileResponseData>({
+        url: '/v1/setting/profile',
+        method: 'GET',
+        headers
+    });
+}
+
 interface GetSettingPostsParams {
+    tag_filter: string;
     order: string;
     page: number;
 }
 
-export async function getSettingPosts(params: GetSettingPostsParams, headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingPostsData>>({
-        url: `/v1/setting/posts`,
-        method: 'GET',
-        params,
-        headers,
-    });
-}
-
-export interface GetSettingPostsData {
+export interface GetSettingPostsResponseData {
     username: string;
     posts: {
         url: string;
@@ -92,26 +83,33 @@ export interface GetSettingPostsData {
     lastPage: number;
 }
 
-export interface GetSettingSeriesData {
-    username: string;
-    series: GetSettingSeriesDataSeries[];
-}
-
-export interface GetSettingSeriesDataSeries {
-    url: string;
-    title: string;
-    totalPosts: number;
-}
-
-export async function getSettingSeries(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingSeriesData>>({
-        url: `/v1/setting/series`,
+export async function getSettingPosts(params: GetSettingPostsParams, headers?: Headers) {
+    return await request<GetSettingPostsResponseData>({
+        url: '/v1/setting/posts',
         method: 'GET',
-        headers,
+        params,
+        headers
     });
 }
 
-export interface GetSettingAnalyticsViewData {
+export interface GetSettingSeriesResponseData {
+    username: string;
+    series: {
+        url: string;
+        title: string;
+        totalPosts: number;
+    }[];
+}
+
+export async function getSettingSeries(headers?: Headers) {
+    return await request<GetSettingSeriesResponseData>({
+        url: '/v1/setting/series',
+        method: 'GET',
+        headers
+    });
+}
+
+export interface GetSettingAnalyticsViewResponseData {
     username: string;
     total: number;
     views: {
@@ -121,14 +119,14 @@ export interface GetSettingAnalyticsViewData {
 }
 
 export async function getSettingAnalyticsView(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingAnalyticsViewData>>({
-        url: `/v1/setting/analytics-view`,
+    return await request<GetSettingAnalyticsViewResponseData>({
+        url: '/v1/setting/analytics-view',
         method: 'GET',
         headers
     });
 }
 
-export interface GetSettingAnalyticsRefererData {
+export interface GetSettingAnalyticsRefererResponseData {
     referers: {
         time: string;
         url: string;
@@ -139,14 +137,14 @@ export interface GetSettingAnalyticsRefererData {
 }
 
 export async function getSettingAnalyticsReferrers(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingAnalyticsRefererData>>({
-        url: `/v1/setting/analytics-referer`,
+    return await request<GetSettingAnalyticsRefererResponseData>({
+        url: '/v1/setting/analytics-referer',
         method: 'GET',
-        headers,
+        headers
     });
 }
 
-export interface GetSettingAnalyticsSearchData {
+export interface GetSettingAnalyticsSearchResponseData {
     platformTotal: {
         네이버: number;
         덕덕고: number;
@@ -162,50 +160,46 @@ export interface GetSettingAnalyticsSearchData {
 }
 
 export async function getSettingAnalyticsSearch(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingAnalyticsSearchData>>({
-        url: `/v1/setting/analytics-search`,
+    return await request<GetSettingAnalyticsSearchResponseData>({
+        url: '/v1/setting/analytics-search',
         method: 'GET',
-        headers,
+        headers
     });
+}
+
+export interface GetSettingFormsResponseData {
+    forms: {
+        id: number;
+        title: string;
+        createdDate: string;
+    }[];
 }
 
 export async function getSettingForms(headers?: Headers) {
-    return await axiosRequest<ResponseData<GetSettingFormsData>>({
-        url: `/v1/setting/forms`,
+    return await request<GetSettingFormsResponseData>({
+        url: '/v1/setting/forms',
         method: 'GET',
-        headers,
+        headers
     });
-}
-
-export interface GetSettingFormsData {
-    forms: GetSettingFormsDataForms[];
-}
-
-export interface GetSettingFormsDataForms {
-    id: number;
-    title: string;
-    createdDate: string;
 }
 
 export async function putSetting(item: string, data: object) {
-    return await axiosRequest<ResponseData<any>>({
+    return await request<unknown>({
         url: `/v1/setting/${item}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject(data),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject(data)
     });
+}
+
+export interface PostSettingAvatarResponseData {
+    url: string;
 }
 
 export async function postSettingAvatar(data: FormData) {
-    return await axiosRequest<ResponseData<PostSettingAvatarData>>({
-        url: `/v1/setting/avatar`,
+    return await request<PostSettingAvatarResponseData>({
+        url: '/v1/setting/avatar',
         method: 'POST',
-        data: data,
+        data: data
     });
-}
-
-export interface PostSettingAvatarData {
-    url: string;
 }

@@ -6,6 +6,7 @@ services:
       context: ./frontend
       dockerfile: ./DockerfileDev
     restart: always
+    env_file: ./frontend/.env
     volumes:
       - ./frontend/src/:/app/
       - /app/node_modules/
@@ -17,9 +18,7 @@ services:
       context: ./backend
       dockerfile: ./DockerfileDev
     restart: always
-    environment:
-      TZ: "Asia/Seoul"
-      LANG: "C.UTF-8"
+    env_file: ./backend/.env
     volumes:
       - ./backend/src/:/app/
     ports:

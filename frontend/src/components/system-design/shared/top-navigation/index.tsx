@@ -1,29 +1,30 @@
-import styles from './TopNavigation.module.scss';
 import classNames from 'classnames/bind';
+import styles from './TopNavigation.module.scss';
 const cn = classNames.bind(styles);
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+    useEffect, useRef, useState
+} from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import {
     LoginModal,
-    SignupModal,
     SignoutModal,
+    SignupModal,
     TelegramSyncModal,
     TwoFactorAuthModal,
-    TwoFactorAuthSyncModal,
+    TwoFactorAuthSyncModal
 } from './modals';
 import { DayNight } from './day-night';
-import { AllPages } from './all-pages';
 import { Dropdown } from '@design-system';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
-import { message } from '@modules/utility/message';
-import { syncTheme } from '@modules/utility/darkmode';
 import { getUserImage } from '@modules/utility/image';
+import { message } from '@modules/utility/message';
 import { optimizedEvent } from '@modules/optimize/event';
+import { snackBar } from '@modules/ui/snack-bar';
+import { syncTheme } from '@modules/utility/darkmode';
 
 import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
@@ -37,17 +38,16 @@ export function TopNavigation() {
 
     const [path, setPath] = useState(router.pathname);
     const [isRollup, setIsRollup] = useState(false);
-    const [isMenuOpen, setisMenuOpen] = useState(false);
     const [isNotifyOpen, setIsNotifyOpen] = useState(false);
     const [isNight, setIsNight] = useState(false);
     const [state, setState] = useState({
         ...authStore.state,
-        ...modalStore.state,
+        ...modalStore.state
     });
 
     useEffect(() => {
         setIsNight(configStore.state.theme === 'dark');
-    }, [])
+    }, []);
 
     useEffect(() => {
         if (isNight) {
@@ -55,25 +55,25 @@ export function TopNavigation() {
         } else {
             configStore.setTheme('default');
         }
-    }, [isNight])
+    }, [isNight]);
 
     useEffect(() => {
         const authUpdateKey = authStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
-                ...nextState,
+                ...nextState
             }));
         });
         const configUpdateKey = configStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
-                theme: nextState.theme,
-            }))
+                theme: nextState.theme
+            }));
         });
         const modalUpdateKey = modalStore.subscribe((nextState) => {
             setState((prevState) => ({
                 ...prevState,
-                ...nextState,
+                ...nextState
             }));
         });
 
@@ -81,7 +81,7 @@ export function TopNavigation() {
             authStore.unsubscribe(authUpdateKey);
             configStore.unsubscribe(configUpdateKey);
             modalStore.unsubscribe(modalUpdateKey);
-        }
+        };
     }, []);
 
     useEffect(() => {
@@ -97,11 +97,11 @@ export function TopNavigation() {
     }, []);
 
     useEffect(() => {
-        API.getLogin().then(({data}) => {
+        API.getLogin().then(({ data }) => {
             if (data.status === 'DONE') {
                 authStore.set({
                     isLogin: true,
-                    ...data.body,
+                    ...data.body
                 });
             }
         });
@@ -125,7 +125,7 @@ export function TopNavigation() {
                 setIsRollup(false);
                 accScrollY = 0;
             }
-            
+
             if (accScrollY < -80) {
                 setIsNotifyOpen(false);
                 setIsRollup(true);
@@ -155,39 +155,27 @@ export function TopNavigation() {
         document.addEventListener('click', handleClick);
         return () => {
             document.removeEventListener('click', handleClick);
-        }
+        };
     }, []);
 
     useEffect(() => {
-        router.events.on('routeChangeStart', () => {
-            setisMenuOpen(false);
-        });
-
         router.events.on('routeChangeComplete', (url) => {
             setPath(url);
         });
     }, []);
 
-    useEffect(() => {
-        if (isMenuOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-    }, [isMenuOpen]);
-
     const onClickLogout = async () => {
         if (confirm(message('CONFIRM', '정말 로그아웃 하시겠습니까?'))) {
             const { data } = await API.postLogout();
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 authStore.logout();
                 snackBar(message('AFTER_REQ_DONE', '로그아웃 되었습니다.'));
             }
         }
-    }
+    };
 
     const unsync = async () => {
-        if(confirm(message('CONFIRM', '정말 연동을 해제할까요?'))) {
+        if (confirm(message('CONFIRM', '정말 연동을 해제할까요?'))) {
             const { data } = await API.postTelegram('unsync');
             if (data.status === 'ERROR') {
                 snackBar(message('AFTER_REQ_ERR', data.errorMessage));
@@ -199,44 +187,44 @@ export function TopNavigation() {
                 isTelegramSync: false
             }));
         }
-    }
+    };
 
     const onReadNotify = async (pk: number, url: string) => {
         const { data } = await API.putSetting('notify', { pk });
-        if(data.status === 'DONE') {
+        if (data.status === 'DONE') {
             setState((prevState) => ({
                 ...prevState,
-                notify : prevState.notify.filter(item => pk != item.pk),
+                notify : prevState.notify.filter(item => pk != item.pk)
             }));
             router.push(url);
         }
-    }
+    };
 
     return (
         <>
             <LoginModal
                 isOpen={state.isLoginModalOpen}
-                onClose={() => modalStore.onCloseModal('isLoginModalOpen')}
+                onClose={() => modalStore.close('isLoginModalOpen')}
             />
             <SignupModal
                 isOpen={state.isSignupModalOpen}
-                onClose={() => modalStore.onCloseModal('isSignupModalOpen')}
+                onClose={() => modalStore.close('isSignupModalOpen')}
             />
             <SignoutModal
                 isOpen={state.isSignoutModalOpen}
-                onClose={() => modalStore.onCloseModal('isSignoutModalOpen')}
+                onClose={() => modalStore.close('isSignoutModalOpen')}
             />
             <TelegramSyncModal
                 isOpen={state.isTelegramSyncModalOpen}
-                onClose={() => modalStore.onCloseModal('isTelegramSyncModalOpen')}
+                onClose={() => modalStore.close('isTelegramSyncModalOpen')}
             />
             <TwoFactorAuthModal
-                isOpen={state.isTwoFactorAuthModalOpen}
-                onClose={() => modalStore.onCloseModal('isTwoFactorAuthModalOpen')}
+                isOpen={state.is2FAModalOpen}
+                onClose={() => modalStore.close('is2FAModalOpen')}
             />
             <TwoFactorAuthSyncModal
-                isOpen={state.isTwoFactorAuthSyncModalOpen}
-                onClose={() => modalStore.onCloseModal('isTwoFactorAuthSyncModalOpen')}
+                isOpen={state.is2FASyncModalOpen}
+                onClose={() => modalStore.close('is2FASyncModalOpen')}
             />
             <nav className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
@@ -257,21 +245,22 @@ export function TopNavigation() {
                                     <li
                                         ref={notifyToggle}
                                         onClick={() => setIsNotifyOpen((prev) => !prev)}
-                                        className={cn('notify')}
-                                    >
+                                        className={cn('notify')}>
                                         <i className="far fa-bell"/>
                                         {state.notify.length > 0 && (
                                             <span>
                                                 {state.notify.length}
                                             </span>
                                         )}
-                                        <div ref={notifyBox} className={cn('notify-box', { isOpen: isNotifyOpen })}>
+                                        <div
+                                            ref={notifyBox}
+                                            className={cn('notify-box', { isOpen: isNotifyOpen })}>
                                             {state.isTelegramSync ? (
                                                 <div className={cn('telegram')} onClick={() => unsync()}>
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
                                                 </div>
                                             ) : (
-                                                <div className={cn('telegram')} onClick={() => modalStore.onOpenModal('isTelegramSyncModalOpen')}>
+                                                <div className={cn('telegram')} onClick={() => modalStore.open('isTelegramSyncModalOpen')}>
                                                     <i className="fab fa-telegram-plane"/> 텔레그램 연동
                                                 </div>
                                             )}
@@ -288,18 +277,16 @@ export function TopNavigation() {
                                     </li>
                                     {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
                                         <li
-                                            onClick={() => modalStore.onOpenModal('isPublishModalOpen')}
-                                            className={cn('get-start')}
-                                        >
+                                            onClick={() => modalStore.open('isPublishModalOpen')}
+                                            className={cn('get-start')}>
                                             {path.lastIndexOf('/write') > -1
-                                                ? '글 발행하기' 
+                                                ? '글 발행하기'
                                                 : '글 수정하기'}
                                         </li>
                                     ) : (
                                         <li
                                             onClick={() => router.push('/write')}
-                                            className={cn('get-start', 'outline')}
-                                        >
+                                            className={cn('get-start', 'outline')}>
                                             글 작성하기
                                         </li>
                                     )}
@@ -316,36 +303,35 @@ export function TopNavigation() {
                                                 {
                                                     name: '내 블로그',
                                                     icon: 'far fa-user',
-                                                    onClick: () => router.push(`/@${state.username}`),
+                                                    onClick: () => router.push(`/@${state.username}`)
                                                 },
                                                 {
                                                     name: '관리',
                                                     icon: 'fas fa-cog',
-                                                    onClick: () => router.push(`/setting/account`),
+                                                    onClick: () => router.push('/setting/account')
                                                 },
                                                 {
                                                     name: '전체',
                                                     icon: 'fas fa-th-large',
-                                                    onClick: () => setisMenuOpen(true),
+                                                    onClick: () => router.push('/map')
                                                 },
                                                 {
                                                     name: '로그아웃',
                                                     icon: 'fas fa-sign-out-alt',
-                                                    onClick: onClickLogout,
-                                                },
+                                                    onClick: onClickLogout
+                                                }
                                             ]}
                                         />
                                     </li>
                                 </>
                             ) : (
                                 <>
-                                    <li onClick={() => modalStore.onOpenModal('isLoginModalOpen')}>
+                                    <li onClick={() => modalStore.open('isLoginModalOpen')}>
                                         로그인
                                     </li>
                                     <li
-                                        onClick={() => modalStore.onOpenModal('isSignupModalOpen')}
-                                        className={cn('get-start')}
-                                    >
+                                        onClick={() => modalStore.open('isSignupModalOpen')}
+                                        className={cn('get-start')}>
                                         블로그 시작
                                     </li>
                                 </>
@@ -354,14 +340,7 @@ export function TopNavigation() {
                     </div>
                 </div>
             </nav>
-            {state.isLogin && (
-                <AllPages
-                    isOpen={isMenuOpen}
-                    onClose={setisMenuOpen}
-                    username={state.username}
-                />
-            )}
             <DayNight isNight={isNight} onChange={setIsNight}/>
         </>
-    )
+    );
 }

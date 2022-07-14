@@ -9,19 +9,19 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.mail import send_mail
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse, Http404, QueryDict
+from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.timesince import timesince
 
 from board.models import Notify, TwoFactorAuth, Config, Profile, Post, Comment
 from board.modules.notify import create_notify
+from board.modules.response import StatusDone, StatusError
 from modules.challenge import auth_hcaptcha
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 from modules.oauth import auth_github, auth_google
 from modules.randomness import randnum, randstr
-from modules.response import StatusDone, StatusError
 from modules.scrap import download_image
 
 def check_username(username: str):
@@ -58,7 +58,7 @@ def login_response(user, is_first_login=False):
             'content': item.infomation,
             'created_date': timesince(item.created_date)
         }, notify)),
-        'is_first_login': True,
+        'is_first_login': is_first_login,
         'is_telegram_sync': user.config.has_telegram_id(),
         'is_2fa_sync': user.config.has_two_factor_auth(),
     })
@@ -190,8 +190,6 @@ def sign(request):
         
         user.save()
         return StatusDone()
-
-    raise Http404
     
     if request.method == 'DELETE':
         request.user.delete()

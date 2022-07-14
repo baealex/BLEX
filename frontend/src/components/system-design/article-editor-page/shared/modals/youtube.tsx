@@ -2,9 +2,7 @@ import { useState } from 'react';
 
 import { snackBar } from '@modules/ui/snack-bar';
 
-import {
-    Modal,
-} from '@design-system';
+import { Modal } from '@design-system';
 
 interface Props {
     isOpen: boolean;
@@ -15,7 +13,7 @@ interface Props {
 export function YoutubeModal(props: Props) {
     const [ text, setText ] = useState('');
     const [ id, setId ] = useState('');
-    
+
     return (
         <Modal
             title="유튜브 영상"
@@ -28,8 +26,7 @@ export function YoutubeModal(props: Props) {
 
                 setText('');
                 setId('');
-            }}
-        >
+            }}>
             <div className="input-group mb-3">
                 <div className="input-group-prepend">
                     <span className="input-group-text">
@@ -43,7 +40,7 @@ export function YoutubeModal(props: Props) {
                     value={text}
                     onChange={(e) => {
                         const { value } = e.target;
-                        if(
+                        if (
                             !value.includes('https://www.youtube.com/watch?v=') &&
                             !value.includes('https://youtu.be/')) {
                             snackBar('😅 올바른 링크가 아닙니다.');

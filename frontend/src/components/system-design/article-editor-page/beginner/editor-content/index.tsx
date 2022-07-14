@@ -1,22 +1,20 @@
-import styles from './EditorContent.module.scss';
 import classNames from 'classnames/bind';
+import styles from './EditorContent.module.scss';
 const cn = classNames.bind(styles);
 
 import React, {
     useEffect,
-    useState,
     useRef,
+    useState
 } from 'react';
 
 import { ArticleContent } from '@components/system-design/article-detail-page';
+import { YoutubeModal } from '../../shared/modals';
 
-import prism from '@modules/library/prism';
 import blexer from '@modules/utility/blexer';
-import { uploadImage } from '@modules/utility/image';
+import { codeMirrorAll } from '@modules/library/codemirror';
 import { lazyLoadResource } from '@modules/optimize/lazy';
-import {
-    YoutubeModal,
-} from '../../shared/modals';
+import { uploadImage } from '@modules/utility/image';
 
 export interface EditorContentProps {
     value: [];
@@ -38,14 +36,14 @@ const contentsManager = (() => {
         }
 
         return content;
-    }
+    };
 })();
 
 const initialContents: Content[] = [
     {
         type: 'line',
         text: ''
-    },
+    }
 ];
 
 export function EditorContent(props: EditorContentProps) {
@@ -59,7 +57,7 @@ export function EditorContent(props: EditorContentProps) {
     const setContents = (fn: (prevContents: Content[]) => Content[]) => {
         const nextContents = fn(contents);
         handleSetContents(nextContents);
-    }
+    };
 
     useEffect(() => {
         props.onChange(contents as []);
@@ -68,7 +66,7 @@ export function EditorContent(props: EditorContentProps) {
     const [ active, setActive ] = useState(contents.length - 1);
     const [ modal, setModal ] = useState({
         isOpenForms: false,
-        isOpenYoutube: false,
+        isOpenYoutube: false
     });
 
     useEffect(() => {
@@ -79,7 +77,7 @@ export function EditorContent(props: EditorContentProps) {
     }, [contents]);
 
     useEffect(() => {
-        prism.highlightAll();
+        codeMirrorAll();
         lazyLoadResource();
         if (ref.current) {
             const end = ref.current.value.length;
@@ -101,7 +99,7 @@ export function EditorContent(props: EditorContentProps) {
         e.preventDefault();
         let textAcc = '';
         let isCode = false;
-        let isTable = false;
+        const isTable = false;
 
         const lineStack = [];
         const newContents: Content[] = [];
@@ -115,7 +113,10 @@ export function EditorContent(props: EditorContentProps) {
                     isCode = false;
                     const type = 'lines';
                     const text = lineStack.join('\n');
-                    newContents.push({ type, text });
+                    newContents.push({
+                        type,
+                        text
+                    });
                     lineStack.splice(0, lineStack.length);
                     continue;
                 }
@@ -129,13 +130,19 @@ export function EditorContent(props: EditorContentProps) {
             const type = 'line';
 
             if (textLine === '' && textAcc) {
-                newContents.push({ type, text: textAcc });
+                newContents.push({
+                    type,
+                    text: textAcc
+                });
                 textAcc = '';
                 continue;
             }
 
             if (textLine === '<br>' || textLine === '<br/>') {
-                newContents.push({ type, text: '' });
+                newContents.push({
+                    type,
+                    text: ''
+                });
                 continue;
             }
 
@@ -148,11 +155,11 @@ export function EditorContent(props: EditorContentProps) {
             return [
                 ...prevState.slice(0, active + (text ? 1 : 0)),
                 ...newContents,
-                ...prevState.slice(active + 1, prevState.length),
+                ...prevState.slice(active + 1, prevState.length)
             ];
         });
         setActive(active => active + newContents.length);
-    }
+    };
 
     const handleKeydownEditor = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'ArrowUp' && ref.current?.selectionStart === 0) {
@@ -176,10 +183,10 @@ export function EditorContent(props: EditorContentProps) {
                     ...contents.slice(0, active + 1),
                     {
                         type: 'line',
-                        text: '',
+                        text: ''
                     },
-                    ...contents.slice(active + 1, contents.length),
-                ])
+                    ...contents.slice(active + 1, contents.length)
+                ]);
                 setActive(active => active + 1);
             }
             if (
@@ -191,10 +198,10 @@ export function EditorContent(props: EditorContentProps) {
                     ...contents.slice(0, active + 1),
                     {
                         type: 'line',
-                        text: '',
+                        text: ''
                     },
-                    ...contents.slice(active + 1, contents.length),
-                ])
+                    ...contents.slice(active + 1, contents.length)
+                ]);
                 setActive(active => active + 1);
             }
         }
@@ -204,12 +211,12 @@ export function EditorContent(props: EditorContentProps) {
             if (active > 0) {
                 setContents(contents => [
                     ...contents.slice(0, active),
-                    ...contents.slice(active + 1, contents.length),
-                ])
+                    ...contents.slice(active + 1, contents.length)
+                ]);
                 setActive(active => active - 1);
             }
         }
-    }
+    };
 
     const handleClickHeaderHelper = (level: 1 | 2 | 3) => {
         level -= 1;
@@ -217,14 +224,14 @@ export function EditorContent(props: EditorContentProps) {
         const h = [
             '## ',
             '#### ',
-            '###### ',
-        ]
-        
-        const keyword = h[level]
+            '###### '
+        ];
+
+        const keyword = h[level];
 
         setContents((prevState) => {
             const nextState = [...prevState];
-            
+
             let text = nextState[active].text;
 
             if (prevState[active].text.startsWith(keyword)) {
@@ -241,7 +248,7 @@ export function EditorContent(props: EditorContentProps) {
             nextState[active].text = keyword + text;
             return nextState;
         });
-    }
+    };
 
     const handleClickContentHelper = (keyword: string) => {
         if (!ref.current) {
@@ -250,7 +257,7 @@ export function EditorContent(props: EditorContentProps) {
 
         const {
             selectionStart,
-            selectionEnd,
+            selectionEnd
         } = ref.current;
 
         if (selectionStart === selectionEnd) {
@@ -263,7 +270,7 @@ export function EditorContent(props: EditorContentProps) {
             const text = nextState[active].text;
             let selectionText = text.slice(
                 selectionStart,
-                selectionEnd,
+                selectionEnd
             );
             const textStart = text.slice(0, selectionStart);
             const textEnd = text.slice(selectionEnd, text.length);
@@ -277,13 +284,13 @@ export function EditorContent(props: EditorContentProps) {
 
             nextState[active].text = textStart + keyword + selectionText + keyword + textEnd;
             return nextState;
-        })
-    }
+        });
+    };
 
     const handleClickBlockHelper = (type: 'line' | 'lines', data: string) => {
         setContents((prevState) => {
             const nextState = [...prevState];
-            
+
             const text = nextState[active].text;
 
             if (!text) {
@@ -298,19 +305,19 @@ export function EditorContent(props: EditorContentProps) {
                     ...prevState.slice(0, active + 1),
                     {
                         type,
-                        text: data,
+                        text: data
                     },
                     {
                         type: 'line',
-                        text: '',
+                        text: ''
                     },
-                    ...prevState.slice(active + 1, prevState.length),
-                ];   
+                    ...prevState.slice(active + 1, prevState.length)
+                ];
             }
 
             return nextState;
         });
-    }
+    };
 
     const handleUploadImage = async (file?: File) => {
         if (file) {
@@ -322,12 +329,12 @@ export function EditorContent(props: EditorContentProps) {
                 );
             }
         }
-    }
+    };
 
     const modalToggle = (name: keyof typeof modal) => {
         setModal((prevState) => ({
             ...prevState,
-            [name]: !prevState[name],
+            [name]: !prevState[name]
         }));
     };
 
@@ -337,7 +344,7 @@ export function EditorContent(props: EditorContentProps) {
                 ref={imageInput}
                 type="file"
                 accept="image/*"
-                style={{display: 'none'}}
+                style={{ display: 'none' }}
                 onChange={(e) => {
                     if (e.target.files) {
                         handleUploadImage(e.target.files[0]);
@@ -356,13 +363,11 @@ export function EditorContent(props: EditorContentProps) {
                     }
 
                     await handleUploadImage(files[0]);
-                }}
-            >
+                }}>
                 {contents.map((content, idx) => (
                     <div
                         key={content.id}
-                        className={cn('block')}
-                    >
+                        className={cn('block')}>
                         {idx === active ? (
                             <>
                                 <div className={styles.editor}>
@@ -424,7 +429,7 @@ export function EditorContent(props: EditorContentProps) {
                     </div>
                 ))}
             </div>
-            
+
             <YoutubeModal
                 isOpen={modal.isOpenYoutube}
                 onClose={() => modalToggle('isOpenYoutube')}
@@ -433,5 +438,5 @@ export function EditorContent(props: EditorContentProps) {
                 }}
             />
         </>
-    )
+    );
 }

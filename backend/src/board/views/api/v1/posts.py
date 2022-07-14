@@ -1,26 +1,36 @@
+import datetime
+import random
 import traceback
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.paginator import Paginator
-from django.db.models import F, Q, Case, Exists, When, Value, OuterRef
+from django.db.models import (
+    F, Q, Case, Exists, When,
+    Value, OuterRef, Count)
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.timesince import timesince
 
-from board.models import *
-from board.modules.analytics import view_count
+from board.models import (
+    User, Comment, Referer, PostAnalytics, Series,
+    TempPosts, Post, PostContent, PostConfig,
+    PostLikes, PostThanks, PostNoThanks, calc_read_time, convert_to_localtime)
+from board.modules.analytics import create_history, get_network_addr, view_count
 from board.modules.notify import create_notify
-from modules.response import StatusDone, StatusError
-from modules.requests import BooleanType
-from modules.markdown import parse_to_html, ParseData
+from board.modules.paginator import Paginator
+from board.modules.requests import BooleanType
+from board.modules.response import StatusDone, StatusError
 from board.views import function as fn
+from modules.markdown import parse_to_html, ParseData
+from modules.randomness import randstr
+from modules.subtask import sub_task_manager
+from modules.discord import Discord
 
 def temp_posts(request, token=None):
     if not request.user.is_active:
-        return HttpResponse('error:NL')
+        return StatusError('NL')
     
     if not token:
         if request.GET.get('get') == 'list':
@@ -138,6 +148,15 @@ def posts(request):
         post_config.advertise = BooleanType(request.POST.get('is_advertise', ''))
         post_config.save()
 
+        if not post_config.hide and settings.DISCORD_NEW_POSTS_WEBHOOK:
+            def func():
+                post_url = settings.SITE_URL + post.get_absolute_url()
+                Discord.send_webhook(
+                    url=settings.DISCORD_NEW_POSTS_WEBHOOK,
+                    content=f'[새 글이 발행되었어요!]({post_url})'
+                )
+            sub_task_manager.append(func)
+
         token = request.POST.get('token')
         if token:
             try:
@@ -186,8 +205,6 @@ def top_trendy(request):
 
 def popular_posts(request):
     if request.method == 'GET':
-        page = request.GET.get('page', 1)
-
         cache_key = 'popular_posts'
         posts = cache.get(cache_key)
         if not posts:
@@ -204,9 +221,11 @@ def popular_posts(request):
             posts = sorted(posts, key=lambda instance: instance.trendy(), reverse=True)
             cache.set(cache_key, posts, 7200)
 
-        paginator = Paginator(posts, 24)
-        fn.page_check(page, paginator)
-        posts = paginator.get_page(page)
+        posts = Paginator(
+            objects=posts,
+            offset=24,
+            page=request.GET.get('page', 1)
+        )
         return StatusDone({
             'posts': list(map(lambda post: {
                 'url': post.url,
@@ -224,8 +243,6 @@ def popular_posts(request):
 
 def newest_posts(request):
     if request.method == 'GET':
-        page = request.GET.get('page', 1)
-
         posts = Post.objects.select_related(
             'config', 'content'
         ).filter(
@@ -237,9 +254,11 @@ def newest_posts(request):
             author_image=F('author__profile__avatar')
         ).order_by('-created_date')
 
-        paginator = Paginator(posts, 24)
-        fn.page_check(page, paginator)
-        posts = paginator.get_page(page)
+        posts = Paginator(
+            objects=posts,
+            offset=24,
+            page=request.GET.get('page', 1)
+        )
         return StatusDone({
             'posts': list(map(lambda post: {
                 'url': post.url,
@@ -431,10 +450,11 @@ def user_posts(request, username, url=None):
                 posts = posts.filter(tags__value=tag)
             posts = posts.order_by('-created_date')
             
-            page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 10)
-            fn.page_check(page, paginator)
-            posts = paginator.get_page(page)
+            posts = Paginator(
+                objects=posts,
+                offset=10,
+                page=request.GET.get('page', 1)
+            )
             return StatusDone({
                 'all_count': all_count,
                 'posts': list(map(lambda post: {
@@ -558,6 +578,38 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })
+            if request.GET.get('thanks', ''):
+                if request.user == post.author:
+                    return StatusError('SU')
+                user_addr = get_network_addr(request)
+                user_agent = request.META['HTTP_USER_AGENT']
+                history = create_history(user_addr, user_agent)
+                
+                post_nothanks = post.nothanks.filter(history=history)
+                if post_nothanks.exists():
+                    post_nothanks.delete()
+
+                post_thanks = post.thanks.filter(history=history)
+                if not post_thanks.exists():
+                    PostThanks(post=post, history=history).save()
+
+                return StatusDone()
+            if request.GET.get('nothanks', ''):
+                if request.user == post.author:
+                    return StatusError('SU')
+                user_addr = get_network_addr(request)
+                user_agent = request.META['HTTP_USER_AGENT']
+                history = create_history(user_addr, user_agent)
+
+                post_thanks = post.thanks.filter(history=history)
+                if post_thanks.exists():
+                    post_thanks.delete()
+
+                post_nothanks = post.nothanks.filter(history=history)
+                if not post_nothanks.exists():
+                    PostNoThanks(post=post, history=history).save()
+                
+                return StatusDone()
             if request.GET.get('hide', ''):
                 fn.compere_user(request.user, post.author, give_404_if='different')
                 post.config.hide = not post.config.hide

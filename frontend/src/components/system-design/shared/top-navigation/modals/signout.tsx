@@ -1,13 +1,10 @@
 import React from 'react';
 import Router from 'next/router';
 
-import {
-    Modal,
- } from '@design-system';
-
-import { snackBar } from '@modules/ui/snack-bar';
+import { Modal } from '@design-system';
 
 import * as API from '@modules/api';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
@@ -23,9 +20,7 @@ interface State {
 export class SignoutModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {
-            token: '',
-        }
+        this.state = { token: '' };
     }
 
     async onSignOut() {
@@ -36,7 +31,7 @@ export class SignoutModal extends React.Component<Props, State> {
             this.props.onClose();
             Router.push('/');
         }
-    };
+    }
 
     render() {
         return (
@@ -45,8 +40,7 @@ export class SignoutModal extends React.Component<Props, State> {
                 isOpen={this.props.isOpen}
                 onClose={this.props.onClose}
                 submitText="네 탈퇴할게요."
-                onSubmit={this.onSignOut.bind(this)}
-            >
+                onSubmit={this.onSignOut.bind(this)}>
                 <>
                     다음 정보가 즉시 삭제됩니다.
                     <ul>

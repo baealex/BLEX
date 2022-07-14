@@ -1,17 +1,21 @@
-import { useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState
+} from 'react';
+import { useValue } from 'badland-react';
 
 import {
     CheckBox,
     Loading,
-    Modal,
+    Modal
 } from '@design-system';
 
-import { EditorTitle } from '../../shared/editor-title';
-import { EditorContent } from '../editor-content';
 import {
     InputForm,
     SelectForm
 } from '../../shared/forms';
+import { EditorContent } from '../editor-content';
+import { EditorTitle } from '../../shared/editor-title';
 
 import * as API from '@modules/api';
 
@@ -49,7 +53,7 @@ interface Props {
         value: boolean;
         onChange: (value: boolean) => void;
     }
-    onSubmit: (onFail: Function) => void;
+    onSubmit: (onFail: () => void) => void;
     addon?: {
         sideButton: JSX.Element | JSX.Element[];
         modal: JSX.Element | JSX.Element[];
@@ -59,12 +63,10 @@ interface Props {
 export function EditorLayout(props: Props) {
     const [ isSubmit, setIsSubmit ] = useState(false);
 
-    const [ series, setSeries ] = useState<API.GetSettingSeriesDataSeries[]>();
+    const [ isOpenPublishModal ] = useValue(modalStore, 'isPublishModalOpen');
 
-    const [ isOpenPublishModal, setIsOpenPublishModal ] = useState(modalStore.state.isPublishModalOpen);
+    const [ series, setSeries ] = useState<API.GetSettingSeriesResponseData['series']>();
 
-    useEffect(modalStore.syncValue('isPublishModalOpen', setIsOpenPublishModal), []);
-    
     useEffect(() => {
         API.getSettingSeries().then((response) => {
             const { data } = response;
@@ -73,7 +75,7 @@ export function EditorLayout(props: Props) {
 
         const handleDropEvent = (e: DragEvent) => {
             e.preventDefault();
-        }
+        };
 
         document.body.addEventListener('dragover', handleDropEvent);
         document.body.addEventListener('drop', handleDropEvent);
@@ -81,16 +83,16 @@ export function EditorLayout(props: Props) {
         return () => {
             document.body.removeEventListener('dragover', handleDropEvent);
             document.body.removeEventListener('drop', handleDropEvent);
-        }
+        };
     }, []);
 
     const handleSubmit = async () => {
-        modalStore.onCloseModal('isPublishModalOpen');
+        modalStore.close('isPublishModalOpen');
         setIsSubmit(true);
         await props.onSubmit(() => {
             setIsSubmit(false);
         });
-    }
+    };
 
     return (
         <div className="container">
@@ -111,14 +113,13 @@ export function EditorLayout(props: Props) {
             <Modal
                 title={props.publish.title}
                 isOpen={isOpenPublishModal}
-                onClose={() => modalStore.onCloseModal('isPublishModalOpen')}
+                onClose={() => modalStore.close('isPublishModalOpen')}
                 submitText={props.publish.buttonText}
-                onSubmit={() => handleSubmit()}
-            >
+                onSubmit={() => handleSubmit()}>
                 <SelectForm
                     name="series"
                     title="시리즈"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.series.onChange(e.target.value)}>
+                    onChange={(e) => props.series.onChange(e.target.value)}>
                     <>
                         <option value="">선택하지 않음</option>
                         {series?.map((item, idx) => (
@@ -154,7 +155,7 @@ export function EditorLayout(props: Props) {
 
             {props.addon?.modal}
 
-            {isSubmit ? <Loading block/> : ''}
+            {isSubmit && <Loading isFullPage />}
         </div>
-    )
+    );
 }

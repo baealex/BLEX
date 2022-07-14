@@ -5,10 +5,11 @@ from django.conf import settings
 from django.http import Http404
 from PIL import Image, ImageFilter
 
-from board.models import ImageCache, randstr
+from board.models import ImageCache
+from board.modules.response import StatusDone, StatusError
 from modules.hash import get_sha256
+from modules.randomness import randstr
 from modules.sysutil import make_path
-from modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def image(request):

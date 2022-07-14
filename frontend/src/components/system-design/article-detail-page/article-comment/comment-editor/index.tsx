@@ -7,22 +7,22 @@ export interface CommentEditorProps {
     content: string;
     onCancle: (pk: number) => void;
     onSubmit: (pk: number, content: string) => void;
-};
+}
 
 export function CommentEditor(props: CommentEditorProps) {
     const [ content, setContent ] = useState(props.content);
 
     const onSubmit = () => {
-        if(content == '') {
+        if (content == '') {
             snackBar('😅 댓글의 내용을 입력해주세요.');
             return;
         }
-        if(content == props.content) {
+        if (content == props.content) {
             props.onCancle(props.pk);
             return;
         }
         props.onSubmit(props.pk, content);
-    }
+    };
 
     return (
         <div className="mb-3">

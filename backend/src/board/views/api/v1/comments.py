@@ -13,8 +13,8 @@ from django.utils.timesince import timesince
 
 from board.models import Comment, Post
 from board.modules.notify import create_notify
+from board.modules.response import StatusDone, StatusError
 from modules.markdown import parse_to_html, ParseData
-from modules.response import StatusDone, StatusError
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 

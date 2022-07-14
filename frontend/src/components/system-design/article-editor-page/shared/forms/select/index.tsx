@@ -1,9 +1,9 @@
 interface Props {
     title: string;
     name: string;
-    onChange: Function;
+    onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     children: JSX.Element;
-};
+}
 
 export function SelectForm(props: Props) {
     return (

@@ -16,7 +16,7 @@ $COLOR_DARK_DARK: rgba(255, 255, 255, 0.839);
 $COLOR_DARK_ASHGRAY: rgba(255, 255, 255, 0.541);
 
 $FONT_SERIF: 'Noto Serif KR', serif;
-$FONT_GOTHIC: -apple-system, BlinkMacSystemFont, 'Spoqa Han Sans Neo', sans-serif;
+$FONT_GOTHIC: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif;
 
 $FONT_SIZE_1: 10px;
 $FONT_SIZE_2: 12px;
@@ -43,6 +43,14 @@ $fontSizes: (
 
     :global(body.dark) & {
         background: $COLOR_DARK_BACKGROUND;
+    }
+}
+
+@mixin CARD_BACKGROUND {
+    background: #F5F5F8;
+
+    :global(body.dark) & {
+        background: #2A2A2A;
     }
 }
 

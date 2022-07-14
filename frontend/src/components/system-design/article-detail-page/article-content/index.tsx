@@ -1,11 +1,11 @@
-import styles from './ArticleContent.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleContent.module.scss';
 const cn = classNames.bind(styles);
 
-import { useState, useEffect } from 'react';
 import Router from 'next/router';
+import { useEffect } from 'react';
 
-import { configStore } from '@stores/config';
+import { CONFIG } from '@modules/settings';
 
 export interface ArticleContentProps {
     html: string;
@@ -16,49 +16,42 @@ export interface ArticleContentProps {
 export function ArticleContent({
     html,
     isEdit,
-    noMargin,
+    noMargin
 }: ArticleContentProps) {
-    const [
-        isOpenNewTab,
-        setIsOpenNewTab
-    ] = useState(configStore.state.isOpenNewTab);
-
-    useEffect(configStore.syncValue('isOpenNewTab', setIsOpenNewTab), []);
-
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const handleClickAnchorTag = (e: any) => {
                 if (e.target.nodeName === 'A') {
                     const { href } = e.target;
+                    const isSameOrigin = href.includes(`${location.protocol}//${location.host}/`);
 
-                    if (isOpenNewTab || isEdit) {
-                        e.preventDefault();
-                        window.open(href, '_blank');
-                        return;
-                    }
-
-                    if(href.includes(`${location.protocol}//${location.host}/`)) {
+                    if (!isEdit && isSameOrigin) {
                         e.preventDefault();
                         Router.push(href).then(() => window.scrollTo(0, 0));
                         return;
                     }
+
+                    e.preventDefault();
+                    window.open(href, '_blank');
+                    return;
                 }
-            }
-            
+            };
+
             const $article = document.querySelector(`.${styles.article}`);
 
             $article?.addEventListener('click', handleClickAnchorTag);
 
             return () => {
                 $article?.removeEventListener('click', handleClickAnchorTag);
-            }
+            };
         }
-    }, [isOpenNewTab]);
+    }, []);
 
     return (
-        <div
+        <article
+            data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}
             className={cn('article', { noMargin })}
             dangerouslySetInnerHTML={{ __html: html }}
         />
-    )
+    );
 }

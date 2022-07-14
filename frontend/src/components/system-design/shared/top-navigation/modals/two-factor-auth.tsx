@@ -1,12 +1,9 @@
 import React from 'react';
 
-import {
-    Modal,
- } from '@design-system';
-
-import { snackBar } from '@modules/ui/snack-bar';
+import { Modal } from '@design-system';
 
 import * as API from '@modules/api';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
@@ -25,19 +22,19 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
         super(props);
         this.state = {
             code: '',
-            timer: 0,
-        }
+            timer: 0
+        };
     }
 
     componentDidUpdate(prevProps: Props) {
-        if(prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-            this.setState({timer: 60 * 5});
+        if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
+            this.setState({ timer: 60 * 5 });
             const timerEvent = setInterval(() => {
-                if(this.state.timer <= 0) {
+                if (this.state.timer <= 0) {
                     clearInterval(timerEvent);
                     return;
                 }
-                this.setState({timer: this.state.timer - 1});
+                this.setState({ timer: this.state.timer - 1 });
             }, 1000);
         }
     }
@@ -70,7 +67,7 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
         this.loginCheck(data);
     }
 
-    async loginCheck(data: API.ResponseData<API.PostLoginData>) {
+    async loginCheck(data: API.ResponseData<API.PostLoginResponseData>) {
         if (data.status === 'ERROR') {
             if (data.errorCode === API.ERROR.EXPIRE) {
                 snackBar('😥 코드가 만료되었습니다.');
@@ -82,31 +79,30 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
 
             this.setState({
                 ...this.state,
-                code: '',
+                code: ''
             });
         }
 
         if (data.status == 'DONE') {
-            snackBar(`😃 로그인 되었습니다.`);
+            snackBar('😃 로그인 되었습니다.');
             authStore.set({
                 isLogin: true,
-                ...data.body,
+                ...data.body
             });
-            
+
             this.props.onClose();
         }
     }
-    
+
     render() {
         const remainMinute = Math.floor(this.state.timer / 60);
         const remainSecond = this.state.timer % 60;
-        const remainTime = `${remainMinute}:${remainSecond >= 10 ? remainSecond : `0${remainSecond}`}`
+        const remainTime = `${remainMinute}:${remainSecond >= 10 ? remainSecond : `0${remainSecond}`}`;
         return (
             <Modal
                 title="2차 인증"
                 isOpen={this.props.isOpen}
-                onClose={this.props.onClose}
-            >
+                onClose={this.props.onClose}>
                 <p>
                     텔레그램으로 전송된 2차 인증코드를 입력하세요.
                     인증코드 유효 시간 {remainTime}
@@ -119,7 +115,7 @@ export class TwoFactorAuthModal extends React.Component<Props, State> {
                     onChange={(e) => this.onInputChange(e)}
                     value={this.state.code}
                     onKeyPress={(e) => {
-                        if(e.key == 'Enter') {
+                        if (e.key == 'Enter') {
                             this.onSubmitLogin(this.state.code);
                         }
                     }}

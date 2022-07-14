@@ -2,20 +2,20 @@ import React from 'react';
 
 import {
     Modal,
-    SplitLine,
+    SplitLine
 } from '@design-system';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
 import { oauth } from '@modules/utility/oauth';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 import { modalStore } from '@stores/modal';
 
 interface Props {
     isOpen: boolean;
-    onClose: Function;
+    onClose: () => void;
 }
 
 interface State {
@@ -31,10 +31,8 @@ export class LoginModal extends React.Component<Props, State> {
         this.state = {
             username: authStore.state.username,
             password: ''
-        }
-        this.updateKey = authStore.subscribe((state) => this.setState({
-            username: state.username,
-        }));
+        };
+        this.updateKey = authStore.subscribe((state) => this.setState({ username: state.username }));
     }
 
     componentWillUnmount() {
@@ -42,7 +40,7 @@ export class LoginModal extends React.Component<Props, State> {
     }
 
     onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
-        if(e.key == 'Enter') {
+        if (e.key == 'Enter') {
             this.onSubmitLogin();
         }
     }
@@ -55,11 +53,11 @@ export class LoginModal extends React.Component<Props, State> {
     }
 
     async onSubmitLogin() {
-        if(this.state.username == '') {
-            snackBar('😅 사용자 이름을 입력해주세요!');
+        if (this.state.username == '') {
+            snackBar('😅 아이디를 입력해주세요!');
             return;
         }
-        if(this.state.password == '') {
+        if (this.state.password == '') {
             snackBar('😅 비밀번호를 입력해주세요!');
             return;
         }
@@ -72,15 +70,15 @@ export class LoginModal extends React.Component<Props, State> {
         this.loginCheck(data);
     }
 
-    async loginCheck(data: API.ResponseData<API.PostLoginData>) {
+    async loginCheck(data: API.ResponseData<API.PostLoginResponseData>) {
         if (data.status === 'ERROR') {
-            snackBar(message('AFTER_REQ_ERR', '사용자 이름 혹은 패스워드를 확인해 주세요.'));
+            snackBar(message('AFTER_REQ_ERR', '아이디 혹은 비밀번호를 확인해 주세요.'));
         }
 
         if (data.status === 'DONE') {
             if (data.body.security) {
                 snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
-                modalStore.onOpenModal('isTwoFactorAuthModalOpen');
+                modalStore.open('is2FAModalOpen');
                 this.props.onClose();
                 return;
             }
@@ -88,27 +86,24 @@ export class LoginModal extends React.Component<Props, State> {
             snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
             authStore.set({
                 isLogin: true,
-                ...data.body,
+                ...data.body
             });
 
             this.props.onClose();
         }
-        this.setState({
-            password: ''
-        });
+        this.setState({ password: '' });
     }
-    
+
     render() {
         return (
             <Modal
                 title="로그인"
                 isOpen={this.props.isOpen}
-                onClose={() => this.props.onClose()}
-            >
+                onClose={() => this.props.onClose()}>
                 <input
                     className="login-form"
                     name="username"
-                    placeholder="사용자 이름"
+                    placeholder="아이디"
                     onChange={(e) => this.onInputChange(e)}
                     value={this.state.username}
                     onKeyPress={(e) => this.onEnterLogin(e)}
@@ -117,7 +112,7 @@ export class LoginModal extends React.Component<Props, State> {
                     className="login-form"
                     name="password"
                     type="password"
-                    placeholder="패스워드"
+                    placeholder="비밀번호"
                     onChange={(e) => this.onInputChange(e)}
                     value={this.state.password}
                     onKeyPress={(e) => this.onEnterLogin(e)}
@@ -130,23 +125,20 @@ export class LoginModal extends React.Component<Props, State> {
                 <SplitLine/>
                 <button
                     className="login-button google"
-                    onClick={() => oauth("google")}
-                >
+                    onClick={() => oauth('google')}>
                     <i className="fab fa-google"></i> Google 계정으로 로그인
                 </button>
                 <button
                     className="login-button github"
-                    onClick={() => oauth("github")}
-                >
+                    onClick={() => oauth('github')}>
                     <i className="fab fa-github"></i> GitHub 계정으로 로그인
                 </button>
                 <div className="login-hint">
                     <button
                         onClick={async () => {
-                            await modalStore.onCloseModal('isLoginModalOpen');
-                            await modalStore.onOpenModal('isSignupModalOpen');
-                        }}
-                    >
+                            await modalStore.close('isLoginModalOpen');
+                            await modalStore.open('isSignupModalOpen');
+                        }}>
                         아직 회원이 아니세요?
                     </button>
                 </div>

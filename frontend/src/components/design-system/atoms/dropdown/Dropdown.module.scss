@@ -24,6 +24,10 @@
     }
 }
 
+.box {
+    position: relative;
+}
+
 .menu {
     position: absolute;
     min-width: 130px;
@@ -97,5 +101,6 @@
     display: block;
     min-width: 20px;
     text-align: center;
+    white-space: nowrap;
     cursor: pointer;
 }

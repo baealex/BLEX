@@ -1,15 +1,15 @@
 import traceback
 
-from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Count
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import slugify
 
-from board.models import User, Post, Series, convert_to_localtime
-from modules.response import StatusDone, StatusError
-from board.views import function as fn
+from board.models import (
+    User, Post, Series, convert_to_localtime)
+from board.modules.paginator import Paginator
+from board.modules.response import StatusDone, StatusError
 
 def user_series(request, username, url=None):
     if not url:
@@ -20,10 +20,12 @@ def user_series(request, username, url=None):
             ).annotate(
                 owner_username=F('owner__username')
             ).order_by('index', '-id')
-            page = request.GET.get('page', 1)
-            paginator = Paginator(series, 10)
-            fn.page_check(page, paginator)
-            series = paginator.get_page(page)
+            
+            series = Paginator(
+                objects=series,
+                offset=10,
+                page=request.GET.get('page', 1)
+            )
             return StatusDone({
                 'series': list(map(lambda item: {
                     'url': item.url,
@@ -52,12 +54,16 @@ def user_series(request, username, url=None):
                         series_item.index = next_index
                         series_item.save()
                 
-                series = Series.objects.filter(owner=request.user).order_by('index')
+                series = Series.objects.filter(
+                    owner=request.user
+                ).annotate(
+                    total_posts=Count('posts')
+                ).order_by('index')
                 return StatusDone({
                     'series': list(map(lambda item: {
                         'url': item.url,
                         'title': item.name,
-                        'total_posts': item.posts.count()
+                        'total_posts': item.total_posts
                     }, series))
                 })
         
@@ -109,6 +115,7 @@ def user_series(request, username, url=None):
                     'posts': list(map(lambda post: {
                         'url': post.url,
                         'title': post.title,
+                        'image': str(post.image),
                         'read_time': post.read_time,
                         'description': post.description(),
                         'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일')

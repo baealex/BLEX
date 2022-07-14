@@ -10,30 +10,29 @@
 @import 'bootstrap.override';
 @import 'fontawesome.override';
 
-@import 'snackbar';
 @import 'three-dots/sass/three-dots.scss';
 
-#nprogress .bar {
-    background: $COLOR_DEFAULT_SECONDARY;
+body {
+    overflow-x: hidden;
+
+    &.dark {
+        img, video {
+            filter: brightness(.8) contrast(1.2);
+        }
+    }
 }
 
 .content {
-    margin-top: 120px;
+    padding-top: 120px;
     word-break: break-all;
 
     @media only screen and (max-width: 991px) {
-        margin-top: 100px;
+        padding-top: 100px;
     }
 }
 
 input, textarea, select {
     font-size: 16px;
-}
-
-body.dark {
-    img, video {
-        filter: brightness(.8) contrast(1.2);
-    }
 }
 
 mark {
@@ -101,39 +100,9 @@ mark {
 }
 /* ------------------------------ */
 /* SERIES : LAYOUT */
-.series-title-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 60vh;
-}
-.series-list {
-    margin-top: 65vh;
-}
-.series-list > .col-lg-8 {
-    min-height: 150px;
-}
-.series-list-image {
-    width: 150px;
-    height: 150px;
-    float: right;
-    margin-left: 20px;
-    border: 1px solid #ccc;
-}
-.series-list p {
-    word-break: break-all;
-}
 /* ------------------------------ */
 /* SETTING */
 .setting-info {
-    background-color: #fafafa;
-    border-radius: 0px 0px 5px 5px;
-
-    body.dark & {
-        background-color: #1e1e1e;
-    }
-
     .element-lock {
         .fa-lock {
             color: #b00;
@@ -259,39 +228,6 @@ body.dark .card-body {
 
 body.dark .btn {
     color: #fff;
-}
-
-.Toastify__toast-container--top-right {
-    top: calc(72px + 1em);
-    right: 1em;
-}
-
-.Toastify__toast--default {
-    background: #fff !important;
-    color: #555 !important;
-
-    body.dark & {
-        background: #000 !important;
-        color: #ccc !important;
-    }
-}
-
-.Toastify__progress-bar {
-    height: 3px !important;
-}
-
-.Toastify__progress-bar--default {
-    background: $COLOR_DEFAULT_PRIMARY !important;
-
-    body.dark & {
-        background: $COLOR_DARK_PRIMARY !important;
-    }
-}
-
-.Toastify__close-button--default {
-    body.dark & {
-        color: #fff !important;
-    }
 }
 
 .active-button {

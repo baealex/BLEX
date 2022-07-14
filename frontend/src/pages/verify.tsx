@@ -1,22 +1,20 @@
+import type { GetServerSideProps } from 'next';
 import React from 'react';
 import Router from 'next/router';
 
-import { Footer } from '@system-design/shared';
-
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
-import type { GetServerSidePropsContext } from 'next';
-
-import { snackBar } from '@modules/ui/snack-bar';
+import { Footer } from '@system-design/shared';
 
 import * as API from '@modules/api';
 import { CONFIG } from '@modules/settings';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { token } = context.query;
-    
+
     try {
         const { data } = await API.getEmailVerify(token as string);
         return {
@@ -24,13 +22,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 token,
                 username: data.body.firstName
             }
-        }
-    } catch(error) {
-        return {
-            notFound: true
         };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
 interface Props {
     token: string;
@@ -39,8 +35,8 @@ interface Props {
 
 export default function Verify(props: Props) {
     const onSubmit = async (hctoken?: string) => {
-        if(CONFIG.HCAPTCHA_SITE_KEY) {
-            if(!hctoken) {
+        if (CONFIG.HCAPTCHA_SITE_KEY) {
+            if (!hctoken) {
                 snackBar('😅 체크박스를 눌러주세요!');
                 return;
             }
@@ -57,25 +53,27 @@ export default function Verify(props: Props) {
                 snackBar('😥 인증이 실패했습니다.');
             }
         }
-        if(data.status === 'DONE') {
+        if (data.status === 'DONE') {
             snackBar(`😆 ${props.username}님! 환영합니다 🎉`);
             authStore.set({
                 isLogin: true,
-                ...data.body,
-            })
+                ...data.body
+            });
             Router.replace('/');
         }
         return;
-    }
+    };
 
     return (
         <>
             <div className="text-center display-center">
-                <div className="h5 mb-4">{props.username}님이 맞으십니까?</div>
+                <div className="h5 mb-4">
+                    {props.username}님이 맞으십니까?
+                </div>
                 {CONFIG.HCAPTCHA_SITE_KEY ? (
                     <HCaptcha
                         sitekey={CONFIG.HCAPTCHA_SITE_KEY}
-                        onVerify={(token) => onSubmit(token)}
+                        onVerify={onSubmit}
                     />
                 ) : (
                     <button className="active-button" onClick={() => onSubmit()}>

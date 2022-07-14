@@ -1,30 +1,27 @@
-import { useEffect } from 'react';
+import type { GetServerSideProps } from 'next';
 import Router from 'next/router';
-import { GetServerSidePropsContext } from 'next';
+import { useEffect } from 'react';
 
 import { Loading } from '@design-system';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { getCookie } from '@modules/utility/cookie';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 import { modalStore } from '@stores/modal';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        social,
-        code
-    } = context.query;
-    
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { social, code } = context.query;
+
     return {
         props: {
             social,
             code
         }
     };
-}
+};
 
 interface Props {
     social: string;
@@ -34,18 +31,16 @@ interface Props {
 export default function SocialLogin(props: Props) {
     const onSocialLogin = async (social: string, code: string) => {
         const { data } = await API.postSignSocialLogin(social, code);
-        
+
         if (data.status === 'DONE') {
             if (data.body.security) {
                 snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
-                modalStore.onOpenModal('isTwoFactorAuthModalOpen');
+                modalStore.open('is2FAModalOpen');
                 return;
             }
 
             if (data.body.isFirstLogin) {
-                snackBar(message('AFTER_REQ_DONE', '소셜 회원가입을 환영합니다. 계정 관리에서 사용자 이름을 변경할 수 있습니다.'), {
-                    onClick: () => Router.push('/setting/account')
-                });
+                snackBar(message('AFTER_REQ_DONE', '소셜 회원가입을 환영합니다. 계정 관리에서 사용자 이름을 변경할 수 있습니다.'), { onClick: () => Router.push('/setting/account') });
             } else {
                 snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
             }
@@ -57,7 +52,7 @@ export default function SocialLogin(props: Props) {
         } else {
             snackBar(message('AFTER_REQ_ERR', '소셜 인증을 실패했습니다.'));
         }
-    }
+    };
 
     useEffect(() => {
         const { social, code } = props;
@@ -70,9 +65,9 @@ export default function SocialLogin(props: Props) {
             const oauthRedirect = getCookie('oauth_redirect');
             oauthRedirect
                 ? Router.replace(oauthRedirect)
-                : Router.replace('/');  
+                : Router.replace('/');
         });
     }, []);
 
-    return <Loading block/>;
+    return <Loading isFullPage />;
 }

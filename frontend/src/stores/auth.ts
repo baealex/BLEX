@@ -1,8 +1,8 @@
 import Store from 'badland';
 
-import { GetLoginData } from '@modules/api';
+import type { GetLoginResponseData } from '@modules/api';
 
-export interface AuthStoreState extends GetLoginData {
+export interface AuthStoreState extends GetLoginResponseData {
     isLogin: boolean;
 }
 
@@ -15,7 +15,7 @@ const INIT_STATE = {
     notify: [],
     isFirstLogin: false,
     isTelegramSync: false,
-    is2faSync: false,
+    is2faSync: false
 };
 
 class AuthStore extends Store<AuthStoreState> {

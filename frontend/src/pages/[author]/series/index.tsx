@@ -1,59 +1,58 @@
-import React from 'react';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
+import React from 'react';
 
-import { Alert } from '@design-system';
-import { Pagination, SEO } from '@system-design/shared';
+import {
+    Pagination,
+    SEO
+} from '@system-design/shared';
 import {
     ProfileLayout,
-    UserSeries,
+    UserSeries
 } from '@system-design/profile';
+import type { PageComponent } from '@components';
+import { Text } from '@design-system';
 
-import * as API from '@modules/api'
-import { GetServerSidePropsContext } from 'next';
+import * as API from '@modules/api';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
         author = '',
-        page = 1,
+        page = 1
     } = context.query;
 
     try {
-        if(!author.includes('@')) {
+        if (!author.includes('@')) {
             throw 'invalid author';
         }
 
         const userProfile = await API.getUserProfile(author as string, [
             'profile',
-            'social',
+            'social'
         ]);
 
         const userSeries = await API.getUserSeries(
             author as string,
             Number(page)
         );
-        
+
         return {
             props: {
                 page,
                 ...userProfile.data.body,
-                ...userSeries.data.body,
+                ...userSeries.data.body
             }
-        }
-    } catch(error) {
-        return {
-            notFound: true
         };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
-
-interface Props extends API.GetUserProfileData {};
-
-interface Props extends API.GetUserProfileData, API.GetUserSeriesData {
+interface Props extends API.GetUserProfileResponseData, API.GetUserSeriesResponseData {
     page: number,
 }
 
-export default function SeriesProfile(props: Props) {
+const SeriesProfile: PageComponent<Props> = (props) => {
     return (
         <>
             <Head>
@@ -64,15 +63,9 @@ export default function SeriesProfile(props: Props) {
                 image={props.profile.image}
                 description={`${props.profile.realname}님이 생성한 모든 시리즈를 만나보세요.`}
             />
-
             <UserSeries series={props.series}>
                 <div className="container">
                     <div className="col-lg-8 mx-auto">
-                        {props.series.length > 0 ? '' : (
-                            <Alert className="mt-4">
-                                아직 생성된 시리즈가 없습니다.
-                            </Alert>
-                        )}
                         <Pagination
                             page={props.page}
                             last={props.lastPage}
@@ -81,15 +74,27 @@ export default function SeriesProfile(props: Props) {
                 </div>
             </UserSeries>
         </>
-    )
-}
+    );
+};
 
-SeriesProfile.pageLayout = (page: JSX.Element, props: Props) => (
+SeriesProfile.pageLayout = (page, props) => (
     <ProfileLayout
         active="series"
         profile={props.profile}
-        social={props.social!}
-    >
-        {page}
+        social={props.social}>
+        {props.series.length <= 0 ? (
+            <div className="container">
+                <div className="col-lg-8 mx-auto p-0 my-4">
+                    <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                        <img className="w-100" src="/illustrators/focus.svg" />
+                        <Text className="mt-5" fontSize={6}>
+                            아직 생성된 시리즈가 없습니다.
+                        </Text>
+                    </div>
+                </div>
+            </div>
+        ) : page}
     </ProfileLayout>
-)
+);
+
+export default SeriesProfile;

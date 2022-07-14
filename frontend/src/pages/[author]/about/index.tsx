@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+    useEffect,
+    useState
+} from 'react';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import { GetServerSidePropsContext } from 'next';
 
-import { Alert } from '@design-system';
-
-import { SEO } from '@system-design/shared';
-import { ProfileLayout } from '@system-design/profile';
 import { ArticleContent } from '@system-design/article-detail-page';
+import type { PageComponent } from '@components';
+import { ProfileLayout } from '@system-design/profile';
+import { SEO } from '@system-design/shared';
+import { Text } from '@design-system';
 
-import { snackBar } from '@modules/ui/snack-bar';
-
-import * as API from '@modules/api'
+import * as API from '@modules/api';
 import blexer from '@modules/utility/blexer';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        author = ''
-    } = context.query;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { author = '' } = context.query;
 
     try {
-        if(!author.includes('@')) {
+        if (!author.includes('@')) {
             throw 'invalid author';
         }
 
@@ -31,19 +31,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'about'
         ]);
 
-        return {
-            props: userProfile.data.body
-        }
-    } catch(error) {
-        return {
-            notFound: true
-        };
+        return { props: userProfile.data.body };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
-interface Props extends API.GetUserProfileData {}
+type Props = API.GetUserProfileResponseData;
 
-export default function UserAbout(props: Props) {
+const UserAbout: PageComponent<Props> = (props) => {
     const [ isEdit, setIsEdit ] = useState(false);
     const [ aboutHTML, setAboutHTML ] = useState(props.about);
     const [ aboutMd, setAboutMd ] = useState<string | undefined>(undefined);
@@ -60,7 +56,7 @@ export default function UserAbout(props: Props) {
     const handleClickEdit = async () => {
         if (!isEdit) {
             // 편집버튼 누른 상태
-            if(aboutMd === undefined) {
+            if (aboutMd === undefined) {
                 const { data } = await API.getUserAbout('@' + username);
                 setAboutMd(data.body.aboutMd);
             }
@@ -70,7 +66,7 @@ export default function UserAbout(props: Props) {
             const { data } = await API.putUserAbout(
                 '@' + username,
                 aboutMd || '',
-                aboutMarkup,
+                aboutMarkup
             );
             if (data.status === 'DONE') {
                 setAboutHTML(aboutMarkup);
@@ -91,7 +87,7 @@ export default function UserAbout(props: Props) {
                 description={props.profile.bio}
             />
             <div className="container">
-                <div className="col-lg-9 mx-auto p-0 my-4">
+                <div className="col-lg-8 mx-auto p-0 my-4">
                     {isEdit ? (
                         <textarea
                             cols={40}
@@ -102,33 +98,37 @@ export default function UserAbout(props: Props) {
                             value={aboutMd}
                         />
                     ) : (
-                        (aboutHTML || '').length > 0 ? (
-                            <ArticleContent html={aboutHTML || ''}/>
+                        (props.about || '').length <= 0 ? (
+                            <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                                <img className="w-100" src="/illustrators/doll-play.svg" />
+                                <Text className="mt-5" fontSize={6}>
+                                    아직 작성된 소개가 없습니다.
+                                </Text>
+                            </div>
                         ) : (
-                            <Alert>
-                                아직 작성된 소개가 없습니다.
-                            </Alert>
+                            <ArticleContent html={aboutHTML || ''} />
                         )
                     )}
-                    {props.profile.username == username ? (
+                    {props.profile.username == username && (
                         <button
                             className="btn btn-dark btn-block mt-3 edit"
                             onClick={() => handleClickEdit()}>
                             {isEdit ? '완료' : '편집'}
                         </button>
-                    ) : ''}
+                    )}
                 </div>
             </div>
         </>
-    )
-}
+    );
+};
 
-UserAbout.pageLayout = (page: JSX.Element, props: Props) => (
+UserAbout.pageLayout = (page, props) => (
     <ProfileLayout
         active="about"
         profile={props.profile}
-        social={props.social!}
-    >
+        social={props.social}>
         {page}
     </ProfileLayout>
-)
+);
+
+export default UserAbout;

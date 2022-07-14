@@ -1,15 +1,12 @@
 import React from 'react';
 
-import {
-    Modal,
- } from '@design-system';
-
-import { snackBar } from '@modules/ui/snack-bar';
+import { Modal } from '@design-system';
 
 import * as API from '@modules/api';
+import { snackBar } from '@modules/ui/snack-bar';
 
-import { modalStore } from '@stores/modal';
 import { authStore } from '@stores/auth';
+import { modalStore } from '@stores/modal';
 
 interface Props {
     isOpen: boolean;
@@ -23,9 +20,7 @@ interface State {
 export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {
-            token: '',
-        }
+        this.state = { token: '' };
     }
 
     async onCreateTwoFactorAuth() {
@@ -36,9 +31,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
                 return;
             }
             if (data.errorCode === API.ERROR.NEED_TELEGRAM) {
-                snackBar('😥 텔레그램 연동이 필요합니다.', {
-                    onClick: () => modalStore.onOpenModal('isTelegramSyncModalOpen')
-                });
+                snackBar('😥 텔레그램 연동이 필요합니다.', { onClick: () => modalStore.open('isTelegramSyncModalOpen') });
                 return;
             }
             if (data.errorCode === API.ERROR.ALREADY_EXISTS) {
@@ -50,7 +43,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
             snackBar('😀 2차 인증이 등록되었습니다.');
             authStore.set((prevState) => ({
                 ...prevState,
-                is2faSync: true,
+                is2faSync: true
             }));
 
             this.props.onClose();
@@ -58,7 +51,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
         }
         snackBar('😥 등록중 오류가 발생했습니다.');
     }
-    
+
     render() {
         return (
             <Modal
@@ -66,8 +59,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
                 isOpen={this.props.isOpen}
                 onClose={this.props.onClose}
                 submitText="네 사용할게요."
-                onSubmit={this.onCreateTwoFactorAuth.bind(this)}
-            >
+                onSubmit={this.onCreateTwoFactorAuth.bind(this)}>
                 <>
                     다음과 같은 요구사항이 필요합니다.
                     <ul>

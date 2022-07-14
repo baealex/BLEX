@@ -1,14 +1,13 @@
-import styles from './ArticleCardList.module.scss';
 import classNames from 'classnames/bind';
+import styles from './ArticleCardList.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
 import { TagBadges } from '../../tag';
 
-import {
-    getPostsImage
-} from '@modules/utility/image';
+import { getPostsImage } from '@modules/utility/image';
+import { unescape } from '@modules/utility/string';
 
 export interface ArticleCardListProps {
     url: string;
@@ -46,18 +45,20 @@ export function ArticleCardList(props: ArticleCardListProps) {
             <p>
                 <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                     <a className="shallow-dark">
-                        {props.description}
+                        {unescape(props.description)}
                     </a>
                 </Link>
             </p>
             <p className="vs">
                 {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
             </p>
-            <TagBadges items={props.tags.map(item => (
-                <Link href={`/@${props.author}/posts/${item}`}>
-                    <a>{item}</a>
-                </Link>
-            ))}/>
+            <TagBadges
+                items={props.tags.map(item => (
+                    <Link href={`/@${props.author}/posts/${item}`}>
+                        <a>{item}</a>
+                    </Link>
+                ))}
+            />
         </div>
-    )
+    );
 }

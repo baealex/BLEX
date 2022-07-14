@@ -1,23 +1,22 @@
-import {
-    Footer,
-    Pagination,
-} from '@system-design/shared';
+import type { GetServerSideProps } from 'next';
+
 import {
     ArticleCard,
-    CollectionLayout,
+    CollectionLayout
 } from '@system-design/article';
+import {
+    Footer,
+    Pagination
+} from '@system-design/shared';
+import type { PageComponent } from '@components';
 
 import * as API from '@modules/api';
 
-import { GetServerSidePropsContext } from 'next';
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { page = 1 } = context.query;
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        page = 1
-    } = context.query;
-    
     try {
-        const { data } = await API.getNewestPosts(Number(page));
+        const { data } = await API.getPopularPosts(Number(page));
 
         return {
             props: {
@@ -25,19 +24,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 page
             }
         };
-    } catch(error) {
-        return {
-            notFound: true
-        };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
-interface Props extends API.GetPostsData {
-    trendy?: API.GetPostsData,
+interface Props extends API.GetPostsResponseData {
+    trendy?: API.GetPostsResponseData,
     page: number;
 }
 
-export default function TrendyArticles(props: Props) {
+const TrendyArticles: PageComponent<Props> = (props) => {
     return (
         <>
             <Pagination
@@ -47,23 +44,21 @@ export default function TrendyArticles(props: Props) {
             <Footer/>
         </>
     );
-}
+};
 
-TrendyArticles.pageLayout = (page: JSX.Element, props: Props) => (
-    <>
-        <CollectionLayout active="최신 포스트" {...props}>
-            <>
-                <div className="row">
-                    {props.posts.map((item, idx) => (
-                        <ArticleCard
-                            key={idx}
-                            className="col-lg-4 col-md-6 mt-4"
-                            {...item}
-                        />
-                    ))}
-                </div>
-                {page}
-            </>
-        </CollectionLayout>
-    </>
+TrendyArticles.pageLayout = (page, props) => (
+    <CollectionLayout active="인기 포스트" {...props}>
+        <div className="row">
+            {props.posts.map(item => (
+                <ArticleCard
+                    key={item.url}
+                    className="col-lg-4 col-md-6 mt-4"
+                    {...item}
+                />
+            ))}
+        </div>
+        {page}
+    </CollectionLayout>
 );
+
+export default TrendyArticles;

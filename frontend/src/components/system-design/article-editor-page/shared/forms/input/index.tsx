@@ -5,10 +5,10 @@ interface Props {
     type: inputType;
     name: string;
     maxLength: number;
-    onChange: Function;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     value: string;
     placeholder: string;
-};
+}
 
 export function InputForm(props: Props) {
     return (
@@ -17,7 +17,7 @@ export function InputForm(props: Props) {
                 <div className="input-group-text">{props.title}</div>
             </div>
             <input
-                type={props.type ? props.type : "text"}
+                type={props.type ? props.type : 'text'}
                 name={props.name}
                 className="form-control"
                 maxLength={props.maxLength}

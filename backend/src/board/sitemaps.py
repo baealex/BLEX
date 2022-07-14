@@ -1,5 +1,6 @@
 from django.contrib.sitemaps import Sitemap
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.urls import reverse
 from itertools import chain
 
@@ -10,7 +11,7 @@ class StaticSitemap(Sitemap):
     priority = 1.0
     
     def items(self):
-        return ('', '/popular', '/tags')
+        return ('', '/newest', '/tags', '/map')
     
     def location(self, item):
         return str(item)

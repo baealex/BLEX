@@ -13,7 +13,7 @@
         color: #aaa;
     }
 
-    a {
+    & > a {
         color: #777;
 
         :global(body.dark) & {

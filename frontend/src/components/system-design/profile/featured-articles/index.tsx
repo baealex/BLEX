@@ -1,6 +1,6 @@
 import {
     ArticleCardSmall,
-    ArticleCardSmallProps,
+    ArticleCardSmallProps
 } from '@system-design/article';
 
 export interface FeaturedArticlesProps {
@@ -12,10 +12,10 @@ export function FeaturedArticles(props: FeaturedArticlesProps) {
         <>
             {props.articles.length > 0 && (
                 <>
-                    <div className="h5 font-weight-bold mt-5">
-                        추천 컨텐츠
+                    <div className="h4 font-weight-bold mt-5">
+                        인기 컨텐츠
                     </div>
-                    <div className="row mt-1 mb-5">
+                    <div className="row mt-3">
                         {props.articles.map((article, idx) => (
                             <ArticleCardSmall key={idx} {...article}/>
                         ))}
@@ -23,5 +23,5 @@ export function FeaturedArticles(props: FeaturedArticlesProps) {
                 </>
             )}
         </>
-    )
+    );
 }

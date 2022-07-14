@@ -1,20 +1,16 @@
-import styles from './EditorContent.module.scss';
 import classNames from 'classnames/bind';
+import styles from './EditorContent.module.scss';
 const cn = classNames.bind(styles);
 
 import React, {
     useEffect,
     useRef,
-    useState,
+    useState
 } from 'react';
 
-import {
-    PopOver
-} from '@components/design-system';
+import { PopOver } from '@components/design-system';
 
-import {
-    ArticleContent
-} from '@components/system-design/article-detail-page';
+import { ArticleContent } from '@components/system-design/article-detail-page';
 
 import {
     FormsModal,
@@ -22,9 +18,12 @@ import {
 } from '../../shared/modals';
 
 import * as API from '@modules/api';
-import prism from '@modules/library/prism';
+import {
+    dropImage,
+    uploadImage
+} from '@modules/utility/image';
 import blexer from '@modules/utility/blexer';
-import { dropImage, uploadImage } from '@modules/utility/image';
+import { codeMirrorAll } from '@modules/library/codemirror';
 import { lazyLoadResource } from '@modules/optimize/lazy';
 
 export interface EditorContentProps {
@@ -41,10 +40,10 @@ export function EditorContent(props: EditorContentProps) {
     const imageInput = useRef<HTMLInputElement>(null);
 
     const [ isEdit, setIsEdit] = useState(true);
-    const [ forms, setForms ] = useState<API.GetSettingFormsDataForms[]>();
+    const [ forms, setForms ] = useState<API.GetSettingFormsResponseData['forms']>();
     const [ modal, setModal ] = useState({
         isOpenForms: false,
-        isOpenYoutube: false,
+        isOpenYoutube: false
     });
 
     useEffect(() => {
@@ -67,7 +66,7 @@ export function EditorContent(props: EditorContentProps) {
 
     useEffect(() => {
         if (!isEdit) {
-            prism.highlightAll();
+            codeMirrorAll();
             lazyLoadResource();
         }
     }, [isEdit]);
@@ -98,46 +97,46 @@ export function EditorContent(props: EditorContentProps) {
 
             props.onChange(props.value + appendText);
         }
-    }
+    };
 
     const handleUploadImage = async (image: File) => {
         const imageSrc = await uploadImage(image);
-        if(imageSrc) {
-            const imageMd = imageSrc.includes('.mp4')
-                ? `@gif[${imageSrc}]`
-                : `![](${imageSrc})`;
-                appendTextAfterCursor(imageMd);
-        }
-    }
-
-    const handleDropImage = async (e: React.DragEvent<HTMLDivElement>) => {
-        const imageSrc = await dropImage(e);
-        if(imageSrc) {
+        if (imageSrc) {
             const imageMd = imageSrc.includes('.mp4')
                 ? `@gif[${imageSrc}]`
                 : `![](${imageSrc})`;
             appendTextAfterCursor(imageMd);
         }
-    }
+    };
+
+    const handleDropImage = async (e: React.DragEvent<HTMLDivElement>) => {
+        const imageSrc = await dropImage(e);
+        if (imageSrc) {
+            const imageMd = imageSrc.includes('.mp4')
+                ? `@gif[${imageSrc}]`
+                : `![](${imageSrc})`;
+            appendTextAfterCursor(imageMd);
+        }
+    };
 
     const onFetchForm = async (id: number) => {
         const { data } = await API.getForm(id);
         if (data.body.content) {
             appendTextAfterCursor(data.body.content);
         }
-    }
+    };
 
     const handleUploadYoutube = (id: string) => {
         if (id) {
             const youtubeMd = `@youtube[${id}]`;
             appendTextAfterCursor(youtubeMd);
         }
-    }
+    };
 
     const modalToggle = (name: keyof typeof modal) => {
         setModal((prevState) => ({
             ...prevState,
-            [name]: !prevState[name],
+            [name]: !prevState[name]
         }));
     };
 
@@ -147,7 +146,7 @@ export function EditorContent(props: EditorContentProps) {
                 ref={imageInput}
                 type="file"
                 accept="image/*"
-                style={{display: 'none'}}
+                style={{ display: 'none' }}
                 onChange={(e) => {
                     if (e.target.files) {
                         handleUploadImage(e.target.files[0]);
@@ -158,8 +157,7 @@ export function EditorContent(props: EditorContentProps) {
                 <div
                     className="col-lg-8"
                     onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => handleDropImage(e)}
-                >
+                    onDrop={(e) => handleDropImage(e)}>
                     <div className={cn('layout')}>
                         <textarea
                             ref={textarea}
@@ -176,9 +174,8 @@ export function EditorContent(props: EditorContentProps) {
                             className={cn(
                                 'preview',
                                 { isEdit }
-                            )}
-                        >
-                            <ArticleContent isEdit html={blexer(props.value)} />
+                            )}>
+                            <ArticleContent isEdit html={!isEdit ? blexer(props.value) : ''} />
                         </div>
                     </div>
                 </div>
@@ -197,15 +194,15 @@ export function EditorContent(props: EditorContentProps) {
                                     </PopOver>
                                 </li>
                                 <li className="mx-3 mx-lg-4" onClick={() => setIsEdit(isEdit => !isEdit)}>
-                                        {isEdit ? (
-                                            <PopOver text="편집모드">
-                                                <i className="far fa-eye-slash"/>
-                                            </PopOver>
-                                        ) : (
-                                            <PopOver text="미리보기">
-                                                <i className="far fa-eye"/>
-                                            </PopOver>
-                                        )}
+                                    {isEdit ? (
+                                        <PopOver text="편집모드">
+                                            <i className="far fa-eye-slash"/>
+                                        </PopOver>
+                                    ) : (
+                                        <PopOver text="미리보기">
+                                            <i className="far fa-eye"/>
+                                        </PopOver>
+                                    )}
                                 </li>
                                 <li className="mx-3 mx-lg-4" onClick={() => modalToggle('isOpenForms')}>
                                     <PopOver text="서식 불러오기">
@@ -218,7 +215,7 @@ export function EditorContent(props: EditorContentProps) {
                     </div>
                 </div>
             </div>
-            
+
             <YoutubeModal
                 isOpen={modal.isOpenYoutube}
                 onClose={() => modalToggle('isOpenYoutube')}
@@ -232,5 +229,5 @@ export function EditorContent(props: EditorContentProps) {
                 forms={forms}
             />
         </>
-    )
+    );
 }

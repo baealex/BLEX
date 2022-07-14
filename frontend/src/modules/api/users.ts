@@ -1,18 +1,11 @@
-import axiosRequest, {
-    ResponseData,
-    serializeObject,
-} from './index';
+import request, { serializeObject } from './index';
 
-export async function getUserProfile(author: string, includes: GetUserProfileInclude[]) {
-    return await axiosRequest<ResponseData<GetUserProfileData>>({
-        url: `/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
-        method: 'GET'
-    });
-}
+type GetUserProfileInclude = 'subscribe' | 'profile' | 'social' | 'heatmap' | 'tags' | 'view' | 'most' | 'recent' | 'about';
 
-type GetUserProfileInclude = 'profile' | 'social' | 'heatmap' | 'tags' | 'view' | 'most' | 'recent' | 'about';
-
-export interface GetUserProfileData {
+export interface GetUserProfileResponseData {
+    subscribe: {
+        hasSubscribe: boolean;
+    },
     profile: {
         image: string;
         username: string;
@@ -21,6 +14,7 @@ export interface GetUserProfileData {
     },
     social?: {
         username: string;
+        homepage?: string;
         github?: string;
         twitter?: string;
         youtube?: string;
@@ -56,28 +50,45 @@ export interface GetUserProfileData {
     about?: string;
 }
 
+export async function getUserProfile(author: string, includes: GetUserProfileInclude[]) {
+    return await request<GetUserProfileResponseData>({
+        url: `/v1/users/${encodeURIComponent(author)}?includes=${includes.join(',')}`,
+        method: 'GET'
+    });
+}
+
+export interface GetUserAboutResponseData {
+    aboutMd: string;
+}
+
 export async function getUserAbout(author: string) {
-    return await axiosRequest<ResponseData<GetUserAboutData>>({
+    return await request<GetUserAboutResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}?get=about`,
         method: 'GET'
     });
 }
 
-export interface GetUserAboutData {
-    aboutMd: string;
+interface PutUserFollowResponseData {
+    hasSubscribe: boolean;
+}
+
+export async function putUserFollow(author: string) {
+    return await request<PutUserFollowResponseData>({
+        url: `/v1/users/${encodeURIComponent(author)}`,
+        method: 'PUT',
+        data: serializeObject({ follow: author })
+    });
 }
 
 export async function putUserAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
-    return await axiosRequest<ResponseData<any>>({
+    return await request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject({
             about: author,
             about_md: aboutMarkdown,
             about_html: aboutMarkup
-        }),
+        })
     });
 }

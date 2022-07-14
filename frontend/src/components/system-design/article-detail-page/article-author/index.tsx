@@ -1,5 +1,5 @@
-import styles from './ArticleAuthor.module.scss';
 import classNames from 'classnames';
+import styles from './ArticleAuthor.module.scss';
 
 import Link from 'next/link';
 
@@ -10,7 +10,7 @@ export interface ArticleAuthorProps {
         image: string;
         bio: string;
     };
-};
+}
 
 export function ArticleAuthor(props: ArticleAuthorProps) {
     return (
@@ -44,5 +44,5 @@ export function ArticleAuthor(props: ArticleAuthorProps) {
                 </div>
             </div>
         </div>
-    )
+    );
 }

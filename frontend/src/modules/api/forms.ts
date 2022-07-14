@@ -1,38 +1,35 @@
-import axiosRequest, {
-    ResponseData,
-    serializeObject,
-} from './index';
+import request, { serializeObject } from './index';
 
-export async function postForms(title: string, content: string) {
-    return axiosRequest<ResponseData<PostFormsData>>({
-        url: `/v1/forms`,
-        method: 'POST',
-        data: serializeObject({
-            title,
-            content,
-        })
-    })
-};
-
-export interface PostFormsData {
+export interface PostFormsResponseData {
     id: number;
 }
 
-export async function deleteForms(id: number) {
-    return axiosRequest<ResponseData<any>>({
-        url: `/v1/forms/${id}`,
-        method: 'DELETE',
-    })
-};
-
-export async function getForm(id: number) {
-    return axiosRequest<ResponseData<GetFormData>>({
-        url: `/v1/forms/${id}`,
-        method: 'GET',
-    })
+export async function postForms(title: string, content: string) {
+    return request<PostFormsResponseData>({
+        url: '/v1/forms',
+        method: 'POST',
+        data: serializeObject({
+            title,
+            content
+        })
+    });
 }
 
-export interface GetFormData {
+export async function deleteForms(id: number) {
+    return request<unknown>({
+        url: `/v1/forms/${id}`,
+        method: 'DELETE'
+    });
+}
+
+export async function getForm(id: number) {
+    return request<GetFormResponseData>({
+        url: `/v1/forms/${id}`,
+        method: 'GET'
+    });
+}
+
+export interface GetFormResponseData {
     title: string;
     content: string;
 }

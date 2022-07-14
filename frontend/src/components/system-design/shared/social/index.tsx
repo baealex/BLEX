@@ -1,5 +1,5 @@
-import styles from './Social.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Social.module.scss';
 const cn = classNames.bind(styles);
 
 export interface SocialProps {
@@ -9,31 +9,31 @@ export interface SocialProps {
     youtube?: string;
     facebook?: string;
     instagram?: string;
-};
+}
 
 export function Social(props: SocialProps) {
     return (
         <ul className={cn('social')}>
-            <li>
-                <a href={`/rss/@${props.username}`}>
+            <li key={'rss'}>
+                <a href={`/rss/@${props.username}`} data-name="rss">
                     <i className="fas fa-rss-square"/>
                 </a>
             </li>
-            {['github', 'twitter', 'youtube', 'facebook', 'instagram'].map((name, idx) => (
-                <>
-                    {props[name as keyof SocialProps] && (
-                        <li key={idx}>
-                            <a href={(
+            {['github', 'twitter', 'youtube', 'facebook', 'instagram'].map((name) => (
+                props[name as keyof SocialProps] && (
+                    <li key={name}>
+                        <a
+                            data-name={name}
+                            href={(
                                 name === 'youtube'
                                     ? `https://youtube.com/channel/${props.youtube}`
                                     : `https://${name}.com/${props[name as keyof SocialProps]}`
                             )}>
-                                <i className={`fab fa-${name}-square`}/>
-                            </a>
-                        </li>
-                    )}
-                </>    
+                            <i className={`fab fa-${name}`}/>
+                        </a>
+                    </li>
+                )
             ))}
         </ul>
-    )
+    );
 }

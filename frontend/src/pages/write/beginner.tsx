@@ -1,50 +1,32 @@
+import type { GetServerSideProps } from 'next';
 import React from 'react';
 import Router from 'next/router';
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult,
-} from 'next';
 
-import {
-    EditorLayout,
-} from '@components/system-design/article-editor-page/beginner';
+import { EditorLayout } from '@components/system-design/article-editor-page/beginner';
 
 import * as API from '@modules/api';
-import {
-    snackBar
-} from '@modules/ui/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
-import { configStore } from '@stores/config';
 import { authStore } from '@stores/auth';
+import { configStore } from '@stores/config';
 
 interface Props {
     username: string;
-};
+}
 
-export async function getServerSideProps({
-    req,
-}: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { cookies } = req;
     configStore.serverSideInject(cookies);
 
     const { cookie } = req.headers;
-    const { data } = await API.getLogin({
-        'Cookie': cookie || '',
-    });
+    const { data } = await API.getLogin({ 'Cookie': cookie || '' });
 
     if (data.status !== 'DONE') {
-        return {
-            notFound: true,
-        };
+        return { notFound: true };
     }
-    
-    return {
-        props: {
-            username: data.body.username
-        }
-    };
-}
+
+    return { props: { username: data.body.username } };
+};
 
 interface State {
     username: string;
@@ -58,7 +40,7 @@ interface State {
     isHide: boolean;
     isAd: boolean;
     isOpenArticleModal: boolean;
-    tempPosts: API.GetTempPostsDataTemp[],
+    tempPosts: API.GetTempPostsResponseData['temps'],
     tempPostsCache: {
         [token: string]: {
             title: string;
@@ -90,14 +72,10 @@ class Write extends React.Component<Props, State> {
             tempPostsCache: {}
         };
         this.authUpdateKey = authStore.subscribe((state) => {
-            this.setState({
-                username: state.username,
-            });
+            this.setState({ username: state.username });
         });
         this.configUpdateKey = configStore.subscribe((state) => {
-            this.setState({
-                isAutoSave: state.isAutoSave,
-            });
+            this.setState({ isAutoSave: state.isAutoSave });
         });
     }
 
@@ -110,25 +88,23 @@ class Write extends React.Component<Props, State> {
 
     async componentDidMount() {
         const { data } = await API.getTempPosts();
-        if(data.body.temps.length > 0) {
-            this.setState({
-                tempPosts: data.body.temps
-            });
+        if (data.body.temps.length > 0) {
+            this.setState({ tempPosts: data.body.temps });
             snackBar('😀 작성하던 포스트가 있으시네요!', {
                 onClick: () => {
-                    this.setState({isOpenArticleModal: true});
+                    this.setState({ isOpenArticleModal: true });
                 }
             });
         }
     }
 
-    async onSubmit(onFail: Function) {
-        if(!this.state.title) {
+    async onSubmit(onFail: () => void) {
+        if (!this.state.title) {
             snackBar('😅 제목이 비어있습니다.');
             onFail();
             return;
         }
-        if(!this.state.tags) {
+        if (!this.state.tags) {
             snackBar('😅 키워드를 작성해주세요.');
             onFail();
             return;
@@ -147,22 +123,22 @@ class Write extends React.Component<Props, State> {
                 tag: this.state.tags,
                 series: this.state.series,
                 is_hide: JSON.stringify(this.state.isHide),
-                is_advertise: JSON.stringify(this.state.isAd),
+                is_advertise: JSON.stringify(this.state.isAd)
             });
             Router.push('/[author]/[posturl]', `/@${this.state.username}/${data.body.url}`);
-        } catch(e) {
+        } catch (e) {
             snackBar('😥 글 작성중 오류가 발생했습니다.');
             onFail();
         }
     }
 
     async onDeleteTempPost(token: string) {
-        if(confirm('😅 정말 임시글을 삭제할까요?')) {
+        if (confirm('😅 정말 임시글을 삭제할까요?')) {
             const { data } = await API.deleteTempPosts(token);
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 this.setState({
                     token: '',
-                    tempPosts: this.state.tempPosts.filter(post => 
+                    tempPosts: this.state.tempPosts.filter(post =>
                         post.token !== token
                     )
                 });
@@ -183,41 +159,39 @@ class Write extends React.Component<Props, State> {
             <EditorLayout
                 title={{
                     value: this.state.title,
-                    onChange: (value: string) => this.setState({title: value}),
+                    onChange: (value: string) => this.setState({ title: value })
                 }}
                 content={{
                     value: this.state.contents,
                     onChange: (value) => {
                         console.log(value);
-                        this.setState({contents: value});
-                    },
+                        this.setState({ contents: value });
+                    }
                 }}
                 series={{
                     value: this.state.series,
-                    onChange: (value) => this.setState({series: value}),
+                    onChange: (value) => this.setState({ series: value })
                 }}
                 tags={{
                     value: this.state.tags,
-                    onChange: (value) => this.setState({tags: value}),
+                    onChange: (value) => this.setState({ tags: value })
                 }}
                 isHide={{
                     value: this.state.isHide,
-                    onChange: (value) => this.setState({isHide: value})
+                    onChange: (value) => this.setState({ isHide: value })
                 }}
                 isAd={{
                     value: this.state.isAd,
-                    onChange: (value) => this.setState({isAd: value})
+                    onChange: (value) => this.setState({ isAd: value })
                 }}
-                image={{
-                    onChange: (image) => this.setState({image: image})
-                }}
+                image={{ onChange: (image) => this.setState({ image: image }) }}
                 publish={{
-                    title: "포스트 발행",
-                    buttonText: "이대로 발행하겠습니다"
+                    title: '포스트 발행',
+                    buttonText: '이대로 발행하겠습니다'
                 }}
                 onSubmit={this.onSubmit.bind(this)}
             />
-        )
+        );
     }
 }
 

@@ -1,39 +1,33 @@
-import { useState } from 'react';
 import Router from 'next/router';
+import { useState } from 'react';
 
-import {
-    EditorLayout
-} from '@system-design/article-editor-page/expert';
+import { EditorLayout } from '@system-design/article-editor-page/expert';
 
 import * as API from '@modules/api';
-import {
-    snackBar
-} from '@modules/ui/snack-bar';
+import { snackBar } from '@modules/ui/snack-bar';
 
-import { GetServerSidePropsContext } from 'next';
+import { GetServerSideProps } from 'next';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { req } = context;
     const {
         author = '',
         posturl = ''
     } = context.query;
 
-    if(!author.includes('@') || !posturl) {
-        return {
-            notFound: true
-        };
+    if (!author.includes('@') || !posturl) {
+        return { notFound: true };
     }
 
     try {
         const cookie = req.headers.cookie;
-        
+
         const posts = (await API.getAnUserPostsEdit(
             author as string,
             posturl as string,
             cookie)
         ).data;
-    
+
         return {
             props: {
                 posturl: posturl,
@@ -41,14 +35,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...posts.body
             }
         };
-    } catch(error) {
-        return {
-            notFound: true
-        };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
-interface Props extends API.GetAnUserPostsEditData {
+interface Props extends API.GetAnUserPostsEditResponseData {
     posturl: string;
     username: string;
 }
@@ -63,13 +55,13 @@ export default function Edit(props: Props) {
     const [ isHide, setIsHide ] = useState(props.isHide);
     const [ isAdvertise, setIsAdvertise ] = useState(props.isAdvertise);
 
-    const onSubmit = async (onFail: Function) => {
-        if(!title) {
+    const onSubmit = async (onFail: () => void) => {
+        if (!title) {
             snackBar('😅 제목이 비어있습니다.');
             onFail();
             return;
         }
-        if(!tags) {
+        if (!tags) {
             snackBar('😅 키워드를 작성해주세요.');
             onFail();
             return;
@@ -82,42 +74,42 @@ export default function Edit(props: Props) {
                 tag: tags,
                 series,
                 is_hide: JSON.stringify(isHide),
-                is_advertise: JSON.stringify(isAdvertise),
+                is_advertise: JSON.stringify(isAdvertise)
             });
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 Router.push('/[author]/[posturl]', `/${props.username}/${props.posturl}`);
             }
-        } catch(e) {
+        } catch (e) {
             snackBar('😥 글 수정중 오류가 발생했습니다.');
             onFail();
         }
-    }
-    
+    };
+
     return (
         <EditorLayout
             title={{
                 value: title,
-                onChange: setTitle,
+                onChange: setTitle
             }}
             content={{
                 value: content,
-                onChange: setContent,
+                onChange: setContent
             }}
             series={{
                 value: series,
-                onChange: setSeries,
+                onChange: setSeries
             }}
             tags={{
                 value: tags,
-                onChange: setTags,
+                onChange: setTags
             }}
             isHide={{
                 value: isHide,
-                onChange: setIsHide,
+                onChange: setIsHide
             }}
             isAd={{
                 value: isAdvertise,
-                onChange: setIsAdvertise,
+                onChange: setIsAdvertise
             }}
             image={{
                 onChange: (image) => {
@@ -125,10 +117,10 @@ export default function Edit(props: Props) {
                 }
             }}
             publish={{
-                title: "포스트 수정",
-                buttonText: "이렇게 수정하겠습니다"
+                title: '포스트 수정',
+                buttonText: '이렇게 수정하겠습니다'
             }}
             onSubmit={onSubmit}
         />
-    )
+    );
 }

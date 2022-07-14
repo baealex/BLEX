@@ -1,20 +1,16 @@
-import { spawn } from 'child_process'
 import { readFileSync, writeFileSync, copyFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
+import { runScript } from './core'
 
-if (!existsSync(resolve('.env'))) {
-    copyFileSync(resolve('./cli/sample/.env'), resolve('.env'))
-}
-
-if (!existsSync(resolve('./backend/src/main/settings.py')))
+if (!existsSync(resolve('./backend/.env')))
     copyFileSync(
-        resolve('./cli/sample/docker_dev_backend_settings.py'),
-        resolve('./backend/src/main/settings.py')
+        resolve('./dev-tools/sample/BE.env'),
+        resolve('./backend/.env')
     )
 
 if (!existsSync(resolve('./backend/src/db.sqlite3')))
     copyFileSync(
-        resolve('./cli/sample/db.sqlite3'),
+        resolve('./dev-tools/sample/db.sqlite3'),
         resolve('./backend/src/db.sqlite3')
     )
 
@@ -30,10 +26,10 @@ writeFileSync(
     beDockerFile.split('ENTRYPOINT')[0] + beDevCommand
 )
 
-if (!existsSync(resolve('./frontend/src/modules/settings.ts')))
+if (!existsSync(resolve('./frontend/.env')))
     copyFileSync(
-        resolve('./cli/sample/docker_dev_frontend_settings.ts'),
-        resolve('./frontend/src/modules/settings.ts')
+        resolve('./dev-tools/sample/FE.env'),
+        resolve('./frontend/.env')
     )
 
 const feDockerFile = readFileSync(resolve('./frontend/Dockerfile')).toString()
@@ -48,4 +44,4 @@ writeFileSync(
     feDockerFile.split('RUN npm run build')[0] + feDevCommand
 )
 
-spawn('sh', [ resolve('./cli/shell/development.sh') ], { stdio: 'inherit' })
+runScript('development')

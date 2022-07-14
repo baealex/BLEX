@@ -1,15 +1,13 @@
-import axiosRequest, { ResponseData } from './index';
+import request  from './index';
 
-export async function postTelegram(parameter: 'unsync' | 'makeToken') {
-    return await axiosRequest<ResponseData<PostTelegramData>>({
-        url: `/v1/telegram/${parameter}`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-    });
+interface PostTelegramResponseData {
+    token?: string;
 }
 
-interface PostTelegramData {
-    token?: string;
+export async function postTelegram(parameter: 'unsync' | 'makeToken') {
+    return await request<PostTelegramResponseData>({
+        url: `/v1/telegram/${parameter}`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 }

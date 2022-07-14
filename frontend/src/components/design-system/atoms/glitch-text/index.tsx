@@ -1,8 +1,11 @@
-import styles from './GlitchText.module.scss';
 import classNames from 'classnames/bind';
+import styles from './GlitchText.module.scss';
 const cn = classNames.bind(styles);
 
-import { useEffect, useState } from 'react';
+import {
+    useEffect,
+    useState
+} from 'react';
 
 export interface GlitchTextProps {
     letters: string[];
@@ -13,28 +16,24 @@ export function GlitchText(props: GlitchTextProps) {
 
     useEffect(() => {
         const letters = props.letters;
+        const pick = () => {
+            return Math.floor(Math.random() * letters.length);
+        };
 
-        const swap = function() {
-            const randWord = 
-                letters[Math.floor(Math.random()*letters.length)]
-                + letters[Math.floor(Math.random()*letters.length)]
-                + letters[Math.floor(Math.random()*letters.length)]
-                + letters[Math.floor(Math.random()*letters.length)];
-            setText(randWord);
-
-            window.requestAnimationFrame(() => {
-                setTimeout(swap, 100);
-            });
-        }
-
-        swap();
+        (function swap() {
+            setText(
+                letters[pick()] +
+                letters[pick()] +
+                letters[pick()] +
+                letters[pick()]
+            );
+            setTimeout(swap, 100);
+        })();
     }, []);
 
     return (
-        <>
-            <div className={(cn('header'))} data-text={text}>
-                {text}
-            </div>
-        </>
-    )
+        <div className={(cn('header'))} data-text={text}>
+            {text}
+        </div>
+    );
 }

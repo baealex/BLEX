@@ -3,8 +3,20 @@
 .card {
     width: 100%;
     display: block;
+    border: 1px solid #eee;
+    overflow: hidden;
+
+    :global(body.dark) & {
+        border: 1px solid #444;
+    }
 
     &.hs { // hasShadow
+        border: none;
+
+        :global(body.dark) & {
+            border: none;
+        }
+
         &.sl-main {
             @include MAIN_SHADOW;
         }
@@ -14,14 +26,15 @@
     }
 
     &.fb { // fillBack
-        @include BACKGROUND;
+        &.fb-background {
+            @include BACKGROUND;
+        }
+        &.fb-card {
+            @include CARD_BACKGROUND;
+        }
     }
 
     &.ir { // isRounded
         border-radius: 8px;
-
-        :global(img) {
-            border-radius: 8px 8px 0 0;
-        }
     }
 }

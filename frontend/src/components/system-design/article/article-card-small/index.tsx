@@ -1,13 +1,11 @@
-import styles from './ArticleCardSmall.module.scss';
 import classNames from 'classnames';
+import styles from './ArticleCardSmall.module.scss';
 
 import Link from 'next/link';
 
 import { Card } from '@design-system';
 
-import {
-    getPostsImage,
-} from '@modules/utility/image';
+import { getPostsImage } from '@modules/utility/image';
 
 export interface ArticleCardSmallProps {
     author: string;
@@ -22,7 +20,7 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
     return (
         <div className="col-md-4 mt-3">
             <Card hasShadow isRounded>
-                <Link href="/[author]/[posturl]" as={`@${props.author}/${props.url}`}>
+                <Link href={`/@${props.author}/${props.url}`}>
                     <a className="deep-dark">
                         <img
                             className={classNames(
@@ -33,7 +31,7 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
                             data-src={getPostsImage(props.image, { minify: true })}
                         />
                         <div className="p-3">
-                            <div>
+                            <div className={styles.title}>
                                 {props.title}
                             </div>
                             <div className="vs mt-2">
@@ -44,5 +42,5 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
                 </Link>
             </Card>
         </div>
-    )
+    );
 }

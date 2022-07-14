@@ -1,27 +1,20 @@
-import React from 'react';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 
-import type { GetServerSidePropsContext } from 'next';
-
 import {
-    SEO,
     Footer,
     Pagination,
+    SEO
 } from '@system-design/shared';
-import {
-    CollectionLayout,
-} from '@system-design/article';
-import {
-    TagCard,
-} from '@system-design/tag';
+import { CollectionLayout } from '@system-design/article';
+import type { PageComponent } from '@components';
+import { TagCard } from '@system-design/tag';
 
 import * as API from '@modules/api';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const {
-        page = 1
-    } = context.query;
-    
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { page = 1 } = context.query;
+
     try {
         const { data } = await API.getTags(Number(page));
         return {
@@ -29,19 +22,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...data.body,
                 page
             }
-        }
-    } catch(error) {
-        return {
-            notFound: true
         };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
-interface Props extends API.GetTagsData {
+interface Props extends API.GetTagsResponseData {
     page: number;
 }
 
-export default function Tags(props: Props) {
+const Tags: PageComponent<Props> = (props) => {
 
     return (
         <>
@@ -59,18 +50,22 @@ export default function Tags(props: Props) {
             />
             <Footer/>
         </>
-    )
-}
+    );
+};
 
-Tags.pageLayout = (page: JSX.Element, props: Props) => (
+Tags.pageLayout = (page, props) => (
     <CollectionLayout active="태그 클라우드" {...props}>
         <>
             <div className="row">
-                {props.tags.map((item, idx) => (
-                    <TagCard key={idx} {...item}/>
+                {props.tags.map((item) => (
+                    <div key={item.name} className="col-sm-6 col-md-4 col-lg-3">
+                        <TagCard {...item}/>
+                    </div>
                 ))}
             </div>
             {page}
         </>
     </CollectionLayout>
-)
+);
+
+export default Tags;

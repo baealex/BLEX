@@ -6,6 +6,7 @@
     max-height: calc(100vh - 100px);
     overflow-x: hidden;
     overflow-y: auto;
+    display: inline-block;
 
     &::-webkit-scrollbar {
         width: 3px;        

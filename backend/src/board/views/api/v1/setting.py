@@ -1,18 +1,22 @@
 import time
+import datetime
 
 from django.contrib import auth
-from django.core.paginator import Paginator
-from django.db.models import Q, F, Count, Case, When
+from django.db.models import (
+    Q, F, Count, Case, When, Sum)
 from django.http import JsonResponse, Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.timesince import timesince
 
-from board.models import *
-from modules.requests import BooleanType
-from modules.response import StatusDone, StatusError
-from board.views import function as fn
+from board.models import (
+    User, RefererFrom, Series,
+    Post, PostAnalytics, Form,
+    Profile, Notify, convert_to_localtime)
+from board.modules.paginator import Paginator
+from board.modules.requests import BooleanType
+from board.modules.response import StatusDone, StatusError
 
 def setting(request, item):
     if not request.user.is_active:
@@ -69,8 +73,12 @@ def setting(request, item):
             ).filter(
                 author=user
             ).order_by('-created_date')
+
+            tag_filter = request.GET.get('tag_filter', '')
+            if tag_filter:
+                posts = posts.filter(tags__value=tag_filter)
             
-            vaild_orders = [
+            valid_orders = [
                 'title',
                 'read_time',
                 'created_date',
@@ -83,11 +91,11 @@ def setting(request, item):
             ]
             order = request.GET.get('order', '')
             if order:
-                is_vaild = False
-                for vaild_order in vaild_orders:
-                    if order == vaild_order or order == '-' + vaild_order:
-                        is_vaild = True
-                if not is_vaild:
+                is_valid = False
+                for valid_order in valid_orders:
+                    if order == valid_order or order == '-' + valid_order:
+                        is_valid = True
+                if not is_valid:
                     raise Http404
 
                 if 'hide' in order:
@@ -124,11 +132,11 @@ def setting(request, item):
                 except:
                     pass
 
-            page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 10)
-            fn.page_check(page, paginator)
-            posts = paginator.get_page(page)
-
+            posts = Paginator(
+                objects=posts,
+                offset=10,
+                page=request.GET.get('page', 1)
+            )
             return StatusDone({
                 'username': request.user.username,
                 'posts': list(map(lambda post: {
@@ -148,13 +156,17 @@ def setting(request, item):
             })
         
         if item == 'series':
-            series = Series.objects.filter(owner=user).order_by('index', '-id')
+            series = Series.objects.filter(
+                owner=user
+            ).annotate(
+                total_posts=Count('posts')
+            ).order_by('index', '-id')
             return StatusDone({
                 'username': user.username,
                 'series': list(map(lambda item: {
                     'url': item.url,
                     'title': item.name,
-                    'total_posts': item.posts.count()
+                    'total_posts': item.total_posts
                 }, series))
             })
         

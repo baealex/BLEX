@@ -1,3 +1,5 @@
+import datetime
+
 from itertools import chain
 from django.core.cache import cache
 from django.db.models import F, Count, Case, When
@@ -5,8 +7,10 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.models import *
-from modules.response import StatusDone, StatusError
+from board.models import (
+    User, Post, Profile, Series,
+    Comment, Follow, Tag, convert_to_localtime, timestamp)
+from board.modules.response import StatusDone, StatusError
 from board.views import function as fn
 
 def users(request, username):
@@ -18,12 +22,24 @@ def users(request, username):
             user_profile = Profile.objects.get(user=user)
             data = dict()
             for include in set(includes):
+                if include == 'subscribe':
+                    data[include] = {
+                        'has_subscribe': Follow.objects.filter(
+                            follower__id=request.user.id,
+                            following=user.profile
+                        ).exists()
+                    }
+
                 if include == 'profile':
                     data[include] = {
                         'image': user_profile.get_thumbnail(),
                         'username': user.username,
                         'realname': user.first_name,
-                        'bio': user_profile.bio
+                        'bio': user_profile.bio,
+                        'has_subscribe': Follow.objects.filter(
+                            follower__id=request.user.id,
+                            following=user.profile
+                        ).exists()
                     }
                 
                 elif include == 'social':
@@ -173,18 +189,16 @@ def users(request, username):
                 return StatusError('SU')
             
             follower = User.objects.get(username=request.user)
-            if hasattr(user, 'profile'):
-                if user.profile.subscriber.filter(id = follower.id).exists():
-                    user.profile.subscriber.remove(follower)
-                else:
-                    user.profile.subscriber.add(follower)
+            follow_query = Follow.objects.filter(
+                follower=follower,
+                following=user.profile
+            )
+            if follow_query.exists():
+                follow_query.delete()
+                return StatusDone({ 'has_subscribe': False })
             else:
-                profile = Profile(user=user)
-                profile.save()
-                profile.subscriber.add(follower)
-            return StatusDone({
-                'total_subscriber': user.profile.total_subscriber()
-            })
+                Follow(follower=follower, following=user.profile).save()
+                return StatusDone({ 'has_subscribe': True })
         
         if put.get('about'):
             if not request.user == user:

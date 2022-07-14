@@ -1,14 +1,13 @@
 
 from django.core.cache import cache
-from django.core.paginator import Paginator
 from django.db.models import F, Count, Case, When
 from django.http import Http404
 from django.utils import timezone
 
 from board.models import Tag, Post, convert_to_localtime
+from board.modules.response import StatusDone
+from board.modules.paginator import Paginator
 from modules.telegram import TelegramBot
-from modules.response import StatusDone
-from board.views import function as fn
 
 def tags(request, tag=None):
     if not tag:
@@ -25,10 +24,12 @@ def tags(request, tag=None):
                     )
                 )
             ).order_by('-count')
-            page = request.GET.get('page', 1)
-            paginator = Paginator(tags, 48)
-            fn.page_check(page, paginator)
-            tags = paginator.get_page(page)
+
+            tags = Paginator(
+                objects=tags,
+                offset=48,
+                page=request.GET.get('page', 1)
+            )
             return StatusDone({
                 'tags': list(map(lambda tag: {
                     'name': tag.value,
@@ -53,10 +54,11 @@ def tags(request, tag=None):
             if len(posts) == 0:
                 raise Http404()
             
-            page = request.GET.get('page', 1)
-            paginator = Paginator(posts, 24)
-            fn.page_check(page, paginator)
-            posts = paginator.get_page(page)
+            posts = Paginator(
+                objects=posts,
+                offset=24,
+                page=request.GET.get('page', 1)
+            )
             desc_object = dict()
             try:
                 article = Post.objects.select_related(

@@ -20,7 +20,7 @@ export const syncTheme = (() => {
             }
         }
     });
-    
+
     return (onChange: (isDark: boolean) => void, init: boolean) => {
         if (init && system?.matches) {
             onChange(true);

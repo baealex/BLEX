@@ -2,21 +2,16 @@ version: "2.0"
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: ./Dockerfile
+    image: baealex/blex-frontend
+    env_file: ./frontend/.env
     restart: always
     ports:
       - 20011:3000
   
   backend:
-    build:
-      context: ./backend
-      dockerfile: ./Dockerfile
+    image: baealex/blex-backend
+    env_file: ./backend/.env
     restart: always
-    environment:
-      TZ: "Asia/Seoul"
-      LANG: "C.UTF-8"
     volumes:
       - ./backend/src/:/app/
     ports:

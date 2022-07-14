@@ -1,10 +1,7 @@
 @import 'var';
 
 .card {
-    @include BACKGROUND;
-    @include SUB_SHADOW;
     word-break: break-word;
-    border-radius: 8px;
     padding: 30px 15px 10px 15px;
 
     .interactive {

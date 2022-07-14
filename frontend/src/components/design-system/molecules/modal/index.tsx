@@ -21,10 +21,10 @@ export function Modal({
     children,
     submitText,
     onClose,
-    onSubmit,
+    onSubmit
 }: Props) {
     useEffect(() => {
-        if(isOpen) {
+        if (isOpen) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
@@ -32,7 +32,7 @@ export function Modal({
 
         return () => {
             document.body.style.overflow = '';
-        }
+        };
     }, [isOpen]);
 
     return (
@@ -74,5 +74,5 @@ export function Modal({
                 </>
             )}
         </>
-    )
-} 
+    );
+}

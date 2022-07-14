@@ -1,10 +1,9 @@
-import React from 'react';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import Router from 'next/router';
 import Link from 'next/link';
-import type { GetServerSidePropsContext } from 'next';
+import React from 'react';
+import Router from 'next/router';
 
-import { Toggle } from '@design-system';
 import {
     ArticleAction,
     ArticleAuthor,
@@ -12,26 +11,28 @@ import {
     ArticleContent,
     ArticleCover,
     ArticleSeries,
-    RelatedArticles,
+    ArticleThanks,
+    RelatedArticles
 } from '@system-design/article-detail-page';
-import { SEO, Footer } from '@system-design/shared';
+import {
+    Footer,
+    SEO
+} from '@system-design/shared';
 import { TagBadges } from '@system-design/tag';
 
-import { snackBar } from '@modules/ui/snack-bar';
-import prism from '@modules/library/prism';
 import * as API from '@modules/api';
-import {
-    lazyLoadResource
-} from '@modules/optimize/lazy';
+import { codeMirrorAll } from '@modules/library/codemirror';
 import { getPostsImage } from '@modules/utility/image';
+import { lazyLoadResource } from '@modules/optimize/lazy';
+import { snackBar } from '@modules/ui/snack-bar';
 
 import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
 
 interface Props {
-    profile: API.GetUserProfileData,
-    post: API.GetAnUserPostsViewData,
-    series: API.GetAnUserSeriesData,
+    profile: API.GetUserProfileResponseData,
+    post: API.GetAnUserPostsViewResponseData,
+    series: API.GetAnUserSeriesResponseData,
     hasSeries: boolean;
     activeSeries: number;
     seriesLength: number;
@@ -45,20 +46,20 @@ interface State {
     selectedTag?: string;
     headerNav: string[][];
     headerNow: string;
-    featurePosts?: API.GetFeaturePostsData;
+    featurePosts?: API.GetFeaturePostsResponseData;
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { cookies } = context.req;
     configStore.serverSideInject(cookies);
 
     const { req } = context;
-    const { author = '', posturl = '' } = context.query;
-    
-    if(!author.includes('@') || !posturl) {
-        return {
-            notFound: true
-        };
+    const {
+        author = '', posturl = ''
+    } = context.query;
+
+    if (!author.includes('@') || !posturl) {
+        return { notFound: true };
     }
 
     const { cookie } = context.req.headers;
@@ -72,48 +73,50 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
         try {
             API.postPostAnalytics(posturl as string, {
-                user_agent: req.headers["user-agent"],
+                user_agent: req.headers['user-agent'],
                 referer: req.headers.referer ? req.headers.referer : '',
-                ip: req.headers["x-real-ip"] || req.socket.remoteAddress,
-                time: new Date().getTime(),
+                ip: req.headers['x-real-ip'] || req.socket.remoteAddress,
+                time: new Date().getTime()
             }, cookie);
         } catch (e) {
-
+            // pass
         }
 
         const profile = await API.getUserProfile(author as string, [
             'profile'
         ]);
-        
+
         if (post.data.body.series) {
-            let series = await API.getAnUserSeries(
+            const series = await API.getAnUserSeries(
                 author as string,
                 post.data.body.series
             );
             const seriesLength = series.data.body.posts.length;
             const activeSeries = series.data.body.posts.findIndex(
-                (item) => item.title == post.data.body.title
+                (item) => item.url == post.data.body.url
             );
-            return { props: {
-                hasSeries: true,
-                post: post.data.body,
-                profile: profile.data.body,
-                activeSeries,
-                seriesLength,
-                series: series.data.body
-            }}
+            return {
+                props: {
+                    hasSeries: true,
+                    post: post.data.body,
+                    profile: profile.data.body,
+                    activeSeries,
+                    seriesLength,
+                    series: series.data.body
+                }
+            };
         }
-        return { props: {
-            hasSeries: false,
-            post: post.data.body,
-            profile: profile.data.body
-        }};
-    } catch(error) {
         return {
-            notFound: true
+            props: {
+                hasSeries: false,
+                post: post.data.body,
+                profile: profile.data.body
+            }
         };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
 class PostDetail extends React.Component<Props, State> {
     private updateKey: string;
@@ -139,7 +142,7 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        prism.highlightAll();
+        codeMirrorAll();
         lazyLoadResource();
         this.makeHeaderNav();
     }
@@ -161,33 +164,29 @@ class PostDetail extends React.Component<Props, State> {
             this.makeHeaderNav();
         }
 
-        if(needSyntaxUpdate) {
-            prism.highlightAll();
+        if (needSyntaxUpdate) {
+            codeMirrorAll();
             lazyLoadResource();
         }
     }
 
     makeHeaderNav() {
         const headersTags = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
-        if ("IntersectionObserver" in window) {
+        if ('IntersectionObserver' in window) {
             const headerNav: string[][] = [];
-            
-            let observer = new IntersectionObserver(entries => {
+
+            const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
-                    if(entry.isIntersecting) {
-                        this.setState({
-                            headerNow: entry.target.id
-                        });
+                    if (entry.isIntersecting) {
+                        this.setState({ headerNow: entry.target.id });
                     }
                 });
-            }, {
-                rootMargin: '0px 0px -95%',
-            });
-            
+            }, { rootMargin: '0px 0px -95%' });
+
             headersTags.forEach(header => {
-                if(header.id) {
+                if (header.id) {
                     let idNumber = 0;
-                    switch(header.tagName.toUpperCase()) {
+                    switch (header.tagName.toUpperCase()) {
                         case 'H1':
                         case 'H2':
                             idNumber = 1;
@@ -202,30 +201,32 @@ class PostDetail extends React.Component<Props, State> {
                             break;
                     }
                     headerNav.push([
-                        idNumber.toString(), header.id, header.textContent ? header.textContent : '' 
+                        idNumber.toString(), header.id, header.textContent ? header.textContent : ''
                     ]);
                     observer.observe(header);
                 }
             });
 
-            this.setState({
-                headerNav
-            });
+            this.setState({ headerNav });
         }
     }
 
     onEdit() {
-        const { author, url } = this.props.post;
+        const {
+            author, url
+        } = this.props.post;
         Router.push(`/@${author}/${url}/edit`);
     }
 
     async onDelete() {
-        if(confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { author, url } = this.props.post;
+        if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
+            const {
+                author, url
+            } = this.props.post;
             const { data } = await API.deleteAnUserPosts('@' + author, url);
-            if(data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 snackBar('😀 포스트가 삭제되었습니다.');
-            }   
+            }
         }
     }
 
@@ -244,7 +245,7 @@ class PostDetail extends React.Component<Props, State> {
                     isArticle={true}
                 />
                 <ArticleCover
-                    series={this.props.series?.name!}
+                    series={this.props.series?.name}
                     image={this.props.post.image}
                     title={this.props.post.title}
                     isAd={this.props.post.isAd}
@@ -264,25 +265,18 @@ class PostDetail extends React.Component<Props, State> {
                                 </div>
                             )}
                             <ArticleAuthor {...this.props.profile}/>
-                            <div className="my-3">
-                                <Toggle
-                                    label="링크를 새탭에서 여세요."
-                                    onClick={() => {
-                                        const { isOpenNewTab } = configStore.state;
-                                        configStore.set((prevState) => ({
-                                            ...prevState,
-                                            isOpenNewTab: !isOpenNewTab,
-                                        }));
-                                    }}
-                                    defaultChecked={configStore.state.isOpenNewTab}
-                                />
-                            </div>
                             <ArticleContent html={this.props.post.textHtml}/>
-                            <TagBadges items={this.props.post.tags.map(item => (
-                                <Link href={`/@${this.props.post.author}/posts/${item}`}>
-                                    <a>{item}</a>
-                                </Link>
-                            ))}/>
+                            <TagBadges
+                                items={this.props.post.tags.map(item => (
+                                    <Link href={`/@${this.props.post.author}/posts/${item}`}>
+                                        <a>{item}</a>
+                                    </Link>
+                                ))}
+                            />
+                            <ArticleThanks
+                                author={this.props.post.author}
+                                url={this.props.post.url}
+                            />
                             {this.props.hasSeries && (
                                 <ArticleSeries
                                     {...this.props.series}
@@ -313,7 +307,7 @@ class PostDetail extends React.Component<Props, State> {
                     />
                 </Footer>
             </>
-        )
+        );
     }
 }
 

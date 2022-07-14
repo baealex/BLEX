@@ -1,8 +1,10 @@
-import styles from './TagCard.module.scss';
 import classNames from 'classnames/bind';
+import styles from './TagCard.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
+
+import { Card } from '@components/design-system';
 
 export interface TagCardProps {
     name: string;
@@ -11,14 +13,12 @@ export interface TagCardProps {
 
 export function TagCard(props: TagCardProps) {
     return (
-        <div className="col-sm-6 col-md-4 col-lg-3 mt-3">
-            <div className={cn('card')}>
-                <Link href={`/tags/${props.name}`}>
-                    <a>
-                        ({props.count}) {props.name}
-                    </a>
-                </Link>
-            </div>
-        </div>
-    )
+        <Card hasBackground isRounded className={cn('mt-3 p-3', 'card')}>
+            <Link href={`/tags/${props.name}`}>
+                <a>
+                    ({props.count}) {props.name}
+                </a>
+            </Link>
+        </Card>
+    );
 }

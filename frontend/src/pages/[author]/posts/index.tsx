@@ -1,6 +1,6 @@
-import React from 'react';
+import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import type { GetServerSidePropsContext } from 'next';
+import React from 'react';
 
 import {
     Pagination,
@@ -10,17 +10,19 @@ import {
     ProfileLayout,
     UserArticles
 } from '@system-design/profile';
+import type { PageComponent } from '@components';
+import { Text } from '@design-system';
 
 import * as API from '@modules/api';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
         author = '',
-        page = 1,
+        page = 1
     } = context.query;
 
     try {
-        if(!author.includes('@')) {
+        if (!author.includes('@')) {
             throw 'invalid author';
         }
 
@@ -29,10 +31,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             'social',
             'tags'
         ]);
-        
+
         const userPosts = await API.getUserPosts(
-            author as string, 
-            Number(page),
+            author as string,
+            Number(page)
         );
 
         return {
@@ -42,20 +44,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 ...userProfile.data.body,
                 ...userPosts.data.body
             }
-        }
-    } catch(error) {
-        return {
-            notFound: true
         };
+    } catch (error) {
+        return { notFound: true };
     }
-}
+};
 
-interface Props extends API.GetUserProfileData, API.GetUserPostsData {
+interface Props extends API.GetUserProfileResponseData, API.GetUserPostsResponseData {
     page: number;
     tag: string;
 }
 
-export default function UserPosts(props: Props) {
+const UserPosts: PageComponent<Props> = (props) => {
     return (
         <>
             <Head>
@@ -71,25 +71,38 @@ export default function UserPosts(props: Props) {
                 last={props.lastPage}
             />
         </>
-    )
-}
+    );
+};
 
-UserPosts.pageLayout = (page: JSX.Element, props: Props) => (
+UserPosts.pageLayout = (page, props) => (
     <ProfileLayout
         active="posts"
         profile={props.profile}
-        social={props.social!}
-    >
-        <div className="container">
-            <UserArticles
-                allCount={props.allCount}
-                active={props.tag}
-                author={props.profile.username}
-                tags={props.tags!}
-                posts={props.posts}
-            >
-                {page}
-            </UserArticles>
-        </div>
+        social={props.social}>
+        {props.posts.length <= 0 ? (
+            <div className="container">
+                <div className="col-lg-8 mx-auto p-0 my-4">
+                    <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                        <img className="w-100" src="/illustrators/notify.svg" />
+                        <Text className="mt-5" fontSize={6}>
+                            아직 작성된 포스트가 없습니다.
+                        </Text>
+                    </div>
+                </div>
+            </div>
+        ) : (
+            <div className="container">
+                <UserArticles
+                    allCount={props.allCount}
+                    active={props.tag}
+                    author={props.profile.username}
+                    tags={props.tags}
+                    posts={props.posts}>
+                    {page}
+                </UserArticles>
+            </div>
+        )}
     </ProfileLayout>
-)
+);
+
+export default UserPosts;

@@ -6,10 +6,10 @@ export type OauthSocial =  'google' | 'github';
 export function oauth(social: OauthSocial) {
     setCookie('oauth_redirect', location.href, {
         path: '/',
-        expire: 0.1,
+        expire: 0.1
     });
     let url = '';
-    switch(social) {
+    switch (social) {
         case 'google':
             url += 'https://accounts.google.com/o/oauth2/auth';
             url += `?client_id=${CONFIG.GOOGLE_OAUTH_CLIENT_ID}.apps.googleusercontent.com`;

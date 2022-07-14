@@ -1,24 +1,23 @@
-import styles from './CommentForm.module.scss';
 import classNames from 'classnames/bind';
+import styles from './CommentForm.module.scss';
 const cn = classNames.bind(styles);
 
 import {
     useEffect,
     useRef,
-    useState,
+    useState
 } from 'react';
-
-import { snackBar } from '@modules/ui/snack-bar';
 
 import { Card } from '@design-system';
 
 import { dropImage } from '@modules/utility/image';
+import { snackBar } from '@modules/ui/snack-bar';
 
 export interface CommentFormProps {
     content: string;
     onChange: (content: string) => void;
     onSubmit: (content: string) => void;
-};
+}
 
 export function CommentForm(props: CommentFormProps) {
     const box = useRef<HTMLDivElement>(null);
@@ -32,9 +31,9 @@ export function CommentForm(props: CommentFormProps) {
         const textAfter  = props.content.substring(cursorPos || 0, props.content.length);
 
         const files = e.dataTransfer.files;
-        if(files.length > 0) {
+        if (files.length > 0) {
             const link = await dropImage(e);
-            if(link) {
+            if (link) {
                 const image = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
                 props.onChange(textBefore + `${image}` + textAfter);
                 return;
@@ -43,22 +42,22 @@ export function CommentForm(props: CommentFormProps) {
 
         e.preventDefault();
         const data = e.dataTransfer.getData('text/plain');
-        if(data.includes('/@')) {
+        if (data.includes('/@')) {
             const username = data.split('/@').pop();
             props.onChange(textBefore + `\`@${username}\`` + textAfter);
             return;
         }
-    }
+    };
 
     const handleSubmit = () => {
-        if(props.content == '') {
+        if (props.content == '') {
             snackBar('😅 댓글의 내용을 입력해주세요.');
             return;
         }
         props.onSubmit(props.content);
         props.onChange('');
         setIsOpen(false);
-    }
+    };
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -72,7 +71,7 @@ export function CommentForm(props: CommentFormProps) {
         document.addEventListener('click', handleClick);
         return () => {
             document.removeEventListener('click', handleClick);
-        }
+        };
     }, []);
 
     return (
@@ -86,15 +85,16 @@ export function CommentForm(props: CommentFormProps) {
                 onClick={() => {
                     !isOpen && setIsOpen(true);
                     input.current?.focus();
-                }}
-            >
+                }}>
                 <Card
                     isRounded
+                    hasShadow
+                    hasBackground
+                    backgroundType="background"
                     className={`p-3 mb-3 ${cn(
                         'card',
                         { isOpen }
-                    )}`}
-                >
+                    )}`}>
                     <>
                         <textarea
                             ref={input}
@@ -110,14 +110,13 @@ export function CommentForm(props: CommentFormProps) {
                         <div
                             className={cn('submit', { isOpen })}
                             onClick={() => {
-                                isOpen && handleSubmit()
-                            }}
-                        >
+                                isOpen && handleSubmit();
+                            }}>
                             <i className="fas fa-pencil-alt"/> 댓글 작성
                         </div>
                     </>
                 </Card>
             </div>
         </>
-    )
+    );
 }

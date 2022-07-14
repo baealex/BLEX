@@ -1,16 +1,17 @@
-import styles from './Carousel.module.scss';
 import classNames from 'classnames/bind';
+import styles from './Carousel.module.scss';
 const cn = classNames.bind(styles);
 
-import { useState, useEffect } from 'react';
+import {
+    useEffect,
+    useState
+} from 'react';
 
 export interface CarouselProps {
-    items: React.ReactChild[];
+    items: React.ReactNode[];
 }
 
-export function Carousel({
-    items
-}: CarouselProps) {
+export function Carousel({ items }: CarouselProps) {
     const [ focus, setFocus ] = useState(0);
 
     useEffect(() => {
@@ -30,13 +31,18 @@ export function Carousel({
                 <Item key={idx} item={item} focus={focus}/>
             ))}
         </div>
-    )
+    );
+}
+
+interface ItemProps {
+    item: React.ReactNode;
+    focus: number;
 }
 
 function Item({
     item,
-    focus,
-}: any) {
+    focus
+}: ItemProps) {
     return (
         <>
             <span>{item}</span>
@@ -49,5 +55,5 @@ function Item({
                 }
             `}</style>
         </>
-    )
+    );
 }

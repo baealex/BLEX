@@ -1,21 +1,14 @@
-import axiosRequest, {
-    objectToForm,
-    ResponseData,
-} from './index';
+import axiosRequest, { objectToForm } from './index';
 
-export async function postImage(file: File) {
-    return await axiosRequest<ResponseData<PostImageData>>({
-        url: `/v1/image`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: objectToForm({
-            image: file
-        }),
-    });
+export interface PostImageResponseData {
+    url: string;
 }
 
-export interface PostImageData {
-    url: string;
+export async function postImage(file: File) {
+    return await axiosRequest<PostImageResponseData>({
+        url: '/v1/image',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: objectToForm({ image: file })
+    });
 }

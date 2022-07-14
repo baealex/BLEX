@@ -1,3 +1,5 @@
+import style from './style.module.scss';
+
 interface SnackBarOptions {
     onClick?: (e: MouseEvent) => void;
 }
@@ -18,7 +20,7 @@ const container = (function () {
 }()) as HTMLElement;
 
 export function clearSnackBar() {
-    Array.from(document.getElementsByClassName('snack-bar')).forEach(el => {
+    Array.from(document.getElementsByClassName(style['snack-bar'])).forEach(el => {
         clearTimeout(handleRemove.shift()!);
         container.removeChild(el);
     });
@@ -26,13 +28,13 @@ export function clearSnackBar() {
 
 export function snackBar(text: string, options?: SnackBarOptions) {
     clearSnackBar();
-    
+
     const snackBar = document.createElement('div');
     snackBar.textContent = text;
-    snackBar.classList.add('snack-bar');
+    snackBar.classList.add(style['snack-bar']);
 
     if (options?.onClick) {
-        snackBar.classList.add('have-event');
+        snackBar.classList.add(style['have-event']);
         snackBar.addEventListener('click', options.onClick);
     }
 

@@ -1,15 +1,13 @@
+import type { GetServerSideProps } from 'next';
 import { useState } from 'react';
-import type {
-    GetServerSidePropsContext,
-    GetServerSidePropsResult,
-} from 'next';
 
 import { Card } from '@design-system';
+import type { PageComponent } from '@components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
 import { message } from '@modules/utility/message';
+import { snackBar } from '@modules/ui/snack-bar';
 
 interface Props {
     forms: {
@@ -17,29 +15,23 @@ interface Props {
         title: string;
         createdDate: string;
     }[];
-};
+}
 
-export async function getServerSideProps({
-    req,
-}: GetServerSidePropsContext
-): Promise<GetServerSidePropsResult<Props>> {
-    const { data } = await API.getSettingForms({
-        'Cookie': req.headers.cookie || '',
-    });
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+    const { data } = await API.getSettingForms({ 'Cookie': req.headers.cookie || '' });
+
     if (data.status === 'ERROR') {
         return {
             redirect: {
                 destination: '/',
-                permanent: false,
+                permanent: false
             }
-        }
+        };
     }
-    return {
-        props: data.body
-    };
-}
+    return { props: data.body };
+};
 
-export default function FormsSetting(props: Props) {
+const FormsSetting: PageComponent<Props> = (props) => {
     const [ title, setTitle ] = useState('');
     const [ content, setContent ] = useState('');
     const [ forms, setForms ] = useState(props.forms);
@@ -57,7 +49,7 @@ export default function FormsSetting(props: Props) {
         setForms([...forms, {
             id: data.body.id,
             title,
-            createdDate: '',
+            createdDate: ''
         }]);
         snackBar(message('AFTER_REQ_DONE', '서식이 생성되었습니다.'));
         setTitle('');
@@ -72,7 +64,7 @@ export default function FormsSetting(props: Props) {
                 snackBar(message('AFTER_REQ_DONE', '서식이 삭제되었습니다.'));
             }
         }
-    }
+    };
 
     return (
         <>
@@ -100,7 +92,7 @@ export default function FormsSetting(props: Props) {
             </button>
             <div className="mt-3">
                 {forms.map((item, idx) => (
-                    <Card key={idx} hasShadow isRounded className="p-3 mb-3">
+                    <Card key={idx} hasBackground isRounded className="p-3 mb-3">
                         <div className="d-flex justify-content-between">
                             <a className="deep-dark">
                                 {item.title}
@@ -114,10 +106,12 @@ export default function FormsSetting(props: Props) {
             </div>
         </>
     );
-}
+};
 
-FormsSetting.pageLayout = (page: JSX.Element) => (
+FormsSetting.pageLayout = (page) => (
     <SettingLayout active="forms">
         {page}
     </SettingLayout>
-)
+);
+
+export default FormsSetting;
