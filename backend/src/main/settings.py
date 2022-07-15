@@ -45,6 +45,9 @@ MIDDLEWARE = [
     'main.middleware.DisableCSRF',
 ]
 
+if not DEBUG:
+    MIDDLEWARE.append('main.middleware.AccessAdminOnlyStaff')
+
 if DEBUG:
     MIDDLEWARE.append('main.middleware.QueryDebugger')
 
