@@ -49,9 +49,8 @@ def setting(request, item):
                 'realname': user.first_name,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
                 'email': user.email,
-                'show_email': user.config.show_email,
-                'agree_email': user.config.agree_email,
-                'agree_history': user.config.agree_history
+                'agree_display_email': user.config.get_meta('AGREE_DISPLAY_EMAIL'),
+                'agree_send_email': user.config.get_meta('AGREE_SEND_EMAIL')
             })
         
         if item == 'profile':
@@ -387,14 +386,12 @@ def setting(request, item):
                 user.save()
             
             config_names = [
-                'show_email',
-                'agree_email',
-                'agree_history',
+                'AGREE_DISPLAY_EMAIL',
+                'AGREE_SEND_EMAIL',
             ]
             for config_name in config_names:
-                setattr(user.config, config_name, BooleanType(put.get(config_name, '')))
+                user.config.create_or_update_meta(config_name, put.get(config_name, ''))
 
-            user.config.save()
             return StatusDone()
         
         if item == 'profile':

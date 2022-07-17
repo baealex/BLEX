@@ -27,9 +27,8 @@ export interface GetSettingAccountResponseData {
     realname: string;
     createdDate: string;
     email: string;
-    showEmail: boolean;
-    agreeEmail: boolean;
-    agreeHistory: boolean;
+    agreeDisplayEmail: boolean;
+    agreeSendEmail: boolean;
 }
 
 export async function getSettingAcount(headers?: Headers) {

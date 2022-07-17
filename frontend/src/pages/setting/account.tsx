@@ -43,9 +43,8 @@ const AccountSetting: PageComponent<Props> = (props) => {
     const [ password, setPassword ] = useState('');
     const [ is2faSync ] = useValue(authStore, 'is2faSync');
     const [ passwordCheck, setPasswordCheck ] = useState('');
-    const [ showEmail, setShowEmail ] = useState(props.showEmail);
-    const [ agreeEmail, setAgreeEmail ] = useState(props.agreeEmail);
-    const [ agreeHistory, setAgreeHistory ] = useState(props.agreeHistory);
+    const [ agreeDisplayEmail, setAgreeDisplayEmail ] = useState(props.agreeDisplayEmail);
+    const [ agreeSendEmail, setAgreeSendEmail ] = useState(props.agreeSendEmail);
 
     const onChangeUsername = async () => {
         const { data } = await API.patchSign({ username });
@@ -84,9 +83,8 @@ const AccountSetting: PageComponent<Props> = (props) => {
             sendData.password = password;
         }
 
-        sendData.show_email = showEmail;
-        sendData.agree_email = agreeEmail;
-        sendData.agree_history = agreeHistory;
+        sendData.AGREE_DISPLAY_EMAIL = agreeDisplayEmail;
+        sendData.AGREE_SEND_EMAIL = agreeSendEmail;
 
         const { data } = await API.putSetting('account', sendData);
         if (data.status === 'DONE') {
@@ -237,18 +235,13 @@ const AccountSetting: PageComponent<Props> = (props) => {
                     </div>
                     <CheckBox
                         label="다른 사용자에게 이메일을 노출합니다."
-                        defaultChecked={showEmail}
-                        onClick={(value) => setShowEmail(value)}
+                        defaultChecked={agreeDisplayEmail}
+                        onClick={(value) => setAgreeDisplayEmail(value)}
                     />
                     <CheckBox
                         label="서비스의 이메일 전송을 허용합니다."
-                        defaultChecked={agreeEmail}
-                        onClick={(value) => setAgreeEmail(value)}
-                    />
-                    <CheckBox
-                        label="서비스의 활동 내역 수집을 허용합니다."
-                        defaultChecked={agreeHistory}
-                        onClick={(value) => setAgreeHistory(value)}
+                        defaultChecked={agreeSendEmail}
+                        onClick={(value) => setAgreeSendEmail(value)}
                     />
                 </Card>
                 {is2faSync ? (

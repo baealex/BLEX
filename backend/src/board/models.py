@@ -117,13 +117,57 @@ class EmailChange(models.Model):
     def __str__(self):
         return self.user.username
 
-class Config(models.Model): # deprecated
-    user           = models.OneToOneField(User, on_delete=models.CASCADE)
-    show_email     = models.BooleanField(default=False)
-    agree_email    = models.BooleanField(default=False)
-    agree_editor   = models.BooleanField(default=False)
-    agree_history  = models.BooleanField(default=False)
-    password_qna   = models.TextField(blank=True)
+class UserConfigMeta(models.Model):
+    user         = models.ForeignKey(User, related_name='conf_meta', on_delete=models.CASCADE)
+    name         = models.CharField(max_length=50)
+    value        = models.CharField(max_length=255)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(default=timezone.now)
+    
+    prop = {
+        'AGREE_DISPLAY_EMAIL': {
+            'name': 'AGREE_DISPLAY_EMAIL',
+            'type': lambda x: True if x == 'true' else False,
+        },
+        'AGREE_SEND_EMAIL': {
+            'name': 'AGREE_SEND_EMAIL',
+            'type': lambda x: True if x == 'true' else False,
+        }
+    }
+    props = prop.keys()
+
+    def __str__(self):
+        return f'{self.user.username} {self.name}'
+
+class Config(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def create_or_update_meta(self, name, value):
+        if not name in UserConfigMeta.props:
+            return None
+        
+        meta = UserConfigMeta.objects.filter(user=self.user, name=name)
+        if meta.exists():
+            meta = meta.first()
+
+            if not meta.value == value:
+                meta.value = value
+                meta.save()
+            return True
+
+        UserConfigMeta(user=self.user, name=name, value=str(value)).save()
+        return True
+    
+    def get_meta(self, name):
+        if not name in UserConfigMeta.props:
+            return None
+        
+        meta = UserConfigMeta.objects.filter(user=self.user, name=name)
+        if not meta.exists():
+            return None
+
+        meta = meta.first()
+        return UserConfigMeta.prop[name]['type'](meta.value)
 
     def has_telegram_id(self):
         if hasattr(self.user, 'telegramsync'):
@@ -138,13 +182,6 @@ class Config(models.Model): # deprecated
 
     def __str__(self):
         return self.user.username
-
-class UserConfigMeta(models.Model):
-    user         = models.ForeignKey(User, on_delete=models.CASCADE)
-    name         = models.CharField(max_length=50)
-    value        = models.CharField(max_length=255)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
 
 class Follow(models.Model):
     class Meta:

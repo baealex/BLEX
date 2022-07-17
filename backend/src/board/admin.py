@@ -14,14 +14,6 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ['author']
     list_per_page = 30
 
-@admin.register(Config)
-class ConfigAdmin(admin.ModelAdmin):
-    list_display = [
-        'user',
-        'agree_email',
-        'agree_history',
-    ]
-
 @admin.register(Follow)
 class FormAdmin(admin.ModelAdmin):
     list_display = ['following', 'follower']
@@ -212,3 +204,5 @@ class PostNoThanksAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['history', 'post']
         return super().get_form(request, obj, **kwargs)
+
+admin.site.register(UserConfigMeta)
