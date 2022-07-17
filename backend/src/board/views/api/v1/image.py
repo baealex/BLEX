@@ -10,7 +10,6 @@ from board.modules.response import StatusDone, StatusError
 from modules.hash import get_sha256
 from modules.randomness import randstr
 from modules.sysutil import make_path
-from board.views import function as fn
 
 def image(request):
     if request.method == 'POST':

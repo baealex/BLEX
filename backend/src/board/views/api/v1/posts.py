@@ -22,7 +22,6 @@ from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
-from board.views import function as fn
 from modules.markdown import parse_to_html, ParseData
 from modules.randomness import randstr
 from modules.subtask import sub_task_manager

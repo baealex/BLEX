@@ -11,7 +11,6 @@ from board.models import (
     User, Post, Profile, Series,
     Comment, Follow, Tag, convert_to_localtime, timestamp)
 from board.modules.response import StatusDone, StatusError
-from board.views import function as fn
 
 def users(request, username):
     user = get_object_or_404(User, username=username)

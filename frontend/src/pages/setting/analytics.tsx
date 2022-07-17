@@ -19,6 +19,7 @@ import { loadingStore } from '@stores/loading';
 
 const AnalyticsSetting: PageComponent<undefined> = () => {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewResponseData>();
+    const [ postViews, setPostViews ] = useState<API.GetSettingAnalyticsPostsViewResponseData>();
     const [ referers, setReferers ] = useState<API.GetSettingAnalyticsRefererResponseData>();
     const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchResponseData>();
 
@@ -29,6 +30,8 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
                 .then(({ data }) => setViews(data.body)),
             API.getSettingAnalyticsSearch()
                 .then(({ data }) => setSearches(data.body)),
+            API.getSettingAnalyticsPostsView()
+                .then(({ data }) => setPostViews(data.body)),
             API.getSettingAnalyticsReferrers()
                 .then(({ data }) => setReferers(data.body))
         ]).then(() => {
@@ -69,6 +72,32 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
                             axisOptions={{ xIsSeries: 1 }}
                         />
                     </Card>
+                </>
+            )}
+            {postViews && (
+                <>
+                    <div className="h5 font-weight-bold mt-5 mb-3">
+                        오늘의 인기글
+                    </div>
+                    {postViews.posts.map((item) => (
+                        <Card key={item.id} hasBackground isRounded className="my-3">
+                            <div className="p-3">
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {item.title}
+                                    </div>
+                                    <div className="d-flex flex-column align-items-end">
+                                        <div style={{ color: item.increaseRate < 0 ? '#008fff' : '#ff6700' }}>
+                                            {item.increaseRate}%
+                                        </div>
+                                        <div className="ns">
+                                            조회수 : {item.today}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    ))}
                 </>
             )}
             {searches && (
@@ -118,28 +147,26 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
                         신규 유입 경로
                     </div>
                     <div className="row">
-                        {referers.referers.map((item, idx: number) => (
+                        {referers.referers.map((item, idx) => (
                             <div key={idx} className="col-lg-4 col-md-6">
                                 <Card isRounded hasBackground className="my-3">
-                                    <>
-                                        <div className="p-3">
-                                            <div>
-                                                <a className="deep-dark" href={item.url} target="blank">
-                                                    {item.title ? item.title : item.url}
+                                    <div className="p-3">
+                                        <div>
+                                            <a className="deep-dark" href={item.url} target="blank">
+                                                {item.title ? item.title : item.url}
+                                            </a>
+                                        </div>
+                                        {item.description && (
+                                            <div className="ns">
+                                                <a className="shallow-dark" href={item.url} target="blank">
+                                                    {item.description}
                                                 </a>
                                             </div>
-                                            {item.description && (
-                                                <div className="ns">
-                                                    <a className="shallow-dark" href={item.url} target="blank">
-                                                        {item.description}
-                                                    </a>
-                                                </div>
-                                            )}
-                                            <div className="ns gray-dark">
-                                                {item.time}
-                                            </div>
+                                        )}
+                                        <div className="ns gray-dark">
+                                            {item.time}
                                         </div>
-                                    </>
+                                    </div>
                                 </Card>
                             </div>
                         ))}

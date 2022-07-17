@@ -125,6 +125,23 @@ export async function getSettingAnalyticsView(headers?: Headers) {
     });
 }
 
+export interface GetSettingAnalyticsPostsViewResponseData {
+    posts: {
+        id: number;
+        title: string;
+        today: number;
+        increaseRate: number;
+    }[];
+}
+
+export async function getSettingAnalyticsPostsView(headers?: Headers) {
+    return await request<GetSettingAnalyticsPostsViewResponseData>({
+        url: '/v1/setting/analytics-posts-view',
+        method: 'GET',
+        headers
+    });
+}
+
 export interface GetSettingAnalyticsRefererResponseData {
     referers: {
         time: string;

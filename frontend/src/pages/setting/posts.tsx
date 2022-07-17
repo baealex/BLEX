@@ -96,14 +96,6 @@ const POSTS_ORDER = [
     {
         name: '숨김',
         order: '-hide'
-    },
-    {
-        name: '오늘 조회수',
-        order: '-today_count'
-    },
-    {
-        name: '어제 조회수',
-        order: '-yesterday_count'
     }
 ];
 

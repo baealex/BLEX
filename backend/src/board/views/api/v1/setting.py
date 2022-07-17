@@ -85,8 +85,6 @@ def setting(request, item):
                 'total_like_count',
                 'total_comment_count',
                 'hide',
-                'today_count',
-                'yesterday_count',
             ]
             order = request.GET.get('order', '')
             if order:
@@ -101,26 +99,6 @@ def setting(request, item):
                     posts = posts.annotate(
                         hide=F('config__hide'),
                     )
-                if 'today_count' in order:
-                    today = timezone.now()
-                    posts = posts.annotate(today_count=Count(
-                        Case(
-                            When(
-                                analytics__created_date=today,
-                                then='analytics__table'
-                            )
-                        )
-                    ))
-                if 'yesterday_count' in order:
-                    yesterday = timezone.now() - datetime.timedelta(days=1)
-                    posts = posts.annotate(yesterday_count=Count(
-                        Case(
-                            When(
-                                 analytics__created_date=yesterday,
-                                then='analytics__table'
-                            )
-                        )
-                    ))
                 if 'total_like_count' in order:
                     posts = posts.annotate(total_like_count=Count('likes', distinct=True))
                 if 'total_comment_count' in order:
@@ -163,12 +141,41 @@ def setting(request, item):
             return StatusDone({
                 'username': user.username,
                 'series': list(map(lambda item: {
-                    'url': item.url,
+                    'id': item.id,
                     'title': item.name,
                     'total_posts': item.total_posts
                 }, series))
             })
         
+        if item == 'analytics-posts-view':
+            posts = Post.objects.filter(author=user).annotate(
+                today_count=Count(
+                    Case(
+                        When(
+                            analytics__created_date=timezone.now(),
+                            then='analytics__table'
+                        )
+                    )
+                ),
+                yesterday_count=Count(
+                    Case(
+                        When(
+                            analytics__created_date=timezone.now() - datetime.timedelta(days=1),
+                            then='analytics__table'
+                        )
+                    )
+                )
+            ).order_by('-today_count')[:8]
+
+            return StatusDone({
+                'posts': list(map(lambda item: {
+                    'id': item.id,
+                    'title': item.title,
+                    'today': item.today_count,
+                    'increase_rate': round((item.today_count / item.yesterday_count * 100) - 100, 2) if item.yesterday_count else 0
+                }, posts))
+            })
+
         if item == 'analytics-view':
             seven_days_ago = convert_to_localtime(timezone.now() - datetime.timedelta(days=30))
 
