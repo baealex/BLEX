@@ -482,7 +482,9 @@ def user_posts(request, username, url=None):
 
         if request.method == 'GET':
             if request.GET.get('mode') == 'edit':
-                fn.compere_user(request.user, post.author, give_404_if='different')
+                if not request.user == post.author:
+                    raise Http404
+
                 return StatusDone({
                     'image': post.get_thumbnail(),
                     'title': post.title,
@@ -517,7 +519,8 @@ def user_posts(request, username, url=None):
                 })
 
         if request.method == 'POST':
-            fn.compere_user(request.user, post.author, give_404_if='different')
+            if not request.user == post.author:
+                raise Http404
 
             text_md = request.POST.get('text_md', '')
             text_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
@@ -562,11 +565,14 @@ def user_posts(request, username, url=None):
 
         if request.method == 'PUT':
             put = QueryDict(request.body)
+
             if request.GET.get('like', ''):
                 if not request.user.is_active:
                     return StatusError('NL')
+                
                 if request.user == post.author:
                     return StatusError('SU')
+                
                 user = User.objects.get(username=request.user)
                 post_like = post.likes.filter(user=user)
                 if post_like.exists():
@@ -578,6 +584,7 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })
+            
             if request.GET.get('thanks', ''):
                 if request.user == post.author:
                     return StatusError('SU')
@@ -594,6 +601,7 @@ def user_posts(request, username, url=None):
                     PostThanks(post=post, history=history).save()
 
                 return StatusDone()
+            
             if request.GET.get('nothanks', ''):
                 if request.user == post.author:
                     return StatusError('SU')
@@ -610,27 +618,35 @@ def user_posts(request, username, url=None):
                     PostNoThanks(post=post, history=history).save()
                 
                 return StatusDone()
+            
             if request.GET.get('hide', ''):
-                fn.compere_user(request.user, post.author, give_404_if='different')
+                if not request.user == post.author:
+                    raise Http404
+                
                 post.config.hide = not post.config.hide
                 post.config.save()
                 return StatusDone({
                     'is_hide': post.config.hide
                 })
+            
             if request.GET.get('tag', ''):
-                fn.compere_user(request.user, post.author, give_404_if='different')
+                if not request.user == post.author:
+                    raise Http404
                 post.set_tags(put.get('tag'))
                 return StatusDone({
                     'tag': ','.join(post.tagging())
                 })
+            
             if request.GET.get('series', ''):
-                fn.compere_user(request.user, post.author, give_404_if='different')
+                if not request.user == post.author:
+                    raise Http404
                 post.series = None
                 post.save()
                 return StatusDone()
         
         if request.method == 'DELETE':
-            fn.compere_user(request.user, post.author, give_404_if='different')
+            if not request.user == post.author:
+                raise Http404
             post.delete()
             return StatusDone()
     
