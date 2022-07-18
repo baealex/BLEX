@@ -21,3 +21,7 @@ export const CONFIG: Config = {
     ...publicRuntimeConfig,
     ...serverRuntimeConfig
 };
+
+console.log(publicRuntimeConfig);
+console.log(serverRuntimeConfig);
+console.log(CONFIG);
