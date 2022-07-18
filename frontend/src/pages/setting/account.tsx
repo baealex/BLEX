@@ -22,7 +22,7 @@ import { modalStore } from '@stores/modal';
 type Props = API.GetSettingAccountResponseData;
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-    const { data } = await API.getSettingAcount({ 'Cookie': req.headers.cookie || '' });
+    const { data } = await API.getSettingAccount({ 'Cookie': req.headers.cookie || '' });
 
     if (data.errorCode === API.ERROR.NOT_LOGIN) {
         return {

@@ -31,7 +31,7 @@ export interface GetSettingAccountResponseData {
     agreeSendEmail: boolean;
 }
 
-export async function getSettingAcount(headers?: Headers) {
+export async function getSettingAccount(headers?: Headers) {
     return await request<GetSettingAccountResponseData>({
         url: '/v1/setting/account',
         method: 'GET',
