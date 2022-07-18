@@ -50,6 +50,10 @@
             }
         }
 
+        time {
+            font-size: .8rem;
+        }
+
         span {
             color: $COLOR_DEFAULT_POINT;
 
@@ -107,5 +111,37 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.75);
+    }
+}
+
+.no-cover {
+    padding-top: 16px;
+    padding-bottom: 48px;
+    margin-bottom: 56px;
+    border-bottom: 1px solid #F5F5F8;
+
+    :global(body.dark) & {
+        border-bottom: 1px solid #2A2A2A;
+    }
+
+    h1 {
+        font-family: $FONT_GOTHIC;
+        font-weight: bold;
+        letter-spacing: -2px;
+        font-size: 2.5rem;
+
+        @media only screen and (max-width: 991px) {
+            font-size: 2.2rem;
+        }
+    }
+
+    time {
+        font-size: .8rem;
+    }
+
+    span {
+        color: $COLOR_DEFAULT_SECONDARY;
+        margin-bottom: 8px;
+        display: block;
     }
 }

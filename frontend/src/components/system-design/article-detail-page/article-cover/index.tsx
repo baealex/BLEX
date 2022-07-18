@@ -4,12 +4,33 @@ const cn = classNames.bind(styles);
 
 export function ArticleCover(props: {
     series?: string;
-    image: string;
+    image?: string;
     title: string;
     isAd: boolean;
     createdDate: string;
     updatedDate: string;
 }) {
+    if (!props.image) {
+        return (
+            <div className={cn('no-cover')}>
+                <div className="container">
+                    <div className="row justify-content-center">
+                        <div className="col-lg-8">
+                            {props.series && (
+                                <span>‘{props.series}’ 시리즈</span>
+                            )}
+                            <h1>{props.title}</h1>
+                            <time>
+                                {props.createdDate}
+                                {props.createdDate !== props.updatedDate && ` (Updated: ${props.updatedDate})`}
+                            </time>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={cn('full-cover')}>
             <div className={cn('image-cover')}>
@@ -25,7 +46,7 @@ export function ArticleCover(props: {
                         <span>‘{props.series}’ 시리즈</span>
                     )}
                     <h1>{props.title}</h1>
-                    <time className="post-date">
+                    <time>
                         {props.createdDate}
                         {props.createdDate !== props.updatedDate && ` (Updated: ${props.updatedDate})`}
                     </time>
