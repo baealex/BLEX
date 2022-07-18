@@ -2,7 +2,9 @@ version: "2.0"
 
 services:
   frontend:
-    image: baealex/blex-dev-frontend
+    build:
+      context: ./frontend
+      dockerfile: ./DockerfileDev
     env_file: ./frontend/.env
     restart: always
     volumes:
@@ -10,9 +12,11 @@ services:
       - /app/node_modules/
     ports:
       - 3000:3000
-
+  
   backend:
-    image: baealex/blex-dev-backend
+    build:
+      context: ./backend
+      dockerfile: ./DockerfileDev
     env_file: ./backend/.env
     restart: always
     volumes:

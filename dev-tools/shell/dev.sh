@@ -1,7 +1,5 @@
 #!/bin/bash
 
-docker-compose pull
-
-docker-compose -p blex_dev -f docker-compose.dev.yml up
+docker-compose -p blex_dev -f docker-compose.dev.yml up --build
 
 docker rmi $(docker images -f "dangling=true" -q)
