@@ -3,7 +3,6 @@
 @import 'fonts';
 @import 'color';
 @import 'article';
-@import 'prism';
 @import 'useful';
 
 @import 'bootstrap/scss/bootstrap';
@@ -84,20 +83,6 @@ mark {
 	background-size:cover;
 }
 
-
-
-/* ------------------------------ */
-/* POSTS : DETAIL : NONE TITLE IMAGE */
-.post-date {
-    font-family: $FONT_GOTHIC;
-    font-size: 0.8rem;
-}
-
-.post-series {
-    display: block;
-    font-size: 16px;
-    margin-bottom:5px;
-}
 /* ------------------------------ */
 /* SERIES : LAYOUT */
 /* ------------------------------ */
