@@ -2,6 +2,7 @@ import {
     useEffect,
     useState
 } from 'react';
+import type { GetServerSideProps } from 'next';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
@@ -17,6 +18,10 @@ import * as API from '@modules/api';
 
 import { loadingStore } from '@stores/loading';
 
+export const getServerSideProps: GetServerSideProps = async () => {
+    return { props: {} };
+};
+
 const AnalyticsSetting: PageComponent<undefined> = () => {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewResponseData>();
     const [ postViews, setPostViews ] = useState<API.GetSettingAnalyticsPostsViewResponseData>();
@@ -28,10 +33,10 @@ const AnalyticsSetting: PageComponent<undefined> = () => {
         Promise.all([
             API.getSettingAnalyticsView()
                 .then(({ data }) => setViews(data.body)),
-            API.getSettingAnalyticsSearch()
-                .then(({ data }) => setSearches(data.body)),
             API.getSettingAnalyticsPostsView()
                 .then(({ data }) => setPostViews(data.body)),
+            API.getSettingAnalyticsSearch()
+                .then(({ data }) => setSearches(data.body)),
             API.getSettingAnalyticsReferrers()
                 .then(({ data }) => setReferers(data.body))
         ]).then(() => {

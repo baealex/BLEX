@@ -4,6 +4,10 @@ import { useMemo } from 'react';
 
 import { GlitchText } from '@design-system';
 
+export const getInitialProps = async () => {
+    return { props: {} };
+};
+
 export default function NotFound() {
     const letters = useMemo(() => '404페이지를찾을수없습니다PAGENOTFOUND!@#$'.split(''), []);
 
