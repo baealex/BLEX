@@ -1,15 +1,24 @@
+import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import Router from 'next/router';
 
 import { GlitchText } from '@design-system';
 
-export const getInitialProps = async () => {
-    return { props: {} };
-};
-
 export default function NotFound() {
     const letters = useMemo(() => '404페이지를찾을수없습니다PAGENOTFOUND!@#$'.split(''), []);
+
+    useEffect(() => {
+        const onRouteChangeComplete = () => {
+            location.reload();
+        };
+
+        Router.events.on('routeChangeComplete', onRouteChangeComplete);
+
+        return () => {
+            Router.events.off('routeChangeComplete', onRouteChangeComplete);
+        };
+    });
 
     return (
         <>
