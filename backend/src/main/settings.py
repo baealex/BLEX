@@ -122,8 +122,8 @@ USE_TZ = True
 SITE_URL = os.environ.get('SITE_URL')
 API_KEY = os.environ.get('API_KEY')
 
-STATIC_URL = os.environ.get('STATIC_URL') + '/assets/'
-STAITC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
+STATIC_URL = '/assets/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
 
 MEDIA_URL = os.environ.get('STATIC_URL') + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
