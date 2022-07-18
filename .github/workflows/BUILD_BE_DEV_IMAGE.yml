@@ -1,10 +1,11 @@
 name: BUILD BE DEV IMAGE
+
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'backend/**'
+  workflow_run:
+    workflows:
+      - BUILD BE IMAGE
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
@@ -48,3 +49,5 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: baealex/blex-dev-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

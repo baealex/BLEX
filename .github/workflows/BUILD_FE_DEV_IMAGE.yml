@@ -1,10 +1,10 @@
 name: BUILD FE DEV IMAGE
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'frontend/**'
+  workflow_run:
+    workflows:
+      - BUILD FE IMAGE
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
@@ -48,3 +48,5 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: baealex/blex-dev-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
