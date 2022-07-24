@@ -35,7 +35,7 @@
 
 ## 개발환경 구축
 
-require `docker`, `docker-compose`, `nodejs`
+`docker`, `docker-compose`, `nodejs@12` 가 필요합니다.
 
 ```bash
 npm i
@@ -58,7 +58,7 @@ npm run dev
 
 <br>
 
-## 컨트리뷰터
+## 도와준 사람들
 
 <a href="https://github.com/baealex/BLEX/graphs/contributors">
   <img src="https://contributors-img.web.app/image?repo=baealex/BLEX" />
