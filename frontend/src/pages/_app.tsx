@@ -60,16 +60,15 @@ class Main extends App<AppProps> {
 
         return (
             <>
-                <Head>
-                    <title>BLEX</title>
-                    <meta name="referrer" content="origin"/>
-                </Head>
-
                 <SEO
                     title="BLEX"
                     image="https://static.blex.me/assets/images/default-post.png"
                     description="모든 글은 경험에서 나오고, 그 경험은 곧 당신이 됩니다. 당신의 경험을 빛나게 할 블로그"
                 />
+
+                <Head>
+                    <meta name="referrer" content="origin"/>
+                </Head>
 
                 {CONFIG.GOOGLE_ANALYTICS_V4 && (
                     <>

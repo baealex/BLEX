@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import Head from 'next/head';
 import Link from 'next/link';
 
 import {
@@ -43,13 +42,12 @@ interface Props extends API.GetTagResponseData {
 export default function TagDetail(props: Props) {
     return (
         <>
-            <Head>
-                <title>{props.tag} —  BLEX</title>
-            </Head>
             <SEO
-                title={props.tag}
+                title={`${props.tag}${props.page > 1 ? ` | ${props.page} 페이지` : ''}`}
                 image="https://static.blex.me/assets/images/default-post.png"
-                description={`블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}
+                description={props.desc.url
+                    ? props.desc.description
+                    :`블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}
             />
             <div className="container">
                 <Text fontSize={8} fontWeight={600}>— {props.tag} —</Text>

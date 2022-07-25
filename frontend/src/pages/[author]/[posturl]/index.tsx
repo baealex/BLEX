@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import Head from 'next/head';
 import Link from 'next/link';
 import React from 'react';
 import Router from 'next/router';
@@ -233,11 +232,8 @@ class PostDetail extends React.Component<Props, State> {
     render() {
         return (
             <>
-                <Head>
-                    <title>{`${this.props.post.title} — ${this.props.post.author}`}</title>
-                </Head>
                 <SEO
-                    title={this.props.post.title}
+                    title={`${this.props.post.title} — ${this.props.post.author}`}
                     description={this.props.post.description}
                     author={this.props.post.author}
                     keywords={this.props.post.tags.join(',')}

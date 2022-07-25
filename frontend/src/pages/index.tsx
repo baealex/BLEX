@@ -6,7 +6,8 @@ import {
 } from '@system-design/article';
 import {
     Footer,
-    Pagination
+    Pagination,
+    SEO
 } from '@system-design/shared';
 import type { PageComponent } from '@components';
 
@@ -37,6 +38,9 @@ interface Props extends API.GetPostsResponseData {
 const TrendyArticles: PageComponent<Props> = (props) => {
     return (
         <>
+            {props.page > 1 && (
+                <SEO title={`인기 포스트 | ${props.page} 페이지`}/>
+            )}
             <Pagination
                 page={props.page}
                 last={props.lastPage}

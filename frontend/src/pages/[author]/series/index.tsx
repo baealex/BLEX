@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import Head from 'next/head';
 import React from 'react';
 
 import {
@@ -55,11 +54,8 @@ interface Props extends API.GetUserProfileResponseData, API.GetUserSeriesRespons
 const SeriesProfile: PageComponent<Props> = (props) => {
     return (
         <>
-            <Head>
-                <title>{props.profile.username} ({props.profile.realname}) —  Series</title>
-            </Head>
             <SEO
-                title={`${props.profile.username} (${props.profile.realname}) —  Series`}
+                title={`${props.profile.username} (${props.profile.realname}) — Series`}
                 image={props.profile.image}
                 description={`${props.profile.realname}님이 생성한 모든 시리즈를 만나보세요.`}
             />

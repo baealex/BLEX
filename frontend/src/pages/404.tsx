@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import Router from 'next/router';
 
 import { GlitchText } from '@design-system';
+import { SEO } from '@system-design/shared';
 
 export default function NotFound() {
     const letters = useMemo(() => '404페이지를찾을수없습니다PAGENOTFOUND!@#$'.split(''), []);
@@ -22,9 +22,7 @@ export default function NotFound() {
 
     return (
         <>
-            <Head>
-                <title>404 Not Found</title>
-            </Head>
+            <SEO title="404 Not Found"/>
 
             <div className="container h-100">
                 <div className="d-flex justify-content-center align-items-center flex-wrap h-100">

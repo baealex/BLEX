@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import Head from 'next/head';
 import React from 'react';
 
 import {
@@ -58,11 +57,8 @@ interface Props extends API.GetUserProfileResponseData, API.GetUserPostsResponse
 const UserPosts: PageComponent<Props> = (props) => {
     return (
         <>
-            <Head>
-                <title>{props.profile.username} ({props.profile.realname}) —  Posts</title>
-            </Head>
             <SEO
-                title={`${props.profile.username} (${props.profile.realname}) —  Posts`}
+                title={`${props.profile.username} (${props.profile.realname}) — Posts`}
                 image={props.profile.image}
                 description={`${props.profile.realname}님이 작성한 모든 포스트를 만나보세요.`}
             />

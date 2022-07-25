@@ -59,6 +59,9 @@ export function SEO(props: SEOProps) {
 
     return (
         <Head>
+            {props.title && (
+                <title>{props.title}</title>
+            )}
             {deTag}
             {ogTag}
             {twTag}

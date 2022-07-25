@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import Head from 'next/head';
 import React from 'react';
 
 import {
@@ -59,9 +58,6 @@ interface Props extends API.GetUserProfileResponseData, API.GetUserPostsResponse
 const UserPosts: PageComponent<Props> = (props) => {
     return (
         <>
-            <Head>
-                <title>{props.profile.username}'s {props.tag}</title>
-            </Head>
             <SEO
                 title={`${props.profile.username}'s ${props.tag}`}
                 image={props.profile.image}

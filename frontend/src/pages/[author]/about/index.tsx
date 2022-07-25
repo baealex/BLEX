@@ -3,7 +3,6 @@ import React, {
     useState
 } from 'react';
 import type { GetServerSideProps } from 'next';
-import Head from 'next/head';
 
 import { ArticleContent } from '@system-design/article-detail-page';
 import type { PageComponent } from '@components';
@@ -78,11 +77,8 @@ const UserAbout: PageComponent<Props> = (props) => {
 
     return (
         <>
-            <Head>
-                <title>{props.profile.username} ({props.profile.realname}) —  About</title>
-            </Head>
             <SEO
-                title={`${props.profile.username} (${props.profile.realname}) —  About`}
+                title={`${props.profile.username} (${props.profile.realname}) — About`}
                 image={props.profile.image}
                 description={props.profile.bio}
             />

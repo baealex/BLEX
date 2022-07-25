@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import Head from 'next/head';
 import React from 'react';
 import Router from 'next/router';
 
@@ -211,9 +210,6 @@ class Series extends React.Component<Props, State> {
 
         return (
             <>
-                <Head>
-                    <title>'{this.props.series.name}' 시리즈 — {this.props.series.owner}</title>
-                </Head>
                 <SEO
                     title={`'${this.props.series.name}' 시리즈 — ${this.props.series.owner}`}
                     image={this.props.series.image}

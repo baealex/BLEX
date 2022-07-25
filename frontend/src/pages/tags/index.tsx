@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import Head from 'next/head';
 
 import {
     Footer,
@@ -36,11 +35,8 @@ const Tags: PageComponent<Props> = (props) => {
 
     return (
         <>
-            <Head>
-                <title>태그 클라우드 — BLEX</title>
-            </Head>
             <SEO
-                title="태그 클라우드"
+                title={`태그 클라우드${props.page > 1 ? ` | ${props.page} 페이지` : ''}`}
                 image="https://static.blex.me/assets/images/default-post.png"
                 description="블렉스에 존재하는 모든 태그를 한눈에 살펴보세요."
             />
