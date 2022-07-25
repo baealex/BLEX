@@ -1,4 +1,3 @@
-import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useValue } from 'badland-react';
 
@@ -6,10 +5,6 @@ import { SEO } from '@system-design/shared';
 import { Text } from '@design-system';
 
 import { authStore } from '@stores/auth';
-
-export const getServerSideProps: GetServerSideProps = async () => {
-    return { props: {} };
-};
 
 export default function Map() {
     const [ isLogin ] = useValue(authStore, 'isLogin');

@@ -2,7 +2,6 @@ import {
     useEffect,
     useState
 } from 'react';
-import type { GetServerSideProps } from 'next';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
@@ -17,10 +16,6 @@ import { SettingLayout } from '@system-design/setting';
 import * as API from '@modules/api';
 
 import { loadingStore } from '@stores/loading';
-
-export const getServerSideProps: GetServerSideProps = async () => {
-    return { props: {} };
-};
 
 const AnalyticsSetting: PageComponent<undefined> = () => {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewResponseData>();
