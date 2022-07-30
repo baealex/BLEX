@@ -3,7 +3,6 @@ import Head from 'next/head';
 import Router from 'next/router';
 import Script from 'next/script';
 
-import { ArticleDetailSkeleton, ArticleListSkeleton } from '@components/design-system/skeleton';
 import type {
     PageComponent,
     PageLayout
@@ -22,43 +21,20 @@ import { minify } from '@modules/utility/string';
 import { loadingStore } from '@stores/loading';
 
 import '../styles/main.scss';
-import 'react-loading-skeleton/dist/skeleton.css';
 
 bindErrorReport();
 
-Router.events.on('routeChangeStart', (path = '') => {
-    path = path.replace(/\?.*/, '') as string;
-    let SkeletonUI = undefined;
-
-    if (path === '/' || path === '/newest' || path.startsWith('/tags/')) {
-        SkeletonUI = <ArticleListSkeleton />;
-    }
-
-    if (path.match(/\/@[^/]*\/[^/]*/) && !path.endsWith('/') && !path.includes('posts') && !path.includes('series') && !path.includes('about')) {
-        SkeletonUI = <ArticleDetailSkeleton />;
-    }
-
-    loadingStore.set({
-        isRoute: true,
-        SkeletonUI
-    });
-});
-
 Router.events.on('routeChangeComplete', () => {
-    loadingStore.set({
-        isRoute: false,
-        SkeletonUI: undefined
-    });
     lazyLoadResource();
 });
 
 class Main extends App<AppProps> {
-    state = { ...loadingStore.state };
+    state = { isLoading: loadingStore.state.isLoading };
 
     constructor(props: AppProps) {
         super(props);
         loadingStore.subscribe((state) => {
-            this.setState({ ...state });
+            this.setState({ isLoading: state.isLoading });
         });
     }
 
@@ -145,11 +121,7 @@ class Main extends App<AppProps> {
                 )}
 
                 <div className="content">
-                    {this.state.SkeletonUI && this.state.isRoute ? (
-                        this.state.SkeletonUI
-                    ) : (
-                        getLayout(<Component {...pageProps}/>, pageProps)
-                    )}
+                    {getLayout(<Component {...pageProps}/>, pageProps)}
                 </div>
             </>
         );
