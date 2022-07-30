@@ -4,6 +4,16 @@ const withTM = require('next-transpile-modules')(
 );
 
 module.exports = withTM({
+    rewrites: () => [
+        {
+            source: '/sitemap.xml',
+            destination: process.env.PROXY_API_SERVER + '/sitemap.xml'
+        },
+        {
+            source: '/rss:path*',
+            destination: process.env.PROXY_API_SERVER + '/rss:path*'
+        }
+    ],
     experimental: {
         scrollRestoration: true,
     },
