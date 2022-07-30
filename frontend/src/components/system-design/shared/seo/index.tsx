@@ -18,13 +18,8 @@ export function SEO(props: SEOProps) {
     let key = 0;
 
     if (props.title) {
-        if (props.author) {
-            twTag.push(<meta key={key++} name="twitter:title" content={`${props.title} — ${props.author}`}/>);
-            ogTag.push(<meta key={key++} property="og:title" content={`${props.title} — ${props.author}`}/>);
-        } else {
-            twTag.push(<meta key={key++} name="twitter:title" content={props.title}/>);
-            ogTag.push(<meta key={key++} property="og:title" content={props.title}/>);
-        }
+        twTag.push(<meta key={key++} name="twitter:title" content={props.title}/>);
+        ogTag.push(<meta key={key++} property="og:title" content={props.title}/>);
     }
 
     if (props.description) {
