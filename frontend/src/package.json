@@ -5,7 +5,8 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build",
-        "start": "next build && NODE_OPTIONS=--max_old_space_size=2048 next start",
+        "start": "NODE_OPTIONS=--max_old_space_size=2048 next start",
+        "build-and-start": "next build && NODE_OPTIONS=--max_old_space_size=2048 next start",
         "test": "jest",
         "eslint": "eslint ."
     },
