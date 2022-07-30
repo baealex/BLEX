@@ -10,8 +10,12 @@ module.exports = withTM({
             destination: process.env.PROXY_API_SERVER + '/sitemap.xml'
         },
         {
-            source: '/rss:path*',
-            destination: process.env.PROXY_API_SERVER + '/rss:path*'
+            source: '/rss',
+            destination: process.env.PROXY_API_SERVER + '/rss'
+        },
+        {
+            source: '/rss/@:username*',
+            destination: process.env.PROXY_API_SERVER + '/rss/@:username*'
         }
     ],
     experimental: {
