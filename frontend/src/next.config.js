@@ -14,8 +14,8 @@ module.exports = withTM({
             destination: process.env.PROXY_API_SERVER + '/rss'
         },
         {
-            source: '/rss/@:username*',
-            destination: process.env.PROXY_API_SERVER + '/rss/@:username*'
+            source: '/rss/:username',
+            destination: process.env.PROXY_API_SERVER + '/rss/:username'
         }
     ],
     experimental: {
