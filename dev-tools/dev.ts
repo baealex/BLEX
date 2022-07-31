@@ -25,7 +25,7 @@ CMD ["dev"]
 
 writeFileSync(
     resolve('./frontend/DockerfileDev'),
-    feDockerFile.split('RUN npm run build')[0] + feDevCommand
+    feDockerFile.split('ENTRYPOINT')[0] + feDevCommand
 )
 
 runScript('dev')
