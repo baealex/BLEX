@@ -32,7 +32,7 @@ export async function postUserSeries(author: string, title: string) {
     });
 }
 
-export interface PutUserSeriesIndexResponseData {
+export interface PutUserSeriesOrderResponseData {
     series: {
         url: string;
         title: string;
@@ -40,9 +40,9 @@ export interface PutUserSeriesIndexResponseData {
     }[];
 }
 
-export async function putUserSeriesIndex(author: string, items: (string | number)[][]) {
-    return await request<PutUserSeriesIndexResponseData>({
-        url: `/v1/users/${encodeURIComponent(author)}/series?kind=index`,
+export async function putUserSeriesOrder(author: string, items: (string | number)[][]) {
+    return await request<PutUserSeriesOrderResponseData>({
+        url: `/v1/users/${encodeURIComponent(author)}/series?kind=order`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject({ series: items.map(item => `${item[0]}=${item[1]}`).join(',') })

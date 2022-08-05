@@ -39,26 +39,26 @@ def user_series(request, username, url=None):
         
         if request.method == 'PUT':
             body = QueryDict(request.body)
-            if request.GET.get('kind', '') == 'index':
+            if request.GET.get('kind', '') == 'order':
                 series = Series.objects.filter(owner=request.user).order_by('index')
                 prev_state = {}
 
                 for item in series:
-                    prev_state[item.url] = (item.index, item)
+                    prev_state[item.url] = (item.order, item)
                 
                 items = body.get('series').split(',')
                 for item in items:
-                    [url, next_index] = item.split('=')
-                    [prev_index, series_item] = prev_state[url]
-                    if int(prev_index) != int(next_index):
-                        series_item.index = next_index
+                    [url, next_order] = item.split('=')
+                    [prev_order, series_item] = prev_state[url]
+                    if int(prev_order) != int(next_order):
+                        series_item.order = next_order
                         series_item.save()
                 
                 series = Series.objects.filter(
                     owner=request.user
                 ).annotate(
                     total_posts=Count('posts')
-                ).order_by('index')
+                ).order_by('order')
                 return StatusDone({
                     'series': list(map(lambda item: {
                         'url': item.url,

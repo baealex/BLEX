@@ -32,7 +32,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
     const [ newSeries, setNewSeries ] = useState('');
     const [ series, setSeries ] = useState(props.series);
 
-    const onSeriesCreate = async () => {
+    const handleCreateSeries = async () => {
         if (!newSeries) {
             snackBar(message('BEFORE_REQ_ERR', '시리즈의 이름을 입력하세요.'));
             return;
@@ -58,12 +58,12 @@ const SeriesSetting: PageComponent<Props> = (props) => {
         }
     };
 
-    const onSeriesChangeIndex = async (url: string, prevIdx: number, nextIdx: number) => {
+    const handleChangeSeriesOrder = async (url: string, prevIdx: number, nextIdx: number) => {
         if (nextIdx < 0 || nextIdx > series.length - 1) return;
 
         loadingStore.start();
 
-        const nextIndexies = series.map((item, idx) => {
+        const nextOrders = series.map((item, idx) => {
             if (item.url === url) {
                 return [item.url, nextIdx];
             }
@@ -75,7 +75,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
             return [item.url, idx];
         });
 
-        const { data } = await API.putUserSeriesIndex('@' + props.username, nextIndexies);
+        const { data } = await API.putUserSeriesOrder('@' + props.username, nextOrders);
         setSeries(data.body.series);
 
         loadingStore.end();
@@ -93,16 +93,16 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                     value={newSeries}
                 />
                 <div className="input-group-prepend">
-                    <button type="button" className="btn btn-dark" onClick={() => onSeriesCreate()}>새 시리즈 만들기</button>
+                    <button type="button" className="btn btn-dark" onClick={() => handleCreateSeries()}>새 시리즈 만들기</button>
                 </div>
             </div>
             {series.map((item, idx) => (
                 <div key={item.url} className="d-flex mb-3">
                     <div className="d-flex flex-column justify-content-between mr-3">
-                        <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx-1)}>
+                        <div className="c-pointer" onClick={() => handleChangeSeriesOrder(item.url, idx, idx-1)}>
                             <i className="fas fa-angle-up"></i>
                         </div>
-                        <div className="c-pointer" onClick={() => onSeriesChangeIndex(item.url, idx, idx+1)}>
+                        <div className="c-pointer" onClick={() => handleChangeSeriesOrder(item.url, idx, idx+1)}>
                             <i className="fas fa-angle-down"></i>
                         </div>
                     </div>
