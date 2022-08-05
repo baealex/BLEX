@@ -8,16 +8,8 @@
 
     :global(.CodeMirror) {
         height: auto;
-
-        :global(.CodeMirror-scroll) {
-            padding-bottom: 0;
-            overflow: initial !important;
-        }
+        border-radius: 8px;
         
-        :global(.CodeMirror-vscrollbar) {
-            display: none !important;
-        }
-
         :global(.cm-error) {
             background: none;
         }
@@ -25,13 +17,9 @@
         :global(.cm-comment) {
             color: #6a9955;
         }
-
-        div {
-            margin: 0;
-        }
     }
 
-    * {
+    img, video {
         max-width: 100%;
     }
 
@@ -56,18 +44,8 @@
         font-size: 1.35rem;
     }
     
-    p, ul, ol, table, div, pre {
+    & > * {
         margin: 0 0 1.5rem;
-    }
-
-    li > ul {
-        margin: 0;
-    }
-
-    div {
-        p {
-            margin: 0;
-        }
     }
 
     ul, ol {
@@ -93,30 +71,6 @@
             color: #fff;
             background-color: #000;
         }
-    }
-
-    pre {
-        background: #2d2d2d;
-        overflow-x: auto;
-        font-family: monospace;
-        padding: 1em;
-        font-size: 1em;
-        line-height: 1.5;
-
-        code {
-            padding: 0;
-            color: #fff !important;
-            background-color: rgba(0, 0, 0, 0);
-        }
-
-        a {
-            text-decoration: none;
-            color: #888;
-        }
-    }
-
-    .rouge-gutter {
-        border-right: 1px solid #888;
     }
 
     img, video {

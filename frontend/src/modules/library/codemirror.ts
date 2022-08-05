@@ -20,7 +20,6 @@ export async function codeMirrorAll() {
             CodeMirror.fromTextArea(textarea, {
                 mode: await getMode(language || ''),
                 viewportMargin: Infinity,
-                lineWrapping: true,
                 lineNumbers: true,
                 readOnly: true,
                 theme: 'material-darker'
