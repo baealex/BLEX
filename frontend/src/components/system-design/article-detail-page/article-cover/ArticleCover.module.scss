@@ -56,6 +56,7 @@
 
         span {
             color: $COLOR_DEFAULT_POINT;
+            letter-spacing: -1px;
 
             &::after {
                 content: '';
@@ -141,6 +142,7 @@
 
     span {
         color: $COLOR_DEFAULT_SECONDARY;
+        letter-spacing: -1px;
         margin-bottom: 8px;
         display: block;
     }
