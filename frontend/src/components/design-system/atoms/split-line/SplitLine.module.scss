@@ -19,7 +19,7 @@
     background: #ddd;
     height: 1px;
     width: 100%;
-    transform: translateY(10px)
+    transform: translateY(10px);
 
     :global(body.dark) & {
         background: #666;

@@ -48,9 +48,9 @@ class ConfigStore extends Store<ConfigStoreState> {
         }
     }
 
-    serverSideInject(cookies: {
+    serverSideInject(cookies: Partial<{
         [key: string]: string;
-    }) {
+    }>) {
         const configure = cookies['configure'];
         if (configure) {
             this.set((prevState) => ({

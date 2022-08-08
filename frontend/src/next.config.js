@@ -4,7 +4,7 @@ const withTM = require('next-transpile-modules')(
 );
 
 module.exports = withTM({
-    rewrites: () => [
+    rewrites: () => process.env.PROXY_API_SERVER ? [
         {
             source: '/sitemap.xml',
             destination: process.env.PROXY_API_SERVER + '/sitemap.xml'
@@ -17,7 +17,7 @@ module.exports = withTM({
             source: '/rss/:username',
             destination: process.env.PROXY_API_SERVER + '/rss/:username'
         }
-    ],
+    ] : [],
     experimental: {
         scrollRestoration: true,
     },
