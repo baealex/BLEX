@@ -14,15 +14,12 @@ import {
 import { Loading } from '@design-system';
 
 import { CONFIG } from '@modules/settings';
-import { bindErrorReport } from '@modules/utility/report';
 import { lazyLoadResource } from '@modules/optimize/lazy';
 import { minify } from '@modules/utility/string';
 
 import { loadingStore } from '@stores/loading';
 
 import '../styles/main.scss';
-
-bindErrorReport();
 
 Router.events.on('routeChangeComplete', () => {
     lazyLoadResource();
