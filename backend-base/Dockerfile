@@ -23,9 +23,3 @@ RUN git clone https://github.com/pyenv/pyenv.git $PYENV_ROOT \
     && pyenv global $PYTHON_VERSION
 
 ENV PYTHONIOENCODING=utf-8
-
-COPY ./src/requirements.txt /app/
-
-WORKDIR /app
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
