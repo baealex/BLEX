@@ -39,11 +39,6 @@ const NAVIGATION_ITEMS = [
                 title: '서식',
                 name: 'forms',
                 url: '/setting/forms'
-            },
-            {
-                title: '분석',
-                name: 'analytics',
-                url: '/setting/analytics'
             }
         ]
     },
@@ -55,6 +50,27 @@ const NAVIGATION_ITEMS = [
                 title: '시리즈',
                 name: 'series',
                 url: '/setting/series'
+            }
+        ]
+    },
+    {
+        title: '블로그 분석',
+        icon: 'fas fa-chart-line',
+        subItems: [
+            {
+                title: '조회수',
+                name: 'analytics/views',
+                url: '/setting/analytics/views'
+            },
+            {
+                title: '검색어',
+                name: 'analytics/search',
+                url: '/setting/analytics/search'
+            },
+            {
+                title: '외부 링크',
+                name: 'analytics/referer',
+                url: '/setting/analytics/referer'
             }
         ]
     }

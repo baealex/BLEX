@@ -128,7 +128,9 @@ export async function getSettingAnalyticsView(headers?: Headers) {
 export interface GetSettingAnalyticsPostsViewResponseData {
     posts: {
         id: number;
+        url: string;
         title: string;
+        author: string;
         today: number;
         increaseRate: number;
     }[];
@@ -149,6 +151,11 @@ export interface GetSettingAnalyticsRefererResponseData {
         title: string;
         image: string;
         description: string;
+        posts: {
+            author: string;
+            title: string;
+            url: string;
+        }
     }[];
 }
 

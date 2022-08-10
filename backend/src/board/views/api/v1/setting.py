@@ -149,6 +149,7 @@ def setting(request, item):
         
         if item == 'analytics-posts-view':
             posts = Post.objects.filter(author=user).annotate(
+                author_username=F('author__username'),
                 today_count=Count(
                     Case(
                         When(
@@ -170,7 +171,9 @@ def setting(request, item):
             return StatusDone({
                 'posts': list(map(lambda item: {
                     'id': item.id,
+                    'url': item.url,
                     'title': item.title,
+                    'author': item.author.username,
                     'today': item.today_count,
                     'increase_rate': round((item.today_count / item.yesterday_count * 100) - 100, 2) if item.yesterday_count else 0
                 }, posts))
@@ -218,6 +221,10 @@ def setting(request, item):
             referers = RefererFrom.objects.filter(
                 referers__posts__posts__author=user,
                 referers__created_date__gt=a_month_ago,
+            ).annotate(
+                posts_title=F('referers__posts__posts__title'),
+                posts_author=F('referers__posts__posts__author__username'),
+                posts_url=F('referers__posts__posts__url')
             ).exclude(
                 Q(title__contains='검색') |
                 Q(title__contains='Bing') |
@@ -234,6 +241,11 @@ def setting(request, item):
                     'url': referer.location,
                     'image': referer.image,
                     'description': referer.description,
+                    'posts': {
+                        'author': referer.posts_author,
+                        'title': referer.posts_title,
+                        'url': referer.posts_url
+                    }
                 }, referers))
             })
         
