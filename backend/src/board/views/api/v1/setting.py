@@ -166,14 +166,14 @@ def setting(request, item):
                         )
                     )
                 )
-            ).order_by('-today_count')[:8]
+            ).order_by('-created_date', '-today_count')[:8]
 
             return StatusDone({
                 'posts': list(map(lambda item: {
                     'id': item.id,
                     'url': item.url,
                     'title': item.title,
-                    'author': item.author.username,
+                    'author': item.author_username,
                     'today': item.today_count,
                     'increase_rate': round((item.today_count / item.yesterday_count * 100) - 100, 2) if item.yesterday_count else 0
                 }, posts))
