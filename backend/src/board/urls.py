@@ -55,6 +55,7 @@ urlpatterns = [
     path('v1/posts/<url>/analytics', api_v1.posts_analytics),
     path('v1/comments', api_v1.comment),
     path('v1/comments/<int:pk>', api_v1.comment),
+    path('v1/comments/user', api_v1.user_comment),
     path('v1/users/@<username>', api_v1.users),
     path('v1/users/@<username>/posts', api_v1.user_posts),
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts),

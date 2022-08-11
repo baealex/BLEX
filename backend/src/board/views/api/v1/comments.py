@@ -14,6 +14,7 @@ from django.utils.timesince import timesince
 from board.models import Comment, Post
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError
+from board.modules.paginator import Paginator
 from modules.markdown import parse_to_html, ParseData
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
@@ -144,5 +145,31 @@ def comment(request, pk=None):
                 'author_image': comment.author_thumbnail(),
                 'text_html': comment.get_text_html(),
             })
+    
+    raise Http404
+
+def user_comment(request):
+    if request.method == 'GET':
+        comments = Comment.objects.filter(
+            author=request.user,
+        ).order_by('-created_date')
+
+        comments = Paginator(
+            objects=comments,
+            offset=10,
+            page=request.GET.get('page', 1)
+        )
+        return StatusDone({
+            'comments': list(map(lambda comment: {
+                'posts': {
+                    'author': comment.post.author.username,
+                    'title': comment.post.title,
+                    'url': comment.post.url,
+                },
+                'content': comment.text_html,
+                'created_date': timesince(comment.created_date),
+            }, comments)),
+            'last_page': comments.paginator.num_pages,
+        })
     
     raise Http404
