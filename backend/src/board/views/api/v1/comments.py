@@ -6,6 +6,7 @@ import traceback
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import F
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils.html import strip_tags
@@ -152,6 +153,10 @@ def user_comment(request):
     if request.method == 'GET':
         comments = Comment.objects.filter(
             author=request.user,
+        ).annotate(
+            post_author=F('post__author__username'),
+            post_title=F('post__title'),
+            post_url=F('post__url'),
         ).order_by('-created_date')
 
         comments = Paginator(
@@ -162,9 +167,9 @@ def user_comment(request):
         return StatusDone({
             'comments': list(map(lambda comment: {
                 'posts': {
-                    'author': comment.post.author.username,
-                    'title': comment.post.title,
-                    'url': comment.post.url,
+                    'author': comment.post_author,
+                    'title': comment.post_title,
+                    'url': comment.post_url,
                 },
                 'content': comment.text_html,
                 'created_date': timesince(comment.created_date),
