@@ -31,7 +31,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 interface Props extends API.GetPostsResponseData {
-    trendy?: API.GetPostsResponseData,
+    trendy?: API.GetPostsResponseData;
     page: number;
 }
 

@@ -12,7 +12,7 @@ export interface DropdownProps {
     position?: 'left' | 'right';
     button: React.ReactNode;
     menus: {
-        icon?: string,
+        icon?: string;
         name: string;
         onClick: (event: React.MouseEvent) => void;
         disable?: boolean;

@@ -3,7 +3,7 @@ import styles from './DayNight.module.scss';
 const cn = classNames.bind(styles);
 
 export interface DayNightProps {
-    isNight: boolean,
+    isNight: boolean;
     onChange: (isNight: boolean) => void;
 }
 

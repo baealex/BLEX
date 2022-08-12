@@ -22,17 +22,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     try {
         const cookie = req.headers.cookie;
 
-        const posts = (await API.getAnUserPostsEdit(
+        const { data } = await API.getAnUserPostsEdit(
             author as string,
             posturl as string,
-            cookie)
-        ).data;
+            cookie
+        );
 
         return {
             props: {
                 posturl: posturl,
                 username: author,
-                ...posts.body
+                ...data.body
             }
         };
     } catch (error) {

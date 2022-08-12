@@ -5,13 +5,13 @@ type GetUserProfileInclude = 'subscribe' | 'profile' | 'social' | 'heatmap' | 't
 export interface GetUserProfileResponseData {
     subscribe: {
         hasSubscribe: boolean;
-    },
+    };
     profile: {
         image: string;
         username: string;
         realname: string;
         bio: string;
-    },
+    };
     social?: {
         username: string;
         homepage?: string;
@@ -20,19 +20,19 @@ export interface GetUserProfileResponseData {
         youtube?: string;
         facebook?: string;
         instagram?: string;
-    },
+    };
     heatmap?: {
         [key: string]: number;
     };
     tags?: {
         name: string;
         count: number;
-    }[],
+    }[];
     view?: {
         today: number;
         yesterday: number;
         total: number;
-    },
+    };
     most?: {
         url: string;
         title: string;
@@ -41,12 +41,12 @@ export interface GetUserProfileResponseData {
         createdDate: string;
         authorImage: string;
         author: string;
-    }[],
+    }[];
     recent?: {
         type: string;
         text: string;
         url: string;
-    }[],
+    }[];
     about?: string;
 }
 

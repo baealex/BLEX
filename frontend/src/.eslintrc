@@ -28,6 +28,19 @@
         "@typescript-eslint/default-param-last": [ "error" ],
         "@typescript-eslint/indent": [ "error", 4 ],
         "@typescript-eslint/semi": [ "error" ],
+        "@typescript-eslint/member-delimiter-style": [
+            "error",
+            {
+                "multiline": {
+                    "delimiter": "semi",
+                    "requireLast": true
+                },
+                "singleline": {
+                    "delimiter": "semi",
+                    "requireLast": false
+                }
+            }
+        ],
         "comma-dangle": [ "error", "never" ],
         "default-param-last": "off",
         "indent": "off",

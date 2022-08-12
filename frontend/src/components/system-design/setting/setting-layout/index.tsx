@@ -2,7 +2,7 @@ import { SettingNavigation } from '../setting-navigation';
 
 export interface SettingLayoutProps {
     active: string;
-    sticky?: boolean
+    sticky?: boolean;
     sideChildren?: JSX.Element | JSX.Element[];
     children: JSX.Element | JSX.Element[];
 }

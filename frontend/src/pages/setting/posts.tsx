@@ -36,7 +36,7 @@ interface Analytics {
             from: string;
             title: string;
         }[];
-    }
+    };
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
@@ -306,7 +306,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                 isOpen={isModalOpen}
                 onClose={() => setModalOpen(false)}>
                 <>
-                    {analytics[apNow] ? (
+                    {analytics[apNow] && (
                         <>
                             <ReactFrappeChart
                                 type="axis-mixed"
@@ -328,7 +328,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 ))}
                             </ul>
                         </>
-                    ) : ''}
+                    )}
                 </>
             </Modal>
         </>

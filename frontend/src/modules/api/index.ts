@@ -28,10 +28,10 @@ type ErrorCode =
     'error:AE' | 'error:NT' | 'error:EN' | 'error:UN' ;
 
 export interface ResponseData<T> {
-    status: 'DONE' | 'ERROR',
-    errorCode?: ErrorCode,
-    errorMessage?: string,
-    body: T
+    status: 'DONE' | 'ERROR';
+    errorCode?: ErrorCode;
+    errorMessage?: string;
+    body: T;
 }
 
 export type Headers = AxiosRequestHeaders & {
@@ -70,7 +70,7 @@ export default async function axiosRequest<T>(config: AxiosRequestConfig) {
 }
 
 export function serializeObject(obj: {
-    [key: string]: any
+    [key: string]: any;
 }) {
     return Object.keys(obj).reduce((acc, cur) => {
         return acc += `${cur}=${obj[cur] === undefined ? '' : encodeURIComponent(obj[cur])}&`;
@@ -78,7 +78,7 @@ export function serializeObject(obj: {
 }
 
 export function objectToForm(obj: {
-    [key: string]: any
+    [key: string]: any;
 }) {
     const form = new FormData();
     Object.keys(obj).forEach((key) => {

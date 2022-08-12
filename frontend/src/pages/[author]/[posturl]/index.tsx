@@ -29,9 +29,9 @@ import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
 
 interface Props {
-    profile: API.GetUserProfileResponseData,
-    post: API.GetAnUserPostsViewResponseData,
-    series: API.GetAnUserSeriesResponseData,
+    profile: API.GetUserProfileResponseData;
+    post: API.GetAnUserPostsViewResponseData;
+    series: API.GetAnUserSeriesResponseData;
     hasSeries: boolean;
     activeSeries: number;
     seriesLength: number;

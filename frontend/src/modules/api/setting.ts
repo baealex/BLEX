@@ -155,7 +155,7 @@ export interface GetSettingAnalyticsRefererResponseData {
             author: string;
             title: string;
             url: string;
-        }
+        };
     }[];
 }
 

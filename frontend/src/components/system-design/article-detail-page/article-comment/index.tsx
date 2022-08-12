@@ -33,7 +33,7 @@ type Comment = API.GetPostCommentResponseData['comments'][0];
 
 interface CommentsStateItem extends Comment {
     isEdit: boolean;
-    textMarkdown: string
+    textMarkdown: string;
 }
 
 export function ArticleComment(props: ArticleCommentProps) {

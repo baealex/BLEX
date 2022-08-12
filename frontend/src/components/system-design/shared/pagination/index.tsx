@@ -8,8 +8,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 export interface Props {
-    page: number,
-    last: number
+    page: number;
+    last: number;
 }
 
 export function Pagination(props: Props) {

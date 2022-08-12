@@ -138,12 +138,12 @@ export default function Search(props: Props) {
                                                 {...item}
                                             />
                                         ))}
-                                        {response?.body.lastPage ? (
+                                        {response?.body.lastPage && (
                                             <Pagination
                                                 page={props.page}
                                                 last={response?.body.lastPage}
                                             />
-                                        ) : ''}
+                                        )}
                                     </>
                                 )}
                             </>

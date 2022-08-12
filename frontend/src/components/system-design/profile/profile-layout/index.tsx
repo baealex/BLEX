@@ -27,8 +27,8 @@ export interface ProfileLayoutProps {
         realname: string;
         username: string;
         bio: string;
-    },
-    social?: { homepage?: string; } & SocialProps;
+    };
+    social?: { homepage?: string } & SocialProps;
     active: string;
     children?: JSX.Element;
 }

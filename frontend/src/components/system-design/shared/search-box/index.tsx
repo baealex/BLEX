@@ -16,9 +16,9 @@ export interface SearchBoxProps {
     onClick?: () => void;
     maxLength?: number;
     history: {
-        pk: number,
-        value: string,
-        createdDate: string,
+        pk: number;
+        value: string;
+        createdDate: string;
     }[];
     onClickHistory?: (value: string) => void;
     onRemoveHistory?: (pk: number) => void;

@@ -26,34 +26,34 @@ interface Props {
     title: {
         value: string;
         onChange: (value: string) => void;
-    },
+    };
     content: {
         value: [];
         onChange: (value: []) => void;
-    }
+    };
     series: {
         value: string;
         onChange: (value: string) => void;
-    }
+    };
     tags: {
         value: string;
         onChange: (value: string) => void;
-    }
+    };
     image: {
         onChange: (image: File) => void;
-    }
+    };
     publish: {
         title: string;
         buttonText: string;
-    }
+    };
     isHide: {
         value: boolean;
         onChange: (value: boolean) => void;
-    }
+    };
     isAd: {
         value: boolean;
         onChange: (value: boolean) => void;
-    }
+    };
     onSubmit: (onFail: () => void) => void;
 }
 

@@ -54,7 +54,7 @@ export function YoutubeModal(props: Props) {
                         setId(id);
                     }}
                 />
-                {id ? (
+                {id && (
                     <iframe
                         width="100%"
                         height="315"
@@ -64,7 +64,7 @@ export function YoutubeModal(props: Props) {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                     />
-                ) : ''}
+                )}
             </div>
         </Modal>
     );

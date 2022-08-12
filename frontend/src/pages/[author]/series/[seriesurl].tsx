@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 interface Props {
-    series: API.GetAnUserSeriesResponseData,
+    series: API.GetAnUserSeriesResponseData;
 }
 
 interface State {

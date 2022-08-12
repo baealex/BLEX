@@ -22,7 +22,7 @@ export interface EditorContentProps {
 }
 
 interface Content {
-    id?: number,
+    id?: number;
     type: 'line' | 'lines';
     text: string;
 }

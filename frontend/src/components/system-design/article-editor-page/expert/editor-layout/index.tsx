@@ -25,39 +25,39 @@ interface Props {
     title: {
         value: string;
         onChange: (value: string) => void;
-    },
+    };
     content: {
         value: string;
         onChange: (value: string) => void;
-    }
+    };
     series: {
         value: string;
         onChange: (value: string) => void;
-    }
+    };
     tags: {
         value: string;
         onChange: (value: string) => void;
-    }
+    };
     image: {
         onChange: (image: File) => void;
-    }
+    };
     publish: {
         title: string;
         buttonText: string;
-    }
+    };
     isHide: {
         value: boolean;
         onChange: (value: boolean) => void;
-    }
+    };
     isAd: {
         value: boolean;
         onChange: (value: boolean) => void;
-    }
+    };
     onSubmit: (onFail: () => void) => void;
     addon?: {
         sideButton: JSX.Element | JSX.Element[];
         modal: JSX.Element | JSX.Element[];
-    }
+    };
 }
 
 export function EditorLayout(props: Props) {

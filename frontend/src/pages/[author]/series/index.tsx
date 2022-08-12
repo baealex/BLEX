@@ -48,7 +48,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 interface Props extends API.GetUserProfileResponseData, API.GetUserSeriesResponseData {
-    page: number,
+    page: number;
 }
 
 const SeriesProfile: PageComponent<Props> = (props) => {

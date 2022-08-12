@@ -31,7 +31,7 @@ export interface EditorContentProps {
     onChange: (value: string) => void;
     addon?: {
         sideButton: JSX.Element | JSX.Element[];
-    }
+    };
 }
 
 export function EditorContent(props: EditorContentProps) {
