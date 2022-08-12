@@ -117,9 +117,9 @@ class Main extends App<AppProps> {
                     <Loading/>
                 )}
 
-                <div className="content">
+                <main role="main" className="content">
                     {getLayout(<Component {...pageProps}/>, pageProps)}
-                </div>
+                </main>
             </>
         );
     }

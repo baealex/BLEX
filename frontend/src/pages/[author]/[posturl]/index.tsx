@@ -28,6 +28,8 @@ import { snackBar } from '@modules/ui/snack-bar';
 import { authStore } from '@stores/auth';
 import { configStore } from '@stores/config';
 
+import { CONFIG } from '@modules/settings';
+
 interface Props {
     profile: API.GetUserProfileResponseData;
     post: API.GetAnUserPostsViewResponseData;
@@ -240,56 +242,64 @@ class PostDetail extends React.Component<Props, State> {
                     image={getPostsImage(this.props.post.image)}
                     isArticle={true}
                 />
-                <ArticleCover
-                    series={this.props.series?.name}
-                    image={this.props.post.image}
-                    title={this.props.post.title}
-                    isAd={this.props.post.isAd}
-                    createdDate={this.props.post.createdDate}
-                    updatedDate={this.props.post.updatedDate}
-                />
-                <div className="container">
-                    <div className="row">
-                        <div className="col-lg-2">
-                            <ArticleAction {...this.props.post}/>
-                        </div>
-                        <div className="col-lg-8">
-                            {this.props.post.author == this.state.username && (
-                                <div className="mb-3">
-                                    <div className="btn btn-dark" onClick={() => this.onEdit()}>포스트 수정</div>
-                                    <div className="btn btn-dark ml-2" onClick={() => this.onDelete()}>포스트 삭제</div>
-                                </div>
-                            )}
-                            <ArticleAuthor {...this.props.profile}/>
-                            <ArticleContent html={this.props.post.textHtml}/>
-                            <TagBadges
-                                items={this.props.post.tags.map(item => (
-                                    <Link href={`/@${this.props.post.author}/posts/${item}`}>
-                                        <a>{item}</a>
-                                    </Link>
-                                ))}
-                            />
-                            <ArticleThanks
-                                author={this.props.post.author}
-                                url={this.props.post.url}
-                            />
-                            {this.props.hasSeries && (
-                                <ArticleSeries
-                                    {...this.props.series}
-                                    activeSeries={this.props.activeSeries}
-                                    seriesLength={this.props.seriesLength}
+                <article data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}>
+                    <ArticleCover
+                        series={this.props.series?.name}
+                        image={this.props.post.image}
+                        title={this.props.post.title}
+                        isAd={this.props.post.isAd}
+                        createdDate={this.props.post.createdDate}
+                        updatedDate={this.props.post.updatedDate}
+                    />
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-lg-2">
+                                <ArticleAction {...this.props.post}/>
+                            </div>
+                            <div className="col-lg-8">
+                                {this.props.post.author == this.state.username && (
+                                    <div className="mb-3">
+                                        <div className="btn btn-dark" onClick={() => this.onEdit()}>포스트 수정</div>
+                                        <div className="btn btn-dark ml-2" onClick={() => this.onDelete()}>포스트 삭제</div>
+                                    </div>
+                                )}
+                                <ArticleAuthor {...this.props.profile}/>
+                                <ArticleContent html={this.props.post.textHtml}/>
+                                <TagBadges
+                                    items={this.props.post.tags.map(item => (
+                                        <Link href={`/@${this.props.post.author}/posts/${item}`}>
+                                            <a>{item}</a>
+                                        </Link>
+                                    ))}
                                 />
-                            )}
-                        </div>
-                        <div className="col-lg-2 mobile-disable">
-                            <div className="sticky-top sticky-top-100 article-nav none-drag">
-                                {this.state.headerNav.map((item, idx) => (
-                                    <a className={`title-${item[0]} ${this.state.headerNow == item[1] ? 'nav-now' : ''}`} key={idx} href={`#${item[1]}`}>{item[2]}</a>
-                                ))}
+                                <ArticleThanks
+                                    author={this.props.post.author}
+                                    url={this.props.post.url}
+                                />
+                                {this.props.hasSeries && (
+                                    <ArticleSeries
+                                        {...this.props.series}
+                                        activeSeries={this.props.activeSeries}
+                                        seriesLength={this.props.seriesLength}
+                                    />
+                                )}
+                            </div>
+                            <div className="col-lg-2 mobile-disable">
+                                <aside className="sticky-top sticky-top-100 article-nav none-drag">
+                                    <ul>
+                                        {this.state.headerNav.map((item, idx) => (
+                                            <li key={idx} className={`title-${item[0]}`}>
+                                                <a className={`${this.state.headerNow == item[1] ? ' nav-now' : ''}`} href={`#${item[1]}`}>
+                                                    {item[2]}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </aside>
                             </div>
                         </div>
                     </div>
-                </div>
+                </article>
                 <ArticleComment
                     author={this.props.post.author}
                     url={this.props.post.url}

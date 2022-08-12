@@ -229,7 +229,7 @@ export function TopNavigation() {
                 isOpen={state.is2FASyncModalOpen}
                 onClose={() => modalStore.close('is2FASyncModalOpen')}
             />
-            <nav className={cn('top-nav', { isRollup })}>
+            <header className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
                     <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
                         <div className={cn('logo')}>
@@ -239,110 +239,112 @@ export function TopNavigation() {
                                 </a>
                             </Link>
                         </div>
-                        <ul className={cn('items')}>
-                            <li onClick={() => router.push('/search')}>
-                                <i className="fas fa-search"/>
-                            </li>
-                            {state.isLogin ? (
-                                <>
-                                    <li
-                                        ref={notifyToggle}
-                                        onClick={() => setIsNotifyOpen((prev) => !prev)}
-                                        className={cn('notify')}>
-                                        <i className="far fa-bell"/>
-                                        {state.notify.length > 0 && (
-                                            <span>
-                                                {state.notify.length}
-                                            </span>
-                                        )}
-                                        <div
-                                            ref={notifyBox}
-                                            className={cn('notify-box', { isOpen: isNotifyOpen })}>
-                                            {state.isTelegramSync ? (
-                                                <div className={cn('telegram')} onClick={() => unsync()}>
-                                                    <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
-                                                </div>
-                                            ) : (
-                                                <div className={cn('telegram')} onClick={() => modalStore.open('isTelegramSyncModalOpen')}>
-                                                    <i className="fab fa-telegram-plane"/> 텔레그램 연동
-                                                </div>
+                        <nav>
+                            <ul className={cn('items')}>
+                                <li onClick={() => router.push('/search')}>
+                                    <i className="fas fa-search"/>
+                                </li>
+                                {state.isLogin ? (
+                                    <>
+                                        <li
+                                            ref={notifyToggle}
+                                            onClick={() => setIsNotifyOpen((prev) => !prev)}
+                                            className={cn('notify')}>
+                                            <i className="far fa-bell"/>
+                                            {state.notify.length > 0 && (
+                                                <span>
+                                                    {state.notify.length}
+                                                </span>
                                             )}
-                                            {state.notify.length == 0 ? (
-                                                <div className={cn('card')}>
-                                                    읽지 않은 알림이 없습니다.
-                                                </div>
-                                            ) : state.notify.map((item, idx) => (
-                                                <div key={idx} className={cn('card')} onClick={() => onReadNotify(item.pk, item.url)}>
-                                                    {item.content} <span className="ns shallow-dark">{item.createdDate} ago</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </li>
-                                    {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
-                                        <li
-                                            onClick={() => modalStore.open('isPublishModalOpen')}
-                                            className={cn('get-start')}>
-                                            {path.lastIndexOf('/write') > -1
-                                                ? '글 발행하기'
-                                                : '글 수정하기'}
+                                            <div
+                                                ref={notifyBox}
+                                                className={cn('notify-box', { isOpen: isNotifyOpen })}>
+                                                {state.isTelegramSync ? (
+                                                    <div className={cn('telegram')} onClick={() => unsync()}>
+                                                        <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
+                                                    </div>
+                                                ) : (
+                                                    <div className={cn('telegram')} onClick={() => modalStore.open('isTelegramSyncModalOpen')}>
+                                                        <i className="fab fa-telegram-plane"/> 텔레그램 연동
+                                                    </div>
+                                                )}
+                                                {state.notify.length == 0 ? (
+                                                    <div className={cn('card')}>
+                                                        읽지 않은 알림이 없습니다.
+                                                    </div>
+                                                ) : state.notify.map((item, idx) => (
+                                                    <div key={idx} className={cn('card')} onClick={() => onReadNotify(item.pk, item.url)}>
+                                                        {item.content} <span className="ns shallow-dark">{item.createdDate} ago</span>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </li>
-                                    ) : (
-                                        <li
-                                            onClick={() => router.push('/write')}
-                                            className={cn('get-start', 'outline')}>
-                                            글 작성하기
-                                        </li>
-                                    )}
-                                    <li className={cn('profile')}>
-                                        <Dropdown
-                                            position="left"
-                                            button={
-                                                <>
-                                                    <img src={getUserImage(state.avatar)}/>
-                                                    <i className="fas fa-sort-down"/>
-                                                </>
-                                            }
-                                            menus={[
-                                                {
-                                                    name: '내 블로그',
-                                                    icon: 'far fa-user',
-                                                    onClick: () => router.push(`/@${state.username}`)
-                                                },
-                                                {
-                                                    name: '관리',
-                                                    icon: 'fas fa-cog',
-                                                    onClick: () => router.push('/setting/account')
-                                                },
-                                                {
-                                                    name: '전체',
-                                                    icon: 'fas fa-th-large',
-                                                    onClick: () => router.push('/map')
-                                                },
-                                                {
-                                                    name: '로그아웃',
-                                                    icon: 'fas fa-sign-out-alt',
-                                                    onClick: onClickLogout
+                                        {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
+                                            <li
+                                                onClick={() => modalStore.open('isPublishModalOpen')}
+                                                className={cn('get-start')}>
+                                                {path.lastIndexOf('/write') > -1
+                                                    ? '글 발행하기'
+                                                    : '글 수정하기'}
+                                            </li>
+                                        ) : (
+                                            <li
+                                                onClick={() => router.push('/write')}
+                                                className={cn('get-start', 'outline')}>
+                                                글 작성하기
+                                            </li>
+                                        )}
+                                        <li className={cn('profile')}>
+                                            <Dropdown
+                                                position="left"
+                                                button={
+                                                    <>
+                                                        <img src={getUserImage(state.avatar)}/>
+                                                        <i className="fas fa-sort-down"/>
+                                                    </>
                                                 }
-                                            ]}
-                                        />
-                                    </li>
-                                </>
-                            ) : (
-                                <>
-                                    <li onClick={() => modalStore.open('isLoginModalOpen')}>
-                                        로그인
-                                    </li>
-                                    <li
-                                        onClick={() => modalStore.open('isSignupModalOpen')}
-                                        className={cn('get-start')}>
-                                        블로그 시작
-                                    </li>
-                                </>
-                            )}
-                        </ul>
+                                                menus={[
+                                                    {
+                                                        name: '내 블로그',
+                                                        icon: 'far fa-user',
+                                                        onClick: () => router.push(`/@${state.username}`)
+                                                    },
+                                                    {
+                                                        name: '관리',
+                                                        icon: 'fas fa-cog',
+                                                        onClick: () => router.push('/setting/account')
+                                                    },
+                                                    {
+                                                        name: '전체',
+                                                        icon: 'fas fa-th-large',
+                                                        onClick: () => router.push('/map')
+                                                    },
+                                                    {
+                                                        name: '로그아웃',
+                                                        icon: 'fas fa-sign-out-alt',
+                                                        onClick: onClickLogout
+                                                    }
+                                                ]}
+                                            />
+                                        </li>
+                                    </>
+                                ) : (
+                                    <>
+                                        <li onClick={() => modalStore.open('isLoginModalOpen')}>
+                                            로그인
+                                        </li>
+                                        <li
+                                            onClick={() => modalStore.open('isSignupModalOpen')}
+                                            className={cn('get-start')}>
+                                            블로그 시작
+                                        </li>
+                                    </>
+                                )}
+                            </ul>
+                        </nav>
                     </div>
                 </div>
-            </nav>
+            </header>
             <DayNight isNight={isNight} onChange={setIsNight}/>
         </>
     );

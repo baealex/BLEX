@@ -8,6 +8,11 @@
     overflow-y: auto;
     display: inline-block;
 
+    ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
     &::-webkit-scrollbar {
         width: 3px;        
     }

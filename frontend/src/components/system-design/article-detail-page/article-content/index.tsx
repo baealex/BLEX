@@ -5,8 +5,6 @@ const cn = classNames.bind(styles);
 import Router from 'next/router';
 import { useEffect } from 'react';
 
-import { CONFIG } from '@modules/settings';
-
 export interface ArticleContentProps {
     html: string;
     isEdit?: boolean;
@@ -48,10 +46,6 @@ export function ArticleContent({
     }, []);
 
     return (
-        <article
-            data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}
-            className={cn('article', { noMargin })}
-            dangerouslySetInnerHTML={{ __html: html }}
-        />
+        <div className={cn('article', { noMargin })} dangerouslySetInnerHTML={{ __html: html }} />
     );
 }

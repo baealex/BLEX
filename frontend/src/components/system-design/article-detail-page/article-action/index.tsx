@@ -88,7 +88,7 @@ export function ArticleAction(props: ArticleActionProps) {
 
     return (
         <>
-            <div className={classNames(cn('pc'), 'sticky-top sticky-top-200 mb-5')}>
+            <aside className={classNames(cn('pc'), 'sticky-top sticky-top-200 mb-5')}>
                 <div className={cn('actions')}>
                     <ul className="px-3">
                         <li className="mx-3 mx-lg-4" onClick={onClickLike}>
@@ -109,8 +109,8 @@ export function ArticleAction(props: ArticleActionProps) {
                         ))}
                     </ul>
                 </div>
-            </div>
-            <div className={cn('m')}>
+            </aside>
+            <aside className={cn('m')}>
                 <div className={cn('bottom-nav')}>
                     <div className={cn('d-flex')}>
                         <div className={cn('item')} onClick={onClickLike}>
@@ -123,7 +123,7 @@ export function ArticleAction(props: ArticleActionProps) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </aside>
         </>
     );
 }
