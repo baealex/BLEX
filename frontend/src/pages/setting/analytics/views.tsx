@@ -1,8 +1,5 @@
-import {
-    useEffect,
-    useState
-} from 'react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
@@ -13,22 +10,26 @@ import { SettingLayout } from '@system-design/setting';
 import * as API from '@modules/api';
 
 import { loadingStore } from '@stores/loading';
+import { useLoginCheck } from '@hooks/use-login-check';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewResponseData>();
     const [ postViews, setPostViews ] = useState<API.GetSettingAnalyticsPostsViewResponseData>();
 
-    useEffect(() => {
-        loadingStore.start();
-        Promise.all([
-            API.getSettingAnalyticsView()
-                .then(({ data }) => setViews(data.body)),
-            API.getSettingAnalyticsPostsView()
-                .then(({ data }) => setPostViews(data.body))
-        ]).then(() => {
-            loadingStore.end();
-        });
-    }, []);
+    useLoginCheck({
+        loginRequired: { redirect: '/' },
+        onSuccess: () => {
+            loadingStore.start(),
+            Promise.race([
+                API.getSettingAnalyticsView()
+                    .then(({ data }) => setViews(data.body)),
+                API.getSettingAnalyticsPostsView()
+                    .then(({ data }) => setPostViews(data.body))
+            ]).finally(() => {
+                loadingStore.end();
+            });
+        }
+    });
 
     return (
         <>

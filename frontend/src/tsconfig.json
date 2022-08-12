@@ -28,6 +28,9 @@
       "@stores/*": [
         "./stores/*"
       ],
+      "@hooks/*": [
+        "./hooks/*"
+      ],
       "@types": [
         "./types"
       ],

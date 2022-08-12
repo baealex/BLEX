@@ -100,9 +100,12 @@ export function TopNavigation() {
         API.getLogin().then(({ data }) => {
             if (data.status === 'DONE') {
                 authStore.set({
+                    isConfirmed: true,
                     isLogin: true,
                     ...data.body
                 });
+            } else {
+                authStore.set({ isConfirmed: true });
             }
         });
     }, []);

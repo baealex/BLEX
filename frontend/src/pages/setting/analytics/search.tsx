@@ -1,7 +1,4 @@
-import {
-    useEffect,
-    useState
-} from 'react';
+import { useState } from 'react';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
@@ -15,19 +12,23 @@ import { SettingLayout } from '@system-design/setting';
 import * as API from '@modules/api';
 
 import { loadingStore } from '@stores/loading';
+import { useLoginCheck } from '@hooks/use-login-check';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
     const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchResponseData>();
 
-    useEffect(() => {
-        loadingStore.start();
-        Promise.all([
-            API.getSettingAnalyticsSearch()
-                .then(({ data }) => setSearches(data.body))
-        ]).then(() => {
-            loadingStore.end();
-        });
-    }, []);
+    useLoginCheck({
+        loginRequired: { redirect: '/' },
+        onSuccess: () => {
+            Promise.all([
+                loadingStore.start(),
+                API.getSettingAnalyticsSearch()
+                    .then(({ data }) => setSearches(data.body))
+            ]).finally(() => {
+                loadingStore.end();
+            });
+        }
+    });
 
     return (
         <>
