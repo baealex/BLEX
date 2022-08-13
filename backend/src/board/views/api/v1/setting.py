@@ -137,7 +137,7 @@ def setting(request, item):
                 owner=user
             ).annotate(
                 total_posts=Count('posts')
-            ).order_by('index', '-id')
+            ).order_by('order', '-id')
             return StatusDone({
                 'username': user.username,
                 'series': list(map(lambda item: {

@@ -565,7 +565,6 @@ class SearchValue(models.Model):
 
 class Series(models.Model):
     order        = models.IntegerField(default=0)
-    index        = models.IntegerField(default=0) # deprecated
     owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name         = models.CharField(max_length=50, unique=True)
     text_md      = models.TextField(blank=True)

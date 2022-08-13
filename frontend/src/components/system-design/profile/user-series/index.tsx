@@ -11,8 +11,8 @@ export interface SeriesProps {
 export function UserSeries(props: SeriesProps) {
     return (
         <>
-            {props.series.map((item, idx: number) => (
-                <SeriesList key={idx} {...item}/>
+            {props.series.map((item) => (
+                <SeriesList key={item.url} {...item}/>
             ))}
             {props.children}
         </>

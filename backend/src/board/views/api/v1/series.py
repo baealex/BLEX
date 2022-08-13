@@ -18,8 +18,8 @@ def user_series(request, username, url=None):
                 owner__username=username,
                 hide=False
             ).annotate(
-                owner_username=F('owner__username')
-            ).order_by('index', '-id')
+                owner_username=F('owner__username'),
+            ).order_by('order', '-id').distinct()
             
             series = Paginator(
                 objects=series,
@@ -40,7 +40,7 @@ def user_series(request, username, url=None):
         if request.method == 'PUT':
             body = QueryDict(request.body)
             if request.GET.get('kind', '') == 'order':
-                series = Series.objects.filter(owner=request.user).order_by('index')
+                series = Series.objects.filter(owner=request.user).order_by('order')
                 prev_state = {}
 
                 for item in series:
@@ -108,7 +108,6 @@ def user_series(request, username, url=None):
                 return StatusDone({
                     'name': series.name,
                     'url': series.url,
-                    'image': series.thumbnail(),
                     'owner': series.owner_username,
                     'owner_image': series.owner_avatar,
                     'description': series.text_md,
