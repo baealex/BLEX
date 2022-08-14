@@ -9,6 +9,7 @@ import {
     Pagination,
     SEO
 } from '@system-design/shared';
+import { Card } from '@components/design-system';
 import type { PageComponent } from '@components';
 
 import * as API from '@modules/api';
@@ -52,6 +53,11 @@ const TrendyArticles: PageComponent<Props> = (props) => {
 
 TrendyArticles.pageLayout = (page, props) => (
     <CollectionLayout active="인기 포스트" {...props}>
+        <div className="mt-4">
+            <Card hasBackground isRounded className="p-3">
+                30일간 '추천'과 '도움됐어요'가 눌러진 횟수를 기준으로 정렬했어요!
+            </Card>
+        </div>
         <div className="row">
             {props.posts.map(item => (
                 <ArticleCard
