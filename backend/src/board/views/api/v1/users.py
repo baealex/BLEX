@@ -97,20 +97,20 @@ def users(request, username):
                     }, tags))
                 
                 elif include == 'most':
-                    cache_key = user.username + '_most_trendy'
-                    posts = cache.get(cache_key)
-                    if not posts:
-                        posts = Post.objects.filter(
-                            author=user,
-                            config__hide=False,
-                            config__notice=False,
-                            created_date__lte=timezone.now(),
-                        ).annotate(
-                            author_username=F('author__username'),
-                            author_image=F('author__profile__avatar')
-                        )
-                        posts = sorted(posts, key=lambda instance: instance.trendy(), reverse=True)[:6]
-                        cache.set(cache_key, posts, 7200)
+                    posts = Post.objects.filter(
+                        author=user,
+                        config__hide=False,
+                        config__notice=False,
+                        created_date__lte=timezone.now(),
+                    ).annotate(
+                        author_username=F('author__username'),
+                        author_image=F('author__profile__avatar'),
+                        thanks_count=Count('thanks', distinct=True),
+                        nothanks_count=Count('nothanks', distinct=True),
+                        likes_count=Count('likes', distinct=True),
+                        point=F('thanks_count') - F('nothanks_count') + (F('likes_count') * 1.5)
+                    ).order_by('-point', '-created_date')[:6]
+                    
                     data[include] = list(map(lambda post: {
                         'url': post.url,
                         'title': post.title,

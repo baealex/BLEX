@@ -187,7 +187,17 @@ def popular_posts(request):
                         thanks__created_date__gt=one_month_ago,
                         then='thanks__history'
                     )
-                )
+                ),
+                distinct=True
+            ),
+            nothanks_count=Count(
+                Case(
+                    When(
+                        nothanks__created_date__gt=one_month_ago,
+                        then='nothanks__history'
+                    )
+                ),
+                distinct=True
             ),
             likes_count=Count(
                 Case(
@@ -195,9 +205,10 @@ def popular_posts(request):
                         likes__created_date__gt=one_month_ago,
                         then='likes__user'
                     )
-                )
+                ),
+                distinct=True
             ),
-            point=F('thanks_count') + F('likes_count')
+            point=F('thanks_count') - F('nothanks_count') + (F('likes_count') * 1.5)
         ).filter(
             point__gt=0
         ).order_by('-point', '-created_date')
