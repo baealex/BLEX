@@ -20,7 +20,7 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
         loginRequired: { redirect: '/' },
         onSuccess: () => {
             loadingStore.start(),
-            Promise.race([
+            Promise.all([
                 API.getSettingAnalyticsView()
                     .then(({ data }) => setViews(data.body)),
                 API.getSettingAnalyticsPostsView()
