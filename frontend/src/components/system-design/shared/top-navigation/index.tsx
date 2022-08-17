@@ -235,7 +235,7 @@ export function TopNavigation() {
                         <div className={cn('logo')}>
                             <Link href="/">
                                 <a>
-                                    <img src="/logob.svg"/>
+                                    <img src={isNight ? '/logow.svg' :'/logob.svg'}/>
                                 </a>
                             </Link>
                         </div>
