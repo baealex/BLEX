@@ -4,6 +4,8 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
+import { Card } from '@components/design-system';
+
 import { getPostsImage } from '@modules/utility/image';
 import { unescape } from '@modules/utility/string';
 
@@ -20,24 +22,28 @@ export interface SeriesArticleCardProps {
 
 export function SeriesArticleCard(props: SeriesArticleCardProps) {
     return (
-        <div className={cn('box')}>
+        <Card hasBackground hasShadow backgroundType="background" className={cn('box')}>
             <Link href={`/@${props.author}/${props.url}`}>
                 <a>
-                    <img
-                        className={cn('thumbnail', 'lazy')}
-                        src={getPostsImage(props.image, { preview: true })}
-                        data-src={getPostsImage(props.image, { minify: true })}
-                    />
-                    <div className={cn('mask')}>
-                        <div className={cn('title')}>
-                            {props.idx + 1}. {props.title}
-                        </div>
-                        <div className={cn('describe')}>
-                            {unescape(props.description)}
-                        </div>
+                    <div className={cn('title')}>
+                        {props.title}
                     </div>
+                    <div className={cn('date')}>
+                        {props.createdDate}
+                    </div>
+                    <div className={cn('description')}>
+                        {unescape(props.description)}
+                    </div>
+                    {props.image && (
+                        <img
+                            className={cn('thumbnail', 'lazy')}
+                            src={getPostsImage(props.image, { preview: true })}
+                            data-src={getPostsImage(props.image, { minify: true })}
+                        />
+                    )}
+                    더 보기
                 </a>
             </Link>
-        </div>
+        </Card>
     );
 }

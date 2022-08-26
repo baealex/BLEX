@@ -1,12 +1,12 @@
 import type { GetServerSideProps } from 'next';
+import Link from 'next/link';
 import React from 'react';
 import Router from 'next/router';
 
 import {
     Button,
     Card,
-    Modal,
-    SpeechBubble
+    Modal
 } from '@design-system';
 import {
     Footer, SEO
@@ -217,60 +217,161 @@ class Series extends React.Component<Props, State> {
 
                 {SeriesModal}
 
-                <div className="container">
-                    <div className="row">
-                        <div className="col-lg-8 mx-auto">
-                            <h2 className="font-weight-bold h5 mb-3">
-                                '{seriesTitle}' 시리즈
-                            </h2>
-                            {this.props.series.owner == this.state.username && (
-                                <div className="mb-3">
-                                    <div className="btn btn-block btn-dark" onClick={() => this.onOpenModal('isSeriesModalOpen')}>
-                                        시리즈 수정
-                                    </div>
-                                </div>
-                            )}
-                            <SpeechBubble
-                                href={`/@${this.props.series.owner}`}
-                                alt={this.props.series.owner}
-                                src={getUserImage(this.props.series.ownerImage)}>
-                                {this.state.seriesDescription ? this.state.seriesDescription : '이 시리즈에 대한 설명이 없습니다.'}
-                            </SpeechBubble>
-                            <div className="mt-5 mb-3 text-right">
-                                <Button
-                                    space="spare"
-                                    onClick={() => configStore.set((prevState) => ({
-                                        ...prevState,
-                                        isSortOldFirst: !isSortOldFirst
-                                    }))}>
-                                    {isSortOldFirst ? (
-                                        <>
-                                            <i className="fas fa-sort-up"/> 과거부터
-                                        </>
-                                    ) : (
-                                        <>
-                                            <i className="fas fa-sort-down"/> 최근부터
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                            {isSortOldFirst ? seriesPosts.map((post, idx) => (
-                                <SeriesArticleCard
-                                    key={idx}
-                                    idx={idx}
-                                    author={this.props.series.owner}
-                                    {...post}
-                                />
-                            )) : seriesPosts.map((post, idx) => (
-                                <SeriesArticleCard
-                                    key={idx}
-                                    idx={idx}
-                                    author={this.props.series.owner}
-                                    {...post}
-                                />
-                            )).reverse()}
-                        </div>
+                <style jsx>{`
+                    :global(main.content) {
+                        padding-top: 0;
+                        background-color: #F2F2F2;
+
+                        :global(body.dark) & {
+                            background-color: #151515;
+                        }
+                    }
+                    
+                    .series-header {
+                        height: 380px;
+                        background: #000;
+                        width: 100%;
+                        position: relative;
+
+                        .series-header-content {
+                            position: absolute;
+                            top: calc(50% + 40px);
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            text-align: center;
+                            color: #fff;
+                            width: 100%;
+                            max-width: 720px;
+                            padding: 0 15px;
+
+                            .series-title {
+                                font-size: 2rem;
+                                font-weight: bold;
+                                margin-bottom: 1rem;
+                                letter-spacing: -1px;
+
+                                @media (max-width: 768px) {
+                                    font-size: 1.5rem;
+                                }
+                            }
+
+                            .series-description {
+                                font-size: 1.2rem;
+                                line-height: 1.5;
+                                margin-bottom: 1rem;
+                                word-break: keep-all;
+
+                                @media (max-width: 768px) {
+                                    font-size: 1rem;
+                                    word-break: break-all;
+                                }
+                            }
+                        }
+
+                        .corner {
+                            position: absolute;
+                            bottom: 16px;
+                            right: 16px;
+                        }
+                    }
+
+                    .series-header::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -30px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 0;
+                        height: 0;
+                        border-style: solid;
+                        border-width: 30px 30px 0 30px;
+                        border-color: #000 transparent transparent transparent;
+                    }
+
+                    .user-image-wrapper {
+                        width: 200px;
+                        height: 200px;
+                        border-radius: 100%;
+                        overflow: hidden;
+                        margin: 60px auto;
+
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+
+                            &:hover {
+                                transform: scale(1.5);
+                            }
+
+                            transition: transform 0.2s ease-in-out;
+                        }
+                    }
+
+                    .b-container {
+                        padding: 0 15px;
+                        width: 100%;
+                        max-width: 600px;
+                        margin: 0 auto;
+                    }
+                `}</style>
+
+                <div className="series-header">
+                    <div className="series-header-content">
+                        <h1 className="series-title">“{this.props.series.name}” 시리즈</h1>
+                        <p className="series-description">{this.props.series.description}</p>
                     </div>
+                    {this.props.series.owner == this.state.username && (
+                        <div className="corner">
+                            <div className="btn btn-dark" onClick={() => this.onOpenModal('isSeriesModalOpen')}>
+                                시리즈 수정
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="user-image-wrapper">
+                    <Link href={`/@${this.props.series.owner}`}>
+                        <a>
+                            <img src={getUserImage(this.props.series.ownerImage)} alt={this.props.series.name} />
+                        </a>
+                    </Link>
+                </div>
+
+                <div className="b-container">
+                    <div className="mt-5 mb-3 text-right">
+                        <Button
+                            space="spare"
+                            onClick={() => configStore.set((prevState) => ({
+                                ...prevState,
+                                isSortOldFirst: !isSortOldFirst
+                            }))}>
+                            {isSortOldFirst ? (
+                                <>
+                                    <i className="fas fa-sort-up"/> 과거부터
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-sort-down"/> 최근부터
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                    {isSortOldFirst ? seriesPosts.map((post, idx) => (
+                        <SeriesArticleCard
+                            key={idx}
+                            idx={idx}
+                            author={this.props.series.owner}
+                            {...post}
+                        />
+                    )) : seriesPosts.map((post, idx) => (
+                        <SeriesArticleCard
+                            key={idx}
+                            idx={idx}
+                            author={this.props.series.owner}
+                            {...post}
+                        />
+                    )).reverse()}
                 </div>
                 <Footer/>
             </>
