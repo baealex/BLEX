@@ -8,6 +8,7 @@ export * from './check-box';
 export * from './dropdown';
 export * from './glitch-text';
 export * from './image-input';
+export * from './image-preload';
 export * from './loading';
 export * from './page-navigation';
 export * from './pop-over';

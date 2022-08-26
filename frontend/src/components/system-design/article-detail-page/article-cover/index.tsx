@@ -2,6 +2,9 @@ import classNames from 'classnames/bind';
 import styles from './ArticleCover.module.scss';
 const cn = classNames.bind(styles);
 
+import { ImagePreload } from '@design-system';
+import { getPostsImage } from '@modules/utility/image';
+
 export function ArticleCover(props: {
     series?: string;
     image?: string;
@@ -34,11 +37,8 @@ export function ArticleCover(props: {
     return (
         <header className={cn('full-cover')}>
             <div className={cn('image-cover')}>
-                <div
-                    style={props.image ?
-                        { backgroundImage: 'url(https://static.blex.me/' + props.image + ')' }
-                        : undefined}>
-                </div>
+                <ImagePreload links={[getPostsImage(props.image)]} />
+                <div style={{ backgroundImage: 'url('+ getPostsImage(props.image) + ')' }}/>
             </div>
             <div className={cn('inner')}>
                 <div className={cn('container')}>
