@@ -1,5 +1,6 @@
 import os
 import datetime
+import traceback
 
 from django.conf import settings
 from django.http import Http404
@@ -69,18 +70,28 @@ def image(request):
                         return StatusError('RJ', '이미지 업로드를 실패했습니다.')
                 elif ext == 'png':
                     try:
-                        resize_image = Image.open(upload_path + '/' + file_name + '.' + ext)
-                        resize_image = resize_image.convert('RGB')
-
-                        resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
-                        resize_image.save(upload_path + '/' + file_name + '.jpg')
-                        os.system('rm ' + upload_path + '/' + file_name + '.png')
-                        ext = 'jpg'
-                        
                         image_path = upload_path + '/' + file_name + '.' + ext
+                        image_size = os.stat(image_path).st_size
+                        resize_image = Image.open(image_path)
+
+                        if image_size > 1024 * 1024 * 1.2:
+                            resize_image = resize_image.convert('RGB')
+                            ext = 'jpg'
+
+                        image_path = upload_path + '/' + file_name + '.' + ext
+                        resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
+                        resize_image.save(image_path)
+
+                        if ext == 'jpg':
+                            os.system('rm ' + upload_path + '/' + file_name + '.' + '.png')
+
+                        if ext == 'png':
+                            resize_image = resize_image.convert('RGB')
+
                         preview_image = resize_image.filter(ImageFilter.GaussianBlur(50))
                         preview_image.save(image_path + '.preview.jpg', quality=50)
                     except:
+                        traceback.print_exc()
                         return StatusError('RJ', '이미지 업로드를 실패했습니다.')
                 else:
                     try:
