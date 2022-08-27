@@ -5,18 +5,10 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./*"],
-      "@design-system": [
-        "./components/design-system"
-      ],
-      "@design-system/*": [
-        "./components/design-system/*"
-      ],
-      "@system-design": [
-        "./components/system-design"
-      ],
-      "@system-design/*": [
-        "./components/system-design/*"
-      ]
+      "@design-system": ["./components/design-system"],
+      "@design-system/*": ["./components/design-system/*"],
+      "@system-design": ["./components/system-design"],
+      "@system-design/*": ["./components/system-design/*"]
     },
     "jsx": "preserve",
     "lib": [
@@ -46,7 +38,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
-, "modules/library/codemirror.helper.js"  ],
+  ],
   "exclude": [
     "node_modules"
   ]

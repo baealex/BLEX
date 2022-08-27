@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 
 import {
@@ -16,6 +16,7 @@ import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { loadingStore } from '~/stores/loading';
+import { useForm } from 'react-hook-form';
 
 type Props = API.GetSettingProfileResponseData;
 
@@ -33,32 +34,34 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     return { props: data.body };
 };
 
+interface ProfileForm {
+    bio: string;
+    homepage: string;
+    github: string;
+    twitter: string;
+    instagram: string;
+    facebook: string;
+    youtube: string;
+}
+
 const ProfileSetting: PageComponent<Props> = (props) => {
     const [ avatar, setAvatar ] = useState(props.avatar);
-    const [ bio, setBio ] = useState(props.bio);
-    const [ homepage, setHomepage ] = useState(props.homepage);
-    const [ github, setGithub ] = useState(props.github);
-    const [ twitter, setTwitter ] = useState(props.twitter);
-    const [ facebook, setFacebook ] = useState(props.facebook);
-    const [ instagram, setInstagram ] = useState(props.instagram);
-    const [ youtube, setYoutube ] = useState(props.youtube);
 
-    const onSubmit = async () => {
-        const sendData = {
-            bio,
-            homepage,
-            github,
-            twitter,
-            facebook,
-            instagram,
-            youtube
-        };
+    const {
+        reset,
+        register,
+        handleSubmit: handleSubmitWrapper
+    } = useForm<ProfileForm>();
 
-        const { data } = await API.putSetting('profile', sendData);
+    useEffect(() => reset({ ...props }), []);
+
+    const handleSubmit = handleSubmitWrapper(async (formData: ProfileForm) => {
+        const { data } = await API.putSetting('profile', formData);
+
         if (data.status === 'DONE') {
             snackBar(message('AFTER_REQ_DONE', '프로필이 업데이트 되었습니다.'));
         }
-    };
+    });
 
     return (
         <>
@@ -81,118 +84,113 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     }}
                 />
             </Card>
-            <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
-                    <Text fontSize={6} fontWeight={600}>
-                        사용자 소개
-                    </Text>
-                    <Button onClick={() => onSubmit()}>
-                        업데이트
-                    </Button>
-                </div>
-                <div className="mb-2">
-                    <Alert type="warning">
-                        포스트 상단에서 작성자를 소개하는 문장입니다.
-                        자신을 한문장으로 표현해 본다면?
-                    </Alert>
-                </div>
-                <textarea
-                    cols={40}
-                    rows={4}
-                    placeholder="자신을 간단히 설명하세요."
-                    className="form-control mb-3"
-                    onChange={(e) => setBio(e.target.value)}
-                    value={bio}
-                />
-            </Card>
-            <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
-                    <Text fontSize={6} fontWeight={600}>
-                        소셜 정보
-                    </Text>
-                    <Button onClick={() => onSubmit()}>
-                        업데이트
-                    </Button>
-                </div>
-                <label>개인 홈페이지 주소 : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://</span>
+            <form onSubmit={handleSubmit}>
+                <Card hasBackground isRounded className="mb-4 p-3">
+                    <div className="d-flex justify-content-between mb-2">
+                        <Text fontSize={6} fontWeight={600}>
+                            사용자 소개
+                        </Text>
+                        <Button type="submit">
+                            업데이트
+                        </Button>
                     </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={homepage}
-                        onChange={(e) => setHomepage(e.target.value)}
-                    />
-                </div>
-                <label>깃허브 주소 : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://github.com/</span>
+                    <div className="mb-2">
+                        <Alert type="warning">
+                            포스트 상단에서 작성자를 소개하는 문장입니다.
+                            자신을 한문장으로 표현해 본다면?
+                        </Alert>
                     </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={github}
-                        onChange={(e) => setGithub(e.target.value)}
+                    <textarea
+                        {...register('bio')}
+                        cols={40}
+                        rows={4}
+                        placeholder="자신을 간단히 설명하세요."
+                        className="form-control mb-3"
                     />
-                </div>
-                <label>트위터 주소 : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://twitter.com/</span>
+                </Card>
+                <Card hasBackground isRounded className="mb-4 p-3">
+                    <div className="d-flex justify-content-between mb-2">
+                        <Text fontSize={6} fontWeight={600}>
+                            소셜 정보
+                        </Text>
+                        <Button type="submit">
+                            업데이트
+                        </Button>
                     </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={twitter}
-                        onChange={(e) => setTwitter(e.target.value)}
-                    />
-                </div>
-                <label>페이스북 주소 : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://facebook.com/</span>
+                    <label>개인 홈페이지 주소 : </label>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">https://</span>
+                        </div>
+                        <input
+                            {...register('homepage')}
+                            type="text"
+                            className="form-control"
+                            maxLength={100}
+                        />
                     </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={facebook}
-                        onChange={(e) => setFacebook(e.target.value)}
-                    />
-                </div>
-                <label>인스타그램 주소 : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://instagram.com/</span>
+                    <label>깃허브 주소 : </label>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">https://github.com/</span>
+                        </div>
+                        <input
+                            {...register('github')}
+                            type="text"
+                            className="form-control"
+                            maxLength={100}
+                        />
                     </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={instagram}
-                        onChange={(e) => setInstagram(e.target.value)}
-                    />
-                </div>
-                <label>유튜브 채널 주소 : </label>
-                <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">https://youtube.com/channel/</span>
+                    <label>트위터 주소 : </label>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">https://twitter.com/</span>
+                        </div>
+                        <input
+                            {...register('twitter')}
+                            type="text"
+                            className="form-control"
+                            maxLength={100}
+                        />
                     </div>
-                    <input
-                        type="text"
-                        className="form-control"
-                        maxLength={100}
-                        value={youtube}
-                        onChange={(e) => setYoutube(e.target.value)}
-                    />
-                </div>
-            </Card>
+                    <label>페이스북 주소 : </label>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">https://facebook.com/</span>
+                        </div>
+                        <input
+                            {...register('facebook')}
+                            type="text"
+                            className="form-control"
+                            maxLength={100}
+                        />
+                    </div>
+                    <label>인스타그램 주소 : </label>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">https://instagram.com/</span>
+                        </div>
+                        <input
+                            {...register('instagram')}
+                            type="text"
+                            className="form-control"
+                            maxLength={100}
+                        />
+                    </div>
+                    <label>유튜브 채널 주소 : </label>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">https://youtube.com/channel/</span>
+                        </div>
+                        <input
+                            {...register('youtube')}
+                            type="text"
+                            className="form-control"
+                            maxLength={100}
+                        />
+                    </div>
+                </Card>
+            </form>
         </>
     );
 };

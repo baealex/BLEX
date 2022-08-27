@@ -140,12 +140,12 @@ export function EditorLayout(props: Props) {
                     <CheckBox
                         label="포스트를 숨깁니다."
                         defaultChecked={props.isHide.value}
-                        onClick={(value: boolean) => props.isHide.onChange(value)}
+                        onClick={(e) => props.isHide.onChange(e.currentTarget.checked)}
                     />
                     <CheckBox
                         label="포스트에 광고가 있습니다."
                         defaultChecked={props.isAd.value}
-                        onClick={(value: boolean) => props.isAd.onChange(value)}
+                        onClick={(e) => props.isAd.onChange(e.currentTarget.checked)}
                     />
                 </Modal>
 
