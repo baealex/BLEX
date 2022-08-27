@@ -314,6 +314,15 @@ class Series extends React.Component<Props, State> {
                         max-width: 600px;
                         margin: 0 auto;
                     }
+
+                    .series-list {
+                        display: flex;
+                        flex-direction: column;
+
+                        &.reversed {
+                            flex-direction: column-reverse;
+                        }
+                    }
                 `}</style>
 
                 <div className="series-header">
@@ -357,21 +366,16 @@ class Series extends React.Component<Props, State> {
                             )}
                         </Button>
                     </div>
-                    {isSortOldFirst ? seriesPosts.map((post, idx) => (
-                        <SeriesArticleCard
-                            key={idx}
-                            idx={idx}
-                            author={this.props.series.owner}
-                            {...post}
-                        />
-                    )) : seriesPosts.map((post, idx) => (
-                        <SeriesArticleCard
-                            key={idx}
-                            idx={idx}
-                            author={this.props.series.owner}
-                            {...post}
-                        />
-                    )).reverse()}
+                    <div className={`series-list${isSortOldFirst ? '' : ' reversed'}`}>
+                        {seriesPosts.map((post, idx) => (
+                            <SeriesArticleCard
+                                key={post.url}
+                                idx={idx}
+                                author={this.props.series.owner}
+                                {...post}
+                            />
+                        ))}
+                    </div>
                 </div>
                 <Footer/>
             </>
