@@ -1,0 +1,1 @@
+Script resource size check.
