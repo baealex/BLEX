@@ -86,10 +86,22 @@ class Write extends React.Component<Props, State> {
         this.configUpdateKey = configStore.subscribe((state) => {
             this.setState({ isAutoSave: state.isAutoSave });
         });
+
         this.saver = debounceEvent(() => {
             const { token, title, content, tags } = this.state;
             this.onTempSave(token, title, content, tags);
         }, 5000);
+
+        API.getTempPosts().then(({ data }) => {
+            if (data.body.temps.length > 0) {
+                this.setState({ tempPosts: data.body.temps });
+                snackBar('😀 작성하던 포스트가 있으시네요!', {
+                    onClick: () => {
+                        this.setState({ isOpenArticleModal: true });
+                    }
+                });
+            }
+        });
     }
 
     /* Component Method */
@@ -97,18 +109,6 @@ class Write extends React.Component<Props, State> {
     componentWillUnmount() {
         configStore.unsubscribe(this.configUpdateKey);
         authStore.unsubscribe(this.authUpdateKey);
-    }
-
-    async componentDidMount() {
-        const { data } = await API.getTempPosts();
-        if (data.body.temps.length > 0) {
-            this.setState({ tempPosts: data.body.temps });
-            snackBar('😀 작성하던 포스트가 있으시네요!', {
-                onClick: () => {
-                    this.setState({ isOpenArticleModal: true });
-                }
-            });
-        }
     }
 
     /* Inner Method */
