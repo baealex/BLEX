@@ -1,6 +1,6 @@
 import Store from 'badland';
 
-import type { GetLoginResponseData } from '@modules/api';
+import type { GetLoginResponseData } from '~/modules/api';
 
 export interface AuthStoreState extends GetLoginResponseData {
     isConfirmed: boolean;

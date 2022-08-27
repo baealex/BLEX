@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import { Card } from '@design-system';
 
-import { getPostsImage } from '@modules/utility/image';
+import { getPostsImage } from '~/modules/utility/image';
 
 export interface ArticleCardSmallProps {
     author: string;

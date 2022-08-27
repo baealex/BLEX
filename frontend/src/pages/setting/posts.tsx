@@ -14,14 +14,14 @@ import {
     Dropdown,
     Modal
 } from '@design-system';
-import type { PageComponent } from '@components';
+import type { PageComponent } from '~/components';
 import { Pagination } from '@system-design/shared';
 import { SettingLayout } from '@system-design/setting';
 import { TagBadges } from '@system-design/tag';
 
-import * as API from '@modules/api';
-import { message } from '@modules/utility/message';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { message } from '~/modules/utility/message';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 interface Props extends API.GetSettingPostsResponseData {
     page: number;

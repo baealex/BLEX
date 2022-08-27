@@ -8,23 +8,23 @@ import React, {
     useState
 } from 'react';
 
-import { PopOver } from '@components/design-system';
+import { PopOver } from '@design-system';
 
-import { ArticleContent } from '@components/system-design/article-detail-page';
+import { ArticleContent } from '@system-design/article-detail-page';
 
 import {
     FormsModal,
     YoutubeModal
 } from '../../shared/modals';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 import {
     dropImage,
     uploadImage
-} from '@modules/utility/image';
-import blexer from '@modules/utility/blexer';
-import { codeMirrorAll } from '@modules/library/codemirror';
-import { lazyLoadResource } from '@modules/optimize/lazy';
+} from '~/modules/utility/image';
+import blexer from '~/modules/utility/blexer';
+import { codeMirrorAll } from '~/modules/library/codemirror';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 export interface EditorContentProps {
     value: string;

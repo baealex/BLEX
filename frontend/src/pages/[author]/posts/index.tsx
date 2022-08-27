@@ -9,10 +9,10 @@ import {
     ProfileLayout,
     UserArticles
 } from '@system-design/profile';
-import type { PageComponent } from '@components';
+import type { PageComponent } from '~/components';
 import { Text } from '@design-system';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const {

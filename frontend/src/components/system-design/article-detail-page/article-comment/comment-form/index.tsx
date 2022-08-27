@@ -10,8 +10,8 @@ import {
 
 import { Card } from '@design-system';
 
-import { dropImage } from '@modules/utility/image';
-import { snackBar } from '@modules/ui/snack-bar';
+import { dropImage } from '~/modules/utility/image';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 export interface CommentFormProps {
     content: string;

@@ -6,11 +6,11 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import { Footer } from '@system-design/shared';
 
-import * as API from '@modules/api';
-import { CONFIG } from '@modules/settings';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { CONFIG } from '~/modules/settings';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '@stores/auth';
+import { authStore } from '~/stores/auth';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { token } = context.query;

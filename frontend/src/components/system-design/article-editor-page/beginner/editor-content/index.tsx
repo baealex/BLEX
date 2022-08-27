@@ -8,13 +8,13 @@ import React, {
     useState
 } from 'react';
 
-import { ArticleContent } from '@components/system-design/article-detail-page';
+import { ArticleContent } from '@system-design/article-detail-page';
 import { YoutubeModal } from '../../shared/modals';
 
-import blexer from '@modules/utility/blexer';
-import { codeMirrorAll } from '@modules/library/codemirror';
-import { lazyLoadResource } from '@modules/optimize/lazy';
-import { uploadImage } from '@modules/utility/image';
+import blexer from '~/modules/utility/blexer';
+import { codeMirrorAll } from '~/modules/library/codemirror';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
+import { uploadImage } from '~/modules/utility/image';
 
 export interface EditorContentProps {
     value: [];

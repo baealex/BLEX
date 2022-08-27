@@ -3,7 +3,7 @@ import Store from 'badland';
 import {
     getCookie,
     setCookie
-} from '@modules/utility/cookie';
+} from '~/modules/utility/cookie';
 
 type Theme = 'default' | 'dark' | 'black' | 'neon' | 'pastel';
 

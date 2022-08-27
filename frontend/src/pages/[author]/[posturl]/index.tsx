@@ -19,16 +19,16 @@ import {
 } from '@system-design/shared';
 import { TagBadges } from '@system-design/tag';
 
-import * as API from '@modules/api';
-import { codeMirrorAll } from '@modules/library/codemirror';
-import { getPostsImage } from '@modules/utility/image';
-import { lazyLoadResource } from '@modules/optimize/lazy';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { codeMirrorAll } from '~/modules/library/codemirror';
+import { getPostsImage } from '~/modules/utility/image';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '@stores/auth';
-import { configStore } from '@stores/config';
+import { authStore } from '~/stores/auth';
+import { configStore } from '~/stores/config';
 
-import { CONFIG } from '@modules/settings';
+import { CONFIG } from '~/modules/settings';
 
 interface Props {
     profile: API.GetUserProfileResponseData;
@@ -149,8 +149,6 @@ class PostDetail extends React.Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Props) {
-        let needSyntaxUpdate = false;
-
         if (
             prevProps.post.url !== this.props.post.url ||
             prevProps.post.author !== this.props.post.author ||
@@ -161,13 +159,9 @@ class PostDetail extends React.Component<Props, State> {
                 isLiked: this.props.post.isLiked,
                 totalLikes: this.props.post.totalLikes
             });
-            needSyntaxUpdate = true;
-            this.makeHeaderNav();
-        }
-
-        if (needSyntaxUpdate) {
             codeMirrorAll();
             lazyLoadResource();
+            this.makeHeaderNav();
         }
     }
 
@@ -212,18 +206,15 @@ class PostDetail extends React.Component<Props, State> {
         }
     }
 
-    onEdit() {
-        const {
-            author, url
-        } = this.props.post;
+    handleEdit() {
+        const { author, url } = this.props.post;
         Router.push(`/@${author}/${url}/edit`);
     }
 
-    async onDelete() {
+    async handleDelete() {
         if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const {
-                author, url
-            } = this.props.post;
+            const { author, url } = this.props.post;
+
             const { data } = await API.deleteAnUserPosts('@' + author, url);
             if (data.status === 'DONE') {
                 snackBar('😀 포스트가 삭제되었습니다.');
@@ -259,8 +250,8 @@ class PostDetail extends React.Component<Props, State> {
                             <div className="col-lg-8">
                                 {this.props.post.author == this.state.username && (
                                     <div className="mb-3">
-                                        <div className="btn btn-dark" onClick={() => this.onEdit()}>포스트 수정</div>
-                                        <div className="btn btn-dark ml-2" onClick={() => this.onDelete()}>포스트 삭제</div>
+                                        <div className="btn btn-dark" onClick={this.handleEdit.bind(this)}>포스트 수정</div>
+                                        <div className="btn btn-dark ml-2" onClick={this.handleDelete.bind(this)}>포스트 삭제</div>
                                     </div>
                                 )}
                                 <ArticleAuthor {...this.props.profile}/>

@@ -3,21 +3,18 @@ import Head from 'next/head';
 import Router from 'next/router';
 import Script from 'next/script';
 
-import type {
-    PageComponent,
-    PageLayout
-} from '@components';
+import type { PageComponent, PageLayout } from '~/components';
 import {
     SEO,
     TopNavigation
 } from '@system-design/shared';
 import { Loading } from '@design-system';
 
-import { CONFIG } from '@modules/settings';
-import { lazyLoadResource } from '@modules/optimize/lazy';
-import { minify } from '@modules/utility/string';
+import { CONFIG } from '~/modules/settings';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
+import { minify } from '~/modules/utility/string';
 
-import { loadingStore } from '@stores/loading';
+import { loadingStore } from '~/stores/loading';
 
 import '../styles/main.scss';
 

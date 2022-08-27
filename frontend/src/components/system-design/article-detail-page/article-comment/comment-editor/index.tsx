@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { snackBar } from '@modules/ui/snack-bar';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 export interface CommentEditorProps {
     pk: number;

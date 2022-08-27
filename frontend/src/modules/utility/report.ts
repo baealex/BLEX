@@ -1,6 +1,6 @@
-import { postReportError } from '@modules/api';
+import { postReportError } from '~/modules/api';
 
-import { authStore } from '@stores/auth';
+import { authStore } from '~/stores/auth';
 
 export function bindErrorReport() {
     if (typeof window !== 'undefined') {

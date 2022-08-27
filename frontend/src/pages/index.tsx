@@ -9,10 +9,10 @@ import {
     Pagination,
     SEO
 } from '@system-design/shared';
-import { Card } from '@components/design-system';
-import type { PageComponent } from '@components';
+import { Card } from '@design-system';
+import type { PageComponent } from '~/components';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;

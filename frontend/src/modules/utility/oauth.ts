@@ -1,5 +1,5 @@
-import { CONFIG } from '@modules/settings';
-import { setCookie } from '@modules/utility/cookie';
+import { CONFIG } from '~/modules/settings';
+import { setCookie } from '~/modules/utility/cookie';
 
 export type OauthSocial =  'google' | 'github';
 

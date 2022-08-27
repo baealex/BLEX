@@ -2,13 +2,13 @@ import type { GetServerSideProps } from 'next';
 import React from 'react';
 import Router from 'next/router';
 
-import { EditorLayout } from '@components/system-design/article-editor-page/beginner';
+import { EditorLayout } from '@system-design/article-editor-page/beginner';
 
-import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '@stores/auth';
-import { configStore } from '@stores/config';
+import { authStore } from '~/stores/auth';
+import { configStore } from '~/stores/config';
 
 interface Props {
     username: string;

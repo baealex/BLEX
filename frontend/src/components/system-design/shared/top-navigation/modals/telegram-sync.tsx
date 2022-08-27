@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Modal } from '@design-system';
 
-import * as API from '@modules/api';
-import { message } from '@modules/utility/message';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { message } from '~/modules/utility/message';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 interface Props {
     isOpen: boolean;

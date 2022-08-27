@@ -5,10 +5,10 @@ import {
 
 import { Button } from '@design-system';
 
-import * as API from '@modules/api';
-import { debounceEvent } from '@modules/optimize/event';
-import { message } from '@modules/utility/message';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { debounceEvent } from '~/modules/optimize/event';
+import { message } from '~/modules/utility/message';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 interface ArticleThanks {
     author: string;

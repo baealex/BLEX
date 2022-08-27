@@ -13,13 +13,13 @@ import {
 } from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
 
-import { snackBar } from '@modules/ui/snack-bar';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import * as API from '@modules/api';
-import { getUserImage } from '@modules/utility/image';
+import * as API from '~/modules/api';
+import { getUserImage } from '~/modules/utility/image';
 
-import { authStore } from '@stores/auth';
-import { configStore } from '@stores/config';
+import { authStore } from '~/stores/auth';
+import { configStore } from '~/stores/config';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { cookies } = context.req;

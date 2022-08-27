@@ -6,10 +6,10 @@ import {
     SEO
 } from '@system-design/shared';
 import { CollectionLayout } from '@system-design/article';
-import type { PageComponent } from '@components';
+import type { PageComponent } from '~/components';
 import { TagCard } from '@system-design/tag';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;

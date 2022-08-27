@@ -4,13 +4,13 @@ import { useState } from 'react';
 import ReactFrappeChart from 'react-frappe-charts';
 
 import { Card } from '@design-system';
-import type { PageComponent } from '@components';
+import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
-import { loadingStore } from '@stores/loading';
-import { useLoginCheck } from '@hooks/use-login-check';
+import { loadingStore } from '~/stores/loading';
+import { useLoginCheck } from '~/hooks/use-login-check';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
     const [ views, setViews ] = useState<API.GetSettingAnalyticsViewResponseData>();

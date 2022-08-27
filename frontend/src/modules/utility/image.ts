@@ -1,10 +1,10 @@
-import { message } from '@modules/utility/message';
-import { snackBar } from '@modules/ui/snack-bar';
+import { message } from '~/modules/utility/message';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import * as API from '@modules/api';
-import { CONFIG } from '@modules/settings';
+import * as API from '~/modules/api';
+import { CONFIG } from '~/modules/settings';
 
-import { loadingStore } from '@stores/loading';
+import { loadingStore } from '~/stores/loading';
 
 export function getImage(path: string) {
     return `${CONFIG.STATIC_SERVER}/${path}`;

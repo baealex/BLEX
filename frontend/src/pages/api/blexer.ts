@@ -1,5 +1,5 @@
-import { CONFIG } from '@modules/settings';
-import blexer from '@modules/utility/blexer';
+import { CONFIG } from '~/modules/settings';
+import blexer from '~/modules/utility/blexer';
 
 import {
     NextApiRequest,

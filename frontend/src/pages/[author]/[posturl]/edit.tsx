@@ -3,8 +3,8 @@ import { useState } from 'react';
 
 import { EditorLayout } from '@system-design/article-editor-page/expert';
 
-import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 import { GetServerSideProps } from 'next';
 

@@ -3,9 +3,9 @@ import axios, {
     AxiosRequestHeaders
 } from 'axios';
 
-import { CONFIG } from '@modules/settings';
-import { message } from '@modules/utility/message';
-import { snackBar } from '@modules/ui/snack-bar';
+import { CONFIG } from '~/modules/settings';
+import { message } from '~/modules/utility/message';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 export const ERROR = {
     REJECT: 'error:RJ',

@@ -5,18 +5,18 @@ import Router from 'next/router';
 import {
     EditorLayout,
     TempArticleModal
-} from '@components/system-design/article-editor-page/expert';
+} from '@system-design/article-editor-page/expert';
 import { PopOver } from '@design-system';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 import {
     DebounceEventRunner,
     debounceEvent
-} from '@modules/optimize/event';
-import { snackBar } from '@modules/ui/snack-bar';
+} from '~/modules/optimize/event';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '@stores/auth';
-import { configStore } from '@stores/config';
+import { authStore } from '~/stores/auth';
+import { configStore } from '~/stores/config';
 
 interface Props {
     username: string;

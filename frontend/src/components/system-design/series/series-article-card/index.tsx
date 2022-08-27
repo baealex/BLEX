@@ -4,10 +4,10 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card } from '@components/design-system';
+import { Card } from '@design-system';
 
-import { getPostsImage } from '@modules/utility/image';
-import { unescape } from '@modules/utility/string';
+import { getPostsImage } from '~/modules/utility/image';
+import { unescape } from '~/modules/utility/string';
 
 export interface SeriesArticleCardProps {
     idx: number;

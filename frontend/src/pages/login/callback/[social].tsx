@@ -4,13 +4,13 @@ import { useEffect } from 'react';
 
 import { Loading } from '@design-system';
 
-import * as API from '@modules/api';
-import { getCookie } from '@modules/utility/cookie';
-import { message } from '@modules/utility/message';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { getCookie } from '~/modules/utility/cookie';
+import { message } from '~/modules/utility/message';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '@stores/auth';
-import { modalStore } from '@stores/modal';
+import { authStore } from '~/stores/auth';
+import { modalStore } from '~/stores/modal';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { social, code } = context.query;

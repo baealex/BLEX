@@ -19,16 +19,16 @@ import {
 import { DayNight } from './day-night';
 import { Dropdown } from '@design-system';
 
-import * as API from '@modules/api';
-import { getUserImage } from '@modules/utility/image';
-import { message } from '@modules/utility/message';
-import { optimizedEvent } from '@modules/optimize/event';
-import { snackBar } from '@modules/ui/snack-bar';
-import { syncTheme } from '@modules/utility/darkmode';
+import * as API from '~/modules/api';
+import { getUserImage } from '~/modules/utility/image';
+import { message } from '~/modules/utility/message';
+import { optimizedEvent } from '~/modules/optimize/event';
+import { snackBar } from '~/modules/ui/snack-bar';
+import { syncTheme } from '~/modules/utility/darkmode';
 
-import { authStore } from '@stores/auth';
-import { configStore } from '@stores/config';
-import { modalStore } from '@stores/modal';
+import { authStore } from '~/stores/auth';
+import { configStore } from '~/stores/config';
+import { modalStore } from '~/stores/modal';
 
 export function TopNavigation() {
     const router = useRouter();

@@ -17,9 +17,9 @@ import {
 import { EditorContent } from '../editor-content';
 import { EditorTitle } from '../../shared/editor-title';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
-import { modalStore } from '@stores/modal';
+import { modalStore } from '~/stores/modal';
 
 interface Props {
     title: {

@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 import { Dropdown } from '@design-system';
 
-import { sorted } from '@modules/utility/object';
+import { sorted } from '~/modules/utility/object';
 
 export interface TagProps {
     name: string;

@@ -7,11 +7,11 @@ import Link from 'next/link';
 
 import { ArticleCard } from '../../article/article-card';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 import {
     lazyIntersection,
     lazyLoadResource
-} from '@modules/optimize/lazy';
+} from '~/modules/optimize/lazy';
 
 export interface RelatedProps {
     author: string;

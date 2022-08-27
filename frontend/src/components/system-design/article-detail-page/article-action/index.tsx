@@ -7,10 +7,10 @@ import {
     useState
 } from 'react';
 
-import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { modalStore } from '@stores/modal';
+import { modalStore } from '~/stores/modal';
 
 export type ArticleActionProps = API.GetAnUserPostsViewResponseData;
 

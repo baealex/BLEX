@@ -13,8 +13,8 @@ import {
 } from '@system-design/shared';
 import { ArticleCard } from '@system-design/article';
 
-import * as API from '@modules/api';
-import { getUserImage } from '@modules/utility/image';
+import * as API from '~/modules/api';
+import { getUserImage } from '~/modules/utility/image';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const {

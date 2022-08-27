@@ -14,12 +14,12 @@ import {
     Social,
     SocialProps
 } from '@system-design/shared';
-import { Button } from '@components/design-system';
+import { Button } from '@design-system';
 import { ProfileNavigation } from '@system-design/profile';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
-import { authStore } from '@stores/auth';
+import { authStore } from '~/stores/auth';
 
 export interface ProfileLayoutProps {
     profile: {

@@ -14,8 +14,8 @@ import {
 import { Alert } from '@design-system';
 import { ArticleCard } from '@system-design/article';
 
-import * as API from '@modules/api';
-import { lazyLoadResource } from '@modules/optimize/lazy';
+import * as API from '~/modules/api';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const {

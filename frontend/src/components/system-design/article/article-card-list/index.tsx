@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 import { TagBadges } from '../../tag';
 
-import { getPostsImage } from '@modules/utility/image';
-import { unescape } from '@modules/utility/string';
+import { getPostsImage } from '~/modules/utility/image';
+import { unescape } from '~/modules/utility/string';
 
 export interface ArticleCardListProps {
     url: string;

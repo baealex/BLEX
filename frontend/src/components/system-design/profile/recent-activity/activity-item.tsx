@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Card } from '@components/design-system';
+import { Card } from '@design-system';
 
 export interface ActivityItemProps {
     url: string;

@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card } from '@components/design-system';
+import { Card } from '@design-system';
 
 export interface TagCardProps {
     name: string;

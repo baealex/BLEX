@@ -9,9 +9,9 @@ import {
     Pagination,
     SEO
 } from '@system-design/shared';
-import type { PageComponent } from '@components';
+import type { PageComponent } from '~/components';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;

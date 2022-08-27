@@ -3,7 +3,7 @@ import styles from './ArticleCover.module.scss';
 const cn = classNames.bind(styles);
 
 import { ImagePreload } from '@design-system';
-import { getPostsImage } from '@modules/utility/image';
+import { getPostsImage } from '~/modules/utility/image';
 
 export function ArticleCover(props: {
     series?: string;

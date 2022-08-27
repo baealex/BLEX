@@ -4,7 +4,7 @@ import { useValue } from 'badland-react';
 import { SEO } from '@system-design/shared';
 import { Text } from '@design-system';
 
-import { authStore } from '@stores/auth';
+import { authStore } from '~/stores/auth';
 
 export default function Map() {
     const [ isLogin ] = useValue(authStore, 'isLogin');

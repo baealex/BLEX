@@ -12,16 +12,16 @@ import { CommentCard } from './comment-card';
 import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 import {
     lazyIntersection,
     lazyLoadResource
-} from '@modules/optimize/lazy';
-import blexer from '@modules/utility/blexer';
-import { snackBar } from '@modules/ui/snack-bar';
+} from '~/modules/optimize/lazy';
+import blexer from '~/modules/utility/blexer';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '@stores/auth';
-import { modalStore } from '@stores/modal';
+import { authStore } from '~/stores/auth';
+import { modalStore } from '~/stores/modal';
 
 export interface ArticleCommentProps {
     author: string;

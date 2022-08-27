@@ -7,7 +7,7 @@ import React from 'react';
 
 import { SpeechBubble } from '@design-system';
 
-import { getUserImage } from '@modules/utility/image';
+import { getUserImage } from '~/modules/utility/image';
 
 export interface ArticleSeriesProps {
     url: string;

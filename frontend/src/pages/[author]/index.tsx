@@ -13,11 +13,11 @@ import {
     Heatmap,
     SEO
 } from '@system-design/shared';
-import type { PageComponent } from '@components';
+import type { PageComponent } from '~/components';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
-import { configStore } from '@stores/config';
+import { configStore } from '~/stores/config';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { author = '' } = context.query;

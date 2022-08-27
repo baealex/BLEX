@@ -3,14 +3,14 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
 import { Card } from '@design-system';
-import type { PageComponent } from '@components';
+import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
-import * as API from '@modules/api';
-import { message } from '@modules/utility/message';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { message } from '~/modules/utility/message';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { loadingStore } from '@stores/loading';
+import { loadingStore } from '~/stores/loading';
 
 type Props = API.GetSettingSeriesResponseData;
 

@@ -3,7 +3,7 @@ import {
     Modal
 } from '@design-system';
 
-import * as API from '@modules/api';
+import * as API from '~/modules/api';
 
 interface Props {
     isOpen: boolean;

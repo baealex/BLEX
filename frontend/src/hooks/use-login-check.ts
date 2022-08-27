@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useStore } from 'badland-react';
 
-import { authStore } from '@stores/auth';
+import { authStore } from '~/stores/auth';
 
 interface Props {
     loginRequired?: { redirect: string };

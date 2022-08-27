@@ -3,10 +3,10 @@ import Router from 'next/router';
 
 import { Modal } from '@design-system';
 
-import * as API from '@modules/api';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '@stores/auth';
+import { authStore } from '~/stores/auth';
 
 interface Props {
     isOpen: boolean;

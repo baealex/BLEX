@@ -13,8 +13,8 @@ import {
 import {
     getPostsImage,
     getUserImage
-} from '@modules/utility/image';
-import { unescape } from '@modules/utility/string';
+} from '~/modules/utility/image';
+import { unescape } from '~/modules/utility/string';
 
 export interface ArticleCardProps {
     number?: number;

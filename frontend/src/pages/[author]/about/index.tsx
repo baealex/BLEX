@@ -5,16 +5,16 @@ import React, {
 import type { GetServerSideProps } from 'next';
 
 import { ArticleContent } from '@system-design/article-detail-page';
-import type { PageComponent } from '@components';
+import type { PageComponent } from '~/components';
 import { ProfileLayout } from '@system-design/profile';
 import { SEO } from '@system-design/shared';
 import { Text } from '@design-system';
 
-import * as API from '@modules/api';
-import blexer from '@modules/utility/blexer';
-import { snackBar } from '@modules/ui/snack-bar';
+import * as API from '~/modules/api';
+import blexer from '~/modules/utility/blexer';
+import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '@stores/auth';
+import { authStore } from '~/stores/auth';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { author = '' } = context.query;

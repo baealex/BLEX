@@ -4,12 +4,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "@components": [
-        "./components"
-      ],
-      "@components/*": [
-        "./components/*"
-      ],
+      "~/*": ["./*"],
       "@design-system": [
         "./components/design-system"
       ],
@@ -21,21 +16,6 @@
       ],
       "@system-design/*": [
         "./components/system-design/*"
-      ],
-      "@modules/*": [
-        "./modules/*"
-      ],
-      "@stores/*": [
-        "./stores/*"
-      ],
-      "@hooks/*": [
-        "./hooks/*"
-      ],
-      "@types": [
-        "./types"
-      ],
-      "@types/*": [
-        "./types/*"
       ]
     },
     "jsx": "preserve",
