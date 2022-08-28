@@ -124,12 +124,7 @@ class Series extends React.Component<Props, State> {
             }
         );
         if (data.status === 'DONE') {
-            if (data.body.url) {
-                Router.replace(
-                    '/[author]/series/[seriesurl]',
-                    `/@${this.state.username}/series/${data.body.url}`
-                );
-            }
+            Router.replace(`/@${this.state.username}/series/${data.body.url}`);
             this.onCloseModal('isSeriesModalOpen');
             snackBar('😀 시리즈가 업데이트 되었습니다.');
         } else {
