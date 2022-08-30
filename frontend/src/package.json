@@ -5,8 +5,9 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build",
+        "analyze": "ANALYZE=true npm run build",
         "start": "NODE_OPTIONS=--max_old_space_size=2048 next start",
-        "build-and-start": "next build && NODE_OPTIONS=--max_old_space_size=2048 next start",
+        "build-and-start": "npm run build && npm run start",
         "test": "jest",
         "eslint": "eslint ."
     },
@@ -29,6 +30,7 @@
     },
     "devDependencies": {
         "@babel/runtime": "^7.18.3",
+        "@next/bundle-analyzer": "^12.2.5",
         "@types/codemirror": "^5.60.5",
         "@types/hcaptcha__react-hcaptcha": "^0.1.5",
         "@types/jest": "^28.1.3",
