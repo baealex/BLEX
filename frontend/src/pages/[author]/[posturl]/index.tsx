@@ -50,6 +50,19 @@ interface State {
     featurePosts?: API.GetFeaturePostsResponseData;
 }
 
+function moveToHash() {
+    const elementId = decodeURIComponent(window.location.hash.replace('#', ''));
+    const element = document.getElementById(elementId);
+
+    if (element) {
+        const offset = element.getBoundingClientRect().top + window.scrollY;
+        window.scroll({
+            top: offset - 90,
+            left: 0
+        });
+    }
+}
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { cookies } = context.req;
     configStore.serverSideInject(cookies);
@@ -140,12 +153,20 @@ class PostDetail extends React.Component<Props, State> {
 
     componentWillUnmount() {
         authStore.unsubscribe(this.updateKey);
+
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('popstate', moveToHash);
+        }
     }
 
     componentDidMount() {
         codeMirrorAll();
         lazyLoadResource();
         this.makeHeaderNav();
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('popstate', moveToHash);
+        }
     }
 
     componentDidUpdate(prevProps: Props) {
@@ -176,7 +197,7 @@ class PostDetail extends React.Component<Props, State> {
                         this.setState({ headerNow: entry.target.id });
                     }
                 });
-            }, { rootMargin: '0px 0px -95%' });
+            }, { rootMargin: '0px 0px -90%' });
 
             headersTags.forEach(header => {
                 if (header.id) {
@@ -209,6 +230,21 @@ class PostDetail extends React.Component<Props, State> {
     handleEdit() {
         const { author, url } = this.props.post;
         Router.push(`/@${author}/${url}/edit`);
+    }
+
+    handleClickArticleNav(e: React.MouseEvent<HTMLAnchorElement>) {
+        e.preventDefault();
+        const element = document.getElementById(decodeURIComponent(e.currentTarget.hash.replace('#', '')));
+
+        if (element) {
+            const offset = element.getBoundingClientRect().top + window.scrollY;
+            window.scroll({
+                top: offset - 90,
+                left: 0,
+                behavior: 'smooth'
+            });
+            history.pushState(null, '', e.currentTarget.hash);
+        }
     }
 
     async handleDelete() {
@@ -280,7 +316,10 @@ class PostDetail extends React.Component<Props, State> {
                                     <ul>
                                         {this.state.headerNav.map((item, idx) => (
                                             <li key={idx} className={`title-${item[0]}`}>
-                                                <a className={`${this.state.headerNow == item[1] ? ' nav-now' : ''}`} href={`#${item[1]}`}>
+                                                <a
+                                                    href={`#${item[1]}`}
+                                                    onClick={this.handleClickArticleNav.bind(this)}
+                                                    className={`${this.state.headerNow == item[1] ? ' nav-now' : ''}`}>
                                                     {item[2]}
                                                 </a>
                                             </li>
