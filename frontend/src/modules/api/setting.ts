@@ -159,7 +159,7 @@ export interface GetSettingAnalyticsRefererResponseData {
     }[];
 }
 
-export async function getSettingAnalyticsReferrers(headers?: Headers) {
+export async function getSettingAnalyticsReferer(headers?: Headers) {
     return await request<GetSettingAnalyticsRefererResponseData>({
         url: '/v1/setting/analytics-referer',
         method: 'GET',

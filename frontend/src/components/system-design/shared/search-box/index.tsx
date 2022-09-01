@@ -9,13 +9,13 @@ import {
 } from 'react';
 
 export interface SearchBoxProps {
-    value: string;
+    value?: string;
     placeholder?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     button: React.ReactNode;
-    onClick?: () => void;
+    onClick?: (value?: string) => void;
     maxLength?: number;
-    history: {
+    history?: {
         pk: number;
         value: string;
         createdDate: string;
@@ -33,7 +33,7 @@ export function SearchBox(props: SearchBoxProps) {
 
     const handleClick = useCallback(() => {
         if (props.onClick) {
-            props.onClick();
+            props.onClick(input.current?.value);
         }
     }, [props.onClick]);
 
@@ -67,7 +67,7 @@ export function SearchBox(props: SearchBoxProps) {
                     {props.button}
                 </button>
             </div>
-            {props.history.length > 0 && (
+            {props.history && props.history.length > 0 && (
                 <div className={cn('histories')}>
                     <div className={cn('recent')}>
                         <span>

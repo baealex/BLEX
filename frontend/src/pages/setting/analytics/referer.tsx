@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { useState } from 'react';
 
 import { Card } from '@design-system';
 import type { PageComponent } from '~/components';
@@ -7,23 +6,12 @@ import { SettingLayout } from '@system-design/setting';
 
 import * as API from '~/modules/api';
 
-import { loadingStore } from '~/stores/loading';
-import { useLoginCheck } from '~/hooks/use-login-check';
+import { useFetch } from '~/hooks/use-fetch';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
-    const [ referers, setReferers ] = useState<API.GetSettingAnalyticsRefererResponseData>();
-
-    useLoginCheck({
-        loginRequired: { redirect: '/' },
-        onSuccess: async () => {
-            Promise.all([
-                loadingStore.start(),
-                API.getSettingAnalyticsReferrers()
-                    .then(({ data }) => setReferers(data.body))
-            ]).finally(() => {
-                loadingStore.end();
-            });
-        }
+    const { data: referers } = useFetch('settings/analytics/referers', async () => {
+        const { data } = await API.getSettingAnalyticsReferer();
+        return data.body;
     });
 
     return (

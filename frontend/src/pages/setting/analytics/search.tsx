@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import ReactFrappeChart from 'react-frappe-charts';
 
 import {
@@ -11,23 +9,12 @@ import { SettingLayout } from '@system-design/setting';
 
 import * as API from '~/modules/api';
 
-import { loadingStore } from '~/stores/loading';
-import { useLoginCheck } from '~/hooks/use-login-check';
+import { useFetch } from '~/hooks/use-fetch';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
-    const [ searches, setSearches ] = useState<API.GetSettingAnalyticsSearchResponseData>();
-
-    useLoginCheck({
-        loginRequired: { redirect: '/' },
-        onSuccess: () => {
-            Promise.all([
-                loadingStore.start(),
-                API.getSettingAnalyticsSearch()
-                    .then(({ data }) => setSearches(data.body))
-            ]).finally(() => {
-                loadingStore.end();
-            });
-        }
+    const { data: searches } = useFetch('settings/analytics/search', async () => {
+        const { data } = await API.getSettingAnalyticsSearch();
+        return data.body;
     });
 
     return (
@@ -38,36 +25,34 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                         인기 검색어
                     </div>
                     <Card hasBackground isRounded>
-                        <>
-                            <div className="pt-3 px-3">
-                                <div className="ns shallow-dark text-right">
-                                    기간 : 30일 이내
-                                </div>
+                        <div className="pt-3 px-3">
+                            <div className="ns shallow-dark text-right">
+                                기간 : 30일 이내
                             </div>
-                            <ReactFrappeChart
-                                type="pie"
-                                data={{
-                                    labels: Object.keys(searches.platformTotal),
-                                    datasets: [
-                                        {
-                                            name: 'View',
-                                            values: Object.values(searches.platformTotal),
-                                            chartType: 'line'
-                                        }
-                                    ]
-                                }}
+                        </div>
+                        <ReactFrappeChart
+                            type="pie"
+                            data={{
+                                labels: Object.keys(searches.platformTotal),
+                                datasets: [
+                                    {
+                                        name: 'View',
+                                        values: Object.values(searches.platformTotal),
+                                        chartType: 'line'
+                                    }
+                                ]
+                            }}
+                        />
+                        <div className="p-3 p-md-0">
+                            <Table
+                                head={['유입수', '키워드', '플랫폼']}
+                                body={searches.topSearches.map((item) => [
+                                    item.count.toString(),
+                                    item.keyword,
+                                    item.platform
+                                ])}
                             />
-                            <div className="p-3 p-md-0">
-                                <Table
-                                    head={['유입수', '키워드', '플랫폼']}
-                                    body={searches.topSearches.map((item) => [
-                                        item.count.toString(),
-                                        item.keyword,
-                                        item.platform
-                                    ])}
-                                />
-                            </div>
-                        </>
+                        </div>
                     </Card>
                 </>
             )}

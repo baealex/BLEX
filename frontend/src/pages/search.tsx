@@ -1,7 +1,4 @@
-import React, {
-    useEffect,
-    useState
-} from 'react';
+import React, { useEffect } from 'react';
 import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -16,6 +13,7 @@ import { ArticleCard } from '@system-design/article';
 
 import * as API from '~/modules/api';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
+import { useFetch } from '~/hooks/use-fetch';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
@@ -39,45 +37,21 @@ interface Props {
 export default function Search(props: Props) {
     const router = useRouter();
 
-    const [ search, setSearch ] = useState(props.query);
-    const [ response, setResponse ] = useState<API.ResponseData<API.GetSearchResponseData>>();
-    const [ history, setHistory ] = useState<API.GetSearchHistoryResponseData['searches']>([]);
-
-    useEffect(() => {
-        API.getSearchHistory().then(({ data }) => {
-            setHistory(data.body.searches);
-        });
-    }, []);
-
-    useEffect(() => {
-        if (props.query !== '') {
-            API.getSearch(props.query, props.page).then(({ data }) => {
-                setResponse(data);
-                lazyLoadResource();
-
-                API.getSearchHistory().then(({ data }) => {
-                    setHistory(data.body.searches);
-                });
-            });
-            setSearch(props.query);
+    const { data: response } = useFetch([
+        'settings/analytics/search',
+        props.query,
+        props.page
+    ].join('|'), async () => {
+        if (props.query) {
+            const { data } = await API.getSearch(props.query, props.page);
+            return data;
         }
-    }, [props.query]);
+    });
 
-    useEffect(() => {
-        if (props.query !== '') {
-            API.getSearch(props.query, props.page).then(({ data }) => {
-                setResponse(data);
-                lazyLoadResource();
-            });
-            setSearch(props.query);
-        }
-    }, [props.page]);
-
-    const handleClickSearch = () => {
-        if (search && search != props.query) {
-            searching(search);
-        }
-    };
+    const { data: history, mutate: setHistory } = useFetch('search/history', async () => {
+        const { data } = await API.getSearchHistory();
+        return data.body.searches;
+    });
 
     const handleRemoveHistory = async (pk: number) => {
         const { data } = await API.deleteSearchHistory(pk);
@@ -88,9 +62,12 @@ export default function Search(props: Props) {
         }
     };
 
-    const searching = (keyword: string) => {
-        router.push('/search?q=' + keyword);
-    };
+    useEffect(() => {
+        API.getSearchHistory().then(({ data }) => {
+            setHistory(data.body.searches);
+        });
+        lazyLoadResource();
+    }, [response]);
 
     return (
         <>
@@ -108,14 +85,12 @@ export default function Search(props: Props) {
                     <div className="col-lg-8">
                         <div className="mb-4">
                             <SearchBox
-                                value={search}
                                 maxLength={20}
                                 placeholder="검색어를 입력하세요."
-                                onChange={(e) => setSearch(e.target.value)}
                                 button={<i className="fas fa-search"/>}
-                                onClick={handleClickSearch}
-                                history={history}
-                                onClickHistory={searching}
+                                onClick={(value) => router.push('/search?q=' + value)}
+                                history={history || undefined}
+                                onClickHistory={(value) => router.push('/search?q=' + value)}
                                 onRemoveHistory={handleRemoveHistory}
                             />
                         </div>
@@ -124,29 +99,27 @@ export default function Search(props: Props) {
                                 {response.errorMessage}
                             </Alert>
                         ) : (
-                            <>
-                                {response?.body.results && (
-                                    <>
-                                        <div className="shallow-dark text-right">
-                                            {response?.body.totalSize}건의 결과 ({response?.body.elapsedTime}초)
-                                        </div>
-                                        {response?.body.results.map((item, idx) => (
-                                            <ArticleCard
-                                                key={idx}
-                                                className="mt-4"
-                                                highlight={props.query}
-                                                {...item}
-                                            />
-                                        ))}
-                                        {response?.body.lastPage && (
-                                            <Pagination
-                                                page={props.page}
-                                                last={response?.body.lastPage}
-                                            />
-                                        )}
-                                    </>
-                                )}
-                            </>
+                            response?.body.results && (
+                                <>
+                                    <div className="shallow-dark text-right">
+                                        {response?.body.totalSize}건의 결과 ({response?.body.elapsedTime}초)
+                                    </div>
+                                    {response?.body.results.map((item, idx) => (
+                                        <ArticleCard
+                                            key={idx}
+                                            className="mt-4"
+                                            highlight={props.query}
+                                            {...item}
+                                        />
+                                    ))}
+                                    {response?.body.lastPage && (
+                                        <Pagination
+                                            page={props.page}
+                                            last={response?.body.lastPage}
+                                        />
+                                    )}
+                                </>
+                            )
                         )}
                     </div>
                 </div>

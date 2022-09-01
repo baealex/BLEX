@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { useState } from 'react';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
@@ -9,26 +8,17 @@ import { SettingLayout } from '@system-design/setting';
 
 import * as API from '~/modules/api';
 
-import { loadingStore } from '~/stores/loading';
-import { useLoginCheck } from '~/hooks/use-login-check';
+import { useFetch } from '~/hooks/use-fetch';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
-    const [ views, setViews ] = useState<API.GetSettingAnalyticsViewResponseData>();
-    const [ postViews, setPostViews ] = useState<API.GetSettingAnalyticsPostsViewResponseData>();
+    const { data: views } = useFetch('settings/analytics/views' , async () => {
+        const { data } = await API.getSettingAnalyticsView();
+        return data.body;
+    });
 
-    useLoginCheck({
-        loginRequired: { redirect: '/' },
-        onSuccess: () => {
-            loadingStore.start(),
-            Promise.all([
-                API.getSettingAnalyticsView()
-                    .then(({ data }) => setViews(data.body)),
-                API.getSettingAnalyticsPostsView()
-                    .then(({ data }) => setPostViews(data.body))
-            ]).finally(() => {
-                loadingStore.end();
-            });
-        }
+    const { data: postViews } = useFetch('settings/analytics/posts-views' , async () => {
+        const { data } = await API.getSettingAnalyticsPostsView();
+        return data.body;
     });
 
     return (
