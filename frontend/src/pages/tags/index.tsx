@@ -1,7 +1,6 @@
 import type { GetServerSideProps } from 'next';
 
 import {
-    Footer,
     Pagination,
     SEO
 } from '@system-design/shared';
@@ -44,7 +43,6 @@ const Tags: PageComponent<Props> = (props) => {
                 page={props.page}
                 last={props.lastPage}
             />
-            <Footer/>
         </>
     );
 };

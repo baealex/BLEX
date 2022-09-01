@@ -5,7 +5,6 @@ import {
     CollectionLayout
 } from '@system-design/article';
 import {
-    Footer,
     Pagination,
     SEO
 } from '@system-design/shared';
@@ -43,7 +42,6 @@ const TrendyArticles: PageComponent<Props> = (props) => {
                 page={props.page}
                 last={props.lastPage}
             />
-            <Footer/>
         </>
     );
 };

@@ -1,3 +1,4 @@
+import { Footer } from '@system-design/shared';
 import { PageNavigation } from '@design-system';
 
 const NAVIGATION_ITEMS = [
@@ -23,14 +24,17 @@ export interface CollectionLayoutProps {
 
 export function CollectionLayout(props: CollectionLayoutProps) {
     return (
-        <div className="container">
-            <PageNavigation
-                items={props.itemExpended
-                    ? props.itemExpended(NAVIGATION_ITEMS)
-                    : NAVIGATION_ITEMS}
-                active={props.active}
-            />
-            {props.children}
-        </div>
+        <>
+            <div className="container">
+                <PageNavigation
+                    items={props.itemExpended
+                        ? props.itemExpended(NAVIGATION_ITEMS)
+                        : NAVIGATION_ITEMS}
+                    active={props.active}
+                />
+                {props.children}
+            </div>
+            <Footer/>
+        </>
     );
 }

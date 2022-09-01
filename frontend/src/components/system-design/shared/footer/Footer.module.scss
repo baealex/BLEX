@@ -1,12 +1,11 @@
 @import 'var';
 
 .footer { 
-    margin-top: 30px;
-    padding-bottom: 30px;
+    margin-top: 45px;
     color: #ccc;
     
     a {
-        color: #ccc;
+        color: #bcbcbc;
         
         &:hover {
             color: $COLOR_DEFAULT_SECONDARY;
@@ -15,12 +14,34 @@
     }
 
     .content {
-        margin-bottom: 30px;
+        margin-bottom: 45px;
+    }
+
+    .items {
+        padding: 8px 0;
+        margin: 0;
+        list-style: none;
+        text-align: center;
+        border-top: 1px solid #dedede;
+
+        :global(body.dark) & {
+            border-top: 1px solid #333;
+        }
+
+        li {
+            font-size: 14px;
+            display: inline-block;
+            margin: 16px;
+        }
     }
 
     &.isDark {
         margin-top: 0px;
         background: #000;
+
+        a {
+            color: #ccc;
+        }
 
         .items {
             border-top: 1px solid #333;
@@ -28,21 +49,6 @@
 
         @media only screen and (max-width: 990px) {
             margin-bottom: 54px;
-        }
-    }
-
-    .items {
-        text-align: center;
-        border-top: 1px solid #eee;
-
-        :global(body.dark) & {
-            border-top: 1px solid #333;
-        }
-
-        div {
-            font-size: 14px;
-            display: inline-block;
-            margin: 16px;
         }
     }
 }

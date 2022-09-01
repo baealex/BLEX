@@ -19,28 +19,28 @@ export function Footer({
                     {children}
                 </div>
             )}
-            <div className={cn('items')}>
-                <div>
+            <ul className={cn('items')}>
+                <li>
                     <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
-                        서비스 소개
+                        Notion
                     </a>
-                </div>
-                <div>
+                </li>
+                <li>
                     <a target="_blank" href="https://discord.gg/d4vCnB3CSr">
-                        커뮤니티 참여
+                        Discord
                     </a>
-                </div>
-                <div>
+                </li>
+                <li>
                     <a target="_blank" href="https://github.com/baealex/BLEX">
-                        오픈소스
+                        GitHub
                     </a>
-                </div>
-                <div>
+                </li>
+                <li>
                     <a href="mailto:im@baejino.com">
-                        연락처
+                        Contact
                     </a>
-                </div>
-            </div>
+                </li>
+            </ul>
         </footer>
     );
 }
