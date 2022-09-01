@@ -3,8 +3,6 @@ import styles from './ArticleAuthor.module.scss';
 
 import Link from 'next/link';
 
-import { Card } from '@design-system';
-
 export interface ArticleAuthorProps {
     profile: {
         username: string;
@@ -16,7 +14,7 @@ export interface ArticleAuthorProps {
 
 export function ArticleAuthor(props: ArticleAuthorProps) {
     return (
-        <Card hasBackground isRounded className="p-3 mb-5">
+        <div className={`${styles.box} mb-5`}>
             <div className="d-flex align-items-center">
                 <div>
                     <Link href="/[author]" as={`/@${props.profile.username}`}>
@@ -24,8 +22,8 @@ export function ArticleAuthor(props: ArticleAuthorProps) {
                             <img
                                 className={styles.image}
                                 src={props.profile.image}
-                                width="100"
-                                height="100"
+                                width="50"
+                                height="50"
                             />
                         </a>
                     </Link>
@@ -47,6 +45,6 @@ export function ArticleAuthor(props: ArticleAuthorProps) {
                     </div>
                 </div>
             </div>
-        </Card>
+        </div>
     );
 }

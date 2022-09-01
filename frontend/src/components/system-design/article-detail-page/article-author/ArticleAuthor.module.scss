@@ -1,5 +1,22 @@
 @import 'var';
 
+.box {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    margin: 0 -15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.78);
+    border-bottom: 1px solid #F5F5F8;
+    backdrop-filter: blur(8px);
+
+    :global(body.dark) & {
+        background: rgba(30, 30, 30, 0.78);
+        border-bottom: 1px solid #2A2A2A;
+    }
+}
+
 .image {
     object-fit: cover;
     border-radius: 100%;
