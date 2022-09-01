@@ -1,4 +1,4 @@
-import request, { serializeObject } from './index';
+import request, { serializeObject } from './request';
 
 type GetUserProfileInclude = 'subscribe' | 'profile' | 'social' | 'heatmap' | 'tags' | 'view' | 'most' | 'recent' | 'about';
 

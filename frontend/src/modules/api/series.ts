@@ -1,4 +1,4 @@
-import request, { serializeObject } from './index';
+import request, { serializeObject } from './request';
 
 export interface GetUserSeriesResponseData {
     series: {

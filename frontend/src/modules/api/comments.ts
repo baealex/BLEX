@@ -1,7 +1,5 @@
-import request, {
-    GetPostCommentResponseData,
-    serializeObject
-} from './index';
+import request, { serializeObject } from './request';
+import type { GetPostCommentResponseData } from './posts';
 
 export type PostCommentsResponseData = GetPostCommentResponseData['comments'][0];
 

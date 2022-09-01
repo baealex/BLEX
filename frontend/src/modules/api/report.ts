@@ -1,4 +1,4 @@
-import axiosRequest, { serializeObject } from './index';
+import request, { serializeObject } from './request';
 
 export interface PostReportErrorRequestData {
     user?: string;
@@ -7,7 +7,7 @@ export interface PostReportErrorRequestData {
 }
 
 export async function postReportError(data: PostReportErrorRequestData) {
-    return await axiosRequest<unknown>({
+    return await request<unknown>({
         url: '/v1/report/error',
         method: 'POST',
         data: serializeObject(data)

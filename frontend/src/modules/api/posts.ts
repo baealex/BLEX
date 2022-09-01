@@ -1,7 +1,7 @@
 import request, {
     objectToForm,
     serializeObject
-} from './index';
+} from './request';
 
 export interface GetTempPostsResponseData {
     temps: {

@@ -1,7 +1,7 @@
 import request, {
     Headers,
     serializeObject
-} from './index';
+} from './request';
 
 export interface GetLoginResponseData {
     username: string;
