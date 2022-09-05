@@ -22,7 +22,7 @@ import { Dropdown } from '@design-system';
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
 import { message } from '~/modules/utility/message';
-import { optimizedEvent } from '~/modules/optimize/event';
+import { optimizeEvent } from '~/modules/optimize/event';
 import { snackBar } from '~/modules/ui/snack-bar';
 import { syncTheme } from '~/modules/utility/darkmode';
 
@@ -119,7 +119,7 @@ export function TopNavigation() {
             return;
         }
 
-        const event = optimizedEvent(() => {
+        const event = optimizeEvent(() => {
             if (window.scrollY > 0) {
                 accScrollY += lastScrollY - window.scrollY;
             }

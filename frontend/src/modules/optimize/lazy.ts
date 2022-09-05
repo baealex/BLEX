@@ -1,6 +1,4 @@
-export function lazyIntersection(className: string, callback: () => void) {
-    const element = document.getElementsByClassName(className.replace('.', ''))[0];
-
+export function lazyIntersection(element: HTMLElement | null, callback: () => void) {
     if ('IntersectionObserver' in window) {
         if (element) {
             const observer = new IntersectionObserver((entries, observer) => {

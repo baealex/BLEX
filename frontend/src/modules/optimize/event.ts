@@ -1,4 +1,4 @@
-export function optimizedEvent(func: (e?: Event) => void) {
+export function optimizeEvent(func: (e?: Event) => void) {
     let ticking = false;
 
     return (e?: Event) => {

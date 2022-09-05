@@ -5,13 +5,12 @@ const cn = classNames.bind(styles);
 import {
     useCallback,
     useEffect,
-    useRef
+    useRef,
+    useState
 } from 'react';
 
 export interface SearchBoxProps {
-    value?: string;
     placeholder?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     button: React.ReactNode;
     onClick?: (value?: string) => void;
     maxLength?: number;
@@ -26,6 +25,8 @@ export interface SearchBoxProps {
 
 export function SearchBox(props: SearchBoxProps) {
     const input = useRef<HTMLInputElement>(null);
+
+    const [ active, setActive ] = useState(false);
 
     useEffect(() => {
         input.current?.focus();
@@ -55,15 +56,18 @@ export function SearchBox(props: SearchBoxProps) {
                 <input
                     ref={input}
                     type="search"
-                    value={props.value}
                     placeholder={props.placeholder}
                     maxLength={props.maxLength}
-                    onChange={props.onChange}
+                    onChange={(e) => {
+                        if (e.currentTarget.value.length > 1) {
+                            setActive(true);
+                        } else {
+                            setActive(false);
+                        }
+                    }}
                     onKeyPress={(e) => e.key === 'Enter' && handleClick()}
                 />
-                <button
-                    className={cn({ 'show' : props.value })}
-                    onClick={handleClick}>
+                <button className={cn({ active })} onClick={handleClick}>
                     {props.button}
                 </button>
             </div>

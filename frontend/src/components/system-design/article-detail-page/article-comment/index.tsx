@@ -2,10 +2,8 @@ import classNames from 'classnames/bind';
 import styles from './Comment.module.scss';
 const cn = classNames.bind(styles);
 
-import {
-    useEffect,
-    useState
-} from 'react';
+import { useRef, useState } from 'react';
+import { useValue } from 'badland-react';
 
 import { Alert } from '@design-system';
 import { CommentCard } from './comment-card';
@@ -13,15 +11,13 @@ import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';
 
 import * as API from '~/modules/api';
-import {
-    lazyIntersection,
-    lazyLoadResource
-} from '~/modules/optimize/lazy';
 import blexer from '~/modules/utility/blexer';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
+import { useFetch } from '~/hooks/use-fetch';
 
 export interface ArticleCommentProps {
     author: string;
@@ -29,18 +25,24 @@ export interface ArticleCommentProps {
     totalComment: number;
 }
 
-type Comment = API.GetPostCommentResponseData['comments'][0];
-
-interface CommentsStateItem extends Comment {
-    isEdit: boolean;
-    textMarkdown: string;
-}
-
 export function ArticleComment(props: ArticleCommentProps) {
-    const [ isLogin, setIsLogin ] = useState(authStore.state.isLogin);
-    const [ username, setUsername ] = useState(authStore.state.username);
-    const [ comments, setComments ] = useState<CommentsStateItem[]>([]);
+    const ref = useRef<HTMLDivElement>(null);
+
+    const [ isLogin ] = useValue(authStore, 'isLogin');
+    const [ username ] = useValue(authStore, 'username');
     const [ commentText, setCommentText ] = useState('');
+
+    const { data: comments, mutate: setComments } = useFetch(['posts/comments', props.url], async () => {
+        if (props.totalComment > 0) {
+            const { data } = await API.getPostComments(props.url);
+            return data.body.comments.map(comment => ({
+                ...comment,
+                isEdit: false,
+                textMarkdown: ''
+            }));
+        }
+        return [];
+    }, { observeElement: ref.current });
 
     const handleSubmit = async (content: string) => {
         const { data } = await API.postComments(props.url, content);
@@ -48,7 +50,7 @@ export function ArticleComment(props: ArticleCommentProps) {
             snackBar('😅 댓글 작성중 오류가 발생했습니다!');
             return;
         }
-        setComments(comments.concat({
+        setComments((comments || []).concat({
             isEdit: false,
             textMarkdown: '',
             ...data.body
@@ -58,7 +60,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const handleEdit = async (pk: number) => {
         const { data } = await API.getComment(pk);
-        setComments(comments.map(comment => (
+        setComments((comments || []).map(comment => (
             comment.pk === pk ? ({
                 ...comment,
                 isEdit: true,
@@ -86,7 +88,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                     return;
             }
         }
-        setComments(comments.map(comment => (
+        setComments((comments || []).map(comment => (
             comment.pk === pk ? ({
                 ...comment,
                 isLiked: !comment.isLiked,
@@ -95,11 +97,11 @@ export function ArticleComment(props: ArticleCommentProps) {
         )));
     };
 
-    const handleDelte = async (pk: number) => {
+    const handleDelete = async (pk: number) => {
         if (confirm('😮 정말 이 댓글을 삭제할까요?')) {
             const { data } = await API.deleteComment(pk);
             if (data.status === 'DONE') {
-                setComments(comments.map(comment => (
+                setComments((comments || []).map(comment => (
                     comment.pk === pk ? ({
                         ...comment,
                         ...data.body
@@ -128,7 +130,7 @@ export function ArticleComment(props: ArticleCommentProps) {
     const handleEditSubmit = async (pk: number, content: string) => {
         const { data } = await API.putComment(pk, content);
         if (data.status === 'DONE') {
-            setComments(comments.map(comment => (
+            setComments((comments || []).map(comment => (
                 comment.pk === pk ? ({
                     ...comment,
                     isEdit: false,
@@ -141,8 +143,8 @@ export function ArticleComment(props: ArticleCommentProps) {
         }
     };
 
-    const handleEditCancle = async (pk: number) => {
-        setComments(comments.map(comment => (
+    const handleEditCancel = async (pk: number) => {
+        setComments((comments || []).map(comment => (
             comment.pk == pk ? ({
                 ...comment,
                 isEdit: false
@@ -150,41 +152,8 @@ export function ArticleComment(props: ArticleCommentProps) {
         )));
     };
 
-    useEffect(() => {
-        const updateKey = authStore.subscribe((state) => {
-            setIsLogin(state.isLogin);
-            setUsername(state.username);
-        });
-
-        if (props.totalComment > 0) {
-            const observer = lazyIntersection('.comments', () => {
-                API.getPostComments(props.url).then((response) => {
-                    setComments(response.data.body.comments.map(comment => ({
-                        ...comment,
-                        isEdit: false,
-                        textMarkdown: ''
-                    })));
-                    lazyLoadResource();
-                });
-            });
-
-            return () => {
-                observer?.disconnect();
-                authStore.unsubscribe('Comment');
-            };
-        } else {
-            if (comments.length > 0) {
-                setComments([]);
-            }
-        }
-
-        return () => {
-            authStore.unsubscribe(updateKey);
-        };
-    }, [props.url, username]);
-
     return (
-        <div className={`comments ${cn('background')} py-5`}>
+        <div ref={ref} className={`comments ${cn('background')} py-5`}>
             <div className="container">
                 <div className="col-lg-8 mx-auto px-0">
                     {comments && comments.length > 0 ? comments.map((comment, idx: number) => (
@@ -194,7 +163,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                                 pk={comment.pk}
                                 content={comment.textMarkdown}
                                 onSubmit={handleEditSubmit}
-                                onCancle={handleEditCancle}
+                                onCancel={handleEditCancel}
                             />
                         ) : (
                             <CommentCard
@@ -209,7 +178,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                                 totalLikes={comment.totalLikes}
                                 isLiked={comment.isLiked}
                                 onEdit={handleEdit}
-                                onDelete={handleDelte}
+                                onDelete={handleDelete}
                                 onLike={comment.author !== 'Ghost' ? handleLike : undefined}
                                 onTag={comment.author !== 'Ghost' ? handleTag : undefined}
                             />

@@ -41,7 +41,7 @@ export default function Search(props: Props) {
         'settings/analytics/search',
         props.query,
         props.page
-    ].join('|'), async () => {
+    ], async () => {
         if (props.query) {
             const { data } = await API.getSearch(props.query, props.page);
             return data;

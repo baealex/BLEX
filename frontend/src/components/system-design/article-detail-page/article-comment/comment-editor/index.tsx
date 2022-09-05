@@ -5,7 +5,7 @@ import { snackBar } from '~/modules/ui/snack-bar';
 export interface CommentEditorProps {
     pk: number;
     content: string;
-    onCancle: (pk: number) => void;
+    onCancel: (pk: number) => void;
     onSubmit: (pk: number, content: string) => void;
 }
 
@@ -18,7 +18,7 @@ export function CommentEditor(props: CommentEditorProps) {
             return;
         }
         if (content == props.content) {
-            props.onCancle(props.pk);
+            props.onCancel(props.pk);
             return;
         }
         props.onSubmit(props.pk, content);

@@ -1,17 +1,10 @@
-import {
-    useEffect,
-    useRef,
-    useState
-} from 'react';
 import Link from 'next/link';
+import { useRef } from 'react';
 
 import { ArticleCard } from '../../article/article-card';
 
 import * as API from '~/modules/api';
-import {
-    lazyIntersection,
-    lazyLoadResource
-} from '~/modules/optimize/lazy';
+import { useFetch } from '~/hooks/use-fetch';
 
 export interface RelatedProps {
     author: string;
@@ -20,25 +13,19 @@ export interface RelatedProps {
 }
 
 export function RelatedArticles(props: RelatedProps) {
-    const element = useRef<HTMLDivElement>(null);
-    const [ posts, setPosts ] = useState<API.GetFeaturePostsResponseData['posts']>([]);
+    const ref = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const observer = lazyIntersection('.feature-articles', async () => {
-            const {
-                author,
-                url
-            } = props;
-            const { data } = await API.getFeaturePosts('@'+ author, url);
-            setPosts(data.body.posts);
-            lazyLoadResource();
-        });
-
-        return () => observer?.disconnect();
-    }, [props.url]);
+    const { data: posts } = useFetch([
+        'posts/related',
+        props.author,
+        props.url
+    ], async () => {
+        const { data } = await API.getFeaturePosts('@' + props.author, props.url);
+        return data.body.posts;
+    }, { observeElement: ref.current });
 
     return (
-        <div ref={element} className="feature-articles container pt-5 reverse-color">
+        <div ref={ref} className="container pt-5 reverse-color">
             <p>
                 <Link href={`/@${props.author}`}>
                     <a className="font-weight-bold deep-dark">
@@ -48,7 +35,7 @@ export function RelatedArticles(props: RelatedProps) {
                 님이 작성한 다른 글
             </p>
             <div className="row">
-                {posts.map((item, idx) => (
+                {posts && posts.map((item, idx) => (
                     <ArticleCard key={idx} className="col-lg-4 col-md-6 mt-4" {...item} />
                 ))}
             </div>
