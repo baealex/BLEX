@@ -1,4 +1,4 @@
-.bubble {
+.box {
 	position: relative;
 	width: 100%;
 
@@ -36,11 +36,10 @@
     }
 
     .user {
-        position: relative;
-        top: 15px;
-        right: 0;
-        width: 100%;
-        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-top: 15px;
 
         img {
             display: inline-block;

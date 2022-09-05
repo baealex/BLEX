@@ -20,19 +20,17 @@ export function SpeechBubble({
     children
 }: SpeechBubbleProps) {
     return (
-        <>
-            <div className={classNames(cn('bubble'), className)}>
-                <blockquote>
-                    {children}
-                </blockquote>
-                <div className={cn('user')}>
-                    <Link href={href}>
-                        <a>
-                            <img alt={alt} src={src}/>
-                        </a>
-                    </Link>
-                </div>
+        <div className={classNames(cn('box'), className)}>
+            <blockquote>
+                {children}
+            </blockquote>
+            <div className={cn('user')}>
+                <Link href={href}>
+                    <a>
+                        <img alt={alt} src={src}/>
+                    </a>
+                </Link>
             </div>
-        </>
+        </div>
     );
 }
