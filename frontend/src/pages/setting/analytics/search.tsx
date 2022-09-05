@@ -2,6 +2,7 @@ import ReactFrappeChart from 'react-frappe-charts';
 
 import {
     Card,
+    Loading,
     Table
 } from '@design-system';
 import type { PageComponent } from '~/components';
@@ -12,10 +13,14 @@ import * as API from '~/modules/api';
 import { useFetch } from '~/hooks/use-fetch';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
-    const { data: searches } = useFetch('settings/analytics/search', async () => {
+    const { data: searches, isLoading } = useFetch('settings/analytics/search', async () => {
         const { data } = await API.getSettingAnalyticsSearch();
         return data.body;
     });
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <>

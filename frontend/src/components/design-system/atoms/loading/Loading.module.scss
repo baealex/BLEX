@@ -30,3 +30,21 @@
         background-color: rgba(0, 0, 0, 0.95);
     }
 }
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    animation: spin 0.75s infinite ease;
+    border: 3px solid transparent;
+    border-color: $COLOR_DEFAULT_SECONDARY transparent;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+}

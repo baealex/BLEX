@@ -13,8 +13,10 @@ export function useFetch<T>(key: string, fetch: () => Promise<T>) {
     }, []);
 
     useEffect(() => {
+        if (!cache.has(key)) {
+            setIsLoading(true);
+        }
         cache.has(key) && setData(cache.get(key));
-        setIsLoading(true);
 
         fetch().then(data => {
             cache.set(key, data);

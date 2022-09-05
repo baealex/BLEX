@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
-import { Card } from '@design-system';
+import { Card, Loading } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -11,7 +11,7 @@ import * as API from '~/modules/api';
 import { useFetch } from '~/hooks/use-fetch';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
-    const { data: views } = useFetch('settings/analytics/views' , async () => {
+    const { data: views, isLoading } = useFetch('settings/analytics/views' , async () => {
         const { data } = await API.getSettingAnalyticsView();
         return data.body;
     });
@@ -20,6 +20,10 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
         const { data } = await API.getSettingAnalyticsPostsView();
         return data.body;
     });
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <>

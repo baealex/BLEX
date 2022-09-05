@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Card } from '@design-system';
+import { Card, Loading } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -9,10 +9,14 @@ import * as API from '~/modules/api';
 import { useFetch } from '~/hooks/use-fetch';
 
 const AnalyticsSetting: PageComponent<unknown> = () => {
-    const { data: referers } = useFetch('settings/analytics/referers', async () => {
+    const { data: referers, isLoading } = useFetch('settings/analytics/referers', async () => {
         const { data } = await API.getSettingAnalyticsReferer();
         return data.body;
     });
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <>

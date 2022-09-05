@@ -9,7 +9,7 @@ export interface LoadingProps {
 export function Loading({ isFullPage = false }: LoadingProps) {
     return (
         <div className={cn(isFullPage ? 'block' : 'box')}>
-            <div className="dot-bricks"/>
+            <div className={cn('spinner')}/>
         </div>
     );
 }
