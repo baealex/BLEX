@@ -1,7 +1,6 @@
 .heatmap {
     min-height: 200px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow-x: auto !important;
     
     div {
         margin: 0 auto;
