@@ -3,7 +3,7 @@ import styles from './Comment.module.scss';
 const cn = classNames.bind(styles);
 
 import { useRef, useState } from 'react';
-import { useValue } from 'badland-react';
+import { useStore } from 'badland-react';
 
 import { Alert } from '@design-system';
 import { CommentCard } from './comment-card';
@@ -28,11 +28,10 @@ export interface ArticleCommentProps {
 export function ArticleComment(props: ArticleCommentProps) {
     const ref = useRef<HTMLDivElement>(null);
 
-    const [ isLogin ] = useValue(authStore, 'isLogin');
-    const [ username ] = useValue(authStore, 'username');
+    const [{ isLogin, username }] = useStore(authStore);
     const [ commentText, setCommentText ] = useState('');
 
-    const { data: comments, mutate: setComments } = useFetch(['posts/comments', props.url], async () => {
+    const { data: comments = [], mutate: setComments } = useFetch(['posts/comments', props.url], async () => {
         if (props.totalComment > 0) {
             const { data } = await API.getPostComments(props.url);
             return data.body.comments.map(comment => ({
@@ -41,7 +40,6 @@ export function ArticleComment(props: ArticleCommentProps) {
                 textMarkdown: ''
             }));
         }
-        return [];
     }, { observeElement: ref.current });
 
     const handleSubmit = async (content: string) => {
@@ -50,7 +48,7 @@ export function ArticleComment(props: ArticleCommentProps) {
             snackBar('😅 댓글 작성중 오류가 발생했습니다!');
             return;
         }
-        setComments((comments || []).concat({
+        setComments(comments.concat({
             isEdit: false,
             textMarkdown: '',
             ...data.body
@@ -60,7 +58,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const handleEdit = async (pk: number) => {
         const { data } = await API.getComment(pk);
-        setComments((comments || []).map(comment => (
+        setComments(comments.map(comment => (
             comment.pk === pk ? ({
                 ...comment,
                 isEdit: true,
@@ -88,7 +86,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                     return;
             }
         }
-        setComments((comments || []).map(comment => (
+        setComments(comments.map(comment => (
             comment.pk === pk ? ({
                 ...comment,
                 isLiked: !comment.isLiked,
@@ -101,7 +99,7 @@ export function ArticleComment(props: ArticleCommentProps) {
         if (confirm('😮 정말 이 댓글을 삭제할까요?')) {
             const { data } = await API.deleteComment(pk);
             if (data.status === 'DONE') {
-                setComments((comments || []).map(comment => (
+                setComments(comments.map(comment => (
                     comment.pk === pk ? ({
                         ...comment,
                         ...data.body
@@ -130,7 +128,7 @@ export function ArticleComment(props: ArticleCommentProps) {
     const handleEditSubmit = async (pk: number, content: string) => {
         const { data } = await API.putComment(pk, content);
         if (data.status === 'DONE') {
-            setComments((comments || []).map(comment => (
+            setComments(comments.map(comment => (
                 comment.pk === pk ? ({
                     ...comment,
                     isEdit: false,
@@ -144,7 +142,7 @@ export function ArticleComment(props: ArticleCommentProps) {
     };
 
     const handleEditCancel = async (pk: number) => {
-        setComments((comments || []).map(comment => (
+        setComments(comments.map(comment => (
             comment.pk == pk ? ({
                 ...comment,
                 isEdit: false

@@ -14,7 +14,7 @@ interface UseFetchOptions {
 export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, options: UseFetchOptions = {}) {
     if (typeof key !== 'string') key = key.join('/');
 
-    const [ data, setData ] = useState<T | null>(null);
+    const [ data, setData ] = useState<T>();
     const [ isError, setIsError ] = useState(false);
     const [ isLoading, setIsLoading ] = useState(false);
 
