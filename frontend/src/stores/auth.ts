@@ -11,7 +11,7 @@ const INIT_STATE = {
     isConfirmed: false,
     isLogin: false,
     username: '',
-    realname: '',
+    name: '',
     email: '',
     avatar: '',
     notify: [],

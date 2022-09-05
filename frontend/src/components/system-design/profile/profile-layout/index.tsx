@@ -24,7 +24,7 @@ import { authStore } from '~/stores/auth';
 export interface ProfileLayoutProps {
     profile: {
         image: string;
-        realname: string;
+        name: string;
         username: string;
         bio: string;
     };
@@ -55,7 +55,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
             <div className="container">
                 <div className={`${cn('user')}`}>
                     <img className={cn('avatar')} src={props.profile.image}/>
-                    <div className={cn('realname')}>{props.profile.realname}</div>
+                    <div className={cn('name')}>{props.profile.name}</div>
                     <div className={cn('username')}>@{props.profile.username}</div>
                     {(props.social?.homepage || props.profile.bio) && (
                         <div className="d-flex justify-content-center align-items-center">

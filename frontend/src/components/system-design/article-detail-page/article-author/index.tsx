@@ -6,7 +6,7 @@ import Link from 'next/link';
 export interface ArticleAuthorProps {
     profile: {
         username: string;
-        realname: string;
+        name: string;
         image: string;
         bio: string;
     };
@@ -32,7 +32,7 @@ export function ArticleAuthor(props: ArticleAuthorProps) {
                     <div className={styles.username}>
                         <Link href={`/@${props.profile.username}`}>
                             <a>
-                                {props.profile.realname} (@{props.profile.username})
+                                {props.profile.name} (@{props.profile.username})
                             </a>
                         </Link>
                     </div>
