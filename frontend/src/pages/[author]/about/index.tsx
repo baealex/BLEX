@@ -78,7 +78,7 @@ const UserAbout: PageComponent<Props> = (props) => {
     return (
         <>
             <SEO
-                title={`${props.profile.username} (${props.profile.realname}) — About`}
+                title={`${props.profile.username} (${props.profile.name}) — About`}
                 image={props.profile.image}
                 description={props.profile.bio}
             />

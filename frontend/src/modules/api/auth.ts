@@ -5,7 +5,7 @@ import request, {
 
 export interface GetLoginResponseData {
     username: string;
-    realname: string;
+    name: string;
     email: string;
     avatar: string;
     notify: {
@@ -30,7 +30,7 @@ export async function getLogin(headers?: Headers) {
 
 interface PatchSignResponseData {
     username?: string;
-    realname?: string;
+    name?: string;
 }
 
 export async function patchSign(data: PatchSignResponseData) {
@@ -65,14 +65,14 @@ export async function postLogout() {
     });
 }
 
-export async function postSign(username: string, password: string, email: string, realname: string) {
+export async function postSign(username: string, password: string, email: string, name: string) {
     return await request<undefined>({
         url: '/v1/sign',
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject({
             username,
-            realname,
+            name,
             password,
             email
         })

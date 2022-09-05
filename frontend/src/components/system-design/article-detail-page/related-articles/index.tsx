@@ -16,7 +16,7 @@ import {
 export interface RelatedProps {
     author: string;
     url: string;
-    realname: string;
+    name: string;
 }
 
 export function RelatedArticles(props: RelatedProps) {
@@ -42,7 +42,7 @@ export function RelatedArticles(props: RelatedProps) {
             <p>
                 <Link href={`/@${props.author}`}>
                     <a className="font-weight-bold deep-dark">
-                        {props.realname}
+                        {props.name}
                     </a>
                 </Link>
                 님이 작성한 다른 글

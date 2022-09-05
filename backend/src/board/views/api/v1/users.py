@@ -33,7 +33,7 @@ def users(request, username):
                     data[include] = {
                         'image': user_profile.get_thumbnail(),
                         'username': user.username,
-                        'realname': user.first_name,
+                        'name': user.first_name,
                         'bio': user_profile.bio,
                         'has_subscribe': Follow.objects.filter(
                             follower__id=request.user.id,

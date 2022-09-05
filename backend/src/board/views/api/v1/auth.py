@@ -48,7 +48,7 @@ def login_response(user, is_first_login=False):
 
     return StatusDone({
         'username': user.username,
-        'realname': user.first_name,
+        'name': user.first_name,
         'email': user.email,
         'avatar': avatar,
         'notify': list(map(lambda item: {
@@ -119,7 +119,7 @@ def sign(request):
     
     if request.method == 'POST':
         username = request.POST.get('username', '')
-        realname = request.POST.get('realname', '')
+        name = request.POST.get('name', '')
         password = request.POST.get('password', '')
         email = request.POST.get('email', '')
 
@@ -142,7 +142,7 @@ def sign(request):
            email,
            password
         )
-        new_user.first_name = realname
+        new_user.first_name = name
 
         if not settings.DEBUG:
             new_user.last_name = 'email:' + token
@@ -185,8 +185,8 @@ def sign(request):
             
             user.username = username
         
-        if body.get('realname', ''):
-            user.first_name = body.get('realname', '')
+        if body.get('name', ''):
+            user.first_name = body.get('name', '')
         
         user.save()
         return StatusDone()

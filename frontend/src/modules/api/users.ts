@@ -9,7 +9,7 @@ export interface GetUserProfileResponseData {
     profile: {
         image: string;
         username: string;
-        realname: string;
+        name: string;
         bio: string;
     };
     social?: {

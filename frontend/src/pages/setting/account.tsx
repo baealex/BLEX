@@ -38,7 +38,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 };
 
 interface AccountForm {
-    realname: string;
+    name: string;
     password: string;
     passwordConfirm: string;
     agreeDisplayEmail: boolean;
@@ -60,8 +60,8 @@ const AccountSetting: PageComponent<Props> = (props) => {
     useEffect(() => reset({ ...props }), []);
 
     const handleSubmit = handleSubmitWrapper(async (formData) => {
-        if (!formData.realname) {
-            setFocus('realname');
+        if (!formData.name) {
+            setFocus('name');
             snackBar(message('BEFORE_REQ_ERR', '이름은 비워둘 수 없습니다.'));
             return;
         }
@@ -73,7 +73,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
         }
 
         const { data } = await API.putSetting('account', {
-            realname: formData.realname,
+            name: formData.name,
             password: formData.password,
             AGREE_DISPLAY_EMAIL: formData.agreeDisplayEmail,
             AGREE_SEND_EMAIL: formData.agreeSendEmail
@@ -202,7 +202,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                 </Alert>
                 <div className="mt-2">
                     <input
-                        {...register('realname')}
+                        {...register('name')}
                         type="text"
                         placeholder="사용자 실명"
                         className="form-control mb-2"

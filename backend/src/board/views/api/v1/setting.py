@@ -46,7 +46,7 @@ def setting(request, item):
         if item == 'account':
             return StatusDone({
                 'username': user.username,
-                'realname': user.first_name,
+                'name': user.first_name,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
                 'email': user.email,
                 'agree_display_email': user.config.get_meta('AGREE_DISPLAY_EMAIL'),
@@ -392,10 +392,10 @@ def setting(request, item):
         
         if item == 'account':
             should_update = False
-            realname = put.get('realname', '')
+            name = put.get('name', '')
             password = put.get('password', '')
-            if realname and user.first_name != realname:
-                user.first_name = realname
+            if name and user.first_name != name:
+                user.first_name = name
                 should_update = True
             if password:
                 user.set_password(password)

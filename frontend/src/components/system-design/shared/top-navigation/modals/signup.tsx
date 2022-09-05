@@ -20,7 +20,7 @@ interface Props {
 
 interface State {
     username: string;
-    realname: string;
+    name: string;
     password: string;
     passwordCheck: string;
     email: string;
@@ -32,7 +32,7 @@ export class SignupModal extends React.Component<Props, State> {
         super(props);
         this.state = {
             username: '',
-            realname: '',
+            name: '',
             password: '',
             passwordCheck: '',
             email: '',
@@ -70,7 +70,7 @@ export class SignupModal extends React.Component<Props, State> {
             snackBar('😅 이메일을 입력해주세요!');
             return;
         }
-        if (this.state.realname == '') {
+        if (this.state.name == '') {
             snackBar('😅 사용자 실명을 입력해주세요!');
             return;
         }
@@ -78,7 +78,7 @@ export class SignupModal extends React.Component<Props, State> {
             this.state.username,
             this.state.password,
             this.state.email,
-            this.state.realname
+            this.state.name
         );
         if (data.status === 'ERROR') {
             if (data.errorCode) {
@@ -98,7 +98,7 @@ export class SignupModal extends React.Component<Props, State> {
             <Modal title="회원등록" isOpen={this.props.isOpen} onClose={() => this.props.onClose()}>
                 {this.state.isDone ? (
                     <div className="mx-auto bg-border-purple p-3 bg-light deep-dark">
-                        {this.state.realname}님의 가입을 진심으로 환영합니다! 💜
+                        {this.state.name}님의 가입을 진심으로 환영합니다! 💜
                         입력하신 '{this.state.email}'로 메일을 발송하겠습니다! 🚀
                         보내는 메일은 'im@baejino.com'이며 유사 메일에 유의하시길 바랍니다.
                         메일 발송의 지연을 막기 위해서 간소한 형식으로 인증 메일을 발송하고 있으니 양해 부탁드립니다. 😁
@@ -140,10 +140,10 @@ export class SignupModal extends React.Component<Props, State> {
                         />
                         <input
                             className="login-form"
-                            name="realname"
+                            name="name"
                             placeholder="이름"
                             onChange={(e) => this.onInputChange(e)}
-                            value={this.state.realname}
+                            value={this.state.name}
                             onKeyPress={(e) => this.onEnterLogin(e)}
                         />
                         <input
