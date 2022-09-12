@@ -8,7 +8,6 @@ import {
     Pagination,
     SEO
 } from '@system-design/shared';
-import { Card } from '@design-system';
 import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';
