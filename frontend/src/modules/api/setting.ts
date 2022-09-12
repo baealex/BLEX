@@ -131,8 +131,8 @@ export interface GetSettingAnalyticsPostsViewResponseData {
         url: string;
         title: string;
         author: string;
-        today: number;
-        increaseRate: number;
+        todayCount: number;
+        increaseCount: number;
     }[];
 }
 

@@ -174,8 +174,8 @@ def setting(request, item):
                     'url': item.url,
                     'title': item.title,
                     'author': item.author_username,
-                    'today': item.today_count,
-                    'increase_rate': round((item.today_count / item.yesterday_count * 100) - 100, 2) if item.yesterday_count else 0
+                    'today_count': item.today_count,
+                    'increase_count': item.today_count - item.yesterday_count,
                 }, posts))
             })
 

@@ -66,7 +66,7 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                         오늘의 인기글
                     </div>
                     {postViews.posts.map((item, idx) => (
-                        <Card key={item.id} hasBackground isRounded className="my-3">
+                        <Card key={item.url} hasBackground isRounded className="my-3">
                             <div className="p-3">
                                 <div className="d-flex justify-content-between align-items-center flex-wrap" style={{ gap: '8px' }}>
                                     <div>
@@ -77,9 +77,9 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                                         </Link>
                                     </div>
                                     <div className="ns">
-                                        {item.today}명 읽음
-                                        <span className="ml-1" style={{ color: item.increaseRate < 0 ? '#008fff' : '#ff6700' }}>
-                                            ({item.increaseRate}%)
+                                        {item.todayCount}명 읽음
+                                        <span className="ml-1" style={{ color: item.increaseCount > 0 ? '#ff6700' : '#008fff' }}>
+                                            ({`${item.increaseCount > 0 ? '↑' : '↓'}${Math.abs(item.increaseCount)}`})
                                         </span>
                                     </div>
                                 </div>

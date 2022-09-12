@@ -26,8 +26,8 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                         신규 외부 링크
                     </div>
                     <div className="row">
-                        {referers.referers.map((item, idx) => (
-                            <div key={idx} className="col-lg-12 mt-3">
+                        {referers.referers.map((item) => (
+                            <div key={item.url} className="col-lg-12 mt-3">
                                 <Card isRounded hasBackground className="mb-1">
                                     <div className="p-3">
                                         <div>
