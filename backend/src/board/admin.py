@@ -100,6 +100,10 @@ class ProfileAdmin(admin.ModelAdmin):
         kwargs['exclude'] = ['user']
         return super().get_form(request, obj, **kwargs)
 
+@admin.register(Config)
+class ConfigAdmin(admin.ModelAdmin):
+    list_display = ['user']
+
 @admin.register(Referer)
 class RefererAdmin(admin.ModelAdmin):
     list_display = ['created_date', 'posts', 'referer']
