@@ -3,7 +3,7 @@ name: BUILD FE IMAGE
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - 'frontend/**'
   workflow_dispatch:

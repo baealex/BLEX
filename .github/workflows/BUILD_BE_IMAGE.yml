@@ -3,7 +3,7 @@ name: BUILD BE IMAGE
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - 'backend/**'
   workflow_dispatch:
