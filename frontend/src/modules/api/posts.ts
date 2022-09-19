@@ -174,6 +174,7 @@ export interface GetAnUserPostsViewResponseData {
     description: string;
     readTime: number;
     series?: string;
+    seriesName?: string;
     createdDate: string;
     updatedDate: string;
     authorImage: string;

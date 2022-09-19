@@ -471,6 +471,7 @@ def user_posts(request, username, url=None):
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
             series_url=F('series__url'),
+            series_name=F('series__name'),
         ), author__username=username, url=url)
 
         if request.method == 'GET':
@@ -499,6 +500,7 @@ def user_posts(request, username, url=None):
                     'description': post.description(document_for='seo'),
                     'read_time': post.read_time,
                     'series': post.series_url if post.series_url else None,
+                    'series_name': post.series_name if post.series_name else None,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
                     'author_image': str(post.author_image),

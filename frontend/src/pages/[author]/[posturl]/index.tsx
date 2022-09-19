@@ -1,7 +1,8 @@
+import React, { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
-import React from 'react';
 import Router from 'next/router';
+import { useStore } from 'badland-react';
 
 import {
     ArticleAction,
@@ -33,26 +34,10 @@ import { CONFIG } from '~/modules/settings';
 interface Props {
     profile: API.GetUserProfileResponseData;
     post: API.GetAnUserPostsViewResponseData;
-    series: API.GetAnUserSeriesResponseData;
-    hasSeries: boolean;
-    activeSeries: number;
-    seriesLength: number;
-}
-
-interface State {
-    isLogin: boolean;
-    isLiked: boolean;
-    username: string;
-    totalLikes: number;
-    selectedTag?: string;
-    headerNav: string[][];
-    headerNow: string;
-    featurePosts?: API.GetFeaturePostsResponseData;
 }
 
 function moveToHash() {
-    const elementId = decodeURIComponent(window.location.hash.replace('#', ''));
-    const element = document.getElementById(elementId);
+    const element = document.getElementById(decodeURIComponent(window.location.hash.replace('#', '')));
 
     if (element) {
         const offset = element.getBoundingClientRect().top + window.scrollY;
@@ -79,12 +64,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const { cookie } = context.req.headers;
 
     try {
-        const post = await API.getAnUserPostsView(
-            author as string,
-            posturl as string,
-            cookie
-        );
-
         try {
             API.postPostAnalytics(posturl as string, {
                 user_agent: req.headers['user-agent'],
@@ -96,33 +75,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             // pass
         }
 
-        const profile = await API.getUserProfile(author as string, [
-            'profile'
+        const [post, profile] = await Promise.all([
+            API.getAnUserPostsView(
+                author as string,
+                posturl as string,
+                cookie
+            ),
+            API.getUserProfile(author as string, [
+                'profile'
+            ])
         ]);
 
-        if (post.data.body.series) {
-            const series = await API.getAnUserSeries(
-                author as string,
-                post.data.body.series
-            );
-            const seriesLength = series.data.body.posts.length;
-            const activeSeries = series.data.body.posts.findIndex(
-                (item) => item.url == post.data.body.url
-            );
-            return {
-                props: {
-                    hasSeries: true,
-                    post: post.data.body,
-                    profile: profile.data.body,
-                    activeSeries,
-                    seriesLength,
-                    series: series.data.body
-                }
-            };
-        }
         return {
             props: {
-                hasSeries: false,
                 post: post.data.body,
                 profile: profile.data.body
             }
@@ -132,61 +97,69 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
-class PostDetail extends React.Component<Props, State> {
-    private updateKey: string;
+function PostDetail(props: Props) {
+    const [ { username } ] = useStore(authStore);
 
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            isLiked: props.post.isLiked,
-            isLogin: authStore.state.isLogin,
-            username: authStore.state.username,
-            totalLikes: props.post.totalLikes,
-            headerNav: [],
-            headerNow: ''
-        };
-        this.updateKey = authStore.subscribe(() => this.setState({
-            isLogin: authStore.state.isLogin,
-            username: authStore.state.username
-        }));
-    }
+    const [headerNav, setHeaderNav] = useState<string[][]>([]);
+    const [headerNow, setHeaderNow] = useState<string>('');
+    const [likes, setLikes] = useState<number>(props.post.totalLikes);
+    const [isLike, setIsLike] = useState<boolean>(props.post.isLiked);
 
-    componentWillUnmount() {
-        authStore.unsubscribe(this.updateKey);
-
-        if (typeof window !== 'undefined') {
-            window.removeEventListener('popstate', moveToHash);
+    useEffect(() => {
+        if (likes !== props.post.totalLikes) {
+            setLikes(props.post.totalLikes);
         }
-    }
 
-    componentDidMount() {
+        if (isLike !== props.post.isLiked) {
+            setIsLike(props.post.isLiked);
+        }
+
+        moveToHash();
+        makeHeaderNav();
         codeMirrorAll();
         lazyLoadResource();
-        this.makeHeaderNav();
 
         if (typeof window !== 'undefined') {
             window.addEventListener('popstate', moveToHash);
-        }
-    }
 
-    componentDidUpdate(prevProps: Props) {
-        if (
-            prevProps.post.url !== this.props.post.url ||
-            prevProps.post.author !== this.props.post.author ||
-            prevProps.post.isLiked !== this.props.post.isLiked ||
-            prevProps.post.totalLikes !== this.props.post.totalLikes
-        ) {
-            this.setState({
-                isLiked: this.props.post.isLiked,
-                totalLikes: this.props.post.totalLikes
+            return () => {
+                window.removeEventListener('popstate', moveToHash);
+            };
+        }
+    }, [props.post, likes, isLike]);
+
+    const handleEdit = () => {
+        const { author, url } = props.post;
+        Router.push(`/@${author}/${url}/edit`);
+    };
+
+    const handleClickArticleNav = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        const element = document.getElementById(decodeURIComponent(e.currentTarget.hash.replace('#', '')));
+
+        if (element) {
+            const offset = element.getBoundingClientRect().top + window.scrollY;
+            window.scroll({
+                top: offset - (window.scrollY < offset ? 15 : 90),
+                left: 0,
+                behavior: 'smooth'
             });
-            codeMirrorAll();
-            lazyLoadResource();
-            this.makeHeaderNav();
+            history.pushState(null, '', e.currentTarget.hash);
         }
-    }
+    };
 
-    makeHeaderNav() {
+    const handleDelete = async () => {
+        if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
+            const { author, url } = props.post;
+
+            const { data } = await API.deleteAnUserPosts('@' + author, url);
+            if (data.status === 'DONE') {
+                snackBar('😀 포스트가 삭제되었습니다.');
+            }
+        }
+    };
+
+    const makeHeaderNav = async () => {
         const headersTags = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
         if ('IntersectionObserver' in window) {
             const headerNav: string[][] = [];
@@ -194,7 +167,7 @@ class PostDetail extends React.Component<Props, State> {
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        this.setState({ headerNow: entry.target.id });
+                        setHeaderNow(entry.target.id);
                     }
                 });
             }, { rootMargin: '0px 0px -90%' });
@@ -223,128 +196,93 @@ class PostDetail extends React.Component<Props, State> {
                 }
             });
 
-            this.setState({ headerNav });
+            setHeaderNav(headerNav);
         }
-    }
+    };
 
-    handleEdit() {
-        const { author, url } = this.props.post;
-        Router.push(`/@${author}/${url}/edit`);
-    }
-
-    handleClickArticleNav(e: React.MouseEvent<HTMLAnchorElement>) {
-        e.preventDefault();
-        const element = document.getElementById(decodeURIComponent(e.currentTarget.hash.replace('#', '')));
-
-        if (element) {
-            const offset = element.getBoundingClientRect().top + window.scrollY;
-            window.scroll({
-                top: offset - (window.scrollY < offset ? 15 : 90),
-                left: 0,
-                behavior: 'smooth'
-            });
-            history.pushState(null, '', e.currentTarget.hash);
-        }
-    }
-
-    async handleDelete() {
-        if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
-            const { author, url } = this.props.post;
-
-            const { data } = await API.deleteAnUserPosts('@' + author, url);
-            if (data.status === 'DONE') {
-                snackBar('😀 포스트가 삭제되었습니다.');
-            }
-        }
-    }
-
-    render() {
-        return (
-            <>
-                <SEO
-                    title={`${this.props.post.title} — ${this.props.post.author}`}
-                    description={this.props.post.description}
-                    author={this.props.post.author}
-                    keywords={this.props.post.tags.join(',')}
-                    image={getPostsImage(this.props.post.image)}
-                    isArticle={true}
+    return (
+        <>
+            <SEO
+                title={`${props.post.title} — ${props.post.author}`}
+                description={props.post.description}
+                author={props.post.author}
+                keywords={props.post.tags.join(',')}
+                image={getPostsImage(props.post.image)}
+                isArticle={true}
+            />
+            <article data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}>
+                <ArticleCover
+                    series={props.post.seriesName}
+                    image={props.post.image}
+                    title={props.post.title}
+                    isAd={props.post.isAd}
+                    createdDate={props.post.createdDate}
+                    updatedDate={props.post.updatedDate}
                 />
-                <article data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}>
-                    <ArticleCover
-                        series={this.props.series?.name}
-                        image={this.props.post.image}
-                        title={this.props.post.title}
-                        isAd={this.props.post.isAd}
-                        createdDate={this.props.post.createdDate}
-                        updatedDate={this.props.post.updatedDate}
-                    />
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-lg-2">
-                                <ArticleAction {...this.props.post}/>
-                            </div>
-                            <div className="col-lg-8">
-                                {this.props.post.author == this.state.username && (
-                                    <div className="mb-3">
-                                        <div className="btn btn-dark" onClick={this.handleEdit.bind(this)}>포스트 수정</div>
-                                        <div className="btn btn-dark ml-2" onClick={this.handleDelete.bind(this)}>포스트 삭제</div>
-                                    </div>
-                                )}
-                                <ArticleAuthor {...this.props.profile}/>
-                                <ArticleContent html={this.props.post.textHtml}/>
-                                <TagBadges
-                                    items={this.props.post.tags.map(item => (
-                                        <Link href={`/@${this.props.post.author}/posts/${item}`}>
-                                            <a>{item}</a>
-                                        </Link>
+                <div className="container">
+                    <div className="row">
+                        <div className="col-lg-2">
+                            <ArticleAction {...props.post}/>
+                        </div>
+                        <div className="col-lg-8">
+                            {props.post.author == username && (
+                                <div className="mb-3">
+                                    <div className="btn btn-dark" onClick={handleEdit}>포스트 수정</div>
+                                    <div className="btn btn-dark ml-2" onClick={handleDelete}>포스트 삭제</div>
+                                </div>
+                            )}
+                            <ArticleAuthor {...props.profile}/>
+                            <ArticleContent html={props.post.textHtml}/>
+                            <TagBadges
+                                items={props.post.tags.map(item => (
+                                    <Link href={`/@${props.post.author}/posts/${item}`}>
+                                        <a>{item}</a>
+                                    </Link>
+                                ))}
+                            />
+                            <ArticleThanks
+                                author={props.post.author}
+                                url={props.post.url}
+                            />
+                            <ArticleSeries
+                                author={props.post.author}
+                                url={props.post.url}
+                                series={props.post.series}
+                            />
+                        </div>
+                        <div className="col-lg-2 mobile-disable">
+                            <aside className="sticky-top sticky-top-100 article-nav none-drag">
+                                <ul>
+                                    {headerNav.map((item, idx) => (
+                                        <li key={idx} className={`title-${item[0]}`}>
+                                            <a
+                                                href={`#${item[1]}`}
+                                                onClick={handleClickArticleNav}
+                                                className={`${headerNow == item[1] ? ' nav-now' : ''}`}>
+                                                {item[2]}
+                                            </a>
+                                        </li>
                                     ))}
-                                />
-                                <ArticleThanks
-                                    author={this.props.post.author}
-                                    url={this.props.post.url}
-                                />
-                                {this.props.hasSeries && (
-                                    <ArticleSeries
-                                        {...this.props.series}
-                                        activeSeries={this.props.activeSeries}
-                                        seriesLength={this.props.seriesLength}
-                                    />
-                                )}
-                            </div>
-                            <div className="col-lg-2 mobile-disable">
-                                <aside className="sticky-top sticky-top-100 article-nav none-drag">
-                                    <ul>
-                                        {this.state.headerNav.map((item, idx) => (
-                                            <li key={idx} className={`title-${item[0]}`}>
-                                                <a
-                                                    href={`#${item[1]}`}
-                                                    onClick={this.handleClickArticleNav.bind(this)}
-                                                    className={`${this.state.headerNow == item[1] ? ' nav-now' : ''}`}>
-                                                    {item[2]}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </aside>
-                            </div>
+                                </ul>
+                            </aside>
                         </div>
                     </div>
-                </article>
-                <ArticleComment
-                    author={this.props.post.author}
-                    url={this.props.post.url}
-                    totalComment={this.props.post.totalComment}
+                </div>
+            </article>
+            <ArticleComment
+                author={props.post.author}
+                url={props.post.url}
+                totalComment={props.post.totalComment}
+            />
+            <Footer isDark>
+                <RelatedArticles
+                    author={props.post.author}
+                    name={props.profile.profile.name}
+                    url={props.post.url}
                 />
-                <Footer isDark>
-                    <RelatedArticles
-                        author={this.props.post.author}
-                        name={this.props.profile.profile.name}
-                        url={this.props.post.url}
-                    />
-                </Footer>
-            </>
-        );
-    }
+            </Footer>
+        </>
+    );
 }
 
 export default PostDetail;
