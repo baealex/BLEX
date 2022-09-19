@@ -27,7 +27,7 @@
         padding-left: 0;
         margin: 0;
         display: flex;
-        gap: 16px;
+        gap: 20px;
         align-items: center;
 
         & > li {
@@ -35,6 +35,8 @@
             cursor: pointer;
             
             button {
+                margin: 0;
+                padding: 0;
                 color: #555;
                 background: none;
                 border: none;

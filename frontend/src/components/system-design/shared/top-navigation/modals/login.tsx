@@ -107,7 +107,6 @@ export class LoginModal extends React.Component<Props, State> {
                 <div className={styles.split}>
                     <div className={styles.welcome}>
                         <img src="/illustrators/welcome.svg"/>
-                        <h4>환영합니다!</h4>
                         <p>
                             당신이 찾던 예쁘고 유니크한 블로그
                         </p>
