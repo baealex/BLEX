@@ -239,7 +239,7 @@ class PostDetail extends React.Component<Props, State> {
         if (element) {
             const offset = element.getBoundingClientRect().top + window.scrollY;
             window.scroll({
-                top: offset - 90,
+                top: offset - (window.scrollY < offset ? 15 : 90),
                 left: 0,
                 behavior: 'smooth'
             });

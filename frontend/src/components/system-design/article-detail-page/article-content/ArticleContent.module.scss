@@ -19,6 +19,15 @@
         }
     }
 
+    hr {
+        border: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+        :global(body.dark) & {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    }
+
     img, video {
         max-width: 100%;
     }

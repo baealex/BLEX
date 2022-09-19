@@ -20,7 +20,7 @@ export function ArticleCover(props: {
                     <div className="row justify-content-center">
                         <div className="col-lg-8">
                             {props.series && (
-                                <span>‘{props.series}’ 시리즈</span>
+                                <span data-label={`‘${props.series}’ 시리즈`}/>
                             )}
                             <h1>{props.title}</h1>
                             <time dateTime={props.createdDate}>
@@ -43,7 +43,7 @@ export function ArticleCover(props: {
             <div className={cn('inner')}>
                 <div className={cn('container')}>
                     {props.series && (
-                        <span>‘{props.series}’ 시리즈</span>
+                        <span data-label={`‘${props.series}’ 시리즈`}/>
                     )}
                     <h1>{props.title}</h1>
                     <time>

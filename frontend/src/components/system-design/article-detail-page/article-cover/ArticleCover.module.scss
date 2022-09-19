@@ -55,8 +55,12 @@
         }
 
         span {
-            color: $COLOR_DEFAULT_POINT;
-            letter-spacing: -1px;
+            &::before {
+                display: block;
+                content: attr(data-label);
+                color: $COLOR_DEFAULT_POINT;
+                letter-spacing: -1px;
+            }
 
             &::after {
                 content: '';
@@ -119,10 +123,10 @@
     padding-top: 16px;
     padding-bottom: 48px;
     margin-bottom: 56px;
-    border-bottom: 1px solid #F5F5F8;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
     :global(body.dark) & {
-        border-bottom: 1px solid #2A2A2A;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     h1 {
@@ -141,9 +145,17 @@
     }
 
     span {
-        color: $COLOR_DEFAULT_SECONDARY;
-        letter-spacing: -1px;
-        margin-bottom: 8px;
-        display: block;
+        &::before {
+            display: block;
+            content: attr(data-label);
+            color: $COLOR_DEFAULT_DARK;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+
+            :global(body.dark) & {
+                color: $COLOR_DARK_DARK;
+            }
+        }
     }
 }
