@@ -327,9 +327,9 @@ export function TopNavigation() {
                                         </li>
                                     </>
                                 ) : (
-                                    <li>
+                                    <li className={cn('get-start')}>
                                         <button onClick={() => modalStore.open('isLoginModalOpen')}>
-                                            로그인
+                                            블로그 시작
                                         </button>
                                     </li>
                                 )}
