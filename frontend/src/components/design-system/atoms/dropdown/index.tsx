@@ -23,7 +23,7 @@ export function Dropdown(props: DropdownProps) {
     const { position = 'left' } = props;
 
     const box = useRef<HTMLDivElement>(null);
-    const toggle = useRef<HTMLSpanElement>(null);
+    const toggle = useRef<HTMLButtonElement>(null);
 
     const [ isOpen, setIsOpen ] = useState(false);
 
@@ -47,9 +47,9 @@ export function Dropdown(props: DropdownProps) {
 
     return (
         <div onClick={() => setIsOpen((prevIsOpen) => !prevIsOpen)}>
-            <span ref={toggle} className={cn('button')}>
+            <button ref={toggle} className={cn('button')}>
                 {props.button}
-            </span>
+            </button>
             <div className={cn('box')} ref={box}>
                 {isOpen && (
                     <div className={cn('menu', position)}>

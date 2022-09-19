@@ -241,16 +241,19 @@ export function TopNavigation() {
                         </div>
                         <nav>
                             <ul className={cn('items')}>
-                                <li onClick={() => router.push('/search')}>
-                                    <i className="fas fa-search"/>
+                                <li>
+                                    <button onClick={() => router.push('/search')}>
+                                        <i className="fas fa-search"/>
+                                    </button>
                                 </li>
                                 {state.isLogin ? (
                                     <>
                                         <li
                                             ref={notifyToggle}
-                                            onClick={() => setIsNotifyOpen((prev) => !prev)}
                                             className={cn('notify')}>
-                                            <i className="far fa-bell"/>
+                                            <button onClick={() => setIsNotifyOpen((prev) => !prev)}>
+                                                <i className="far fa-bell"/>
+                                            </button>
                                             {state.notify.length > 0 && (
                                                 <span>
                                                     {state.notify.length}
@@ -280,18 +283,18 @@ export function TopNavigation() {
                                             </div>
                                         </li>
                                         {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
-                                            <li
-                                                onClick={() => modalStore.open('isPublishModalOpen')}
-                                                className={cn('get-start')}>
-                                                {path.lastIndexOf('/write') > -1
-                                                    ? '글 발행하기'
-                                                    : '글 수정하기'}
+                                            <li className={cn('get-start')}>
+                                                <button onClick={() => modalStore.open('isPublishModalOpen')}>
+                                                    {path.lastIndexOf('/write') > -1
+                                                        ? '글 발행하기'
+                                                        : '글 수정하기'}
+                                                </button>
                                             </li>
                                         ) : (
-                                            <li
-                                                onClick={() => router.push('/write')}
-                                                className={cn('get-start', 'outline')}>
-                                                글 작성하기
+                                            <li className={cn('get-start', 'outline')}>
+                                                <button onClick={() => router.push('/write')}>
+                                                    글 작성하기
+                                                </button>
                                             </li>
                                         )}
                                         <li className={cn('profile')}>
@@ -315,11 +318,6 @@ export function TopNavigation() {
                                                         onClick: () => router.push('/setting/account')
                                                     },
                                                     {
-                                                        name: '전체',
-                                                        icon: 'fas fa-th-large',
-                                                        onClick: () => router.push('/map')
-                                                    },
-                                                    {
                                                         name: '로그아웃',
                                                         icon: 'fas fa-sign-out-alt',
                                                         onClick: onClickLogout
@@ -329,16 +327,11 @@ export function TopNavigation() {
                                         </li>
                                     </>
                                 ) : (
-                                    <>
-                                        <li onClick={() => modalStore.open('isLoginModalOpen')}>
+                                    <li>
+                                        <button onClick={() => modalStore.open('isLoginModalOpen')}>
                                             로그인
-                                        </li>
-                                        <li
-                                            onClick={() => modalStore.open('isSignupModalOpen')}
-                                            className={cn('get-start')}>
-                                            블로그 시작
-                                        </li>
-                                    </>
+                                        </button>
+                                    </li>
                                 )}
                             </ul>
                         </nav>
