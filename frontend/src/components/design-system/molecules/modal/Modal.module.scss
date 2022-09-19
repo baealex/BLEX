@@ -21,7 +21,7 @@
 }
 
 .modal {
-    animation: up 0.5s ease;
+    animation: up 0.4s ease;
     z-index: 1000;
     position: fixed;
     top: 50%;
@@ -31,6 +31,14 @@
     max-width: calc(100% - 16px);
     @include BACKGROUND;
     box-shadow: 0 2px 16px 0 hsla(0, 0%, 0%, 0.3);
+}
+
+.modal.medium {
+    width: 720px;
+}
+
+.modal.large {
+    width: 960px;
 }
 
 .overlay {
@@ -60,8 +68,13 @@
     .close {
         font-size: 1.2rem;
         color: #999;
+        padding: 0;
+        border: none;
+        background: none;
         top: 0;
         right: 0;
+        width: 24px;
+        height: 24px;
     
         &:hover {
             color: #000;

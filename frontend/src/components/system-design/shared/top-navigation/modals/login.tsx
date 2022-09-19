@@ -1,3 +1,5 @@
+import styles from './styles.module.scss';
+
 import React from 'react';
 
 import {
@@ -98,50 +100,62 @@ export class LoginModal extends React.Component<Props, State> {
     render() {
         return (
             <Modal
-                title="로그인"
+                title=""
+                size="medium"
                 isOpen={this.props.isOpen}
                 onClose={() => this.props.onClose()}>
-                <input
-                    className="login-form"
-                    name="username"
-                    placeholder="아이디"
-                    onChange={(e) => this.onInputChange(e)}
-                    value={this.state.username}
-                    onKeyPress={(e) => this.onEnterLogin(e)}
-                />
-                <input
-                    className="login-form"
-                    name="password"
-                    type="password"
-                    placeholder="비밀번호"
-                    onChange={(e) => this.onInputChange(e)}
-                    value={this.state.password}
-                    onKeyPress={(e) => this.onEnterLogin(e)}
-                />
-                <button
-                    className="login-button"
-                    onClick={() => this.onSubmitLogin()}>
-                    사용자 이름으로 로그인
-                </button>
-                <SplitLine/>
-                <button
-                    className="login-button google"
-                    onClick={() => oauth('google')}>
-                    <i className="fab fa-google"></i> Google 계정으로 로그인
-                </button>
-                <button
-                    className="login-button github"
-                    onClick={() => oauth('github')}>
-                    <i className="fab fa-github"></i> GitHub 계정으로 로그인
-                </button>
-                <div className="login-hint">
-                    <button
-                        onClick={async () => {
-                            await modalStore.close('isLoginModalOpen');
-                            await modalStore.open('isSignupModalOpen');
-                        }}>
-                        아직 회원이 아니세요?
-                    </button>
+                <div className={styles.split}>
+                    <div className={styles.welcome}>
+                        <img src="/illustrators/welcome.svg"/>
+                        <h4>환영합니다!</h4>
+                        <p>
+                            당신이 찾던 예쁘고 유니크한 블로그
+                        </p>
+                    </div>
+                    <div>
+                        <button
+                            className="login-button google"
+                            onClick={() => oauth('google')}>
+                            <i className="fab fa-google"></i> Google 계정으로 로그인
+                        </button>
+                        <button
+                            className="login-button github"
+                            onClick={() => oauth('github')}>
+                            <i className="fab fa-github"></i> GitHub 계정으로 로그인
+                        </button>
+                        <SplitLine/>
+                        <input
+                            className="login-form"
+                            name="username"
+                            placeholder="아이디"
+                            onChange={(e) => this.onInputChange(e)}
+                            value={this.state.username}
+                            onKeyPress={(e) => this.onEnterLogin(e)}
+                        />
+                        <input
+                            className="login-form"
+                            name="password"
+                            type="password"
+                            placeholder="비밀번호"
+                            onChange={(e) => this.onInputChange(e)}
+                            value={this.state.password}
+                            onKeyPress={(e) => this.onEnterLogin(e)}
+                        />
+                        <button
+                            className="login-button"
+                            onClick={() => this.onSubmitLogin()}>
+                            BLEX 계정으로 로그인
+                        </button>
+                        <div className="login-hint">
+                            <button
+                                onClick={async () => {
+                                    await modalStore.close('isLoginModalOpen');
+                                    await modalStore.open('isSignupModalOpen');
+                                }}>
+                                아직 회원이 아니세요?
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </Modal>
         );

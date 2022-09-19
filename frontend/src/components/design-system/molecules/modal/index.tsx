@@ -1,4 +1,4 @@
-import styles from './styles.module.scss';
+import styles from './Modal.module.scss';
 
 import React, { useEffect } from 'react';
 
@@ -7,6 +7,7 @@ import { Button } from '@design-system';
 interface Props {
     isOpen: boolean;
     title: string;
+    size?: 'small' | 'medium' | 'large';
     footer?: React.ReactNode;
     children: React.ReactNode;
     submitText?: string;
@@ -17,6 +18,7 @@ interface Props {
 export function Modal({
     isOpen,
     title,
+    size='small',
     footer,
     children,
     submitText,
@@ -35,44 +37,44 @@ export function Modal({
         };
     }, [isOpen]);
 
+    if (!isOpen) {
+        return null;
+    }
+
     return (
         <>
-            {isOpen && (
-                <>
-                    <div
-                        className={styles.overlay}
-                        onClick={onClose}
-                    />
-                    <div className={styles.modal}>
-                        <div className={styles.headline}>
-                            <div className={`font-weight-bold ${styles.title}`}>
-                                {title}
-                            </div>
-                            <div className={styles.close} onClick={() => onClose()}>
-                                <i className="fas fa-times"></i>
-                            </div>
+            <div
+                className={styles.overlay}
+                onClick={onClose}
+            />
+            <div className={`${styles.modal} ${styles[size]}`}>
+                <div className={styles.headline}>
+                    <div className={`font-weight-bold ${styles.title}`}>
+                        {title}
+                    </div>
+                    <button className={styles.close} onClick={onClose}>
+                        <i className="fas fa-times"></i>
+                    </button>
+                </div>
+                <div className={styles.content}>
+                    {children}
+                </div>
+                {(submitText || footer) && (
+                    <div className={styles.footer}>
+                        <div>
+                            {footer}
                         </div>
-                        <div className={styles.content}>
-                            {children}
-                        </div>
-                        {(submitText || footer) && (
-                            <div className={styles.footer}>
-                                <div>
-                                    {footer}
-                                </div>
-                                {submitText && (
-                                    <Button
-                                        space="spare"
-                                        color="secondary"
-                                        onClick={onSubmit}>
-                                        {submitText}
-                                    </Button>
-                                )}
-                            </div>
+                        {submitText && (
+                            <Button
+                                space="spare"
+                                color="secondary"
+                                onClick={onSubmit}>
+                                {submitText}
+                            </Button>
                         )}
                     </div>
-                </>
-            )}
+                )}
+            </div>
         </>
     );
 }

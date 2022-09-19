@@ -1,0 +1,39 @@
+.split {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+
+    img {
+        width: 240px;
+        max-width: 100%;
+    }
+    
+    & > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .welcome {
+        gap: 16px;
+        text-align: center;
+        word-break: keep-all;
+
+        h4 {
+          margin: 0;
+          font-weight: bold;
+          font-size: 22px;
+        }
+
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 16px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+    }
+}
