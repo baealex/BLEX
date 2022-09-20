@@ -25,17 +25,18 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             throw 'invalid author';
         }
 
-        const userProfile = await API.getUserProfile(author as string, [
-            'profile',
-            'social',
-            'tags'
+        const [userProfile, userPosts] = await Promise.all([
+            API.getUserProfile(author as string, [
+                'profile',
+                'social',
+                'tags'
+            ]),
+            API.getUserPosts(
+                author as string,
+                Number(page),
+                tag as string
+            )
         ]);
-
-        const userPosts = await API.getUserPosts(
-            author as string,
-            Number(page),
-            tag as string
-        );
 
         return {
             props: {

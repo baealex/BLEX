@@ -20,21 +20,23 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         page = 1
     } = context.query;
 
+    if (!author.includes('@')) {
+        return { notFound: true };
+    }
+
     try {
-        if (!author.includes('@')) {
-            throw 'invalid author';
-        }
 
-        const userProfile = await API.getUserProfile(author as string, [
-            'profile',
-            'social',
-            'tags'
+        const [userProfile, userPosts] = await Promise.all([
+            API.getUserProfile(author as string, [
+                'profile',
+                'social',
+                'tags'
+            ]),
+            API.getUserPosts(
+                author as string,
+                Number(page)
+            )
         ]);
-
-        const userPosts = await API.getUserPosts(
-            author as string,
-            Number(page)
-        );
 
         return {
             props: {
