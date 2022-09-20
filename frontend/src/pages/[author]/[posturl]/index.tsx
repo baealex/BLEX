@@ -10,6 +10,7 @@ import {
     ArticleComment,
     ArticleContent,
     ArticleCover,
+    ArticleNav,
     ArticleSeries,
     ArticleThanks,
     RelatedArticles
@@ -42,7 +43,7 @@ function moveToHash() {
     if (element) {
         const offset = element.getBoundingClientRect().top + window.scrollY;
         window.scroll({
-            top: offset - 90,
+            top: offset - (window.scrollY < offset ? 15 : 90),
             left: 0
         });
     }
@@ -72,7 +73,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
                 time: new Date().getTime()
             }, cookie);
         } catch (e) {
-            // pass
+            console.error(e);
         }
 
         const [post, profile] = await Promise.all([
@@ -100,8 +101,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 function PostDetail(props: Props) {
     const [ { username } ] = useStore(authStore);
 
-    const [headerNav, setHeaderNav] = useState<string[][]>([]);
-    const [headerNow, setHeaderNow] = useState<string>('');
     const [likes, setLikes] = useState<number>(props.post.totalLikes);
     const [isLike, setIsLike] = useState<boolean>(props.post.isLiked);
 
@@ -115,10 +114,12 @@ function PostDetail(props: Props) {
         }
 
         moveToHash();
-        makeHeaderNav();
         codeMirrorAll();
         lazyLoadResource();
+    }, [props.post]);
 
+
+    useEffect(() => {
         if (typeof window !== 'undefined') {
             window.addEventListener('popstate', moveToHash);
 
@@ -126,26 +127,11 @@ function PostDetail(props: Props) {
                 window.removeEventListener('popstate', moveToHash);
             };
         }
-    }, [props.post, likes, isLike]);
+    });
 
     const handleEdit = () => {
         const { author, url } = props.post;
         Router.push(`/@${author}/${url}/edit`);
-    };
-
-    const handleClickArticleNav = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        e.preventDefault();
-        const element = document.getElementById(decodeURIComponent(e.currentTarget.hash.replace('#', '')));
-
-        if (element) {
-            const offset = element.getBoundingClientRect().top + window.scrollY;
-            window.scroll({
-                top: offset - (window.scrollY < offset ? 15 : 90),
-                left: 0,
-                behavior: 'smooth'
-            });
-            history.pushState(null, '', e.currentTarget.hash);
-        }
     };
 
     const handleDelete = async () => {
@@ -156,47 +142,6 @@ function PostDetail(props: Props) {
             if (data.status === 'DONE') {
                 snackBar('😀 포스트가 삭제되었습니다.');
             }
-        }
-    };
-
-    const makeHeaderNav = async () => {
-        const headersTags = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
-        if ('IntersectionObserver' in window) {
-            const headerNav: string[][] = [];
-
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        setHeaderNow(entry.target.id);
-                    }
-                });
-            }, { rootMargin: '0px 0px -90%' });
-
-            headersTags.forEach(header => {
-                if (header.id) {
-                    let idNumber = 0;
-                    switch (header.tagName.toUpperCase()) {
-                        case 'H1':
-                        case 'H2':
-                            idNumber = 1;
-                            break;
-                        case 'H3':
-                        case 'H4':
-                            idNumber = 2;
-                            break;
-                        case 'H5':
-                        case 'H6':
-                            idNumber = 3;
-                            break;
-                    }
-                    headerNav.push([
-                        idNumber.toString(), header.id, header.textContent ? header.textContent : ''
-                    ]);
-                    observer.observe(header);
-                }
-            });
-
-            setHeaderNav(headerNav);
         }
     };
 
@@ -251,20 +196,7 @@ function PostDetail(props: Props) {
                             />
                         </div>
                         <div className="col-lg-2 mobile-disable">
-                            <aside className="sticky-top sticky-top-100 article-nav none-drag">
-                                <ul>
-                                    {headerNav.map((item, idx) => (
-                                        <li key={idx} className={`title-${item[0]}`}>
-                                            <a
-                                                href={`#${item[1]}`}
-                                                onClick={handleClickArticleNav}
-                                                className={`${headerNow == item[1] ? ' nav-now' : ''}`}>
-                                                {item[2]}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </aside>
+                            <ArticleNav text={props.post.textHtml} />
                         </div>
                     </div>
                 </div>

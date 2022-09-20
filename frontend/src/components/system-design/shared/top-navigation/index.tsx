@@ -28,7 +28,6 @@ import { optimizeEvent } from '~/modules/optimize/event';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
-import { configStore } from '~/stores/config';
 import { modalStore } from '~/stores/modal';
 
 export function TopNavigation() {

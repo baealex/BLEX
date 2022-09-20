@@ -40,7 +40,7 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
             });
         };
 
-        if (options.observeElement !== undefined) {
+        if (options.observeElement) {
             const observer = lazyIntersection(options.observeElement, async () => {
                 await run();
                 lazyLoadResource();
