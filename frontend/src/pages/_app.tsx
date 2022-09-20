@@ -3,11 +3,12 @@ import Head from 'next/head';
 import Router from 'next/router';
 import Script from 'next/script';
 
-import type { PageComponent, PageLayout } from '~/components';
 import {
+    DayNight,
     SEO,
     TopNavigation
 } from '@system-design/shared';
+import type { PageComponent, PageLayout } from '~/components';
 import { Loading } from '@design-system';
 
 import { CONFIG } from '~/modules/settings';
@@ -117,6 +118,8 @@ class Main extends App<AppProps> {
                 <main role="main" className="content">
                     {getLayout(<Component {...pageProps}/>, pageProps)}
                 </main>
+
+                <DayNight/>
             </>
         );
     }

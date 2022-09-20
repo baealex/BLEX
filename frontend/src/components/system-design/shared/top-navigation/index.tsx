@@ -3,10 +3,13 @@ import styles from './TopNavigation.module.scss';
 const cn = classNames.bind(styles);
 
 import React, {
-    useEffect, useRef, useState
+    useEffect,
+    useRef,
+    useState
 } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useStore } from 'badland-react';
 
 import {
     LoginModal,
@@ -16,7 +19,6 @@ import {
     TwoFactorAuthModal,
     TwoFactorAuthSyncModal
 } from './modals';
-import { DayNight } from './day-night';
 import { Dropdown } from '@design-system';
 
 import * as API from '~/modules/api';
@@ -24,7 +26,6 @@ import { getUserImage } from '~/modules/utility/image';
 import { message } from '~/modules/utility/message';
 import { optimizeEvent } from '~/modules/optimize/event';
 import { snackBar } from '~/modules/ui/snack-bar';
-import { syncTheme } from '~/modules/utility/darkmode';
 
 import { authStore } from '~/stores/auth';
 import { configStore } from '~/stores/config';
@@ -39,62 +40,9 @@ export function TopNavigation() {
     const [path, setPath] = useState(router.pathname);
     const [isRollup, setIsRollup] = useState(false);
     const [isNotifyOpen, setIsNotifyOpen] = useState(false);
-    const [isNight, setIsNight] = useState(false);
-    const [state, setState] = useState({
-        ...authStore.state,
-        ...modalStore.state
-    });
 
-    useEffect(() => {
-        setIsNight(configStore.state.theme === 'dark');
-    }, []);
-
-    useEffect(() => {
-        if (isNight) {
-            configStore.setTheme('dark');
-        } else {
-            configStore.setTheme('default');
-        }
-    }, [isNight]);
-
-    useEffect(() => {
-        const authUpdateKey = authStore.subscribe((nextState) => {
-            setState((prevState) => ({
-                ...prevState,
-                ...nextState
-            }));
-        });
-        const configUpdateKey = configStore.subscribe((nextState) => {
-            setState((prevState) => ({
-                ...prevState,
-                theme: nextState.theme
-            }));
-        });
-        const modalUpdateKey = modalStore.subscribe((nextState) => {
-            setState((prevState) => ({
-                ...prevState,
-                ...nextState
-            }));
-        });
-
-        return () => {
-            authStore.unsubscribe(authUpdateKey);
-            configStore.unsubscribe(configUpdateKey);
-            modalStore.unsubscribe(modalUpdateKey);
-        };
-    }, []);
-
-    useEffect(() => {
-        syncTheme((isDark) => {
-            if (isDark) {
-                configStore.setTheme('dark');
-                setIsNight(true);
-            } else {
-                configStore.setTheme('default');
-                setIsNight(false);
-            }
-        }, configStore.isFirstVisit());
-    }, []);
+    const [auth, setAuth] = useStore(authStore);
+    const [modal] = useStore(modalStore);
 
     useEffect(() => {
         API.getLogin().then(({ data }) => {
@@ -156,15 +104,17 @@ export function TopNavigation() {
         };
 
         document.addEventListener('click', handleClick);
-        return () => {
-            document.removeEventListener('click', handleClick);
-        };
+
+        return () => document.removeEventListener('click', handleClick);
     }, []);
 
     useEffect(() => {
-        router.events.on('routeChangeComplete', (url) => {
+        const handleChangeRoute = (url: string) => {
             setPath(url);
-        });
+        };
+        router.events.on('routeChangeComplete', handleChangeRoute);
+
+        return () => router.events.off('routeChangeComplete', handleChangeRoute);
     }, []);
 
     const onClickLogout = async () => {
@@ -177,7 +127,7 @@ export function TopNavigation() {
         }
     };
 
-    const unsync = async () => {
+    const handleUnsyncTelegram = async () => {
         if (confirm(message('CONFIRM', '정말 연동을 해제할까요?'))) {
             const { data } = await API.postTelegram('unsync');
             if (data.status === 'ERROR') {
@@ -185,7 +135,7 @@ export function TopNavigation() {
                 return;
             }
             snackBar(message('AFTER_REQ_DONE', '연동이 해제되었습니다.'));
-            setState((prevState) => ({
+            setAuth((prevState) => ({
                 ...prevState,
                 isTelegramSync: false
             }));
@@ -195,7 +145,7 @@ export function TopNavigation() {
     const onReadNotify = async (pk: number, url: string) => {
         const { data } = await API.putSetting('notify', { pk });
         if (data.status === 'DONE') {
-            setState((prevState) => ({
+            setAuth((prevState) => ({
                 ...prevState,
                 notify : prevState.notify.filter(item => pk != item.pk)
             }));
@@ -206,27 +156,27 @@ export function TopNavigation() {
     return (
         <>
             <LoginModal
-                isOpen={state.isLoginModalOpen}
+                isOpen={modal.isLoginModalOpen}
                 onClose={() => modalStore.close('isLoginModalOpen')}
             />
             <SignupModal
-                isOpen={state.isSignupModalOpen}
+                isOpen={modal.isSignupModalOpen}
                 onClose={() => modalStore.close('isSignupModalOpen')}
             />
             <SignoutModal
-                isOpen={state.isSignoutModalOpen}
+                isOpen={modal.isSignoutModalOpen}
                 onClose={() => modalStore.close('isSignoutModalOpen')}
             />
             <TelegramSyncModal
-                isOpen={state.isTelegramSyncModalOpen}
+                isOpen={modal.isTelegramSyncModalOpen}
                 onClose={() => modalStore.close('isTelegramSyncModalOpen')}
             />
             <TwoFactorAuthModal
-                isOpen={state.is2FAModalOpen}
+                isOpen={modal.is2FAModalOpen}
                 onClose={() => modalStore.close('is2FAModalOpen')}
             />
             <TwoFactorAuthSyncModal
-                isOpen={state.is2FASyncModalOpen}
+                isOpen={modal.is2FASyncModalOpen}
                 onClose={() => modalStore.close('is2FASyncModalOpen')}
             />
             <header className={cn('top-nav', { isRollup })}>
@@ -235,7 +185,7 @@ export function TopNavigation() {
                         <div className={cn('logo')}>
                             <Link href="/">
                                 <a>
-                                    <img src={isNight ? '/logow.svg' :'/logob.svg'}/>
+                                    <img src={'/logob.svg'}/>
                                 </a>
                             </Link>
                         </div>
@@ -246,7 +196,7 @@ export function TopNavigation() {
                                         <i className="fas fa-search"/>
                                     </button>
                                 </li>
-                                {state.isLogin ? (
+                                {auth.isLogin ? (
                                     <>
                                         <li
                                             ref={notifyToggle}
@@ -254,16 +204,16 @@ export function TopNavigation() {
                                             <button onClick={() => setIsNotifyOpen((prev) => !prev)}>
                                                 <i className="far fa-bell"/>
                                             </button>
-                                            {state.notify.length > 0 && (
+                                            {auth.notify.length > 0 && (
                                                 <span>
-                                                    {state.notify.length}
+                                                    {auth.notify.length}
                                                 </span>
                                             )}
                                             <div
                                                 ref={notifyBox}
                                                 className={cn('notify-box', { isOpen: isNotifyOpen })}>
-                                                {state.isTelegramSync ? (
-                                                    <div className={cn('telegram')} onClick={() => unsync()}>
+                                                {auth.isTelegramSync ? (
+                                                    <div className={cn('telegram')} onClick={handleUnsyncTelegram}>
                                                         <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
                                                     </div>
                                                 ) : (
@@ -271,11 +221,11 @@ export function TopNavigation() {
                                                         <i className="fab fa-telegram-plane"/> 텔레그램 연동
                                                     </div>
                                                 )}
-                                                {state.notify.length == 0 ? (
+                                                {auth.notify.length == 0 ? (
                                                     <div className={cn('card')}>
                                                         읽지 않은 알림이 없습니다.
                                                     </div>
-                                                ) : state.notify.map((item, idx) => (
+                                                ) : auth.notify.map((item, idx) => (
                                                     <div key={idx} className={cn('card')} onClick={() => onReadNotify(item.pk, item.url)}>
                                                         {item.content} <span className="ns shallow-dark">{item.createdDate} ago</span>
                                                     </div>
@@ -302,7 +252,7 @@ export function TopNavigation() {
                                                 position="left"
                                                 button={
                                                     <>
-                                                        <img src={getUserImage(state.avatar)}/>
+                                                        <img src={getUserImage(auth.avatar)}/>
                                                         <i className="fas fa-sort-down"/>
                                                     </>
                                                 }
@@ -310,7 +260,7 @@ export function TopNavigation() {
                                                     {
                                                         name: '내 블로그',
                                                         icon: 'far fa-user',
-                                                        onClick: () => router.push(`/@${state.username}`)
+                                                        onClick: () => router.push(`/@${auth.username}`)
                                                     },
                                                     {
                                                         name: '관리',
@@ -338,7 +288,6 @@ export function TopNavigation() {
                     </div>
                 </div>
             </header>
-            <DayNight isNight={isNight} onChange={setIsNight}/>
         </>
     );
 }

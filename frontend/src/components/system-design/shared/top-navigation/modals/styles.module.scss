@@ -8,7 +8,7 @@
         max-width: 100%;
 
         :global(body.dark) & {
-            filter: invert(100%) hue-rotate(180deg) brightness(.8) contrast(1.2);
+            filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.2);
         }
     }
     

@@ -2,17 +2,42 @@ import classNames from 'classnames/bind';
 import styles from './DayNight.module.scss';
 const cn = classNames.bind(styles);
 
-export interface DayNightProps {
-    isNight: boolean;
-    onChange: (isNight: boolean) => void;
-}
+import {
+    useEffect,
+    useState
+} from 'react';
 
-export function DayNight({
-    isNight,
-    onChange
-}: DayNightProps) {
+import { syncTheme } from '~/modules/utility/darkmode';
+
+import { configStore } from '~/stores/config';
+
+export function DayNight() {
+    const [isNight, setIsNight] = useState(false);
+
+    useEffect(() => {
+        if (!configStore.isFirstVisit) {
+            setIsNight(configStore.state.theme === 'dark');
+        }
+
+        syncTheme((isDark) => {
+            if (isDark) {
+                configStore.setTheme('dark');
+                setIsNight(true);
+            } else {
+                configStore.setTheme('default');
+                setIsNight(false);
+            }
+        }, configStore.isFirstVisit);
+    }, []);
+
+    useEffect(() => {
+        isNight
+            ? configStore.setTheme('dark')
+            : configStore.setTheme('default');
+    }, [isNight]);
+
     return (
-        <div className={cn('box')} onClick={() => onChange(!isNight)}>
+        <aside role="button" className={cn('box')} onClick={() => setIsNight(prev => !prev)}>
             <div
                 className={cn('ball', { isNight })}
             />
@@ -28,6 +53,6 @@ export function DayNight({
                     </svg>
                 </div>
             </div>
-        </div>
+        </aside>
     );
 }

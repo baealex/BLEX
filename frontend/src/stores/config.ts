@@ -30,7 +30,7 @@ class ConfigStore extends Store<ConfigStoreState> {
         }
     }
 
-    isFirstVisit() {
+    get isFirstVisit() {
         const configure = getCookie('configure');
         if (configure) {
             return false;

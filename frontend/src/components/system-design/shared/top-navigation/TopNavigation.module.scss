@@ -19,6 +19,10 @@
     .logo {
         img {
             width: 30px;
+
+            :global(body.dark) & {
+                filter: invert(1);
+            }
         }
     }
 
