@@ -11,11 +11,14 @@ import {
 } from '@design-system';
 
 import {
+    EditorContent,
+    EditorContentProps
+} from '../editor-content';
+import {
     InputForm,
     SelectForm
-} from '../../shared/forms';
-import { EditorContent } from '../editor-content';
-import { EditorTitle } from '../../shared/editor-title';
+} from '../forms';
+import { EditorTitle } from '../editor-title';
 
 import * as API from '~/modules/api';
 
@@ -54,10 +57,7 @@ interface Props {
         onChange: (value: boolean) => void;
     };
     onSubmit: (onFail: () => void) => void;
-    addon?: {
-        sideButton: JSX.Element | JSX.Element[];
-        modal: JSX.Element | JSX.Element[];
-    };
+    addon?: EditorContentProps['addon'];
 }
 
 export function EditorLayout(props: Props) {
@@ -97,7 +97,7 @@ export function EditorLayout(props: Props) {
     return (
         <div className="container">
             <div className="row justify-content-center">
-                <div className="col-lg-10">
+                <div className="col-lg-8">
                     <EditorTitle
                         value={props.title.value}
                         onChange={props.title.onChange}

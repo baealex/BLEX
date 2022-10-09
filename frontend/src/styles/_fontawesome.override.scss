@@ -5,3 +5,26 @@ $rotates: 45, 90, 180, 270;
         transform: rotate(#{$rotate}deg);
     }
 }
+
+.fa-heading {
+    .one &,
+    .two &,
+    .three & {
+        position: relative;
+    }
+
+    .one &::after,
+    .two &::after,
+    .three &::after {
+        position: absolute;
+        display: block;
+        font-size: 0.5em;
+        content: '';
+        bottom: 0;
+        right: -5px;
+    }
+
+    .one &::after { content: '1' }
+    .two &::after { content: '2' }
+    .three &::after { content: '3' }
+}

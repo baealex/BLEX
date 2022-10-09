@@ -18,6 +18,9 @@ import { minify } from '~/modules/utility/string';
 import { loadingStore } from '~/stores/loading';
 
 import '../styles/main.scss';
+import 'easymde/src/css/easymde.css';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material-darker.css';
 
 Router.events.on('routeChangeComplete', () => {
     lazyLoadResource();

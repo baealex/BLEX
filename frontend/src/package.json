@@ -19,6 +19,7 @@
         "bootstrap": "^4.6.1",
         "classnames": "^2.3.1",
         "codemirror": "^5.65.6",
+        "easymde": "^2.18.0",
         "frappe-charts": "^1.6.1",
         "next": "^12.2.4",
         "react": "^17.0.2",

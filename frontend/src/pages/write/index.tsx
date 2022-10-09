@@ -5,8 +5,7 @@ import Router from 'next/router';
 import {
     EditorLayout,
     TempArticleModal
-} from '@system-design/article-editor-page/expert';
-import { PopOver } from '@design-system';
+} from '@system-design/article-editor-page';
 
 import * as API from '~/modules/api';
 import {
@@ -91,7 +90,11 @@ class Write extends React.Component<Props, State> {
             const { token, title, content, tags } = this.state;
             this.onTempSave(token, title, content, tags);
         }, 5000);
+    }
 
+    /* Component Method */
+
+    componentDidMount() {
         API.getTempPosts().then(({ data }) => {
             if (data.body.temps.length > 0) {
                 this.setState({ tempPosts: data.body.temps });
@@ -103,8 +106,6 @@ class Write extends React.Component<Props, State> {
             }
         });
     }
-
-    /* Component Method */
 
     componentWillUnmount() {
         configStore.unsubscribe(this.configUpdateKey);
@@ -305,30 +306,14 @@ class Write extends React.Component<Props, State> {
                 }}
                 onSubmit={this.onSubmit.bind(this)}
                 addon={{
-                    sideButton: (
-                        <>
-                            <li
-                                className="mx-3 mx-lg-4"
-                                onClick={() => this.setState({ isOpenArticleModal: true })}>
-                                <PopOver text="임시 저장된 글">
-                                    <i className="far fa-save"/>
-                                </PopOver>
-                            </li>
-                            <li
-                                className="mx-3 mx-lg-4"
-                                onClick={() => {
-                                    if (confirm('🤔 이 링크는 노션으로 연결됩니다. 연결하시겠습니까?')) {
-                                        window.open('about:blank')!.location.href = (
-                                            '//notion.so/b3901e0837ec40e3983d16589314b59a'
-                                        );
-                                    }
-                                }}>
-                                <PopOver text="도움말 보기">
-                                    <i className="fas fa-question"></i>
-                                </PopOver>
-                            </li>
-                        </>
-                    ),
+                    toolbar: [
+                        {
+                            name: 'saved',
+                            action: () => this.setState({ isOpenArticleModal: true }),
+                            className: 'far fa-save',
+                            title: 'Temp Save'
+                        }
+                    ],
                     modal: (
                         <TempArticleModal
                             token={this.state.token}

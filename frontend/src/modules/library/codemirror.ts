@@ -1,13 +1,11 @@
 import { getMode } from './codemirror.helper';
 
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material-darker.css';
-
-export async function codeMirrorAll() {
+export async function codeMirrorAll(element?: HTMLElement) {
     if (typeof window !== 'undefined') {
         const CodeMirror = (await import('codemirror')).default;
 
-        const elements = document.getElementsByTagName('pre');
+        const elements = (element || document).getElementsByTagName('pre');
+
         Array.from(elements).forEach(async element => {
             const language = element.firstElementChild?.className.replace(/language-(.*)/, '$1');
             const { textContent } = element;
@@ -19,7 +17,6 @@ export async function codeMirrorAll() {
 
             CodeMirror.fromTextArea(textarea, {
                 mode: await getMode(language || ''),
-                viewportMargin: Infinity,
                 lineNumbers: true,
                 readOnly: true,
                 theme: 'material-darker'

@@ -1,0 +1,53 @@
+@import 'var';
+
+.preview {
+    padding: 14px;
+    background: #fff;
+
+    :global(body.dark) & {
+        background-color: #222;
+    }
+}
+
+.editor {
+    :global(.CodeMirror) {
+        font-size: 1.028rem;
+        line-height: 2;
+        word-break: break-all;
+    }
+
+    :global(.editor-preview) {
+        background-color: #fff;
+    }
+
+    :global(body.dark) & {
+        :global(.CodeMirror) {
+            color: #ccc;
+            border-color: #555;
+            background-color: inherit;
+        }
+
+        :global(.cm-s-easymde .CodeMirror-cursor) {
+            border-color: #eee;
+        }
+
+        :global(.editor-toolbar) {
+            border-color: #555;
+        }
+
+        :global(.editor-toolbar > *) {
+            color: #eee;
+        }
+
+        :global(.editor-toolbar > .active),
+        :global(.editor-toolbar > button:hover),
+        :global(.editor-preview pre),
+        :global(.cm-s-easymde .cm-comment) {
+            background: #333;
+        }
+
+        :global(.editor-preview) {
+            background-color: #000;
+        }
+    }
+}

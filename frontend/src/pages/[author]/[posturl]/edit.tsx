@@ -1,7 +1,7 @@
 import Router from 'next/router';
 import { useState } from 'react';
 
-import { EditorLayout } from '@system-design/article-editor-page/expert';
+import { EditorLayout } from '@system-design/article-editor-page';
 
 import * as API from '~/modules/api';
 import { snackBar } from '~/modules/ui/snack-bar';
