@@ -6,10 +6,12 @@ import {
     useEffect,
     useState
 } from 'react';
+import { useStore } from 'badland-react';
 
 import * as API from '~/modules/api';
 import { snackBar } from '~/modules/ui/snack-bar';
 
+import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
 
 export type ArticleActionProps = API.GetAnUserPostsViewResponseData;
@@ -17,6 +19,7 @@ export type ArticleActionProps = API.GetAnUserPostsViewResponseData;
 type Social = 'twitter' | 'facebook' | 'pinterest';
 
 export function ArticleAction(props: ArticleActionProps) {
+    const [{ isLogin }] = useStore(authStore);
     const [ state, setState ] = useState({
         isLiked: props.isLiked,
         totalLikes: props.totalLikes,
@@ -91,10 +94,12 @@ export function ArticleAction(props: ArticleActionProps) {
             <aside className={classNames(cn('pc'), 'sticky-top sticky-top-200 mb-5')}>
                 <div className={cn('actions')}>
                     <ul className="px-3">
-                        <li className="mx-3 mx-lg-4" onClick={onClickLike}>
-                            <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}/>
-                            <span>{state.totalLikes}</span>
-                        </li>
+                        {isLogin && (
+                            <li className="mx-3 mx-lg-4" onClick={onClickLike}>
+                                <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}/>
+                                <span>{state.totalLikes}</span>
+                            </li>
+                        )}
                         <li className="mx-3 mx-lg-4" onClick={onClickGoComment}>
                             <i className="far fa-comment"/>
                             <span>{state.totalComment}</span>
@@ -113,10 +118,12 @@ export function ArticleAction(props: ArticleActionProps) {
             <aside className={cn('m')}>
                 <div className={cn('bottom-nav')}>
                     <div className={cn('d-flex')}>
-                        <div className={cn('item')} onClick={onClickLike}>
-                            <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
-                            <span>{state.totalLikes}</span>
-                        </div>
+                        {isLogin && (
+                            <div className={cn('item')} onClick={onClickLike}>
+                                <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
+                                <span>{state.totalLikes}</span>
+                            </div>
+                        )}
                         <div className={cn('item')} onClick={onClickGoComment}>
                             <i className="far fa-comment"></i>
                             <span>{state.totalComment}</span>
