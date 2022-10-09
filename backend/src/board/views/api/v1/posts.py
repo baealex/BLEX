@@ -199,19 +199,8 @@ def popular_posts(request):
                 ),
                 distinct=True
             ),
-            likes_count=Count(
-                Case(
-                    When(
-                        likes__created_date__gt=one_month_ago,
-                        then='likes__user'
-                    )
-                ),
-                distinct=True
-            ),
-            point=(
-                (F('thanks_count') - F('nothanks_count')) +
-                (F('likes_count') * 1.5)
-            )
+            point=(F('thanks_count') - F('nothanks_count'))
+            
         ).order_by('-point', '-created_date')
 
         posts = Paginator(
