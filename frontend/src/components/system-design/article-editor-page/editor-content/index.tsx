@@ -282,7 +282,7 @@ export function EditorContent(props: EditorContentProps) {
                     <textarea
                         ref={textarea}
                         style={{ display: 'none' }}
-                        placeholder="마크다운으로 글을 작성하세요."
+                        placeholder="마크다운으로 글을 작성할 수 있어요!"
                     />
                 </div>
             </div>
