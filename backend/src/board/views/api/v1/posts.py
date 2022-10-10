@@ -124,17 +124,18 @@ def posts(request):
         post.url = slugify(post.title, allow_unicode=True)
         if post.url == '':
             post.url = randstr(15)
-        i = 1
+        
+        i = 10
         while True:
             try:
                 post.save()
                 post.set_tags(request.POST.get('tag', ''))
                 break
             except:
-                if i > 1000:
+                if i > 10:
                     traceback.print_exc()
                     return StatusError('TO', '일시적으로 오류가 발생했습니다.')
-                post.url = slugify(f'{post.title}-{i}', allow_unicode=True)
+                post.url = slugify(f'{post.title}-{randstr(5)}', allow_unicode=True)
                 i += 1
         
         post_content = PostContent(posts=post)
