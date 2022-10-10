@@ -108,6 +108,7 @@ class Write extends React.Component<Props, State> {
     }
 
     componentWillUnmount() {
+        this.saver.clear();
         configStore.unsubscribe(this.configUpdateKey);
         authStore.unsubscribe(this.authUpdateKey);
     }
@@ -311,7 +312,7 @@ class Write extends React.Component<Props, State> {
                             name: 'saved',
                             action: () => this.setState({ isOpenArticleModal: true }),
                             className: 'far fa-save',
-                            title: 'Temp Save'
+                            title: '임시 저장'
                         }
                     ],
                     modal: (

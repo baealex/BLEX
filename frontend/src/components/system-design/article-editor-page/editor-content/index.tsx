@@ -35,9 +35,9 @@ export interface EditorContentProps {
 }
 
 export function EditorContent(props: EditorContentProps) {
+    const editor = useRef<EasyMDE | null>(null);
     const textarea = useRef<HTMLTextAreaElement>(null);
     const imageInput = useRef<HTMLInputElement>(null);
-    const editor = useRef<EasyMDE | null>(null);
     const [isEdit, setIsEdit] = useState(true);
 
     const { data: forms } = useFetch('forms', async () => {
@@ -61,19 +61,19 @@ export function EditorContent(props: EditorContentProps) {
                         initialValue: props.value,
                         toolbar: [
                             {
-                                name: 'heading2',
+                                name: 'heading-2',
                                 action: EasyMDE.toggleHeading2,
                                 className: 'fas fa-heading one',
                                 title: '대제목'
                             },
                             {
-                                name: 'heading4',
+                                name: 'heading-4',
                                 action: EasyMDE.toggleHeading4,
                                 className: 'fas fa-heading two',
                                 title: '중간제목'
                             },
                             {
-                                name: 'heading6',
+                                name: 'heading-6',
                                 action: EasyMDE.toggleHeading6,
                                 className: 'fas fa-heading three',
                                 title: '소제목'
@@ -170,8 +170,6 @@ export function EditorContent(props: EditorContentProps) {
                                 title: '마크다운 가이드'
                             }
                         ],
-                        minHeight: '50vh',
-                        maxHeight: '50vh',
                         previewRender: blexer,
                         previewClass: [articleStyles.article, styles.preview],
                         spellChecker: false,
@@ -187,14 +185,16 @@ export function EditorContent(props: EditorContentProps) {
 
     useEffect(() => {
         if (!isEdit) {
-            const run = async () => {
-                const preview = document.querySelector('.' + styles.preview) as HTMLElement;
-                setTimeout(() => {
-                    lazyLoadResource();
-                    codeMirrorAll(preview);
-                }, 500);
-            };
-            run();
+            const preview = document.querySelector(`.${styles.preview}`) as HTMLElement;
+            const event = setTimeout(() => {
+                lazyLoadResource();
+                codeMirrorAll(preview);
+                editor.current?.codemirror.setSize('auto', preview?.scrollHeight || 0) + 'px';
+            }, 500);
+
+            return () => clearTimeout(event);
+        } else {
+            editor.current?.codemirror.setSize('auto', 'auto');
         }
     }, [isEdit]);
 
@@ -212,7 +212,6 @@ export function EditorContent(props: EditorContentProps) {
                 props.onChange(editor.current?.value() || '');
             }
         };
-
         editor.current?.codemirror.on('change', handler);
 
         return () => {
@@ -240,17 +239,17 @@ export function EditorContent(props: EditorContentProps) {
         }
     };
 
-    const onFetchForm = async (id: number) => {
-        const { data } = await API.getForm(id);
-        if (data.body.content && editor.current) {
-            editor.current.codemirror.replaceSelection(data.body.content);
-        }
-    };
-
     const handleUploadYoutube = (id: string) => {
         if (id && editor.current) {
             const youtubeMd = `@youtube[${id}]`;
             editor.current.codemirror.replaceSelection(youtubeMd);
+        }
+    };
+
+    const onFetchForm = async (id: number) => {
+        const { data } = await API.getForm(id);
+        if (data.body.content && editor.current) {
+            editor.current.codemirror.replaceSelection(data.body.content);
         }
     };
 
@@ -274,17 +273,15 @@ export function EditorContent(props: EditorContentProps) {
                     }
                 }}
             />
-            <div className="row justify-content-center">
-                <div
-                    className={'col-lg-8 ' + styles.editor}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => handleDropImage(e)}>
-                    <textarea
-                        ref={textarea}
-                        style={{ display: 'none' }}
-                        placeholder="마크다운으로 글을 작성할 수 있어요!"
-                    />
-                </div>
+            <div
+                className={styles.editor}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => handleDropImage(e)}>
+                <textarea
+                    ref={textarea}
+                    style={{ display: 'none' }}
+                    placeholder="마크다운으로 글을 작성할 수 있어요!"
+                />
             </div>
             <YoutubeModal
                 isOpen={modal.isOpenYoutube}

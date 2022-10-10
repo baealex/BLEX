@@ -2,6 +2,7 @@
 
 .preview {
     padding: 14px;
+    overflow: hidden;
     @include BACKGROUND;
 }
 
@@ -10,10 +11,34 @@
         font-size: 1.028rem;
         line-height: 2;
         word-break: break-all;
+        border-top: none;
     }
 
     :global(.editor-preview) {
         background-color: #fff;
+    }
+
+    :global(.editor-toolbar) {
+        position: sticky;
+        top: 76px;
+        z-index: 5;
+        border-bottom: 1px solid #ced4da;
+        @include BACKGROUND;
+    }
+
+    :global(.editor-toolbar)::before {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        @include BACKGROUND;
+    }
+
+    :global(.editor-toolbar button.heading-2::after) {
+        content: '';
     }
 
     :global(.editor-toolbar.disabled-for-preview button:not(.no-disable)) {

@@ -103,13 +103,13 @@ export function EditorLayout(props: Props) {
                         onChange={props.title.onChange}
                         onChangeImage={props.image.onChange}
                     />
+                    <EditorContent
+                        value={props.content.value}
+                        onChange={props.content.onChange}
+                        addon={props.addon}
+                    />
                 </div>
             </div>
-            <EditorContent
-                value={props.content.value}
-                onChange={props.content.onChange}
-                addon={props.addon}
-            />
             <Modal
                 title={props.publish.title}
                 isOpen={isOpenPublishModal}
