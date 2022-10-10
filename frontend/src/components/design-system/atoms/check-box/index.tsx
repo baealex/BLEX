@@ -5,7 +5,7 @@ export interface CheckBoxProps extends React.InputHTMLAttributes<HTMLInputElemen
 }
 
 export const CheckBox = forwardRef<HTMLInputElement, CheckBoxProps>((props, ref) => (
-    <div className="d-flex align-items-center form-group form-check">
+    <div className="d-flex align-items-center form-check">
         <label>
             <input
                 ref={ref}

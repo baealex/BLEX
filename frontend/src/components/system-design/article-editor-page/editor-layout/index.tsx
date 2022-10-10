@@ -15,7 +15,7 @@ import {
     EditorContentProps
 } from '../editor-content';
 import {
-    InputForm,
+    KeywordForm,
     SelectForm
 } from '../forms';
 import { EditorTitle } from '../editor-title';
@@ -117,11 +117,11 @@ export function EditorLayout(props: Props) {
                 submitText={props.publish.buttonText}
                 onSubmit={() => handleSubmit()}>
                 <SelectForm
+                    className="mb-3"
                     name="series"
-                    title="시리즈"
+                    label="시리즈 (옵션)"
                     onChange={(e) => props.series.onChange(e.target.value)}>
                     <>
-                        <option value="">선택하지 않음</option>
                         {series?.map((item, idx) => (
                             <option
                                 key={idx}
@@ -132,14 +132,15 @@ export function EditorLayout(props: Props) {
                         ))}
                     </>
                 </SelectForm>
-                <InputForm
-                    title="키워드"
+                <KeywordForm
+                    className="mb-3"
+                    label="태그 (필수)"
                     type="text"
                     name="tags"
                     maxLength={50}
                     value={props.tags.value}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.tags.onChange(e.target.value)}
-                    placeholder="띄어쓰기 혹은 반점으로 구분하세요."
+                    onChange={(e) => props.tags.onChange(e.target.value)}
+                    placeholder=""
                 />
                 <CheckBox
                     label="포스트를 숨깁니다."

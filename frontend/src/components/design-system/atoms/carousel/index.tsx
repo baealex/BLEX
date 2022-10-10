@@ -6,12 +6,14 @@ import {
     useEffect,
     useState
 } from 'react';
+import blexer from '~/modules/utility/blexer';
 
 export interface CarouselProps {
+    time?: number;
     items: React.ReactNode[];
 }
 
-export function Carousel({ items }: CarouselProps) {
+export function Carousel({ items, time=6000 }: CarouselProps) {
     const [ focus, setFocus ] = useState(0);
 
     useEffect(() => {
@@ -20,10 +22,10 @@ export function Carousel({ items }: CarouselProps) {
                 if (prevFocus < items.length - 1) return prevFocus + 1;
                 return 0;
             });
-        }, 6000);
+        }, time);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [time]);
 
     return (
         <div className={cn('carousel')}>
@@ -45,7 +47,11 @@ function Item({
 }: ItemProps) {
     return (
         <>
-            <span>{item}</span>
+            {typeof item === 'string' ? (
+                <span dangerouslySetInnerHTML={{ __html: blexer(item) }}/>
+            ) : (
+                <span>{item}</span>
+            )}
             <style jsx>{`
                 span {
                     display: block;

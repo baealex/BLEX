@@ -168,7 +168,7 @@ class Write extends React.Component<Props, State> {
             return;
         }
         if (!this.state.tags) {
-            snackBar('😅 키워드를 작성해주세요.');
+            snackBar('😅 태그를 작성해주세요.');
             onFail();
             return;
         }

@@ -1,5 +1,6 @@
 interface Props {
-    title: string;
+    className?: string;
+    label: string;
     name: string;
     onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     children: JSX.Element;
@@ -7,16 +8,49 @@ interface Props {
 
 export function SelectForm(props: Props) {
     return (
-        <div className="input-group mb-2 mr-sm-2 mt-3">
-            <div className="input-group-prepend">
-                <div className="input-group-text">{props.title}</div>
+        <>
+            <div className={props.className}>
+                <label>{props.label}</label>
+                <div className="group">
+                    <select
+                        name={props.name}
+                        className="form-control"
+                        onChange={props.onChange}>
+                        <option value="">선택하지 않음</option>
+                        {props.children}
+                    </select>
+                    <i className="fas fa-book"></i>
+                </div>
             </div>
-            <select
-                name={props.name}
-                className="form-control"
-                onChange={(e) => props.onChange(e)}>
-                {props.children}
-            </select>
-        </div>
+            <style jsx>{`
+                label {
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    color: #333;
+
+                    :global(body.dark) & {
+                        color: #ccc;
+                    }
+                }
+
+                .group {
+                    position: relative;
+                 
+                    i {
+                        position: absolute;
+                        top: 50%;
+                        left: 8px;
+                        transform: translateY(-50%);
+                        padding: 0.5rem;
+                        color: #6c757d;
+                        z-index: 5;
+                    }
+                    
+                    select {
+                        padding-left: 36px;
+                    }
+                }
+            `}</style>
+        </>
     );
 }
