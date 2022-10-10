@@ -340,6 +340,10 @@ class Post(models.Model):
         self.tags.clear()
         tags = tags.replace(',', '-').replace('_', '-')
         tags = slugify(tags, allow_unicode=True).split('-')
+
+        if len(tags) == 1 and tags[0] == '':
+            tags = ['미분류']
+
         for tag in set(tags):
             tag_object = Tag.objects.filter(value=tag)
             if not tag_object.exists():
