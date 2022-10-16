@@ -67,6 +67,7 @@
 
             & > span {
                 position: absolute;
+                pointer-events: none;
                 bottom: 0;
                 right: -4px;
                 background: crimson;
@@ -78,12 +79,11 @@
         }
 
         & > li.get-start {
-            background: $COLOR_DEFAULT_SECONDARY;
-            border-radius: 100px;
-            padding: 4px 12px;
-            white-space: nowrap;
-            
-            button {
+            & > button {
+                background: $COLOR_DEFAULT_SECONDARY;
+                border-radius: 100px;
+                padding: 4px 12px;
+                white-space: nowrap;
                 color: #fff !important;
             }
         }
