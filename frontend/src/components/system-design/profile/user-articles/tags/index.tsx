@@ -26,16 +26,10 @@ export function Tags(props: TagsProps) {
 
     return (
         <div
-            className={classNames(
-                'col-lg-3',
-                cn('tags')
-            )}>
+            className={cn('col-lg-3', 'tags')}>
             <ul className="mt-4">
                 <div
-                    className={classNames(
-                        'd-flex justify-content-between',
-                        cn('category')
-                    )}>
+                    className={cn('d-flex justify-content-between', 'category')}>
                     <div className="h6 font-weight-bold">
                         카테고리
                     </div>
@@ -63,12 +57,7 @@ export function Tags(props: TagsProps) {
                     as={`/@${props.author}/posts`}
                     scroll={false}>
                     <li>
-                        <a
-                            className={classNames(
-                                'ns',
-                                'shallow-dark',
-                                cn({ active: props.active === 'all' })
-                            )}>
+                        <a className={cn('ns shallow-dark', { active: props.active === 'all' })}>
                             전체 포스트 ({props.allCount})
                         </a>
                     </li>
@@ -80,12 +69,7 @@ export function Tags(props: TagsProps) {
                         as={`/@${props.author}/posts/${item.name}`}
                         scroll={false}>
                         <li>
-                            <a
-                                className={classNames(
-                                    'ns',
-                                    'shallow-dark',
-                                    cn({ active: props.active === item.name })
-                                )}>
+                            <a className={cn('ns shallow-dark', { active: props.active === item.name })}>
                                 {item.name} ({item.count})
                             </a>
                         </li>

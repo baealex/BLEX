@@ -91,7 +91,7 @@ export function ArticleAction(props: ArticleActionProps) {
 
     return (
         <>
-            <aside className={classNames(cn('pc'), 'sticky-top sticky-top-200 mb-5')}>
+            <aside className={cn('pc', 'sticky-top sticky-top-200 mb-5')}>
                 <div className={cn('actions')}>
                     <ul className="px-3">
                         {isLogin && (

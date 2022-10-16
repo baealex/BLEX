@@ -20,7 +20,7 @@ export function SpeechBubble({
     children
 }: SpeechBubbleProps) {
     return (
-        <div className={classNames(cn('box'), className)}>
+        <div className={cn('box', className)}>
             <blockquote>
                 {children}
             </blockquote>
