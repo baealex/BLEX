@@ -570,7 +570,7 @@ class SearchValue(models.Model):
 class Series(models.Model):
     order        = models.IntegerField(default=0)
     owner        = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    name         = models.CharField(max_length=50, unique=True)
+    name         = models.CharField(max_length=50)
     text_md      = models.TextField(blank=True)
     text_html    = models.TextField(blank=True)
     hide         = models.BooleanField(default=False)

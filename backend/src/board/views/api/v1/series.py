@@ -10,6 +10,7 @@ from board.models import (
     User, Post, Series, convert_to_localtime)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError
+from modules.randomness import randstr
 
 def user_series(request, username, url=None):
     if not url:
@@ -82,10 +83,10 @@ def user_series(request, username, url=None):
                     series.save()
                     break
                 except:
-                    if i > 1000:
+                    if i > 10:
                         traceback.print_exc()
                         return StatusError('TO', '일시적으로 오류가 발생했습니다.')
-                    series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
+                    series.url = slugify(f'{series.name}-{randstr(8)}', allow_unicode=True)
                     i += 1
             return StatusDone({
                 'url': series.url
@@ -128,19 +129,23 @@ def user_series(request, username, url=None):
             put = QueryDict(request.body)
             series.name = put.get('title')
             series.text_md = put.get('description')
-            series.url = slugify(series.name, allow_unicode=True)
+
+            if not series.name in series.url:
+                series.url = slugify(series.name, allow_unicode=True)
+
             if series.url == '':
                 series.url = randstr(15)
+
             i = 1
             while True:
                 try:
                     series.save()
                     break
                 except:
-                    if i > 1000:
+                    if i > 10:
                         traceback.print_exc()
                         return StatusError('TO', '일시적으로 오류가 발생했습니다.')
-                    series.url = slugify(series.name+'-'+str(i), allow_unicode=True)
+                    series.url = slugify(f'{series.name}-{randstr(8)}', allow_unicode=True)
                     i += 1
             return StatusDone({
                 'url': series.url
