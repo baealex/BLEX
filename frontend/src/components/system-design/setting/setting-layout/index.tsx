@@ -41,19 +41,14 @@ export function SettingLayout({
                 }
 
                 .f {
-                    position: absolute;
                     display: flex;
-                    height: 100%;
                     width: 100%;
-                    top: 0;
-                    left: 0;
                 }
 
                 .f-1,
                 .f-2 {
                     display: flex;
                     max-width: 100%;
-                    overflow-y: auto;
 
                     & .c {
                         padding-top: 100px;
@@ -65,6 +60,7 @@ export function SettingLayout({
                     flex: 1 0 218px;
                     justify-content: flex-end;
                     background: #F5F5F8;
+                    min-height: 100vh;
 
                     :global(body.dark) & {
                         background: #2A2A2A;
@@ -73,6 +69,11 @@ export function SettingLayout({
                     & > div {
                         margin: 0 8px;
                         width: 218px - 16px;
+                    }
+
+                    .c {
+                        top: 0;
+                        position: sticky;
                     }
                 }
 
@@ -114,6 +115,8 @@ export function SettingLayout({
                     }
 
                     .f-1 {
+                        min-height: auto;
+                        
                         & .c {
                             padding-bottom: 0;
                         }
@@ -132,7 +135,6 @@ export function SettingLayout({
 
                     .f-1, .f-2 {
                         justify-content: flex-start;
-                        overflow-y: inherit;
 
                         & > div {
                             width: 100%;
