@@ -7,11 +7,14 @@ import {
 } from '@design-system';
 
 import {
-    Footer,
+    ArticleCard,
+    CollectionLayout
+} from '@system-design/article';
+import {
     Pagination,
     SEO
 } from '@system-design/shared';
-import { ArticleCard } from '@system-design/article';
+import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
@@ -39,7 +42,7 @@ interface Props extends API.GetTagResponseData {
     page: number;
 }
 
-export default function TagDetail(props: Props) {
+const TagDetail: PageComponent<Props> = (props) => {
     return (
         <>
             <SEO
@@ -49,38 +52,48 @@ export default function TagDetail(props: Props) {
                     ? props.desc.description
                     :`블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}
             />
-            <div className="container">
-                <Text fontSize={8} fontWeight={600}>— {props.tag} —</Text>
-                {props.desc.url && (
-                    <div className="mt-3">
-                        <SpeechBubble
-                            href={`/@${props.desc.author}`}
-                            alt={props.desc.author}
-                            src={getUserImage(props.desc.authorImage)}>
-                            {props.desc.description}
-                            <Link href={`/@${props.desc.author}/${props.desc.url}`}>
-                                <a className="ml-1 shallow-dark">
-                                    더보기
-                                </a>
-                            </Link>
-                        </SpeechBubble>
-                    </div>
-                )}
-                <div className="row">
-                    {props.posts.map((item, idx) => (
-                        <ArticleCard
-                            key={idx}
-                            className="col-lg-4 col-md-6 mt-4"
-                            {...item}
-                        />
-                    ))}
-                </div>
-                <Pagination
-                    page={props.page}
-                    last={props.lastPage}
-                />
-            </div>
-            <Footer/>
+            <Pagination
+                page={props.page}
+                last={props.lastPage}
+            />
         </>
     );
-}
+};
+
+TagDetail.pageLayout = (page, props) => (
+    <CollectionLayout
+        active={props.tag}
+        itemExpended={(tags) => tags.concat({
+            link: `/tags/${props.tag}`,
+            name: props.tag
+        })}
+        {...props}>
+        {props.desc.url && (
+            <div className="mt-3">
+                <SpeechBubble
+                    href={`/@${props.desc.author}`}
+                    alt={props.desc.author}
+                    src={getUserImage(props.desc.authorImage)}>
+                    {props.desc.description}
+                    <Link href={`/@${props.desc.author}/${props.desc.url}`}>
+                        <a className="ml-1 shallow-dark">
+                            더보기
+                        </a>
+                    </Link>
+                </SpeechBubble>
+            </div>
+        )}
+        <div className="row">
+            {props.posts.map(item => (
+                <ArticleCard
+                    key={item.url}
+                    className="col-lg-4 col-md-6 mt-4"
+                    {...item}
+                />
+            ))}
+        </div>
+        {page}
+    </CollectionLayout>
+);
+
+export default TagDetail;
