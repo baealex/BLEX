@@ -2,11 +2,6 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
 import {
-    SpeechBubble,
-    Text
-} from '@design-system';
-
-import {
     ArticleCard,
     CollectionLayout
 } from '@system-design/article';
@@ -15,6 +10,7 @@ import {
     SEO
 } from '@system-design/shared';
 import type { PageComponent } from '~/components';
+import { SpeechBubble } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
