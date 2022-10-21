@@ -1,4 +1,5 @@
 import classNames from 'classnames/bind';
+import { Carousel } from '~/components/design-system';
 import styles from './Footer.module.scss';
 const cn = classNames.bind(styles);
 
@@ -19,28 +20,21 @@ export function Footer({
                     {children}
                 </div>
             )}
-            <ul className={cn('items')}>
-                <li>
-                    <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
-                        Notion
-                    </a>
-                </li>
-                <li>
-                    <a target="_blank" href="https://discord.gg/d4vCnB3CSr">
-                        Discord
-                    </a>
-                </li>
-                <li>
-                    <a target="_blank" href="https://github.com/baealex/BLEX">
-                        GitHub
-                    </a>
-                </li>
-                <li>
-                    <a href="mailto:im@baejino.com">
-                        Contact
-                    </a>
-                </li>
-            </ul>
+            <div className={cn('items')}>
+                <Carousel
+                    items={[
+                        <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
+                            블렉스는 어떤 서비스 인가요? 🤔
+                        </a>,
+                        <a target="_blank" href="https://github.com/baealex/BLEX">
+                            블렉스는 코드가 공개된 서비스에요. 👍
+                        </a>,
+                        <a target="_blank" href="https://discord.gg/d4vCnB3CSr">
+                            디스코드에서 함께 이야기해요. 💜
+                        </a>
+                    ]}
+                />
+            </div>
         </footer>
     );
 }

@@ -372,7 +372,7 @@ class Series extends React.Component<Props, State> {
                         ))}
                     </div>
                 </div>
-                <Footer/>
+                <Footer isDark />
             </>
         );
     }

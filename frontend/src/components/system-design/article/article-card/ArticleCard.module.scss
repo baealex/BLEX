@@ -28,3 +28,11 @@
     font-weight: bold;
     @include COLOR_GRAY;
 }
+
+.author-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    object-fit: cover;
+    margin-right: 4px;
+}

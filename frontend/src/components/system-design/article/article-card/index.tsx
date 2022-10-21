@@ -29,7 +29,6 @@ export interface ArticleCardProps {
     isAd?: boolean;
     className?: string;
     children?: JSX.Element;
-    hasBackground?: boolean;
     hasShadow?: boolean;
     isRounded?: boolean;
     highlight?: string;
@@ -65,7 +64,7 @@ export function ArticleCard(props: ArticleCardProps) {
                             </a>
                         </Link>
                     )}
-                    <div className="p-2">
+                    <div className="p-3">
                         {props.number && (
                             <div className={cn('number')}>
                                 {`${('0' + props.number).slice(-2)}.`}
@@ -76,8 +75,7 @@ export function ArticleCard(props: ArticleCardProps) {
                                 <div
                                     className={cn(
                                         'title',
-                                        'deep-dark',
-                                        { 'mt-3': typeof props.image !== 'undefined' }
+                                        'deep-dark'
                                     )}>
                                     {props.title}
                                 </div>
@@ -93,11 +91,11 @@ export function ArticleCard(props: ArticleCardProps) {
                         </Link>
                         {props.author && (
                             <div className="d-flex align-items-center justify-content-between">
-                                <div className="d-flex">
+                                <div className="d-flex align-items-center">
                                     <Link href="/[author]" as={`/@${props.author}`}>
                                         <a>
                                             <img
-                                                className="fit-cover rounded"
+                                                className={cn('author-image')}
                                                 src={getUserImage(props.authorImage || '')}
                                                 width="35"
                                                 height="35"
