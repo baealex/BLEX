@@ -168,6 +168,11 @@ export function Pagination(props: Props) {
                         min={1}
                         max={last}
                         value={inputPage}
+                        onKeyPress={(e) => {
+                            if (e.key == 'Enter') {
+                                router.push(gotoPage(getPageRange(Number(inputPage))).href);
+                            }
+                        }}
                         onChange={(e) => setInputPage(getPageRange(parseInt(e.target.value)).toString())}
                     />
                     <Link {...gotoPage(inputPage === '' ? page : Number(inputPage))}>
