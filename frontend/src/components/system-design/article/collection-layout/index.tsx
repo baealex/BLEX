@@ -9,15 +9,11 @@ const NAVIGATION_ITEMS = [
     {
         link: '/newest',
         name: '최신 포스트'
-    },
-    {
-        link: '/tags',
-        name: '태그 클라우드'
     }
 ];
 
 export interface CollectionLayoutProps {
-    active: '인기 포스트' | '최신 포스트' | '태그 클라우드' | string;
+    active: '인기 포스트' | '최신 포스트' | string;
     children: React.ReactNode;
     itemExpended?: (tag: typeof NAVIGATION_ITEMS) => typeof NAVIGATION_ITEMS;
 }
