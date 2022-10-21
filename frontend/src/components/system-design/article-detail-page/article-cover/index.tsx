@@ -15,7 +15,7 @@ export function ArticleCover(props: {
 }) {
     if (!props.image) {
         return (
-            <header className={cn('no-cover')}>
+            <header className={cn('no-cover', 'd-flex', 'align-items-end')}>
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-lg-8">

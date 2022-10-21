@@ -35,6 +35,7 @@
         justify-content: center;
         align-items: flex-start;
         word-break: keep-all;
+        overflow-wrap: anywhere;
 
         color: #fff;
 
@@ -120,42 +121,47 @@
 }
 
 .no-cover {
-    padding-top: 16px;
-    padding-bottom: 48px;
-    margin-bottom: 56px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-
-    :global(body.dark) & {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
+    position: relative;
+    width: 100%;
+    height: 45vh;
+    margin: -120px 0 60px;
+    padding-bottom: 60px;
+    background: #000;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
 
     h1 {
         font-family: $FONT_GOTHIC;
         font-weight: bold;
         letter-spacing: -2px;
         font-size: 2.5rem;
+        color: #fff;
 
         @media only screen and (max-width: 991px) {
-            font-size: 2.2rem;
+            font-size: 2rem;
         }
     }
 
     time {
         font-size: .8rem;
+        color: #eee;
     }
 
     span {
         &::before {
             display: block;
             content: attr(data-label);
-            color: $COLOR_DEFAULT_DARK;
+            color: $COLOR_DEFAULT_POINT;
             letter-spacing: -1px;
-            margin-bottom: 8px;
-            font-weight: 600;
+        }
 
-            :global(body.dark) & {
-                color: $COLOR_DARK_DARK;
-            }
+        &::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 2px;
+            background: $COLOR_DEFAULT_POINT;
+            margin: 15px 0 10px 0;
         }
     }
 }
