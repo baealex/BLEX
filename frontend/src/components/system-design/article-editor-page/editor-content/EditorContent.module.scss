@@ -10,7 +10,8 @@
     :global(.CodeMirror) {
         font-size: 1.028rem;
         line-height: 2;
-        word-break: break-all;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
     }
 
     :global(.editor-preview) {
