@@ -60,7 +60,7 @@ export function ArticleNav(props: Props) {
     }, [props.text]);
 
     return (
-        <aside className={cn('article-nav', 'sticky-top sticky-top-100 none-drag')}>
+        <aside className={cn('article-nav', 'none-drag')}>
             <ul>
                 {headerNav.map((item, idx) => (
                     <li key={idx} className={cn(`title-${item[0]}`)}>

@@ -207,7 +207,7 @@ function PostDetail(props: Props) {
                         }
                         
                         .article-action {
-                            flex: 1;
+                            flex: 0 0 220px;
                             margin-bottom: 80px;
                         }
 
@@ -222,7 +222,7 @@ function PostDetail(props: Props) {
                             flex: 1;
                         }
 
-                        @media (max-width: 1060px) {
+                        @media (max-width: 1120px) {
                             .row {
                                 flex-direction: column;
                                 align-items: center;
@@ -234,8 +234,9 @@ function PostDetail(props: Props) {
 
                             .article-nav {
                                 max-width: 100%;
-                                width: 730px;
+                                width: 760px;
                                 order: -1;
+                                padding: 0 15px;
                             }
                         }
                     `}</style>

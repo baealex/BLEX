@@ -3,6 +3,7 @@ import styles from './SeriesList.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
+import { Text } from '~/components/design-system';
 
 export interface SeriesListProps {
     url: string;
@@ -20,9 +21,9 @@ export function SeriesList(props: SeriesListProps) {
             <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <a className={cn('title')}>
                     <div className={cn('mask')}>
-                        <div className="h5 font-weight-bold">
+                        <Text className="mb-2" fontSize={6} fontWeight={600}>
                             ‘{props.name}’ 시리즈
-                        </div>
+                        </Text>
                         <span className="ns">
                             {props.createdDate}
                         </span>
