@@ -1,11 +1,9 @@
-@import 'var';
-@import 'fonts';
-@import 'color';
-@import 'article';
+@import 'mixin';
 @import 'useful';
 
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap.override';
+@import 'reset';
+@import 'common';
+
 @import 'fontawesome.override';
 
 body {

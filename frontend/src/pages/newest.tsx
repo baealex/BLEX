@@ -48,15 +48,6 @@ const TrendyArticles: PageComponent<Props> = (props) => {
 
 TrendyArticles.pageLayout = (page, props) => (
     <CollectionLayout active="최신 포스트" {...props}>
-        <div className="row">
-            {props.posts.map(item => (
-                <ArticleCard
-                    key={item.url}
-                    className="col-lg-4 col-md-6 mt-4"
-                    {...item}
-                />
-            ))}
-        </div>
         {page}
     </CollectionLayout>
 );

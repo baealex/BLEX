@@ -1,3 +1,7 @@
+import classNames from 'classnames/bind';
+import styles from './ArticleNav.module.scss';
+const cn = classNames.bind(styles);
+
 import { useCallback, useEffect, useState } from 'react';
 
 interface Props {
@@ -56,10 +60,10 @@ export function ArticleNav(props: Props) {
     }, [props.text]);
 
     return (
-        <aside className="sticky-top sticky-top-100 article-nav none-drag">
+        <aside className={cn('article-nav', 'sticky-top sticky-top-100 none-drag')}>
             <ul>
                 {headerNav.map((item, idx) => (
-                    <li key={idx} className={`title-${item[0]}`}>
+                    <li key={idx} className={cn(`title-${item[0]}`)}>
                         <a
                             href={`#${item[1]}`}
                             onClick={handleClickArticleNav}

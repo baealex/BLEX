@@ -1,0 +1,20 @@
+*, ::after, ::before {
+  box-sizing: border-box;
+}
+
+html, body, div, h1, h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd, blockquote, figure, fieldset, form, input, textarea, th, td, hr, pre, iframe, address, button, menu, nav, section, article, header, footer, main, aside, details, summary, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+}

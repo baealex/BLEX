@@ -1,4 +1,4 @@
-@import 'var';
+@import 'mixin';;
 
 @keyframes left-in {
     from {
@@ -98,7 +98,8 @@
 }
 
 .button {
-    display: block;
+    display: flex;
+    align-items: center;
     min-width: 20px;
     border: none;
     background: none;

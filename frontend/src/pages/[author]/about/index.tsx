@@ -82,37 +82,35 @@ const UserAbout: PageComponent<Props> = (props) => {
                 image={props.profile.image}
                 description={props.profile.bio}
             />
-            <div className="container">
-                <div className="col-lg-8 mx-auto p-0 my-4">
-                    {isEdit ? (
-                        <textarea
-                            cols={40}
-                            rows={10}
-                            placeholder="자신을 설명하세요."
-                            className="form-control"
-                            onChange={(e) => setAboutMd(e.target.value)}
-                            value={aboutMd}
-                        />
+            <div className="x-container">
+                {isEdit ? (
+                    <textarea
+                        cols={40}
+                        rows={10}
+                        placeholder="자신을 설명하세요."
+                        className="form-control"
+                        onChange={(e) => setAboutMd(e.target.value)}
+                        value={aboutMd}
+                    />
+                ) : (
+                    (props.about || '').length <= 0 ? (
+                        <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                            <img className="w-100" src="/illustrators/doll-play.svg" />
+                            <Text className="mt-5" fontSize={6}>
+                                아직 작성된 소개가 없습니다.
+                            </Text>
+                        </div>
                     ) : (
-                        (props.about || '').length <= 0 ? (
-                            <div className="d-flex justify-content-center align-items-center flex-column py-5">
-                                <img className="w-100" src="/illustrators/doll-play.svg" />
-                                <Text className="mt-5" fontSize={6}>
-                                    아직 작성된 소개가 없습니다.
-                                </Text>
-                            </div>
-                        ) : (
-                            <ArticleContent html={aboutHTML || ''} />
-                        )
-                    )}
-                    {props.profile.username == username && (
-                        <button
-                            className="btn btn-dark btn-block mt-3 edit"
-                            onClick={() => handleClickEdit()}>
-                            {isEdit ? '완료' : '편집'}
-                        </button>
-                    )}
-                </div>
+                        <ArticleContent html={aboutHTML || ''} />
+                    )
+                )}
+                {props.profile.username == username && (
+                    <button
+                        className="btn btn-dark btn-block mt-3 edit"
+                        onClick={() => handleClickEdit()}>
+                        {isEdit ? '완료' : '편집'}
+                    </button>
+                )}
             </div>
         </>
     );

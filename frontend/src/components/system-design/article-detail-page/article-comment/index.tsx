@@ -152,64 +152,62 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     return (
         <div ref={ref} className={`comments ${cn('background')} py-5`}>
-            <div className="container">
-                <div className="col-lg-8 mx-auto px-0">
-                    {comments && comments.length > 0 ? comments.map((comment, idx: number) => (
-                        comment.isEdit ? (
-                            <CommentEditor
-                                key={comment.pk}
-                                pk={comment.pk}
-                                content={comment.textMarkdown}
-                                onSubmit={handleEditSubmit}
-                                onCancel={handleEditCancel}
-                            />
-                        ) : (
-                            <CommentCard
-                                key={idx}
-                                pk={comment.pk}
-                                author={comment.author}
-                                authorImage={comment.authorImage}
-                                timeSince={comment.timeSince}
-                                html={comment.textHtml}
-                                isEdited={comment.isEdited}
-                                isOwner={username === comment.author}
-                                totalLikes={comment.totalLikes}
-                                isLiked={comment.isLiked}
-                                onEdit={handleEdit}
-                                onDelete={handleDelete}
-                                onLike={comment.author !== 'Ghost' ? handleLike : undefined}
-                                onTag={comment.author !== 'Ghost' ? handleTag : undefined}
-                            />
-                        )
-                    )) : (
-                        <CommentCard
-                            pk={-1}
-                            author="Ghost"
-                            authorImage="https://static.blex.me/assets//images/ghost.png"
-                            timeSince="0 minutes"
-                            html="작성된 댓글이 없습니다. 첫 댓글을 달아보세요!"
-                            isEdited={false}
-                            isOwner={false}
-                            totalLikes={0}
-                            isLiked={false}
-                            onEdit={() => 0}
-                            onDelete={() => 0}
-                        />
-                    )}
-                    {isLogin ? (
-                        <CommentForm
-                            content={commentText}
-                            onChange={setCommentText}
-                            onSubmit={handleSubmit}
+            <div className="x-container">
+                {comments && comments.length > 0 ? comments.map((comment, idx: number) => (
+                    comment.isEdit ? (
+                        <CommentEditor
+                            key={comment.pk}
+                            pk={comment.pk}
+                            content={comment.textMarkdown}
+                            onSubmit={handleEditSubmit}
+                            onCancel={handleEditCancel}
                         />
                     ) : (
-                        <Alert
-                            type="warning"
-                            onClick={() => modalStore.open('isLoginModalOpen')}>
-                            댓글을 작성하려면 로그인이 필요합니다.
-                        </Alert>
-                    )}
-                </div>
+                        <CommentCard
+                            key={idx}
+                            pk={comment.pk}
+                            author={comment.author}
+                            authorImage={comment.authorImage}
+                            timeSince={comment.timeSince}
+                            html={comment.textHtml}
+                            isEdited={comment.isEdited}
+                            isOwner={username === comment.author}
+                            totalLikes={comment.totalLikes}
+                            isLiked={comment.isLiked}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onLike={comment.author !== 'Ghost' ? handleLike : undefined}
+                            onTag={comment.author !== 'Ghost' ? handleTag : undefined}
+                        />
+                    )
+                )) : (
+                    <CommentCard
+                        pk={-1}
+                        author="Ghost"
+                        authorImage="https://static.blex.me/assets//images/ghost.png"
+                        timeSince="0 minutes"
+                        html="작성된 댓글이 없습니다. 첫 댓글을 달아보세요!"
+                        isEdited={false}
+                        isOwner={false}
+                        totalLikes={0}
+                        isLiked={false}
+                        onEdit={() => 0}
+                        onDelete={() => 0}
+                    />
+                )}
+                {isLogin ? (
+                    <CommentForm
+                        content={commentText}
+                        onChange={setCommentText}
+                        onSubmit={handleSubmit}
+                    />
+                ) : (
+                    <Alert
+                        type="warning"
+                        onClick={() => modalStore.open('isLoginModalOpen')}>
+                        댓글을 작성하려면 로그인이 필요합니다.
+                    </Alert>
+                )}
             </div>
         </div>
     );

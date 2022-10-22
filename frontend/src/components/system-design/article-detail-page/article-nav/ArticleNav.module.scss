@@ -1,7 +1,9 @@
-/* ------------------------------ */
-/* POSTS : DETAIL : ARTICLE NAVIGATION */
+@import 'var';
+
 .article-nav {
     font-family: $FONT_GOTHIC;
+    position: sticky;
+    top: 120px;
     margin: 15px 0;
     max-height: calc(100vh - 100px);
     overflow-x: hidden;

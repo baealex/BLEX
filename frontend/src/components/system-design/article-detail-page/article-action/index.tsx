@@ -90,47 +90,26 @@ export function ArticleAction(props: ArticleActionProps) {
     };
 
     return (
-        <>
-            <aside className={cn('pc', 'sticky-top sticky-top-200 mb-5')}>
-                <div className={cn('actions')}>
-                    <ul className="px-3">
-                        {isLogin && (
-                            <li className="mx-3 mx-lg-4" onClick={onClickLike}>
-                                <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}/>
-                                <span>{state.totalLikes}</span>
-                            </li>
-                        )}
-                        <li className="mx-3 mx-lg-4" onClick={onClickGoComment}>
-                            <i className="far fa-comment"/>
-                            <span>{state.totalComment}</span>
-                        </li>
-                        {['twitter', 'facebook', 'pinterest'].map((social, idx) => (
-                            <li
-                                key={idx}
-                                className="mx-3 mx-lg-4"
-                                onClick={() => onClickShare(social as Social)}>
-                                <i className={`fab fa-${social}`}/>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </aside>
-            <aside className={cn('m')}>
-                <div className={cn('bottom-nav')}>
-                    <div className={cn('d-flex')}>
-                        {isLogin && (
-                            <div className={cn('item')} onClick={onClickLike}>
-                                <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}></i>
-                                <span>{state.totalLikes}</span>
-                            </div>
-                        )}
-                        <div className={cn('item')} onClick={onClickGoComment}>
-                            <i className="far fa-comment"></i>
-                            <span>{state.totalComment}</span>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-        </>
+        <aside className={cn('actions')}>
+            <ul>
+                {isLogin && (
+                    <li onClick={onClickLike}>
+                        <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}/>
+                        <span>{state.totalLikes}</span>
+                    </li>
+                )}
+                <li onClick={onClickGoComment}>
+                    <i className="far fa-comment"/>
+                    <span>{state.totalComment}</span>
+                </li>
+                {['twitter', 'facebook', 'pinterest'].map((social, idx) => (
+                    <li
+                        key={idx}
+                        onClick={() => onClickShare(social as Social)}>
+                        <i className={`fab fa-${social}`}/>
+                    </li>
+                ))}
+            </ul>
+        </aside>
     );
 }

@@ -1,0 +1,22 @@
+$FONT_SERIF: 'Noto Serif KR', serif;
+$FONT_GOTHIC: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif;
+
+$FONT_SIZE_1: 10px;
+$FONT_SIZE_2: 12px;
+$FONT_SIZE_3: 14px;
+$FONT_SIZE_4: 16px;
+$FONT_SIZE_5: 18px;
+$FONT_SIZE_6: 20px;
+$FONT_SIZE_7: 22px;
+$FONT_SIZE_8: 24px;
+
+$fontSizes: (
+    '1': $FONT_SIZE_1,
+    '2': $FONT_SIZE_2,
+    '3': $FONT_SIZE_3,
+    '4': $FONT_SIZE_4,
+    '5': $FONT_SIZE_5,
+    '6': $FONT_SIZE_6,
+    '7': $FONT_SIZE_7,
+    '8': $FONT_SIZE_8,
+);
