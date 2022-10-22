@@ -197,27 +197,32 @@ function PostDetail(props: Props) {
                         </div>
                     </div>
                     <style jsx>{`
+                        .container {
+                            padding: 0;
+                        }
+
                         .row {
                             display: flex;
                             flex-direction: row;
-                            gap: 1rem;
                         }
                         
                         .article-action {
                             flex: 1;
+                            margin-bottom: 80px;
                         }
 
                         .article-content {
                             max-width: 100%;
-                            width: 730px;
-                            flex: 0 0 730px;
+                            width: 760px;
+                            flex: 0 0 760px;
+                            padding: 0 15px;
                         }
 
                         .article-nav {
                             flex: 1;
                         }
 
-                        @media (max-width: 1030px) {
+                        @media (max-width: 1060px) {
                             .row {
                                 flex-direction: column;
                                 align-items: center;

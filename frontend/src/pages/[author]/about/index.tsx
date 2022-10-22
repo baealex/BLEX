@@ -82,7 +82,7 @@ const UserAbout: PageComponent<Props> = (props) => {
                 image={props.profile.image}
                 description={props.profile.bio}
             />
-            <div className="x-container">
+            <div className="x-container mt-4">
                 {isEdit ? (
                     <textarea
                         cols={40}

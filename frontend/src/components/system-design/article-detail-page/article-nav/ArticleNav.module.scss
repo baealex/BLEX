@@ -1,7 +1,6 @@
 @import 'var';
 
 .article-nav {
-    font-family: $FONT_GOTHIC;
     position: sticky;
     top: 120px;
     margin: 15px 0;
@@ -13,6 +12,19 @@
     ul {
         list-style: none;
         padding-left: 0;
+    }
+
+    li {
+        margin-bottom: 8px;
+    }
+
+    @media (max-width: 1060px) {
+        display: block;
+        max-height: initial;
+
+        li {
+            margin-bottom: 10px;
+        }
     }
 
     &::-webkit-scrollbar {

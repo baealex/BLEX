@@ -17,3 +17,18 @@
 .mt-4 {
   margin-top: 1.5rem;
 }
+
+.grid-321 {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 2rem;
+  grid-template: 1fr / repeat(3, minmax(0, 1fr));
+
+  @media (max-width: 960px) {
+      grid-template: 1fr / repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 576px) {
+      grid-template: 1fr / repeat(1, minmax(0, 1fr));
+  }
+}

@@ -78,14 +78,14 @@
             span {
                 display: block;
 
-                @media (max-width: 1030px) {
+                @media (max-width: 1060px) {
                     display: none;
                 }
             }
         }
     }
 
-    @media (max-width: 1030px) {
+    @media (max-width: 1060px) {
         position: fixed;
         z-index: 999;
         top: initial;

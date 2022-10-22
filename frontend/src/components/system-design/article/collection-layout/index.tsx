@@ -32,28 +32,12 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                         : NAVIGATION_ITEMS}
                     active={props.active}
                 />
-                <div className="row">
+                <div className="grid-321">
                     {props.posts.map((post) => (
                         <ArticleCard key={post.url} {...post}/>
                     ))}
                 </div>
                 {props.children}
-                <style jsx>{`
-                    .row {
-                        margin-top: 1.5rem;
-                        display: grid;
-                        gap: 2rem;
-                        grid-template: 1fr / repeat(3, minmax(0, 1fr));
-
-                        @media (max-width: 960px) {
-                            grid-template: 1fr / repeat(2, minmax(0, 1fr));
-                        }
-
-                        @media (max-width: 576px) {
-                            grid-template: 1fr / repeat(1, minmax(0, 1fr));
-                        }
-                    }
-                `}</style>
             </div>
             <Footer/>
         </>

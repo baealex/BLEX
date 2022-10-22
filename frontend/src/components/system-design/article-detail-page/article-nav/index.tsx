@@ -67,7 +67,7 @@ export function ArticleNav(props: Props) {
                         <a
                             href={`#${item[1]}`}
                             onClick={handleClickArticleNav}
-                            className={`${headerNow == item[1] ? ' nav-now' : ''}`}>
+                            className={cn({ 'nav-now': headerNow == item[1] })}>
                             {item[2]}
                         </a>
                     </li>

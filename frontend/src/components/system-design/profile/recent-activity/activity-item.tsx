@@ -26,7 +26,7 @@ export function ActivityItem(props: ActivityItemProps) {
 
     return (
         <li>
-            <Card isRounded className="mt-3 p-3">
+            <Card isRounded hasShadow className="mt-3 p-4">
                 <i className={className}/> <Link href={props.url}><a className="shallow-dark">'{props.text}'</a></Link> {desc}
             </Card>
         </li>

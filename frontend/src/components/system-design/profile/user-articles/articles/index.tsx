@@ -10,7 +10,7 @@ export interface ArticlesProps {
 
 export function Articles(props: ArticlesProps) {
     return (
-        <div className="col-lg-8 mt-4">
+        <div>
             {props.posts.map((item, idx) => (
                 <ArticleCardList key={idx} {...item}/>
             ))}
