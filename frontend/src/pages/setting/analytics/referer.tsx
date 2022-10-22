@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Card, Loading } from '@design-system';
+import { Card, Loading, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -22,9 +22,9 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
         <>
             {referers && (
                 <>
-                    <div className="h5 font-weight-bold mt-3 mb-3">
-                        신규 외부 링크
-                    </div>
+                    <Text className="my-3" fontSize={6} fontWeight={600}>
+                        신규 유입 경로
+                    </Text>
                     <div className="row">
                         {referers.referers.map((item) => (
                             <div key={item.url} className="col-lg-12 mt-3">

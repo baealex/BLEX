@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
-import { Card, Loading } from '@design-system';
+import { Card, Loading, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -29,9 +29,9 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
         <>
             {views && (
                 <>
-                    <div className="h5 font-weight-bold mt-lg-0 mt-3 mb-3">
+                    <Text className="my-3" fontSize={6} fontWeight={600}>
                         조회수 추이
-                    </div>
+                    </Text>
                     <Card hasBackground isRounded>
                         <div className="pt-3 px-3 d-flex justify-content-between">
                             <div className="ns shallow-dark">
@@ -62,9 +62,9 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
             )}
             {postViews && (
                 <>
-                    <div className="h5 font-weight-bold mt-5 mb-3">
+                    <Text className="mt-5 mb-3" fontSize={6} fontWeight={600}>
                         오늘의 인기글
-                    </div>
+                    </Text>
                     {postViews.posts.map((item, idx) => (
                         <Card key={item.url} hasBackground isRounded className="my-3">
                             <div className="p-3">

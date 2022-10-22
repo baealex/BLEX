@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from 'next';
 import { useState } from 'react';
 
-import { Card } from '@design-system';
+import { Button, Card } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -84,12 +84,9 @@ const FormsSetting: PageComponent<Props> = (props) => {
                 onChange={(e) => setContent(e.target.value)}
                 value={content}
             />
-            <button
-                type="button"
-                className="btn btn-block btn-dark"
-                onClick={() => onSubmit()}>
+            <Button space="spare" display="block" onClick={onSubmit}>
                 서식 등록
-            </button>
+            </Button>
             <div className="mt-3">
                 {forms.map((item, idx) => (
                     <Card key={idx} hasBackground isRounded className="p-3 mb-3">

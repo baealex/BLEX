@@ -26,7 +26,7 @@ export function Button({
 }: ButtonProps) {
     const button = useRef<HTMLButtonElement>(null);
 
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (onClick) {
             onClick(e);
         }
@@ -43,13 +43,11 @@ export function Button({
             ripple.style.left = e.pageX - absoluteLeft - 25 + 'px';
             ripple.style.opacity = '0';
             ripple.style.transform = 'scale(5)';
-        }, 0);
 
-        setTimeout(() => {
-            if (button.current?.contains(ripple)) {
-                button.current?.removeChild(ripple);
-            }
-        }, 1000);
+            setTimeout(() => {
+                ripple.remove();
+            }, 1000);
+        }, 0);
     };
 
     return (
