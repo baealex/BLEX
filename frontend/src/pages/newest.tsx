@@ -1,13 +1,10 @@
 import type { GetServerSideProps } from 'next';
 
 import {
-    ArticleCard,
-    CollectionLayout
-} from '@system-design/article';
-import {
     Pagination,
     SEO
 } from '@system-design/shared';
+import { CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';

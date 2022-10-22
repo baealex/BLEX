@@ -19,6 +19,7 @@ import {
     Footer,
     SEO
 } from '@system-design/shared';
+import { Button } from '@design-system';
 import { TagBadges } from '@system-design/tag';
 
 import * as API from '~/modules/api';
@@ -31,7 +32,6 @@ import { authStore } from '~/stores/auth';
 import { configStore } from '~/stores/config';
 
 import { CONFIG } from '~/modules/settings';
-import { Button } from '~/components/design-system';
 
 interface Props {
     profile: API.GetUserProfileResponseData;
@@ -50,20 +50,16 @@ function moveToHash() {
     }
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { cookies } = context.req;
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+    const { cookies } = req;
     configStore.serverSideInject(cookies);
 
-    const { req } = context;
-    const {
-        author = '', posturl = ''
-    } = context.query;
-
+    const { author = '', posturl = '' } = query;
     if (!author.includes('@') || !posturl) {
         return { notFound: true };
     }
 
-    const { cookie } = context.req.headers;
+    const { cookie } = req.headers;
 
     try {
         try {
