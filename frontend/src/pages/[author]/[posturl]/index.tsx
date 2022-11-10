@@ -220,6 +220,7 @@ function PostDetail(props: Props) {
 
                         .article-nav {
                             flex: 1;
+                            padding: 0 15px;
                         }
 
                         @media (max-width: 1120px) {
@@ -230,13 +231,13 @@ function PostDetail(props: Props) {
 
                             .article-action {
                                 order: 1;
+                                display: contents;
                             }
 
                             .article-nav {
                                 max-width: 100%;
                                 width: 760px;
                                 order: -1;
-                                padding: 0 15px;
                             }
                         }
                     `}</style>

@@ -37,13 +37,18 @@ export function ArticleSeries(props: ArticleSeriesProps) {
         <div ref={ref}>
             {series && activeSeries !== undefined && seriesLength !== undefined && (
                 <div className={cn('series', 'my-5')}>
-                    <Link href={`/@${props.author}/series/${props.series}`}>
-                        <a className="deep-dark">
-                            <Text className="mb-3" fontWeight={600} fontSize={6}>
-                                '{series.name}' 시리즈
-                            </Text>
-                        </a>
-                    </Link>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <Text className="title-2-spacing" fontWeight={600} fontSize={5}>
+                            “{series.name}” 시리즈
+                        </Text>
+                        <Link href={`/@${props.author}/series/${props.series}`}>
+                            <a className="shallow-dark">
+                                <Text>
+                                    전체 목록<i className="fas fa-angle-right ml-1" />
+                                </Text>
+                            </a>
+                        </Link>
+                    </div>
                     <SpeechBubble
                         href={`/@${series.owner}`}
                         alt={series.owner}
@@ -60,11 +65,14 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                                     <Link href="/[author]/[posturl]" as={`/@${series.owner}/${post.url}`}>
                                         <a
                                             className={cn(
+                                                'title-3-spacing',
                                                 idx == activeSeries
                                                     ? 'deep-dark'
                                                     : 'shallow-dark'
                                             )}>
-                                            {post.title}
+                                            <Text>
+                                                {post.title}
+                                            </Text>
                                         </a>
                                     </Link>
                                 </li>

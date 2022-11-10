@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card, Dropdown } from '@design-system';
+import { Card, Dropdown, Text } from '@design-system';
 
 export interface CommentCardProps {
     pk: number;
@@ -32,7 +32,7 @@ export function CommentCard(props: CommentCardProps) {
             backgroundType="background"
             className={`${cn('card')} mb-3`}>
             <div className="d-flex justify-content-between">
-                <div className="d-flex">
+                <div className="d-flex align-items-center">
                     <Link href={`/@${props.author}`}>
                         <a>
                             <div
@@ -44,7 +44,11 @@ export function CommentCard(props: CommentCardProps) {
                     <div>
                         <div>
                             <Link href={`/@${props.author}`}>
-                                <a className="font-weight-bold deep-dark">{props.author}</a>
+                                <a className="deep-dark">
+                                    <Text fontWeight={600}>
+                                        {props.author}
+                                    </Text>
+                                </a>
                             </Link>
                         </div>
                         <div>
@@ -88,11 +92,9 @@ export function CommentCard(props: CommentCardProps) {
                         </li>
                     )}
                     {props.onTag && !props.isOwner && (
-                        <>
-                            <li className="float-right" onClick={() => props.onTag && props.onTag(props.author)}>
-                                <i className="fas fa-reply"/> 사용자 태그
-                            </li>
-                        </>
+                        <li onClick={() => props.onTag && props.onTag(props.author)}>
+                            <i className="fas fa-reply"/> 사용자 태그
+                        </li>
                     )}
                 </ul>
             </div>

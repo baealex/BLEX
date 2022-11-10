@@ -8,7 +8,7 @@ import { ArticleContent } from '@system-design/article-detail-page';
 import type { PageComponent } from '~/components';
 import { ProfileLayout } from '@system-design/profile';
 import { SEO } from '@system-design/shared';
-import { Text } from '@design-system';
+import { Button, Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import blexer from '~/modules/utility/blexer';
@@ -105,11 +105,12 @@ const UserAbout: PageComponent<Props> = (props) => {
                     )
                 )}
                 {props.profile.username == username && (
-                    <button
-                        className="btn btn-dark btn-block mt-3 edit"
+                    <Button
+                        display="block"
+                        space="spare"
                         onClick={() => handleClickEdit()}>
                         {isEdit ? '완료' : '편집'}
-                    </button>
+                    </Button>
                 )}
             </div>
         </>
