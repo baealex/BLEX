@@ -7,28 +7,29 @@
 - [x] Python, Django
 
 **Database**
-- [x] SQLite
+- [x] SQLite 
 - [ ] PostgreSQL
 
 **Library**
 - [x] Pillow
 - [x] FFmpeg
-- [ ] Parsedown
+- [ ] Parsedown (deprecated)
 
 <br>
 
 ## FRONTEND
 
 **Language & Framework**
-- [ ] Python, Django Template
-- [x] Typescript, React.js (Next.js)
+- [ ] Python, Django Template (deprecated)
+- [x] Typescript, Next.js
 
 **Library**
-- [x] Bootstrap
-- [ ] jQuery
-- [ ] Editormd
+- [ ] Bootstrap (deprecated)
+- [ ] jQuery (deprecated)
 - [x] Remarkable
-- [ ] PrismJS
+- [ ] Editormd (deprecated)
+- [x] EasyMDE
+- [ ] PrismJS (deprecated)
 - [X] CodeMirror
 - [x] Frappe Charts
 
@@ -40,7 +41,7 @@
 - [ ] CloudFlare
 - [ ] Google Fonts
 - [ ] Google Analytics
-- [ ] Microsoft Clarity
+- [x] Microsoft Clarity
 
 <br>
 
@@ -53,4 +54,4 @@
 
 ## BUSINESS TOOLS
 
-- [x] Daum Mail
+- [ ] Daum Mail
