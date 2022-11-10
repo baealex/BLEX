@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import React, { useRef } from 'react';
 import Link from 'next/link';
 
-import { SpeechBubble } from '@design-system';
+import { SpeechBubble, Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
@@ -37,13 +37,18 @@ export function ArticleSeries(props: ArticleSeriesProps) {
         <div ref={ref}>
             {series && activeSeries !== undefined && seriesLength !== undefined && (
                 <div className={cn('series', 'my-5')}>
-                    <Link href={`/@${props.author}/series/${props.series}`}>
-                        <a className="deep-dark">
-                            <div className="font-weight-bold mb-3 h5">
-                                '{series.name}' 시리즈
-                            </div>
-                        </a>
-                    </Link>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <Text className="title-2-spacing" fontWeight={600} fontSize={5}>
+                            “{series.name}” 시리즈
+                        </Text>
+                        <Link href={`/@${props.author}/series/${props.series}`}>
+                            <a className="shallow-dark">
+                                <Text>
+                                    전체 목록<i className="fas fa-angle-right ml-1" />
+                                </Text>
+                            </a>
+                        </Link>
+                    </div>
                     <SpeechBubble
                         href={`/@${series.owner}`}
                         alt={series.owner}
@@ -54,19 +59,22 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                         {series.posts.length > 1 && series.posts.map((post, idx) => (
                             activeSeries >= idx - 2 && activeSeries <= idx + 2 && (
                                 <li key={idx}>
+                                    <div className={cn('count')}>
+                                        {idx + 1}/{seriesLength}
+                                    </div>
                                     <Link href="/[author]/[posturl]" as={`/@${series.owner}/${post.url}`}>
                                         <a
                                             className={cn(
+                                                'title-3-spacing',
                                                 idx == activeSeries
                                                     ? 'deep-dark'
                                                     : 'shallow-dark'
                                             )}>
-                                            {post.title}
+                                            <Text>
+                                                {post.title}
+                                            </Text>
                                         </a>
                                     </Link>
-                                    <div className={cn('count')}>
-                                        {idx + 1}/{seriesLength}
-                                    </div>
                                 </li>
                             )
                         ))}

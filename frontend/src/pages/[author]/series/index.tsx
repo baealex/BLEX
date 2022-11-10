@@ -61,13 +61,11 @@ const SeriesProfile: PageComponent<Props> = (props) => {
                 description={`${props.profile.name}님이 생성한 모든 시리즈를 만나보세요.`}
             />
             <UserSeries series={props.series}>
-                <div className="container">
-                    <div className="col-lg-8 mx-auto">
-                        <Pagination
-                            page={props.page}
-                            last={props.lastPage}
-                        />
-                    </div>
+                <div className="x-container">
+                    <Pagination
+                        page={props.page}
+                        last={props.lastPage}
+                    />
                 </div>
             </UserSeries>
         </>
@@ -80,14 +78,12 @@ SeriesProfile.pageLayout = (page, props) => (
         profile={props.profile}
         social={props.social}>
         {props.series.length <= 0 ? (
-            <div className="container">
-                <div className="col-lg-8 mx-auto p-0 my-4">
-                    <div className="d-flex justify-content-center align-items-center flex-column py-5">
-                        <img className="w-100" src="/illustrators/focus.svg" />
-                        <Text className="mt-5" fontSize={6}>
-                            아직 생성된 시리즈가 없습니다.
-                        </Text>
-                    </div>
+            <div className="x-container">
+                <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                    <img className="w-100" src="/illustrators/focus.svg" />
+                    <Text className="mt-5" fontSize={6}>
+                        아직 생성된 시리즈가 없습니다.
+                    </Text>
                 </div>
             </div>
         ) : page}

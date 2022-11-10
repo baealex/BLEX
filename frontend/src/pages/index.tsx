@@ -1,13 +1,10 @@
 import type { GetServerSideProps } from 'next';
 
 import {
-    ArticleCard,
-    CollectionLayout
-} from '@system-design/article';
-import {
     Pagination,
     SEO
 } from '@system-design/shared';
+import { CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';
@@ -50,15 +47,6 @@ const TrendyArticles: PageComponent<Props> = (props) => {
 
 TrendyArticles.pageLayout = (page, props) => (
     <CollectionLayout active="인기 포스트" {...props}>
-        <div className="row">
-            {props.posts.map(item => (
-                <ArticleCard
-                    key={item.url}
-                    className="col-lg-4 col-md-6 mt-4"
-                    {...item}
-                />
-            ))}
-        </div>
         {page}
     </CollectionLayout>
 );

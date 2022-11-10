@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import { GlitchText } from '@design-system';
+import { Button, GlitchText } from '@design-system';
 import { SEO } from '@system-design/shared';
 
 export default function NotFound() {
@@ -16,12 +16,12 @@ export default function NotFound() {
                     <div className="text-center">
                         <GlitchText letters={letters}/>
                         <p>찾으시는 페이지는 삭제되어 존재하지 않습니다.</p>
-                        <div>
+                        <div className="mt-3">
                             <Link href="/search">
-                                <button className="btn btn-dark m-1">컨텐츠 검색</button>
+                                <Button gap="little">컨텐츠 검색</Button>
                             </Link>
                             <Link href="/">
-                                <button className="btn btn-dark m-1">메인 홈</button>
+                                <Button>메인 홈</Button>
                             </Link>
                         </div>
                     </div>

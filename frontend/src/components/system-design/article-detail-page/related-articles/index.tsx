@@ -34,9 +34,9 @@ export function RelatedArticles(props: RelatedProps) {
                 </Link>
                 님이 작성한 다른 글
             </p>
-            <div className="row">
+            <div className="grid-321">
                 {posts && posts.map((item, idx) => (
-                    <ArticleCard key={idx} className="col-lg-4 col-md-6 mt-4" {...item} />
+                    <ArticleCard key={idx} {...item} />
                 ))}
             </div>
         </div>

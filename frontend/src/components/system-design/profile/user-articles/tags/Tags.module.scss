@@ -1,5 +1,5 @@
 .tags {
-    @media only screen and (max-width: 991px) {
+    @media only screen and (max-width: 768px) {
         overflow-x: scroll;
     }
 
@@ -7,24 +7,23 @@
         list-style: none;
         padding-left: 0;
 
-        @media only screen and (max-width: 991px) {
+        @media only screen and (max-width: 768px) {
             white-space: nowrap;
         }
 
-        div.category {
-            margin: 10px 5px;
+        .category {
             padding-bottom: 5px;
             border-bottom: 1px solid #eee;
 
-            @media only screen and (max-width: 991px) {
+            @media only screen and (max-width: 768px) {
                 display: none !important;
             }
         }
 
         & > li {
-            margin: 5px;
+            margin: 10px 0;
 
-            @media only screen and (max-width: 991px) {
+            @media only screen and (max-width: 768px) {
                 display: inline-block;
             }
 

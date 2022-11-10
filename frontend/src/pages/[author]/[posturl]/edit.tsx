@@ -8,12 +8,8 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { GetServerSideProps } from 'next';
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { req } = context;
-    const {
-        author = '',
-        posturl = ''
-    } = context.query;
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+    const { author = '', posturl = '' } = query;
 
     if (!author.includes('@') || !posturl) {
         return { notFound: true };

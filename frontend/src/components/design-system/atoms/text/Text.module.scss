@@ -1,8 +1,10 @@
-@import 'var';
+@import 'mixin';;
 
 .text {
-    @for $i from 1 through 7 {
-        &.fw-#{$i} {
+    line-height: 1.5;
+
+    @for $i from 1 through 9 {
+        &.fw-#{$i * 100} {
             font-weight: ($i * 100);
         }
     }

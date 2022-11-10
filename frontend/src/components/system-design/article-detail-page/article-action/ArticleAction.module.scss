@@ -1,4 +1,4 @@
-@import 'var';
+@import 'mixin';;
 
 @keyframes like-it {
     0% {
@@ -12,39 +12,30 @@
     }
 }
 
-.pc {
-    display: none;
-
-    @media only screen and (min-width: 991px) {
-        display: block;
-    }
-}
-
-.m {
-    display: block;
-
-    @media only screen and (min-width: 991px) {
-        display: none;
-    }
-}
-
 .actions {
-    text-align:center;
     user-select: none;
+    position: sticky;
+    top: 200px;
 
     p {
         font-size: 0.95rem;
     }
 
     ul {
-        padding-left: 0;
-        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2rem;
+        list-style: none;
+        padding: 0;
 
         li {
-            display: inline-block;
-            margin-bottom: 15px;
             color: rgba(0,0,0,.33);
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
 
             :global(body.dark) & {
                 color: #aaa;
@@ -85,47 +76,30 @@
             }
 
             span {
-                display: none;
+                display: block;
 
-                @media only screen and (min-width: 991px) {
-                    display: block;
+                @media (max-width: 1120px) {
+                    display: none;
                 }
             }
         }
     }
-}
 
-.bottom-nav {
-    user-select: none;
-    position: fixed;
-    z-index: 999;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    backdrop-filter: blur(10px);
-    @include MAIN_SHADOW;
-    @include BACKGROUND;
+    @media (max-width: 1120px) {
+        position: fixed;
+        z-index: 999;
+        top: initial;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        backdrop-filter: blur(10px);
+        @include MAIN_SHADOW;
+        @include BACKGROUND;
+        padding: 1rem;
 
-    .isScrollDown {
-        transform: translateY(0px);
-    }
-
-    .item {
-        padding: 15px;
-        font-size: 16px;
-        cursor: pointer;
-
-        i {
-            transition: color 0.2s;
-            
-            &:global(.fa-heart.fas) {
-                animation: like-it 0.5s ease-out 1;
-                color: #eb457c;
-            }
-        }
-
-        span {
-            margin-left: 5px;
+        ul {
+            flex-direction: row;
+            gap: 1.5rem;
         }
     }
 }

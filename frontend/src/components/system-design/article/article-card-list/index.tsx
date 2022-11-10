@@ -5,6 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 
 import { TagBadges } from '../../tag';
+import { Text } from '~/components/design-system';
 
 import { getPostsImage } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
@@ -22,12 +23,12 @@ export interface ArticleCardListProps {
 
 export function ArticleCardList(props: ArticleCardListProps) {
     return (
-        <div className={cn('list')}>
+        <article className={cn('list')}>
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                 <a>
                     {props.image && (
                         <img
-                            className="lazy"
+                            className="lazy mt-4"
                             src={getPostsImage(props.image, { preview: true })}
                             data-src={getPostsImage(props.image, { minify: true })}
                             height="400"
@@ -35,23 +36,23 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     )}
                 </a>
             </Link>
-            <h4 className="card-title font-weight-bold mt-3">
+            <Text tag="h3" className="mt-4 mb-2" fontWeight={700} fontSize={8}>
                 <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                     <a className="deep-dark">
                         {props.title}
                     </a>
                 </Link>
-            </h4>
-            <p>
+            </Text>
+            <Text className="my-2" fontSize={4}>
                 <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                     <a className="shallow-dark">
                         {unescape(props.description)}
                     </a>
                 </Link>
-            </p>
-            <p className="vs">
+            </Text>
+            <Text className="my-2" fontSize={2}>
                 {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
-            </p>
+            </Text>
             <TagBadges
                 items={props.tags.map(item => (
                     <Link href={`/@${props.author}/posts/${item}`}>
@@ -59,6 +60,6 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     </Link>
                 ))}
             />
-        </div>
+        </article>
     );
 }

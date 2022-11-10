@@ -95,21 +95,17 @@ export function EditorLayout(props: Props) {
     };
 
     return (
-        <div className="container">
-            <div className="row justify-content-center">
-                <div className="col-lg-8">
-                    <EditorTitle
-                        value={props.title.value}
-                        onChange={props.title.onChange}
-                        onChangeImage={props.image.onChange}
-                    />
-                    <EditorContent
-                        value={props.content.value}
-                        onChange={props.content.onChange}
-                        addon={props.addon}
-                    />
-                </div>
-            </div>
+        <div className="x-container">
+            <EditorTitle
+                value={props.title.value}
+                onChange={props.title.onChange}
+                onChangeImage={props.image.onChange}
+            />
+            <EditorContent
+                value={props.content.value}
+                onChange={props.content.onChange}
+                addon={props.addon}
+            />
             <Modal
                 title={props.publish.title}
                 isOpen={isOpenPublishModal}

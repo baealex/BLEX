@@ -1,7 +1,8 @@
-/* ------------------------------ */
-/* POSTS : DETAIL : ARTICLE NAVIGATION */
+@import 'var';
+
 .article-nav {
-    font-family: $FONT_GOTHIC;
+    position: sticky;
+    top: 120px;
     margin: 15px 0;
     max-height: calc(100vh - 100px);
     overflow-x: hidden;
@@ -11,6 +12,19 @@
     ul {
         list-style: none;
         padding-left: 0;
+    }
+
+    li {
+        margin-bottom: 2px;
+    }
+
+    @media (max-width: 1030px) {
+        display: block;
+        max-height: initial;
+
+        li {
+            margin-bottom: 6px;
+        }
     }
 
     &::-webkit-scrollbar {

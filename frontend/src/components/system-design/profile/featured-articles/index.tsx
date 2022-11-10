@@ -2,6 +2,7 @@ import {
     ArticleCardSmall,
     ArticleCardSmallProps
 } from '@system-design/article';
+import { Text } from '@design-system';
 
 export interface FeaturedArticlesProps {
     articles: ArticleCardSmallProps[];
@@ -12,10 +13,10 @@ export function FeaturedArticles(props: FeaturedArticlesProps) {
         <>
             {props.articles.length > 0 && (
                 <>
-                    <div className="h4 font-weight-bold mt-5">
+                    <Text className="mt-5" fontWeight={700} fontSize={8}>
                         인기 컨텐츠
-                    </div>
-                    <div className="row mt-3">
+                    </Text>
+                    <div className="grid-321">
                         {props.articles.map((article, idx) => (
                             <ArticleCardSmall key={idx} {...article}/>
                         ))}

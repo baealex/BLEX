@@ -1,4 +1,4 @@
-@import 'var';
+@import 'mixin';;
 
 .box {
     padding: 15px;
@@ -14,6 +14,10 @@
     min-width: 0;
     margin-left: 16px;
 
+    .username {
+        margin-bottom: 4px;
+    }
+
     .username a {
         text-decoration: none;
         @include COLOR_DARK;
@@ -23,7 +27,6 @@
     .bio a {
         text-decoration: none;
         @include COLOR_ASHGRAY;
-        margin-bottom: 8px;
     }
 
     ul {

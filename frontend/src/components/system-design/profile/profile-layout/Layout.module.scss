@@ -1,4 +1,4 @@
-@import 'var';
+@import 'mixin';;
 
 .user {
     margin: 0 auto;
@@ -36,7 +36,7 @@
     .username {
         @include COLOR_ASHGRAY;
         font-size: 16px;
-        margin-bottom: 8px;
+        margin: 4px 0 8px;
     }
 
     .bio, .homepage, .divider {

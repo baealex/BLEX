@@ -96,6 +96,7 @@ export function SettingNavigation(props: SettingNavigationProps) {
                                         className={cn(
                                             'px-3',
                                             'py-2',
+                                            'mb-1',
                                             { active: props.active == subItem.name }
                                         )}>
                                         {subItem.title}

@@ -3,7 +3,7 @@ import {
     useMemo, useState
 } from 'react';
 
-import { Button } from '@design-system';
+import { Button, Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import { debounceEvent } from '~/modules/optimize/event';
@@ -45,9 +45,9 @@ export function ArticleThanks({
 
     return (
         <div className="text-center my-5">
-            <div className="mb-3 font-weight-bold">
+            <Text className="mb-2" fontWeight={600}>
                 이 글이 도움이 되었나요?
-            </div>
+            </Text>
             <Button
                 color={active === 0 ? 'secondary' : 'default'}
                 gap="little"

@@ -1,4 +1,4 @@
-@import 'var';
+@import 'mixin';;
 
 .top-nav {
     z-index: 999;
@@ -82,7 +82,7 @@
             & > button {
                 background: $COLOR_DEFAULT_SECONDARY;
                 border-radius: 100px;
-                padding: 4px 12px;
+                padding: 6px 12px;
                 white-space: nowrap;
                 color: #fff !important;
             }

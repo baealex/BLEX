@@ -19,6 +19,7 @@ import {
     Footer,
     SEO
 } from '@system-design/shared';
+import { Button } from '@design-system';
 import { TagBadges } from '@system-design/tag';
 
 import * as API from '~/modules/api';
@@ -49,20 +50,16 @@ function moveToHash() {
     }
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { cookies } = context.req;
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+    const { cookies } = req;
     configStore.serverSideInject(cookies);
 
-    const { req } = context;
-    const {
-        author = '', posturl = ''
-    } = context.query;
-
+    const { author = '', posturl = '' } = query;
     if (!author.includes('@') || !posturl) {
         return { notFound: true };
     }
 
-    const { cookie } = context.req.headers;
+    const { cookie } = req.headers;
 
     try {
         try {
@@ -166,14 +163,14 @@ function PostDetail(props: Props) {
                 />
                 <div className="container">
                     <div className="row">
-                        <div className="col-lg-2">
+                        <div className="article-action">
                             <ArticleAction {...props.post}/>
                         </div>
-                        <div className="col-lg-8">
+                        <div className="article-content">
                             {props.post.author == username && (
                                 <div className="mb-3">
-                                    <div className="btn btn-dark" onClick={handleEdit}>포스트 수정</div>
-                                    <div className="btn btn-dark ml-2" onClick={handleDelete}>포스트 삭제</div>
+                                    <Button gap="little" onClick={handleEdit}>포스트 수정</Button>
+                                    <Button onClick={handleDelete}>포스트 삭제</Button>
                                 </div>
                             )}
                             <ArticleAuthor {...props.profile}/>
@@ -195,10 +192,55 @@ function PostDetail(props: Props) {
                                 series={props.post.series}
                             />
                         </div>
-                        <div className="col-lg-2 mobile-disable">
+                        <div className="article-nav">
                             <ArticleNav text={props.post.textHtml} />
                         </div>
                     </div>
+                    <style jsx>{`
+                        .container {
+                            padding: 0;
+                        }
+
+                        .row {
+                            display: flex;
+                            flex-direction: row;
+                        }
+                        
+                        .article-action {
+                            flex: 0 0 220px;
+                            margin-bottom: 80px;
+                        }
+
+                        .article-content {
+                            max-width: 100%;
+                            width: 760px;
+                            flex: 0 0 760px;
+                            padding: 0 15px;
+                        }
+
+                        .article-nav {
+                            flex: 1;
+                            padding: 0 15px;
+                        }
+
+                        @media (max-width: 1120px) {
+                            .row {
+                                flex-direction: column;
+                                align-items: center;
+                            }
+
+                            .article-action {
+                                order: 1;
+                                display: contents;
+                            }
+
+                            .article-nav {
+                                max-width: 100%;
+                                width: 760px;
+                                order: -1;
+                            }
+                        }
+                    `}</style>
                 </div>
             </article>
             <ArticleComment

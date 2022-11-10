@@ -1,0 +1,75 @@
+/* Text */
+.vivid-purple {
+  color: $COLOR_DEFAULT_PRIMARY;
+
+  body.dark & {
+      color: $COLOR_DARK_PRIMARY;
+  }
+
+  &:hover {
+      color: $COLOR_DEFAULT_PRIMARY;
+      text-decoration: none;
+
+      body.dark & {
+          color: $COLOR_DARK_PRIMARY;
+      }
+  }
+}
+
+.deep-dark {
+  color: $COLOR_DEFAULT_DARK;
+
+  body.dark &, .reverse-color & {
+      color: #e0e0e0;
+  }
+
+  &:hover {
+      color: $COLOR_DEFAULT_DARK;
+      text-decoration: none;
+      
+      body.dark &, .reverse-color & {
+          color: #e0e0e0;
+      }
+  }
+}
+
+.shallow-dark {
+  color: $COLOR_DEFAULT_ASHGRAY;
+
+  body.dark &, .reverse-color & {
+      color: #a7a7a7;
+  }
+
+  &:hover {
+      color: $COLOR_DEFAULT_ASHGRAY;
+      text-decoration: none;
+
+      body.dark &, .reverse-color & {
+          color: #a7a7a7;
+      }
+  }
+}
+
+.gray-dark {
+  color: $COLOR_DEFAULT_GRAY;
+
+  &:hover {
+      color: $COLOR_DEFAULT_GRAY;
+      text-decoration: none;
+  }
+}
+
+/* Backgound */
+body.dark {
+  background-color: $COLOR_DARK_BACKGROUND;
+  color: #d6d6d6;
+}
+
+.bg-border-purple {
+  border-radius: 5px;
+  border: 1px solid $COLOR_DEFAULT_PRIMARY;
+  
+  body.dark & {
+      border: 1px solid $COLOR_DARK_PRIMARY;
+  }
+}

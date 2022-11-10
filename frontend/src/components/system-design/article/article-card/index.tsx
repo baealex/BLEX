@@ -7,7 +7,8 @@ import Link from 'next/link';
 import {
     Badge,
     Card,
-    PopOver
+    PopOver,
+    Text
 } from '@design-system';
 
 import {
@@ -47,7 +48,7 @@ export function ArticleCard(props: ArticleCardProps) {
         : props.description;
 
     return (
-        <div className={props.className}>
+        <article className={props.className}>
             <Card
                 hasShadow={hasShadow}
                 isRounded={isRounded}
@@ -72,20 +73,23 @@ export function ArticleCard(props: ArticleCardProps) {
                         )}
                         <Link href={url}>
                             <a>
-                                <div
+                                <Text
+                                    tag="h3"
+                                    fontWeight={600}
                                     className={cn(
                                         'title',
-                                        'deep-dark'
+                                        'deep-dark',
+                                        'mb-2'
                                     )}>
                                     {props.title}
-                                </div>
+                                </Text>
                                 {description && props.highlight ? (
                                     <p
                                         className="shallow-dark"
                                         dangerouslySetInnerHTML={{ __html: description }}
                                     />
                                 ) : (
-                                    <p className="shallow-dark">{unescape(description || '')}</p>
+                                    <Text className="shallow-dark mb-3">{unescape(description || '')}</Text>
                                 )}
                             </a>
                         </Link>
@@ -122,6 +126,6 @@ export function ArticleCard(props: ArticleCardProps) {
                     </div>
                 </>
             </Card>
-        </div>
+        </article>
     );
 }

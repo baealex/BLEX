@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { Dropdown } from '@design-system';
+import { Dropdown, Text } from '@design-system';
 
 import { sorted } from '~/modules/utility/object';
 
@@ -26,13 +26,13 @@ export function Tags(props: TagsProps) {
 
     return (
         <div
-            className={cn('col-lg-3', 'tags')}>
+            className={cn('tags')}>
             <ul className="mt-4">
                 <div
                     className={cn('d-flex justify-content-between', 'category')}>
-                    <div className="h6 font-weight-bold">
+                    <Text fontWeight={600} fontSize={4}>
                         카테고리
-                    </div>
+                    </Text>
                     <Dropdown
                         button={
                             <i className="fas fa-exchange-alt fa-rotate-90"></i>

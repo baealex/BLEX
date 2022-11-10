@@ -3,7 +3,8 @@ import ReactFrappeChart from 'react-frappe-charts';
 import {
     Card,
     Loading,
-    Table
+    Table,
+    Text
 } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
@@ -26,9 +27,9 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
         <>
             {searches && (
                 <>
-                    <div className="h5 font-weight-bold mt-3 mb-3">
+                    <Text className="my-3" fontSize={6} fontWeight={600}>
                         인기 검색어
-                    </div>
+                    </Text>
                     <Card hasBackground isRounded>
                         <div className="pt-3 px-3">
                             <div className="ns shallow-dark text-right">
