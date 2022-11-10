@@ -4,11 +4,11 @@ import React, {
 } from 'react';
 import type { GetServerSideProps } from 'next';
 
+import { Button, Text } from '@design-system';
 import { ArticleContent } from '@system-design/article-detail-page';
 import type { PageComponent } from '~/components';
 import { ProfileLayout } from '@system-design/profile';
 import { SEO } from '@system-design/shared';
-import { Button, Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import blexer from '~/modules/utility/blexer';
