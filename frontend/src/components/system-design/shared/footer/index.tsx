@@ -2,7 +2,7 @@ import classNames from 'classnames/bind';
 import styles from './Footer.module.scss';
 const cn = classNames.bind(styles);
 
-import { Carousel } from '@design-system';
+import { Carousel } from '~/components/design-system';
 
 export interface FooterProps {
     isDark?: boolean;
@@ -21,20 +21,50 @@ export function Footer({
                     {children}
                 </div>
             )}
-            <div className={cn('items')}>
+            <div className={cn('top')}>
+                <div className={cn('logo')}>
+                    <img src="/logow.svg" alt="logo" />
+                </div>
                 <Carousel
                     items={[
-                        <a target="_blank" href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca">
-                            블렉스는 어떤 서비스 인가요? 🤔
-                        </a>,
-                        <a target="_blank" href="https://github.com/baealex/BLEX">
-                            블렉스는 코드가 공개된 서비스에요. 👍
-                        </a>,
-                        <a target="_blank" href="https://discord.gg/d4vCnB3CSr">
-                            디스코드에서 함께 이야기해요. 💜
-                        </a>
+                        '나를 표현하는 블로그',
+                        'BLOG EXPRESS ME'
                     ]}
                 />
+            </div>
+            <div className={cn('items')}>
+                <div className={cn('item')}>
+                    <a
+                        href="https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca"
+                        target="_blank"
+                        rel="noreferrer">
+                        <i className="far fa-star"/> 서비스 소개
+                    </a>
+                </div>
+                <div className={cn('item')}>
+                    <a
+                        href="https://github.com/baealex/BLEX"
+                        target="_blank"
+                        rel="noreferrer">
+                        <i className="fab fa-github"/> 오픈소스
+                    </a>
+                </div>
+                <div className={cn('item')}>
+                    <a
+                        href="https://discord.gg/d4vCnB3CSr"
+                        target="_blank"
+                        rel="noreferrer">
+                        <i className="fab fa-discord"/> 커뮤니티
+                    </a>
+                </div>
+                <div className={cn('item')}>
+                    <a
+                        href="mailto:im@baejino.com"
+                        target="_blank"
+                        rel="noreferrer">
+                        <i className="fas fa-at"/> 연락처
+                    </a>
+                </div>
             </div>
         </footer>
     );
