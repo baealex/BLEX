@@ -199,17 +199,10 @@ mark {
 
 .form-check {
     margin: 4px 0;
-    color: #000;
     border: none;
     width: 100%;
     border-radius: 5px;
     padding: 2px 0;
-
-    body.dark & {
-        color: #fff;
-        border: 1px solid #363636;
-        background: #000000;
-    }
 
     .form-check-input {
         margin: 0;
@@ -222,7 +215,7 @@ mark {
         margin: 0;
 
         body.dark & {
-            color: #fff;
+            color: #eee;
         }
     }
 }
