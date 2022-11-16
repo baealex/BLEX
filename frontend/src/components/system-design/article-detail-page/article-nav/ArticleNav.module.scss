@@ -57,7 +57,7 @@
         color: #ccc;
         cursor: pointer;
 
-        body.dark & {
+        :global(body.dark) & {
             color: #777;
         }
     }
@@ -65,7 +65,7 @@
     a.nav-now {
         color: #000 !important;
 
-        body.dark & {
+        :global(body.dark) & {
             color: #fff !important;
         }
     }
