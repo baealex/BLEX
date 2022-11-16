@@ -14,6 +14,8 @@ interface Props {
 }
 
 export function KeywordForm(props: Props) {
+    const badges = [...new Set(props.value.replace(/[\s\\,\\.]/g, '-').split('-').filter(x => !!x))];
+
     return (
         <>
             <div className={props.className}>
@@ -30,8 +32,8 @@ export function KeywordForm(props: Props) {
                     />
                 </div>
                 <div className="mt-2">
-                    {props.value.replace(/[\s\\,\\.]/g, '-').split('-').filter(x => !!x).map((item) => (
-                        <Badge>{item}</Badge>
+                    {badges.map((badge) => (
+                        <Badge>{badge}</Badge>
                     ))}
                 </div>
             </div>
