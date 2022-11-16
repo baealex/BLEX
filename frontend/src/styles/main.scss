@@ -155,10 +155,11 @@ mark {
     border-radius: 5px;
     padding: .375rem .75rem;;
     border: 1px solid #e6e6e6;
-    @include BACKGROUND;
+    background: #fff;
 
     body.dark & {
         color: #fff;
+        border: 1px solid #363636;
         background: #363636;
     }
 }
@@ -166,10 +167,27 @@ mark {
 .input-group-prepend {
     flex: 1 0 auto;
     padding: .375rem .75rem;
-    border: 1px solid #d3d3d3;
+    border: 1px solid #e6e6e6;
+    border-right: none;
+    background: #ececec;
+
+    body.dark & {
+        border: 1px solid #363636;
+        background: #000000;
+    }
 
     .input-group-text {
-        color: rgb(0, 0, 0);
+        color: #000;
+        border: none;
+        background: none;
+        font-size: 0.9em;
+        font-weight: 600;
+        padding: 0;
+        margin: 0;
+
+        body.dark & {
+            color: #fff;
+        }
     }
 }
 
