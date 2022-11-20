@@ -55,7 +55,7 @@ export function EditorContent(props: EditorContentProps) {
             if (typeof window !== 'undefined' && textarea.current && !editor.current) {
                 const { default: EasyMDE } = await import('easymde');
                 if (textarea.current) {
-                    editor.current = new EasyMDE({
+                    const easyMDE = new EasyMDE({
                         element: textarea.current,
                         autoDownloadFontAwesome: false,
                         initialValue: props.value,
@@ -177,6 +177,12 @@ export function EditorContent(props: EditorContentProps) {
                             codeSyntaxHighlighting: true
                         }
                     });
+
+                    easyMDE.codemirror.on('change', () => {
+                        props.onChange(easyMDE.value());
+                    });
+
+                    editor.current = easyMDE;
                 }
             }
         };
@@ -205,19 +211,6 @@ export function EditorContent(props: EditorContentProps) {
             }
         }
     }, [props.value]);
-
-    useEffect(() => {
-        const handler = () => {
-            if (editor.current?.value() !== props.value) {
-                props.onChange(editor.current?.value() || '');
-            }
-        };
-        editor.current?.codemirror.on('change', handler);
-
-        return () => {
-            editor.current?.codemirror.off('change', handler);
-        };
-    }, [ props.value, editor.current ]);
 
     const handleUploadImage = async (image: File) => {
         const imageSrc = await uploadImage(image);
