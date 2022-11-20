@@ -229,6 +229,11 @@ function PostDetail(props: Props) {
                                 align-items: center;
                             }
 
+                            .article-content {
+                                width: 100%;
+                                flex: 0 0 100%;
+                            }
+
                             .article-action {
                                 order: 1;
                                 display: contents;
