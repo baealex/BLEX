@@ -21,17 +21,6 @@ export function Footer({
                     {children}
                 </div>
             )}
-            <div className={cn('top')}>
-                <div className={cn('logo')}>
-                    <img src="/logow.svg" alt="logo" />
-                </div>
-                <Carousel
-                    items={[
-                        '나를 표현하는 블로그',
-                        'BLOG EXPRESS ME'
-                    ]}
-                />
-            </div>
             <div className={cn('items')}>
                 <div className={cn('item')}>
                     <a

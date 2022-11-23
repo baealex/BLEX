@@ -2,55 +2,9 @@
 
 .footer { 
     margin-top: 45px;
-    color: #ccc;
 
-    .top {
-        padding-top: 32px;
-        border-top: 1px solid #dedede;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 16px;
-
-        @media (max-width: 540px) {
-            padding-left: 32px;
-            justify-content: flex-start;
-        }
-
-        :global(body.dark) & {
-            border-top: 1px solid #4a4a4a;
-        }
-
-        .logo {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 35px;
-            height: 35px;
-            background: #222;
-            border-radius: 50%;
-
-            :global(body.dark) & {
-                background: none;
-            }
-    
-            img {
-                width: 70%;
-                height: 70%;
-            }
-        }
-
-        span {
-            color: #000;
-
-            :global(body.dark) & {
-                color: #eee;
-            }
-        }
-    }
-    
     a {
-        color: #bcbcbc;
+        color: #a8a8a8;
         
         &:hover {
             color: $COLOR_DEFAULT_SECONDARY;
@@ -63,12 +17,17 @@
     }
 
     .items {
+        border-top: 1px solid #dedede;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 24px;
         padding: 32px 0;
         text-align: center;
+
+        :global(body.dark) & {
+            border-top: 1px solid #4a4a4a;
+        }
 
         @media (max-width: 540px) {
             padding: 32px;
@@ -85,16 +44,8 @@
             color: #ccc;
         }
 
-        .top {
+        .items {
             border-top: 1px solid #333;
-
-            .logo {
-                background: none;
-            }
-
-            span {
-                color: #eee;
-            }
         }
 
         @media only screen and (max-width: 990px) {
