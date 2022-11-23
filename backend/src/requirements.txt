@@ -14,7 +14,7 @@ graphql-core==2.3.2
 graphql-relay==2.0.1
 idna==3.3
 oauthlib==3.2.1
-Pillow==9.1.1
+Pillow==9.3.0
 promise==2.3
 pyhumps==3.7.1
 pytz==2022.1
