@@ -2,8 +2,6 @@ import classNames from 'classnames/bind';
 import styles from './Footer.module.scss';
 const cn = classNames.bind(styles);
 
-import { Carousel } from '~/components/design-system';
-
 export interface FooterProps {
     isDark?: boolean;
     children?: JSX.Element;
