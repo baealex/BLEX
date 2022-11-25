@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/nextjs-12.2.4-yellow?style=flat-square">
-    <img src="https://img.shields.io/badge/django-4.0.7-blue?style=flat-square">
+    <img src="https://img.shields.io/badge/nextjs-12.3.4-yellow?style=flat-square">
+    <img src="https://img.shields.io/badge/django-4.0.8-blue?style=flat-square">
 </p>
 
 <br>
