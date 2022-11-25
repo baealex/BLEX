@@ -16,7 +16,7 @@ import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { loadingStore } from '~/stores/loading';
-import { useForm } from 'react-hook-form';
+import { useForm } from '~/hooks/use-form';
 
 type Props = API.GetSettingProfileResponseData;
 

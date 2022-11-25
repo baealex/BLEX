@@ -40,9 +40,7 @@ interface Analytics {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-    const {
-        page = 1, order = '', tag_filter = ''
-    } = query;
+    const { page = 1, order = '', tag_filter = '' } = query;
 
     const { data } = await API.getSettingPosts(
         {

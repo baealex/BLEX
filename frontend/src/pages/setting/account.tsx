@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
-import { useForm } from 'react-hook-form';
 import { useValue } from 'badland-react';
 
 import {
@@ -19,6 +18,9 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
+
+import { useDidMount } from '~/hooks/use-life-cycle';
+import { useForm } from '~/hooks/use-form';
 
 type Props = API.GetSettingAccountResponseData;
 
@@ -54,43 +56,45 @@ const AccountSetting: PageComponent<Props> = (props) => {
         reset,
         register,
         setFocus,
-        handleSubmit: handleSubmitWrapper
+        handleSubmit
     } = useForm<AccountForm>();
 
-    useEffect(() => reset({ ...props }), []);
+    useDidMount(() => {
+        reset({ name: props.name });
+    });
 
-    const handleSubmit = handleSubmitWrapper(async (formData) => {
-        if (!formData.name) {
+    const handleAccountSubmit = handleSubmit(async (form) => {
+        if (!form.name) {
             setFocus('name');
             snackBar(message('BEFORE_REQ_ERR', '이름은 비워둘 수 없습니다.'));
             return;
         }
 
-        if (formData.password !== formData.passwordConfirm) {
+        if (form.password !== form.passwordConfirm) {
             setFocus('password');
             snackBar(message('BEFORE_REQ_ERR', '패스워드가 서로 다릅니다.'));
             return;
         }
 
         const { data } = await API.putSetting('account', {
-            name: formData.name,
-            password: formData.password,
-            AGREE_DISPLAY_EMAIL: formData.agreeDisplayEmail,
-            AGREE_SEND_EMAIL: formData.agreeSendEmail
+            name: form.name,
+            password: form.password,
+            AGREE_DISPLAY_EMAIL: form.agreeDisplayEmail,
+            AGREE_SEND_EMAIL: form.agreeSendEmail
         });
 
         if (data.status === 'DONE') {
             snackBar('😀 정보가 업데이트 되었습니다.');
 
             reset({
-                ...formData,
+                ...form,
                 password: '',
                 passwordConfirm: ''
             });
         }
     });
 
-    const onChangeUsername = async () => {
+    const handleChangeUsername = async () => {
         const { data } = await API.patchSign({ username });
         if (data.status === 'ERROR') {
             snackBar(message('AFTER_REQ_ERR', data.errorMessage));
@@ -108,7 +112,11 @@ const AccountSetting: PageComponent<Props> = (props) => {
         }
     };
 
-    const onDeleteTwoFactorAuth = async () => {
+    const handleDeleteTwoFactorAuth = async () => {
+        if (!confirm('😥 정말 2차 인증을 해제할까요?')) {
+            return;
+        }
+
         const { data } = await API.deleteSecurity();
         if (data.status === 'ERROR') {
             if (data.errorCode == API.ERROR.ALREADY_UNSYNC) {
@@ -132,7 +140,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleAccountSubmit}>
             <Card hasBackground isRounded className="mb-4 p-3">
                 <Text fontSize={6} fontWeight={600}>
                     가입일
@@ -146,7 +154,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                     </Text>
                     {isChangeUsername ? (
                         <div>
-                            <Button gap="little" onClick={() => onChangeUsername()}>
+                            <Button gap="little" onClick={handleChangeUsername}>
                                 업데이트
                             </Button>
                             <Button
@@ -253,7 +261,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                 />
             </Card>
             {is2faSync ? (
-                <Button gap="little" onClick={() => confirm('😥 정말 2차 인증을 해제할까요?') && onDeleteTwoFactorAuth()}>
+                <Button gap="little" onClick={handleDeleteTwoFactorAuth}>
                     2차 인증 중지
                 </Button>
             ) : (

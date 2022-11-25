@@ -1,17 +1,19 @@
 import request, { serializeObject } from './request';
 
+export interface PostFormsRequestData {
+    title: string;
+    content: string;
+}
+
 export interface PostFormsResponseData {
     id: number;
 }
 
-export async function postForms(title: string, content: string) {
+export async function postForms(data: PostFormsRequestData) {
     return request<PostFormsResponseData>({
         url: '/v1/forms',
         method: 'POST',
-        data: serializeObject({
-            title,
-            content
-        })
+        data: serializeObject(data)
     });
 }
 
