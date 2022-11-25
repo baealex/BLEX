@@ -39,9 +39,10 @@
     &.isDark {
         margin-top: 0px;
         background: #000;
+        color: #ccc !important;
 
         a {
-            color: #ccc;
+            color: #fff !important;
         }
 
         .items {
