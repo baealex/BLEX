@@ -72,7 +72,9 @@ const UserAbout: PageComponent<Props> = (props) => {
                         display="block"
                         space="spare"
                         onClick={() => router.push(router.asPath + '/edit')}>
-                        {(props.about || '').length <= 0 ? '소개 작성' : '소개 수정'}
+                        {(props.about || '').length <= 0
+                            ? '프로필 소개를 작성해 볼까요?'
+                            : '프로필 소개 업데이트'}
                     </Button>
                 )}
             </div>

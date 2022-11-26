@@ -106,7 +106,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                 </div>
                 <div className="mb-2">
                     <Alert type="warning">
-                        프로필의 소개 페이지에 표시되는 소개입니다.
+                        프로필 소개 페이지에 표시됩니다.
                     </Alert>
                 </div>
             </Card>

@@ -1,3 +1,4 @@
+import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -10,6 +11,18 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { useHidePrimaryButton } from '~/hooks/use-hide-primary-button';
 import { useState } from 'react';
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+    const { cookie } = req.headers;
+
+    const { data } = await API.getLogin({ 'Cookie': cookie || '' });
+
+    if (data.status !== 'DONE') {
+        return { notFound: true };
+    }
+
+    return { props: { username: data.body.username } };
+};
 
 export default function UserFormEdit() {
     const router = useRouter();
