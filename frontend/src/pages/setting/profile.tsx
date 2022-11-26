@@ -90,6 +90,26 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     }}
                 />
             </Card>
+            <Card hasBackground isRounded className="mb-4 p-3">
+                <div className="d-flex justify-content-between mb-2">
+                    <Text fontSize={6} fontWeight={600}>
+                        사용자 상세 소개
+                    </Text>
+                    <div>
+                        <Button gap="little" onClick={() => router.push(`/@${username}/about`)}>
+                            페이지 확인
+                        </Button>
+                        <Button onClick={() => router.push(`/@${username}/about/edit`)}>
+                            소개 작성
+                        </Button>
+                    </div>
+                </div>
+                <div className="mb-2">
+                    <Alert type="warning">
+                        프로필의 소개 페이지에 표시되는 소개입니다.
+                    </Alert>
+                </div>
+            </Card>
             <form onSubmit={handleSubmit}>
                 <Card hasBackground isRounded className="mb-4 p-3">
                     <div className="d-flex justify-content-between mb-2">
@@ -197,26 +217,6 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     </div>
                 </Card>
             </form>
-            <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
-                    <Text fontSize={6} fontWeight={600}>
-                        사용자 상세 소개
-                    </Text>
-                    <div>
-                        <Button gap="little" onClick={() => router.push(`/@${username}/about`)}>
-                            페이지 확인
-                        </Button>
-                        <Button onClick={() => router.push(`/@${username}/about/edit`)}>
-                            소개 작성
-                        </Button>
-                    </div>
-                </div>
-                <div className="mb-2">
-                    <Alert type="warning">
-                        프로필의 소개 페이지에 표시되는 소개입니다.
-                    </Alert>
-                </div>
-            </Card>
         </>
     );
 };

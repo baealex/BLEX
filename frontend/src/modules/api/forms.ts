@@ -1,6 +1,6 @@
 import request, { serializeObject } from './request';
 
-interface UserFormModel {
+export interface UserFormModel {
     title: string;
     content: string;
 }

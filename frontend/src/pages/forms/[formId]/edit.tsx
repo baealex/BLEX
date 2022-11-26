@@ -1,7 +1,8 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 
+import { Button, Text } from '@design-system';
 import { EditorContent, EditorTitle } from '@system-design/article-editor-page';
-import { Button } from '@design-system';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';
@@ -27,6 +28,14 @@ export default function UserFormEdit() {
 
     const handleUpdateUserForm = async () => {
         if (data) {
+            if (data.title === '') {
+                snackBar(message('BEFORE_REQ_ERR', '제목을 입력해주세요.'));
+                return;
+            }
+            if (data.content === '') {
+                snackBar(message('BEFORE_REQ_ERR', '내용을 입력해주세요.'));
+                return;
+            }
             const { data: responseData } = await API.updateUserForm(Number(router.query.formId), data);
             if (responseData.status === 'DONE') {
                 snackBar(message('AFTER_REQ_DONE', '서식이 수정되었습니다.'));
@@ -38,6 +47,13 @@ export default function UserFormEdit() {
 
     return (
         <div className="x-container mb-5">
+            <Link href="/setting/forms">
+                <a className="shallow-dark">
+                    <Text className="mb-3">
+                        <i className="fas fa-angle-left ml-1" /> 서식 목록
+                    </Text>
+                </a>
+            </Link>
             <EditorTitle
                 disabledImage
                 value={data.title}
