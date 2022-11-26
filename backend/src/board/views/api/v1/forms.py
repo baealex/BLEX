@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.http import QueryDict
 
 from board.models import Form, convert_to_localtime
 from board.modules.response import StatusDone, StatusError
@@ -31,7 +32,7 @@ def forms(request, pk=None):
     
     else:
         if request.method == 'GET':
-            form = get_object_or_404(Form, pk=pk)
+            form = get_object_or_404(Form, pk=pk, user=request.user)
             return StatusDone({
                 'title': form.title,
                 'content': form.content
@@ -39,7 +40,7 @@ def forms(request, pk=None):
         
         if request.method == 'PUT':
             body = QueryDict(request.body)
-            form = get_object_or_404(Form, pk=pk)
+            form = get_object_or_404(Form, pk=pk, user=request.user)
             form.title = body.get('title', '')
             form.content = body.get('content', '')
             form.save()

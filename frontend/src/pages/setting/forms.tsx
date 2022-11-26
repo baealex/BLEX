@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import type { GetServerSideProps } from 'next';
+import Link from 'next/link';
 
 import { Button, Card } from '@design-system';
 import type { PageComponent } from '~/components';
@@ -61,7 +62,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
             snackBar(message('BEFORE_REQ_ERR', '내용을 입력해주세요.'));
             return;
         }
-        const { data } = await API.postForms(form);
+        const { data } = await API.createUserForm(form);
         setForms(forms => [...forms, {
             id: data.body.id,
             title: form.title,
@@ -96,9 +97,11 @@ const FormsSetting: PageComponent<Props> = (props) => {
                 {forms.map((item, idx) => (
                     <Card key={idx} hasBackground isRounded className="p-3 mb-3">
                         <div className="d-flex justify-content-between">
-                            <a className="deep-dark">
-                                {item.title}
-                            </a>
+                            <Link href={`/forms/${item.id}`}>
+                                <a className="deep-dark">
+                                    {item.title}
+                                </a>
+                            </Link>
                             <a onClick={() => onDelete(item.id)}>
                                 <i className="fas fa-times"></i>
                             </a>

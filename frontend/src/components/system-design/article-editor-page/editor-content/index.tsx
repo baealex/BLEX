@@ -240,7 +240,7 @@ export function EditorContent(props: EditorContentProps) {
     };
 
     const onFetchForm = async (id: number) => {
-        const { data } = await API.getForm(id);
+        const { data } = await API.getUserForm(id);
         if (data.body.content && editor.current) {
             editor.current.codemirror.replaceSelection(data.body.content);
         }

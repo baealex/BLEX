@@ -7,8 +7,9 @@ import React, {
 
 export interface EditorTitleProps {
     value: string;
+    disabledImage?: boolean;
     onChange: (value: string) => void;
-    onChangeImage: (image: File) => void;
+    onChangeImage?: (image: File) => void;
 }
 
 export function EditorTitle(props: EditorTitleProps) {
@@ -21,7 +22,7 @@ export function EditorTitle(props: EditorTitleProps) {
         const { files } = e.target;
         if (files) {
             const file = files[0];
-            props.onChangeImage(file);
+            props.onChangeImage?.(file);
 
             const reader = new FileReader();
 
@@ -41,17 +42,21 @@ export function EditorTitle(props: EditorTitleProps) {
                     : ''
             }}
             onDragOver={(e) => e.preventDefault()}>
-            <input
-                ref={ref}
-                type="file"
-                accept="image/*"
-                style={{ display: 'none' }}
-                onChange={handleChangeImage}
-            />
+            {!props.disabledImage && (
+                <input
+                    ref={ref}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleChangeImage}
+                />
+            )}
             <div>
-                <button onClick={() => ref.current?.click()}>
-                    <i className="far fa-image"/> 표지 이미지
-                </button>
+                {!props.disabledImage && (
+                    <button onClick={() => ref.current?.click()}>
+                        <i className="far fa-image"/> 표지 이미지
+                    </button>
+                )}
                 <input
                     name="title"
                     placeholder="제목을 입력하세요."
