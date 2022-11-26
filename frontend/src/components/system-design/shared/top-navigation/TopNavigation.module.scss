@@ -79,6 +79,10 @@
         }
 
         & > li.get-start {
+            :global(.hide-primary-button) & {
+                display: none;
+            }
+
             & > button {
                 background: $COLOR_DEFAULT_SECONDARY;
                 border-radius: 100px;

@@ -1,6 +1,7 @@
 import datetime
 
 from itertools import chain
+from django.conf import settings
 from django.core.cache import cache
 from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
@@ -11,6 +12,7 @@ from board.models import (
     User, Post, Profile, Series,
     Comment, Follow, Tag, convert_to_localtime, timestamp)
 from board.modules.response import StatusDone, StatusError
+from modules.markdown import parse_to_html, ParseData
 
 def users(request, username):
     user = get_object_or_404(User, username=username)
@@ -203,7 +205,10 @@ def users(request, username):
             if not request.user == user:
                 return StatusError('DU')
             about_md = put.get('about_md')
-            about_html = put.get('about_html')
+            about_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
+                'text': about_md,
+                'token': settings.API_KEY,
+            }))
             if hasattr(user, 'profile'):
                 user.profile.about_md = about_md
                 user.profile.about_html = about_html

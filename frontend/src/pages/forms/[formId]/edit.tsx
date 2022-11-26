@@ -6,10 +6,13 @@ import { Button } from '@design-system';
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
-import { useFetch } from '~/hooks/use-fetch';
 
-export default function Edit() {
+import { useFetch } from '~/hooks/use-fetch';
+import { useHidePrimaryButton } from '~/hooks/use-hide-primary-button';
+
+export default function UserFormEdit() {
     const router = useRouter();
+    useHidePrimaryButton();
 
     const { data, mutate } = useFetch(['forms', router.query.formId], async () => {
         if (router.query.formId) {
@@ -51,7 +54,7 @@ export default function Edit() {
                 })}
             />
             <Button display="block" onClick={handleUpdateUserForm}>
-                서식 수정
+                서식 업데이트
             </Button>
         </div>
     );

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
+import { useValue } from 'badland-react';
 
 import {
     Alert,
@@ -15,7 +17,9 @@ import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
+import { authStore } from '~/stores/auth';
 import { loadingStore } from '~/stores/loading';
+
 import { useForm } from '~/hooks/use-form';
 
 type Props = API.GetSettingProfileResponseData;
@@ -45,7 +49,9 @@ interface ProfileForm {
 }
 
 const ProfileSetting: PageComponent<Props> = (props) => {
+    const router = useRouter();
     const [ avatar, setAvatar ] = useState(props.avatar);
+    const [ username ] = useValue(authStore, 'username');
 
     const {
         reset,
@@ -88,7 +94,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                 <Card hasBackground isRounded className="mb-4 p-3">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
-                            사용자 소개
+                            사용자 간략 소개
                         </Text>
                         <Button type="submit">
                             업데이트
@@ -191,6 +197,26 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     </div>
                 </Card>
             </form>
+            <Card hasBackground isRounded className="mb-4 p-3">
+                <div className="d-flex justify-content-between mb-2">
+                    <Text fontSize={6} fontWeight={600}>
+                        사용자 상세 소개
+                    </Text>
+                    <div>
+                        <Button gap="little" onClick={() => router.push(`/@${username}/about`)}>
+                            페이지 확인
+                        </Button>
+                        <Button onClick={() => router.push(`/@${username}/about/edit`)}>
+                            소개 작성
+                        </Button>
+                    </div>
+                </div>
+                <div className="mb-2">
+                    <Alert type="warning">
+                        프로필의 소개 페이지에 표시되는 소개입니다.
+                    </Alert>
+                </div>
+            </Card>
         </>
     );
 };

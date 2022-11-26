@@ -80,15 +80,18 @@ export async function putUserFollow(author: string) {
     });
 }
 
-export async function putUserAbout(author: string, aboutMarkdown: string, aboutMarkup: string) {
+interface UpdateUserAboutRequestData {
+    aboutMd: string;
+}
+
+export async function updateUserAbout(author: string, data: UpdateUserAboutRequestData) {
     return await request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject({
-            about: author,
-            about_md: aboutMarkdown,
-            about_html: aboutMarkup
+            about: true,
+            about_md: data.aboutMd
         })
     });
 }
