@@ -34,7 +34,7 @@ export default function Edit() {
     if (!data) return null;
 
     return (
-        <div className="x-container">
+        <div className="x-container mb-5">
             <EditorTitle
                 disabledImage
                 value={data.title}

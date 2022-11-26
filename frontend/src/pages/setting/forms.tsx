@@ -97,7 +97,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
                 {forms.map((item, idx) => (
                     <Card key={idx} hasBackground isRounded className="p-3 mb-3">
                         <div className="d-flex justify-content-between">
-                            <Link href={`/forms/${item.id}`}>
+                            <Link href={`/forms/${item.id}/edit`}>
                                 <a className="deep-dark">
                                     {item.title}
                                 </a>
