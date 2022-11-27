@@ -37,7 +37,7 @@ export default function UserAboutEdit() {
 
     return (
         <div className="x-container mb-5">
-            <Text fontSize={8} fontWeight={700} className="mb-3">
+            <Text fontSize={8} fontWeight={700} className="mb-2">
                 자신을 소개해 보세요.
             </Text>
             <div className="mb-3">
