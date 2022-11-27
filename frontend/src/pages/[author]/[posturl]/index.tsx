@@ -230,7 +230,6 @@ function PostDetail(props: Props) {
                             }
 
                             .article-content {
-                                width: 100%;
                                 flex: 0 0 100%;
                             }
 
