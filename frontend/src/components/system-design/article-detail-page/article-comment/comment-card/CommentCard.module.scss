@@ -36,6 +36,12 @@
             font-family: $FONT_SERIF;
             font-weight: 600;    
         }
+
+        ul {
+            list-style: disc;
+            padding-left: 20px;
+            margin: 8px 0;
+        }
         
         a {
             color: #a7a7a7;

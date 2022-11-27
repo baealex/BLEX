@@ -46,13 +46,13 @@ export function TopNavigation() {
     useEffect(() => {
         API.getLogin().then(({ data }) => {
             if (data.status === 'DONE') {
-                authStore.set({
+                setAuth({
                     isConfirmed: true,
                     isLogin: true,
                     ...data.body
                 });
             } else {
-                authStore.set({ isConfirmed: true });
+                setAuth({ isConfirmed: true });
             }
         });
     }, []);
