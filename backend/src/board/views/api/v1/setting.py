@@ -38,7 +38,7 @@ def setting(request, item):
                     'url': item.url,
                     'is_read': item.is_read,
                     'content': item.infomation,
-                    'created_date': timesince(item.created_date)
+                    'created_date': item.time_since()
                 }, notify)),
                 'is_telegram_sync': request.user.config.has_telegram_id()
             })

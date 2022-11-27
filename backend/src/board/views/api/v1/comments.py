@@ -10,7 +10,6 @@ from django.db.models import F
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils.html import strip_tags
-from django.utils.timesince import timesince
 
 from board.models import Comment, Post
 from board.modules.notify import create_notify
@@ -79,7 +78,7 @@ def comment(request, pk=None):
                 'author_image': comment.author.profile.get_thumbnail(),
                 'is_edited': comment.edited,
                 'text_html': comment.text_html,
-                'time_since': timesince(comment.created_date),
+                'created_date': comment.time_since(),
                 'total_likes': 0,
                 'is_liked': False,
             })
@@ -172,7 +171,7 @@ def user_comment(request):
                     'url': comment.post_url,
                 },
                 'content': comment.text_html,
-                'created_date': timesince(comment.created_date),
+                'created_date': comment.time_since(),
             }, comments)),
             'last_page': comments.paginator.num_pages,
         })

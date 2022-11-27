@@ -38,7 +38,7 @@ def temp_posts(request, token=None):
                 'temps': list(map(lambda temp: {
                     'token': temp.token,
                     'title': temp.title,
-                    'created_date': timesince(temp.created_date)
+                    'created_date': temp.time_since()
                 }, temps)),
             })
 
@@ -348,7 +348,7 @@ def posts_comments(request, url):
                 'author_image': comment.author_thumbnail(),
                 'is_edited': comment.edited,
                 'text_html': comment.get_text_html(),
-                'time_since': timesince(comment.created_date),
+                'created_date': comment.time_since(),
                 'total_likes': comment.total_likes,
                 'is_liked': comment.is_liked,
             }, comments))

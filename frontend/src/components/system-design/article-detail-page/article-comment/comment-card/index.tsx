@@ -10,7 +10,7 @@ export interface CommentCardProps {
     pk: number;
     author: string;
     authorImage: string;
-    timeSince: string;
+    createdDate: string;
     isLiked: boolean;
     isEdited: boolean;
     isOwner: boolean;
@@ -53,7 +53,7 @@ export function CommentCard(props: CommentCardProps) {
                         </div>
                         <div>
                             <small>
-                                {`${props.timeSince} ago`} {props.isEdited && <span className="vs">(Edited)</span>}
+                                {`${props.createdDate}`} {props.isEdited && <span className="vs">(Edited)</span>}
                             </small>
                         </div>
                     </div>

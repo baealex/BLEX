@@ -37,7 +37,7 @@ export function TempArticleModal(props: Props) {
                 <Card key={idx} hasShadow isRounded className="p-3 mb-3">
                     <div className="d-flex justify-content-between">
                         <span onClick={() => props.onFetch(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
-                            {item.title} <span className="vs">{item.createdDate} ago</span>
+                            {item.title} <span className="vs">{item.createdDate}</span>
                         </span>
                         <a onClick={() => props.onDelete(item.token)}>
                             <i className="fas fa-times"></i>

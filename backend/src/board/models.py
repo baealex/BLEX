@@ -18,6 +18,17 @@ from PIL import Image
 
 from modules.randomness import randstr
 
+def time_since(date): 
+    one_year_ago = timezone.now() - datetime.timedelta(days=365)
+
+    if date < one_year_ago:
+        return date.strftime('%Y. %m. %d.')
+    
+    date_since = timesince(date)
+    if ',' in date_since:
+        date_since = date_since.split(',')[0]
+    return f'{date_since} ago'
+
 def calc_read_time(html):
     return int(len(strip_tags(html))/500)
 
@@ -95,6 +106,9 @@ class Comment(models.Model):
     
     def get_absolute_url(self):
         return self.post.get_absolute_url()
+
+    def time_since(self):
+        return time_since(self.created_date)
     
     def total_likes(self):
         return self.likes.count()
@@ -238,6 +252,9 @@ class Notify(models.Model):
             'infomation': self.infomation,
             'created_date': timesince(self.created_date)
         }
+    
+    def time_since(self):
+        return time_since(self.created_date)
     
     def __str__(self):
         return str(self.user)
@@ -623,6 +640,9 @@ class TempPosts(models.Model):
     tag          = models.CharField(max_length=50)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
+
+    def time_since(self):
+        return time_since(self.created_date)
 
     def __str__(self):
         return self.title

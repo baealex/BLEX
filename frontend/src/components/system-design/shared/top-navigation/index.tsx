@@ -226,7 +226,7 @@ export function TopNavigation() {
                                                     </div>
                                                 ) : auth.notify.map((item, idx) => (
                                                     <div key={idx} className={cn('card')} onClick={() => onReadNotify(item.pk, item.url)}>
-                                                        {item.content} <span className="ns shallow-dark">{item.createdDate} ago</span>
+                                                        {item.content} <span className="ns shallow-dark">{item.createdDate}</span>
                                                     </div>
                                                 ))}
                                             </div>

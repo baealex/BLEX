@@ -12,7 +12,6 @@ from django.db.models import Q
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.utils.timesince import timesince
 
 from board.models import Notify, TwoFactorAuth, Config, Profile, Post, Comment
 from board.modules.notify import create_notify
@@ -56,7 +55,7 @@ def login_response(user, is_first_login=False):
             'url': item.url,
             'is_read': item.is_read,
             'content': item.infomation,
-            'created_date': timesince(item.created_date)
+            'created_date': item.time_since()
         }, notify)),
         'is_first_login': is_first_login,
         'is_telegram_sync': user.config.has_telegram_id(),

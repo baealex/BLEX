@@ -292,7 +292,7 @@ export interface GetPostCommentResponseData {
         authorImage: string;
         isEdited: boolean;
         textHtml: string;
-        timeSince: string;
+        createdDate: string;
         totalLikes: number;
         isLiked: boolean;
     }[];
