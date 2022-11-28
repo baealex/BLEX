@@ -103,7 +103,7 @@
         background-position: center;
         background-size: cover;
 
-        @supports (-webkit-touch-callout : none) {
+        @supports (-webkit-touch-callout: none) {
             background-attachment: scroll;
         }
     }

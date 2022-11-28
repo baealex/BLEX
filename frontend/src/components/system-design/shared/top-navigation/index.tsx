@@ -32,11 +32,11 @@ import { modalStore } from '~/stores/modal';
 
 export function TopNavigation() {
     const router = useRouter();
+    const path = router.pathname;
 
     const notifyBox = useRef<HTMLDivElement>(null);
     const notifyToggle = useRef<HTMLLIElement>(null);
 
-    const [path, setPath] = useState(router.pathname);
     const [isRollup, setIsRollup] = useState(false);
     const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
@@ -61,7 +61,7 @@ export function TopNavigation() {
         let accScrollY = 0;
         let lastScrollY = window.scrollY;
 
-        if (path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1) {
+        if (path.endsWith('/write') || path.endsWith('/edit')) {
             setIsRollup(false);
             return;
         }
@@ -92,7 +92,7 @@ export function TopNavigation() {
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
-            const path = e.composedPath && e.composedPath();
+            const path = e.composedPath?.();
 
             if (
                 !path.includes(notifyBox.current as EventTarget) &&
@@ -105,15 +105,6 @@ export function TopNavigation() {
         document.addEventListener('click', handleClick);
 
         return () => document.removeEventListener('click', handleClick);
-    }, []);
-
-    useEffect(() => {
-        const handleChangeRoute = (url: string) => {
-            setPath(url);
-        };
-        router.events.on('routeChangeComplete', handleChangeRoute);
-
-        return () => router.events.off('routeChangeComplete', handleChangeRoute);
     }, []);
 
     const onClickLogout = async () => {
@@ -231,7 +222,7 @@ export function TopNavigation() {
                                                 ))}
                                             </div>
                                         </li>
-                                        {path.lastIndexOf('/write') > -1 || path.lastIndexOf('/edit') > -1 ? (
+                                        {path.endsWith('/write') || path.endsWith('/edit') ? (
                                             <li className={cn('get-start')}>
                                                 <button onClick={() => modalStore.open('isPublishModalOpen')}>
                                                     {path.lastIndexOf('/write') > -1
