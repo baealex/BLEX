@@ -17,16 +17,16 @@
     }
 
     .items {
-        border-top: 1px solid #dedede;
+        border-top: 1px solid #e7e7e7;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 24px;
-        padding: 32px 0;
+        padding: 20px 0;
         text-align: center;
 
         :global(body.dark) & {
-            border-top: 1px solid #4a4a4a;
+            border-top: 1px solid #3a3a3a;
         }
 
         @media (max-width: 540px) {
@@ -42,11 +42,11 @@
         color: #ccc !important;
 
         a {
-            color: #fff !important;
+            color: #f1f1f1 !important;
         }
 
         .items {
-            border-top: 1px solid #333;
+            border-top: 1px solid #3a3a3a;
         }
 
         @media only screen and (max-width: 990px) {
