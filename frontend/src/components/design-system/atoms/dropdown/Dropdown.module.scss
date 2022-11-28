@@ -1,4 +1,4 @@
-@import 'mixin';;
+@import 'mixin';
 
 @keyframes left-in {
     from {
@@ -105,4 +105,5 @@
     background: none;
     text-align: center;
     white-space: nowrap;
+    @include COLOR_DARK;
 }
