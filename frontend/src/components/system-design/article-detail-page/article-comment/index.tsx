@@ -197,6 +197,8 @@ export function ArticleComment(props: ArticleCommentProps) {
                 )}
                 {isLogin ? (
                     <CommentForm
+                        author={props.author}
+                        url={props.url}
                         content={commentText}
                         onChange={setCommentText}
                         onSubmit={handleSubmit}

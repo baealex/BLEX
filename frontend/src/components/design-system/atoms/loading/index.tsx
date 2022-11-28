@@ -3,12 +3,12 @@ import styles from './Loading.module.scss';
 const cn = classNames.bind(styles);
 
 export interface LoadingProps {
-    isFullPage?: boolean;
+    position?: 'center' | 'full' | 'inline';
 }
 
-export function Loading({ isFullPage = false }: LoadingProps) {
+export function Loading({ position = 'center' }: LoadingProps) {
     return (
-        <div className={cn(isFullPage ? 'block' : 'box')}>
+        <div className={cn(position)}>
             <div className={cn('spinner')}/>
         </div>
     );

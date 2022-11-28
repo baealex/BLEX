@@ -152,7 +152,7 @@ export function EditorLayout(props: Props) {
 
             {props.addon?.modal}
 
-            {isSubmit && <Loading isFullPage />}
+            {isSubmit && <Loading position="full" />}
         </div>
     );
 }

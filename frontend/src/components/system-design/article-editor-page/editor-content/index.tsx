@@ -9,6 +9,8 @@ import React, {
 } from 'react';
 import type EasyMDE from 'easymde';
 
+import { Loading } from '@design-system';
+
 import {
     FormsModal,
     YoutubeModal
@@ -39,6 +41,7 @@ export function EditorContent(props: EditorContentProps) {
     const textarea = useRef<HTMLTextAreaElement>(null);
     const imageInput = useRef<HTMLInputElement>(null);
     const [isEdit, setIsEdit] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     const { data: forms } = useFetch('forms', async () => {
         const { data } = await API.getSettingForms();
@@ -53,7 +56,9 @@ export function EditorContent(props: EditorContentProps) {
     useEffect(() => {
         const run = async () => {
             if (typeof window !== 'undefined' && textarea.current && !editor.current) {
+                setIsLoading(true);
                 const { default: EasyMDE } = await import('easymde');
+                setIsLoading(false);
                 if (textarea.current) {
                     const easyMDE = new EasyMDE({
                         element: textarea.current,
@@ -255,6 +260,11 @@ export function EditorContent(props: EditorContentProps) {
 
     return (
         <>
+            {isLoading && (
+                <div className="d-flex justify-content-center p-3">
+                    <Loading position="inline" />
+                </div>
+            )}
             <input
                 ref={imageInput}
                 type="file"

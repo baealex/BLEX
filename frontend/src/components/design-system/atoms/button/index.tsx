@@ -6,6 +6,7 @@ import { useRef } from 'react';
 
 export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
+    className?: string;
     isRounded?: boolean;
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
     children: React.ReactNode;
@@ -21,6 +22,7 @@ export function Button({
     space = 'default',
     color = 'default',
     display = 'inline-block',
+    className,
     onClick,
     children
 }: ButtonProps) {
@@ -59,7 +61,8 @@ export function Button({
                 gap != 'none' && `g-${gap}`,
                 space != 'default' && `s-${space}`,
                 color != 'default' && `c-${color}`,
-                display != 'inline-block' && `d-${display}`
+                display != 'inline-block' && `d-${display}`,
+                className
             )}
             onClick={handleClick}>
             {children}

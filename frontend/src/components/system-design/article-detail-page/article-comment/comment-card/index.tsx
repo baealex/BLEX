@@ -81,7 +81,7 @@ export function CommentCard(props: CommentCardProps) {
                 dangerouslySetInnerHTML={{ __html: props.html }}
             />
             <div className="my-2">
-                <ul className={`${cn('interactive')} none-list ns`}>
+                <ul className={`${cn('action')} none-list ns`}>
                     {props.onLike && (
                         <li onClick={() => props.onLike && props.onLike(props.pk)}>
                             {props.isLiked ? (

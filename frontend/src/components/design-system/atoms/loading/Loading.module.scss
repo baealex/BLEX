@@ -1,17 +1,17 @@
 @import 'mixin';;
 
-.box, .block {
+.center, .full, .inline {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.center, .full {
     z-index: 9999;
     position: fixed;
 }
 
-.box {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.center, .inline {
     width: 50px;
     height: 50px;
     border-radius: 8px;
@@ -19,7 +19,13 @@
     @include BACKGROUND;
 } 
 
-.block {
+.center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.full {
     top: 0;
     left: 0;
     width: 100%;

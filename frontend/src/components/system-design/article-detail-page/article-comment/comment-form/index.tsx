@@ -2,52 +2,23 @@ import classNames from 'classnames/bind';
 import styles from './CommentForm.module.scss';
 const cn = classNames.bind(styles);
 
-import {
-    useEffect,
-    useRef,
-    useState
-} from 'react';
+import { useEffect, useState } from 'react';
 
-import { Card } from '@design-system';
+import { Button, Card } from '@design-system';
+import { EditorContent } from '@system-design/article-editor-page';
 
-import { dropImage } from '~/modules/utility/image';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 export interface CommentFormProps {
+    author: string;
+    url: string;
     content: string;
     onChange: (content: string) => void;
     onSubmit: (content: string) => void;
 }
 
 export function CommentForm(props: CommentFormProps) {
-    const box = useRef<HTMLDivElement>(null);
-    const input = useRef<HTMLTextAreaElement>(null);
-
     const [isOpen, setIsOpen] = useState(false);
-
-    const onDrop = async (e: React.DragEvent<HTMLTextAreaElement>) => {
-        const cursorPos = input.current?.selectionStart;
-        const textBefore = props.content.substring(0,  cursorPos);
-        const textAfter  = props.content.substring(cursorPos || 0, props.content.length);
-
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            const link = await dropImage(e);
-            if (link) {
-                const image = link.includes('.mp4') ? `@gif[${link}]` : `![](${link})`;
-                props.onChange(textBefore + `${image}` + textAfter);
-                return;
-            }
-        }
-
-        e.preventDefault();
-        const data = e.dataTransfer.getData('text/plain');
-        if (data.includes('/@')) {
-            const username = data.split('/@').pop();
-            props.onChange(textBefore + `\`@${username}\`` + textAfter);
-            return;
-        }
-    };
 
     const handleSubmit = () => {
         if (props.content == '') {
@@ -60,63 +31,42 @@ export function CommentForm(props: CommentFormProps) {
     };
 
     useEffect(() => {
-        const handleClick = (e: MouseEvent) => {
-            const path = e.composedPath && e.composedPath();
-
-            if (!path.includes(box.current as EventTarget)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('click', handleClick);
-        return () => {
-            document.removeEventListener('click', handleClick);
-        };
-    }, []);
+        setIsOpen(false);
+    }, [props.author, props.url]);
 
     return (
         <>
-            <div
-                ref={box}
-                className={cn(
-                    'form',
-                    { isOpen }
-                )}
-                onClick={() => {
-                    !isOpen && setIsOpen(true);
-                    input.current?.focus();
-                }}>
-                <Card
-                    isRounded
-                    hasShadow
-                    hasBackground
-                    backgroundType="background"
-                    className={`p-3 mb-3 ${cn(
-                        'card',
+
+            {isOpen ? (
+                <div className="mb-3">
+                    <EditorContent value={props.content} onChange={(value) => props.onChange(value)} />
+                    <Button display="block" type="button" onClick={handleSubmit}>
+                        <i className="fas fa-pencil-alt mr-2" />
+                        댓글 작성
+                    </Button>
+                </div>
+            ) : (
+                <div
+                    className={cn(
+                        'form',
                         { isOpen }
-                    )}`}>
-                    <>
-                        <textarea
-                            ref={input}
-                            rows={5}
-                            className={cn({ isOpen })}
-                            onChange={(e) => props.onChange(e.target.value)}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={(e) => onDrop(e)}
-                            placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
-                            maxLength={300}
-                            value={props.content}>
-                        </textarea>
-                        <div
-                            className={cn('submit', { isOpen })}
-                            onClick={() => {
-                                isOpen && handleSubmit();
-                            }}>
+                    )}
+                    onClick={() => setIsOpen(true)}>
+                    <Card
+                        isRounded
+                        hasShadow
+                        hasBackground
+                        backgroundType="background"
+                        className={`p-3 mb-3 ${cn(
+                            'card',
+                            { isOpen }
+                        )}`}>
+                        <div className={cn('submit', { isOpen })}>
                             <i className="fas fa-pencil-alt"/> 댓글 작성
                         </div>
-                    </>
-                </Card>
-            </div>
+                    </Card>
+                </div>
+            )}
         </>
     );
 }

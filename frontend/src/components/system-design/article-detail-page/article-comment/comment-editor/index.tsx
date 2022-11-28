@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 
+import { Button } from '@design-system';
+import { EditorContent } from '@system-design/article-editor-page';
+
 import { snackBar } from '~/modules/ui/snack-bar';
 
 export interface CommentEditorProps {
@@ -12,12 +15,12 @@ export interface CommentEditorProps {
 export function CommentEditor(props: CommentEditorProps) {
     const [ content, setContent ] = useState(props.content);
 
-    const onSubmit = () => {
+    const handleSubmit = () => {
         if (content == '') {
             snackBar('😅 댓글의 내용을 입력해주세요.');
             return;
         }
-        if (content == props.content) {
+        if (content === props.content) {
             props.onCancel(props.pk);
             return;
         }
@@ -26,20 +29,11 @@ export function CommentEditor(props: CommentEditorProps) {
 
     return (
         <div className="mb-3">
-            <textarea
-                rows={5}
-                className="form-control"
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="배려와 매너가 밝은 커뮤니티를 만듭니다."
-                maxLength={300}
-                value={content}>
-            </textarea>
-            <button
-                type="button"
-                onClick={() => onSubmit()}
-                className="btn btn-dark btn-block">
-                완료
-            </button>
+            <EditorContent value={content} onChange={(value) => setContent(value)} />
+            <Button display="block" type="button" onClick={handleSubmit}>
+                <i className="fas fa-pencil-alt mr-2" />
+                댓글 수정
+            </Button>
         </div>
     );
 }

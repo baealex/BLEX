@@ -3,26 +3,6 @@
 .form {
     position: relative;
 
-    textarea {
-        transition: height 0.5s ease;
-        height: 0px;
-        width: 100%;
-        display: block;
-        outline: none;
-        border: none;
-        resize: none;
-        overflow-y: hidden;
-        padding: 0;
-        margin: 0;
-        @include COLOR_DARK;
-        background-color: rgba(0, 0, 0, 0);
-
-        &.isOpen {
-            overflow-y: auto;
-            height: 150px;
-        }
-    }
-
     .card {
         &:hover {
             cursor: text;
@@ -30,20 +10,6 @@
             &.isOpen {
                 cursor: initial;
             }
-        }
-    }
-
-    .submit {
-        transition: all 0.5s ease;
-        left: 0;
-
-        &.isOpen {
-            right: 0;
-            cursor: pointer;
-            border-radius: 8px;
-            padding: 8px 16px;
-            background-color: #000;
-            color: #fff;
         }
     }
 }

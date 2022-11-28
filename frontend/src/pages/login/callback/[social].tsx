@@ -72,5 +72,5 @@ export default function SocialLogin(props: Props) {
         });
     }, []);
 
-    return <Loading isFullPage />;
+    return <Loading position="full" />;
 }
