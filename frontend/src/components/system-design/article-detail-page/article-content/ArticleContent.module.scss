@@ -109,15 +109,23 @@
 
     table {
         display: block;
-        overflow: auto;
+        border-collapse: collapse;
+        border-spacing: 0;
         width: 100%;
+        overflow: auto;
+        white-space: nowrap;
 
         th {
+            text-align: left;
             font-weight: 600;
+            background-color: #f6f8fa;
+
+            :global(body.dark) & {
+                background-color: #111;
+            }
         }
 
         th, td {
-            word-break: keep-all;
             border: 1px solid #dfe2e5;
             padding: 6px 13px;
 
