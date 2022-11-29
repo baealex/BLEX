@@ -5,8 +5,8 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useRef } from 'react';
 
-import { Button, Text } from '@design-system';
 import { SubscribeButton } from '@system-design/shared';
+import { Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getPostsImage } from '~/modules/utility/image';
