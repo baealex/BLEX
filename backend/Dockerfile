@@ -3,7 +3,6 @@ FROM baealex/blex-backend-base
 COPY ./src/requirements.txt /app/
 
 WORKDIR /app
-RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY ./src /app
