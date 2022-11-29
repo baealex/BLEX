@@ -1,6 +1,11 @@
 name: BUILD BE BASE IMAGE
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/DockerfileBase'
   workflow_dispatch:
 
 jobs:

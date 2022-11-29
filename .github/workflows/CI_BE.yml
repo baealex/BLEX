@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - 'backend/**'
+      - 'backend/src/**'
 
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/**'
+      - 'backend/src/**'
 
 jobs:
   build:

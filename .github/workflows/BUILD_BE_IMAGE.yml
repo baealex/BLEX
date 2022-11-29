@@ -1,11 +1,12 @@
 name: BUILD BE IMAGE
 
 on:
-  push:
+  workflow_run:
+    workflows: ["BUILD BE BASE IMAGE", "CI BE"]
+    types:
+      - completed
     branches:
       - main
-    paths:
-      - 'backend/**'
   workflow_dispatch:
 
 jobs:
