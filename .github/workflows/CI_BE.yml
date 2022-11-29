@@ -14,8 +14,9 @@ on:
       - 'backend/src/**'
 
 jobs:
-  build:
+  backend-ci:
     runs-on: ubuntu-latest
+
     strategy:
       max-parallel: 4
       matrix:
