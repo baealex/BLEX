@@ -113,7 +113,7 @@ function PostDetail(props: Props) {
         moveToHash();
         codeMirrorAll();
         lazyLoadResource();
-    }, [props.post]);
+    }, [props.post.author, props.post.url]);
 
 
     useEffect(() => {
@@ -124,14 +124,14 @@ function PostDetail(props: Props) {
                 window.removeEventListener('popstate', moveToHash);
             };
         }
-    });
+    }, []);
 
-    const handleEdit = () => {
+    const handleClickEdit = () => {
         const { author, url } = props.post;
         Router.push(`/@${author}/${url}/edit`);
     };
 
-    const handleDelete = async () => {
+    const handleClickDelete = async () => {
         if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
             const { author, url } = props.post;
 
@@ -169,8 +169,8 @@ function PostDetail(props: Props) {
                         <div className="article-content">
                             {props.post.author == username && (
                                 <div className="mb-3">
-                                    <Button gap="little" onClick={handleEdit}>포스트 수정</Button>
-                                    <Button onClick={handleDelete}>포스트 삭제</Button>
+                                    <Button gap="little" onClick={handleClickEdit}>포스트 수정</Button>
+                                    <Button onClick={handleClickDelete}>포스트 삭제</Button>
                                 </div>
                             )}
                             <ArticleAuthor {...props.profile}/>
@@ -256,6 +256,7 @@ function PostDetail(props: Props) {
                 <RelatedArticles
                     author={props.post.author}
                     name={props.profile.profile.name}
+                    bio={props.profile.profile.bio}
                     url={props.post.url}
                 />
             </Footer>

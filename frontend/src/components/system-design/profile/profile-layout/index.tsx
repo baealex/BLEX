@@ -2,10 +2,6 @@ import classNames from 'classnames/bind';
 import styles from './Layout.module.scss';
 const cn = classNames.bind(styles);
 
-import {
-    useEffect,
-    useState
-} from 'react';
 import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
@@ -16,8 +12,7 @@ import {
 } from '@system-design/shared';
 import { Button } from '@design-system';
 import { ProfileNavigation } from '@system-design/profile';
-
-import * as API from '~/modules/api';
+import { SubscribeButton } from '@system-design/shared';
 
 import { authStore } from '~/stores/auth';
 
@@ -36,19 +31,8 @@ export interface ProfileLayoutProps {
 export function ProfileLayout(props: ProfileLayoutProps) {
     const router = useRouter();
 
-    const [ hasSubscribe, setHasSubscribe ] = useState(false);
     const [ isLogin ] = useValue(authStore, 'isLogin');
     const [ username ] = useValue(authStore, 'username');
-
-    useEffect(() => {
-        if (isLogin && username) {
-            if (username !== props.profile.username) {
-                API.getUserProfile('@' + props.profile.username, ['subscribe']).then(({ data }) => {
-                    setHasSubscribe(data.body.subscribe.hasSubscribe);
-                });
-            }
-        }
-    }, [isLogin, username, props.profile.username]);
 
     return (
         <>
@@ -89,16 +73,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                                 프로필 편집
                             </Button>
                         ) : (
-                            <Button
-                                isRounded
-                                space="spare"
-                                gap="little"
-                                color={hasSubscribe ? 'secondary' : 'default'}
-                                onClick={() => API.putUserFollow('@' + props.profile.username).then(({ data }) => setHasSubscribe(data.body.hasSubscribe))}>
-                                <>
-                                    { hasSubscribe ? '구독해제' : '구독하기' }
-                                </>
-                            </Button>
+                            <SubscribeButton author={props.profile.username} />
                         )
                     )}
                 </div>

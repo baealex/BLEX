@@ -13,11 +13,11 @@ export interface CommentCardProps {
     createdDate: string;
     isLiked: boolean;
     isEdited: boolean;
-    isOwner: boolean;
-    onLike?: (pk: number) => void;
-    onEdit: (pk: number) => void;
-    onDelete: (pk: number) => void;
-    onTag?: (username: string) => void;
+    isOwner?: boolean;
+    onClickLike?: (pk: number) => void;
+    onClickEdit?: (pk: number) => void;
+    onClickDelete?: (pk: number) => void;
+    onClickUserTag?: (username: string) => void;
     html: string;
     totalLikes: number;
 }
@@ -66,11 +66,11 @@ export function CommentCard(props: CommentCardProps) {
                         menus={[
                             {
                                 name: '수정',
-                                onClick: () => props.onEdit(props.pk)
+                                onClick: () => props.onClickEdit?.(props.pk)
                             },
                             {
                                 name: '삭제',
-                                onClick: () => props.onDelete(props.pk)
+                                onClick: () => props.onClickDelete?.(props.pk)
                             }
                         ]}
                     />
@@ -82,8 +82,8 @@ export function CommentCard(props: CommentCardProps) {
             />
             <div className="my-2">
                 <ul className={`${cn('action')} none-list ns`}>
-                    {props.onLike && (
-                        <li onClick={() => props.onLike && props.onLike(props.pk)}>
+                    {props.onClickLike && (
+                        <li onClick={() => props.onClickLike?.(props.pk)}>
                             {props.isLiked ? (
                                 <i className="fas fa-heart"/>
                             ) : (
@@ -91,8 +91,8 @@ export function CommentCard(props: CommentCardProps) {
                             )} {props.totalLikes}
                         </li>
                     )}
-                    {props.onTag && !props.isOwner && (
-                        <li onClick={() => props.onTag && props.onTag(props.author)}>
+                    {props.onClickUserTag && !props.isOwner && (
+                        <li onClick={() => props.onClickUserTag?.(props.author)}>
                             <i className="fas fa-reply"/> 사용자 태그
                         </li>
                     )}

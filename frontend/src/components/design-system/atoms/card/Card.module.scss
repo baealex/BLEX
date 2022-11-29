@@ -36,57 +36,6 @@
         }
     }
 
-
-    &.in { // isNeumorphism
-        border: none;
-        background: #F0F0F3;
-
-        :global(body.dark) & {
-            border: none;
-            background: #222222;
-        }
-
-        &.in-flat {
-            box-shadow: 
-                -10px -10px 30px 0 #FFFFFF,
-                10px 10px 30px 0 rgba(174, 174, 192, 0.4);
-
-            :global(body.dark) & {
-                box-shadow: 
-                    -10px -10px 20px 0 #272727,
-                    10px 10px 20px 0 #161616;
-            }
-        }
-        
-        &.in-convex {
-            box-shadow: 
-                inset -10px -10px 10px 0 rgba(255, 255, 255, 0.7),
-                inset 10px 10px 10px 0 rgba(174, 174, 192, 0.2);
-
-            :global(body.dark) & {
-                box-shadow: 
-                    inset -10px -10px 10px 0 #2e2e2e,
-                    inset 10px 10px 10px 0 #1a1a1a;
-            }
-        }
-
-        &.in-concave {
-            box-shadow: 
-                -10px -10px 30px 0 #FFFFFF,
-                10px 10px 30px 0 rgba(174, 174, 192, 0.4),
-                inset 10px 10px 10px 0 #FFFFFF,
-                inset -10px -10px 10px 0 rgba(174, 174, 192, 0.25);
-            
-            :global(body.dark) & {
-                box-shadow: 
-                    -10px -10px 30px 0 #272727,
-                    10px 10px 30px 0 #161616,
-                    inset 10px 10px 10px 0 #272727,
-                    inset -10px -10px 10px 0 #161616;
-            }
-        }
-    }
-
     &.ir { // isRounded
         border-radius: 24px;
     }

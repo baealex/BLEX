@@ -8,9 +8,7 @@ export interface CardProps {
     hasShadow?: boolean;
     shadowLevel?: 'main' | 'sub';
     hasBackground?: boolean;
-    isNeumorphism?: boolean;
     backgroundType?: 'background' | 'card';
-    neumorphismType?: 'flat' | 'concave' | 'convex';
     children?: React.ReactNode;
     className?: string;
 }
@@ -21,8 +19,6 @@ export function Card({
     shadowLevel = 'main',
     hasBackground = false,
     backgroundType = 'card',
-    isNeumorphism = false,
-    neumorphismType = 'flat',
     className = '',
     children
 }: CardProps) {
@@ -35,8 +31,6 @@ export function Card({
                 (hasShadow && shadowLevel) && 'sl-' + shadowLevel,
                 { fb: hasBackground },
                 (hasBackground && backgroundType) && 'fb-' + backgroundType,
-                { in: isNeumorphism },
-                (isNeumorphism && neumorphismType) && 'in-' + neumorphismType,
                 className
             )}>
             {children}

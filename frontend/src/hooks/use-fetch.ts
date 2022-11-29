@@ -18,9 +18,8 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
     const [ isError, setIsError ] = useState(false);
     const [ isLoading, setIsLoading ] = useState(false);
 
-    const mutate = useCallback((data: T) => {
-        cache.set(key, data);
-        setData(data);
+    const mutate = useCallback((next: T | ((prev: T) => T)) => {
+        setData(prev => next instanceof Function ? next(prev as T) : next);
     }, []);
 
     useEffect(() => {
@@ -43,7 +42,9 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
         if (options.observeElement) {
             const observer = lazyIntersection(options.observeElement, async () => {
                 await run();
-                lazyLoadResource();
+                setTimeout(() => {
+                    lazyLoadResource();
+                }, 100);
             });
             return () => observer?.disconnect();
         }
