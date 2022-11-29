@@ -26,7 +26,7 @@ export function ArticleSeries(props: ArticleSeriesProps) {
             return body;
         }
         return null;
-    }, { observeElement: ref.current });
+    }, { observeRef: ref });
 
     const seriesLength = series?.posts.length;
     const activeSeries = series?.posts.findIndex(

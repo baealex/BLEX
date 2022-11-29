@@ -40,7 +40,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 textMarkdown: ''
             }));
         }
-    }, { observeElement: ref.current });
+    }, { observeRef: ref });
 
     const handleSubmit = useCallback(async (content: string) => {
         const { data } = await API.postComments(props.url, content);

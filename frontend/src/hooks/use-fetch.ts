@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
     lazyIntersection,
@@ -8,7 +8,7 @@ import {
 const cache = new Map();
 
 interface UseFetchOptions {
-    observeElement?: HTMLElement | null;
+    observeRef?: React.RefObject<HTMLElement>;
 }
 
 export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, options: UseFetchOptions = {}) {
@@ -39,8 +39,8 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
             });
         };
 
-        if (options.observeElement) {
-            const observer = lazyIntersection(options.observeElement, async () => {
+        if (options.observeRef) {
+            const observer = lazyIntersection(options.observeRef.current, async () => {
                 await run();
                 setTimeout(() => {
                     lazyLoadResource();
@@ -50,7 +50,7 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
         }
 
         run();
-    }, [key, options.observeElement]);
+    }, [key, options.observeRef]);
 
     return {
         data,

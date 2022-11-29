@@ -10,25 +10,35 @@ import { useFetch } from '~/hooks/use-fetch';
 
 import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
+import { useRef } from 'react';
 
 interface Props {
     author: string;
 }
 
 export function SubscribeButton(props: Props) {
+    const ref = useRef<HTMLButtonElement>(null);
+
     const [{ isLogin, username }] = useStore(authStore);
+
     const { data: hasSubscribe, mutate } = useFetch([isLogin, username, props.author], async () => {
         if (isLogin && username !== props.author) {
             const { data } = await API.getUserProfile('@' + props.author, ['subscribe']);
             return data.body.subscribe.hasSubscribe;
         }
-    });
+    }, { observeRef: ref });
+
+    console.log(ref);
 
     const handleClickSubscribe = async () => {
         if (!isLogin) {
             snackBar(message('BEFORE_REQ_ERR', '로그인이 필요합니다.'), {
                 onClick: () => modalStore.open('isLoginModalOpen')
             });
+            return;
+        }
+        if  (username === props.author) {
+            snackBar(message('BEFORE_REQ_ERR', '자신의 계정은 구독할 수 없습니다.'));
             return;
         }
         const { data } = await API.putUserFollow('@' + props.author);
@@ -44,6 +54,7 @@ export function SubscribeButton(props: Props) {
 
     return (
         <Button
+            ref={ref}
             isRounded
             space="spare"
             gap="little"

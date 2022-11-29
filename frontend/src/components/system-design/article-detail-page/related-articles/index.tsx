@@ -23,13 +23,14 @@ export function RelatedArticles(props: RelatedProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     const { data: posts } = useFetch([
-        'posts/related',
+        'posts',
+        'related',
         props.author,
         props.url
     ], async () => {
         const { data } = await API.getFeaturePosts('@' + props.author, props.url);
         return data.body.posts;
-    }, { observeElement: ref.current });
+    }, { observeRef: ref });
 
     return (
         <div ref={ref} className="x-container pt-5 reverse-color">

@@ -2,7 +2,7 @@ import classNames from 'classnames/bind';
 import styles from './Button.module.scss';
 const cn = classNames.bind(styles);
 
-import { useRef } from 'react';
+import { forwardRef, useCallback, useRef } from 'react';
 
 export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
@@ -16,7 +16,7 @@ export interface ButtonProps {
     display?: 'inline-block' | 'block';
 }
 
-export function Button({
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     gap = 'none',
     isRounded = false,
     space = 'default',
@@ -25,13 +25,11 @@ export function Button({
     className,
     onClick,
     children
-}: ButtonProps) {
+}, ref) => {
     const button = useRef<HTMLButtonElement>(null);
 
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        if (onClick) {
-            onClick(e);
-        }
+    const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        onClick?.(e);
 
         const ripple = document.createElement('span');
         ripple.classList.add(cn('ripple'));
@@ -46,15 +44,13 @@ export function Button({
             ripple.style.opacity = '0';
             ripple.style.transform = 'scale(5)';
 
-            setTimeout(() => {
-                ripple.remove();
-            }, 1000);
+            setTimeout(() => ripple.remove(), 1000);
         }, 0);
-    };
+    }, [button, onClick]);
 
     return (
         <button
-            ref={button}
+            ref={ref || button}
             className={cn(
                 'button',
                 { isRounded },
@@ -68,4 +64,4 @@ export function Button({
             {children}
         </button>
     );
-}
+});
