@@ -63,18 +63,16 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                     {props.social && (
                         <Social {...props.social}/>
                     )}
-                    {isLogin && (
-                        username === props.profile.username ? (
-                            <Button
-                                isRounded
-                                space="spare"
-                                gap="little"
-                                onClick={() => router.push('/setting/profile')}>
-                                프로필 편집
-                            </Button>
-                        ) : (
-                            <SubscribeButton author={props.profile.username} />
-                        )
+                    {username === props.profile.username ? (
+                        <Button
+                            isRounded
+                            space="spare"
+                            gap="little"
+                            onClick={() => router.push('/setting/profile')}>
+                            프로필 편집
+                        </Button>
+                    ) : (
+                        <SubscribeButton author={props.profile.username} />
                     )}
                 </div>
             </div>
