@@ -31,7 +31,6 @@ export interface ProfileLayoutProps {
 export function ProfileLayout(props: ProfileLayoutProps) {
     const router = useRouter();
 
-    const [ isLogin ] = useValue(authStore, 'isLogin');
     const [ username ] = useValue(authStore, 'username');
 
     return (
