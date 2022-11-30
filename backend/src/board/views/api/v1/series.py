@@ -1,6 +1,6 @@
 import traceback
 
-from django.db.models import F, Count
+from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -37,7 +37,7 @@ def user_series(request, username, url=None):
                 }, series)),
                 'last_page': series.paginator.num_pages
             })
-        
+
         if request.method == 'PUT':
             body = QueryDict(request.body)
             if request.GET.get('kind', '') == 'order':
@@ -97,30 +97,47 @@ def user_series(request, username, url=None):
         series = get_object_or_404(Series.objects.annotate(
             owner_username=F('owner__username'),
             owner_avatar=F('owner__profile__avatar'),
+            total_posts=Count(
+                Case(
+                    When(
+                        posts__config__hide=False,
+                        then=1
+                    )
+                )
+            )
         ), owner=user, url=url)
         if request.method == 'GET':
-            if request.GET.get('type', 1):
-                posts = Post.objects.select_related(
-                    'content'
-                ).filter(
-                    series=series,
-                    config__hide=False
-                )
-                return StatusDone({
-                    'name': series.name,
-                    'url': series.url,
-                    'owner': series.owner_username,
-                    'owner_image': series.owner_avatar,
-                    'description': series.text_md,
-                    'posts': list(map(lambda post: {
-                        'url': post.url,
-                        'title': post.title,
-                        'image': str(post.image),
-                        'read_time': post.read_time,
-                        'description': post.description(),
-                        'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일')
-                    }, posts))
-                })
+            page = request.GET.get('page', 1)
+            posts = Post.objects.select_related(
+                'content'
+            ).filter(
+                series=series,
+                config__hide=False
+            ).order_by('-created_date')
+            posts = Paginator(
+                objects=posts,
+                offset=12,
+                page=page
+            )
+            start_number = series.total_posts - (posts.paginator.per_page * (int(page) - 1))
+            return StatusDone({
+                'name': series.name,
+                'url': series.url,
+                'owner': series.owner_username,
+                'owner_image': series.owner_avatar,
+                'description': series.text_md,
+                'total_posts': series.total_posts,
+                'posts': list(map(lambda post: {
+                    'url': post.url,
+                    'number': start_number - posts.index(post),
+                    'title': post.title,
+                    'image': str(post.image),
+                    'read_time': post.read_time,
+                    'description': post.description(),
+                    'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일')
+                }, posts)),
+                'last_page': posts.paginator.num_pages
+            })
         
         if not request.user == series.owner:
             return StatusError('DU')
