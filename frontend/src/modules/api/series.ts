@@ -60,15 +60,23 @@ export interface GetAnUserSeriesResponseData {
         url: string;
         title: string;
         image: string;
+        number: number;
         readTime: number;
         description: string;
         createdDate: string;
     }[];
+    lastPage: number;
 }
 
-export async function getAnUserSeries(author: string, url: string) {
+export interface GetAnUSerSeriesRequestParams {
+    page?: number;
+    kind?: 'continue';
+}
+
+export async function getAnUserSeries(author: string, url: string, params?: GetAnUSerSeriesRequestParams) {
     return await request<GetAnUserSeriesResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
+        params,
         method: 'GET'
     });
 }

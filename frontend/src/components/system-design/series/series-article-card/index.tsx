@@ -10,7 +10,7 @@ import { getPostsImage } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
 
 export interface SeriesArticleCardProps {
-    idx: number;
+    number: number;
     author: string;
     url: string;
     title: string;
@@ -26,7 +26,7 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
             <Link href={`/@${props.author}/${props.url}`}>
                 <a>
                     <div className={cn('title')}>
-                        {props.title}
+                        {('000' + props.number).slice(-3)}. {props.title}
                     </div>
                     <div className={cn('date')}>
                         {props.createdDate}
@@ -41,7 +41,9 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
                             data-src={getPostsImage(props.image, { minify: true })}
                         />
                     )}
-                    더 보기
+                    <span className="shallow-dark">
+                        더보기
+                    </span>
                 </a>
             </Link>
         </Card>

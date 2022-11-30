@@ -10,7 +10,6 @@ type Theme = 'default' | 'dark' | 'black' | 'neon' | 'pastel';
 export interface ConfigStoreState {
     theme: Theme;
     isAutoSave: boolean;
-    isSortOldFirst: boolean;
 }
 
 class ConfigStore extends Store<ConfigStoreState> {
@@ -20,8 +19,7 @@ class ConfigStore extends Store<ConfigStoreState> {
         super();
         this.state = {
             theme: 'default' as Theme,
-            isAutoSave: true,
-            isSortOldFirst: false
+            isAutoSave: true
         };
 
         if (typeof window !== 'undefined') {

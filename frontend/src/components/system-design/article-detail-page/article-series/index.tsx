@@ -22,7 +22,9 @@ export function ArticleSeries(props: ArticleSeriesProps) {
 
     const { data: series } = useFetch(['series', props.author, props.series], async () => {
         if (props.series) {
-            const { data: { body } } = await API.getAnUserSeries('@' + props.author, props.series);
+            const { data: { body } } = await API.getAnUserSeries('@' + props.author, props.series, {
+                kind: 'continue'
+            });
             return body;
         }
         return null;

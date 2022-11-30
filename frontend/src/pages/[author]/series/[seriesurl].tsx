@@ -9,7 +9,7 @@ import {
     Modal
 } from '@design-system';
 import {
-    Footer, SEO
+    Footer, Pagination, SEO
 } from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
 
@@ -26,7 +26,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     configStore.serverSideInject(cookies);
 
     const {
-        author = '', seriesurl = ''
+        page = 1,
+        author = '',
+        seriesurl = ''
     } = context.query;
 
     if (!author.includes('@')) {
@@ -34,17 +36,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     try {
-        const { data } = await API.getAnUserSeries(
-            author.toString(),
-            seriesurl.toString()
-        );
-        return { props: { series: data.body } };
+        const { data } = await API.getAnUserSeries('' + author, '' + seriesurl, {
+            page: Number(page)
+        });
+        return {
+            props: {
+                page,
+                series: data.body
+            }
+        };
     } catch (error) {
         return { notFound: true };
     }
 };
 
 interface Props {
+    page: number;
     series: API.GetAnUserSeriesResponseData;
 }
 
@@ -55,13 +62,10 @@ interface State {
     seriesDescription: string;
     seriesPosts: API.GetAnUserSeriesResponseData['posts'];
     isSeriesModalOpen: boolean;
-    isSortOldFirst: boolean;
 }
 
 class Series extends React.Component<Props, State> {
     private authUpdateKey: string;
-    private configUpdateKey: string;
-
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -70,19 +74,16 @@ class Series extends React.Component<Props, State> {
             seriesTitle: props.series.name,
             seriesDescription: props.series.description,
             seriesPosts: props.series.posts,
-            isSeriesModalOpen: false,
-            isSortOldFirst: configStore.state.isSortOldFirst
+            isSeriesModalOpen: false
         };
         this.authUpdateKey = authStore.subscribe((state) => this.setState({
             isLogin: state.isLogin,
             username: state.username
         }));
-        this.configUpdateKey = configStore.subscribe((state) => this.setState({ isSortOldFirst: state.isSortOldFirst }));
     }
 
     componentWillUnmount() {
         authStore.unsubscribe(this.authUpdateKey);
-        configStore.unsubscribe(this.configUpdateKey);
     }
 
     componentDidUpdate(prevProps: Props) {
@@ -200,8 +201,6 @@ class Series extends React.Component<Props, State> {
                 ))}
             </Modal>
         );
-
-        const { isSortOldFirst } = this.state;
 
         return (
             <>
@@ -327,9 +326,9 @@ class Series extends React.Component<Props, State> {
                     </div>
                     {this.props.series.owner == this.state.username && (
                         <div className="corner">
-                            <div className="btn btn-dark" onClick={() => this.onOpenModal('isSeriesModalOpen')}>
+                            <Button onClick={() => this.onOpenModal('isSeriesModalOpen')}>
                                 시리즈 수정
-                            </div>
+                            </Button>
                         </div>
                     )}
                 </div>
@@ -343,34 +342,24 @@ class Series extends React.Component<Props, State> {
                 </div>
 
                 <div className="b-container">
-                    <div className="mt-5 mb-3 text-right">
-                        <Button
-                            space="spare"
-                            onClick={() => configStore.set((prevState) => ({
-                                ...prevState,
-                                isSortOldFirst: !isSortOldFirst
-                            }))}>
-                            {isSortOldFirst ? (
-                                <>
-                                    <i className="fas fa-sort-up"/> 과거부터
-                                </>
-                            ) : (
-                                <>
-                                    <i className="fas fa-sort-down"/> 최근부터
-                                </>
-                            )}
-                        </Button>
-                    </div>
-                    <div className={`series-list${isSortOldFirst ? '' : ' reversed'}`}>
-                        {seriesPosts.map((post, idx) => (
+                    <Pagination
+                        disableScroll
+                        page={this.props.page}
+                        last={this.props.series.lastPage}
+                    />
+                    <div className={'series-list'}>
+                        {seriesPosts.map((post) => (
                             <SeriesArticleCard
                                 key={post.url}
-                                idx={idx}
                                 author={this.props.series.owner}
                                 {...post}
                             />
                         ))}
                     </div>
+                    <Pagination
+                        page={this.props.page}
+                        last={this.props.series.lastPage}
+                    />
                 </div>
                 <Footer isDark />
             </>
