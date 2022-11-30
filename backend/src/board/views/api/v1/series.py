@@ -107,6 +107,24 @@ def user_series(request, username, url=None):
             )
         ), owner=user, url=url)
         if request.method == 'GET':
+            if request.GET.get('kind', '') == 'continue':
+                posts = Post.objects.filter(
+                    series=series,
+                    config__hide=False,
+                ).values_list('title', 'url')
+                return StatusDone({
+                    'name': series.name,
+                    'url': series.url,
+                    'owner': series.owner_username,
+                    'owner_image': series.owner_avatar,
+                    'description': series.text_md,
+                    'total_posts': series.total_posts,
+                    'posts': list(map(lambda post: {
+                        'title': post[0],
+                        'url': post[1],
+                    }, posts)),
+                })
+
             page = request.GET.get('page', 1)
             posts = Post.objects.select_related(
                 'content'
