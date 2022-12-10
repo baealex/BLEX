@@ -14,7 +14,7 @@ on:
       - 'frontend/src/**'
 
 jobs:
-  frontend-ci:
+  ci:
     runs-on: ubuntu-latest
 
     strategy:
