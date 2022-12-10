@@ -591,18 +591,16 @@ def user_posts(request, username, url=None):
             if request.GET.get('like', ''):
                 if not request.user.is_active:
                     return StatusError('NL')
-                
-                if request.user == post.author:
-                    return StatusError('SU')
-                
+
                 user = User.objects.get(username=request.user)
                 post_like = post.likes.filter(user=user)
                 if post_like.exists():
                     post_like.delete()
                 else:
                     PostLikes(post=post, user=user).save()
-                    send_notify_content = '\''+ post.title +'\'글을 @'+ user.username +'님께서 추천했습니다.'
-                    create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+                    if request.user != post.author:
+                        send_notify_content = '\''+ post.title +'\'글을 @'+ user.username +'님께서 찜했습니다.'
+                        create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })
