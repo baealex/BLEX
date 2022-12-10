@@ -187,6 +187,22 @@ export function EditorContent(props: EditorContentProps) {
                         props.onChange(easyMDE.value());
                     });
 
+                    easyMDE.codemirror.on('paste', async (instance, event) => {
+                        const item = event.clipboardData?.items[0];
+                        if (item && item.type.indexOf('image') !== -1) {
+                            const imageFile = item.getAsFile();
+                            if (imageFile) {
+                                const imageSrc = await uploadImage(imageFile);
+                                if (imageSrc) {
+                                    const imageMd = imageSrc.includes('.mp4')
+                                        ? `@gif[${imageSrc}]`
+                                        : `![](${imageSrc})`;
+                                    instance.replaceSelection(imageMd);
+                                }
+                            }
+                        }
+                    });
+
                     editor.current = easyMDE;
                 }
             }
