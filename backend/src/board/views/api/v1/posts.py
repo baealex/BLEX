@@ -270,9 +270,10 @@ def liked_posts(request):
             config__hide=False,
             likes__user=request.user,
         ).annotate(
+            liked_date=F('likes__created_date'),
             author_username=F('author__username'),
             author_image=F('author__profile__avatar')
-        ).order_by('-created_date')
+        ).order_by('-liked_date')
 
         posts = Paginator(
             objects=posts,
