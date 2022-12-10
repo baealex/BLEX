@@ -49,6 +49,7 @@ npm run dev
 #### 사용자용
 
 - [블렉스 노션](https://blex.me/notion)
+- [블렉스 개발노트](https://blex.me/@baealex/series/%EB%B8%94%EB%A0%89%EC%8A%A4-%EC%9D%B4%EC%95%BC%EA%B8%B0)
 
 #### 개발자용
 
