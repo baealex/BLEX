@@ -257,6 +257,43 @@ def newest_posts(request):
             'last_page': posts.paginator.num_pages
         })
 
+def liked_posts(request):
+    if not request.user:
+        raise Http404
+
+    if request.method == 'GET':
+        posts = Post.objects.select_related(
+            'config', 'content'
+        ).filter(
+            created_date__lte=timezone.now(),
+            config__notice=False,
+            config__hide=False,
+            likes__user=request.user,
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        ).order_by('-created_date')
+
+        posts = Paginator(
+            objects=posts,
+            offset=24,
+            page=request.GET.get('page', 1)
+        )
+        return StatusDone({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'image': str(post.image),
+                'description': post.description(),
+                'read_time': post.read_time,
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'author_image': post.author_image,
+                'author': post.author_username,
+                'is_ad': post.config.advertise,
+            }, posts)),
+            'last_page': posts.paginator.num_pages
+        })
+
 def feature_posts(request, tag=None):
     if not tag:
         username = request.GET.get('username', '')

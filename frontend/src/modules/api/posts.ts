@@ -100,6 +100,14 @@ export async function getNewestPosts(page: number) {
     });
 }
 
+export async function getLikedPosts(page: number, cookie: string) {
+    return await request<GetPostsResponseData>({
+        url: `/v1/posts/liked?page=${page}`,
+        method: 'GET',
+        headers: { cookie }
+    });
+}
+
 export interface GetTopTrendyPostsResponseData {
     posts: {
         url: string;

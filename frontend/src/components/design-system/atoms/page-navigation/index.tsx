@@ -2,10 +2,8 @@ import classNames from 'classnames/bind';
 import styles from './PageNavigation.module.scss';
 const cn = classNames.bind(styles);
 
-import {
-    useEffect, useState
-} from 'react';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 export interface PageNavigationProps {
     active: string;
@@ -17,11 +15,7 @@ export interface PageNavigationProps {
 }
 
 export function PageNavigation(props: PageNavigationProps) {
-    const [active, setActive] = useState(props.items.findIndex((item) => item.name === props.active));
-
-    useEffect(() => {
-        setActive(props.items.findIndex((item) => item.name === props.active));
-    }, [props.active]);
+    const active = useMemo(() => props.items.findIndex((item) => item.name === props.active), [props.active, props.items]);
 
     return (
         <ul className={cn('nav')}>

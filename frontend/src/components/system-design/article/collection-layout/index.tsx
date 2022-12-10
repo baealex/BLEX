@@ -1,8 +1,12 @@
+import { useValue } from 'badland-react';
+
 import { Footer } from '@system-design/shared';
 import { PageNavigation } from '@design-system';
 
 import * as API from '~/modules/api';
 import { ArticleCard } from '../article-card';
+
+import { authStore } from '~/stores/auth';
 
 const NAVIGATION_ITEMS = [
     {
@@ -15,6 +19,14 @@ const NAVIGATION_ITEMS = [
     }
 ];
 
+const LOGGED_IN_NAVIGATION_ITEMS = [
+    ...NAVIGATION_ITEMS,
+    {
+        link: '/liked',
+        name: '찜한 포스트'
+    }
+];
+
 export interface CollectionLayoutProps {
     active: '인기 포스트' | '최신 포스트' | string;
     posts: API.GetPostsResponseData['posts'];
@@ -23,13 +35,17 @@ export interface CollectionLayoutProps {
 }
 
 export function CollectionLayout(props: CollectionLayoutProps) {
+    const [isLogin] = useValue(authStore, 'isLogin');
+
+    const navItems = isLogin
+        ? LOGGED_IN_NAVIGATION_ITEMS
+        : NAVIGATION_ITEMS;
+
     return (
         <>
             <div className="container">
                 <PageNavigation
-                    items={props.itemExpended
-                        ? props.itemExpended(NAVIGATION_ITEMS)
-                        : NAVIGATION_ITEMS}
+                    items={props.itemExpended?.(navItems) ?? navItems}
                     active={props.active}
                 />
                 <div className="grid-321">
