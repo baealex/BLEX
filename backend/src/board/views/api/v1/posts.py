@@ -599,8 +599,9 @@ def user_posts(request, username, url=None):
                     post_like.delete()
                 else:
                     PostLikes(post=post, user=user).save()
-                    send_notify_content = f'\'{post.title}\' 글을 @{user.username}님께서 추천하였습니다.'
-                    create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+                    if request.user != post.author:
+                        send_notify_content = f'\'{post.title}\' 글을 @{user.username}님께서 추천하였습니다.'
+                        create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })
