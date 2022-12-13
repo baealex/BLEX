@@ -34,7 +34,7 @@ interface Props extends API.GetPostsResponseData {
 const TrendyArticles: PageComponent<Props> = (props) => {
     return (
         <>
-            <SEO title={`찜한 포스트${props.page > 1 ? ` | ${props.page} 페이지` : ''}`}/>
+            <SEO title={`관심 포스트 ${props.page > 1 ? ` | ${props.page} 페이지` : ''}`}/>
             <Pagination
                 page={props.page}
                 last={props.lastPage}
@@ -44,7 +44,7 @@ const TrendyArticles: PageComponent<Props> = (props) => {
 };
 
 TrendyArticles.pageLayout = (page, props) => (
-    <CollectionLayout active="찜한 포스트" {...props}>
+    <CollectionLayout active="관심 포스트" {...props}>
         {page}
     </CollectionLayout>
 );

@@ -23,7 +23,7 @@ const LOGGED_IN_NAVIGATION_ITEMS = [
     ...NAVIGATION_ITEMS,
     {
         link: '/liked',
-        name: '찜한 포스트'
+        name: '관심 포스트'
     }
 ];
 

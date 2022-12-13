@@ -13,6 +13,7 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
+import { message } from '~/modules/utility/message';
 
 export type ArticleActionProps = API.GetAnUserPostsViewResponseData;
 
@@ -61,11 +62,17 @@ export function ArticleAction(props: ArticleActionProps) {
         const { data } = await API.putAnUserPosts('@' + author, url, 'like');
         if (data.status === 'DONE') {
             if (typeof data.body.totalLikes === 'number') {
-                setState((prevState) => ({
-                    ...prevState,
-                    isLiked: !prevState.isLiked,
-                    totalLikes: data.body.totalLikes || 0
-                }));
+                setState((prevState) => {
+                    prevState.isLiked
+                        ? snackBar(message('AFTER_REQ_DONE', '관심 포스트에서 제거되었습니다.'))
+                        : snackBar(message('AFTER_REQ_DONE', '관심 포스트에 추가되었습니다.'));
+
+                    return {
+                        ...prevState,
+                        isLiked: !prevState.isLiked,
+                        totalLikes: data.body.totalLikes || 0
+                    };
+                });
             }
         }
         if (data.status === 'ERROR') {
@@ -75,9 +82,6 @@ export function ArticleAction(props: ArticleActionProps) {
                         modalStore.open('isLoginModalOpen');
                     }
                 });
-            }
-            if (data.errorCode === API.ERROR.SAME_USER) {
-                snackBar('😅 자신의 글은 추천할 수 없습니다.');
             }
         }
     };
