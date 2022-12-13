@@ -9,11 +9,11 @@ import {
 import { useStore } from 'badland-react';
 
 import * as API from '~/modules/api';
+import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
-import { message } from '~/modules/utility/message';
 
 export type ArticleActionProps = API.GetAnUserPostsViewResponseData;
 
