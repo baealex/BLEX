@@ -26,17 +26,15 @@ def temp_posts_list(request):
         if temp_posts.count() >= 100:
             return StatusError('OF')
 
-        body = QueryDict(request.body)
-
         token = randstr(25)
         has_token = TempPosts.objects.filter(token=token, author=request.user).exists()
-        while not has_token:
+        while has_token:
             token = randstr(25)
             has_token = TempPosts.objects.filter(token=token, author=request.user).exists()
 
         temp_post = TempPosts(token=token, author=request.user)
-        temp_post.title = body.get('title')
-        temp_post.text_md = body.get('text_md')
+        temp_post.title = request.POST.get('title')
+        temp_post.text_md = request.POST.get('text_md')
         temp_post.save()
 
         return StatusDone({
