@@ -1,19 +1,15 @@
 import os
-import sys
-import django
-
-from django.utils.encoding import force_str
-
-# NOTE: Monkey patching for GraphQL in Django 4
-django.utils.encoding.force_text = force_str
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'FOR_YOUR_BLEX'
+# NOTE: Monkey patching for GraphQL in Django 4
+import django
+from django.utils.encoding import force_str
+django.utils.encoding.force_text = force_str
 
-DEBUG = True
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-TESTING = sys.argv[1:2] == ['test']
+DEBUG = os.environ.get('DEBUG') == 'TRUE'
 
 ALLOWED_HOSTS = ['*']
 
@@ -52,23 +48,23 @@ MIDDLEWARE = [
 if not DEBUG:
     MIDDLEWARE.append('main.middleware.AccessAdminOnlyStaff')
 
-if DEBUG and not TESTING:
+if DEBUG:
     MIDDLEWARE.append('main.middleware.QueryDebugger')
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    os.environ.get('SITE_URL'),
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-SESSION_COOKIE_DOMAIN = 'localhost'
+SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN')
 
 ROOT_URLCONF = 'main.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ 'oops' ],
+        'DIRS': ['oops'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -111,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ko'
 
-TIME_ZONE = 'Asia/Seoul'
+TIME_ZONE = os.environ.get('TZ')
 
 USE_I18N = True
 
@@ -123,13 +119,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-SITE_URL = 'http://localhost:3000'
-API_KEY = 'organic_diget_ball'
+SITE_URL = os.environ.get('SITE_URL')
+API_KEY = os.environ.get('API_KEY')
 
-STATIC_URL = 'https://static.blex.me/assets/'
+STATIC_URL = os.environ.get('STATIC_URL') + '/assets/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
 
-MEDIA_URL = 'https://static.blex.me/'
+MEDIA_URL = os.environ.get('STATIC_URL') + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
 
 
