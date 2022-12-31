@@ -1,15 +1,19 @@
 import os
+import sys
+import django
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from django.utils.encoding import force_str
 
 # NOTE: Monkey patching for GraphQL in Django 4
-import django
-from django.utils.encoding import force_str
 django.utils.encoding.force_text = force_str
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = os.environ.get('DEBUG') == 'TRUE'
+
+TESTING = sys.argv[1:2] == ['test']
 
 ALLOWED_HOSTS = ['*']
 
@@ -48,7 +52,7 @@ MIDDLEWARE = [
 if not DEBUG:
     MIDDLEWARE.append('main.middleware.AccessAdminOnlyStaff')
 
-if DEBUG:
+if DEBUG and not TESTING:
     MIDDLEWARE.append('main.middleware.QueryDebugger')
 
 CORS_ALLOWED_ORIGINS = [
@@ -64,7 +68,7 @@ ROOT_URLCONF = 'main.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['oops'],
+        'DIRS': [ 'oops' ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
