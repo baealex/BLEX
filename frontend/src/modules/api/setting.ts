@@ -1,7 +1,5 @@
-import request, {
-    Headers,
-    serializeObject
-} from './request';
+import request, { serializeObject } from './request';
+import type { Headers } from './request';
 
 export interface GetSettingNotifyResponseData {
     notify: {
@@ -185,22 +183,6 @@ export interface GetSettingAnalyticsSearchResponseData {
 export async function getSettingAnalyticsSearch(headers?: Headers) {
     return await request<GetSettingAnalyticsSearchResponseData>({
         url: '/v1/setting/analytics-search',
-        method: 'GET',
-        headers
-    });
-}
-
-export interface GetSettingFormsResponseData {
-    forms: {
-        id: number;
-        title: string;
-        createdDate: string;
-    }[];
-}
-
-export async function getSettingForms(headers?: Headers) {
-    return await request<GetSettingFormsResponseData>({
-        url: '/v1/setting/forms',
         method: 'GET',
         headers
     });

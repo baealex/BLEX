@@ -10,4 +10,5 @@ from .series import *
 from .setting import *
 from .tags import *
 from .telegram import *
+from .temp_posts import *
 from .users import *

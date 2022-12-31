@@ -5,6 +5,7 @@ from modules.telegram import TelegramBot
 
 from board.modules.analytics import get_network_addr
 
+
 def error_report(request):
     if request.method == 'POST':
         if settings.TELEGRAM_ERROR_REPORT_ID and settings.TELEGRAM_BOT_TOKEN:

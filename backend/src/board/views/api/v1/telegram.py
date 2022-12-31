@@ -3,13 +3,13 @@ import json
 from django.conf import settings
 from django.http import Http404
 from django.utils import timezone
-from PIL import Image, ImageFilter
 
 from board.models import TelegramSync
 from board.modules.response import StatusDone, StatusError
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 from modules.randomness import randstr
+
 
 def telegram(request, parameter):
     if parameter == 'webHook':

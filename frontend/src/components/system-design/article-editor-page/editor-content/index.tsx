@@ -44,7 +44,7 @@ export function EditorContent(props: EditorContentProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     const { data: forms } = useFetch('forms', async () => {
-        const { data } = await API.getSettingForms();
+        const { data } = await API.getUserForms();
         return data.body.forms;
     });
 

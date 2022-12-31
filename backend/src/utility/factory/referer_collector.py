@@ -1,19 +1,13 @@
 import os
-import re
 import sys
-import html
 import time
 import django
-import urllib
-import requests
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
-
-from django.conf import settings
 
 from board.models import *
 from modules.scrap import page_parser

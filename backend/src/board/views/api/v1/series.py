@@ -3,14 +3,14 @@ import traceback
 from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from django.utils.text import slugify
 
-from board.models import (
-    User, Post, Series, convert_to_localtime)
+from board.models import User, Post, Series
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError
+from board.modules.time import convert_to_localtime
 from modules.randomness import randstr
+
 
 def user_series(request, username, url=None):
     if not url:
@@ -168,7 +168,7 @@ def user_series(request, username, url=None):
             if not series.name in series.url:
                 series.url = slugify(series.name, allow_unicode=True)
 
-            if series.url == '':
+            if not series.url:
                 series.url = randstr(15)
 
             i = 1

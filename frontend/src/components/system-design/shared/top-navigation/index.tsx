@@ -175,14 +175,14 @@ export function TopNavigation() {
                         <div className={cn('logo')}>
                             <Link href="/">
                                 <a>
-                                    <img src={'/logob.svg'}/>
+                                    <img alt="logo" src={'/logob.svg'}/>
                                 </a>
                             </Link>
                         </div>
                         <nav>
                             <ul className={cn('items')}>
                                 <li>
-                                    <button onClick={() => router.push('/search')}>
+                                    <button aria-label="search" onClick={() => router.push('/search')}>
                                         <i className="fas fa-search"/>
                                     </button>
                                 </li>
@@ -191,7 +191,7 @@ export function TopNavigation() {
                                         <li
                                             ref={notifyToggle}
                                             className={cn('notify')}>
-                                            <button onClick={() => setIsNotifyOpen((prev) => !prev)}>
+                                            <button aria-label="notify" onClick={() => setIsNotifyOpen((prev) => !prev)}>
                                                 <i className="far fa-bell"/>
                                             </button>
                                             {auth.notify.length > 0 && (
@@ -224,7 +224,7 @@ export function TopNavigation() {
                                         </li>
                                         {path.endsWith('/write') || path.endsWith('/edit') ? (
                                             <li className={cn('get-start')}>
-                                                <button onClick={() => modalStore.open('isPublishModalOpen')}>
+                                                <button aria-label="submit" onClick={() => modalStore.open('isPublishModalOpen')}>
                                                     {path.lastIndexOf('/write') > -1
                                                         ? '글 발행하기'
                                                         : '글 수정하기'}
@@ -232,7 +232,7 @@ export function TopNavigation() {
                                             </li>
                                         ) : (
                                             <li className={cn('get-start', 'outline')}>
-                                                <button onClick={() => router.push('/write')}>
+                                                <button aria-label="write" onClick={() => router.push('/write')}>
                                                     글 작성하기
                                                 </button>
                                             </li>
@@ -242,7 +242,7 @@ export function TopNavigation() {
                                                 position="left"
                                                 button={
                                                     <>
-                                                        <img src={getUserImage(auth.avatar)}/>
+                                                        <img alt={auth.username} src={getUserImage(auth.avatar)}/>
                                                         <i className="fas fa-sort-down"/>
                                                     </>
                                                 }
@@ -268,7 +268,7 @@ export function TopNavigation() {
                                     </>
                                 ) : (
                                     <li className={cn('get-start')}>
-                                        <button onClick={() => modalStore.open('isLoginModalOpen')}>
+                                        <button aria-label="get-start" onClick={() => modalStore.open('isLoginModalOpen')}>
                                             블로그 시작
                                         </button>
                                     </li>

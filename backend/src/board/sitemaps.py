@@ -1,20 +1,19 @@
 from django.contrib.sitemaps import Sitemap
-from django.core.cache import cache
-from django.core.paginator import Paginator
 from django.urls import reverse
-from itertools import chain
 
-from board.models import Post, Series, Profile
+from board.models import Post, Profile
+
 
 class StaticSitemap(Sitemap):
     changefreq = 'daily'
     priority = 1.0
-    
+
     def items(self):
-        return ('', '/newest', '/tags', '/map')
-    
+        return '', '/newest', '/tags', '/map'
+
     def location(self, item):
         return str(item)
+
 
 class PostsSitemap(Sitemap):
     changefreq = 'weekly'
@@ -22,9 +21,10 @@ class PostsSitemap(Sitemap):
 
     def items(self):
         return Post.objects.filter(config__hide=False).order_by('-updated_date')
-    
+
     def lastmod(self, element):
         return element.updated_date
+
 
 class UserSitemap(Sitemap):
     changefreq = 'weekly'
@@ -42,9 +42,10 @@ class UserSitemap(Sitemap):
                 # reverse('user_profile_posts', args=[user]),
             ]
         return user_site
-    
+
     def location(self, item):
         return str(item)
+
 
 sitemaps = {
     'static_sitemap': StaticSitemap,

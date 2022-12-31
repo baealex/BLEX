@@ -1,8 +1,6 @@
 import os
 import sys
 import django
-import time
-import json
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -10,7 +8,6 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-from django.conf import settings
 from django.contrib.auth.models import User
 
 if __name__ == '__main__':

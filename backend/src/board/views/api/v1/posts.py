@@ -1,103 +1,37 @@
 import datetime
-import random
-import traceback
 
 from django.conf import settings
-from django.core.cache import cache
 from django.db.models import (
-    F, Q, Case, Exists, When,
+    F, Case, Exists, When,
     Value, OuterRef, Count)
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.text import slugify
-from django.utils.timesince import timesince
 
 from board.models import (
     User, Comment, Referer, PostAnalytics, Series,
     TempPosts, Post, PostContent, PostConfig,
-    PostLikes, PostThanks, PostNoThanks, calc_read_time, convert_to_localtime)
+    PostLikes, PostThanks, PostNoThanks, calc_read_time)
 from board.modules.analytics import create_history, get_network_addr, view_count
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
-from modules.markdown import parse_to_html, ParseData
+from board.modules.time import convert_to_localtime
+from modules import markdown
 from modules.randomness import randstr
 from modules.subtask import sub_task_manager
 from modules.discord import Discord
 
-def temp_posts(request, token=None):
-    if not request.user.is_active:
-        return StatusError('NL')
-    
-    if not token:
-        if request.GET.get('get') == 'list':
-            temps = TempPosts.objects.filter(author=request.user)
-            return StatusDone({
-                'temps': list(map(lambda temp: {
-                    'token': temp.token,
-                    'title': temp.title,
-                    'created_date': temp.time_since()
-                }, temps)),
-            })
 
-        if request.method == 'POST':
-            temps = TempPosts.objects.filter(author=request.user).count()
-            if temps >= 100:
-                return StatusError('OF')
-            
-            body = QueryDict(request.body)
-
-            token = randstr(25)
-            has_token = TempPosts.objects.filter(token=token, author=request.user)
-            while len(has_token) > 0:
-                token = randstr(25)
-                has_token = TempPosts.objects.filter(token=token, author=request.user)
-            
-            temp_posts = TempPosts(token=token, author=request.user)
-            temp_posts.title = body.get('title')
-            temp_posts.text_md = body.get('text_md')
-            temp_posts.save()
-
-            return StatusDone({
-                'token': token
-            })
-    
-    if token:
-        if request.method == 'GET':
-            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-            return StatusDone({
-                'token': temp_posts.token,
-                'title': temp_posts.title,
-                'text_md': temp_posts.text_md,
-                'tags': [],
-                'created_date': timesince(temp_posts.created_date),
-            })
-        
-        if request.method == 'PUT':
-            body = QueryDict(request.body)
-            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-            temp_posts.title = body.get('title')
-            temp_posts.text_md = body.get('text_md')
-            temp_posts.updated_date = timezone.now()
-            temp_posts.save()
-            return StatusDone()
-        
-        if request.method == 'DELETE':
-            temp_posts = get_object_or_404(TempPosts, token=token, author=request.user)
-            temp_posts.delete()
-            return StatusDone()
-
-    raise Http404
-
-def posts(request):
+def post_list(request):
     if request.method == 'POST':
         if not request.user.is_active:
             return StatusError('NL')
 
         text_md = request.POST.get('text_md', '')
-        text_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
+        text_html = markdown.parse_to_html(settings.SITE_URL, markdown.ParseData.from_dict({
             'text': text_md,
             'token': settings.API_KEY,
         }))
@@ -114,30 +48,21 @@ def posts(request):
         )
         if series.exists():
             post.series = series.first()
-        
+
         try:
             post.image = request.FILES['image']
         except:
             pass
-        
-        post.tag = ''
+
         post.url = slugify(post.title, allow_unicode=True)
-        if post.url == '':
-            post.url = randstr(15)
-        
-        i = 10
-        while True:
-            try:
-                post.save()
-                post.set_tags(request.POST.get('tag', ''))
-                break
-            except:
-                if i > 10:
-                    traceback.print_exc()
-                    return StatusError('TO', '일시적으로 오류가 발생했습니다.')
-                post.url = slugify(f'{post.title}-{randstr(8)}', allow_unicode=True)
-                i += 1
-        
+        has_url = Post.objects.filter(url=post.url).exists()
+        while has_url:
+            post.url = slugify(post.title, allow_unicode=True) + '-' + randstr(8)
+            has_url = Post.objects.filter(url=post.url).exists()
+        post.save()
+
+        post.set_tags(request.POST.get('tag', ''))
+
         post_content = PostContent(posts=post)
         post_content.text_md = text_md
         post_content.text_html = text_html
@@ -155,6 +80,7 @@ def posts(request):
                     url=settings.DISCORD_NEW_POSTS_WEBHOOK,
                     content=f'[새 글이 발행되었어요!]({post_url})'
                 )
+
             sub_task_manager.append(func)
 
         token = request.POST.get('token')
@@ -169,9 +95,10 @@ def posts(request):
 
     raise Http404
 
-def popular_posts(request):
+
+def popular_post_list(request):
     if request.method == 'GET':
-        one_month_ago  = timezone.now() - datetime.timedelta(days=30)
+        one_month_ago = timezone.now() - datetime.timedelta(days=30)
 
         posts = Post.objects.select_related(
             'config', 'content'
@@ -201,7 +128,7 @@ def popular_posts(request):
                 distinct=True
             ),
             point=(F('thanks_count') - F('nothanks_count'))
-            
+
         ).order_by('-point', '-created_date')
 
         posts = Paginator(
@@ -224,7 +151,8 @@ def popular_posts(request):
             'last_page': posts.paginator.num_pages
         })
 
-def newest_posts(request):
+
+def newest_post_list(request):
     if request.method == 'GET':
         posts = Post.objects.select_related(
             'config', 'content'
@@ -257,8 +185,9 @@ def newest_posts(request):
             'last_page': posts.paginator.num_pages
         })
 
-def liked_posts(request):
-    if not request.user:
+
+def liked_post_list(request):
+    if not request.user.id:
         raise Http404
 
     if request.method == 'GET':
@@ -295,14 +224,15 @@ def liked_posts(request):
             'last_page': posts.paginator.num_pages
         })
 
-def feature_posts(request, tag=None):
-    if not tag:
+
+def feature_post_list(request):
+    if request.method == 'GET':
         username = request.GET.get('username', '')
         if '@' in username:
             username = username.replace('@', '')
         if not username:
             raise Http404('require username.')
-        
+
         posts = Post.objects.select_related(
             'config'
         ).filter(
@@ -330,35 +260,10 @@ def feature_posts(request, tag=None):
             }, posts))
         })
 
-    if tag:
-        posts = Post.objects.select_related(
-            'config'
-        ).filter(
-            created_date__lte=timezone.now(),
-            tags__value=tag,
-            config__hide=False,
-        ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar')
-        )
-        exclude = request.GET.get('exclude', '')
-        if exclude:
-            posts = posts.exclude(url=exclude)
-        posts = posts.order_by('?')[:3]
-        return StatusDone({
-            'posts': list(map(lambda post: {
-                'url': post.url,
-                'title': post.title,
-                'image': str(post.image),
-                'read_time': post.read_time,
-                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author_image,
-                'author': post.author_username,
-                'is_ad': post.advertise,
-            }, posts))
-        })
+    raise Http404
 
-def posts_comments(request, url):
+
+def post_comment_list(request, url):
     if request.method == 'GET':
         comments = Comment.objects.select_related(
             'author',
@@ -378,7 +283,7 @@ def posts_comments(request, url):
                 default=Value(False),
             )
         ).filter(post__url=url).order_by('created_date')
-        
+
         return StatusDone({
             'comments': list(map(lambda comment: {
                 'pk': comment.pk,
@@ -392,15 +297,16 @@ def posts_comments(request, url):
             }, comments))
         })
 
-def posts_analytics(request, url):
+
+def post_analytics(request, url):
     post = get_object_or_404(Post, url=url)
     if request.method == 'GET':
         if request.user != post.author:
             raise Http404
-        
-        seven_days_ago  = timezone.now() - datetime.timedelta(days=7)
-        
-        posts_analytics = PostAnalytics.objects.values(
+
+        seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+
+        posts_views = PostAnalytics.objects.values(
             'created_date'
         ).filter(
             posts__id=post.pk,
@@ -413,8 +319,8 @@ def posts_analytics(request, url):
         for i in range(7):
             key = str(convert_to_localtime(timezone.now() - datetime.timedelta(days=i)))[:10]
             date_dict[key] = 0
-        
-        for item in posts_analytics:
+
+        for item in posts_views:
             key = str(item['created_date'])[:10]
             date_dict[key] = item['table_count']
 
@@ -449,8 +355,9 @@ def posts_analytics(request, url):
         time = request.POST.get('time', '')
 
         view_count(post, request, ip, user_agent, referer)
-        
+
         return StatusDone()
+
 
 def user_posts(request, username, url=None):
     if not url:
@@ -470,7 +377,7 @@ def user_posts(request, username, url=None):
             if tag:
                 posts = posts.filter(tags__value=tag)
             posts = posts.order_by('-created_date')
-            
+
             posts = Paginator(
                 objects=posts,
                 offset=10,
@@ -520,7 +427,7 @@ def user_posts(request, username, url=None):
             if request.GET.get('mode') == 'view':
                 if post.config.hide and request.user != post.author:
                     raise Http404
-                
+
                 return StatusDone({
                     'url': post.url,
                     'title': post.title,
@@ -546,7 +453,7 @@ def user_posts(request, username, url=None):
                 raise Http404
 
             text_md = request.POST.get('text_md', '')
-            text_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
+            text_html = markdown.parse_to_html(settings.SITE_URL, markdown.ParseData.from_dict({
                 'text': text_md,
                 'token': settings.API_KEY,
             }))
@@ -565,17 +472,17 @@ def user_posts(request, username, url=None):
                 )
                 if series.exists():
                     post.series = series.first()
-            
+
             try:
                 post.image = request.FILES['image']
             except:
                 pass
-            
+
             post_content = post.content
             post_content.text_md = request.POST.get('text_md', '')
             post_content.text_html = text_html
             post_content.save()
-            
+
             post_config = post.config
             post_config.hide = BooleanType(request.POST.get('is_hide', ''))
             post_config.advertise = BooleanType(request.POST.get('is_advertise', ''))
@@ -605,14 +512,14 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })
-            
+
             if request.GET.get('thanks', ''):
                 if request.user == post.author:
                     return StatusError('SU')
                 user_addr = get_network_addr(request)
                 user_agent = request.META['HTTP_USER_AGENT']
                 history = create_history(user_addr, user_agent)
-                
+
                 post_nothanks = post.nothanks.filter(history=history)
                 if post_nothanks.exists():
                     post_nothanks.delete()
@@ -622,7 +529,7 @@ def user_posts(request, username, url=None):
                     PostThanks(post=post, history=history).save()
 
                 return StatusDone()
-            
+
             if request.GET.get('nothanks', ''):
                 if request.user == post.author:
                     return StatusError('SU')
@@ -637,19 +544,19 @@ def user_posts(request, username, url=None):
                 post_nothanks = post.nothanks.filter(history=history)
                 if not post_nothanks.exists():
                     PostNoThanks(post=post, history=history).save()
-                
+
                 return StatusDone()
-            
+
             if request.GET.get('hide', ''):
                 if not request.user == post.author:
                     raise Http404
-                
+
                 post.config.hide = not post.config.hide
                 post.config.save()
                 return StatusDone({
                     'is_hide': post.config.hide
                 })
-            
+
             if request.GET.get('tag', ''):
                 if not request.user == post.author:
                     raise Http404
@@ -657,18 +564,18 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'tag': ','.join(post.tagging())
                 })
-            
+
             if request.GET.get('series', ''):
                 if not request.user == post.author:
                     raise Http404
                 post.series = None
                 post.save()
                 return StatusDone()
-        
+
         if request.method == 'DELETE':
             if not request.user == post.author:
                 raise Http404
             post.delete()
             return StatusDone()
-    
+
     raise Http404

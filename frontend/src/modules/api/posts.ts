@@ -13,7 +13,7 @@ export interface GetTempPostsResponseData {
 
 export async function getTempPosts() {
     return await request<GetTempPostsResponseData>({
-        url: '/v1/posts/temp?get=list',
+        url: '/v1/temp-posts',
         method: 'GET'
     });
 }
@@ -24,7 +24,7 @@ export interface PostTempPostsResponseData {
 
 export async function postTempPosts(title: string, text_md: string, tag: string) {
     return await request<PostTempPostsResponseData>({
-        url: '/v1/posts/temp',
+        url: '/v1/temp-posts',
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject({
@@ -45,14 +45,14 @@ export interface GetAnTempPostsResponseData {
 
 export async function getAnTempPosts(token: string) {
     return await request<GetAnTempPostsResponseData>({
-        url: `/v1/posts/temp/${token}`,
+        url: `/v1/temp-posts/${token}`,
         method: 'GET'
     });
 }
 
 export async function putTempPosts(token: string, title: string, text_md: string, tag: string) {
     return await request<unknown>({
-        url: `/v1/posts/temp/${token}`,
+        url: `/v1/temp-posts/${token}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject({
@@ -65,7 +65,7 @@ export async function putTempPosts(token: string, title: string, text_md: string
 
 export async function deleteTempPosts(token: string) {
     return await request<unknown>({
-        url: `/v1/posts/temp/${token}`,
+        url: `/v1/temp-posts/${token}`,
         method: 'DELETE',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });

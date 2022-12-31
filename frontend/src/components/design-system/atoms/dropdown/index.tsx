@@ -47,7 +47,7 @@ export function Dropdown(props: DropdownProps) {
 
     return (
         <div onClick={() => setIsOpen((prevIsOpen) => !prevIsOpen)}>
-            <button ref={toggle} className={cn('button')}>
+            <button ref={toggle} aria-label="toggle" className={cn('button')}>
                 {props.button}
             </button>
             <div className={cn('box')} ref={box}>

@@ -9,8 +9,6 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-from django.conf import settings
-
 from board.models import *
 
 posts = Post.objects.all()

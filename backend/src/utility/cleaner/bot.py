@@ -9,10 +9,8 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-from django.conf import settings
-
 from board.models import *
-from board.modules.analytics import NONE_HUMANS, BOT_TYPES, bot_check
+from board.modules.analytics import NONE_HUMANS, bot_check
 
 if __name__ == '__main__':
     humans = History.objects.exclude(category__contains='bot')

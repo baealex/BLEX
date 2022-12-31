@@ -3,8 +3,8 @@ import datetime
 from django.conf import settings
 from django.utils import timezone
 
-from board.models import (
-    History, PostAnalytics, Referer, RefererFrom, convert_to_localtime)
+from board.models import History, PostAnalytics, Referer, RefererFrom
+from board.modules.time import convert_to_localtime
 from modules.subtask import sub_task_manager
 from modules.scrap import page_parser
 from modules.hash import get_sha256
