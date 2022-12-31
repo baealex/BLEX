@@ -37,7 +37,7 @@ export function DayNight() {
     }, [isNight]);
 
     return (
-        <aside role="button" className={cn('box')} onClick={() => setIsNight(prev => !prev)}>
+        <aside role="button" aria-label="theme-switch" className={cn('box')} onClick={() => setIsNight(prev => !prev)}>
             <div
                 className={cn('ball', { isNight })}
             />

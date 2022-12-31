@@ -59,6 +59,7 @@ export function ArticleCard(props: ArticleCardProps) {
                             <a>
                                 <img
                                     className={cn('image', 'lazy')}
+                                    alt={props.title}
                                     src={getPostsImage(props.image, { preview: true })}
                                     data-src={getPostsImage(props.image, { minify: true })}
                                 />
@@ -100,6 +101,7 @@ export function ArticleCard(props: ArticleCardProps) {
                                         <a>
                                             <img
                                                 className={cn('author-image')}
+                                                alt={props.author}
                                                 src={getUserImage(props.authorImage || '')}
                                                 width="35"
                                                 height="35"

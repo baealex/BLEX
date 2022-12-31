@@ -8,7 +8,7 @@ import * as API from '~/modules/api';
 interface Props {
     isOpen: boolean;
     onClose: () => void;
-    forms?: API.GetSettingFormsResponseData['forms'];
+    forms?: API.GetUserFormsResponseData['forms'];
     onFetch: (id: number) => void;
 }
 

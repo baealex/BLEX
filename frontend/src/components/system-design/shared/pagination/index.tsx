@@ -2,8 +2,8 @@ import classNames from 'classnames/bind';
 import styles from './Pagination.module.scss';
 const cn = classNames.bind(styles);
 
-import React, { useState } from 'react';
 import Link from 'next/link';
+import React from 'react';
 
 import { useRouter } from 'next/router';
 
@@ -40,13 +40,6 @@ export function Pagination(props: Props) {
         }
     }
 
-    const [ inputPage, setInputPage ] = useState('');
-
-    const getPageRange = (num: number) => {
-        if (num < 1)    return 1;
-        if (num > last) return last;
-        return num;
-    };
 
     const gotoPage = (num: number) => {
         const visibleQueries = [
@@ -82,6 +75,12 @@ export function Pagination(props: Props) {
         };
     };
 
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const { value } = (e.target as HTMLFormElement).page as HTMLInputElement;
+        router.push(gotoPage(Number(value)).as);
+    };
+
     return (
         <>
             <nav className={cn('nav')}>
@@ -91,14 +90,14 @@ export function Pagination(props: Props) {
                             <div className={cn('item')}>
                                 <Link {...gotoPage(page - 1)}>
                                     <a className={cn('link')}>
-                                        <i className="fas fa-arrow-left"></i>
+                                        <i role="button" aria-label="prev-page" className="fas fa-arrow-left"></i>
                                     </a>
                                 </Link>
                             </div>
                             <div className={cn('item')}>
                                 <Link {...gotoPage(1)}>
                                     <a className={cn('link')}>
-                                        <i className="fa fa-angle-double-left"></i>
+                                        <i role="button" aria-label="first-page" className="fa fa-angle-double-left"></i>
                                     </a>
                                 </Link>
                             </div>
@@ -107,12 +106,12 @@ export function Pagination(props: Props) {
                         <>
                             <div className={cn('item', 'disabled')}>
                                 <a className={cn('link')}>
-                                    <i className="fas fa-arrow-left"></i>
+                                    <i role="button" aria-label="prev-page" className="fas fa-arrow-left"></i>
                                 </a>
                             </div>
                             <div className={cn('item', 'disabled')}>
                                 <a className={cn('link')}>
-                                    <i className="fa fa-angle-double-left"></i>
+                                    <i role="button" aria-label="first-page" className="fa fa-angle-double-left"></i>
                                 </a>
                             </div>
                         </>
@@ -133,14 +132,14 @@ export function Pagination(props: Props) {
                             <div className={cn('item')}>
                                 <Link {...gotoPage(last)}>
                                     <a className={cn('link')}>
-                                        <i className="fa fa-angle-double-right"></i>
+                                        <i role="button" aria-label="last-page" className="fa fa-angle-double-right"></i>
                                     </a>
                                 </Link>
                             </div>
                             <div className={cn('item')}>
                                 <Link {...gotoPage(page + 1)}>
                                     <a className={cn('link')}>
-                                        <i className="fas fa-arrow-right"></i>
+                                        <i role="button" aria-label="next-page" className="fas fa-arrow-right"></i>
                                     </a>
                                 </Link>
                             </div>
@@ -149,40 +148,35 @@ export function Pagination(props: Props) {
                         <>
                             <div className={cn('item', 'disabled')}>
                                 <a className={cn('link')}>
-                                    <i className="fa fa-angle-double-right"></i>
+                                    <i role="button" aria-label="last-page" className="fa fa-angle-double-right"></i>
                                 </a>
                             </div>
                             <div className={cn('item', 'disabled')}>
                                 <a className={cn('link')}>
-                                    <i className="fas fa-arrow-right"></i>
+                                    <i role="button" aria-label="next-page" className="fas fa-arrow-right"></i>
                                 </a>
                             </div>
                         </>
                     )}
                 </div>
-                <div className={`${cn('search')}`}>
-                    <span className="vs shallow-dark mr-2">
-                        Go to page
-                    </span>
-                    <input
-                        className={cn('num')}
-                        type="number"
-                        min={1}
-                        max={last}
-                        value={inputPage}
-                        onKeyPress={(e) => {
-                            if (e.key == 'Enter') {
-                                router.push(gotoPage(getPageRange(Number(inputPage))).href);
-                            }
-                        }}
-                        onChange={(e) => setInputPage(getPageRange(parseInt(e.target.value)).toString())}
-                    />
-                    <Link {...gotoPage(inputPage === '' ? page : Number(inputPage))}>
-                        <button className={`${cn('go')} shallow-dark`}>
-                            Go <i className="fas fa-chevron-right"></i>
-                        </button>
-                    </Link>
-                </div>
+                <form className={`${cn('search')}`} onSubmit={handleSubmit}>
+                    <label className="d-flex align-items-center">
+                        <span className="vs shallow-dark">
+                            Go to page
+                        </span>
+                        <input
+                            name="page"
+                            className={cn('num', 'ml-2')}
+                            type="number"
+                            min={1}
+                            max={last}
+                            defaultValue={page}
+                        />
+                    </label>
+                    <button type="submit" aria-label="go-page" className={`${cn('go')} shallow-dark`}>
+                        Go <i className="fas fa-chevron-right"></i>
+                    </button>
+                </form>
             </nav>
         </>
     );

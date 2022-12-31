@@ -11,16 +11,10 @@ import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
-interface Props {
-    forms: {
-        id: number;
-        title: string;
-        createdDate: string;
-    }[];
-}
+type Props = API.GetUserFormsResponseData;
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-    const { data } = await API.getSettingForms({ 'Cookie': req.headers.cookie || '' });
+    const { data } = await API.getUserForms({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {
         return {

@@ -1,8 +1,25 @@
 import request, { serializeObject } from './request';
+import type { Headers } from './request';
 
 export interface UserFormModel {
     title: string;
     content: string;
+}
+
+export interface GetUserFormsResponseData {
+    forms: {
+        id: number;
+        title: string;
+        content: string;
+    }[];
+}
+
+export async function getUserForms(headers?: Headers) {
+    return await request<GetUserFormsResponseData>({
+        url: '/v1/forms',
+        method: 'GET',
+        headers
+    });
 }
 
 export interface CreateUserFormResponseData {
