@@ -1,24 +1,21 @@
-import time
 import datetime
 
 from django.contrib import auth
 from django.db.models import (
     Q, F, Count, Case, When, Sum)
-from django.http import JsonResponse, Http404, QueryDict
+from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.utils.html import strip_tags
-from django.utils.timesince import timesince
 
 from board.models import (
-    User, RefererFrom, Series,
-    Post, PostAnalytics, Form,
-    Profile, Notify, convert_to_localtime)
+    User, RefererFrom, Series, Post,
+    PostAnalytics, Form, Profile, Notify)
 from board.modules.paginator import Paginator
-from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
+from board.modules.time import convert_to_localtime
 
-def setting(request, item):
+
+def setting(request, parameter):
     if not request.user.is_active:
         return StatusError('NL')
 
@@ -28,9 +25,12 @@ def setting(request, item):
     )
     
     if request.method == 'GET':
-        if item == 'notify':
+        if parameter == 'notify':
             seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-            notify = Notify.objects.filter(user=user).filter(Q(created_date__gt=seven_days_ago) | Q(is_read=False)).order_by('-created_date')
+            notify = Notify.objects.filter(user=user).filter(
+                Q(created_date__gt=seven_days_ago) |
+                Q(is_read=False)
+            ).order_by('-created_date')
             
             return StatusDone({
                 'notify': list(map(lambda item: {
@@ -43,7 +43,7 @@ def setting(request, item):
                 'is_telegram_sync': request.user.config.has_telegram_id()
             })
         
-        if item == 'account':
+        if parameter == 'account':
             return StatusDone({
                 'username': user.username,
                 'name': user.first_name,
@@ -53,7 +53,7 @@ def setting(request, item):
                 'agree_send_email': user.config.get_meta('AGREE_SEND_EMAIL')
             })
         
-        if item == 'profile':
+        if parameter == 'profile':
             profile = Profile.objects.get(user=user)
             return StatusDone({
                 'avatar': profile.get_thumbnail(),
@@ -66,7 +66,7 @@ def setting(request, item):
                 'instagram': profile.instagram
             })
         
-        if item == 'posts':
+        if parameter == 'posts':
             posts = Post.objects.select_related(
                 'config'
             ).filter(
@@ -103,11 +103,8 @@ def setting(request, item):
                     posts = posts.annotate(total_like_count=Count('likes', distinct=True))
                 if 'total_comment_count' in order:
                     posts = posts.annotate(total_comment_count=Count('comments', distinct=True))
-                
-                try:
-                    posts = posts.order_by(order)
-                except:
-                    pass
+
+                posts = posts.order_by(order)
 
             posts = Paginator(
                 objects=posts,
@@ -132,22 +129,22 @@ def setting(request, item):
                 'last_page': posts.paginator.num_pages,
             })
         
-        if item == 'series':
-            series = Series.objects.filter(
+        if parameter == 'series':
+            series_items = Series.objects.filter(
                 owner=user
             ).annotate(
                 total_posts=Count('posts')
             ).order_by('order', '-id')
             return StatusDone({
                 'username': user.username,
-                'series': list(map(lambda item: {
-                    'url': item.url,
-                    'title': item.name,
-                    'total_posts': item.total_posts
-                }, series))
+                'series': list(map(lambda series_item: {
+                    'url': series_item.url,
+                    'title': series_item.name,
+                    'total_posts': series_item.total_posts
+                }, series_items))
             })
         
-        if item == 'analytics-posts-view':
+        if parameter == 'analytics-posts-view':
             posts = Post.objects.filter(author=user).annotate(
                 author_username=F('author__username'),
                 today_count=Count(
@@ -179,7 +176,7 @@ def setting(request, item):
                 }, posts))
             })
 
-        if item == 'analytics-view':
+        if parameter == 'analytics-view':
             seven_days_ago = convert_to_localtime(timezone.now() - datetime.timedelta(days=30))
 
             posts_analytics = PostAnalytics.objects.values(
@@ -215,7 +212,7 @@ def setting(request, item):
                 'total': total if total else 0
             })
         
-        if item == 'analytics-referer':
+        if parameter == 'analytics-referer':
             a_month_ago = timezone.now() - datetime.timedelta(days=7)
 
             referers = RefererFrom.objects.filter(
@@ -249,7 +246,7 @@ def setting(request, item):
                 }, referers))
             })
         
-        if item == 'analytics-search':
+        if parameter == 'analytics-search':
             a_month_ago = timezone.now() - datetime.timedelta(days=30)
 
             referers = RefererFrom.objects.filter(
@@ -341,15 +338,15 @@ def setting(request, item):
                         lambda x: x[1] != 0,
                         platform_total.items()
                     ),
-                    key=lambda x : x[1],
+                    key=lambda x: x[1],
                     reverse=True
                 )
             )
 
             top_searches = []
 
-            for item in sorted(search_counter.items(), key=lambda x : x[1], reverse=True)[:10]:
-                [ keyword, platform ] = item[0].split(' - ')
+            for item in sorted(search_counter.items(), key=lambda x: x[1], reverse=True)[:10]:
+                [keyword, platform] = item[0].split(' - ')
                 top_searches.append({
                     'keyword': keyword,
                     'platform': platform,
@@ -360,19 +357,9 @@ def setting(request, item):
                 'platform_total': platform_total,
                 'top_searches': top_searches,
             })
-        
-        if item == 'forms':
-            user_forms = Form.objects.filter(user=request.user)
-            return StatusDone({
-                'forms': list(map(lambda form: {
-                    'id': form.id,
-                    'title': form.title,
-                    'created_date': convert_to_localtime(form.created_date),
-                }, user_forms))
-            })
-     
+
     if request.method == 'POST':
-        if item == 'avatar':
+        if parameter == 'avatar':
             profile = Profile.objects.get(user=user)
             profile.avatar = request.FILES['avatar']
             profile.save()
@@ -383,14 +370,14 @@ def setting(request, item):
     if request.method == 'PUT':
         put = QueryDict(request.body)
 
-        if item == 'notify':
+        if parameter == 'notify':
             pk = put.get('pk')
             notify = Notify.objects.get(pk=pk)
             notify.is_read = True
             notify.save()
             return StatusDone()
         
-        if item == 'account':
+        if parameter == 'account':
             should_update = False
             name = put.get('name', '')
             password = put.get('password', '')
@@ -413,7 +400,7 @@ def setting(request, item):
 
             return StatusDone()
         
-        if item == 'profile':
+        if parameter == 'profile':
             profile = Profile.objects.get(user=user)
 
             req_data = dict()

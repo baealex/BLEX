@@ -2,16 +2,16 @@ import datetime
 import math
 import time
 
-from django.conf import settings
-from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.models import Post, Search, SearchValue, History, convert_to_localtime
+from board.models import Post, Search, SearchValue
 from board.modules.analytics import create_history, get_network_addr
 from board.modules.response import StatusDone, StatusError
+from board.modules.time import convert_to_localtime
+
 
 def search(request):
     if request.method == 'GET':
@@ -49,16 +49,16 @@ def search(request):
                 if search_word in post_title_lower:
                     score += 3
                     word_pos = post_title_lower.find(search_word)
-                    if word_pos == 0 or post_title_lower[word_pos-1] == ' ':
+                    if word_pos == 0 or post_title_lower[word_pos - 1] == ' ':
                         score += 2
-                
+
                 if search_word in post.content.text_md.lower():
                     score += 1
-                
+
                 if score > max_score:
                     max_score = score
                     save_search_word = search_word
-            
+
             if max_score > 0:
                 results.append((post, max_score, save_search_word))
         elapsed_time = round(time.time() - start_time, 3)
@@ -72,7 +72,7 @@ def search(request):
 
         if page > 1 and len(results) < 1:
             raise Http404
-        
+
         results = list(map(lambda x: {
             'post': x[0],
             'word': x[2],
@@ -96,7 +96,7 @@ def search(request):
             search_value=search_value,
             created_date__gt=recent,
         ).exists()
-        
+
         if not has_search:
             if request.user.id:
                 Search(
@@ -128,8 +128,9 @@ def search(request):
 
     raise Http404
 
-def search_history(request, pk=None):
-    if not pk:
+
+def search_history(request, id=None):
+    if not id:
         if request.method == 'GET':
             if request.user.id:
                 searches = Search.objects.filter(
@@ -149,12 +150,12 @@ def search_history(request, pk=None):
                 return StatusDone({
                     'searches': [],
                 })
-    
-    if pk:
+
+    if id:
         if request.method == 'DELETE':
-            search = get_object_or_404(Search, id=pk, user=request.user)
+            search = get_object_or_404(Search, id=id, user=request.user)
             search.user = None
             search.save()
             return StatusDone()
-    
+
     raise Http404

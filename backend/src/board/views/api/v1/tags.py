@@ -1,13 +1,12 @@
-
-from django.core.cache import cache
 from django.db.models import F, Count, Case, When
 from django.http import Http404
 from django.utils import timezone
 
-from board.models import Tag, Post, convert_to_localtime
+from board.models import Tag, Post
 from board.modules.response import StatusDone
 from board.modules.paginator import Paginator
-from modules.telegram import TelegramBot
+from board.modules.time import convert_to_localtime
+
 
 def tags(request, tag=None):
     if not tag:
@@ -37,7 +36,7 @@ def tags(request, tag=None):
                 }, tags)),
                 'last_page': tags.paginator.num_pages
             })
-    
+
     if tag:
         if request.method == 'GET':
             posts = Post.objects.select_related(
@@ -50,10 +49,10 @@ def tags(request, tag=None):
                 author_username=F('author__username'),
                 author_image=F('author__profile__avatar')
             ).order_by('-created_date')
-            
+
             if len(posts) == 0:
                 raise Http404()
-            
+
             posts = Paginator(
                 objects=posts,
                 offset=24,
@@ -70,7 +69,7 @@ def tags(request, tag=None):
                     author_username=F('author__username'),
                     author_image=F('author__profile__avatar'),
                 ).first()
-                
+
                 desc_object = {
                     'url': article.url,
                     'author': article.author_username,
@@ -79,7 +78,7 @@ def tags(request, tag=None):
                 }
             except:
                 pass
-            
+
             return StatusDone({
                 'tag': tag,
                 'desc': desc_object,
@@ -95,5 +94,5 @@ def tags(request, tag=None):
                     'author': post.author_username,
                 }, posts))
             })
-        
+
     raise Http404

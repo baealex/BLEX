@@ -1,7 +1,7 @@
 aniso8601==7.0.0
 asgiref==3.5.2
 backports.zoneinfo==0.2.1
-certifi==2022.6.15
+certifi==2022.12.7
 chardet==4.0.0
 charset-normalizer==2.0.12
 defusedxml==0.7.1

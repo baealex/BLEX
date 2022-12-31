@@ -12,6 +12,7 @@ from modules.hash import get_sha256
 from modules.randomness import randstr
 from modules.sysutil import make_path
 
+
 def image(request):
     if request.method == 'POST':
         if not request.user.is_active:

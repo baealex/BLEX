@@ -1,14 +1,16 @@
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 from django.views.generic import TemplateView
-from graphene_django.views import GraphQLView
+# from graphene_django.views import GraphQLView
 
 from board.sitemaps import sitemaps
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
 
+
 def empty():
     pass
+
 
 urlpatterns = [
     # Sitemap Generator
@@ -37,24 +39,23 @@ urlpatterns = [
     path('v1/auth/email-verify/<token>', api_v1.email_verify),
     path('v1/auth/security', api_v1.security),
     path('v1/auth/security/send', api_v1.security_send),
-    path('v1/setting/<item>', api_v1.setting),
+    path('v1/setting/<parameter>', api_v1.setting),
     path('v1/search', api_v1.search),
     path('v1/search/history', api_v1.search_history),
-    path('v1/search/history/<int:pk>', api_v1.search_history),
+    path('v1/search/history/<int:id>', api_v1.search_history),
     path('v1/tags', api_v1.tags),
     path('v1/tags/<tag>', api_v1.tags),
-    path('v1/posts', api_v1.posts),
-    path('v1/posts/popular', api_v1.popular_posts),
-    path('v1/posts/newest', api_v1.newest_posts),
-    path('v1/posts/liked', api_v1.liked_posts),
-    path('v1/posts/temp', api_v1.temp_posts),
-    path('v1/posts/temp/<token>', api_v1.temp_posts),
-    path('v1/posts/feature', api_v1.feature_posts),
-    path('v1/posts/feature/<tag>', api_v1.feature_posts),
-    path('v1/posts/<url>/comments', api_v1.posts_comments),
-    path('v1/posts/<url>/analytics', api_v1.posts_analytics),
-    path('v1/comments', api_v1.comment),
-    path('v1/comments/<int:pk>', api_v1.comment),
+    path('v1/posts', api_v1.post_list),
+    path('v1/posts/popular', api_v1.popular_post_list),
+    path('v1/posts/newest', api_v1.newest_post_list),
+    path('v1/posts/liked', api_v1.liked_post_list),
+    path('v1/posts/feature', api_v1.feature_post_list),
+    path('v1/posts/<url>/comments', api_v1.post_comment_list),
+    path('v1/posts/<url>/analytics', api_v1.post_analytics),
+    path('v1/temp-posts', api_v1.temp_posts_list),
+    path('v1/temp-posts/<token>', api_v1.temp_posts_detail),
+    path('v1/comments', api_v1.comment_list),
+    path('v1/comments/<int:id>', api_v1.comment_detail),
     path('v1/comments/user', api_v1.user_comment),
     path('v1/users/@<username>', api_v1.users),
     path('v1/users/@<username>/posts', api_v1.user_posts),
@@ -63,8 +64,8 @@ urlpatterns = [
     path('v1/users/@<username>/series/<url>', api_v1.user_series),
     path('v1/report/error', api_v1.error_report),
     path('v1/image', api_v1.image),
-    path('v1/forms', api_v1.forms),
-    path('v1/forms/<pk>', api_v1.forms),
+    path('v1/forms', api_v1.forms_list),
+    path('v1/forms/<int:id>', api_v1.forms_detail),
     path('v1/telegram/<parameter>', api_v1.telegram),
     # ------------------------------------------------------------ API V1 End
 ]

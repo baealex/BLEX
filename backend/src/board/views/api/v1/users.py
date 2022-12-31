@@ -2,7 +2,6 @@ import datetime
 
 from itertools import chain
 from django.conf import settings
-from django.core.cache import cache
 from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
@@ -10,9 +9,11 @@ from django.utils import timezone
 
 from board.models import (
     User, Post, Profile, Series,
-    Comment, Follow, Tag, convert_to_localtime, timestamp)
+    Comment, Follow, Tag)
 from board.modules.response import StatusDone, StatusError
+from board.modules.time import convert_to_localtime, time_stamp
 from modules.markdown import parse_to_html, ParseData
+
 
 def users(request, username):
     user = get_object_or_404(User, username=username)
@@ -42,7 +43,7 @@ def users(request, username):
                             following=user.profile
                         ).exists()
                     }
-                
+
                 elif include == 'social':
                     data[include] = user_profile.collect_social()
                     data[include]['username'] = user.username
@@ -70,7 +71,7 @@ def users(request, username):
 
                     heatmap = dict()
                     for element in activity:
-                        key = timestamp(element.created_date, kind='grass')[:10]
+                        key = time_stamp(element.created_date, kind='grass')[:10]
                         if key in heatmap:
                             heatmap[key] += 1
                         else:
@@ -92,12 +93,12 @@ def users(request, username):
                             )
                         )
                     ).order_by('-count')
-                    
+
                     data[include] = list(map(lambda tag: {
                         'name': tag.value,
                         'count': tag.count,
                     }, tags))
-                
+
                 elif include == 'most':
                     posts = Post.objects.filter(
                         author=user,
@@ -112,7 +113,7 @@ def users(request, username):
                         likes_count=Count('likes', distinct=True),
                         point=F('thanks_count') - F('nothanks_count') + (F('likes_count') * 1.5)
                     ).order_by('-point', '-created_date')[:6]
-                    
+
                     data[include] = list(map(lambda post: {
                         'url': post.url,
                         'title': post.title,
@@ -122,7 +123,7 @@ def users(request, username):
                         'author_image': post.author_image,
                         'author': post.author_username,
                     }, posts))
-                
+
                 elif include == 'recent':
                     seven_days_ago = timezone.now() - datetime.timedelta(days=7)
                     posts = Post.objects.filter(
@@ -142,7 +143,11 @@ def users(request, username):
                         author=user,
                         post__config__hide=False
                     ).order_by('-created_date')
-                    activity = sorted(chain(posts, series, comments), key=lambda instance: instance.created_date, reverse=True)
+                    activity = sorted(
+                        chain(posts, series, comments),
+                        key=lambda instance: instance.created_date,
+                        reverse=True
+                    )
                     data[include] = list()
                     for active in activity:
                         active_dict = dict()
@@ -164,18 +169,18 @@ def users(request, username):
                             }
                         active_dict['url'] = active.get_absolute_url()
                         data[include].append(active_dict)
-                
+
                 elif include == 'about':
                     data[include] = user_profile.about_html
-            
+
             return StatusDone(data)
 
         if not request.user.is_active:
             return StatusError('NL')
-        
+
         if not request.user == user:
             return StatusError('DU')
-        
+
         if request.GET.get('get') == 'about':
             return StatusDone({
                 'about_md': user.profile.about_md
@@ -188,7 +193,7 @@ def users(request, username):
                 return StatusError('NL')
             if request.user == user:
                 return StatusError('SU')
-            
+
             follower = User.objects.get(username=request.user)
             follow_query = Follow.objects.filter(
                 follower=follower,
@@ -196,11 +201,11 @@ def users(request, username):
             )
             if follow_query.exists():
                 follow_query.delete()
-                return StatusDone({ 'has_subscribe': False })
+                return StatusDone({'has_subscribe': False})
             else:
                 Follow(follower=follower, following=user.profile).save()
-                return StatusDone({ 'has_subscribe': True })
-        
+                return StatusDone({'has_subscribe': True})
+
         if put.get('about'):
             if not request.user == user:
                 return StatusError('DU')
@@ -218,6 +223,6 @@ def users(request, username):
                 profile.about_md = about_md
                 profile.about_html = about_html
                 profile.save()
-            
+
             return StatusDone()
     raise Http404

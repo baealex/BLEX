@@ -1,11 +1,7 @@
 import os
-import re
 import sys
 import time
 import django
-import datetime
-
-from itertools import chain
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

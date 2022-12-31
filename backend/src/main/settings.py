@@ -1,15 +1,19 @@
 import os
+import sys
+import django
+
+from django.utils.encoding import force_str
+
+# NOTE: Monkey patching for GraphQL in Django 4
+django.utils.encoding.force_text = force_str
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# NOTE: Monkey patching for GraphQL in Django 4
-import django
-from django.utils.encoding import force_str
-django.utils.encoding.force_text = force_str
+SECRET_KEY = 'FOR_YOUR_BLEX'
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+DEBUG = True
 
-DEBUG = os.environ.get('DEBUG') == 'TRUE'
+TESTING = sys.argv[1:2] == ['test']
 
 ALLOWED_HOSTS = ['*']
 
@@ -48,16 +52,16 @@ MIDDLEWARE = [
 if not DEBUG:
     MIDDLEWARE.append('main.middleware.AccessAdminOnlyStaff')
 
-if DEBUG:
+if DEBUG and not TESTING:
     MIDDLEWARE.append('main.middleware.QueryDebugger')
 
 CORS_ALLOWED_ORIGINS = [
-    os.environ.get('SITE_URL'),
+    'http://localhost:3000',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN')
+SESSION_COOKIE_DOMAIN = 'localhost'
 
 ROOT_URLCONF = 'main.urls'
 
@@ -107,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ko'
 
-TIME_ZONE = os.environ.get('TZ')
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -119,13 +123,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-SITE_URL = os.environ.get('SITE_URL')
-API_KEY = os.environ.get('API_KEY')
+SITE_URL = 'http://localhost:3000'
+API_KEY = 'organic_diget_ball'
 
-STATIC_URL = os.environ.get('STATIC_URL') + '/assets/'
+STATIC_URL = 'https://static.blex.me/assets/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
 
-MEDIA_URL = os.environ.get('STATIC_URL') + '/'
+MEDIA_URL = 'https://static.blex.me/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
 
 
