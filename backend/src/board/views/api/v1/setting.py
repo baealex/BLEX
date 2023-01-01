@@ -163,7 +163,7 @@ def setting(request, parameter):
                         )
                     )
                 )
-            ).order_by('-today_count', '-created_date')[:8]
+            ).order_by('-today_count', '-yesterday_count,' '-created_date')[:8]
 
             return StatusDone({
                 'posts': list(map(lambda item: {
