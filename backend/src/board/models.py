@@ -371,28 +371,20 @@ class Post(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        should_make_thumbnail = False
-
-        if not self.id and self.image:
-            should_make_thumbnail = True
-        elif self.id:
+        will_make_thumbnail = False
+        if not self.pk and self.image:
+            will_make_thumbnail = True
+        try:
             this = Post.objects.get(id=self.id)
             if this.image != self.image:
                 this.image.delete(save=False)
-                should_make_thumbnail = True
-
-        if should_make_thumbnail:
+                will_make_thumbnail = True
+        except:
+            pass
+        super(Post, self).save(*args, **kwargs)
+        if will_make_thumbnail:
             make_thumbnail(self, size=750, save_as=True, quality=85)
             make_thumbnail(self, size=1920, quality=85)
-
-            # make preview image
-            image_path = 'static/' + str(self.image)
-            preview_path = image_path + '.preview.jpg'
-            convert_image = Image.open(image_path).convert('RGB')
-            preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
-            preview_image.save(preview_path, quality=50)
-
-        super(Post, self).save(*args, **kwargs)
 
 
 class PostContent(models.Model):
