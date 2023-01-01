@@ -70,7 +70,7 @@ def search(request):
         last_page = math.ceil(total_size / limit)
         results = results[(page - 1) * limit:page * limit]
 
-        if page > 1 and len(results) < 1:
+        if page > 1 > len(results):
             raise Http404
 
         results = list(map(lambda x: {
@@ -82,19 +82,12 @@ def search(request):
         user_agent = request.META['HTTP_USER_AGENT']
         history = create_history(user_addr, user_agent)
 
-        search_value = None
-        try:
-            search_value = SearchValue.objects.get(value=query)
-        except:
-            search_value = SearchValue(value=query)
-            search_value.save()
-            search_value.refresh_from_db()
-
-        recent = timezone.now() - datetime.timedelta(hours=6)
+        search_value, search_value_created = SearchValue.objects.get_or_create(value=query)
+        six_hours_ago = timezone.now() - datetime.timedelta(hours=6)
         has_search = Search.objects.filter(
             searcher=history,
             search_value=search_value,
-            created_date__gt=recent,
+            created_date__gt=six_hours_ago,
         ).exists()
 
         if not has_search:
@@ -129,33 +122,36 @@ def search(request):
     raise Http404
 
 
-def search_history(request, id=None):
-    if not id:
-        if request.method == 'GET':
-            if request.user.id:
-                searches = Search.objects.filter(
-                    user=request.user.id
-                ).annotate(
-                    value=F('search_value__value')
-                ).order_by('-created_date')[:10]
+def search_history_list(request):
+    if request.method == 'GET':
+        if request.user.id:
+            searches = Search.objects.filter(
+                user=request.user.id
+            ).annotate(
+                value=F('search_value__value')
+            ).order_by('-created_date')[:10]
 
-                return StatusDone({
-                    'searches': list(map(lambda search: {
-                        'pk': search.id,
-                        'value': search.value,
-                        'created_date': convert_to_localtime(search.created_date).strftime('%Y. %m. %d.'),
-                    }, searches))
-                })
-            else:
-                return StatusDone({
-                    'searches': [],
-                })
+            return StatusDone({
+                'searches': list(map(lambda item: {
+                    'pk': item.id,
+                    'value': item.value,
+                    'created_date': convert_to_localtime(item.created_date).strftime('%Y. %m. %d.'),
+                }, searches))
+            })
+        else:
+            return StatusDone({
+                'searches': [],
+            })
 
-    if id:
-        if request.method == 'DELETE':
-            search = get_object_or_404(Search, id=id, user=request.user)
-            search.user = None
-            search.save()
+    raise Http404
+
+
+def search_history_detail(request, item_id: int):
+    if request.method == 'DELETE':
+        if request.user.id:
+            search_item = get_object_or_404(Search, id=item_id, user=request.user.id)
+            search_item.user = None
+            search_item.save()
             return StatusDone()
 
     raise Http404
