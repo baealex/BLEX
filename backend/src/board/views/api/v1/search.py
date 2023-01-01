@@ -83,25 +83,30 @@ def search(request):
         history = create_history(user_addr, user_agent)
 
         search_value, search_value_created = SearchValue.objects.get_or_create(value=query)
+
         six_hours_ago = timezone.now() - datetime.timedelta(hours=6)
-        has_search = Search.objects.filter(
+        has_search_query = Search.objects.filter(
             searcher=history,
             search_value=search_value,
             created_date__gt=six_hours_ago,
-        ).exists()
+        )
 
-        if not has_search:
-            if request.user.id:
-                Search(
+        if request.user.id:
+            has_search_query = has_search_query.filter(
+                user=request.user,
+            )
+            if not has_search_query.exists():
+                Search.objects.create(
                     user=request.user,
                     searcher=history,
                     search_value=search_value,
-                ).save()
-            else:
-                Search(
+                )
+        else:
+            if not has_search_query.exists():
+                Search.objects.create(
                     searcher=history,
                     search_value=search_value,
-                ).save()
+                )
 
         return StatusDone({
             'elapsed_time': elapsed_time,
