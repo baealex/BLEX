@@ -53,7 +53,7 @@ export function ArticleComment(props: ArticleCommentProps) {
             textMarkdown: '',
             ...data.body
         }));
-        lazyLoadResource();
+        setTimeout(lazyLoadResource, 300);
     }, []);
 
     const handleClickEdit = useCallback(async (pk: number) => {
@@ -140,7 +140,7 @@ export function ArticleComment(props: ArticleCommentProps) {
             }) : comment
         )));
         snackBar('😀 댓글이 수정되었습니다.');
-        lazyLoadResource();
+        setTimeout(lazyLoadResource, 300);
     }, []);
 
     const handleEditCancel = useCallback(async (pk: number) => {
@@ -150,6 +150,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 isEdit: false
             }) : comment
         )));
+        setTimeout(lazyLoadResource, 300);
     }, []);
 
     return (
