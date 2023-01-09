@@ -4,8 +4,6 @@ interface SnackBarOptions {
     onClick?: (e: MouseEvent) => void;
 }
 
-const handleRemove: NodeJS.Timeout[] = [];
-
 const container = (function () {
     if (typeof window !== 'undefined') {
         const containerName = 'snackbar-container';
@@ -13,21 +11,17 @@ const container = (function () {
         if (!document.getElementById(containerName)) {
             const div = document.createElement('div');
             div.id = containerName;
+            div.className = style[containerName];
             document.body.appendChild(div);
         }
         return document.getElementById(containerName);
     }
 }()) as HTMLElement;
 
-export function clearSnackBar() {
-    Array.from(document.getElementsByClassName(style['snack-bar'])).forEach(el => {
-        clearTimeout(handleRemove.shift()!);
-        container.removeChild(el);
-    });
-}
-
 export function snackBar(text: string, options?: SnackBarOptions) {
-    clearSnackBar();
+    container.childNodes.forEach(($node) => {
+        $node.remove();
+    });
 
     const snackBar = document.createElement('div');
     snackBar.textContent = text;
@@ -39,7 +33,7 @@ export function snackBar(text: string, options?: SnackBarOptions) {
     }
 
     container.appendChild(snackBar);
-    handleRemove.unshift(setTimeout(() => {
-        container.removeChild(snackBar);
-    }, 4250));
+    snackBar.addEventListener('animationend', () => {
+        snackBar.remove();
+    });
 }

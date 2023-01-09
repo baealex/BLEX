@@ -20,10 +20,14 @@
     }
 }
 
+.snackbar-container {
+    position: fixed;
+    z-index: 1000;
+}
+
 .snack-bar {
     pointer-events: none;
     position: fixed;
-    z-index: 9999;
     box-sizing: border-box;
     width: 500px;
     border-radius: 16px 16px 0 0;
