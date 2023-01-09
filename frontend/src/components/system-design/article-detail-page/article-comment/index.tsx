@@ -112,7 +112,9 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const handleClickUserTag = useCallback(async (tagUsername: string) => {
         if (!username) {
-            snackBar('😅 로그인이 필요합니다.', { onClick: () => modalStore.open('isLoginModalOpen') });
+            snackBar('😅 로그인이 필요합니다.', {
+                onClick: () => modalStore.open('isLoginModalOpen')
+            });
             return;
         }
 
@@ -123,7 +125,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
         setCommentText(prevCommentText => prevCommentText + ` \`@${tagUsername}\``);
         snackBar(`😀 ${tagUsername}님을 태그했습니다.`);
-    }, []);
+    }, [username, commentText]);
 
     const handleEditSubmit = useCallback(async (pk: number, content: string) => {
         const { data } = await API.putComment(pk, content);
