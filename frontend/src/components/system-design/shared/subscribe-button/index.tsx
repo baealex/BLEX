@@ -28,8 +28,6 @@ export function SubscribeButton(props: Props) {
         }
     }, { observeRef: ref });
 
-    console.log(ref);
-
     const handleClickSubscribe = async () => {
         if (!isLogin) {
             snackBar(message('BEFORE_REQ_ERR', '로그인이 필요합니다.'), {
