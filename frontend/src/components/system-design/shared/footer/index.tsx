@@ -38,7 +38,7 @@ export function Footer({
                 </div>
                 <div className={cn('item')}>
                     <a
-                        href="https://discord.gg/d4vCnB3CSr"
+                        href="https://discord.gg/cs2XcEwSr9"
                         target="_blank"
                         rel="noreferrer">
                         <i className="fab fa-discord"/> 커뮤니티
