@@ -40,23 +40,17 @@ def check_email(email: str):
 
 def login_response(user, is_first_login=False):
     avatar = str(user.profile.avatar)
-    notify = Notify.objects.filter(
+    notify_count = Notify.objects.filter(
         user=user,
         is_read=False
-    ).order_by('-created_date')
+    ).count()
 
     return StatusDone({
         'username': user.username,
         'name': user.first_name,
         'email': user.email,
         'avatar': avatar,
-        'notify': list(map(lambda item: {
-            'pk': item.pk,
-            'url': item.url,
-            'is_read': item.is_read,
-            'content': item.infomation,
-            'created_date': item.time_since()
-        }, notify)),
+        'notify_count': notify_count,
         'is_first_login': is_first_login,
         'is_telegram_sync': user.config.has_telegram_id(),
         'is_2fa_sync': user.config.has_two_factor_auth(),

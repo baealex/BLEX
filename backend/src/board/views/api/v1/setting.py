@@ -26,9 +26,9 @@ def setting(request, parameter):
     
     if request.method == 'GET':
         if parameter == 'notify':
-            seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+            sixty_days_ago = timezone.now() - datetime.timedelta(days=60)
             notify = Notify.objects.filter(user=user).filter(
-                Q(created_date__gt=seven_days_ago) |
+                Q(created_date__gt=sixty_days_ago) |
                 Q(is_read=False)
             ).order_by('-created_date')
             
