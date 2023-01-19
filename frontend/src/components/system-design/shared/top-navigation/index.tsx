@@ -34,11 +34,9 @@ export function TopNavigation() {
     const router = useRouter();
     const path = router.pathname;
 
-    const notifyBox = useRef<HTMLDivElement>(null);
     const notifyToggle = useRef<HTMLLIElement>(null);
 
     const [isRollup, setIsRollup] = useState(false);
-    const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
     const [auth, setAuth] = useStore(authStore);
     const [modal] = useStore(modalStore);
@@ -77,7 +75,6 @@ export function TopNavigation() {
             }
 
             if (accScrollY < -80) {
-                setIsNotifyOpen(false);
                 setIsRollup(true);
                 accScrollY = -80;
             }
@@ -90,23 +87,6 @@ export function TopNavigation() {
         return () => document.removeEventListener('scroll', event);
     }, [path]);
 
-    useEffect(() => {
-        const handleClick = (e: MouseEvent) => {
-            const path = e.composedPath?.();
-
-            if (
-                !path.includes(notifyBox.current as EventTarget) &&
-                !path.includes(notifyToggle.current as EventTarget)
-            ) {
-                setIsNotifyOpen(false);
-            }
-        };
-
-        document.addEventListener('click', handleClick);
-
-        return () => document.removeEventListener('click', handleClick);
-    }, []);
-
     const onClickLogout = async () => {
         if (confirm(message('CONFIRM', '정말 로그아웃 하시겠습니까?'))) {
             const { data } = await API.postLogout();
@@ -114,32 +94,6 @@ export function TopNavigation() {
                 authStore.logout();
                 snackBar(message('AFTER_REQ_DONE', '로그아웃 되었습니다.'));
             }
-        }
-    };
-
-    const handleUnsyncTelegram = async () => {
-        if (confirm(message('CONFIRM', '정말 연동을 해제할까요?'))) {
-            const { data } = await API.postTelegram('unsync');
-            if (data.status === 'ERROR') {
-                snackBar(message('AFTER_REQ_ERR', data.errorMessage));
-                return;
-            }
-            snackBar(message('AFTER_REQ_DONE', '연동이 해제되었습니다.'));
-            setAuth((prevState) => ({
-                ...prevState,
-                isTelegramSync: false
-            }));
-        }
-    };
-
-    const onReadNotify = async (pk: number, url: string) => {
-        const { data } = await API.putSetting('notify', { pk });
-        if (data.status === 'DONE') {
-            setAuth((prevState) => ({
-                ...prevState,
-                notify : prevState.notify.filter(item => pk != item.pk)
-            }));
-            router.push(url);
         }
     };
 
@@ -191,36 +145,14 @@ export function TopNavigation() {
                                         <li
                                             ref={notifyToggle}
                                             className={cn('notify')}>
-                                            <button aria-label="notify" onClick={() => setIsNotifyOpen((prev) => !prev)}>
+                                            <button aria-label="notify" onClick={() => router.push('/setting/notify')}>
                                                 <i className="far fa-bell"/>
                                             </button>
-                                            {auth.notify.length > 0 && (
+                                            {auth.notifyCount > 0 && (
                                                 <span>
-                                                    {auth.notify.length}
+                                                    {auth.notifyCount}
                                                 </span>
                                             )}
-                                            <div
-                                                ref={notifyBox}
-                                                className={cn('notify-box', { isOpen: isNotifyOpen })}>
-                                                {auth.isTelegramSync ? (
-                                                    <div className={cn('telegram')} onClick={handleUnsyncTelegram}>
-                                                        <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
-                                                    </div>
-                                                ) : (
-                                                    <div className={cn('telegram')} onClick={() => modalStore.open('isTelegramSyncModalOpen')}>
-                                                        <i className="fab fa-telegram-plane"/> 텔레그램 연동
-                                                    </div>
-                                                )}
-                                                {auth.notify.length == 0 ? (
-                                                    <div className={cn('card')}>
-                                                        읽지 않은 알림이 없습니다.
-                                                    </div>
-                                                ) : auth.notify.map((item, idx) => (
-                                                    <div key={idx} className={cn('card')} onClick={() => onReadNotify(item.pk, item.url)}>
-                                                        {item.content} <span className="ns shallow-dark">{item.createdDate}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
                                         </li>
                                         {path.endsWith('/write') || path.endsWith('/edit') ? (
                                             <li className={cn('get-start')}>

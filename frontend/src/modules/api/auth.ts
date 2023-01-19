@@ -8,13 +8,7 @@ export interface GetLoginResponseData {
     name: string;
     email: string;
     avatar: string;
-    notify: {
-        pk: number;
-        url: string;
-        isRead: boolean;
-        content: string;
-        createdDate: string;
-    }[];
+    notifyCount: number;
     isFirstLogin: boolean;
     isTelegramSync: boolean;
     is2faSync: boolean;
