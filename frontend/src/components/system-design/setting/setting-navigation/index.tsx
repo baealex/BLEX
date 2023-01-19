@@ -27,6 +27,17 @@ const NAVIGATION_ITEMS = [
         ]
     },
     {
+        title: '서비스 설정',
+        icon: 'fas fa-wrench',
+        subItems: [
+            {
+                title: '알림',
+                name: 'notify',
+                url: '/setting/notify'
+            }
+        ]
+    },
+    {
         title: '포스트 관리',
         icon: 'fas fa-pencil-alt',
         subItems: [
