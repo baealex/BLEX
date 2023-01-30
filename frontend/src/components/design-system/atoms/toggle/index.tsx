@@ -1,3 +1,8 @@
+import classNames from 'classnames/bind';
+import styles from './Toggle.module.scss';
+const cn = classNames.bind(styles);
+
+
 import { useRef } from 'react';
 
 export interface ToggleProps {
@@ -9,24 +14,18 @@ export interface ToggleProps {
 export function Toggle(props: ToggleProps) {
     const checkbox = useRef<HTMLInputElement>(null);
 
-    const onClickCheckbox = () => {
-        checkbox.current?.click();
-    };
-
     return (
-        <div className="d-flex align-items-center custom-control custom-switch">
-            <input
-                ref={checkbox}
-                type="checkbox"
-                defaultChecked={props.defaultChecked}
-                className="custom-control-input c-pointer"
-                onClick={(e) => props.onClick(e.currentTarget.checked)}
-            />
-            {props.label && (
-                <label className="custom-control-label none-drag c-pointer" onClick={() => onClickCheckbox()}>
-                    {props.label}
-                </label>
-            )}
-        </div>
+        <>
+            <label className={cn('toggle')}>
+                <input
+                    type="checkbox"
+                    ref={checkbox}
+                    defaultChecked={props.defaultChecked}
+                    onChange={(e) => props.onClick(e.target.checked)}
+                />
+                <span className={cn('switch')} />
+                <span className={cn('label')}>{props.label}</span>
+            </label>
+        </>
     );
 }

@@ -1,0 +1,53 @@
+@import 'mixin';
+
+.toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    .label {
+        @include COLOR_DARK;
+        margin-left: 0.5rem;
+        user-select: none;
+    }
+    
+    .switch {
+        @each $theme, $color in $COLOR_GRAY {
+          :global(body.#{$theme}) & {
+            background-color: $color;
+          }
+        }
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+        border-radius: 1rem;
+        position: relative;
+        transition: background-color 0.2s ease;
+    }
+    
+    .switch::after {
+        content: '';
+        @include BACKGROUND;
+        display: block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.2s ease-out;
+    }
+    
+    input:checked + .switch {
+        background-color: $COLOR_DEFAULT_SECONDARY;
+    }
+    
+    input:checked + .switch::after {
+        transform: translateX(16px);
+    }
+    
+    input {
+        display: none;
+    }
+    
+}
