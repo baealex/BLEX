@@ -49,7 +49,7 @@ export function Modal({
             />
             <div className={`${styles.modal} ${styles[size]}`}>
                 <div className={styles.headline}>
-                    <div className={`font-weight-bold ${styles.title}`}>
+                    <div className={`${styles.title}`}>
                         {title}
                     </div>
                     <button className={styles.close} onClick={onClose}>

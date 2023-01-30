@@ -11,7 +11,7 @@ export interface SettingNavigationProps {
 
 const NAVIGATION_ITEMS = [
     {
-        title: '사용자 관리',
+        title: '사용자 설정',
         icon: 'far fa-user',
         subItems: [
             {
@@ -23,6 +23,17 @@ const NAVIGATION_ITEMS = [
                 title: '프로필',
                 name: 'profile',
                 url: '/setting/profile'
+            }
+        ]
+    },
+    {
+        title: '서비스 설정',
+        icon: 'fas fa-wrench',
+        subItems: [
+            {
+                title: '알림',
+                name: 'notify',
+                url: '/setting/notify'
             }
         ]
     },
