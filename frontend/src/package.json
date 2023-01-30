@@ -20,11 +20,13 @@
         "codemirror": "^5.65.10",
         "easymde": "^2.18.0",
         "frappe-charts": "^1.6.2",
+        "katex": "^0.16.4",
         "next": "^12.3.4",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-frappe-charts": "^4.1.0",
-        "remarkable": "^2.0.1"
+        "remarkable": "^2.0.1",
+        "remarkable-katex": "^1.2.1"
     },
     "devDependencies": {
         "@babel/runtime": "^7.20.6",

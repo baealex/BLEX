@@ -151,4 +151,8 @@
             }
         }
     }
+
+    :global(.katex-html[aria-hidden="true"]) {
+        display: none;
+    }
 }

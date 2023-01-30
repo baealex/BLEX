@@ -1,5 +1,6 @@
 import { Remarkable } from 'remarkable';
 import { linkify } from 'remarkable/linkify';
+import rkatex from 'remarkable-katex';
 
 export function strip(html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -63,6 +64,7 @@ export default function blexer(md) {
         .use(headerHash)
         .use(lazyImage)
         .use(linkify)
+        .use(rkatex)
         .render(md);
 
     // Custom Markdown
