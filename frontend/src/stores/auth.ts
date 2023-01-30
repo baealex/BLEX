@@ -14,7 +14,7 @@ const INIT_STATE = {
     name: '',
     email: '',
     avatar: '',
-    notify: [],
+    notifyCount: 0,
     isFirstLogin: false,
     isTelegramSync: false,
     is2faSync: false
