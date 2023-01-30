@@ -11,7 +11,7 @@ export interface SettingNavigationProps {
 
 const NAVIGATION_ITEMS = [
     {
-        title: '사용자 관리',
+        title: '사용자 설정',
         icon: 'far fa-user',
         subItems: [
             {
