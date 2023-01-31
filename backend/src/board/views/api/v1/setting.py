@@ -213,11 +213,11 @@ def setting(request, parameter):
             })
         
         if parameter == 'analytics-referer':
-            a_month_ago = timezone.now() - datetime.timedelta(days=7)
+            one_year_ago = timezone.now() - datetime.timedelta(days=365)
 
             referers = RefererFrom.objects.filter(
                 referers__posts__posts__author=user,
-                referers__created_date__gt=a_month_ago,
+                referers__created_date__gt=one_year_ago,
             ).annotate(
                 posts_title=F('referers__posts__posts__title'),
                 posts_author=F('referers__posts__posts__author__username'),
