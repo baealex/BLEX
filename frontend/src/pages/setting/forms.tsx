@@ -45,7 +45,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
         <>
             <Alert type="warning" className="mb-3">
                 자주 사용하는 서식을 미리 만들어두면,
-                글을 더 빠르게 작성할 수 있을거에요.
+                글을 더 빠르게 작성할 수 있을거예요.
             </Alert>
             <Button isRounded space="spare" display="block" onClick={() => router.push('/forms/write')}>
                 나만의 서식 만들기

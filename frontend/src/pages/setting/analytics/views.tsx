@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
-import { Card, Loading, Text } from '@design-system';
+import { Alert, Card, Loading, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -13,7 +13,11 @@ import { useFetch } from '~/hooks/use-fetch';
 const AnalyticsSetting: PageComponent<unknown> = () => {
     const { data: views, isLoading } = useFetch('settings/analytics/views' , async () => {
         const { data } = await API.getSettingAnalyticsView();
-        return data.body;
+        return {
+            ...data.body,
+            dates: data.body.views.map(item => item.date).reverse(),
+            counts: data.body.views.map(item => item.count).reverse()
+        };
     });
 
     const { data: postViews } = useFetch('settings/analytics/posts-views' , async () => {
@@ -44,11 +48,11 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                         <ReactFrappeChart
                             type="axis-mixed"
                             data={{
-                                labels: views.views.map(item => item.date).reverse(),
+                                labels: views.dates,
                                 datasets: [
                                     {
                                         name: 'View',
-                                        values: views.views.map(item => item.count).reverse(),
+                                        values: views.counts,
                                         chartType: 'line'
                                     }
                                 ]
@@ -65,6 +69,11 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                     <Text className="mt-5 mb-3" fontSize={6} fontWeight={600}>
                         오늘의 인기글
                     </Text>
+                    {postViews.posts.length === 0 && (
+                        <Alert className="mb-5">
+                            아직 작성한 포스트가 없습니다.
+                        </Alert>
+                    )}
                     {postViews.posts.map((item, idx) => (
                         <Card key={item.url} hasBackground isRounded className="my-3">
                             <div className="p-3">

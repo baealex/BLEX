@@ -76,19 +76,18 @@ function PostsAnalytics(props: Props) {
             <Text className="my-3" fontSize={6} fontWeight={600}>
                 신규 유입 경로
             </Text>
-            {data?.referers.length === 0 ? (
+            {data?.referers.length === 0 && (
                 <Alert className="mb-5">
                     신규 유입 경로가 없습니다.
                 </Alert>
-            ) : (
-                <ul className="mb-5">
-                    {data?.referers.map((item, idx) => (
-                        <li key={idx}>
-                            {item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a>
-                        </li>
-                    ))}
-                </ul>
             )}
+            <ul className="mb-5">
+                {data?.referers.map((item, idx) => (
+                    <li key={idx}>
+                        {item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
