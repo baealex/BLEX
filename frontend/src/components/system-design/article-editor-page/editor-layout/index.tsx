@@ -112,6 +112,16 @@ export function EditorLayout(props: Props) {
                 onClose={() => modalStore.close('isPublishModalOpen')}
                 submitText={props.publish.buttonText}
                 onSubmit={() => handleSubmit()}>
+                <KeywordForm
+                    className="mb-3"
+                    label="태그 (필수)"
+                    type="text"
+                    name="tags"
+                    maxLength={50}
+                    value={props.tags.value}
+                    onChange={(e) => props.tags.onChange(e.target.value)}
+                    placeholder=""
+                />
                 <SelectForm
                     className="mb-3"
                     name="series"
@@ -128,16 +138,6 @@ export function EditorLayout(props: Props) {
                         ))}
                     </>
                 </SelectForm>
-                <KeywordForm
-                    className="mb-3"
-                    label="태그 (필수)"
-                    type="text"
-                    name="tags"
-                    maxLength={50}
-                    value={props.tags.value}
-                    onChange={(e) => props.tags.onChange(e.target.value)}
-                    placeholder=""
-                />
                 <CheckBox
                     label="포스트를 숨깁니다."
                     defaultChecked={props.isHide.value}

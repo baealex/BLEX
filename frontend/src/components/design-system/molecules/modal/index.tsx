@@ -1,6 +1,7 @@
 import styles from './Modal.module.scss';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 
 import { Button } from '@design-system';
 
@@ -25,14 +26,36 @@ export function Modal({
     onClose,
     onSubmit
 }: Props) {
+    const ref = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
+        const handleOpenModal = () => {
+            const input = ref.current?.querySelector<HTMLInputElement>('input, textarea');
+
+            input
+                ? input.focus()
+                : ref.current?.focus();
+        };
+
+        const handleKeyup = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
         if (isOpen) {
+            ref.current?.addEventListener('animationend', handleOpenModal);
+            document.addEventListener('keyup', handleKeyup);
             document.body.style.overflow = 'hidden';
         } else {
+            ref.current?.removeEventListener('animationend', handleOpenModal);
+            document.removeEventListener('keyup', handleKeyup);
             document.body.style.overflow = '';
         }
 
         return () => {
+            ref.current?.removeEventListener('animationend', handleOpenModal);
+            document.removeEventListener('keyup', handleKeyup);
             document.body.style.overflow = '';
         };
     }, [isOpen]);
@@ -41,13 +64,18 @@ export function Modal({
         return null;
     }
 
-    return (
+    return ReactDOM.createPortal(
         <>
             <div
                 className={styles.overlay}
                 onClick={onClose}
             />
-            <div className={`${styles.modal} ${styles[size]}`}>
+            <div
+                ref={ref}
+                aria-modal="true"
+                role="dialog"
+                tabIndex={-1}
+                className={`${styles.modal} ${styles[size]}`}>
                 <div className={styles.headline}>
                     <div className={`${styles.title}`}>
                         {title}
@@ -76,5 +104,5 @@ export function Modal({
                 )}
             </div>
         </>
-    );
+        , document.body);
 }
