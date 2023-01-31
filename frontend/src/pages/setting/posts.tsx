@@ -6,13 +6,10 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import ReactFrappeChart from 'react-frappe-charts';
-
 import {
     Alert,
     Card,
-    Dropdown,
-    Modal
+    Dropdown
 } from '@design-system';
 import type { PageComponent } from '~/components';
 import { Pagination } from '@system-design/shared';
@@ -25,18 +22,6 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 interface Props extends API.GetSettingPostsResponseData {
     page: number;
-}
-
-interface Analytics {
-    [key: string]: {
-        dates: string[];
-        counts: number[];
-        referers: {
-            time: string;
-            from: string;
-            title: string;
-        }[];
-    };
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
@@ -98,42 +83,11 @@ const POSTS_ORDER = [
 ];
 
 const PostsSetting: PageComponent<Props> = (props) => {
-    const [ isModalOpen, setModalOpen ] = useState(false);
     const [ posts, setPosts ] = useState(props.posts);
 
-    const [ apNow, setApNow ] = useState('');
-    const [ analytics, setAnalytics ] = useState<Analytics>({});
-
-    useEffect(() => {
-        setPosts(props.posts);
-    }, [props.posts]);
+    useEffect(() => setPosts(props.posts), [props.posts]);
 
     const router = useRouter();
-
-    const postsAnalytics = async (url: string) => {
-        setApNow(url);
-        if (!analytics[url]) {
-            const { data } = await API.getPostAnalytics(url);
-            const dates = [];
-            const counts = [];
-            for (const item of data.body.items) {
-                dates.push(item.date.slice(-2) + 'th');
-                counts.push(item.count);
-            }
-            dates.reverse();
-            counts.reverse();
-            const { referers } = data.body;
-            setAnalytics({
-                ...analytics,
-                [url]: {
-                    dates,
-                    counts,
-                    referers
-                }
-            });
-        }
-        setModalOpen(true);
-    };
 
     const onPostsDelete = async (url: string) => {
         if (confirm(message('CONFIRM', '정말 이 포스트를 삭제할까요?'))) {
@@ -231,7 +185,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                     },
                                     {
                                         name: '분석',
-                                        onClick: () => postsAnalytics(post.url)
+                                        onClick: () => router.push(`/@${props.username}/${post.url}/analytics`)
                                     }
                                 ]}
                             />
@@ -295,34 +249,6 @@ const PostsSetting: PageComponent<Props> = (props) => {
                 page={props.page}
                 last={props.lastPage}
             />
-            <Modal
-                title="포스트 분석"
-                isOpen={isModalOpen}
-                onClose={() => setModalOpen(false)}>
-                {analytics[apNow] && (
-                    <>
-                        <ReactFrappeChart
-                            type="axis-mixed"
-                            data={{
-                                labels: analytics[apNow].dates,
-                                datasets: [
-                                    {
-                                        name: 'View',
-                                        values: analytics[apNow].counts,
-                                        chartType: 'line'
-                                    }
-                                ]
-                            }}
-                            colors={['purple']}
-                        />
-                        <ul>
-                            {analytics[apNow].referers.map((item, idx) => (
-                                <li key={idx}>{item.time} - <a className="shallow-dark" href={item.from} target="blank">{item.title ? item.title : item.from}</a></li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-            </Modal>
         </>
     );
 };

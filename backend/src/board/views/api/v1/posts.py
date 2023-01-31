@@ -304,6 +304,7 @@ def post_analytics(request, url):
         if request.user != post.author:
             raise Http404
 
+        seven_days = 7
         seven_days_ago = timezone.now() - datetime.timedelta(days=7)
 
         posts_views = PostAnalytics.objects.values(
@@ -316,7 +317,7 @@ def post_analytics(request, url):
         ).order_by('-created_date')
 
         date_dict = dict()
-        for i in range(7):
+        for i in range(seven_days):
             key = str(convert_to_localtime(timezone.now() - datetime.timedelta(days=i)))[:10]
             date_dict[key] = 0
 
@@ -331,22 +332,17 @@ def post_analytics(request, url):
             'referer_from'
         ).order_by('-created_date')[:30]
 
-        data = {
-            'items': [],
-            'referers': [],
-        }
-        for item in date_dict:
-            data['items'].append({
+        return StatusDone({
+            'items': list(map(lambda item: {
                 'date': item,
                 'count': date_dict[item]
-            })
-        for referer in posts_referers:
-            data['referers'].append({
+            }, date_dict)),
+            'referers': list(map(lambda referer: {
                 'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
                 'from': referer.referer_from.location,
                 'title': referer.referer_from.title
-            })
-        return StatusDone(data)
+            }, posts_referers)),
+        })
 
     if request.method == 'POST':
         ip = request.POST.get('ip', '')

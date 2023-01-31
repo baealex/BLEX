@@ -177,7 +177,8 @@ def setting(request, parameter):
             })
 
         if parameter == 'analytics-view':
-            seven_days_ago = convert_to_localtime(timezone.now() - datetime.timedelta(days=30))
+            one_month = 30
+            one_month_ago = convert_to_localtime(timezone.now() - datetime.timedelta(days=one_month))
 
             posts_analytics = PostAnalytics.objects.values(
                 'created_date',
@@ -185,11 +186,11 @@ def setting(request, parameter):
                 table_count=Count('table'),
             ).filter(
                 posts__author=user,
-                created_date__gt=seven_days_ago,
+                created_date__gt=one_month_ago,
             ).order_by('-created_date')
 
             date_dict = dict()
-            for i in range(30):
+            for i in range(one_month):
                 key = str(convert_to_localtime(timezone.now() - datetime.timedelta(days=i)))[:10]
                 date_dict[key] = 0
             

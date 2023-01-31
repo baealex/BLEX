@@ -15,11 +15,11 @@ import {
     ArticleThanks,
     RelatedArticles
 } from '@system-design/article-detail-page';
+import { Button, Card, Text } from '@design-system';
 import {
     Footer,
     SEO
 } from '@system-design/shared';
-import { Button } from '@design-system';
 import { TagBadges } from '@system-design/tag';
 
 import * as API from '~/modules/api';
@@ -131,6 +131,11 @@ function PostDetail(props: Props) {
         Router.push(`/@${author}/${url}/edit`);
     };
 
+    const handleClickAnalytics = () => {
+        const { author, url } = props.post;
+        Router.push(`/@${author}/${url}/analytics`);
+    };
+
     const handleClickDelete = async () => {
         if (confirm('😮 정말 이 포스트를 삭제할까요?')) {
             const { author, url } = props.post;
@@ -168,10 +173,16 @@ function PostDetail(props: Props) {
                         </div>
                         <div className="article-content">
                             {props.post.author == username && (
-                                <div className="mb-3">
-                                    <Button gap="little" onClick={handleClickEdit}>포스트 수정</Button>
-                                    <Button onClick={handleClickDelete}>포스트 삭제</Button>
-                                </div>
+                                <Card isRounded className="p-3 mb-4 d-flex justify-content-between align-items-center">
+                                    <Text fontSize={5} fontWeight={600}>
+                                        포스트 관리
+                                    </Text>
+                                    <div>
+                                        <Button gap="little" onClick={handleClickEdit}>수정</Button>
+                                        <Button gap="little" onClick={handleClickAnalytics}>분석</Button>
+                                        <Button onClick={handleClickDelete}>삭제</Button>
+                                    </div>
+                                </Card>
                             )}
                             <ArticleAuthor {...props.profile}/>
                             <ArticleContent html={props.post.textHtml}/>
