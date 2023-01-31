@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  backend_base_image_build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

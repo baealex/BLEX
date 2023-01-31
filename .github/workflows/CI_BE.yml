@@ -14,7 +14,7 @@ on:
       - 'backend/src/**'
 
 jobs:
-  ci:
+  backend_ci:
     runs-on: ubuntu-latest
 
     strategy:
