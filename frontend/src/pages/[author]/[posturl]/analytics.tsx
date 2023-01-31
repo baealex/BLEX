@@ -12,7 +12,7 @@ import {
 import * as API from '~/modules/api';
 import { useFetch } from '~/hooks/use-fetch';
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     const { author = '', posturl = '' } = query;
 
     if (!author.includes('@') || !posturl) {
