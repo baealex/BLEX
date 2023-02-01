@@ -332,6 +332,18 @@ def post_analytics(request, url):
             'referer_from'
         ).order_by('-created_date')[:30]
 
+        post_thanks = PostThanks.objects.filter(
+            post=post
+        ).count()
+        post_no_thanks = PostNoThanks.objects.filter(
+            post=post
+        ).count()
+
+        if post_thanks + post_no_thanks == 0:
+            post_thanks_rate = 0
+        else:
+            post_thanks_rate = round(post_thanks / (post_thanks + post_no_thanks) * 100, 2)
+
         return StatusDone({
             'items': list(map(lambda item: {
                 'date': item,
@@ -342,6 +354,11 @@ def post_analytics(request, url):
                 'from': referer.referer_from.location,
                 'title': referer.referer_from.title
             }, posts_referers)),
+            'thanks': {
+                'positive_count': post_thanks,
+                'negative_count': post_no_thanks,
+                'rate': post_thanks_rate
+            }
         })
 
     if request.method == 'POST':
