@@ -332,17 +332,16 @@ def post_analytics(request, url):
             'referer_from'
         ).order_by('-created_date')[:30]
 
+        one_month_ago = timezone.now() - datetime.timedelta(days=30)
+
         post_thanks = PostThanks.objects.filter(
-            post=post
+            post=post,
+            created_date__gt=one_month_ago
         ).count()
         post_no_thanks = PostNoThanks.objects.filter(
-            post=post
+            post=post,
+            created_date__gt=one_month_ago
         ).count()
-
-        if post_thanks + post_no_thanks == 0:
-            post_thanks_rate = 0
-        else:
-            post_thanks_rate = round(post_thanks / (post_thanks + post_no_thanks) * 100, 2)
 
         return StatusDone({
             'items': list(map(lambda item: {
@@ -357,7 +356,6 @@ def post_analytics(request, url):
             'thanks': {
                 'positive_count': post_thanks,
                 'negative_count': post_no_thanks,
-                'rate': post_thanks_rate
             }
         })
 

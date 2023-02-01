@@ -46,7 +46,10 @@ export function Dropdown(props: DropdownProps) {
     }, []);
 
     return (
-        <div onClick={() => setIsOpen((prevIsOpen) => !prevIsOpen)}>
+        <div
+            role="button"
+            aria-label="dropdown"
+            onClick={() => setIsOpen((prevIsOpen) => !prevIsOpen)}>
             <button ref={toggle} aria-label="toggle" className={cn('button')}>
                 {props.button}
             </button>

@@ -48,10 +48,7 @@ function PostsAnalytics(props: Props) {
                 조회수 추이
             </Text>
             <Card hasBackground isRounded className="mb-5">
-                <div className="pt-3 px-3 d-flex justify-content-between">
-                    <div className="ns shallow-dark">
-
-                    </div>
+                <div className="pt-3 px-3 d-flex justify-content-end">
                     <div className="ns shallow-dark">
                         기간 : 7일 이내
                     </div>
@@ -72,6 +69,38 @@ function PostsAnalytics(props: Props) {
                     colors={['purple']}
                 />
             </Card>
+
+            <Text className="my-3" fontSize={6} fontWeight={600}>
+                방문자 평가
+            </Text>
+            {data?.thanks.positiveCount === 0 && data?.thanks.negativeCount === 0 ? (
+                <Alert className="mb-5">
+                    최근 평가한 방문자 없습니다.
+                </Alert>
+            ) : (
+                <Card hasBackground isRounded className="mb-5">
+                    <div className="pt-3 px-3 d-flex justify-content-end">
+                        <div className="ns shallow-dark">
+                            기간 : 30일 이내
+                        </div>
+                    </div>
+
+                    <ReactFrappeChart
+                        type="pie"
+                        colors={['#5cd65c', '#ff0000']}
+                        data={{
+                            labels: ['긍정', '부정'],
+                            datasets: [
+                                {
+                                    name: 'View',
+                                    values: [data?.thanks.positiveCount, data?.thanks.negativeCount],
+                                    chartType: 'line'
+                                }
+                            ]
+                        }}
+                    />
+                </Card>
+            )}
 
             <Text className="my-3" fontSize={6} fontWeight={600}>
                 신규 유입 경로

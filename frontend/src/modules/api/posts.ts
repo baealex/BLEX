@@ -323,6 +323,10 @@ export interface GetPostAnalytics {
         from: string;
         title: string;
     }[];
+    thanks: {
+        positiveCount: number;
+        negativeCount: number;
+    };
 }
 
 export async function getPostAnalytics(url: string) {
