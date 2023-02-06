@@ -88,17 +88,13 @@ export function Pagination(props: Props) {
                     {page != 1 ? (
                         <>
                             <div className={cn('item')}>
-                                <Link {...gotoPage(page - 1)}>
-                                    <a className={cn('link')}>
-                                        <i role="button" aria-label="prev-page" className="fas fa-arrow-left"></i>
-                                    </a>
+                                <Link className={cn('link')} {...gotoPage(page - 1)}>
+                                    <i role="button" aria-label="prev-page" className="fas fa-arrow-left"></i>
                                 </Link>
                             </div>
                             <div className={cn('item')}>
-                                <Link {...gotoPage(1)}>
-                                    <a className={cn('link')}>
-                                        <i role="button" aria-label="first-page" className="fa fa-angle-double-left"></i>
-                                    </a>
+                                <Link className={cn('link')} {...gotoPage(1)}>
+                                    <i role="button" aria-label="first-page" className="fa fa-angle-double-left"></i>
                                 </Link>
                             </div>
                         </>
@@ -120,27 +116,21 @@ export function Pagination(props: Props) {
                         <div
                             key={idx}
                             className={cn('item', { active: page == item })}>
-                            <Link {...gotoPage(item)}>
-                                <a className={cn('link')}>
-                                    {item}
-                                </a>
+                            <Link className={cn('link')} {...gotoPage(item)}>
+                                {item}
                             </Link>
                         </div>
                     ))}
                     {page != last ? (
                         <>
                             <div className={cn('item')}>
-                                <Link {...gotoPage(last)}>
-                                    <a className={cn('link')}>
-                                        <i role="button" aria-label="last-page" className="fa fa-angle-double-right"></i>
-                                    </a>
+                                <Link className={cn('link')} {...gotoPage(last)}>
+                                    <i role="button" aria-label="last-page" className="fa fa-angle-double-right"></i>
                                 </Link>
                             </div>
                             <div className={cn('item')}>
-                                <Link {...gotoPage(page + 1)}>
-                                    <a className={cn('link')}>
-                                        <i role="button" aria-label="next-page" className="fas fa-arrow-right"></i>
-                                    </a>
+                                <Link className={cn('link')} {...gotoPage(page + 1)}>
+                                    <i role="button" aria-label="next-page" className="fas fa-arrow-right"></i>
                                 </Link>
                             </div>
                         </>

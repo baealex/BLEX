@@ -47,12 +47,10 @@ export default function UserFormEdit() {
 
     return (
         <div className="x-container mb-5">
-            <Link href="/setting/forms">
-                <a className="shallow-dark">
-                    <Text className="mb-3">
-                        <i className="fas fa-angle-left ml-1" /> 서식 목록
-                    </Text>
-                </a>
+            <Link className="shallow-dark" href="/setting/forms">
+                <Text className="mb-3">
+                    <i className="fas fa-angle-left ml-1" /> 서식 목록
+                </Text>
             </Link>
             <EditorTitle
                 disabledImage

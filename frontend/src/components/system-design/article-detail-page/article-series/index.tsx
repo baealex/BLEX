@@ -43,12 +43,10 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                         <Text className="title-2-spacing" fontWeight={600} fontSize={5}>
                             “{series.name}” 시리즈
                         </Text>
-                        <Link href={`/@${props.author}/series/${props.series}`}>
-                            <a className="shallow-dark">
-                                <Text>
-                                    전체 목록<i className="fas fa-angle-right ml-1" />
-                                </Text>
-                            </a>
+                        <Link className="shallow-dark" href={`/@${props.author}/series/${props.series}`}>
+                            <Text>
+                                전체 목록<i className="fas fa-angle-right ml-1" />
+                            </Text>
                         </Link>
                     </div>
                     <SpeechBubble
@@ -64,18 +62,17 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                                     <div className={cn('count')}>
                                         {idx + 1}/{seriesLength}
                                     </div>
-                                    <Link href="/[author]/[posturl]" as={`/@${series.owner}/${post.url}`}>
-                                        <a
-                                            className={cn(
-                                                'title-3-spacing',
-                                                idx == activeSeries
-                                                    ? 'deep-dark'
-                                                    : 'shallow-dark'
-                                            )}>
-                                            <Text>
-                                                {post.title}
-                                            </Text>
-                                        </a>
+                                    <Link
+                                        className={cn(
+                                            'title-3-spacing',
+                                            idx == activeSeries
+                                                ? 'deep-dark'
+                                                : 'shallow-dark'
+                                        )}
+                                        href={`/@${series.owner}/${post.url}`}>
+                                        <Text>
+                                            {post.title}
+                                        </Text>
                                     </Link>
                                 </li>
                             )

@@ -56,14 +56,12 @@ export function ArticleCard(props: ArticleCardProps) {
                 <>
                     {typeof props.image !== 'undefined' && (
                         <Link href={url}>
-                            <a>
-                                <img
-                                    className={cn('image', 'lazy')}
-                                    alt={props.title}
-                                    src={getPostsImage(props.image, { preview: true })}
-                                    data-src={getPostsImage(props.image, { minify: true })}
-                                />
-                            </a>
+                            <img
+                                className={cn('image', 'lazy')}
+                                alt={props.title}
+                                src={getPostsImage(props.image, { preview: true })}
+                                data-src={getPostsImage(props.image, { minify: true })}
+                            />
                         </Link>
                     )}
                     <div className="p-3">
@@ -73,44 +71,40 @@ export function ArticleCard(props: ArticleCardProps) {
                             </div>
                         )}
                         <Link href={url}>
-                            <a>
-                                <Text
-                                    tag="h3"
-                                    fontWeight={600}
-                                    className={cn(
-                                        'title',
-                                        'deep-dark',
-                                        'mb-2'
-                                    )}>
-                                    {props.title}
-                                </Text>
-                                {description && props.highlight ? (
-                                    <p
-                                        className="shallow-dark"
-                                        dangerouslySetInnerHTML={{ __html: description }}
-                                    />
-                                ) : (
-                                    <Text className="shallow-dark mb-3">{unescape(description || '')}</Text>
-                                )}
-                            </a>
+                            <Text
+                                tag="h3"
+                                fontWeight={600}
+                                className={cn(
+                                    'title',
+                                    'deep-dark',
+                                    'mb-2'
+                                )}>
+                                {props.title}
+                            </Text>
+                            {description && props.highlight ? (
+                                <p
+                                    className="shallow-dark"
+                                    dangerouslySetInnerHTML={{ __html: description }}
+                                />
+                            ) : (
+                                <Text className="shallow-dark mb-3">{unescape(description || '')}</Text>
+                            )}
                         </Link>
                         {props.author && (
                             <div className="d-flex align-items-center justify-content-between">
                                 <div className="d-flex align-items-center">
                                     <Link href="/[author]" as={`/@${props.author}`}>
-                                        <a>
-                                            <img
-                                                className={cn('author-image')}
-                                                alt={props.author}
-                                                src={getUserImage(props.authorImage || '')}
-                                                width="35"
-                                                height="35"
-                                            />
-                                        </a>
+                                        <img
+                                            className={cn('author-image')}
+                                            alt={props.author}
+                                            src={getUserImage(props.authorImage || '')}
+                                            width="35"
+                                            height="35"
+                                        />
                                     </Link>
                                     <div className="vs mx-2">
-                                        <Link href="/[author]" as={`/@${props.author}`}>
-                                            <a className="deep-dark">{props.author}</a>
+                                        <Link className="deep-dark" href="/[author]" as={`/@${props.author}`}>
+                                            {props.author}
                                         </Link>님이 작성함
                                         <br/>
                                         {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>

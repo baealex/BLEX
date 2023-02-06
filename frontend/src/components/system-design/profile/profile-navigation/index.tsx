@@ -39,12 +39,9 @@ export function ProfileNavigation(props: ProfileNavigationProps) {
                                 { active: props.active === item.active }
                             )}>
                             <Link
-                                href={`/[author]${item.location}`}
-                                as={`/@${props.username}${item.location}`}
+                                href={`/@${props.username}${item.location}`}
                                 scroll={false}>
-                                <a>
-                                    {item.title}
-                                </a>
+                                {item.title}
                             </Link>
                         </li>
                     ))}

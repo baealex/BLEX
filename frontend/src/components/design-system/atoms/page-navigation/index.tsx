@@ -28,7 +28,7 @@ export function PageNavigation(props: PageNavigationProps) {
                         item.name
                     ) : (
                         <Link href={item.link}>
-                            <a>{item.name}</a>
+                            {item.name}
                         </Link>
                     )}
                 </li>

@@ -25,29 +25,23 @@ export function ArticleCardList(props: ArticleCardListProps) {
     return (
         <article className={cn('list')}>
             <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                <a>
-                    {props.image && (
-                        <img
-                            className="lazy mt-4"
-                            src={getPostsImage(props.image, { preview: true })}
-                            data-src={getPostsImage(props.image, { minify: true })}
-                            height="400"
-                        />
-                    )}
-                </a>
+                {props.image && (
+                    <img
+                        className="lazy mt-4"
+                        src={getPostsImage(props.image, { preview: true })}
+                        data-src={getPostsImage(props.image, { minify: true })}
+                        height="400"
+                    />
+                )}
             </Link>
             <Text tag="h3" className="mt-4 mb-2" fontWeight={700} fontSize={8}>
-                <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                    <a className="deep-dark">
-                        {props.title}
-                    </a>
+                <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                    {props.title}
                 </Link>
             </Text>
             <Text className="my-2" fontSize={4}>
-                <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                    <a className="shallow-dark">
-                        {unescape(props.description)}
-                    </a>
+                <Link className="shallow-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                    {unescape(props.description)}
                 </Link>
             </Text>
             <Text className="my-2" fontSize={2}>
@@ -56,7 +50,7 @@ export function ArticleCardList(props: ArticleCardListProps) {
             <TagBadges
                 items={props.tags.map(item => (
                     <Link href={`/@${props.author}/posts/${item}`}>
-                        <a>{item}</a>
+                        {item}
                     </Link>
                 ))}
             />

@@ -18,17 +18,15 @@ export function SeriesList(props: SeriesListProps) {
         <div
             className={cn('card')}
             style={{ backgroundImage: `url(${props.image})` }}>
-            <Link href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
-                <a className={cn('title')}>
-                    <div className={cn('mask')}>
-                        <Text className="mb-2" fontSize={6} fontWeight={600}>
-                            ‘{props.name}’ 시리즈
-                        </Text>
-                        <span className="ns">
-                            {props.createdDate}
-                        </span>
-                    </div>
-                </a>
+            <Link className={cn('title')} href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
+                <div className={cn('mask')}>
+                    <Text className="mb-2" fontSize={6} fontWeight={600}>
+                        ‘{props.name}’ 시리즈
+                    </Text>
+                    <span className="ns">
+                        {props.createdDate}
+                    </span>
+                </div>
             </Link>
         </div>
     );

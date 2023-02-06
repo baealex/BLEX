@@ -108,10 +108,8 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                     </div>
                     <Card hasBackground isRounded className="p-3">
                         <div className="d-flex justify-content-between">
-                            <Link href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
-                                <a className="deep-dark">
-                                    {item.title} <span className="vs">{item.totalPosts}</span>
-                                </a>
+                            <Link className="deep-dark" href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
+                                {item.title} <span className="vs">{item.totalPosts}</span>
                             </Link>
                             <a onClick={() => onSeriesDelete(item.url)}>
                                 <i className="fas fa-times"></i>

@@ -128,9 +128,7 @@ export function TopNavigation() {
                     <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
                         <div className={cn('logo')}>
                             <Link href="/">
-                                <a>
-                                    <img alt="logo" src={'/logob.svg'}/>
-                                </a>
+                                <img alt="logo" src={'/logob.svg'}/>
                             </Link>
                         </div>
                         <nav>

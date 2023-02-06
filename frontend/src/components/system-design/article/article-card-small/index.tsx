@@ -20,25 +20,23 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
     return (
         <div className="col-md-4 mt-3">
             <Card hasShadow isRounded>
-                <Link href={`/@${props.author}/${props.url}`}>
-                    <a className="deep-dark">
-                        <img
-                            className={classNames(
-                                styles.image,
-                                'lazy'
-                            )}
-                            src={getPostsImage(props.image, { preview: true })}
-                            data-src={getPostsImage(props.image, { minify: true })}
-                        />
-                        <div className="p-3">
-                            <div className={styles.title}>
-                                {props.title}
-                            </div>
-                            <div className="vs mt-2">
-                                {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
-                            </div>
+                <Link className="deep-dark" href={`/@${props.author}/${props.url}`}>
+                    <img
+                        className={classNames(
+                            styles.image,
+                            'lazy'
+                        )}
+                        src={getPostsImage(props.image, { preview: true })}
+                        data-src={getPostsImage(props.image, { minify: true })}
+                    />
+                    <div className="p-3">
+                        <div className={styles.title}>
+                            {props.title}
                         </div>
-                    </a>
+                        <div className="vs mt-2">
+                            {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
+                        </div>
+                    </div>
                 </Link>
             </Card>
         </div>

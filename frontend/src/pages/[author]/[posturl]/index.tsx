@@ -189,7 +189,7 @@ function PostDetail(props: Props) {
                             <TagBadges
                                 items={props.post.tags.map(item => (
                                     <Link href={`/@${props.post.author}/posts/${item}`}>
-                                        <a>{item}</a>
+                                        {item}
                                     </Link>
                                 ))}
                             />

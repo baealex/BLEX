@@ -79,10 +79,8 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                             <div className="p-3">
                                 <div className="d-flex justify-content-between align-items-center flex-wrap" style={{ gap: '8px' }}>
                                     <div>
-                                        <Link href={`/@${item.author}/${item.url}`}>
-                                            <a className="deep-dark">
-                                                {`${idx + 1}. ${item.title}`}
-                                            </a>
+                                        <Link className="deep-dark" href={`/@${item.author}/${item.url}`}>
+                                            {`${idx + 1}. ${item.title}`}
                                         </Link>
                                     </div>
                                     <div className="ns">

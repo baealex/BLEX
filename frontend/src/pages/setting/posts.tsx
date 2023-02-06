@@ -146,16 +146,14 @@ const PostsSetting: PageComponent<Props> = (props) => {
                             }
                         }}
                         scroll={false}>
-                        <a>
-                            {item.name}&nbsp;
-                            {router.query.order?.includes(item.order.replace('-' , '')) && (
-                                router.query.order?.includes('-') ? (
-                                    <i className="fas fa-sort-up"/>
-                                ) : (
-                                    <i className="fas fa-sort-down"/>
-                                )
-                            )}
-                        </a>
+                        {item.name}&nbsp;
+                        {router.query.order?.includes(item.order.replace('-' , '')) && (
+                            router.query.order?.includes('-') ? (
+                                <i className="fas fa-sort-up"/>
+                            ) : (
+                                <i className="fas fa-sort-down"/>
+                            )
+                        )}
                     </Link>
                 ))}
             />
@@ -164,10 +162,8 @@ const PostsSetting: PageComponent<Props> = (props) => {
                     <div className="p-3 mb-1">
                         <div className="d-flex justify-content-between mb-1">
                             <span>
-                                <Link href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
-                                    <a className="deep-dark">
-                                        {post.title}
-                                    </a>
+                                <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
+                                    {post.title}
                                 </Link>
                             </span>
                             <Dropdown

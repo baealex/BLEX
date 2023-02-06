@@ -335,9 +335,7 @@ class Series extends React.Component<Props, State> {
 
                 <div className="user-image-wrapper">
                     <Link href={`/@${this.props.series.owner}`}>
-                        <a>
-                            <img src={getUserImage(this.props.series.ownerImage)} alt={this.props.series.name} />
-                        </a>
+                        <img src={getUserImage(this.props.series.ownerImage)} alt={this.props.series.name} />
                     </Link>
                 </div>
 

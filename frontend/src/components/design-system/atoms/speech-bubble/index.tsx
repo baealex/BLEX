@@ -26,9 +26,7 @@ export function SpeechBubble({
             </blockquote>
             <div className={cn('user')}>
                 <Link href={href}>
-                    <a>
-                        <img alt={alt} src={src}/>
-                    </a>
+                    <img alt={alt} src={src}/>
                 </Link>
             </div>
         </div>

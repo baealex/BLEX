@@ -51,10 +51,8 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                                                 {item.time}
                                             </div>
                                             <div className="mt-3">
-                                                <Link href={`/@${item.posts.author}/${item.posts.url}`}>
-                                                    <a className="ns shallow-dark">
-                                                        {`-> ${item.posts.title}`}
-                                                    </a>
+                                                <Link className="ns shallow-dark" href={`/@${item.posts.author}/${item.posts.url}`}>
+                                                    {`-> ${item.posts.title}`}
                                                 </Link>
                                             </div>
                                         </div>

@@ -24,27 +24,25 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
     return (
         <Card hasBackground hasShadow backgroundType="background" className={cn('box')}>
             <Link href={`/@${props.author}/${props.url}`}>
-                <a>
-                    <div className={cn('title')}>
-                        {('000' + props.number).slice(-3)}. {props.title}
-                    </div>
-                    <div className={cn('date')}>
-                        {props.createdDate}
-                    </div>
-                    <div className={cn('description')}>
-                        {unescape(props.description)}
-                    </div>
-                    {props.image && (
-                        <img
-                            className={cn('thumbnail', 'lazy')}
-                            src={getPostsImage(props.image, { preview: true })}
-                            data-src={getPostsImage(props.image, { minify: true })}
-                        />
-                    )}
-                    <span className="shallow-dark">
-                        더보기
-                    </span>
-                </a>
+                <div className={cn('title')}>
+                    {('000' + props.number).slice(-3)}. {props.title}
+                </div>
+                <div className={cn('date')}>
+                    {props.createdDate}
+                </div>
+                <div className={cn('description')}>
+                    {unescape(props.description)}
+                </div>
+                {props.image && (
+                    <img
+                        className={cn('thumbnail', 'lazy')}
+                        src={getPostsImage(props.image, { preview: true })}
+                        data-src={getPostsImage(props.image, { minify: true })}
+                    />
+                )}
+                <span className="shallow-dark">
+                    더보기
+                </span>
             </Link>
         </Card>
     );

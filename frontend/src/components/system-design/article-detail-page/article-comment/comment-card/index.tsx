@@ -34,21 +34,17 @@ export function CommentCard(props: CommentCardProps) {
             <div className="d-flex justify-content-between">
                 <div className="d-flex align-items-center">
                     <Link href={`/@${props.author}`}>
-                        <a>
-                            <div
-                                className={`${cn('thumbnail')} back-image thumb`}
-                                style={{ backgroundImage: `url(${props.authorImage})` }}
-                            />
-                        </a>
+                        <div
+                            className={`${cn('thumbnail')} back-image thumb`}
+                            style={{ backgroundImage: `url(${props.authorImage})` }}
+                        />
                     </Link>
                     <div>
                         <div>
-                            <Link href={`/@${props.author}`}>
-                                <a className="deep-dark">
-                                    <Text fontWeight={600}>
-                                        {props.author}
-                                    </Text>
-                                </a>
+                            <Link className="deep-dark" href={`/@${props.author}`}>
+                                <Text fontWeight={600}>
+                                    {props.author}
+                                </Text>
                             </Link>
                         </div>
                         <div>

@@ -18,29 +18,23 @@ export function ArticleAuthor(props: ArticleAuthorProps) {
             <div className="d-flex align-items-center">
                 <div>
                     <Link href="/[author]" as={`/@${props.profile.username}`}>
-                        <a>
-                            <img
-                                className={styles.image}
-                                src={props.profile.image}
-                                width="50"
-                                height="50"
-                            />
-                        </a>
+                        <img
+                            className={styles.image}
+                            src={props.profile.image}
+                            width="50"
+                            height="50"
+                        />
                     </Link>
                 </div>
                 <div className={classNames(styles.info)}>
                     <div className={styles.username}>
                         <Link href={`/@${props.profile.username}`}>
-                            <a>
-                                {props.profile.name} (@{props.profile.username})
-                            </a>
+                            {props.profile.name} (@{props.profile.username})
                         </Link>
                     </div>
                     <div className={styles.bio}>
                         <Link href={`/@${props.profile.username}/about`}>
-                            <a>
-                                {props.profile.bio}
-                            </a>
+                            {props.profile.bio}
                         </Link>
                     </div>
                 </div>

@@ -37,10 +37,8 @@ export function RelatedArticles(props: RelatedProps) {
             <div className="d-flex algin-items-center justify-content-between">
                 <div>
                     <Text className="mb-1" fontWeight={600}>
-                        <Link href={`/@${props.author}`}>
-                            <a className="font-weight-bold deep-dark">
-                                {props.name}
-                            </a>
+                        <Link className="font-weight-bold deep-dark" href={`/@${props.author}`}>
+                            {props.name}
                         </Link>
                         님이 작성한 다른 글
                     </Text>
@@ -56,24 +54,20 @@ export function RelatedArticles(props: RelatedProps) {
                 <div key={item.url} className={cn('list')}>
                     <div className={cn('image')}>
                         <Link href="/[author]/[posturl]" as={`/@${item.author}/${item.url}`}>
-                            <a>
-                                {item.image && (
-                                    <img
-                                        className="lazy mt-4"
-                                        src={getPostsImage(item.image, { preview: true })}
-                                        data-src={getPostsImage(item.image, { minify: true })}
-                                        height="400"
-                                    />
-                                )}
-                            </a>
+                            {item.image && (
+                                <img
+                                    className="lazy mt-4"
+                                    src={getPostsImage(item.image, { preview: true })}
+                                    data-src={getPostsImage(item.image, { minify: true })}
+                                    height="400"
+                                />
+                            )}
                         </Link>
                     </div>
                     <div>
                         <Text tag="h3" className="mt-4 mb-2" fontSize={7} fontWeight={700}>
-                            <Link href="/[author]/[posturl]" as={`/@${item.author}/${item.url}`}>
-                                <a className="deep-dark">
-                                    {item.title}
-                                </a>
+                            <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${item.author}/${item.url}`}>
+                                {item.title}
                             </Link>
                         </Text>
                         <Text className="my-2" fontSize={2}>

@@ -3,6 +3,15 @@
         overflow-x: scroll;
     }
 
+    .category {
+        padding-bottom: 5px;
+        border-bottom: 1px solid #eee;
+
+        @media only screen and (max-width: 768px) {
+            display: none !important;
+        }
+    }
+
     & > ul {
         list-style: none;
         padding-left: 0;
@@ -11,17 +20,8 @@
             white-space: nowrap;
         }
 
-        .category {
-            padding-bottom: 5px;
-            border-bottom: 1px solid #eee;
-
-            @media only screen and (max-width: 768px) {
-                display: none !important;
-            }
-        }
-
         & > li {
-            margin: 10px 0;
+            margin: 8px 0;
 
             @media only screen and (max-width: 768px) {
                 margin: 10px 6px;
