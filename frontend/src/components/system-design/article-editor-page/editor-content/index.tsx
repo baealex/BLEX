@@ -187,8 +187,10 @@ export function EditorContent(props: EditorContentProps) {
                         props.onChange(easyMDE.value());
                     });
 
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     easyMDE.codemirror.on('paste', async (instance, event) => {
-                        const item = event.clipboardData?.items[0];
+                        const item = event.clipboardData.items[0];
                         if (item && item.type.indexOf('image') !== -1) {
                             const imageFile = item.getAsFile();
                             if (imageFile) {
