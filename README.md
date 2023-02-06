@@ -12,7 +12,7 @@
 
 <p align="center">
     <img src="https://img.shields.io/badge/nextjs-13.1.6-yellow?style=flat-square">
-    <img src="https://img.shields.io/badge/django-4.0.8-blue?style=flat-square">
+    <img src="https://img.shields.io/badge/django-4.1.6-blue?style=flat-square">
 </p>
 
 <br>
