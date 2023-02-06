@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core.files import File
-from django.core.mail import send_mail
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -185,13 +184,7 @@ def sign(request):
 
             new_user.last_name = 'email:' + token
             new_user.is_active = False
-
-            sub_task_manager.append(lambda: send_mail(
-                subject='[ BLEX ] 이메일을 인증해 주세요!',
-                message=f'{settings.SITE_URL}/verify?token={token}',
-                from_email='im@baejino.com',
-                recipient_list=[new_user.email],
-            ))
+            # TODO: 이메일 인증 f'{settings.SITE_URL}/verify?token={token}'
             new_user.save()
         else:
             new_user.save()
@@ -356,13 +349,7 @@ def security(request):
             return StatusError('AE')
 
         recovery_key = randstr(45)
-
-        sub_task_manager.append(lambda: send_mail(
-            subject='[ BLEX ] 2차 인증 복구키',
-            message=f'핸드폰을 사용할 수 없다면 이 복구키를 사용하여 로그인 하십시오.\n\n{recovery_key}',
-            from_email='im@baejino.com',
-            recipient_list=[request.user.email],
-        ))
+        # TODO: 이메일로 복구키 전송
 
         two_factor_auth = TwoFactorAuth(user=request.user)
         two_factor_auth.recovery_key = recovery_key
