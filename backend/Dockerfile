@@ -3,7 +3,7 @@ FROM baealex/blex-backend-base
 COPY ./src/requirements.txt /app/
 
 WORKDIR /app
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt --use-pep517
 
 COPY ./src /app
 
