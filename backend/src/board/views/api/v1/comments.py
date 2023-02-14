@@ -16,6 +16,9 @@ from modules import markdown
 
 def comment_list(request):
     if request.method == 'POST':
+        if not request.user.is_active:
+            return StatusError('NL')
+
         post = get_object_or_404(Post, url=request.GET.get('url'))
 
         text_md = request.POST.get('comment_md', '')
