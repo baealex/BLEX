@@ -26,7 +26,7 @@ class AuthTestCase(TestCase):
             user=User.objects.get(username='test'),
         )
 
-    def test_login_unsigned(self):
+    def test_login_not_logged_in_user(self):
         response = self.client.get('/v1/login')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
