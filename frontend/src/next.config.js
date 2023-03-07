@@ -1,13 +1,12 @@
 const path = require('path');
-const withTranspileModules = require('next-transpile-modules')(
-    ['react-frappe-charts', 'frappe-charts']
-);
+
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
     enabled: process.env.ANALYZE === 'true',
     analyzerMode: 'static',
 })
 
-module.exports = withTranspileModules(withBundleAnalyzer({
+module.exports = withBundleAnalyzer({
+    transpilePackages: ['react-frappe-charts', 'frappe-charts'],
     rewrites: () => process.env.PROXY_API_SERVER ? [
         {
             source: '/sitemap.xml',
@@ -42,4 +41,4 @@ module.exports = withTranspileModules(withBundleAnalyzer({
         HCAPTCHA_SITE_KEY: process.env.PUBLIC_HCAPTCHA_SITE_KEY,
         GOOGLE_ADSENSE_CLIENT_ID: process.env.PUBLIC_GOOGLE_ADSENESE_CLIENT_ID,
     },
-}));
+});
