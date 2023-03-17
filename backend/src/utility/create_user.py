@@ -9,6 +9,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
 from django.contrib.auth.models import User
+from board.models import Profile, Config
 
 if __name__ == '__main__':
     username = ''
@@ -18,16 +19,20 @@ if __name__ == '__main__':
     else:
         username = input('Input username : ')
     
-    user = User.objects.get(username=username)
-    answer = input(f"make a superuser {user.first_name}? (Y/N) ").upper()
+    user_exists = User.objects.filter(username=username).exists()
+    if user_exists:
+        print(f"User {username} already exists.")
+        sys.exit()
     
-    if answer == 'Y':
-        user.is_superuser = True
-        user.save()
-    if answer == 'N':
-        user.is_superuser = False
-        user.save()
-    
-    superusers = User.objects.filter(is_superuser=True)
-    print(f"Now superuser is {superusers.count()}")
+    password = input('Input password : ')
+
+    user = User.objects.create_user(username=username, password=password)
+    user.save()
+
+    profile = Profile.objects.create(user=user)
+    profile.save()
+
+    config = Config.objects.create(user=user)
+    config.save()
+
     print('DONE')
