@@ -74,7 +74,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 case API.ERROR.NOT_LOGIN:
                     snackBar('😅 로그인이 필요합니다.', {
                         onClick:() => {
-                            modalStore.open('isLoginModalOpen');
+                            modalStore.open('isOpenAuthGetModal');
                         }
                     });
                     return;
@@ -113,7 +113,7 @@ export function ArticleComment(props: ArticleCommentProps) {
     const handleClickUserTag = useCallback(async (tagUsername: string) => {
         if (!username) {
             snackBar('😅 로그인이 필요합니다.', {
-                onClick: () => modalStore.open('isLoginModalOpen')
+                onClick: () => modalStore.open('isOpenAuthGetModal')
             });
             return;
         }
@@ -208,7 +208,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 ) : (
                     <Alert
                         type="warning"
-                        onClick={() => modalStore.open('isLoginModalOpen')}>
+                        onClick={() => modalStore.open('isOpenAuthGetModal')}>
                         댓글을 작성하려면 로그인이 필요합니다.
                     </Alert>
                 )}

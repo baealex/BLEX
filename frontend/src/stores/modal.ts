@@ -1,13 +1,13 @@
 import Store from 'badland';
 
 export interface ModalStoreState {
-    isLoginModalOpen: boolean;
-    isSignupModalOpen: boolean;
-    isSignoutModalOpen: boolean;
-    isPublishModalOpen: boolean;
-    isTelegramSyncModalOpen: boolean;
-    is2FAModalOpen: boolean;
-    is2FASyncModalOpen: boolean;
+    isOpenAuthGetModal: boolean;
+    isOpenAccountCreateModal: boolean;
+    isOpenAccountDeleteModal: boolean;
+    isOpenArticlePublishModal: boolean;
+    isOpenTelegramSyncModal: boolean;
+    isOpenTwoFactorAuthGetModal: boolean;
+    isOpenTwoFactorAuthSyncModal: boolean;
 }
 
 type ModalName = keyof ModalStoreState;
@@ -16,13 +16,13 @@ class ModalStore extends Store<ModalStoreState> {
     constructor() {
         super();
         this.state = {
-            isLoginModalOpen: false,
-            isSignupModalOpen: false,
-            isSignoutModalOpen: false,
-            isPublishModalOpen: false,
-            isTelegramSyncModalOpen: false,
-            is2FAModalOpen: false,
-            is2FASyncModalOpen: false
+            isOpenAuthGetModal: false,
+            isOpenAccountCreateModal: false,
+            isOpenAccountDeleteModal: false,
+            isOpenArticlePublishModal: false,
+            isOpenTelegramSyncModal: false,
+            isOpenTwoFactorAuthGetModal: false,
+            isOpenTwoFactorAuthSyncModal: false
         };
     }
 

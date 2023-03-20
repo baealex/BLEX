@@ -63,7 +63,7 @@ interface Props {
 export function EditorLayout(props: Props) {
     const [ isSubmit, setIsSubmit ] = useState(false);
 
-    const [ isOpenPublishModal ] = useValue(modalStore, 'isPublishModalOpen');
+    const [ isOpenArticlePublishModal ] = useValue(modalStore, 'isOpenArticlePublishModal');
 
     const [ series, setSeries ] = useState<API.GetSettingSeriesResponseData['series']>();
 
@@ -87,7 +87,7 @@ export function EditorLayout(props: Props) {
     }, []);
 
     const handleSubmit = async () => {
-        modalStore.close('isPublishModalOpen');
+        modalStore.close('isOpenArticlePublishModal');
         setIsSubmit(true);
         await props.onSubmit(() => {
             setIsSubmit(false);
@@ -108,8 +108,8 @@ export function EditorLayout(props: Props) {
             />
             <Modal
                 title={props.publish.title}
-                isOpen={isOpenPublishModal}
-                onClose={() => modalStore.close('isPublishModalOpen')}
+                isOpen={isOpenArticlePublishModal}
+                onClose={() => modalStore.close('isOpenArticlePublishModal')}
                 submitText={props.publish.buttonText}
                 onSubmit={() => handleSubmit()}>
                 <KeywordForm

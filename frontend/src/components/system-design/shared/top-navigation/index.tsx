@@ -12,13 +12,13 @@ import { useRouter } from 'next/router';
 import { useStore } from 'badland-react';
 
 import {
-    LoginModal,
-    SignoutModal,
-    SignupModal,
+    AccountCreateModal,
+    AccountDeleteModal,
+    AuthGetModal,
     TelegramSyncModal,
-    TwoFactorAuthModal,
+    TwoFactorAuthGetModal,
     TwoFactorAuthSyncModal
-} from './modals';
+} from '../modals';
 import { Dropdown } from '@design-system';
 
 import * as API from '~/modules/api';
@@ -99,29 +99,29 @@ export function TopNavigation() {
 
     return (
         <>
-            <LoginModal
-                isOpen={modal.isLoginModalOpen}
-                onClose={() => modalStore.close('isLoginModalOpen')}
+            <AuthGetModal
+                isOpen={modal.isOpenAuthGetModal}
+                onClose={() => modalStore.close('isOpenAuthGetModal')}
             />
-            <SignupModal
-                isOpen={modal.isSignupModalOpen}
-                onClose={() => modalStore.close('isSignupModalOpen')}
+            <AccountCreateModal
+                isOpen={modal.isOpenAccountCreateModal}
+                onClose={() => modalStore.close('isOpenAccountCreateModal')}
             />
-            <SignoutModal
-                isOpen={modal.isSignoutModalOpen}
-                onClose={() => modalStore.close('isSignoutModalOpen')}
+            <AccountDeleteModal
+                isOpen={modal.isOpenAccountDeleteModal}
+                onClose={() => modalStore.close('isOpenAccountDeleteModal')}
             />
             <TelegramSyncModal
-                isOpen={modal.isTelegramSyncModalOpen}
-                onClose={() => modalStore.close('isTelegramSyncModalOpen')}
+                isOpen={modal.isOpenTelegramSyncModal}
+                onClose={() => modalStore.close('isOpenTelegramSyncModal')}
             />
-            <TwoFactorAuthModal
-                isOpen={modal.is2FAModalOpen}
-                onClose={() => modalStore.close('is2FAModalOpen')}
+            <TwoFactorAuthGetModal
+                isOpen={modal.isOpenTwoFactorAuthGetModal}
+                onClose={() => modalStore.close('isOpenTwoFactorAuthGetModal')}
             />
             <TwoFactorAuthSyncModal
-                isOpen={modal.is2FASyncModalOpen}
-                onClose={() => modalStore.close('is2FASyncModalOpen')}
+                isOpen={modal.isOpenTwoFactorAuthSyncModal}
+                onClose={() => modalStore.close('isOpenTwoFactorAuthSyncModal')}
             />
             <header className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
@@ -154,7 +154,7 @@ export function TopNavigation() {
                                         </li>
                                         {path.endsWith('/write') || path.endsWith('/edit') ? (
                                             <li className={cn('get-start')}>
-                                                <button aria-label="submit" onClick={() => modalStore.open('isPublishModalOpen')}>
+                                                <button aria-label="submit" onClick={() => modalStore.open('isOpenArticlePublishModal')}>
                                                     {path.lastIndexOf('/write') > -1
                                                         ? '글 발행하기'
                                                         : '글 수정하기'}
@@ -198,7 +198,7 @@ export function TopNavigation() {
                                     </>
                                 ) : (
                                     <li className={cn('get-start')}>
-                                        <button aria-label="get-start" onClick={() => modalStore.open('isLoginModalOpen')}>
+                                        <button aria-label="get-start" onClick={() => modalStore.open('isOpenAuthGetModal')}>
                                             블로그 시작
                                         </button>
                                     </li>

@@ -25,7 +25,7 @@ interface State {
     password: string;
 }
 
-export class LoginModal extends React.Component<Props, State> {
+export class AuthGetModal extends React.Component<Props, State> {
     private updateKey: string;
 
     constructor(props: Props) {
@@ -80,7 +80,7 @@ export class LoginModal extends React.Component<Props, State> {
         if (data.status === 'DONE') {
             if (data.body.security) {
                 snackBar(message('AFTER_REQ_DONE', '2차 인증 코드를 입력해 주세요.'));
-                modalStore.open('is2FAModalOpen');
+                modalStore.open('isOpenTwoFactorAuthGetModal');
                 this.props.onClose();
                 return;
             }
@@ -148,8 +148,8 @@ export class LoginModal extends React.Component<Props, State> {
                         <div className="login-hint">
                             <button
                                 onClick={async () => {
-                                    await modalStore.close('isLoginModalOpen');
-                                    await modalStore.open('isSignupModalOpen');
+                                    await modalStore.close('isOpenAuthGetModal');
+                                    await modalStore.open('isOpenAccountCreateModal');
                                 }}>
                                 아직 회원이 아니세요?
                             </button>

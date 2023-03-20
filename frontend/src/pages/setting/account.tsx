@@ -265,11 +265,11 @@ const AccountSetting: PageComponent<Props> = (props) => {
                     2차 인증 중지
                 </Button>
             ) : (
-                <Button gap="little" onClick={() => modalStore.open('is2FASyncModalOpen')}>
+                <Button gap="little" onClick={() => modalStore.open('isOpenTwoFactorAuthSyncModal')}>
                     2차 인증 등록
                 </Button>
             )}
-            <Button onClick={() => modalStore.open('isSignoutModalOpen')}>
+            <Button onClick={() => modalStore.open('isOpenAccountDeleteModal')}>
                 사용자 탈퇴
             </Button>
         </form>

@@ -11,7 +11,7 @@ interface Props {
     onClose: () => void;
 }
 
-export function SignupModal(props: Props) {
+export function AccountCreateModal(props: Props) {
     return (
         <Modal title="회원가입" isOpen={props.isOpen} onClose={props.onClose}>
             <button
@@ -27,8 +27,8 @@ export function SignupModal(props: Props) {
             <div className="login-hint">
                 <button
                     onClick={async () => {
-                        await modalStore.close('isSignupModalOpen');
-                        await modalStore.open('isLoginModalOpen');
+                        await modalStore.close('isOpenAccountCreateModal');
+                        await modalStore.open('isOpenAuthGetModal');
                     }}>
                     이미 회원이신가요?
                 </button>

@@ -17,7 +17,7 @@ interface State {
     timer: number;
 }
 
-export class TwoFactorAuthModal extends React.Component<Props, State> {
+export class TwoFactorAuthGetModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {

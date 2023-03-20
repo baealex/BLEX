@@ -74,7 +74,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
                 <Button
                     space="spare"
                     display="block"
-                    onClick={() => modalStore.open('isTelegramSyncModalOpen')}>
+                    onClick={() => modalStore.open('isOpenTelegramSyncModal')}>
                     <i className="fab fa-telegram-plane"/> 텔레그램 연동
                 </Button>
             )}
