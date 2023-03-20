@@ -18,6 +18,7 @@ export interface ButtonProps {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
+    type = 'button',
     gap = 'none',
     isRounded = false,
     space = 'default',
@@ -56,6 +57,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     return (
         <button
             ref={ref || button}
+            type={type}
             className={cn(
                 'button',
                 { isRounded },
