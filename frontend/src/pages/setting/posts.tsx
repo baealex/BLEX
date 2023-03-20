@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 
 import {
     Alert,
+    Button,
     Card,
     Dropdown
 } from '@design-system';
@@ -194,7 +195,9 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         </div>
                         <div className="input-group mt-2">
                             <div className="input-group-prepend">
-                                <div className="input-group-text">#</div>
+                                <div className="input-group-text">
+                                    TAG
+                                </div>
                             </div>
                             <input
                                 type="text"
@@ -205,9 +208,9 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 maxLength={255}
                             />
                             <div className="input-group-prepend">
-                                <button onClick={() => onTagSubmit(post.url)}>
+                                <Button onClick={() => onTagSubmit(post.url)}>
                                     변경
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>

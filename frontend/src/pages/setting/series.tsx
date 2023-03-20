@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
-import { Card } from '@design-system';
+import { Button, Card } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -32,7 +32,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
     const [ newSeries, setNewSeries ] = useState('');
     const [ series, setSeries ] = useState(props.series);
 
-    const handleCreateSeries = async () => {
+    const handleCreate = async () => {
         if (!newSeries) {
             snackBar(message('BEFORE_REQ_ERR', '시리즈의 이름을 입력하세요.'));
             return;
@@ -47,7 +47,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
         setNewSeries('');
     };
 
-    const onSeriesDelete = async (url: string) => {
+    const handleDelete = async (url: string) => {
         if (confirm(message('CONFIRM', '정말 이 시리즈를 삭제할까요?'))) {
             const { data } = await API.deleteUserSeries('@' + props.username, url);
             if (data.status === 'DONE') {
@@ -58,7 +58,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
         }
     };
 
-    const handleChangeSeriesOrder = async (url: string, prevIdx: number, nextIdx: number) => {
+    const handleChangeOrder = async (url: string, prevIdx: number, nextIdx: number) => {
         if (nextIdx < 0 || nextIdx > series.length - 1) return;
 
         loadingStore.start();
@@ -81,9 +81,14 @@ const SeriesSetting: PageComponent<Props> = (props) => {
         loadingStore.end();
     };
 
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handleCreate();
+    };
+
     return (
         <>
-            <div className="input-group mb-3">
+            <form onSubmit={handleSubmit} className="input-group mb-3">
                 <input
                     type="text"
                     placeholder="시리즈의 이름"
@@ -93,25 +98,27 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                     value={newSeries}
                 />
                 <div className="input-group-prepend">
-                    <button type="button" className="btn btn-dark" onClick={() => handleCreateSeries()}>새 시리즈 만들기</button>
+                    <Button type="submit">
+                        새 시리즈 만들기
+                    </Button>
                 </div>
-            </div>
+            </form>
             {series.map((item, idx) => (
                 <div key={item.url} className="d-flex mb-3">
                     <div className="d-flex flex-column justify-content-between mr-3">
-                        <div className="c-pointer" onClick={() => handleChangeSeriesOrder(item.url, idx, idx-1)}>
+                        <div className="c-pointer" onClick={() => handleChangeOrder(item.url, idx, idx-1)}>
                             <i className="fas fa-angle-up"></i>
                         </div>
-                        <div className="c-pointer" onClick={() => handleChangeSeriesOrder(item.url, idx, idx+1)}>
+                        <div className="c-pointer" onClick={() => handleChangeOrder(item.url, idx, idx+1)}>
                             <i className="fas fa-angle-down"></i>
                         </div>
                     </div>
                     <Card hasBackground isRounded className="p-3">
                         <div className="d-flex justify-content-between">
-                            <Link className="deep-dark" href="/[author]/series/[seriesurl]" as={`/@${props.username}/series/${item.url}`}>
+                            <Link className="deep-dark" href={`/@${props.username}/series/${item.url}`}>
                                 {item.title} <span className="vs">{item.totalPosts}</span>
                             </Link>
-                            <a onClick={() => onSeriesDelete(item.url)}>
+                            <a onClick={() => handleDelete(item.url)}>
                                 <i className="fas fa-times"></i>
                             </a>
                         </div>

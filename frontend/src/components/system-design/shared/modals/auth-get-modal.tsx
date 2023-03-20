@@ -53,10 +53,6 @@ export class AuthGetModal extends React.Component<Props, State> {
 
     async handleSubmitLogin(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        this.handleClickLogin();
-    }
-
-    async handleClickLogin() {
         if (this.state.isLoading) {
             return;
         }
@@ -144,8 +140,7 @@ export class AuthGetModal extends React.Component<Props, State> {
                             <Button
                                 type="submit"
                                 className="login-button"
-                                isLoading={this.state.isLoading}
-                                onClick={this.handleClickLogin.bind(this)}>
+                                isLoading={this.state.isLoading}>
                                 BLEX 계정으로 로그인
                             </Button>
                         </form>
