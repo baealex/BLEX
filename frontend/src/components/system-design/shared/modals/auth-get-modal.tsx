@@ -3,6 +3,7 @@ import styles from './styles.module.scss';
 import React from 'react';
 
 import {
+    Button,
     Modal,
     SplitLine
 } from '@design-system';
@@ -23,6 +24,7 @@ interface Props {
 interface State {
     username: string;
     password: string;
+    isLoading: boolean;
 }
 
 export class AuthGetModal extends React.Component<Props, State> {
@@ -32,19 +34,14 @@ export class AuthGetModal extends React.Component<Props, State> {
         super(props);
         this.state = {
             username: authStore.state.username,
-            password: ''
+            password: '',
+            isLoading: false
         };
         this.updateKey = authStore.subscribe((state) => this.setState({ username: state.username }));
     }
 
     componentWillUnmount() {
         authStore.unsubscribe(this.updateKey);
-    }
-
-    onEnterLogin(e: React.KeyboardEvent<HTMLInputElement>) {
-        if (e.key == 'Enter') {
-            this.onSubmitLogin();
-        }
     }
 
     onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -54,7 +51,15 @@ export class AuthGetModal extends React.Component<Props, State> {
         });
     }
 
-    async onSubmitLogin() {
+    async handleSubmitLogin(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        this.handleClickLogin();
+    }
+
+    async handleClickLogin() {
+        if (this.state.isLoading) {
+            return;
+        }
         if (this.state.username == '') {
             snackBar('😅 아이디를 입력해주세요!');
             return;
@@ -63,16 +68,10 @@ export class AuthGetModal extends React.Component<Props, State> {
             snackBar('😅 비밀번호를 입력해주세요!');
             return;
         }
+        this.setState({ isLoading: true });
+
         const { data } = await API.postLogin(this.state.username, this.state.password);
-        this.loginCheck(data);
-    }
 
-    async onSocialLogin(social: string, code: string) {
-        const { data } = await API.postSignSocialLogin(social, code);
-        this.loginCheck(data);
-    }
-
-    async loginCheck(data: API.ResponseData<API.PostLoginResponseData>) {
         if (data.status === 'ERROR') {
             snackBar(message('AFTER_REQ_ERR', '아이디 혹은 비밀번호를 확인해 주세요.'));
         }
@@ -94,7 +93,10 @@ export class AuthGetModal extends React.Component<Props, State> {
 
             this.props.onClose();
         }
-        this.setState({ password: '' });
+        this.setState({
+            password: '',
+            isLoading: false
+        });
     }
 
     render() {
@@ -123,28 +125,30 @@ export class AuthGetModal extends React.Component<Props, State> {
                             <i className="fab fa-github"></i> GitHub 계정으로 로그인
                         </button>
                         <SplitLine/>
-                        <input
-                            className="login-form"
-                            name="username"
-                            placeholder="아이디"
-                            onChange={(e) => this.onInputChange(e)}
-                            value={this.state.username}
-                            onKeyPress={(e) => this.onEnterLogin(e)}
-                        />
-                        <input
-                            className="login-form"
-                            name="password"
-                            type="password"
-                            placeholder="비밀번호"
-                            onChange={(e) => this.onInputChange(e)}
-                            value={this.state.password}
-                            onKeyPress={(e) => this.onEnterLogin(e)}
-                        />
-                        <button
-                            className="login-button"
-                            onClick={() => this.onSubmitLogin()}>
-                            BLEX 계정으로 로그인
-                        </button>
+                        <form onSubmit={this.handleSubmitLogin.bind(this)}>
+                            <input
+                                className="login-form"
+                                name="username"
+                                placeholder="아이디"
+                                onChange={this.onInputChange.bind(this)}
+                                value={this.state.username}
+                            />
+                            <input
+                                className="login-form"
+                                name="password"
+                                type="password"
+                                placeholder="비밀번호"
+                                onChange={this.onInputChange.bind(this)}
+                                value={this.state.password}
+                            />
+                            <Button
+                                type="submit"
+                                className="login-button"
+                                isLoading={this.state.isLoading}
+                                onClick={this.handleClickLogin.bind(this)}>
+                                BLEX 계정으로 로그인
+                            </Button>
+                        </form>
                         <div className="login-hint">
                             <button
                                 onClick={async () => {

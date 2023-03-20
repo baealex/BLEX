@@ -7,6 +7,7 @@ import { forwardRef, useCallback, useRef } from 'react';
 export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
     className?: string;
+    isLoading?: boolean;
     isRounded?: boolean;
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
     children: React.ReactNode;
@@ -23,12 +24,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     color = 'default',
     display = 'inline-block',
     className,
+    isLoading = false,
     onClick,
     children
 }, ref) => {
     const button = useRef<HTMLButtonElement>(null);
 
     const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        if (isLoading) {
+            return;
+        }
         onClick?.(e);
 
         const ripple = document.createElement('span');
@@ -61,7 +66,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
                 className
             )}
             onClick={handleClick}>
-            {children}
+            {isLoading ? <i className="fas fa-spinner fa-spin"/> : children}
         </button>
     );
 });
