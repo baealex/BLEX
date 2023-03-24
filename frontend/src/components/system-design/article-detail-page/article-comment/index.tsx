@@ -189,7 +189,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                     <CommentCard
                         pk={-1}
                         author="Ghost"
-                        authorImage="https://static.blex.me/assets//images/ghost.png"
+                        authorImage="https://static.blex.me/assets/images/ghost.jpg"
                         createdDate="0 minutes ago"
                         html="작성된 댓글이 없습니다. 첫 댓글을 달아보세요!"
                         isEdited={false}

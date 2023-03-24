@@ -362,10 +362,7 @@ class Post(models.Model):
         return [tag.value for tag in self.tags.all() if tag]
 
     def get_thumbnail(self):
-        if self.image:
-            return settings.MEDIA_URL + str(self.image)
-        else:
-            return settings.STATIC_URL + 'images/default-post.png'
+        return self.image.url if self.image else ''
 
     def __str__(self):
         return self.title
@@ -604,10 +601,7 @@ class Series(models.Model):
 
     def thumbnail(self):
         posts = Post.objects.filter(series=self, config__hide=False)
-        if posts:
-            return posts[0].get_thumbnail()
-        else:
-            return settings.STATIC_URL + '/images/default-post.png'
+        return posts[0].get_thumbnail() if posts else ''
 
     def get_absolute_url(self):
         return reverse('series_list', args=[self.owner, self.url])

@@ -1,3 +1,4 @@
+import { getHash } from '~/modules/utility/hash';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
@@ -13,7 +14,17 @@ export function getImage(path: string) {
 interface GetPostsImageOptions {
     preview?: boolean;
     minify?: boolean;
+    title?: string;
 }
+
+const DEFAULT_COVER_LIST = [
+    'assets/images/default-cover-1.jpg',
+    'assets/images/default-cover-2.jpg',
+    'assets/images/default-cover-3.jpg',
+    'assets/images/default-cover-4.jpg',
+    'assets/images/default-cover-5.jpg',
+    'assets/images/default-cover-6.jpg'
+];
 
 export function getPostsImage(path: string, options?: GetPostsImageOptions) {
     if (path !== '') {
@@ -26,7 +37,12 @@ export function getPostsImage(path: string, options?: GetPostsImageOptions) {
         }
         return getImage(path);
     }
-    return getImage('assets/images/default-post.png');
+    if (options?.title) {
+        const hash = getHash(options.title);
+        const index = hash % DEFAULT_COVER_LIST.length;
+        return getImage(DEFAULT_COVER_LIST[index]);
+    }
+    return DEFAULT_COVER_LIST[0];
 }
 
 export function getUserImage(path: string) {

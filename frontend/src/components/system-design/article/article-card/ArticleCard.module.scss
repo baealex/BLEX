@@ -34,3 +34,14 @@
     object-fit: cover;
     margin-right: 4px;
 }
+
+.description {
+    min-height: 72px;
+    letter-spacing: -0.009em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
