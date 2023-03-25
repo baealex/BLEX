@@ -18,6 +18,16 @@
         :global(.cm-comment) {
             color: #6a9955;
         }
+
+        :global(body.dark) & {
+            :global(.CodeMirror-scroll),
+            :global(.CodeMirror-sizer),
+            :global(.CodeMirror-gutter),
+            :global(.CodeMirror-gutters),
+            :global(.CodeMirror-linenumber) {
+                background-color: #111;
+            }
+        }
     }
 
     hr {
