@@ -8,6 +8,9 @@ import { CONFIG } from '~/modules/settings';
 import { loadingStore } from '~/stores/loading';
 
 export function getImage(path: string) {
+    if (path.startsWith('http')) {
+        return path;
+    }
     return `${CONFIG.STATIC_SERVER}/${path}`;
 }
 
