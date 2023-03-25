@@ -68,7 +68,7 @@ class Comment(models.Model):
 
     def author_thumbnail(self):
         if not self.author:
-            return settings.STATIC_URL + '/images/ghost.png'
+            return settings.STATIC_URL + 'images/ghost.jpg'
         return self.author.profile.get_thumbnail()
 
     def get_text_html(self):
@@ -80,7 +80,7 @@ class Comment(models.Model):
         if self.image:
             return self.image.url
         else:
-            return settings.STATIC_URL + '/images/default-post.png'
+            return settings.STATIC_URL + 'images/default-post.png'
 
     def get_absolute_url(self):
         return self.post.get_absolute_url()
