@@ -190,7 +190,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                         pk={-1}
                         author="Ghost"
                         authorImage="https://static.blex.me/assets/images/ghost.jpg"
-                        createdDate="0 minutes ago"
+                        createdDate="0분 전"
                         html="작성된 댓글이 없습니다. 첫 댓글을 달아보세요!"
                         isEdited={false}
                         totalLikes={0}
