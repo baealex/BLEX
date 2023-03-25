@@ -1,7 +1,8 @@
+import React, { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
-import React from 'react';
 import Router from 'next/router';
+import { useStore } from 'badland-react';
 
 import {
     Button,
@@ -9,7 +10,7 @@ import {
     Modal
 } from '@design-system';
 import {
-    Footer, Pagination, SEO
+    Footer, SEO
 } from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
 
@@ -17,9 +18,18 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 import { authStore } from '~/stores/auth';
 import { configStore } from '~/stores/config';
+
+import { useForm } from '~/hooks/use-form';
+import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
+
+interface Props {
+    page: number;
+    series: API.GetAnUserSeriesResponseData;
+}
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { cookies } = context.req;
@@ -50,319 +60,260 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
-interface Props {
-    page: number;
-    series: API.GetAnUserSeriesResponseData;
+interface Form {
+    title: string;
+    description: string;
 }
 
-interface State {
-    isLogin: boolean;
-    username: string;
-    seriesTitle: string;
-    seriesDescription: string;
-    seriesPosts: API.GetAnUserSeriesResponseData['posts'];
-    isSeriesModalOpen: boolean;
-}
+export default function Series(props: Props) {
+    const [{ username }] = useStore(authStore);
 
-class Series extends React.Component<Props, State> {
-    private authUpdateKey: string;
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            isLogin: authStore.state.isLogin,
-            username: authStore.state.username,
-            seriesTitle: props.series.name,
-            seriesDescription: props.series.description,
-            seriesPosts: props.series.posts,
-            isSeriesModalOpen: false
-        };
-        this.authUpdateKey = authStore.subscribe((state) => this.setState({
-            isLogin: state.isLogin,
-            username: state.username
-        }));
-    }
+    const [seriesPosts, setSeriesPosts] = useState<API.GetAnUserSeriesResponseData['posts']>(props.series.posts);
+    const [isOpenSeriesUpdateModal, setIsOpenSeriesUpdateModal] = useState(false);
+    const [page, setPage] = useState(1);
 
-    componentWillUnmount() {
-        authStore.unsubscribe(this.authUpdateKey);
-    }
+    useEffect(() => {
+        lazyLoadResource();
+    }, [seriesPosts]);
 
-    componentDidUpdate(prevProps: Props) {
-        if (
-            prevProps.series.name !== this.props.series.name ||
-            prevProps.series.description !== this.props.series.description ||
-            prevProps.series.posts !== this.props.series.posts
-        ) {
-            this.setState({
-                seriesTitle: this.props.series.name,
-                seriesDescription: this.props.series.description,
-                seriesPosts: this.props.series.posts
-            });
+    useInfinityScroll(async () => {
+        if (props.series.lastPage <= page) {
+            return;
         }
-    }
 
-    onOpenModal(modalName: 'isSeriesModalOpen') {
-        this.setState({ [modalName]: true });
-    }
-
-    onCloseModal(modalName: 'isSeriesModalOpen') {
-        this.setState({ [modalName]: false });
-    }
-
-    onInputChange(e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            ...this.state,
-            [e.target.name]: e.target.value
+        const { data } = await API.getAnUserSeries('@' + props.series.owner, props.series.url, {
+            page: page + 1
         });
-    }
 
-    async seriesUpdate() {
-        const { data } = await API.putUserSeries(
-            '@' + this.props.series.owner,
-            this.props.series.url,
-            {
-                title: this.state.seriesTitle,
-                description: this.state.seriesDescription
-            }
-        );
         if (data.status === 'DONE') {
-            Router.replace(`/@${this.state.username}/series/${data.body.url}`);
-            this.onCloseModal('isSeriesModalOpen');
+            setPage(page + 1);
+            setSeriesPosts([...seriesPosts, ...data.body.posts]);
+        }
+    });
+
+    const { register, handleSubmit } = useForm<Form>();
+
+    const handleSeriesUpdate = handleSubmit(async (formData) => {
+        const { data } = await API.putUserSeries('@' + props.series.owner, props.series.url, formData);
+
+        if (data.status === 'DONE') {
+            Router.replace(`/@${username}/series/${data.body.url}`);
+            setIsOpenSeriesUpdateModal(false);
             snackBar('😀 시리즈가 업데이트 되었습니다.');
         } else {
             snackBar('😯 변경중 오류가 발생했습니다.');
         }
-    }
+    });
 
-    async onPostsRemoveInSeries(url: string) {
+    const handleRemovePosts = async (url: string) => {
         if (confirm('😮 이 포스트를 시리즈에서 제거할까요?')) {
-            const { data } = await API.putAnUserPosts('@' + this.props.series.owner, url, 'series');
+            const { data } = await API.putAnUserPosts('@' + props.series.owner, url, 'series');
             if (data.status === 'DONE') {
-                let { seriesPosts } = this.state;
-                seriesPosts = seriesPosts.filter(post => (
+                setSeriesPosts((prevSeriesPosts) => prevSeriesPosts.filter(post => (
                     post.url !== url
-                ));
-                this.setState({ seriesPosts });
+                )));
                 snackBar('😀 시리즈가 업데이트 되었습니다.');
             } else {
                 snackBar('😯 변경중 오류가 발생했습니다.');
             }
         }
-    }
+    };
 
-    render() {
-        const {
-            seriesTitle,
-            seriesDescription,
-            seriesPosts
-        } = this.state;
-
-        const SeriesModal = this.props.series.owner == this.state.username && (
-            <Modal
-                title="시리즈 수정"
-                isOpen={this.state.isSeriesModalOpen}
-                onClose={() => this.onCloseModal('isSeriesModalOpen')}
-                submitText="시리즈를 수정합니다"
-                onSubmit={() => this.seriesUpdate()}>
-                <div className="input-group mb-3 mr-sm-2 mt-3">
-                    <div className="input-group-prepend">
-                        <div className="input-group-text">시리즈명</div>
-                    </div>
-                    <input
-                        type="text"
-                        name="seriesTitle"
-                        value={seriesTitle}
-                        placeholder="시리즈의 이름"
-                        className="form-control"
-                        maxLength={50}
-                        required
-                        onChange={(e) => this.onInputChange(e)}
-                    />
+    const SeriesUpdateModal = () => (
+        <Modal
+            title="시리즈 수정"
+            isOpen={isOpenSeriesUpdateModal}
+            onClose={() => setIsOpenSeriesUpdateModal(false)}
+            submitText="시리즈를 수정합니다"
+            onSubmit={handleSeriesUpdate}>
+            <div className="input-group mb-3 mr-sm-2 mt-3">
+                <div className="input-group-prepend">
+                    <div className="input-group-text">시리즈명</div>
                 </div>
-                <textarea
-                    name="seriesDescription"
-                    cols={40}
-                    rows={5}
-                    placeholder="설명을 작성하세요."
+                <input
+                    {...register('title')}
+                    type="text"
+                    placeholder="시리즈의 이름"
                     className="form-control"
-                    onChange={(e) => this.onInputChange(e)}
-                    value={seriesDescription}
+                    maxLength={50}
+                    required
+                    defaultValue={props.series.name}
                 />
-                {seriesPosts.map((post, idx) => (
-                    <Card key={idx} hasShadow isRounded className="p-3 mt-3">
-                        <div className="d-flex justify-content-between">
-                            <span className="deep-dark">
-                                {idx + 1}. {post.title}
-                            </span>
-                            <a onClick={() => this.onPostsRemoveInSeries(post.url)}>
-                                <i className="fas fa-times"></i>
-                            </a>
-                        </div>
-                    </Card>
-                ))}
-            </Modal>
-        );
+            </div>
+            <textarea
+                {...register('description')}
+                cols={40}
+                rows={5}
+                placeholder="설명을 작성하세요."
+                className="form-control"
+                defaultValue={props.series.description}
+            />
+            {seriesPosts.map((post, idx) => (
+                <Card key={idx} hasShadow isRounded className="p-3 mt-3">
+                    <div className="d-flex justify-content-between">
+                        <span className="deep-dark">
+                            {idx + 1}. {post.title}
+                        </span>
+                        <a onClick={() => handleRemovePosts(post.url)}>
+                            <i className="fas fa-times"></i>
+                        </a>
+                    </div>
+                </Card>
+            ))}
+        </Modal>
+    );
 
-        return (
-            <>
-                <SEO
-                    title={`'${this.props.series.name}' 시리즈 — ${this.props.series.owner}`}
-                    image={this.props.series.image}
-                />
+    return (
+        <>
+            <SEO
+                title={`'${props.series.name}' 시리즈 — ${props.series.owner}`}
+                image={props.series.image}
+            />
 
-                {SeriesModal}
+            {props.series.owner === username && (
+                <SeriesUpdateModal />
+            )}
 
-                <style jsx>{`
-                    :global(main.content) {
-                        padding-top: 0;
-                        background-color: #F2F2F2;
+            <div className="series-header">
+                <div className="series-header-content">
+                    <h1 className="series-title">“{props.series.name}” 시리즈</h1>
+                    <p className="series-description">{props.series.description}</p>
+                </div>
+                {props.series.owner == username && (
+                    <div className="corner">
+                        <Button onClick={() => setIsOpenSeriesUpdateModal(true)}>
+                            시리즈 수정
+                        </Button>
+                    </div>
+                )}
+            </div>
 
-                        :global(body.dark) & {
-                            background-color: #151515;
-                        }
+            <div className="user-image-wrapper">
+                <Link href={`/@${props.series.owner}`}>
+                    <img src={getUserImage(props.series.ownerImage)} alt={props.series.name} />
+                </Link>
+            </div>
+
+            <div className="b-container">
+                <div className={'series-list'}>
+                    {seriesPosts.map((post) => (
+                        <SeriesArticleCard
+                            key={post.url}
+                            author={props.series.owner}
+                            {...post}
+                        />
+                    ))}
+                </div>
+            </div>
+            <Footer isDark />
+
+            <style jsx>{`
+                :global(main.content) {
+                    padding-top: 0;
+                    background-color: #F2F2F2;
+
+                    :global(body.dark) & {
+                        background-color: #151515;
                     }
-                    
-                    .series-header {
-                        height: 380px;
-                        background: #000;
-                        width: 100%;
-                        position: relative;
+                }
+                
+                .series-header {
+                    height: 380px;
+                    background: #000;
+                    width: 100%;
+                    position: relative;
 
-                        .series-header-content {
-                            position: absolute;
-                            top: calc(50% + 40px);
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            text-align: center;
-                            color: #fff;
-                            width: 100%;
-                            max-width: 720px;
-                            padding: 0 15px;
-
-                            .series-title {
-                                font-size: 2rem;
-                                font-weight: bold;
-                                margin-bottom: 1rem;
-                                letter-spacing: -1px;
-
-                                @media (max-width: 768px) {
-                                    font-size: 1.5rem;
-                                }
-                            }
-
-                            .series-description {
-                                font-size: 1.2rem;
-                                line-height: 1.5;
-                                margin-bottom: 1rem;
-                                word-break: keep-all;
-
-                                @media (max-width: 768px) {
-                                    font-size: 1rem;
-                                    word-break: break-all;
-                                }
-                            }
-                        }
-
-                        .corner {
-                            position: absolute;
-                            bottom: 16px;
-                            right: 16px;
-                        }
-                    }
-
-                    .series-header::after {
-                        content: '';
+                    .series-header-content {
                         position: absolute;
-                        bottom: -30px;
+                        top: calc(50% + 40px);
                         left: 50%;
-                        transform: translateX(-50%);
-                        width: 0;
-                        height: 0;
-                        border-style: solid;
-                        border-width: 30px 30px 0 30px;
-                        border-color: #000 transparent transparent transparent;
-                    }
-
-                    .user-image-wrapper {
-                        width: 200px;
-                        height: 200px;
-                        border-radius: 100%;
-                        overflow: hidden;
-                        margin: 60px auto;
-
-                        img {
-                            width: 100%;
-                            height: 100%;
-                            object-fit: cover;
-
-                            &:hover {
-                                transform: scale(1.5);
-                            }
-
-                            transition: transform 0.2s ease-in-out;
-                        }
-                    }
-
-                    .b-container {
-                        padding: 0 15px;
+                        transform: translate(-50%, -50%);
+                        text-align: center;
+                        color: #fff;
                         width: 100%;
-                        max-width: 600px;
-                        margin: 0 auto;
-                    }
+                        max-width: 720px;
+                        padding: 0 15px;
 
-                    .series-list {
-                        display: flex;
-                        flex-direction: column;
+                        .series-title {
+                            font-size: 2rem;
+                            font-weight: bold;
+                            margin-bottom: 1rem;
+                            letter-spacing: -1px;
 
-                        &.reversed {
-                            flex-direction: column-reverse;
+                            @media (max-width: 768px) {
+                                font-size: 1.5rem;
+                            }
+                        }
+
+                        .series-description {
+                            font-size: 1.2rem;
+                            line-height: 1.5;
+                            margin-bottom: 1rem;
+                            word-break: keep-all;
+
+                            @media (max-width: 768px) {
+                                font-size: 1rem;
+                                word-break: break-all;
+                            }
                         }
                     }
-                `}</style>
 
-                <div className="series-header">
-                    <div className="series-header-content">
-                        <h1 className="series-title">“{this.props.series.name}” 시리즈</h1>
-                        <p className="series-description">{this.props.series.description}</p>
-                    </div>
-                    {this.props.series.owner == this.state.username && (
-                        <div className="corner">
-                            <Button onClick={() => this.onOpenModal('isSeriesModalOpen')}>
-                                시리즈 수정
-                            </Button>
-                        </div>
-                    )}
-                </div>
+                    .corner {
+                        position: absolute;
+                        bottom: 16px;
+                        right: 16px;
+                    }
+                }
 
-                <div className="user-image-wrapper">
-                    <Link href={`/@${this.props.series.owner}`}>
-                        <img src={getUserImage(this.props.series.ownerImage)} alt={this.props.series.name} />
-                    </Link>
-                </div>
+                .series-header::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -30px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 30px 30px 0 30px;
+                    border-color: #000 transparent transparent transparent;
+                }
 
-                <div className="b-container">
-                    <Pagination
-                        disableScroll
-                        page={this.props.page}
-                        last={this.props.series.lastPage}
-                    />
-                    <div className={'series-list'}>
-                        {seriesPosts.map((post) => (
-                            <SeriesArticleCard
-                                key={post.url}
-                                author={this.props.series.owner}
-                                {...post}
-                            />
-                        ))}
-                    </div>
-                    <Pagination
-                        page={this.props.page}
-                        last={this.props.series.lastPage}
-                    />
-                </div>
-                <Footer isDark />
-            </>
-        );
-    }
+                .user-image-wrapper {
+                    width: 200px;
+                    height: 200px;
+                    border-radius: 100%;
+                    overflow: hidden;
+                    margin: 60px auto;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+
+                        &:hover {
+                            transform: scale(1.5);
+                        }
+
+                        transition: transform 0.2s ease-in-out;
+                    }
+                }
+
+                .b-container {
+                    padding: 0 15px;
+                    width: 100%;
+                    max-width: 600px;
+                    margin: 0 auto;
+                }
+
+                .series-list {
+                    display: flex;
+                    flex-direction: column;
+
+                    &.reversed {
+                        flex-direction: column-reverse;
+                    }
+                }
+            `}</style>
+        </>
+    );
 }
-
-export default Series;
