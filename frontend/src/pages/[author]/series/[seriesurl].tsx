@@ -25,9 +25,9 @@ import { configStore } from '~/stores/config';
 
 import { useForm } from '~/hooks/use-form';
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
+import { useMemoryStore } from '~/hooks/use-memory-store';
 
 interface Props {
-    page: number;
     series: API.GetAnUserSeriesResponseData;
 }
 
@@ -36,7 +36,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     configStore.serverSideInject(cookies);
 
     const {
-        page = 1,
         author = '',
         seriesurl = ''
     } = context.query;
@@ -47,11 +46,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     try {
         const { data } = await API.getAnUserSeries('' + author, '' + seriesurl, {
-            page: Number(page)
+            page: 1
         });
         return {
             props: {
-                page,
                 series: data.body
             }
         };
@@ -66,15 +64,19 @@ interface Form {
 }
 
 export default function Series(props: Props) {
+    const memoryStore = useMemoryStore([props.series.url], {
+        page: 1,
+        posts: props.series.posts
+    });
+
     const [{ username }] = useStore(authStore);
 
-    const [seriesPosts, setSeriesPosts] = useState<API.GetAnUserSeriesResponseData['posts']>(props.series.posts);
-    const [isOpenSeriesUpdateModal, setIsOpenSeriesUpdateModal] = useState(false);
-    const [page, setPage] = useState(1);
+    const [posts, setPosts] = useState<API.GetAnUserSeriesResponseData['posts']>(memoryStore.posts);
+    const [page, setPage] = useState(memoryStore.page);
 
-    useEffect(() => {
-        lazyLoadResource();
-    }, [seriesPosts]);
+    const [isOpenSeriesUpdateModal, setIsOpenSeriesUpdateModal] = useState(false);
+
+    useEffect(lazyLoadResource, [posts]);
 
     useInfinityScroll(async () => {
         if (props.series.lastPage <= page) {
@@ -86,8 +88,14 @@ export default function Series(props: Props) {
         });
 
         if (data.status === 'DONE') {
-            setPage(page + 1);
-            setSeriesPosts([...seriesPosts, ...data.body.posts]);
+            setPage((prevPage) => {
+                memoryStore.page = prevPage + 1;
+                return memoryStore.page;
+            });
+            setPosts((prevPosts) => {
+                memoryStore.posts = [...prevPosts, ...data.body.posts];
+                return memoryStore.posts;
+            });
         }
     });
 
@@ -109,7 +117,7 @@ export default function Series(props: Props) {
         if (confirm('😮 이 포스트를 시리즈에서 제거할까요?')) {
             const { data } = await API.putAnUserPosts('@' + props.series.owner, url, 'series');
             if (data.status === 'DONE') {
-                setSeriesPosts((prevSeriesPosts) => prevSeriesPosts.filter(post => (
+                setPosts((prevPosts) => prevPosts.filter(post => (
                     post.url !== url
                 )));
                 snackBar('😀 시리즈가 업데이트 되었습니다.');
@@ -148,8 +156,8 @@ export default function Series(props: Props) {
                 className="form-control"
                 defaultValue={props.series.description}
             />
-            {seriesPosts.map((post, idx) => (
-                <Card key={idx} hasShadow isRounded className="p-3 mt-3">
+            {posts.map((post, idx) => (
+                <Card key={post.url} hasShadow isRounded className="p-3 mt-3">
                     <div className="d-flex justify-content-between">
                         <span className="deep-dark">
                             {idx + 1}. {post.title}
@@ -196,7 +204,7 @@ export default function Series(props: Props) {
 
             <div className="b-container">
                 <div className={'series-list'}>
-                    {seriesPosts.map((post) => (
+                    {posts.map((post) => (
                         <SeriesArticleCard
                             key={post.url}
                             author={props.series.owner}
