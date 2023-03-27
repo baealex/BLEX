@@ -10,7 +10,8 @@ import {
     Modal
 } from '@design-system';
 import {
-    Footer, SEO
+    Footer,
+    SEO
 } from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
 
@@ -71,8 +72,8 @@ export default function Series(props: Props) {
 
     const [{ username }] = useStore(authStore);
 
-    const [posts, setPosts] = useState<API.GetAnUserSeriesResponseData['posts']>(memoryStore.posts);
     const [page, setPage] = useState(memoryStore.page);
+    const [posts, setPosts] = useState<API.GetAnUserSeriesResponseData['posts']>(memoryStore.posts);
 
     const [isOpenSeriesUpdateModal, setIsOpenSeriesUpdateModal] = useState(false);
 
@@ -117,9 +118,12 @@ export default function Series(props: Props) {
         if (confirm('😮 이 포스트를 시리즈에서 제거할까요?')) {
             const { data } = await API.putAnUserPosts('@' + props.series.owner, url, 'series');
             if (data.status === 'DONE') {
-                setPosts((prevPosts) => prevPosts.filter(post => (
-                    post.url !== url
-                )));
+                setPosts((prevPosts) => {
+                    memoryStore.posts = prevPosts.filter(post => (
+                        post.url !== url
+                    ));
+                    return memoryStore.posts;
+                });
                 snackBar('😀 시리즈가 업데이트 되었습니다.');
             } else {
                 snackBar('😯 변경중 오류가 발생했습니다.');

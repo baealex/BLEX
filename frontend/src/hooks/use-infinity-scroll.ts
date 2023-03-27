@@ -3,16 +3,21 @@ import { useEffect, useState } from 'react';
 import { optimizeEvent } from '~/modules/optimize/event';
 
 export const useInfinityScroll = (callback: () => Promise<void>) => {
-    const [isFetching, setIsFetching] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isError, setIsError] = useState(false);
 
-    const handleScroll = optimizeEvent (() => {
+    const handleScroll = optimizeEvent(() => {
         const { innerHeight } = window;
-        const { scrollTop, offsetHeight } = document.documentElement;
+        const {
+            scrollTop,
+            offsetHeight
+        } = document.documentElement;
 
-        if (innerHeight + scrollTop !== offsetHeight || isFetching) {
+        if (innerHeight + scrollTop !== offsetHeight || isLoading) {
             return;
         }
-        setIsFetching(true);
+
+        setIsLoading(true);
     });
 
     useEffect(() => {
@@ -22,9 +27,16 @@ export const useInfinityScroll = (callback: () => Promise<void>) => {
     }, []);
 
     useEffect(() => {
-        if (!isFetching) return;
-        callback().then(() => setIsFetching(false));
-    }, [isFetching]);
+        if (!isLoading) return;
 
-    return [isFetching, setIsFetching] as const;
+        callback()
+            .then(() => setIsError(false))
+            .catch(() => setIsError(true))
+            .finally(() => setIsLoading(false));
+    }, [isLoading]);
+
+    return {
+        isError,
+        isLoading
+    };
 };
