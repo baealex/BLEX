@@ -1,13 +1,13 @@
+import { useRef } from 'react';
+
 const cache = new Map();
 
-export function useMemoryStore<T extends object>(key: string | unknown[], item: T) {
-    if (typeof key !== 'string') key = key.join('/');
-
+function createMemoryStore<T extends object>(key: string, initialValue: T) {
     if (cache.has(key)) {
-        item = cache.get(key);
+        initialValue = cache.get(key);
     }
 
-    const itemProxy = new Proxy(item, {
+    const itemProxy = new Proxy(initialValue, {
         get(target: T, prop) {
             return target[prop as keyof T];
         },
@@ -19,4 +19,21 @@ export function useMemoryStore<T extends object>(key: string | unknown[], item: 
     });
 
     return itemProxy;
+}
+
+export function clearMemoryStore(key?: string | unknown[]) {
+    if (key) {
+        if (typeof key !== 'string') key = key.join('/');
+        cache.delete(key);
+    } else {
+        cache.clear();
+    }
+}
+
+export function useMemoryStore<T extends object>(key: string | unknown[], initialValue: T) {
+    if (typeof key !== 'string') key = key.join('/');
+
+    const store = useRef(createMemoryStore(key, initialValue));
+
+    return store.current;
 }
