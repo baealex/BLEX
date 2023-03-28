@@ -40,6 +40,7 @@ interface State {
     title: string;
     tags: string;
     content: string;
+    description: string;
     token: string;
     series: string;
     image: File | undefined;
@@ -68,6 +69,7 @@ class Write extends React.Component<Props, State> {
             username: props.username,
             title: '',
             content: '',
+            description: '',
             tags: '',
             token: '',
             series: '',
@@ -182,6 +184,7 @@ class Write extends React.Component<Props, State> {
                 text_md: this.state.content,
                 image: this.state.image,
                 tag: this.state.tags,
+                description: this.state.description,
                 series: this.state.series,
                 is_hide: JSON.stringify(this.state.isHide),
                 is_advertise: JSON.stringify(this.state.isAd)
@@ -284,13 +287,17 @@ class Write extends React.Component<Props, State> {
                         }
                     }
                 }}
-                series={{
-                    value: this.state.series,
-                    onChange: (value) => this.setState({ series: value })
-                }}
                 tags={{
                     value: this.state.tags,
                     onChange: (value) => this.setState({ tags: value })
+                }}
+                description={{
+                    value: this.state.description,
+                    onChange: (value) => this.setState({ description: value })
+                }}
+                series={{
+                    value: this.state.series,
+                    onChange: (value) => this.setState({ series: value })
                 }}
                 isHide={{
                     value: this.state.isHide,

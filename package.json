@@ -6,10 +6,11 @@
     "dev": "ts-node dev-tools/dev.ts",
     "start": "ts-node dev-tools/start.ts",
     "deploy": "ts-node dev-tools/deploy.ts",
-    "connect:backend": "docker-compose exec backend /bin/bash",
-    "connect:frontend": "docker-compose exec frontend /bin/bash",
-    "connect:dev-backend": "docker-compose -p blex_dev -f docker-compose.dev.yml exec backend /bin/bash",
-    "connect:dev-frontend": "docker-compose -p blex_dev -f docker-compose.dev.yml exec frontend /bin/bash"
+    "backend::shell": "docker-compose exec backend python manage.py shell",
+    "backend::connect": "docker-compose exec backend /bin/bash",
+    "backend::dev::test": "docker-compose -p blex_dev -f docker-compose.dev.yml exec backend python manage.py test -v 2",
+    "backend::dev::shell": "docker-compose -p blex_dev -f docker-compose.dev.yml exec backend python manage.py shell",
+    "backend::dev::connect": "docker-compose -p blex_dev -f docker-compose.dev.yml exec backend /bin/bash"
   },
   "repository": {
     "type": "git",

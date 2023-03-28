@@ -16,7 +16,8 @@ import {
 } from '../editor-content';
 import {
     KeywordForm,
-    SelectForm
+    SelectForm,
+    TextareaForm
 } from '../forms';
 import { EditorTitle } from '../editor-title';
 
@@ -33,11 +34,15 @@ interface Props {
         value: string;
         onChange: (value: string) => void;
     };
-    series: {
+    tags: {
         value: string;
         onChange: (value: string) => void;
     };
-    tags: {
+    description: {
+        value: string;
+        onChange: (value: string) => void;
+    };
+    series: {
         value: string;
         onChange: (value: string) => void;
     };
@@ -121,6 +126,15 @@ export function EditorLayout(props: Props) {
                     value={props.tags.value}
                     onChange={(e) => props.tags.onChange(e.target.value)}
                     placeholder=""
+                />
+                <TextareaForm
+                    label="설명 (옵션)"
+                    className="mb-3"
+                    name="description"
+                    maxLength={250}
+                    value={props.description.value}
+                    onChange={(e) => props.description.onChange(e.target.value)}
+                    placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 작성하지 않으면 글 요악을 임의로 추가합니다 (최대 250자)"
                 />
                 <SelectForm
                     className="mb-3"

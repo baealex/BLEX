@@ -12,7 +12,7 @@ from django.utils.text import slugify
 from board.models import (
     User, Comment, Referer, PostAnalytics, Series,
     TempPosts, Post, PostContent, PostConfig,
-    PostLikes, PostThanks, PostNoThanks, calc_read_time)
+    PostLikes, PostThanks, PostNoThanks, calc_read_time, create_description)
 from board.modules.analytics import create_history, get_network_addr, view_count
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
@@ -40,6 +40,13 @@ def post_list(request):
         post.title = request.POST.get('title', '')
         post.author = request.user
         post.read_time = calc_read_time(text_html)
+
+        description = request.POST.get('description', '')
+        if description:
+            post.description = request.POST.get('description', '')
+        else:
+            post.description = create_description(text_html)
+            # TODO: SYNC OPEN AI API
 
         series_url = request.POST.get('series', '')
         series = Series.objects.filter(
@@ -472,6 +479,13 @@ def user_posts(request, username, url=None):
             post.title = request.POST.get('title', '')
             post.updated_date = timezone.now()
             post.read_time = calc_read_time(text_html)
+
+            description = request.POST.get('description', '')
+            if description:
+                post.description = description
+            else:
+                post.description = create_description(text_html)
+                # TODO: SYNC OPEN AI API
 
             series_url = request.POST.get('series', '')
             if not series_url:

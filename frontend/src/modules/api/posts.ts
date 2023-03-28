@@ -133,6 +133,7 @@ interface PostPostsRequestData {
     text_md: string;
     image?: File;
     tag: string;
+    description: string;
     series: string;
     is_hide: string;
     is_advertise: string;
@@ -207,6 +208,7 @@ export interface GetAnUserPostsEditResponseData {
     image: string;
     title: string;
     series: string;
+    description: string;
     textMd: string;
     tags: string[];
     isHide: boolean;

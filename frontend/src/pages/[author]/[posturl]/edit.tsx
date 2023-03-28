@@ -47,6 +47,7 @@ export default function Edit(props: Props) {
     const [ title, setTitle ] = useState(props.title);
     const [ content, setContent ] = useState(props.textMd);
     const [ series, setSeries ] = useState(props.series);
+    const [ description, setDescription ] = useState(props.description);
     const [ tags, setTags ] = useState(props.tags.join(','));
     const [ isHide, setIsHide ] = useState(props.isHide);
     const [ isAdvertise, setIsAdvertise ] = useState(props.isAdvertise);
@@ -67,6 +68,7 @@ export default function Edit(props: Props) {
                 title: title,
                 text_md: content,
                 image: imageFile,
+                description: description,
                 tag: tags,
                 series,
                 is_hide: JSON.stringify(isHide),
@@ -91,13 +93,17 @@ export default function Edit(props: Props) {
                 value: content,
                 onChange: setContent
             }}
-            series={{
-                value: series,
-                onChange: setSeries
-            }}
             tags={{
                 value: tags,
                 onChange: setTags
+            }}
+            description={{
+                value: description,
+                onChange: setDescription
+            }}
+            series={{
+                value: series,
+                onChange: setSeries
             }}
             isHide={{
                 value: isHide,

@@ -75,7 +75,7 @@ def image(request):
                         image_size = os.stat(image_path).st_size
                         resize_image = Image.open(image_path)
 
-                        if image_size > 1024 * 1024 * 1.2:
+                        if image_size > 0:
                             resize_image = resize_image.convert('RGB')
                             ext = 'jpg'
 

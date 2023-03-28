@@ -28,6 +28,10 @@ def avatar_path(instance, filename):
     return f"images/avatar/u/{instance.user.username}/a{randstr(4)}.{filename.split('.')[-1]}"
 
 
+def create_description(text):
+    return truncatewords(strip_tags(text), 50)
+
+
 def title_image_path(instance, filename):
     dt = datetime.datetime.now()
     path = f"images/title/{dt.year}/{dt.month}/{dt.day}/{instance.author.username}"
