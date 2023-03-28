@@ -1,30 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { optimizeEvent } from '~/modules/optimize/event';
 
-export const useInfinityScroll = (callback: () => Promise<void>) => {
+export const useInfinityScroll = (callback: () => Promise<void>, options?: {
+    enabled?: boolean;
+}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
 
-    const handleScroll = optimizeEvent(() => {
-        const { innerHeight } = window;
+    const handleScroll = useMemo(() => optimizeEvent(() => {
+        if (options && !options?.enabled) return;
+
         const {
             scrollTop,
-            offsetHeight
+            scrollHeight,
+            clientHeight
         } = document.documentElement;
 
-        if (innerHeight + scrollTop !== offsetHeight || isLoading) {
-            return;
-        }
+        if (scrollTop + clientHeight < scrollHeight - 100 || isLoading) return;
 
         setIsLoading(true);
-    });
+    }), [isLoading, options?.enabled]);
 
     useEffect(() => {
         handleScroll();
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [handleScroll]);
 
     useEffect(() => {
         if (!isLoading) return;

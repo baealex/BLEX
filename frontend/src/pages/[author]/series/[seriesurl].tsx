@@ -7,12 +7,10 @@ import { useStore } from 'badland-react';
 import {
     Button,
     Card,
+    Loading,
     Modal
 } from '@design-system';
-import {
-    Footer,
-    SEO
-} from '@system-design/shared';
+import { SEO } from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
 
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -79,11 +77,7 @@ export default function Series(props: Props) {
 
     useEffect(lazyLoadResource, [posts]);
 
-    useInfinityScroll(async () => {
-        if (props.series.lastPage <= page) {
-            return;
-        }
-
+    const { isLoading } = useInfinityScroll(async () => {
         const { data } = await API.getAnUserSeries('@' + props.series.owner, props.series.url, {
             page: page + 1
         });
@@ -98,7 +92,7 @@ export default function Series(props: Props) {
                 return memoryStore.posts;
             });
         }
-    });
+    }, { enabled: page < props.series.lastPage });
 
     const { register, handleSubmit } = useForm<Form>();
 
@@ -215,13 +209,18 @@ export default function Series(props: Props) {
                             {...post}
                         />
                     ))}
+                    {isLoading && (
+                        <div className="d-flex justify-content-center pb-4">
+                            <Loading position="inline" />
+                        </div>
+                    )}
                 </div>
             </div>
-            <Footer isDark />
 
             <style jsx>{`
                 :global(main.content) {
                     padding-top: 0;
+                    padding-bottom: 50px;
                     background-color: #F2F2F2;
 
                     :global(body.dark) & {
