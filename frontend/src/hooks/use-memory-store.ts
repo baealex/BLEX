@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 
 const cache = new Map();
 
@@ -33,7 +33,7 @@ export function clearMemoryStore(key?: string | unknown[]) {
 export function useMemoryStore<T extends object>(key: string | unknown[], initialValue: T) {
     if (typeof key !== 'string') key = key.join('/');
 
-    const store = useRef(createMemoryStore(key, initialValue));
+    const store = useMemo(() => createMemoryStore(key as string, initialValue), [key]);
 
-    return store.current;
+    return store;
 }

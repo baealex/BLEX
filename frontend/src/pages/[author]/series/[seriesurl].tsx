@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 import { useStore } from 'badland-react';
 
 import {
@@ -27,6 +27,7 @@ import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useMemoryStore } from '~/hooks/use-memory-store';
 
 interface Props {
+    order: 'latest' | 'past';
     series: API.GetAnUserSeriesResponseData;
 }
 
@@ -36,7 +37,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const {
         author = '',
-        seriesurl = ''
+        seriesurl = '',
+        order = 'latest'
     } = context.query;
 
     if (!author.includes('@')) {
@@ -45,10 +47,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     try {
         const { data } = await API.getAnUserSeries('' + author, '' + seriesurl, {
-            page: 1
+            page: 1,
+            order: order as Props['order']
         });
         return {
             props: {
+                order: order,
                 series: data.body
             }
         };
@@ -63,7 +67,9 @@ interface Form {
 }
 
 export default function Series(props: Props) {
-    const memoryStore = useMemoryStore([props.series.url], {
+    const router = useRouter();
+
+    const memoryStore = useMemoryStore([props.series.url, props.order], {
         page: 1,
         posts: props.series.posts
     });
@@ -75,11 +81,17 @@ export default function Series(props: Props) {
 
     const [isOpenSeriesUpdateModal, setIsOpenSeriesUpdateModal] = useState(false);
 
+    useEffect(() => {
+        setPage(memoryStore.page);
+        setPosts(memoryStore.posts);
+    }, [props.series.url, props.order]);
+
     useEffect(lazyLoadResource, [posts]);
 
     const { isLoading } = useInfinityScroll(async () => {
         const { data } = await API.getAnUserSeries('@' + props.series.owner, props.series.url, {
-            page: page + 1
+            page: page + 1,
+            order: props.order
         });
 
         if (data.status === 'DONE') {
@@ -100,7 +112,7 @@ export default function Series(props: Props) {
         const { data } = await API.putUserSeries('@' + props.series.owner, props.series.url, formData);
 
         if (data.status === 'DONE') {
-            Router.replace(`/@${username}/series/${data.body.url}`);
+            router.replace(`/@${username}/series/${data.body.url}`);
             setIsOpenSeriesUpdateModal(false);
             snackBar('😀 시리즈가 업데이트 되었습니다.');
         } else {
@@ -201,6 +213,23 @@ export default function Series(props: Props) {
             </div>
 
             <div className="b-container">
+                <div className="d-flex justify-content-end mb-4">
+                    {props.order === 'latest' ? (
+                        <Button
+                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}?order=past`, '', {
+                                scroll: false
+                            })}>
+                            최신부터 <i className="fas fa-sort-amount-down"></i>
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}`, '', {
+                                scroll: false
+                            })}>
+                            과거부터 <i className="fas fa-sort-amount-up"></i>
+                        </Button>
+                    )}
+                </div>
                 <div className={'series-list'}>
                     {posts.map((post) => (
                         <SeriesArticleCard

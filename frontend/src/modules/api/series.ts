@@ -71,6 +71,7 @@ export interface GetAnUserSeriesResponseData {
 export interface GetAnUSerSeriesRequestParams {
     page?: number;
     kind?: 'continue';
+    order?: 'latest' | 'past';
 }
 
 export async function getAnUserSeries(author: string, url: string, params?: GetAnUSerSeriesRequestParams) {
