@@ -57,7 +57,7 @@ export function ArticleCard(props: ArticleCardProps) {
                     {typeof props.image !== 'undefined' && (
                         <Link href={url}>
                             <img
-                                className={cn('image', 'lazy')}
+                                className={cn('image', 'lazy', { 'default-image': !props.image })}
                                 alt={props.title}
                                 src={getPostsImage(props.image, {
                                     preview: true,

@@ -234,7 +234,7 @@ function PostDetail(props: Props) {
                             padding: 0 15px;
                         }
 
-                        @media (max-width: 1120px) {
+                        @media (max-width: 1240px) {
                             .row {
                                 flex-direction: column;
                                 align-items: center;
@@ -254,6 +254,10 @@ function PostDetail(props: Props) {
                                 width: 760px;
                                 order: -1;
                             }
+
+                            :global(footer) {
+                                margin-bottom: 54px;
+                            }
                         }
                     `}</style>
                 </div>
@@ -263,7 +267,7 @@ function PostDetail(props: Props) {
                 url={props.post.url}
                 totalComment={props.post.totalComment}
             />
-            <Footer isDark>
+            <Footer isDark className="">
                 <RelatedArticles
                     author={props.post.author}
                     name={props.profile.profile.name}
