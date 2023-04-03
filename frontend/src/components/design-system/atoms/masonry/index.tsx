@@ -14,7 +14,8 @@ export function Masonry({ items }: MasonryProps) {
     const buildMasonryLayout = () => {
         if (!ref.current) return;
 
-        const margin = 16;
+        const marginWidth = 16;
+        const marginHeight = 24;
         const gridSize = window.innerWidth > 1200
             ? 3
             : window.innerWidth > 768
@@ -27,20 +28,21 @@ export function Masonry({ items }: MasonryProps) {
             ref.current.style.height = 'auto';
             for (let i=0; i<items.length; i++) {
                 items[i].style.width = '100%';
+                items[i].style.display = 'block';
                 items[i].style.position = 'static';
                 items[i].style.transform = 'none';
                 items[i].style.visibility = 'visible';
             }
         } else {
             const grid = new Array(gridSize).fill(0);
-            const leftWidth = (ref.current.offsetWidth) / grid.length + margin / 2;
+            const leftWidth = (ref.current.offsetWidth) / grid.length + marginWidth / 2;
             for (let i=0; i<items.length; i++) {
                 const min = grid.indexOf(Math.min.apply(0, grid));
                 const x = leftWidth * min;
                 const itemHeight = items[i].offsetHeight;
                 const y = grid[min];
-                grid[min] += itemHeight + margin;
-                items[i].style.width = `calc(100% / ${gridSize} - ${margin}px)`;
+                grid[min] += itemHeight + marginHeight;
+                items[i].style.width = `calc(100% / ${gridSize} - ${marginWidth}px)`;
                 items[i].style.position = 'absolute';
                 items[i].style.transform = `translate(${x}px, ${y}px)`;
                 items[i].style.visibility = 'visible';

@@ -1,9 +1,15 @@
+@import 'mixin';
+
 .masonry {
   position: relative;
 }
 
 .item {
-  margin: 16px 0;
+  margin: 24px 0;
   position: absolute;
   visibility: hidden;
+
+  @media (max-width: $BREAKPOINT-TABLET) {
+    display: none;
+  }
 }
