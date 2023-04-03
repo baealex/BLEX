@@ -14,12 +14,6 @@
     font-size: 0;
     margin-left: 0;
     @include BACKGROUND;
-
-    &.default-image {
-        @media (max-width: $BREAKPOINT-TABLET) {
-            display: none;
-        }
-    }
 }
 
 .title {

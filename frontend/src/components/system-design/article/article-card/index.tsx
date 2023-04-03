@@ -54,10 +54,10 @@ export function ArticleCard(props: ArticleCardProps) {
                 isRounded={isRounded}
                 className={cn('posts')}>
                 <>
-                    {typeof props.image !== 'undefined' && (
+                    {props.image && (
                         <Link href={url}>
                             <img
-                                className={cn('image', 'lazy', { 'default-image': !props.image })}
+                                className={cn('image', 'lazy')}
                                 alt={props.title}
                                 src={getPostsImage(props.image, {
                                     preview: true,

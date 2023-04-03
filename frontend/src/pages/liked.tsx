@@ -1,24 +1,18 @@
 import type { GetServerSideProps } from 'next';
 
-import {
-    Pagination,
-    SEO
-} from '@system-design/shared';
 import { CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
+import { SEO } from '@system-design/shared';
 
 import * as API from '~/modules/api';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { page = 1 } = context.query;
-
     try {
-        const { data } = await API.getLikedPosts(Number(page), context.req.headers.cookie);
+        const { data } = await API.getLikedPosts(1, context.req.headers.cookie);
 
         return {
             props: {
-                ...data.body,
-                page
+                ...data.body
             }
         };
     } catch (error) {
@@ -28,17 +22,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 interface Props extends API.GetPostsResponseData {
     trendy?: API.GetPostsResponseData;
-    page: number;
 }
 
-const TrendyArticles: PageComponent<Props> = (props) => {
+const TrendyArticles: PageComponent<Props> = () => {
     return (
         <>
-            <SEO title={`관심 포스트 ${props.page > 1 ? ` | ${props.page} 페이지` : ''}`}/>
-            <Pagination
-                page={props.page}
-                last={props.lastPage}
-            />
+            <SEO title="관심 포스트 | BLEX"/>
         </>
     );
 };
