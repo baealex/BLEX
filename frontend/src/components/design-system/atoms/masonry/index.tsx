@@ -3,6 +3,7 @@ import styles from './Masonry.module.scss';
 const cn = classNames.bind(styles);
 
 import { useEffect, useRef } from 'react';
+import { optimizeEvent } from '~/modules/optimize/event';
 
 interface MasonryProps {
     items: React.ReactNode[];
@@ -27,11 +28,14 @@ export function Masonry({ items }: MasonryProps) {
         if (gridSize === 1) {
             ref.current.style.height = 'auto';
             for (let i=0; i<items.length; i++) {
-                items[i].style.width = '100%';
-                items[i].style.display = 'block';
-                items[i].style.position = 'static';
-                items[i].style.transform = 'none';
-                items[i].style.visibility = 'visible';
+                Object.assign(items[i].style, {
+                    width: '100%',
+                    opacity: '1',
+                    display: 'block',
+                    position: 'static',
+                    transform: 'none',
+                    visibility: 'visible'
+                });
             }
         } else {
             const grid = new Array(gridSize).fill(0);
@@ -42,10 +46,14 @@ export function Masonry({ items }: MasonryProps) {
                 const itemHeight = items[i].offsetHeight;
                 const y = grid[min];
                 grid[min] += itemHeight + marginHeight;
-                items[i].style.width = `calc(100% / ${gridSize} - ${marginWidth}px)`;
-                items[i].style.position = 'absolute';
-                items[i].style.transform = `translate(${x}px, ${y}px)`;
-                items[i].style.visibility = 'visible';
+                Object.assign(items[i].style, {
+                    width: `calc(100% / ${gridSize} - ${marginWidth}px)`,
+                    opacity: '1',
+                    display: 'block',
+                    position: 'absolute',
+                    transform: `translate(${x}px, ${y}px)`,
+                    visibility: 'visible'
+                });
             }
             const max = Math.max.apply(0, grid);
             ref.current.style.height = max + 'px';
@@ -54,8 +62,10 @@ export function Masonry({ items }: MasonryProps) {
 
     useEffect(() => {
         buildMasonryLayout();
-        window.addEventListener('resize', buildMasonryLayout);
-        return () => window.removeEventListener('resize', buildMasonryLayout);
+
+        const event = optimizeEvent(buildMasonryLayout);
+        window.addEventListener('resize', event);
+        return () => window.removeEventListener('resize', event);
     }, [ref, items]);
 
     return (
