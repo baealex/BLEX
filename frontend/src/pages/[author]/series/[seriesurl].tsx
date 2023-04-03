@@ -36,9 +36,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     configStore.serverSideInject(cookies);
 
     const {
+        order = 'latest',
         author = '',
-        seriesurl = '',
-        order = 'latest'
+        seriesurl = ''
     } = context.query;
 
     if (!author.includes('@')) {
@@ -84,7 +84,7 @@ export default function Series(props: Props) {
     useEffect(() => {
         setPage(memoryStore.page);
         setPosts(memoryStore.posts);
-    }, [props.series.url, props.order]);
+    }, [memoryStore]);
 
     useEffect(lazyLoadResource, [posts]);
 
