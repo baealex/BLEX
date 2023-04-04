@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { snackBar } from '~/modules/ui/snack-bar';
-
 import { Modal } from '@design-system';
 
 interface Props {
