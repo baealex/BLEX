@@ -154,7 +154,7 @@ function PostDetail(props: Props) {
                 description={props.post.description}
                 author={props.post.author}
                 keywords={props.post.tags.join(',')}
-                image={getPostsImage(props.post.image)}
+                image={props.post.image && getPostsImage(props.post.image)}
                 isArticle={true}
             />
             <article data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}>
