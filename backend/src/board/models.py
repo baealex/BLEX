@@ -287,22 +287,6 @@ class Post(models.Model):
     def total_comment(self):
         return self.comments.count()
 
-    def search_description(self, search_text, count=30):
-        if not search_text:
-            return self.description()
-
-        text = strip_tags(self.content.text_html.lower())
-        point = text.find(search_text)
-
-        if point < 0:
-            return self.description()
-
-        description = text[point - 100:point] + text[point:point + 100]
-        if point > 100:
-            description = '...' + description
-
-        return truncatewords(description, count)
-
     def today(self):
         count = 0
         try:

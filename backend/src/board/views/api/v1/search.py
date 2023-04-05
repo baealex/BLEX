@@ -116,7 +116,7 @@ def search(request):
                 'url': x['post'].url,
                 'title': x['post'].title,
                 'image': str(x['post'].image),
-                'description': x['post'].search_description(x['word']),
+                'description': x['post'].meta_description,
                 'read_time': x['post'].read_time,
                 'created_date': convert_to_localtime(x['post'].created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': x['post'].author_image,
