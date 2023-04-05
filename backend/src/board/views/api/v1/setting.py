@@ -364,7 +364,7 @@ def setting(request, parameter):
             if hasattr(request.user, 'telegramsync'):
                 return StatusDone({
                     'is_connected': True,
-                    'telegram_id': request.user.telegramsync.tid,
+                    'telegram_id': request.user.telegramsync.tid.replace(request.user.telegramsync.tid[2:7], '*'.ljust(5, '*')),
                 })
             return StatusDone({
                 'is_connected': False,
@@ -378,7 +378,7 @@ def setting(request, parameter):
                 ).order_by('-created_date')
                 return StatusDone({
                     'is_connected': True,
-                    'api_key': request.user.openaiconnection.api_key,
+                    'api_key': request.user.openaiconnection.api_key.replace(request.user.openaiconnection.api_key[3:27], '*'.ljust(24, '*')),
                     'usage_histories': list(map(lambda history: {
                         'id': history.id,
                         'query': history.query,
