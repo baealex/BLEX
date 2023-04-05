@@ -128,7 +128,6 @@ def popular_post_list(request):
                 distinct=True
             ),
             point=(F('thanks_count') - F('nothanks_count'))
-
         ).order_by('-point', '-created_date')
 
         posts = Paginator(
