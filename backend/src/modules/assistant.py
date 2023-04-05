@@ -22,13 +22,5 @@ class Assistant:
             "Content-Type": "application/json"
         }
 
-        response = None
-
-        try:
-            response = requests.post(url, json=data, headers=headers)
-            return response.json()['choices'][0]['message']['content']
-        except:
-            traceback.print_exc()
-            print(response.json())
-
-        return None
+        response = requests.post(url, json=data, headers=headers)
+        return response.json()

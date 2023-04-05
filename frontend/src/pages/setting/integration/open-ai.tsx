@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { Button, Card, Text } from '@design-system';
+import { Accordion, Button, Card, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -132,6 +132,21 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                         onClick={handleDelete}>
                         <i className="fas fa-microchip mr-2"/>등록 해제
                     </Button>
+                    {props.usageHistories.map((history) => (
+                        <Card className="mt-3 p-3" isRounded>
+                            <div className="d-flex align-items-center justify-content-between flex-wrap">
+                                <div>
+                                    <div className="flex items-center">
+                                        <i className="fas fa-history text-2xl mr-2"/>
+                                        <Text tag="span" fontWeight={600}>사용 내역</Text>
+                                    </div>
+                                    <div className="mt-2">
+                                        <Accordion minHeight={24}>{JSON.stringify(history)}</Accordion>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    ))}
                 </>
             )}
         </>
@@ -139,7 +154,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
 };
 
 SettingIntegrationTelegram.pageLayout = (page) => (
-    <SettingLayout active="integration/telegram">
+    <SettingLayout active="integration/open-ai">
         {page}
     </SettingLayout>
 );

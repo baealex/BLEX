@@ -46,7 +46,15 @@ def post_list(request):
         if description:
             post.meta_description = request.POST.get('description', '')
         else:
-            post.meta_description = create_post_description(post_content_html=text_html, write_type='general')
+            if hasattr(request.user, 'openaiconnection'):
+                post.meta_description = create_post_description(
+                    post_content_html=text_html,
+                    write_type='detail',
+                    api_key=request.user.openaiconnection.api_key,
+                    user=request.user,
+                )
+            else:
+                post.meta_description = create_post_description(post_content_html=text_html, write_type='general')
 
         series_url = request.POST.get('series', '')
         series = Series.objects.filter(
