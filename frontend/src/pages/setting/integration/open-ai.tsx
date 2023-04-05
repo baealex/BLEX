@@ -64,16 +64,14 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
         <>
             <Card className="p-3" isRounded hasBackground>
                 <div style={{ lineHeight: '1.75' }}>
-                    <>
-                        <div>
-                            <b>Open AI와 연동하면 어떤 효과가 있나요?</b>
-                        </div>
-                        <ul>
-                            <li>글 작성시 설명을 효과적으로 요약할 수 있습니다.</li>
-                        </ul>
-                    </>
-                    <>
-                        <div className="my-3">
+                    <div>
+                        <b>Open AI와 연동하면 어떤 효과가 있나요?</b>
+                    </div>
+                    <ul className="mb-3">
+                        <li>글 작성시 설명을 효과적으로 요약할 수 있습니다.</li>
+                    </ul>
+                    {!props.isConnected && (
+                        <div className="mb-3">
                             <b>어떻게 연동하나요?</b>
                             <ul>
                                 <li>
@@ -85,11 +83,11 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                                 </li>
                             </ul>
                         </div>
-                        등록된 API key는 서버에 저장되며 사용자 본인의 글에만 사용될 것입니다.
-                        해당 값은 서비스에서 남용하지 않는 것을 전제하나 완벽히 보장될 수 없으므로
-                        사용자 본인의 책임 하에 사용해야 합니다.
-                        서비스에서 사용한 내역은 로그로 남기며 현재 페이지에서 확인하실 수 있습니다.
-                    </>
+                    )}
+                    등록된 API key는 서버에 저장되며 사용자 본인의 글에만 사용될 것입니다.
+                    해당 값은 서비스에서 남용하지 않는 것을 전제하나 완벽히 보장될 수 없으므로
+                    사용자 본인의 책임 하에 사용해야 합니다.
+                    서비스에서 사용한 내역은 로그로 남기며 현재 페이지에서 확인하실 수 있습니다.
                 </div>
             </Card>
             {!props.isConnected && (
@@ -124,14 +122,13 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                                 </div>
                             </div>
                         </div>
+                        <Button
+                            display="block"
+                            className="mt-3"
+                            onClick={handleDelete}>
+                            등록 해제
+                        </Button>
                     </Card>
-                    <Button
-                        space="spare"
-                        display="block"
-                        className="mt-3"
-                        onClick={handleDelete}>
-                        <i className="fas fa-microchip mr-2"/>등록 해제
-                    </Button>
                     {props.usageHistories.map((history) => (
                         <Card className="mt-3 p-3" isRounded>
                             <div className="d-flex align-items-center justify-content-between flex-wrap">

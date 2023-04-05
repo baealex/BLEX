@@ -95,28 +95,25 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                 </div>
             </Card>
             {props.isConnected && (
-                <>
-                    <Card className="mt-3 p-3" isRounded hasBackground>
-                        <div className="d-flex align-items-center justify-content-between flex-wrap">
-                            <div>
-                                <div className="flex items-center">
-                                    <i className="fab fa-telegram-plane text-2xl mr-2"/>
-                                    <Text tag="span" fontWeight={600}>연동된 아이디</Text>
-                                </div>
-                                <div className="mt-2">
-                                    <span className="text-lg">{props.telegramId}</span>
-                                </div>
+                <Card className="mt-3 p-3" isRounded hasBackground>
+                    <div className="d-flex align-items-center justify-content-between flex-wrap">
+                        <div>
+                            <div className="flex items-center">
+                                <i className="fab fa-telegram-plane text-2xl mr-2"/>
+                                <Text tag="span" fontWeight={600}>연동된 아이디</Text>
+                            </div>
+                            <div className="mt-2">
+                                <span className="text-lg">{props.telegramId}</span>
                             </div>
                         </div>
-                    </Card>
+                    </div>
                     <Button
-                        space="spare"
                         display="block"
                         className="mt-3"
                         onClick={handleDisconnectTelegram}>
-                        <i className="fab fa-telegram-plane mr-2"/>연동 해제
+                        연동 해제
                     </Button>
-                </>
+                </Card>
             )}
         </>
     );
