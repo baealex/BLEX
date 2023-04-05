@@ -5,7 +5,6 @@ export interface ModalStoreState {
     isOpenAccountCreateModal: boolean;
     isOpenAccountDeleteModal: boolean;
     isOpenArticlePublishModal: boolean;
-    isOpenTelegramSyncModal: boolean;
     isOpenTwoFactorAuthGetModal: boolean;
     isOpenTwoFactorAuthSyncModal: boolean;
 }
@@ -20,7 +19,6 @@ class ModalStore extends Store<ModalStoreState> {
             isOpenAccountCreateModal: false,
             isOpenAccountDeleteModal: false,
             isOpenArticlePublishModal: false,
-            isOpenTelegramSyncModal: false,
             isOpenTwoFactorAuthGetModal: false,
             isOpenTwoFactorAuthSyncModal: false
         };

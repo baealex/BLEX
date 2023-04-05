@@ -5,9 +5,9 @@ const cn = classNames.bind(styles);
 import React from 'react';
 
 export interface AlertProps {
-    type?: 'danger' | 'warning' | 'infomation';
+    type?: 'danger' | 'warning' | 'information';
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
-    children?: string;
+    children?: React.ReactNode;
     className?: string;
 }
 

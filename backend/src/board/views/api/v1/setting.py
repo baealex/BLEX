@@ -358,6 +358,13 @@ def setting(request, parameter):
                 'platform_total': platform_total,
                 'top_searches': top_searches,
             })
+        
+        if parameter == 'integration-telegram':
+            if hasattr(request.user, 'telegramsync'):
+                return StatusDone({
+                    'telegram_id': request.user.telegramsync.tid,
+                })
+            return StatusDone()
 
     if request.method == 'POST':
         if parameter == 'avatar':

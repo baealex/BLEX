@@ -253,7 +253,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
 };
 
 PostsSetting.pageLayout = (page) => (
-    <SettingLayout active="posts" sticky={false}>
+    <SettingLayout active="posts">
         {page}
     </SettingLayout>
 );

@@ -113,10 +113,6 @@ export function TopNavigation() {
                 isOpen={modal.isOpenAccountDeleteModal}
                 onClose={() => modalStore.close('isOpenAccountDeleteModal')}
             />
-            <TelegramSyncModal
-                isOpen={modal.isOpenTelegramSyncModal}
-                onClose={() => modalStore.close('isOpenTelegramSyncModal')}
-            />
             <TwoFactorAuthGetModal
                 isOpen={modal.isOpenTwoFactorAuthGetModal}
                 onClose={() => modalStore.close('isOpenTwoFactorAuthGetModal')}

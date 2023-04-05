@@ -5,11 +5,10 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 
 export interface SettingNavigationProps {
-    sticky?: boolean;
     active?: string;
 }
 
-const NAVIGATION_ITEMS = [
+export const NAVIGATION_ITEMS = [
     {
         title: '사용자 설정',
         icon: 'far fa-user',
@@ -84,15 +83,29 @@ const NAVIGATION_ITEMS = [
                 url: '/setting/analytics/referer'
             }
         ]
+    },
+    {
+        title: '외부 서비스 연동',
+        icon: 'fas fa-link',
+        subItems: [
+            {
+                title: '오픈 AI',
+                name: 'integration/open-ai',
+                url: '/setting/integration/open-ai'
+            },
+            {
+                title: '텔레그램',
+                name: 'integration/telegram',
+                url: '/setting/integration/telegram'
+            }
+        ]
     }
-];
+] as const;
 
-export function SettingNavigation(props: SettingNavigationProps) {
-    const { sticky } = props;
-
+export function SettingNavigation({ active }: SettingNavigationProps) {
     return (
         <div
-            className={cn('box', 'py-2', { sticky })}>
+            className={cn('box', 'py-2')}>
             {NAVIGATION_ITEMS.map(item => (
                 <div key={item.title} className={cn('section')}>
                     <div className={cn('title', 'px-3', 'py-2')}>
@@ -107,7 +120,7 @@ export function SettingNavigation(props: SettingNavigationProps) {
                                         'px-3',
                                         'py-2',
                                         'mb-1',
-                                        { active: props.active == subItem.name }
+                                        { active: active == subItem.name }
                                     )}>
                                     {subItem.title}
                                 </div>

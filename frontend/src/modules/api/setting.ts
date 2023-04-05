@@ -208,3 +208,15 @@ export async function postSettingAvatar(data: FormData) {
         data: data
     });
 }
+
+export interface GetSettingIntegrationTelegramResponseData {
+    telegramId?: string;
+}
+
+export async function getSettingIntegrationTelegram(headers?: Headers) {
+    return await request<GetSettingIntegrationTelegramResponseData>({
+        url: '/v1/setting/integration-telegram',
+        method: 'GET',
+        headers
+    });
+}

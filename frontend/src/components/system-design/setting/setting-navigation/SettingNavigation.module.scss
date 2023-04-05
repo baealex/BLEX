@@ -1,11 +1,6 @@
 @import 'mixin';;
 
 .box {
-    &.sticky {
-        position: sticky;
-        top: 100px;
-    }
-
     & > .section:not(:last-child) {
         border-bottom: 1px solid #ccc;
         padding-bottom: 8px;

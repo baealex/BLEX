@@ -2,16 +2,13 @@ import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { useStore } from 'badland-react';
 
-import { Button, Card } from '@design-system';
+import { Alert, Card } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '~/modules/api';
-import { message } from '~/modules/utility/message';
-import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
-import { modalStore } from '~/stores/modal';
 
 type Props = API.GetSettingNotifyResponseData;
 
@@ -33,21 +30,6 @@ const FormsSetting: PageComponent<Props> = (props) => {
     const router = useRouter();
     const [auth, setAuth] = useStore(authStore);
 
-    const handleUnsyncTelegram = async () => {
-        if (confirm(message('CONFIRM', '정말 연동을 해제할까요?'))) {
-            const { data } = await API.postTelegram('unsync');
-            if (data.status === 'ERROR') {
-                snackBar(message('AFTER_REQ_ERR', data.errorMessage));
-                return;
-            }
-            snackBar(message('AFTER_REQ_DONE', '연동이 해제되었습니다.'));
-            setAuth((prevState) => ({
-                ...prevState,
-                isTelegramSync: false
-            }));
-        }
-    };
-
     const handleClickNotify = async ({ pk, url, isRead }: Props['notify'][0]) => {
         if (!isRead) {
             const { data } = await API.putSetting('notify', { pk });
@@ -63,20 +45,10 @@ const FormsSetting: PageComponent<Props> = (props) => {
 
     return (
         <>
-            {auth.isTelegramSync ? (
-                <Button
-                    space="spare"
-                    display="block"
-                    onClick={handleUnsyncTelegram}>
-                    <i className="fab fa-telegram-plane"/> 텔레그램 연동 해제
-                </Button>
-            ) : (
-                <Button
-                    space="spare"
-                    display="block"
-                    onClick={() => modalStore.open('isOpenTelegramSyncModal')}>
-                    <i className="fab fa-telegram-plane"/> 텔레그램 연동
-                </Button>
+            {!auth.isTelegramSync && (
+                <Alert type="information" onClick={() => router.push('/setting/integration/telegram')}>
+                    <i className="fab fa-telegram-plane"/> 텔레그램 연동을 연동하여 알림을 받아보세요.
+                </Alert>
             )}
             <div className="mt-3">
                 {props.notify.map((item) => (

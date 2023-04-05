@@ -1,4 +1,5 @@
 import React from 'react';
+import Router from 'next/router';
 
 import { Modal } from '@design-system';
 
@@ -31,7 +32,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
                 return;
             }
             if (data.errorCode === API.ERROR.NEED_TELEGRAM) {
-                snackBar('😥 텔레그램 연동이 필요합니다.', { onClick: () => modalStore.open('isOpenTelegramSyncModal') });
+                snackBar('😥 텔레그램 연동이 필요합니다.', { onClick: () => Router.push('/setting/integration/telegram') });
                 return;
             }
             if (data.errorCode === API.ERROR.ALREADY_EXISTS) {
