@@ -54,13 +54,19 @@ export function ArticleCard(props: ArticleCardProps) {
                 isRounded={isRounded}
                 className={cn('posts')}>
                 <>
-                    {typeof props.image !== 'undefined' && (
+                    {props.image && (
                         <Link href={url}>
                             <img
                                 className={cn('image', 'lazy')}
                                 alt={props.title}
-                                src={getPostsImage(props.image, { preview: true })}
-                                data-src={getPostsImage(props.image, { minify: true })}
+                                src={getPostsImage(props.image, {
+                                    preview: true,
+                                    title: props.title
+                                })}
+                                data-src={getPostsImage(props.image, {
+                                    minify: true,
+                                    title: props.title
+                                })}
                             />
                         </Link>
                     )}
@@ -83,11 +89,13 @@ export function ArticleCard(props: ArticleCardProps) {
                             </Text>
                             {description && props.highlight ? (
                                 <p
-                                    className="shallow-dark"
+                                    className={cn('description', 'shallow-dark')}
                                     dangerouslySetInnerHTML={{ __html: description }}
                                 />
                             ) : (
-                                <Text className="shallow-dark mb-3">{unescape(description || '')}</Text>
+                                <Text className={cn('description', 'shallow-dark', 'mb-3')}>
+                                    {unescape(description || '')}
+                                </Text>
                             )}
                         </Link>
                         {props.author && (

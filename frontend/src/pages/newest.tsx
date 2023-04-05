@@ -1,24 +1,18 @@
 import type { GetServerSideProps } from 'next';
 
-import {
-    Pagination,
-    SEO
-} from '@system-design/shared';
 import { CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
+import { SEO } from '@system-design/shared';
 
 import * as API from '~/modules/api';
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { page = 1 } = context.query;
-
+export const getServerSideProps: GetServerSideProps = async () => {
     try {
-        const { data } = await API.getNewestPosts(Number(page));
+        const { data } = await API.getNewestPosts(1);
 
         return {
             props: {
-                ...data.body,
-                page
+                ...data.body
             }
         };
     } catch (error) {
@@ -31,13 +25,12 @@ interface Props extends API.GetPostsResponseData {
     page: number;
 }
 
-const TrendyArticles: PageComponent<Props> = (props) => {
+const TrendyArticles: PageComponent<Props> = () => {
     return (
         <>
-            <SEO title={`최신 포스트${props.page > 1 ? ` | ${props.page} 페이지` : ''}`}/>
-            <Pagination
-                page={props.page}
-                last={props.lastPage}
+            <SEO
+                title="최신 포스트 | BLEX"
+                description="최신 정보를 모아 볼 수 있는 페이지입니다. 다양한 분야의 최신 포스트를 제공됩니다. 다양한 의견과 정보를 만나보세요."
             />
         </>
     );

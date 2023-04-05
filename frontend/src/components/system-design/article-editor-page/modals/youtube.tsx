@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { snackBar } from '~/modules/ui/snack-bar';
-
 import { Modal } from '@design-system';
 
 interface Props {
@@ -40,32 +38,27 @@ export function YoutubeModal(props: Props) {
                     value={text}
                     onChange={(e) => {
                         const { value } = e.target;
-                        if (
-                            !value.includes('https://www.youtube.com/watch?v=') &&
-                            !value.includes('https://youtu.be/')) {
-                            snackBar('😅 올바른 링크가 아닙니다.');
-                            return;
+                        if (value === '') {
+                            setId('');
                         }
-
+                        else if (value.match(/https:\/\/youtu.be\/[\w-]{11}/)) {
+                            setId(value.replace(/https:\/\/youtu.be\//, ''));
+                        }
+                        else if (value.match(/https:\/\/www.youtube.com\/watch\?v=[\w-]{11}/)) {
+                            setId(value.replace(/https:\/\/www.youtube.com\/watch\?v=/, ''));
+                        }
                         setText(value);
-                        const id = value
-                            .replace('https://www.youtube.com/watch?v=', '')
-                            .replace('https://youtu.be/', '');
-                        setId(id);
                     }}
                 />
-                {id && (
-                    <iframe
-                        width="100%"
-                        height="315"
-                        className="mt-3"
-                        src={`https://www.youtube.com/embed/${id}`}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                    />
-                )}
             </div>
+            {id && (
+                <iframe
+                    width="100%"
+                    height="315"
+                    className="mt-3"
+                    src={`https://www.youtube.com/embed/${id}`}
+                />
+            )}
         </Modal>
     );
 }

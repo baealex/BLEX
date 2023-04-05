@@ -153,6 +153,10 @@ GITHUB_OAUTH_CLIENT_ID = os.environ.get('GITHUB_OAUTH_CLIENT_ID')
 GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET')
 
 
-# Extention (Captcha)
+# Extension (Captcha)
 
 HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
+
+# Extension (Open AI)
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')

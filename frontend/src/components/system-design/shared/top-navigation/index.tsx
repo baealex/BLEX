@@ -30,6 +30,8 @@ import { snackBar } from '~/modules/ui/snack-bar';
 import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
 
+import { clearMemoryStore } from '~/hooks/use-memory-store';
+
 export function TopNavigation() {
     const router = useRouter();
     const path = router.pathname;
@@ -127,7 +129,7 @@ export function TopNavigation() {
                 <div className={cn('container', 'h-100')}>
                     <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
                         <div className={cn('logo')}>
-                            <Link href="/">
+                            <Link href="/" onClick={() => clearMemoryStore()}>
                                 <img alt="logo" src={'/logob.svg'}/>
                             </Link>
                         </div>
@@ -180,12 +182,18 @@ export function TopNavigation() {
                                                     {
                                                         name: '내 블로그',
                                                         icon: 'far fa-user',
-                                                        onClick: () => router.push(`/@${auth.username}`)
+                                                        onClick: () => {
+                                                            clearMemoryStore();
+                                                            router.push(`/@${auth.username}`);
+                                                        }
                                                     },
                                                     {
                                                         name: '관리',
                                                         icon: 'fas fa-cog',
-                                                        onClick: () => router.push('/setting/account')
+                                                        onClick: () => {
+                                                            clearMemoryStore();
+                                                            router.push('/setting/account');
+                                                        }
                                                     },
                                                     {
                                                         name: '로그아웃',

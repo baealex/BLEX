@@ -18,6 +18,16 @@
         :global(.cm-comment) {
             color: #6a9955;
         }
+
+        :global(body.dark) & {
+            :global(.CodeMirror-scroll),
+            :global(.CodeMirror-sizer),
+            :global(.CodeMirror-gutter),
+            :global(.CodeMirror-gutters),
+            :global(.CodeMirror-linenumber) {
+                background-color: #111;
+            }
+        }
     }
 
     hr {
@@ -80,6 +90,27 @@
         :global(body.dark) & {
             color: #fff;
             background-color: #000;
+        }
+    }
+
+    pre {
+        margin: 0;
+        padding: 16px;
+        overflow: auto;
+        line-height: 1.5;
+        border-radius: 8px;
+        background-color: #212121;
+
+        code {
+            padding: 0;
+            background-color: transparent;
+            border-radius: 0;
+            color: #EEFFFF;
+        }
+
+        :global(body.dark) & {
+            background-color: #111;
+            color: #fff;
         }
     }
 

@@ -4,16 +4,18 @@ const cn = classNames.bind(styles);
 
 export interface FooterProps {
     isDark?: boolean;
+    className?: string;
     children?: JSX.Element;
 }
 
 export function Footer({
     isDark = false,
+    className,
     children
 }: FooterProps) {
     return (
         <footer
-            className={cn('footer', { isDark })}>
+            className={cn('footer', { isDark }, className)}>
             {children && (
                 <div className={cn('content')}>
                     {children}

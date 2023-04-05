@@ -1,4 +1,4 @@
-@import 'mixin';;
+@import 'mixin';
 
 @keyframes like-it {
     0% {
@@ -78,14 +78,14 @@
             span {
                 display: block;
 
-                @media (max-width: 1120px) {
+                @media (max-width: $BREAKPOINT-DESKTOP-LARGE) {
                     display: none;
                 }
             }
         }
     }
 
-    @media (max-width: 1120px) {
+    @media (max-width: $BREAKPOINT-DESKTOP-LARGE) {
         position: fixed;
         z-index: 999;
         top: initial;

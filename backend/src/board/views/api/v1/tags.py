@@ -76,7 +76,7 @@ def tag_detail(request, name):
                 'url': article.url,
                 'author': article.author_username,
                 'author_image': article.author_image,
-                'description': article.description(50)
+                'description': post.meta_description,
             }
         except:
             pass
@@ -89,7 +89,7 @@ def tag_detail(request, name):
                 'url': post.url,
                 'title': post.title,
                 'image': str(post.image),
-                'description': post.description(),
+                'description': post.meta_description,
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,

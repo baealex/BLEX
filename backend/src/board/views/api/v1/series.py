@@ -126,12 +126,13 @@ def user_series(request, username, url=None):
                 })
 
             page = request.GET.get('page', 1)
+            order = request.GET.get('order', 'latest')
             posts = Post.objects.select_related(
                 'content'
             ).filter(
                 series=series,
                 config__hide=False
-            ).order_by('-created_date')
+            ).order_by('-created_date' if order == 'latest' else 'created_date')
             posts = Paginator(
                 objects=posts,
                 offset=12,
@@ -147,11 +148,11 @@ def user_series(request, username, url=None):
                 'total_posts': series.total_posts,
                 'posts': list(map(lambda post: {
                     'url': post.url,
-                    'number': start_number - posts.index(post),
+                    'number': start_number - posts.index(post) if order == 'latest' else posts.index(post) + 1 + (int(page) - 1) * posts.paginator.per_page,
                     'title': post.title,
                     'image': str(post.image),
                     'read_time': post.read_time,
-                    'description': post.description(),
+                    'description': post.meta_description,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일')
                 }, posts)),
                 'last_page': posts.paginator.num_pages

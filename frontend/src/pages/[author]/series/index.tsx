@@ -1,24 +1,21 @@
+import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
-import React from 'react';
 
-import {
-    Pagination,
-    SEO
-} from '@system-design/shared';
 import {
     ProfileLayout,
     UserSeries
 } from '@system-design/profile';
 import type { PageComponent } from '~/components';
+import { SEO } from '@system-design/shared';
 import { Text } from '@design-system';
 
 import * as API from '~/modules/api';
 
+import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
+import { useMemoryStore } from '~/hooks/use-memory-store';
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const {
-        author = '',
-        page = 1
-    } = context.query;
+    const { author = '' } = context.query;
 
     if (!author.includes('@')) {
         return { notFound: true };
@@ -30,15 +27,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
                 'profile',
                 'social'
             ]),
-            API.getUserSeries(
-                author as string,
-                Number(page)
-            )
+            API.getUserSeries(author as string, 1)
         ]);
 
         return {
             props: {
-                page,
+                author,
                 ...userProfile.data.body,
                 ...userSeries.data.body
             }
@@ -49,10 +43,36 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 interface Props extends API.GetUserProfileResponseData, API.GetUserSeriesResponseData {
-    page: number;
+    author: string;
 }
 
 const SeriesProfile: PageComponent<Props> = (props) => {
+    const memoryStore = useMemoryStore([props.author, 'series'], {
+        page: 1,
+        series: props.series
+    });
+
+    const [page, setPage] = useState(memoryStore.page);
+    const [series, setSeries] = useState(memoryStore.series);
+
+    useInfinityScroll(async () => {
+        const { data } = await API.getUserSeries(
+            props.author,
+            page + 1
+        );
+
+        if (data.status === 'DONE') {
+            setPage((prevPage) => {
+                memoryStore.page = prevPage + 1;
+                return memoryStore.page;
+            });
+            setSeries((prevSeries) => {
+                memoryStore.series = [...prevSeries, ...data.body.series];
+                return memoryStore.series;
+            });
+        }
+    }, { enabled: page < props.lastPage });
+
     return (
         <>
             <SEO
@@ -60,14 +80,16 @@ const SeriesProfile: PageComponent<Props> = (props) => {
                 image={props.profile.image}
                 description={`${props.profile.name}님이 생성한 모든 시리즈를 만나보세요.`}
             />
-            <UserSeries series={props.series}>
-                <div className="x-container">
-                    <Pagination
-                        page={props.page}
-                        last={props.lastPage}
-                    />
-                </div>
-            </UserSeries>
+            <UserSeries series={series} />
+            <style jsx>{`
+                :global(footer) {
+                    margin-top: 0 !important;
+
+                    :global(div) {
+                        border-top: none !important;
+                    }
+                }
+            `}</style>
         </>
     );
 };

@@ -72,7 +72,7 @@ class Comment(models.Model):
 
     def author_thumbnail(self):
         if not self.author:
-            return settings.STATIC_URL + '/images/ghost.png'
+            return settings.STATIC_URL + 'images/ghost.jpg'
         return self.author.profile.get_thumbnail()
 
     def get_text_html(self):
@@ -84,7 +84,7 @@ class Comment(models.Model):
         if self.image:
             return self.image.url
         else:
-            return settings.STATIC_URL + '/images/default-post.png'
+            return settings.STATIC_URL + 'images/default-post.png'
 
     def get_absolute_url(self):
         return self.post.get_absolute_url()
@@ -267,6 +267,7 @@ class Post(models.Model):
     tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
+    meta_description = models.CharField(max_length=250, blank=True)
 
     def get_image(self):
         if self.image:
@@ -301,14 +302,6 @@ class Post(models.Model):
             description = '...' + description
 
         return truncatewords(description, count)
-
-    def description(self, count=25, document_for=''):
-        desc = truncatewords(strip_tags(self.content.text_html), count)
-        if document_for == 'seo':
-            if not desc:
-                return '이 포스트는 이미지 혹은 영상으로만 구성되어 있습니다.'
-            return desc[:120]
-        return desc
 
     def today(self):
         count = 0
@@ -366,10 +359,7 @@ class Post(models.Model):
         return [tag.value for tag in self.tags.all() if tag]
 
     def get_thumbnail(self):
-        if self.image:
-            return settings.MEDIA_URL + str(self.image)
-        else:
-            return settings.STATIC_URL + 'images/default-post.png'
+        return self.image.url if self.image else ''
 
     def __str__(self):
         return self.title
@@ -608,10 +598,7 @@ class Series(models.Model):
 
     def thumbnail(self):
         posts = Post.objects.filter(series=self, config__hide=False)
-        if posts:
-            return posts[0].get_thumbnail()
-        else:
-            return settings.STATIC_URL + '/images/default-post.png'
+        return posts[0].get_thumbnail() if posts else ''
 
     def get_absolute_url(self):
         return reverse('series_list', args=[self.owner, self.url])

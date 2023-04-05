@@ -5,6 +5,8 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useMemo } from 'react';
 
+import { clearMemoryStore } from '~/hooks/use-memory-store';
+
 export interface PageNavigationProps {
     active: string;
     items: {
@@ -27,7 +29,7 @@ export function PageNavigation(props: PageNavigationProps) {
                     {props.disableLink ? (
                         item.name
                     ) : (
-                        <Link href={item.link}>
+                        <Link href={item.link} onClick={() => clearMemoryStore()}>
                             {item.name}
                         </Link>
                     )}

@@ -24,7 +24,7 @@ def time_since(date):
     date_since = timesince(date)
     if ',' in date_since:
         date_since = date_since.split(',')[0]
-    return f'{date_since} ago'
+    return f'{date_since} 전'
 
 
 def convert_to_localtime(utctime):

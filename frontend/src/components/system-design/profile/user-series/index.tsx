@@ -5,7 +5,7 @@ import {
 
 export interface SeriesProps {
     series: SeriesListProps[];
-    children: JSX.Element;
+    children?: JSX.Element;
 }
 
 export function UserSeries(props: SeriesProps) {

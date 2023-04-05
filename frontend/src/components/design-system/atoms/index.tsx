@@ -10,6 +10,7 @@ export * from './glitch-text';
 export * from './image-input';
 export * from './image-preload';
 export * from './loading';
+export * from './masonry';
 export * from './page-navigation';
 export * from './pop-over';
 export * from './speech-bubble';
