@@ -152,7 +152,7 @@ def user_series(request, username, url=None):
                     'title': post.title,
                     'image': str(post.image),
                     'read_time': post.read_time,
-                    'description': post.description(),
+                    'description': post.meta_description,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일')
                 }, posts)),
                 'last_page': posts.paginator.num_pages

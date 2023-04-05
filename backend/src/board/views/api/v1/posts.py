@@ -101,7 +101,7 @@ def popular_post_list(request):
         one_month_ago = timezone.now() - datetime.timedelta(days=30)
 
         posts = Post.objects.select_related(
-            'config', 'content'
+            'config'
         ).filter(
             created_date__lte=timezone.now(),
             config__notice=False,
@@ -140,7 +140,7 @@ def popular_post_list(request):
                 'url': post.url,
                 'title': post.title,
                 'image': str(post.image),
-                'description': post.description(),
+                'description': post.meta_description,
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
@@ -154,7 +154,7 @@ def popular_post_list(request):
 def newest_post_list(request):
     if request.method == 'GET':
         posts = Post.objects.select_related(
-            'config', 'content'
+            'config'
         ).filter(
             created_date__lte=timezone.now(),
             config__notice=False,
@@ -174,7 +174,7 @@ def newest_post_list(request):
                 'url': post.url,
                 'title': post.title,
                 'image': str(post.image),
-                'description': post.description(),
+                'description': post.meta_description,
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
@@ -191,7 +191,7 @@ def liked_post_list(request):
 
     if request.method == 'GET':
         posts = Post.objects.select_related(
-            'config', 'content'
+            'config'
         ).filter(
             created_date__lte=timezone.now(),
             config__notice=False,
@@ -213,7 +213,7 @@ def liked_post_list(request):
                 'url': post.url,
                 'title': post.title,
                 'image': str(post.image),
-                'description': post.description(),
+                'description': post.meta_description,
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
@@ -400,7 +400,7 @@ def user_posts(request, username, url=None):
                     'title': post.title,
                     'image': str(post.image),
                     'read_time': post.read_time,
-                    'description': post.description(50),
+                    'description': post.meta_description,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                     'author_image': post.author_image,
                     'author': post.author_username,
@@ -442,7 +442,7 @@ def user_posts(request, username, url=None):
                     'url': post.url,
                     'title': post.title,
                     'image': str(post.image),
-                    'description': post.description(document_for='seo'),
+                    'description': post.meta_description,
                     'read_time': post.read_time,
                     'series': post.series_url if post.series_url else None,
                     'series_name': post.series_name if post.series_name else None,
