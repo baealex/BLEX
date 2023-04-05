@@ -263,6 +263,7 @@ class Post(models.Model):
     tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
+    meta_description = models.CharField(max_length=250, blank=True)
 
     def get_image(self):
         if self.image:
