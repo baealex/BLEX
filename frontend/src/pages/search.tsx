@@ -38,7 +38,7 @@ export default function Search(props: Props) {
     const router = useRouter();
 
     const { data: response } = useFetch([
-        'settings/analytics/search',
+        'search',
         props.query,
         props.page
     ], async () => {
@@ -92,7 +92,7 @@ export default function Search(props: Props) {
                         onRemoveHistory={handleRemoveHistory}
                     />
                 </div>
-                {response?.status == 'ERROR' ? (
+                {response?.status === 'ERROR' ? (
                     <Alert>
                         {response.errorMessage}
                     </Alert>
@@ -102,7 +102,7 @@ export default function Search(props: Props) {
                             <div className="shallow-dark text-right">
                                 {response?.body.totalSize}건의 결과 ({response?.body.elapsedTime}초)
                             </div>
-                            {response?.body.results.map((item, idx) => (
+                            {response.body.results.map((item, idx) => (
                                 <ArticleCard
                                     key={idx}
                                     className="mt-4"
@@ -110,7 +110,7 @@ export default function Search(props: Props) {
                                     {...item}
                                 />
                             ))}
-                            {response?.body.lastPage && (
+                            {response.body.lastPage > 0 && (
                                 <Pagination
                                     page={props.page}
                                     last={response?.body.lastPage}
