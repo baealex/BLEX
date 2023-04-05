@@ -9,7 +9,8 @@ from django.utils import timezone
 
 from board.models import (
     User, RefererFrom, Series, Post,
-    PostAnalytics, Form, Profile, Notify)
+    PostAnalytics, Form, Profile, Notify,
+    OpenAIConnection, OpenAIUsageHistory)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError
 from board.modules.time import convert_to_localtime
@@ -358,13 +359,36 @@ def setting(request, parameter):
                 'platform_total': platform_total,
                 'top_searches': top_searches,
             })
-        
+
         if parameter == 'integration-telegram':
             if hasattr(request.user, 'telegramsync'):
                 return StatusDone({
+                    'is_connected': True,
                     'telegram_id': request.user.telegramsync.tid,
                 })
-            return StatusDone()
+            return StatusDone({
+                'is_connected': False,
+            })
+
+        if parameter == 'integration-openai':
+            if hasattr(request.user, 'openaiconnection'):
+                usage_histories = OpenAIUsageHistory.objects.filter(
+                    user=request.user,
+                    created_date__gt=timezone.now() - datetime.timedelta(days=30)
+                ).order_by('-created_date')
+                return StatusDone({
+                    'is_connected': True,
+                    'api_key': request.user.openaiconnection.api_key,
+                    'usage_histories': list(map(lambda history: {
+                        'id': history.id,
+                        'query': history.query,
+                        'response': history.response,
+                        'created_date': history.created_date,
+                    }, usage_histories))
+                })
+            return StatusDone({
+                'is_connected': False,
+            })
 
     if request.method == 'POST':
         if parameter == 'avatar':
@@ -374,6 +398,18 @@ def setting(request, parameter):
             return StatusDone({
                 'url': profile.get_thumbnail(),
             })
+
+        if parameter == 'integration-openai':
+            api_key = request.POST.get('api_key', '')
+            if not api_key:
+                return StatusError('VE', 'API 키를 입력해주세요.')
+            if hasattr(request.user, 'openaiconnection'):
+                return StatusError('AE', '이미 연동되어 있습니다.')
+            OpenAIConnection.objects.create(
+                user=request.user,
+                api_key=api_key,
+            )
+            return StatusDone()
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
@@ -425,6 +461,13 @@ def setting(request, parameter):
                 setattr(profile, social, put.get(social, ''))
             
             profile.save()
+            return StatusDone()
+    
+    if request.method == 'DELETE':
+        if parameter == 'integration-openai':
+            if not hasattr(request.user, 'openaiconnection'):
+                return StatusError('NE', '연동되어 있지 않습니다.')
+            request.user.openaiconnection.delete()
             return StatusDone()
     
     raise Http404

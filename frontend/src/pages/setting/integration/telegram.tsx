@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 };
 
 const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
-    const [auth, setAuth] = useStore(authStore);
+    const [_, setAuth] = useStore(authStore);
     const [token, setToken] = useState('');
 
     const handleDisconnectTelegram = async () => {
@@ -48,7 +48,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
     };
 
     useEffect(() => {
-        if (auth.isTelegramSync || token) {
+        if (props.isConnected || token) {
             return;
         }
         API.postTelegram('makeToken').then(({ data }) => {
@@ -58,7 +58,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
             }
             setToken(data.body.token || '');
         });
-    }, [auth.isTelegramSync, token]);
+    }, [props.isConnected, token]);
 
     return (
         <>
@@ -73,7 +73,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                             <li>로그인시 2차 인증을 사용할 수 있습니다.</li>
                         </ul>
                     </>
-                    {!auth.isTelegramSync && (
+                    {!props.isConnected && (
                         <>
                             <div className="my-3">
                                 <b>어떻게 연동하나요?</b>
@@ -94,7 +94,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                     )}
                 </div>
             </Card>
-            {auth.isTelegramSync && props.telegramId && (
+            {props.isConnected && (
                 <>
                     <Card className="mt-3 p-3" isRounded hasBackground>
                         <div className="d-flex align-items-center justify-content-between flex-wrap">

@@ -7,7 +7,6 @@ import * as API from '~/modules/api';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
-import { modalStore } from '~/stores/modal';
 
 interface Props {
     isOpen: boolean;

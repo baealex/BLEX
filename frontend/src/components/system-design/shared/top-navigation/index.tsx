@@ -15,7 +15,6 @@ import {
     AccountCreateModal,
     AccountDeleteModal,
     AuthGetModal,
-    TelegramSyncModal,
     TwoFactorAuthGetModal,
     TwoFactorAuthSyncModal
 } from '../modals';

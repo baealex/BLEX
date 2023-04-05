@@ -209,14 +209,58 @@ export async function postSettingAvatar(data: FormData) {
     });
 }
 
-export interface GetSettingIntegrationTelegramResponseData {
-    telegramId?: string;
-}
+export type GetSettingIntegrationTelegramResponseData = {
+    isConnected: true;
+    telegramId: string;
+} | {
+    isConnected: false;
+};
 
 export async function getSettingIntegrationTelegram(headers?: Headers) {
     return await request<GetSettingIntegrationTelegramResponseData>({
         url: '/v1/setting/integration-telegram',
         method: 'GET',
         headers
+    });
+}
+
+export type GetSettingIntegrationOpenAIResponseData = {
+    isConnected: true;
+    apiKey: string;
+    usageHistories: {
+        id: number;
+        query: string;
+        response: string;
+        createdDate: string;
+    }[];
+} | {
+    isConnected: false;
+};
+
+export async function getSettingIntegrationOpenAI(headers?: Headers) {
+    return await request<GetSettingIntegrationTelegramResponseData>({
+        url: '/v1/setting/integration-openai',
+        method: 'GET',
+        headers
+    });
+}
+
+export interface PostSettingIntegrationTelegramResponseData {
+    api_key: string;
+}
+
+export async function postSettingIntegrationOpenAI(data: PostSettingIntegrationTelegramResponseData) {
+    return await request<unknown>({
+        url: '/v1/setting/integration-openai',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject(data)
+    });
+}
+
+export async function deleteSettingIntegrationOpenAI() {
+    return await request<unknown>({
+        url: '/v1/setting/integration-openai',
+        method: 'DELETE'
     });
 }
