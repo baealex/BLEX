@@ -16,6 +16,7 @@ from board.models import (
 from board.modules.analytics import create_history, get_network_addr, view_count
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
+from board.modules.post_description import create_post_description
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError
 from board.modules.time import convert_to_localtime
@@ -43,10 +44,9 @@ def post_list(request):
 
         description = request.POST.get('description', '')
         if description:
-            post.description = request.POST.get('description', '')
+            post.meta_description = request.POST.get('description', '')
         else:
-            post.description = create_description(text_html)
-            # TODO: SYNC OPEN AI API
+            post.meta_description = create_post_description(post_content_html=text_html, write_type='general')
 
         series_url = request.POST.get('series', '')
         series = Series.objects.filter(
@@ -434,6 +434,7 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'image': post.get_thumbnail(),
                     'title': post.title,
+                    'description': post.meta_description,
                     'series': post.series_url if post.series_url else None,
                     'text_md': post.content.text_md,
                     'tags': post.tagging(),
@@ -481,10 +482,7 @@ def user_posts(request, username, url=None):
 
             description = request.POST.get('description', '')
             if description:
-                post.description = description
-            else:
-                post.description = create_description(text_html)
-                # TODO: SYNC OPEN AI API
+                post.meta_description = description
 
             series_url = request.POST.get('series', '')
             if not series_url:

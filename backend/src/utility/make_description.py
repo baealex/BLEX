@@ -11,8 +11,6 @@ django.setup()
 
 from django.utils import timezone
 from django.db.models import F, Count, Case, When
-from django.utils.html import strip_tags
-from django.template.defaultfilters import truncatewords
 
 from board.models import Post
 from board.modules.post_description import create_post_description
@@ -45,15 +43,15 @@ if __name__ == '__main__':
         answer = input(f": ")
 
         if answer == '1':
-            post.meta_description = create_post_description(post.content.text_html)
+            post.meta_description = create_post_description(post.content.text_html, 'detail')
             print(post.meta_description)
             post.save()
         elif answer == '2':
-            post.meta_description = truncatewords(strip_tags(post.content.text_html), 50)
+            post.meta_description = create_post_description(post.content.text_html, 'general')
             print(post.meta_description)
             post.save()
         else:
             if post.week_view_count < 10 or len(post.content.text_html) < 1000:
-                post.meta_description = truncatewords(strip_tags(post.content.text_html), 50)
+                post.meta_description = create_post_description(post.content.text_html, 'general')
                 print(post.meta_description)
                 post.save()
