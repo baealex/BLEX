@@ -1,3 +1,5 @@
+import traceback
+
 import requests
 
 
@@ -20,6 +22,13 @@ class Assistant:
             "Content-Type": "application/json"
         }
 
-        response = requests.post(url, json=data, headers=headers)
+        response = None
 
-        return response.json()['choices'][0]['message']['content']
+        try:
+            response = requests.post(url, json=data, headers=headers)
+            return response.json()['choices'][0]['message']['content']
+        except:
+            traceback.print_exc()
+            print(response.json())
+
+        return None
