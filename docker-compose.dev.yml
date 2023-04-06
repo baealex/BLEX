@@ -2,7 +2,6 @@ version: "2.0"
 
 services:
   frontend:
-    platform: linux/amd64
     build:
       context: ./frontend
       dockerfile: ./DockerfileDev
@@ -15,7 +14,6 @@ services:
       - 3000:3000
   
   backend:
-    platform: linux/amd64
     build:
       context: ./backend
       dockerfile: ./DockerfileDev

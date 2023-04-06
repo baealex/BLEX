@@ -29,7 +29,7 @@ jobs:
         with:
           context: ./backend
           file: ./backend/DockerfileBase
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64/v8
           push: true
           tags: baealex/blex-backend-base:latest
           cache-from: type=gha

@@ -6,12 +6,12 @@ on:
       - main
     paths:
       - 'backend/src/**'
-
   pull_request:
     branches:
       - main
     paths:
       - 'backend/src/**'
+  workflow_dispatch:
 
 jobs:
   backend_ci:
