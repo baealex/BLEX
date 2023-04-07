@@ -6,8 +6,8 @@
     "dev": "ts-node dev-tools/dev.ts",
     "start": "ts-node dev-tools/start.ts",
     "deploy": "ts-node dev-tools/deploy.ts",
-    "backend::shell": "docker-compose exec backend python manage.py shell",
-    "backend::connect": "docker-compose exec backend /bin/bash",
+    "backend::shell": "docker-compose -p blex exec backend python manage.py shell",
+    "backend::connect": "docker-compose -p blex exec backend /bin/bash",
     "backend::dev::test": "docker-compose -p blex_dev -f docker-compose.dev.yml exec backend python manage.py test -v 2",
     "backend::dev::shell": "docker-compose -p blex_dev -f docker-compose.dev.yml exec backend python manage.py shell",
     "backend::dev::connect": "docker-compose -p blex_dev -f docker-compose.dev.yml exec backend /bin/bash"

@@ -3,10 +3,10 @@ import { copyFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
 
 export const SAMPLE_PATH = './dev-tools/sample';
-export const SHELL_PATH = './dev-tools/shell';
+export const SCRIPT_PATH = './dev-tools/script';
 
-export function runScript(scriptName: string) {
-    spawn('sh', [ resolve(`${SHELL_PATH}/${scriptName}.sh`) ], { stdio: 'inherit' })
+export function runScript(scriptName: string, option?: string[]) {
+    spawn('sh', [ resolve(`${SCRIPT_PATH}/${scriptName}.sh`) ].concat(option ? option : []), { stdio: 'inherit' })
 }
 
 export function copySampleData() {
