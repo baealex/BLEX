@@ -2,7 +2,6 @@ import { readFileSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
 import { copySampleData, runScript } from './core'
 
-// 3번째 인자부터 모두 옵션으로 받는다.
 const options = process.argv.slice(2)
 
 copySampleData()
