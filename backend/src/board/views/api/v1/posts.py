@@ -113,8 +113,6 @@ def post_list(request):
 
 def popular_post_list(request):
     if request.method == 'GET':
-        one_month_ago = timezone.now() - datetime.timedelta(days=30)
-
         posts = Post.objects.select_related(
             'config'
         ).filter(
@@ -124,26 +122,15 @@ def popular_post_list(request):
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            thanks_count=Count(
+            view_count=Count(
                 Case(
                     When(
-                        thanks__created_date__gt=one_month_ago,
-                        then='thanks__history'
+                        analytics__created_date=timezone.now() - datetime.timedelta(days=7),
+                        then='analytics__table'
                     )
-                ),
-                distinct=True
-            ),
-            nothanks_count=Count(
-                Case(
-                    When(
-                        nothanks__created_date__gt=one_month_ago,
-                        then='nothanks__history'
-                    )
-                ),
-                distinct=True
-            ),
-            point=(F('thanks_count') - F('nothanks_count'))
-        ).order_by('-point', '-created_date')
+                )
+            )
+        ).order_by('-view_count')
 
         posts = Paginator(
             objects=posts,
