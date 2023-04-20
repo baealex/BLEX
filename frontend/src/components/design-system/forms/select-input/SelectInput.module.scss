@@ -1,0 +1,27 @@
+.label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #333;
+
+    :global(body.dark) & {
+        color: #ccc;
+    }
+}
+
+.group {
+    position: relative;
+
+    i {
+        position: absolute;
+        top: 50%;
+        left: 8px;
+        transform: translateY(-50%);
+        padding: 0.5rem;
+        color: #6c757d;
+        z-index: 5;
+    }
+
+    select {
+        padding-left: 36px;
+    }
+}

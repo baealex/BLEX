@@ -1,0 +1,16 @@
+.input {
+    margin: 4px 0;
+    color: #000;
+    border: none;
+    width: 100%;
+    border-radius: 5px;
+    padding: 6px 12px;
+    border: 1px solid #e6e6e6;
+    background: #fff;
+
+    :global(body.dark) & {
+        color: #fff;
+        border: 1px solid #363636;
+        background: #363636;
+    }
+}

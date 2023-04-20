@@ -6,20 +6,18 @@ import { useValue } from 'badland-react';
 
 import {
     CheckBox,
+    KeywordInput,
     Loading,
-    Modal
+    Modal,
+    SelectInput
 } from '@design-system';
 
 import {
     EditorContent,
     EditorContentProps
 } from '../editor-content';
-import {
-    KeywordForm,
-    SelectForm,
-    TextareaForm
-} from '../forms';
 import { EditorTitle } from '../editor-title';
+import { TextareaForm } from '../forms';
 
 import * as API from '~/modules/api';
 
@@ -66,11 +64,11 @@ interface Props {
 }
 
 export function EditorLayout(props: Props) {
-    const [ isSubmit, setIsSubmit ] = useState(false);
+    const [isSubmit, setIsSubmit] = useState(false);
 
-    const [ isOpenArticlePublishModal ] = useValue(modalStore, 'isOpenArticlePublishModal');
+    const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
 
-    const [ series, setSeries ] = useState<API.GetSettingSeriesResponseData['series']>();
+    const [series, setSeries] = useState<API.GetSettingSeriesResponseData['series']>();
 
     useEffect(() => {
         API.getSettingSeries().then((response) => {
@@ -117,7 +115,7 @@ export function EditorLayout(props: Props) {
                 onClose={() => modalStore.close('isOpenArticlePublishModal')}
                 submitText={props.publish.buttonText}
                 onSubmit={() => handleSubmit()}>
-                <KeywordForm
+                <KeywordInput
                     className="mb-3"
                     label="태그 (필수)"
                     type="text"
@@ -136,7 +134,7 @@ export function EditorLayout(props: Props) {
                     onChange={(e) => props.description.onChange(e.target.value)}
                     placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 작성하지 않으면 글 요악을 임의로 추가합니다 (최대 250자)"
                 />
-                <SelectForm
+                <SelectInput
                     className="mb-3"
                     name="series"
                     label="시리즈 (옵션)"
@@ -151,7 +149,7 @@ export function EditorLayout(props: Props) {
                             </option>
                         ))}
                     </>
-                </SelectForm>
+                </SelectInput>
                 <CheckBox
                     label="포스트를 숨깁니다."
                     defaultChecked={props.isHide.value}

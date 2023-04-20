@@ -10,3 +10,5 @@
 /*.log
 
 DockerfileDev
+
+.DS_Store

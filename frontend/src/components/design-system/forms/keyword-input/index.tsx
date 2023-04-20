@@ -1,3 +1,7 @@
+import classNames from 'classnames/bind';
+import styles from './KeywordInput.module.scss';
+const cx = classNames.bind(styles);
+
 import { Badge } from '~/components/design-system';
 
 type inputType = 'text' | 'password';
@@ -13,13 +17,15 @@ interface Props {
     placeholder: string;
 }
 
-export function KeywordForm(props: Props) {
+export function KeywordInput(props: Props) {
     const badges = [...new Set(props.value.replace(/[\s\\,\\.]/g, '-').split('-').filter(x => !!x))];
 
     return (
         <>
             <div className={props.className}>
-                <label>{props.label}</label>
+                <label className={cx('label')}>
+                    {props.label}
+                </label>
                 <div className="group">
                     <input
                         type={props.type ? props.type : 'text'}
@@ -37,17 +43,6 @@ export function KeywordForm(props: Props) {
                     ))}
                 </div>
             </div>
-            <style jsx>{`
-                label {
-                    font-size: 0.8rem;
-                    font-weight: 500;
-                    color: #333;
-
-                    :global(body.dark) & {
-                        color: #ccc;
-                    }
-                }
-            `}</style>
         </>
     );
 }
