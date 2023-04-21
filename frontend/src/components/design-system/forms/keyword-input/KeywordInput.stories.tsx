@@ -14,5 +14,7 @@ type Story = StoryObj<typeof KeywordInput>;
 
 export const Default: Story = {
     args: {
+        value: 'keyword1, keyword2, keyword3, keyword1',
+        onChange: () => 'onChange'
     }
 };

@@ -14,5 +14,12 @@ type Story = StoryObj<typeof SelectInput>;
 
 export const Default: Story = {
     args: {
+        children: (
+            <>
+                <option value="value">value</option>
+                <option value="value2">value2</option>
+            </>
+        ),
+        onChange: () => 'onChange'
     }
 };
