@@ -1,9 +1,0 @@
-.label {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #333;
-
-    :global(body.dark) & {
-        color: #ccc;
-    }
-}

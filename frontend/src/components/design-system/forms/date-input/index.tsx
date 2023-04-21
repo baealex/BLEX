@@ -18,7 +18,7 @@ export const DateInput = ({
 }: DateInputProps) => {
     return (
         <ReactDatePicker
-            customInput={<BaseInput />}
+            customInput={<BaseInput tag="input" />}
             dateFormat={showTime ? 'yyyy-MM-dd HH:mm' : 'yyyy-MM-dd'}
             showTimeSelect={showTime}
             {...props}

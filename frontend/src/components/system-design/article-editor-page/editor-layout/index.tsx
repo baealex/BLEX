@@ -5,11 +5,13 @@ import {
 import { useValue } from 'badland-react';
 
 import {
+    BaseInput,
     CheckBox,
+    FormControl,
     KeywordInput,
+    Label,
     Loading,
-    Modal,
-    SelectInput
+    Modal
 } from '@design-system';
 
 import {
@@ -17,7 +19,6 @@ import {
     EditorContentProps
 } from '../editor-content';
 import { EditorTitle } from '../editor-title';
-import { TextareaForm } from '../forms';
 
 import * as API from '~/modules/api';
 
@@ -115,41 +116,45 @@ export function EditorLayout(props: Props) {
                 onClose={() => modalStore.close('isOpenArticlePublishModal')}
                 submitText={props.publish.buttonText}
                 onSubmit={() => handleSubmit()}>
-                <KeywordInput
-                    className="mb-3"
-                    label="태그 (필수)"
-                    type="text"
-                    name="tags"
-                    maxLength={50}
-                    value={props.tags.value}
-                    onChange={(e) => props.tags.onChange(e.target.value)}
-                    placeholder=""
-                />
-                <TextareaForm
-                    label="설명 (옵션)"
-                    className="mb-3"
-                    name="description"
-                    maxLength={250}
-                    value={props.description.value}
-                    onChange={(e) => props.description.onChange(e.target.value)}
-                    placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 작성하지 않으면 글 요악을 임의로 추가합니다 (최대 250자)"
-                />
-                <SelectInput
-                    className="mb-3"
-                    name="series"
-                    label="시리즈 (옵션)"
-                    onChange={(e) => props.series.onChange(e.target.value)}>
-                    <>
-                        {series?.map((item, idx) => (
-                            <option
-                                key={idx}
-                                value={item.url}
-                                selected={props.series.value == item.url ? true : false}>
-                                {item.title}
-                            </option>
-                        ))}
-                    </>
-                </SelectInput>
+                <FormControl className="mb-3">
+                    <Label>테그 (필수)</Label>
+                    <KeywordInput
+                        name="tags"
+                        maxLength={50}
+                        value={props.tags.value}
+                        onChange={(e) => props.tags.onChange(e.target.value)}
+                    />
+                </FormControl>
+                <FormControl className="mb-3">
+                    <Label>설명 (옵션)</Label>
+                    <BaseInput
+                        tag="textarea"
+                        name="series"
+                        value={props.description.value}
+                        onChange={(e) => props.description.onChange(e.target.value)}
+                        placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 작성하지 않으면 글 요약을 임의로 추가합니다 (최대 250자)"
+                    />
+                </FormControl>
+                <FormControl className="mb-3">
+                    <Label>시리즈 (옵션)</Label>
+                    <BaseInput
+                        tag="select"
+                        name="series"
+                        icon={(<i className="fas fa-book" />)}
+                        onChange={(e) => props.series.onChange(e.target.value)}>
+                        <>
+                            <option value="">선택하지 않음</option>
+                            {series?.map((item, idx) => (
+                                <option
+                                    key={idx}
+                                    value={item.url}
+                                    selected={props.series.value == item.url ? true : false}>
+                                    {item.title}
+                                </option>
+                            ))}
+                        </>
+                    </BaseInput>
+                </FormControl>
                 <CheckBox
                     label="포스트를 숨깁니다."
                     defaultChecked={props.isHide.value}
@@ -165,6 +170,6 @@ export function EditorLayout(props: Props) {
             {props.addon?.modal}
 
             {isSubmit && <Loading position="full" />}
-        </div>
+        </div >
     );
 }

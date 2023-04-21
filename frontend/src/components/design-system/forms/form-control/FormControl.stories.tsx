@@ -20,7 +20,7 @@ export const Default: Story = {
     args: {
         children: [
             <Label>이메일</Label>,
-            <BaseInput />
+            <BaseInput tag="input" type="email" />
         ]
     }
 };
@@ -30,7 +30,7 @@ export const Required: Story = {
         required: true,
         children: [
             <Label>이메일</Label>,
-            <BaseInput />
+            <BaseInput tag="input" type="email" />
         ]
     }
 };
@@ -41,7 +41,7 @@ export const Invalid: Story = {
         required: true,
         children: [
             <Label>이메일</Label>,
-            <BaseInput value="invalid text" />,
+            <BaseInput tag="input" type="email" value="invalid text" />,
             <ErrorMessage>
                 올바른 이메일 주소를 입력해주세요.
             </ErrorMessage>
