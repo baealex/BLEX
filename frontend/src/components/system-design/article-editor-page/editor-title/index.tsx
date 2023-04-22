@@ -14,7 +14,7 @@ export interface EditorTitleProps {
 
 export function EditorTitle(props: EditorTitleProps) {
     const ref = useRef<HTMLInputElement>(null);
-    const [ preview, setPreview ] = useState<ArrayBuffer>();
+    const [preview, setPreview] = useState<ArrayBuffer>();
 
     const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
@@ -36,11 +36,7 @@ export function EditorTitle(props: EditorTitleProps) {
     return (
         <div
             className={styles.layout}
-            style={{
-                backgroundImage: preview
-                    ? `url(${preview})`
-                    : ''
-            }}
+            style={{ backgroundImage: preview ? `url(${preview})` : undefined }}
             onDragOver={(e) => e.preventDefault()}>
             {!props.disabledImage && (
                 <input
@@ -54,7 +50,7 @@ export function EditorTitle(props: EditorTitleProps) {
             <div>
                 {!props.disabledImage && (
                     <button onClick={() => ref.current?.click()}>
-                        <i className="far fa-image"/> 표지 이미지
+                        <i className="far fa-image" /> 표지 이미지
                     </button>
                 )}
                 <input
