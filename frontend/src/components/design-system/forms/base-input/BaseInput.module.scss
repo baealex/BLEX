@@ -18,11 +18,6 @@
     outline: none;
     background: transparent;
 
-    &[type="textarea"] {
-        height: 88px;
-        resize: none;
-        line-height: 1.75;
-    }
 
     &::placeholder {
         color: #888;
@@ -32,6 +27,13 @@
     :global(body.dark) & {
         color: #fff;
     }
+}
+
+textarea.input {
+    height: 88px;
+    resize: none;
+    overflow: auto;
+    line-height: 1.75;
 }
 
 .icon {

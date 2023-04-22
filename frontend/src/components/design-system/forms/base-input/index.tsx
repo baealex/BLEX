@@ -36,6 +36,7 @@ export const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>((props, re
             {React.createElement(props.tag, {
                 ref,
                 ...props,
+                tag: undefined,
                 className: cx('input', props.className)
             }, props.children)}
         </div>
