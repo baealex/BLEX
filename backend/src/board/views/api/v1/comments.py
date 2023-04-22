@@ -22,7 +22,7 @@ def comment_list(request):
         post = get_object_or_404(Post, url=request.GET.get('url'))
 
         text_md = request.POST.get('comment_md', '')
-        text_html = markdown.parse_to_html(settings.SITE_URL, markdown.ParseData.from_dict({
+        text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
             'text': text_md,
             'token': settings.API_KEY,
         }))
@@ -123,7 +123,7 @@ def comment_detail(request, id):
                 return StatusError('DU')
 
             text_md = body.get('comment_md')
-            text_html = markdown.parse_to_html(settings.SITE_URL, markdown.ParseData.from_dict({
+            text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
                 'text': text_md,
                 'token': settings.API_KEY,
             }))

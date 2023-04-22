@@ -32,7 +32,7 @@ def post_list(request):
             return StatusError('NL')
 
         text_md = request.POST.get('text_md', '')
-        text_html = markdown.parse_to_html(settings.SITE_URL, markdown.ParseData.from_dict({
+        text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
             'text': text_md,
             'token': settings.API_KEY,
         }))
@@ -479,7 +479,7 @@ def user_posts(request, username, url=None):
                 raise Http404
 
             text_md = request.POST.get('text_md', '')
-            text_html = markdown.parse_to_html(settings.SITE_URL, markdown.ParseData.from_dict({
+            text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
                 'text': text_md,
                 'token': settings.API_KEY,
             }))

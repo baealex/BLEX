@@ -210,7 +210,7 @@ def users(request, username):
             if not request.user == user:
                 return StatusError('DU')
             about_md = put.get('about_md')
-            about_html = parse_to_html(settings.SITE_URL, ParseData.from_dict({
+            about_html = parse_to_html(settings.API_URL, ParseData.from_dict({
                 'text': about_md,
                 'token': settings.API_KEY,
             }))

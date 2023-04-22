@@ -19,8 +19,8 @@ class ParseData:
         return ParseData(item)
 
 
-def parse_to_html(server_url: str, data: ParseData):
-    response = requests.post(f'{server_url}/api/blexer', data=data.to_dict())
+def parse_to_html(api_url: str, data: ParseData):
+    response = requests.post(f'{api_url}/api/blexer', data=data.to_dict())
     return response.json()['text']
 
 
