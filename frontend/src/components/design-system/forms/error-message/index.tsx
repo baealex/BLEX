@@ -4,7 +4,7 @@ const cx = classNames.bind(styles);
 
 export interface ErrorMessageProps {
     className?: string;
-    children: string;
+    children: React.ReactNode;
 }
 
 export function ErrorMessage(props: ErrorMessageProps) {

@@ -7,6 +7,8 @@ import { useValue } from 'badland-react';
 import {
     BaseInput,
     CheckBox,
+    DateInput,
+    ErrorMessage,
     FormControl,
     KeywordInput,
     Label,
@@ -45,6 +47,10 @@ interface Props {
         value: string;
         onChange: (value: string) => void;
     };
+    reservedDate?: {
+        value: Date;
+        onChange: (value: Date) => void;
+    };
     image: {
         onChange: (image: File) => void;
     };
@@ -66,6 +72,7 @@ interface Props {
 
 export function EditorLayout(props: Props) {
     const [isSubmit, setIsSubmit] = useState(false);
+    const [isInvalidReservedDate, setIsInvalidReservedDate] = useState(false);
 
     const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
 
@@ -155,6 +162,27 @@ export function EditorLayout(props: Props) {
                         </>
                     </BaseInput>
                 </FormControl>
+                {props.reservedDate && (
+                    <FormControl className="mb-3" invalid={isInvalidReservedDate}>
+                        <Label>발행 예약 (옵션)</Label>
+                        <DateInput
+                            showTime
+                            minDate={new Date()}
+                            selected={props.reservedDate?.value}
+                            onChange={(date) => {
+                                if (!date || date < new Date()) {
+                                    setIsInvalidReservedDate(true);
+                                    return;
+                                }
+                                setIsInvalidReservedDate(false);
+                                props.reservedDate?.onChange(date);
+                            }}
+                        />
+                        <ErrorMessage>
+                            {isInvalidReservedDate && '예약 발행일은 현재 시간보다 이전일 수 없습니다.'}
+                        </ErrorMessage>
+                    </FormControl>
+                )}
                 <CheckBox
                     label="포스트를 숨깁니다."
                     defaultChecked={props.isHide.value}
