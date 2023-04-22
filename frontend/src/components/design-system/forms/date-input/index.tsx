@@ -9,7 +9,7 @@ export interface DateInputProps {
     className?: string;
     showTime?: boolean;
     minDate?: Date;
-    selected: Date;
+    selected: Date | null;
     onChange: (date: Date) => void;
 }
 

@@ -26,31 +26,20 @@ import * as API from '~/modules/api';
 
 import { modalStore } from '~/stores/modal';
 
+interface StateValue<T> {
+    value: T;
+    onChange: (value: T) => void;
+}
+
 interface Props {
-    title: {
-        value: string;
-        onChange: (value: string) => void;
-    };
-    content: {
-        value: string;
-        onChange: (value: string) => void;
-    };
-    tags: {
-        value: string;
-        onChange: (value: string) => void;
-    };
-    description: {
-        value: string;
-        onChange: (value: string) => void;
-    };
-    series: {
-        value: string;
-        onChange: (value: string) => void;
-    };
-    reservedDate?: {
-        value: Date;
-        onChange: (value: Date) => void;
-    };
+    title: StateValue<string>;
+    content: StateValue<string>;
+    tags: StateValue<string>;
+    description: StateValue<string>;
+    series: StateValue<string>;
+    reservedDate?: StateValue<Date | null>;
+    isHide: StateValue<boolean>;
+    isAd: StateValue<boolean>;
     image: {
         onChange: (image: File) => void;
     };
@@ -58,21 +47,13 @@ interface Props {
         title: string;
         buttonText: string;
     };
-    isHide: {
-        value: boolean;
-        onChange: (value: boolean) => void;
-    };
-    isAd: {
-        value: boolean;
-        onChange: (value: boolean) => void;
-    };
     onSubmit: (onFail: () => void) => void;
     addon?: EditorContentProps['addon'];
 }
 
 export function EditorLayout(props: Props) {
     const [isSubmit, setIsSubmit] = useState(false);
-    const [isInvalidReservedDate, setIsInvalidReservedDate] = useState(false);
+    const [reservedDateErrorMessage, setReserverdDateErrorMessage] = useState<string | null>(null);
 
     const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
 
@@ -123,7 +104,7 @@ export function EditorLayout(props: Props) {
                 onClose={() => modalStore.close('isOpenArticlePublishModal')}
                 submitText={props.publish.buttonText}
                 onSubmit={() => handleSubmit()}>
-                <FormControl className="mb-3">
+                <FormControl className="mb-3" required>
                     <Label>테그 (필수)</Label>
                     <KeywordInput
                         name="tags"
@@ -163,23 +144,31 @@ export function EditorLayout(props: Props) {
                     </BaseInput>
                 </FormControl>
                 {props.reservedDate && (
-                    <FormControl className="mb-3" invalid={isInvalidReservedDate}>
+                    <FormControl className="mb-3" invalid={!!reservedDateErrorMessage}>
                         <Label>발행 예약 (옵션)</Label>
                         <DateInput
                             showTime
                             minDate={new Date()}
-                            selected={props.reservedDate?.value}
+                            selected={props.reservedDate.value}
                             onChange={(date) => {
-                                if (!date || date < new Date()) {
-                                    setIsInvalidReservedDate(true);
+                                if (date === null) {
+                                    setReserverdDateErrorMessage(null);
+                                    props.reservedDate?.onChange(null);
                                     return;
                                 }
-                                setIsInvalidReservedDate(false);
+                                if (date < new Date()) {
+                                    if (props.reservedDate?.value === null) {
+                                        props.reservedDate?.onChange(new Date());
+                                    }
+                                    setReserverdDateErrorMessage('예약 발행일은 현재 시간보다 이전일 수 없습니다.');
+                                    return;
+                                }
+                                setReserverdDateErrorMessage(null);
                                 props.reservedDate?.onChange(date);
                             }}
                         />
                         <ErrorMessage>
-                            {isInvalidReservedDate && '예약 발행일은 현재 시간보다 이전일 수 없습니다.'}
+                            {reservedDateErrorMessage}
                         </ErrorMessage>
                     </FormControl>
                 )}
