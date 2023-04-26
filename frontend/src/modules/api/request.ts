@@ -23,9 +23,9 @@ export const ERROR = {
 };
 
 type ErrorCode =
-  'error:RJ' | 'error:EP' | 'error:NL' | 'error:SU' |
-  'error:DU' | 'error:OF' | 'error:AV' | 'error:AU' |
-  'error:AE' | 'error:NT' | 'error:EN' | 'error:UN' ;
+    'error:RJ' | 'error:EP' | 'error:NL' | 'error:SU' |
+    'error:DU' | 'error:OF' | 'error:AV' | 'error:AU' |
+    'error:AE' | 'error:NT' | 'error:EN' | 'error:UN';
 
 export interface ResponseData<T> {
     status: 'DONE' | 'ERROR';
@@ -94,6 +94,9 @@ export function objectToForm(obj: {
 }) {
     const form = new FormData();
     Object.keys(obj).forEach((key) => {
+        if (obj[key] === undefined) {
+            return;
+        }
         form.append(key, obj[key]);
     });
     return form;
