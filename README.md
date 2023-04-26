@@ -45,6 +45,18 @@ npm i
 npm run dev -- -d --build
 ```
 
+로컬에서만 동작하는 별도의 도메인 매핑을 권장합니다.
+
+```bash
+vi /etc/hosts
+```
+
+```bash
+127.0.0.1       blex.test
+```
+
+`blex.test:3000`으로 접속한 후, 기본 계정인 `admin/admin`으로 로그인하여 테스트 할 수 있습니다.
+
 <br>
 
 ## 관련 문서
