@@ -1,4 +1,6 @@
 import os
+import sys
+
 
 def make_path(dir_list):
     upload_path = ''
@@ -7,3 +9,8 @@ def make_path(dir_list):
         if not os.path.exists(upload_path):
             os.makedirs(upload_path)
     return upload_path
+
+
+def flush_print(*args, **kwargs):
+    print(*args, **kwargs)
+    sys.stdout.flush()
