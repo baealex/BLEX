@@ -57,9 +57,13 @@ def post_list(request):
             else:
                 post.meta_description = create_post_description(post_content_html=text_html, write_type='general')
 
-        published_date = request.POST.get('published_date', '')
-        if published_date:
-            post.published_date = parse_datetime(published_date)
+        reserved_date = request.POST.get('reserved_date', '')
+        if reserved_date:
+            reserved_date = parse_datetime(reserved_date)
+            if reserved_date < timezone.now():
+                return StatusError('PD')
+            post.created_date = reserved_date
+            post.updated_date = reserved_date
 
         series_url = request.POST.get('series', '')
         series = Series.objects.filter(
