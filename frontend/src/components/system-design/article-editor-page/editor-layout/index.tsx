@@ -147,6 +147,7 @@ export function EditorLayout(props: Props) {
                     <FormControl className="mb-3" invalid={!!reservedDateErrorMessage}>
                         <Label>발행 예약 (옵션)</Label>
                         <DateInput
+                            placeholder="즉시 발행"
                             showTime
                             minDate={new Date()}
                             selected={props.reservedDate.value}
