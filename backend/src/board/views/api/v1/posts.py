@@ -7,6 +7,7 @@ from django.db.models import (
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
 from board.models import (
@@ -55,6 +56,10 @@ def post_list(request):
                 )
             else:
                 post.meta_description = create_post_description(post_content_html=text_html, write_type='general')
+
+        published_date = request.POST.get('published_date', '')
+        if published_date:
+            post.published_date = parse_datetime(published_date)
 
         series_url = request.POST.get('series', '')
         series = Series.objects.filter(
