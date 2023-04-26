@@ -61,7 +61,7 @@ def post_list(request):
         if reserved_date:
             reserved_date = parse_datetime(reserved_date)
             if reserved_date < timezone.now():
-                return StatusError('PD')
+                return StatusError('PD', '예약시간이 현재시간보다 이전입니다.')
             post.created_date = reserved_date
             post.updated_date = reserved_date
 
@@ -462,6 +462,9 @@ def user_posts(request, username, url=None):
             if request.GET.get('mode') == 'view':
                 if post.config.hide and request.user != post.author:
                     raise Http404
+                
+                if not post.is_published() and request.user != post.author:
+                    raise Http404
 
                 return StatusDone({
                     'url': post.url,
@@ -494,7 +497,8 @@ def user_posts(request, username, url=None):
             }))
 
             post.title = request.POST.get('title', '')
-            post.updated_date = timezone.now()
+            if post.is_published():
+                post.updated_date = timezone.now()
             post.read_time = calc_read_time(text_html)
 
             description = request.POST.get('description', '')

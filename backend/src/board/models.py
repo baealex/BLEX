@@ -276,6 +276,9 @@ class Post(models.Model):
         else:
             return settings.STATIC_URL + 'images/default-post.png'
 
+    def is_published(self):
+        return self.created_date < timezone.now()
+
     def time_stamp(self):
         return time_stamp(self.created_date)
 
@@ -313,17 +316,6 @@ class Post(models.Model):
             return count['table_count__sum']
         else:
             return 0
-
-    def trendy(self):
-        today = timezone.now()
-        seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-        counts = PostAnalytics.objects.filter(created_date__range=[seven_days_ago, today], posts=self).values_list(
-            'created_date', Count('table'))
-        trendy = 0
-        for count in counts:
-            rate = -(1 / 7) * ((today.date() - count[0]).days) + 2
-            trendy += count[1] * rate
-        return trendy
 
     def set_tags(self, tags: str):
         self.tags.clear()

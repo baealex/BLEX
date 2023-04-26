@@ -43,6 +43,7 @@ interface State {
     description: string;
     token: string;
     series: string;
+    reservedDate: Date | null;
     image: File | undefined;
     isAutoSave: boolean;
     isHide: boolean;
@@ -73,6 +74,7 @@ class Write extends React.Component<Props, State> {
             tags: '',
             token: '',
             series: '',
+            reservedDate: null,
             isHide: false,
             isAd: false,
             image: undefined,
@@ -117,7 +119,7 @@ class Write extends React.Component<Props, State> {
 
     /* Inner Method */
 
-    async fetchTempPosts(token='') {
+    async fetchTempPosts(token = '') {
         if (token) {
             const { tempPostsCache } = this.state;
 
@@ -178,6 +180,7 @@ class Write extends React.Component<Props, State> {
             if (this.saver) {
                 this.saver.clear();
             }
+
             const { data } = await API.postPosts({
                 token: this.state.token,
                 title: this.state.title,
@@ -186,6 +189,9 @@ class Write extends React.Component<Props, State> {
                 tag: this.state.tags,
                 description: this.state.description,
                 series: this.state.series,
+                reserved_date: this.state.reservedDate
+                    ? this.state.reservedDate.toISOString()
+                    : undefined,
                 is_hide: JSON.stringify(this.state.isHide),
                 is_advertise: JSON.stringify(this.state.isAd)
             });
@@ -298,6 +304,10 @@ class Write extends React.Component<Props, State> {
                 series={{
                     value: this.state.series,
                     onChange: (value) => this.setState({ series: value })
+                }}
+                reservedDate={{
+                    value: this.state.reservedDate,
+                    onChange: (value) => this.setState({ reservedDate: value })
                 }}
                 isHide={{
                     value: this.state.isHide,
