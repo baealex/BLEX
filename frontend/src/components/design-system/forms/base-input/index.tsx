@@ -37,6 +37,7 @@ export const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>((props, re
                 ref,
                 ...props,
                 tag: undefined,
+                icon: undefined,
                 className: cx('input', props.className)
             }, props.children)}
         </div>
