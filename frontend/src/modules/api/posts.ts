@@ -135,7 +135,6 @@ interface PostPostsRequestData {
     tag: string;
     description: string;
     series: string;
-    published_date?: string | null;
     is_hide: string;
     is_advertise: string;
 }
@@ -170,7 +169,7 @@ export interface GetUserPostsResponseData {
     lastPage: number;
 }
 
-export async function getUserPosts(author: string, page: number, tag = '') {
+export async function getUserPosts(author: string, page: number, tag='') {
     return await request<GetUserPostsResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
         method: 'GET'

@@ -37,7 +37,7 @@ interface Props {
     tags: StateValue<string>;
     description: StateValue<string>;
     series: StateValue<string>;
-    publishedDate?: StateValue<Date | null>;
+    reservedDate?: StateValue<Date | null>;
     isHide: StateValue<boolean>;
     isAd: StateValue<boolean>;
     image: {
@@ -53,7 +53,7 @@ interface Props {
 
 export function EditorLayout(props: Props) {
     const [isSubmit, setIsSubmit] = useState(false);
-    const [publishedDateErrorMessage, setReserverdDateErrorMessage] = useState<string | null>(null);
+    const [reservedDateErrorMessage, setReserverdDateErrorMessage] = useState<string | null>(null);
 
     const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
 
@@ -143,33 +143,32 @@ export function EditorLayout(props: Props) {
                         </>
                     </BaseInput>
                 </FormControl>
-                {props.publishedDate && (
-                    <FormControl className="mb-3" invalid={!!publishedDateErrorMessage}>
-                        <Label>발행일 (옵션)</Label>
+                {props.reservedDate && (
+                    <FormControl className="mb-3" invalid={!!reservedDateErrorMessage}>
+                        <Label>발행 예약 (옵션)</Label>
                         <DateInput
-                            placeholder="빈 값인 경우 즉시 발행됩니다."
                             showTime
                             minDate={new Date()}
-                            selected={props.publishedDate.value}
+                            selected={props.reservedDate.value}
                             onChange={(date) => {
                                 if (date === null) {
                                     setReserverdDateErrorMessage(null);
-                                    props.publishedDate?.onChange(null);
+                                    props.reservedDate?.onChange(null);
                                     return;
                                 }
                                 if (date < new Date()) {
-                                    if (props.publishedDate?.value === null) {
-                                        props.publishedDate?.onChange(new Date());
+                                    if (props.reservedDate?.value === null) {
+                                        props.reservedDate?.onChange(new Date());
                                     }
-                                    setReserverdDateErrorMessage('발행일은 현재 시간보다 이전일 수 없습니다.');
+                                    setReserverdDateErrorMessage('예약 발행일은 현재 시간보다 이전일 수 없습니다.');
                                     return;
                                 }
                                 setReserverdDateErrorMessage(null);
-                                props.publishedDate?.onChange(date);
+                                props.reservedDate?.onChange(date);
                             }}
                         />
                         <ErrorMessage>
-                            {publishedDateErrorMessage}
+                            {reservedDateErrorMessage}
                         </ErrorMessage>
                     </FormControl>
                 )}
