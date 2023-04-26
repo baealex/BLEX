@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { BaseInput } from '../base-input';
 
 export interface DateInputProps {
+    placeholder?: string;
     className?: string;
     showTime?: boolean;
     minDate?: Date;
@@ -27,6 +28,7 @@ export const DateInput = ({
             )}
             dateFormat={showTime ? 'yyyy-MM-dd HH:mm' : 'yyyy-MM-dd'}
             showTimeSelect={showTime}
+            placeholderText={props.placeholder}
             {...props}
         />
     );
