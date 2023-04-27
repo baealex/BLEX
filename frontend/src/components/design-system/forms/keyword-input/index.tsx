@@ -1,4 +1,5 @@
 import { Badge, BaseInput } from '~/components/design-system';
+import { slugify } from '~/modules/utility/string';
 
 interface Props {
     name: string;
@@ -9,7 +10,7 @@ interface Props {
 }
 
 export function KeywordInput(props: Props) {
-    const badges = [...new Set(props.value.replace(/[\s\\,\\.]/g, '-').split('-').filter(x => !!x))];
+    const badges = [...new Set(slugify(props.value).split('-').filter(x => !!x))];
 
     return (
         <>
