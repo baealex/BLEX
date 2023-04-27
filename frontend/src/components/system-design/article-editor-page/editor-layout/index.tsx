@@ -5,6 +5,7 @@ import {
 import { useValue } from 'badland-react';
 
 import {
+    Alert,
     BaseInput,
     CheckBox,
     DateInput,
@@ -23,6 +24,7 @@ import {
 import { EditorTitle } from '../editor-title';
 
 import * as API from '~/modules/api';
+import { slugify } from '~/modules/utility/string';
 
 import { modalStore } from '~/stores/modal';
 
@@ -37,6 +39,7 @@ interface Props {
     tags: StateValue<string>;
     description: StateValue<string>;
     series: StateValue<string>;
+    url?: StateValue<string>;
     reservedDate?: StateValue<Date | null>;
     isHide: StateValue<boolean>;
     isAd: StateValue<boolean>;
@@ -105,7 +108,7 @@ export function EditorLayout(props: Props) {
                 submitText={props.publish.buttonText}
                 onSubmit={() => handleSubmit()}>
                 <FormControl className="mb-3" required>
-                    <Label>테그 (필수)</Label>
+                    <Label>태그 (필수)</Label>
                     <KeywordInput
                         name="tags"
                         maxLength={50}
@@ -113,14 +116,34 @@ export function EditorLayout(props: Props) {
                         onChange={(e) => props.tags.onChange(e.target.value)}
                     />
                 </FormControl>
+                {props.url && (
+                    <FormControl className="mb-3">
+                        <Label>URL (옵션)</Label>
+                        <BaseInput
+                            tag="input"
+                            name="url"
+                            value={props.url.value}
+                            maxLength={50}
+                            onChange={(e) => props.url?.onChange(slugify(e.target.value))}
+                            placeholder="미작성시 제목을 기반으로 생성됩니다 (최대 50자)"
+                        />
+                        {props.url.value && (
+                            <Alert className="mt-2" type="warning">
+                                URL은 한번 설정하면 변경할 수 없습니다. 입력한 URL이 이미 존재하는 경우 임의의 값이 추가됩니다.
+                            </Alert>
+                        )}
+                    </FormControl>
+
+                )}
                 <FormControl className="mb-3">
                     <Label>설명 (옵션)</Label>
                     <BaseInput
                         tag="textarea"
                         name="series"
                         value={props.description.value}
+                        maxLength={250}
                         onChange={(e) => props.description.onChange(e.target.value)}
-                        placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 작성하지 않으면 글 요약을 임의로 추가합니다 (최대 250자)"
+                        placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 미작성시 글 요약이 서론 내용을 기반으로 생성됩니다 (최대 250자)"
                     />
                 </FormControl>
                 <FormControl className="mb-3">

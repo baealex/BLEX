@@ -78,10 +78,16 @@ def post_list(request):
         except:
             pass
 
-        post.url = slugify(post.title, allow_unicode=True)
+        url = request.POST.get('url', '')
+        if url:
+            url = slugify(url, allow_unicode=True)
+        else:
+            url = slugify(post.title, allow_unicode=True)
+        
+        post.url = url
         has_url = Post.objects.filter(url=post.url).exists()
         while has_url:
-            post.url = slugify(post.title, allow_unicode=True) + '-' + randstr(8)
+            post.url = url + '-' + randstr(8)
             has_url = Post.objects.filter(url=post.url).exists()
         post.save()
 

@@ -2,12 +2,7 @@ import { Remarkable } from 'remarkable';
 import { linkify } from 'remarkable/linkify';
 import rkatex from 'remarkable-katex';
 
-export function strip(html) {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || '';
-}
-
-export function slugify(text) {
+function slugify(text) {
     return text
         ? text
             .toString()
@@ -21,11 +16,11 @@ export function slugify(text) {
         : 'header';
 }
 
-export function headerHash(remarkable) {
+function headerHash(remarkable) {
     const ids = [];
     const makeID = (text) => {
         const id = slugify(text);
-        for (let idx=0; ; idx++) {
+        for (let idx = 0; ; idx++) {
             let tempId = id + (idx != 0 ? `-${idx}` : '');
             if (!ids.includes(tempId)) {
                 ids.push(tempId);
@@ -49,7 +44,7 @@ export function headerHash(remarkable) {
     };
 }
 
-export function lazyImage(remarkable) {
+function lazyImage(remarkable) {
     remarkable.renderer.rules.image = (tokens, idx) => {
         const dataSrc = ' data-src="' + tokens[idx].src + '"';
         const src = ' src="' + tokens[idx].src + '.preview.jpg"';

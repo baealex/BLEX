@@ -133,6 +133,7 @@ interface PostPostsRequestData {
     text_md: string;
     image?: File;
     tag: string;
+    url: string;
     description: string;
     series: string;
     reserved_date?: string;

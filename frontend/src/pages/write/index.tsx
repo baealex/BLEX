@@ -39,6 +39,7 @@ interface State {
     username: string;
     title: string;
     tags: string;
+    url: string;
     content: string;
     description: string;
     token: string;
@@ -69,6 +70,7 @@ class Write extends React.Component<Props, State> {
         this.state = {
             username: props.username,
             title: '',
+            url: '',
             content: '',
             description: '',
             tags: '',
@@ -187,6 +189,7 @@ class Write extends React.Component<Props, State> {
                 text_md: this.state.content,
                 image: this.state.image,
                 tag: this.state.tags,
+                url: this.state.url,
                 description: this.state.description,
                 series: this.state.series,
                 reserved_date: this.state.reservedDate
@@ -296,6 +299,10 @@ class Write extends React.Component<Props, State> {
                 tags={{
                     value: this.state.tags,
                     onChange: (value) => this.setState({ tags: value })
+                }}
+                url={{
+                    value: this.state.url,
+                    onChange: (value) => this.setState({ url: value })
                 }}
                 description={{
                     value: this.state.description,

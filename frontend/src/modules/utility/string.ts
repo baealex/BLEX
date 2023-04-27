@@ -12,5 +12,8 @@ export function unescape(text: string) {
 }
 
 export function slugify(text: string) {
-    return text.toLowerCase().replace(/[\s\\,\\.]/g, '-');
+    return text.toString()
+        .toLowerCase()
+        .replace(/[^ㄱ-ㅎ가-힣a-z0-9-]/g, '-')
+        .replace(/--+/g, '-');
 }
