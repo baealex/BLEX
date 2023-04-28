@@ -79,5 +79,10 @@ export default function blexer(md) {
     html = html.replace(/&lt;center&gt;/g, '<div style="text-align: center;">');
     html = html.replace(/&lt;\/center&gt;/g, '</div>');
 
+    // Grid Image
+    html = html.replace(/&lt;grid-image col=&quot;(1|2|3)&quot;&gt;/g, '<figure class="col-$1">');
+    html = html.replace(/&lt;caption&gt;(.*)&lt;\/caption&gt;/g, '<figcaption>$1</figcaption>');
+    html = html.replace(/&lt;\/grid-image&gt;/g, '</figure>');
+
     return html;
 }

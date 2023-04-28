@@ -1,6 +1,6 @@
-@import 'mixin';;
+@import 'mixin';
 
-.article { 
+.article {
     min-width: 100%;
     font-size: 1.028rem;
     line-height: 2;
@@ -10,7 +10,7 @@
     :global(.CodeMirror) {
         height: auto;
         border-radius: 8px;
-        
+
         :global(.cm-error) {
             background: none;
         }
@@ -20,6 +20,7 @@
         }
 
         :global(body.dark) & {
+
             :global(.CodeMirror-scroll),
             :global(.CodeMirror-sizer),
             :global(.CodeMirror-gutter),
@@ -39,11 +40,17 @@
         }
     }
 
-    img, video {
+    img,
+    video {
         max-width: 100%;
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         padding: 0.5em 0 0.2em 0;
         font-family: $FONT_GOTHIC;
         letter-spacing: -1px;
@@ -52,23 +59,27 @@
         margin: 0 0 1.5rem;
     }
 
-    h1, h2 {
+    h1,
+    h2 {
         font-size: 2.0rem;
     }
 
-    h3, h4 {
+    h3,
+    h4 {
         font-size: 1.75rem;
     }
 
-    h5, h6 {
+    h5,
+    h6 {
         font-size: 1.35rem;
     }
-    
-    & > * {
+
+    &>* {
         margin: 0 0 1.5rem;
     }
 
-    ul, ol {
+    ul,
+    ol {
         padding-left: 30px;
     }
 
@@ -114,7 +125,8 @@
         }
     }
 
-    img, video {
+    img,
+    video {
         -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
         -moz-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
         box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
@@ -156,7 +168,8 @@
             }
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #dfe2e5;
             padding: 6px 13px;
 
@@ -172,7 +185,7 @@
             :global(body.dark) & {
                 background-color: #222;
             }
-    
+
             &:nth-child(2n) {
                 background-color: #f6f8fa;
 
@@ -181,6 +194,45 @@
                 }
             }
         }
+    }
+
+    figure {
+        display: grid;
+        align-items: center;
+        grid-gap: 8px;
+
+        :not(img, figcaption) {
+            display: none;
+        }
+
+        img {
+            order: -1;
+            border-radius: 8px;
+        }
+
+        figcaption {
+            font-size: 14px;
+            text-align: center;
+            order: 2;
+            color: #919191;
+            grid-column: 1 / -1;
+        }
+    }
+
+    :global(figure.col-1) {
+        grid-template: 1fr / minmax(0, 1fr);
+
+        img {
+            margin: 0 auto;
+        }
+    }
+
+    :global(figure.col-2) {
+        grid-template: 1fr / repeat(2, minmax(0, 1fr));
+    }
+
+    :global(figure.col-3) {
+        grid-template: 1fr / repeat(3, minmax(0, 1fr));
     }
 
     :global(.katex-html[aria-hidden="true"]) {

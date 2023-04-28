@@ -162,6 +162,54 @@ describe('blexer', () => {
             `));
     });
 
+    it('Grid Image', () => {
+        expect(trimBetweenTags(blexer([
+            '<grid-image col="2">',
+            '![](https://blex.me/example1.jpg)',
+            '![](https://blex.me/example2.jpg)',
+            '</grid-image>'
+        ].join('\n')))).toBe(trimBetweenTags(`
+                <p>
+                    <figure class="col-2">
+                        <img class="lazy" data-src="https://blex.me/example1.jpg" src="https://blex.me/example1.jpg.preview.jpg" alt="">
+                        <img class="lazy" data-src="https://blex.me/example2.jpg" src="https://blex.me/example2.jpg.preview.jpg" alt="">
+                    </figure>
+                </p>
+            `));
+
+        expect(trimBetweenTags(blexer([
+            '<grid-image col="3">',
+            '![](https://blex.me/example1.jpg)',
+            '![](https://blex.me/example2.jpg)',
+            '![](https://blex.me/example3.jpg)',
+            '</grid-image>'
+        ].join('\n')))).toBe(trimBetweenTags(`
+                <p>
+                    <figure class="col-3">
+                        <img class="lazy" data-src="https://blex.me/example1.jpg" src="https://blex.me/example1.jpg.preview.jpg" alt="">
+                        <img class="lazy" data-src="https://blex.me/example2.jpg" src="https://blex.me/example2.jpg.preview.jpg" alt="">
+                        <img class="lazy" data-src="https://blex.me/example3.jpg" src="https://blex.me/example3.jpg.preview.jpg" alt="">
+                    </figure>
+                </p>
+            `));
+
+        expect(trimBetweenTags(blexer([
+            '<grid-image col="2">',
+            '![](https://blex.me/example1.jpg)',
+            '![](https://blex.me/example2.jpg)',
+            '<caption>이미지 설명</caption>',
+            '</grid-image>'
+        ].join('\n')))).toBe(trimBetweenTags(`
+                <p>
+                    <figure class="col-2">
+                        <img class="lazy" data-src="https://blex.me/example1.jpg" src="https://blex.me/example1.jpg.preview.jpg" alt="">
+                        <img class="lazy" data-src="https://blex.me/example2.jpg" src="https://blex.me/example2.jpg.preview.jpg" alt="">
+                        <figcaption>이미지 설명</figcaption>
+                    </figure>
+                </p>
+            `));
+    });
+
     it('Video', () => {
         expect((blexer('@gif[https://blex.me/example.mp4]')))
             .toContain(trimBetweenTags(`
