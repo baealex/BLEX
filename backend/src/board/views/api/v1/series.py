@@ -3,6 +3,7 @@ import traceback
 from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.text import slugify
 
 from board.models import User, Post, Series
@@ -109,8 +110,9 @@ def user_series(request, username, url=None):
         if request.method == 'GET':
             if request.GET.get('kind', '') == 'continue':
                 posts = Post.objects.filter(
-                    series=series,
+                    created_date__lte=timezone.now(),
                     config__hide=False,
+                    series=series,
                 ).values_list('title', 'url')
                 return StatusDone({
                     'name': series.name,
@@ -130,8 +132,9 @@ def user_series(request, username, url=None):
             posts = Post.objects.select_related(
                 'content'
             ).filter(
+                created_date__lte=timezone.now(),
+                config__hide=False,
                 series=series,
-                config__hide=False
             ).order_by('-created_date' if order == 'latest' else 'created_date')
             posts = Paginator(
                 objects=posts,
