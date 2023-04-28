@@ -74,14 +74,6 @@ vi /etc/hosts
 
 <br>
 
-## 도와준 사람들
-
-<a href="https://github.com/baealex/BLEX/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=baealex/BLEX" />
-</a>
-
-<p><br></p>
-
 ## 라이센스
 
 This is released under the MIT license. See [LICENSE](LICENSE) for details.
