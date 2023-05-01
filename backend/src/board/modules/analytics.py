@@ -3,7 +3,7 @@ import datetime
 from django.conf import settings
 from django.utils import timezone
 
-from board.models import History, PostAnalytics, Referer, RefererFrom
+from board.models import History, Post, PostAnalytics, Referer, RefererFrom
 from board.modules.time import convert_to_localtime
 from modules.subtask import sub_task_manager
 from modules.scrap import page_parser
@@ -14,6 +14,7 @@ UNVAILD_REFERERS = [
     'http://localhost',
     'http://127.0.0.1',
     'http://in-vm',
+    'http://blex.test',
     'https://www.blex.kr',
     'https://blex.kr',
     'AND',
@@ -61,30 +62,37 @@ BOT_TYPES = [
     'facebook',
 ]
 
+
 def get_network_addr(request):
     ip_addr = request.META.get('REMOTE_ADDR')
     if not ip_addr:
         ip_addr = request.META.get('HTTP_X_FORWARDED_FOR')
     return ip_addr
 
-def view_count(posts, request, ip, user_agent, referer):
+
+def view_count(posts: Post, request, ip, user_agent, referer):
     if posts.author == request.user:
         return
-    
+
+    if posts.config.hide or not posts.is_published():
+        return
+
     if ip and user_agent:
         create_viewer(posts, ip, user_agent)
-        
+
     if referer:
         create_referer(posts, referer)
+
 
 def create_referer(posts, referer):
     if not has_vaild_referer(referer):
         return
-    
+
     today = timezone.now()
     today_analytics = None
     try:
-        today_analytics = PostAnalytics.objects.get(created_date=today, posts=posts)
+        today_analytics = PostAnalytics.objects.get(
+            created_date=today, posts=posts)
     except:
         today_analytics = PostAnalytics(posts=posts)
         today_analytics.save()
@@ -94,7 +102,7 @@ def create_referer(posts, referer):
     referer = referer[:500]
     if 'google' in referer and 'url' in referer:
         referer = 'https://www.google.com/'
-    
+
     try:
         referer_from = RefererFrom.objects.get(location=referer)
     except:
@@ -113,15 +121,17 @@ def create_referer(posts, referer):
             referer_from.update()
         sub_task_manager.append(func)
     Referer(
-        posts = today_analytics,
-        referer_from = referer_from
+        posts=today_analytics,
+        referer_from=referer_from
     ).save()
+
 
 def has_vaild_referer(referer):
     for item in UNVAILD_REFERERS:
         if item in referer:
             return False
     return True
+
 
 def create_history(ip, user_agent):
     key = get_sha256(ip)
@@ -147,22 +157,25 @@ def create_history(ip, user_agent):
         history.refresh_from_db()
     return history
 
+
 def create_viewer(posts, ip, user_agent):
     history = create_history(ip, user_agent)
-    
+
     if not 'bot' in history.category:
         today = timezone.now()
         today_analytics = None
         try:
-            today_analytics = PostAnalytics.objects.get(created_date=today, posts=posts)
+            today_analytics = PostAnalytics.objects.get(
+                created_date=today, posts=posts)
         except:
             today_analytics = PostAnalytics(posts=posts)
             today_analytics.save()
             today_analytics.refresh_from_db()
-        
+
         if not today_analytics.table.filter(id=history.id).exists():
             today_analytics.table.add(history)
             today_analytics.save()
+
 
 def has_bot_keyword(user_agent):
     user_agent_lower = user_agent.lower()
@@ -171,10 +184,11 @@ def has_bot_keyword(user_agent):
             return True
     return False
 
+
 def bot_check(user_agent):
     if not has_bot_keyword(user_agent):
         return ''
-    
+
     for bot_type in BOT_TYPES:
         if bot_type in user_agent.lower():
             return bot_type + '-bot'
