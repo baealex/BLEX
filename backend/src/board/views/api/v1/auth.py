@@ -118,7 +118,7 @@ def login(request):
     if request.method == 'GET':
         if request.user.is_active:
             return login_response(request.user)
-        return StatusError(ErrorCode.NOT_LOGIN)
+        return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
         social = request.POST.get('social', '')
@@ -131,14 +131,14 @@ def login(request):
             if user is not None:
                 if user.is_active:
                     return common_auth(request, user)
-            return StatusError(ErrorCode.OTHER_USER)
+            return StatusError(ErrorCode.AUTHENTICATION)
     raise Http404
 
 
 def logout(request):
     if request.method == 'POST':
         if not request.user.is_active:
-            return StatusError(ErrorCode.NOT_LOGIN)
+            return StatusError(ErrorCode.NEED_LOGIN)
 
         auth.logout(request)
         return StatusDone()

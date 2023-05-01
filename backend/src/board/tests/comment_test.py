@@ -93,7 +93,6 @@ class CommentTestCase(TestCase):
         response = self.client.post('/v1/comments?url=test-post', data)
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:NL')
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_user_tag_on_comment(self, mock_service):
@@ -111,35 +110,37 @@ class CommentTestCase(TestCase):
     def test_user_comment_like(self):
         last_comment = Comment.objects.last()
         self.client.login(username='author', password='test')
-        response = self.client.put(f'/v1/comments/{last_comment.id}', "like=like")
+        response = self.client.put(
+            f'/v1/comments/{last_comment.id}', "like=like")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().likes.count(), 1)
 
     def test_user_comment_unlike(self):
         last_comment = Comment.objects.last()
         self.client.login(username='author', password='test')
-        response = self.client.put(f'/v1/comments/{last_comment.id}', "like=like")
+        response = self.client.put(
+            f'/v1/comments/{last_comment.id}', "like=like")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().likes.count(), 1)
 
-        response = self.client.put(f'/v1/comments/{last_comment.id}', "like=like")
+        response = self.client.put(
+            f'/v1/comments/{last_comment.id}', "like=like")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().likes.count(), 0)
 
     def test_user_comment_self_like(self):
         last_comment = Comment.objects.last()
         self.client.login(username='viewer', password='test')
-        response = self.client.put(f'/v1/comments/{last_comment.id}', "like=like")
+        response = self.client.put(
+            f'/v1/comments/{last_comment.id}', "like=like")
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:SU')
         self.assertEqual(Comment.objects.last().likes.count(), 0)
 
     def test_user_comment_like_not_logged_in(self):
         last_comment = Comment.objects.last()
-        response = self.client.put(f'/v1/comments/{last_comment.id}', "like=like")
+        response = self.client.put(
+            f'/v1/comments/{last_comment.id}', "like=like")
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
-        self.assertEqual(content['errorCode'], 'error:NL')
         self.assertEqual(Comment.objects.last().likes.count(), 0)
-

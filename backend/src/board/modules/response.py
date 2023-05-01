@@ -37,9 +37,9 @@ class ErrorCode(Enum):
     USERNAME_NOT_MATCH = 'UN'
 
 
-def StatusError(code: ErrorCode, message=''):
+def StatusError(code: ErrorCode, message: str = ''):
     return CamelizeJsonResponse({
         'status': 'ERROR',
-        'error_code': 'error:' + code,
+        'error_code': 'error:' + code.value,
         'error_message': message,
     })
