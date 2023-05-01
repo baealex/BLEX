@@ -1,9 +1,14 @@
-import { copyFileSync, existsSync } from 'fs'
-import { resolve } from 'path'
-import { runScript } from './core'
+import { existsSync } from 'fs'
+import { copySampleData, runScript } from './core'
 
-if (!existsSync(resolve('.env'))) {
-    copyFileSync(resolve('./dev-tools/sample/.env'), resolve('.env'))
+async function main() {
+    copySampleData()
+
+    if (existsSync('deploy.overrides.sh')) {
+        runScript('deploy.overrides')
+    } else {
+        runScript('deploy')
+    }
 }
 
-runScript('deploy')
+main()

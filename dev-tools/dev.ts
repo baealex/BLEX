@@ -2,32 +2,30 @@ import { readFileSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
 import { copySampleData, runScript } from './core'
 
-const options = process.argv.slice(2)
+function overrideEntrypoint(file: string, command: string) {
+    return file.split('ENTRYPOINT')[0] + command
+}
 
-copySampleData()
+function main() {
+    copySampleData()
 
-const beDockerFile = readFileSync(resolve('./backend/Dockerfile')).toString()
+    writeFileSync(
+        resolve('./backend/DockerfileDev'),
+        overrideEntrypoint(readFileSync(resolve('./backend/Dockerfile')).toString(), [
+            `ENTRYPOINT ["python", "manage.py"]`,
+            `CMD ["runserver", "0.0.0.0:9000"]`
+        ].join('\n'))
+    )
 
-const beDevCommand = `
-ENTRYPOINT ["python", "manage.py"]
-CMD ["runserver", "0.0.0.0:9000"]
-`
+    writeFileSync(
+        resolve('./frontend/DockerfileDev'),
+        overrideEntrypoint(readFileSync(resolve('./frontend/Dockerfile')).toString(), [
+            `ENTRYPOINT ["npm", "run"]`,
+            `CMD ["dev"]`
+        ].join('\n'))
+    )
 
-writeFileSync(
-    resolve('./backend/DockerfileDev'),
-    beDockerFile.split('ENTRYPOINT')[0] + beDevCommand
-)
+    runScript('dev', process.argv.slice(2))
+}
 
-const feDockerFile = readFileSync(resolve('./frontend/Dockerfile')).toString()
-
-const feDevCommand = `
-ENTRYPOINT ["npm", "run"]
-CMD ["dev"]
-`
-
-writeFileSync(
-    resolve('./frontend/DockerfileDev'),
-    feDockerFile.split('ENTRYPOINT')[0] + feDevCommand
-)
-
-runScript('dev', options)
+main()

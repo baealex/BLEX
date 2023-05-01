@@ -4,7 +4,6 @@
   "description": "BLOG EXPRESS ME",
   "scripts": {
     "dev": "ts-node dev-tools/dev.ts",
-    "start": "ts-node dev-tools/start.ts",
     "deploy": "ts-node dev-tools/deploy.ts",
     "backend::shell": "docker-compose -p blex exec backend python manage.py shell",
     "backend::connect": "docker-compose -p blex exec backend /bin/bash",
