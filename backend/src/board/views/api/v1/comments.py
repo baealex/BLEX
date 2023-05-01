@@ -9,7 +9,7 @@ from django.utils.html import strip_tags
 
 from board.models import Comment, Post
 from board.modules.notify import create_notify
-from board.modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.paginator import Paginator
 from modules import markdown
 
@@ -17,7 +17,7 @@ from modules import markdown
 def comment_list(request):
     if request.method == 'POST':
         if not request.user.is_active:
-            return StatusError('NL')
+            return StatusError(ErrorCode.AUTHENTICATION)
 
         post = get_object_or_404(Post, url=request.GET.get('url'))
 
@@ -52,7 +52,8 @@ def comment_list(request):
             tag_user_list = regex.findall(comment.text_md)
             tag_user_list = set(tag_user_list)
 
-            commentors = Comment.objects.filter(post=post).values_list('author__username')
+            commentors = Comment.objects.filter(
+                post=post).values_list('author__username')
             commentors = set(map(lambda instance: instance[0], commentors))
 
             for tag_user in tag_user_list:
@@ -94,11 +95,14 @@ def comment_detail(request, id):
         body = QueryDict(request.body)
         if body.get('like'):
             if not request.user.is_active:
-                return StatusError('NL')
+                return StatusError(ErrorCode.NEED_LOGIN)
+
             if request.user == comment.author:
-                return StatusError('SU')
-            if not comment.author:
-                return StatusError('RJ')
+                return StatusError(ErrorCode.AUTHENTICATION)
+
+            if comment.is_deleted():
+                return StatusError(ErrorCode.REJECT)
+
             user = User.objects.get(username=request.user)
             if comment.likes.filter(id=user.id).exists():
                 comment.likes.remove(user)
@@ -120,7 +124,7 @@ def comment_detail(request, id):
 
         if body.get('comment'):
             if not request.user == comment.author:
-                return StatusError('DU')
+                return StatusError(ErrorCode.AUTHENTICATION)
 
             text_md = body.get('comment_md')
             text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
@@ -136,7 +140,8 @@ def comment_detail(request, id):
 
     if request.method == 'DELETE':
         if not request.user == comment.author:
-            return StatusError('DU')
+            return StatusError(ErrorCode.AUTHENTICATION)
+
         comment.author = None
         comment.save()
         return StatusDone({

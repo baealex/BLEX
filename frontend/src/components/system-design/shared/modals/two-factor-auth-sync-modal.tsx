@@ -26,7 +26,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
     async onCreateTwoFactorAuth() {
         const { data } = await API.postSecurity();
         if (data.status === 'ERROR') {
-            if (data.errorCode === API.ERROR.NOT_LOGIN) {
+            if (data.errorCode === API.ERROR.NEED_LOGIN) {
                 snackBar('😥 로그인이 필요합니다.');
                 return;
             }

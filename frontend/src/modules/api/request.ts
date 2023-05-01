@@ -7,25 +7,27 @@ import { CONFIG } from '~/modules/settings';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
+type ErrorCode =
+    'error:RJ' | 'error:EP' | 'error:AT' | 'error:OF' |
+    'error:NL' | 'error:AV' | 'error:AU' | 'error:AC' |
+    'error:AE' | 'error:NT' | 'error:EN' | 'error:UN' |
+    'error:VA';
+
 export const ERROR = {
     REJECT: 'error:RJ',
-    EXPIRE: 'error:EP',
-    NOT_LOGIN: 'error:NL',
-    SAME_USER: 'error:SU',
-    DIFF_USER: 'error:DU',
-    OVER_FLOW: 'error:OF',
-    ALREADY_VERIFY: 'error:AV',
-    ALREADY_UNSYNC: 'error:AU',
+    EXPIRED: 'error:EP',
+    VALIDATE: 'error:VA',
+    NEED_LOGIN: 'error:NL',
+    AUTHENTICATION: 'error:AT',
+    SIZE_OVERFLOW: 'error:OF',
     ALREADY_EXISTS: 'error:AE',
+    ALREADY_CONNECTED: 'error:AC',
+    ALREADY_DISCONNECTED: 'error:AU',
+    ALREADY_VERIFICATION: 'error:AV',
     NEED_TELEGRAM: 'error:NT',
     EMAIL_NOT_MATCH: 'error:EN',
     USERNAME_NOT_MATCH: 'error:UN'
 };
-
-type ErrorCode =
-    'error:RJ' | 'error:EP' | 'error:NL' | 'error:SU' |
-    'error:DU' | 'error:OF' | 'error:AV' | 'error:AU' |
-    'error:AE' | 'error:NT' | 'error:EN' | 'error:UN';
 
 export interface ResponseData<T> {
     status: 'DONE' | 'ERROR';

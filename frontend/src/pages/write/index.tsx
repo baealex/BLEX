@@ -253,7 +253,7 @@ class Write extends React.Component<Props, State> {
         } else {
             const { data } = await API.postTempPosts(title, content, tags);
             if (data.status === 'ERROR') {
-                if (data.errorCode === API.ERROR.OVER_FLOW) {
+                if (data.errorCode === API.ERROR.SIZE_OVERFLOW) {
                     snackBar('😥 임시 저장글 갯수가 초과했습니다');
                     return;
                 }

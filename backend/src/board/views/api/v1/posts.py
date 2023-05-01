@@ -13,13 +13,13 @@ from django.utils.text import slugify
 from board.models import (
     User, Comment, Referer, PostAnalytics, Series,
     TempPosts, Post, PostContent, PostConfig,
-    PostLikes, PostThanks, PostNoThanks, calc_read_time, create_description)
+    PostLikes, PostThanks, PostNoThanks, calc_read_time)
 from board.modules.analytics import create_history, get_network_addr, view_count
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
 from board.modules.post_description import create_post_description
 from board.modules.requests import BooleanType
-from board.modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from modules import markdown
 from modules.randomness import randstr
@@ -36,9 +36,9 @@ def post_list(request):
         text_md = request.POST.get('text_md', '')
 
         if not title:
-            return StatusError('NV', '제목을 입력해주세요.')
+            return StatusError(ErrorCode.VALIDATE, '제목을 입력해주세요.')
         if not text_md:
-            return StatusError('NV', '내용을 입력해주세요.')
+            return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
 
         text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
             'text': text_md,
@@ -70,7 +70,7 @@ def post_list(request):
         if reserved_date:
             reserved_date = parse_datetime(reserved_date)
             if reserved_date < timezone.now():
-                return StatusError('PD', '예약시간이 현재시간보다 이전입니다.')
+                return StatusError(ErrorCode.VALIDATE, '예약시간이 현재시간보다 이전입니다.')
             post.created_date = reserved_date
             post.updated_date = reserved_date
 
@@ -512,9 +512,9 @@ def user_posts(request, username, url=None):
             text_md = request.POST.get('text_md', '')
 
             if not title:
-                return StatusError('NV', '제목을 입력해주세요.')
+                return StatusError(ErrorCode.VALIDATE, '제목을 입력해주세요.')
             if not text_md:
-                return StatusError('NV', '내용을 입력해주세요.')
+                return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
 
             text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
                 'text': text_md,
@@ -569,7 +569,7 @@ def user_posts(request, username, url=None):
 
             if request.GET.get('like', ''):
                 if not request.user.is_active:
-                    return StatusError('NL')
+                    return StatusError(ErrorCode.NEED_LOGIN)
 
                 user = User.objects.get(username=request.user)
                 post_like = post.likes.filter(user=user)
@@ -587,7 +587,7 @@ def user_posts(request, username, url=None):
 
             if request.GET.get('thanks', ''):
                 if request.user == post.author:
-                    return StatusError('SU')
+                    return StatusError(ErrorCode.AUTHENTICATION)
                 user_addr = get_network_addr(request)
                 user_agent = request.META['HTTP_USER_AGENT']
                 history = create_history(user_addr, user_agent)
@@ -604,7 +604,7 @@ def user_posts(request, username, url=None):
 
             if request.GET.get('nothanks', ''):
                 if request.user == post.author:
-                    return StatusError('SU')
+                    return StatusError(ErrorCode.AUTHENTICATION)
                 user_addr = get_network_addr(request)
                 user_agent = request.META['HTTP_USER_AGENT']
                 history = create_history(user_addr, user_agent)

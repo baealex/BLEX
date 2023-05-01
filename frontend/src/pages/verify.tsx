@@ -8,6 +8,7 @@ import { Footer } from '@system-design/shared';
 
 import * as API from '~/modules/api';
 import { CONFIG } from '~/modules/settings';
+import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
@@ -43,14 +44,14 @@ export default function Verify(props: Props) {
         }
         const { data } = await API.postEmailVerify(props.token, hctoken);
         if (data.status === 'ERROR') {
-            if (data.errorCode === API.ERROR.ALREADY_VERIFY) {
-                snackBar('😥 이미 인증된 메일입니다.');
+            if (data.errorCode === API.ERROR.ALREADY_VERIFICATION) {
+                snackBar(message('AFTER_REQ_ERR', '이미 인증된 메일입니다.'));
             }
-            if (data.errorCode === API.ERROR.EXPIRE) {
-                snackBar('😥 만료된 토큰입니다.');
+            if (data.errorCode === API.ERROR.EXPIRED) {
+                snackBar(message('AFTER_REQ_ERR', '만료된 토큰입니다.'));
             }
             if (data.errorCode === API.ERROR.REJECT) {
-                snackBar('😥 인증이 실패했습니다.');
+                snackBar(message('AFTER_REQ_ERR', '인증이 실패하였습니다.'));
             }
         }
         if (data.status === 'DONE') {
@@ -81,7 +82,7 @@ export default function Verify(props: Props) {
                     </button>
                 )}
             </div>
-            <Footer/>
+            <Footer />
         </>
     );
 }

@@ -3,6 +3,7 @@ import React from 'react';
 import { Modal } from '@design-system';
 
 import * as API from '~/modules/api';
+import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
@@ -51,11 +52,11 @@ export class TwoFactorAuthGetModal extends React.Component<Props, State> {
 
     async onSubmitLogin(code: string) {
         if (code == '') {
-            snackBar('😅 코드를 입력해주세요!');
+            snackBar(message('BEFORE_REQ_ERR', '코드를 입력해주세요!'));
             return;
         }
         if (code.length < 6) {
-            snackBar('😅 코드를 정확히 입력해주세요!');
+            snackBar(message('BEFORE_REQ_ERR', '코드를 정확히 입력해주세요!'));
             return;
         }
         const { data } = await API.postSecuritySend(code);
@@ -69,12 +70,12 @@ export class TwoFactorAuthGetModal extends React.Component<Props, State> {
 
     async loginCheck(data: API.ResponseData<API.PostLoginResponseData>) {
         if (data.status === 'ERROR') {
-            if (data.errorCode === API.ERROR.EXPIRE) {
-                snackBar('😥 코드가 만료되었습니다.');
+            if (data.errorCode === API.ERROR.EXPIRED) {
+                snackBar(message('AFTER_REQ_ERR', '코드가 만료되었습니다.'));
             }
 
             if (data.errorCode === API.ERROR.REJECT) {
-                snackBar('😥 코드를 확인하여 주십시오.');
+                snackBar(message('AFTER_REQ_ERR', '코드를 확인하여 주십시오.'));
             }
 
             this.setState({
@@ -84,7 +85,7 @@ export class TwoFactorAuthGetModal extends React.Component<Props, State> {
         }
 
         if (data.status == 'DONE') {
-            snackBar('😃 로그인 되었습니다.');
+            snackBar(message('AFTER_REQ_DONE', '로그인 되었습니다.'));
             authStore.set((prevState) => ({
                 ...prevState,
                 ...data.body,
@@ -95,10 +96,16 @@ export class TwoFactorAuthGetModal extends React.Component<Props, State> {
         }
     }
 
+    handleSummit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        this.onSubmitLogin(this.state.code);
+    }
+
     render() {
         const remainMinute = Math.floor(this.state.timer / 60);
         const remainSecond = this.state.timer % 60;
         const remainTime = `${remainMinute}:${remainSecond >= 10 ? remainSecond : `0${remainSecond}`}`;
+
         return (
             <Modal
                 title="2차 인증"
@@ -108,24 +115,19 @@ export class TwoFactorAuthGetModal extends React.Component<Props, State> {
                     텔레그램으로 전송된 2차 인증코드를 입력하세요.
                     인증코드 유효 시간 {remainTime}
                 </p>
-                <input
-                    className="login-form"
-                    name="code"
-                    type="number"
-                    placeholder="코드"
-                    onChange={(e) => this.onInputChange(e)}
-                    value={this.state.code}
-                    onKeyPress={(e) => {
-                        if (e.key == 'Enter') {
-                            this.onSubmitLogin(this.state.code);
-                        }
-                    }}
-                />
-                <button
-                    className="login-button"
-                    onClick={() => this.onSubmitLogin(this.state.code)}>
-                    인증
-                </button>
+                <form onSubmit={this.handleSummit.bind(this)}>
+                    <input
+                        className="login-form"
+                        name="code"
+                        type="number"
+                        placeholder="인증 코드"
+                        onChange={this.onInputChange.bind(this)}
+                        value={this.state.code}
+                    />
+                    <button type="submit" className="login-button">
+                        인증
+                    </button>
+                </form>
             </Modal>
         );
     }

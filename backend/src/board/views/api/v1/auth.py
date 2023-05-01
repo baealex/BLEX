@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from board.models import Notify, TwoFactorAuth, Config, Profile, Post, Comment
 from board.modules.notify import create_notify
-from board.modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules import oauth
 from modules.challenge import auth_hcaptcha
 from modules.subtask import sub_task_manager
@@ -63,7 +63,8 @@ def common_auth(request, user):
                 token = randnum(6)
                 user.twofactorauth.create_token(token)
                 bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-                bot.send_message(user.telegramsync.tid, f'2차 인증 코드입니다 : {token}')
+                bot.send_message(user.telegramsync.tid,
+                                 f'2차 인증 코드입니다 : {token}')
 
             sub_task_manager.append(create_auth_token)
             return StatusDone({
@@ -117,7 +118,7 @@ def login(request):
     if request.method == 'GET':
         if request.user.is_active:
             return login_response(request.user)
-        return StatusError('NL')
+        return StatusError(ErrorCode.NOT_LOGIN)
 
     if request.method == 'POST':
         social = request.POST.get('social', '')
@@ -130,16 +131,17 @@ def login(request):
             if user is not None:
                 if user.is_active:
                     return common_auth(request, user)
-            return StatusError('DU')
+            return StatusError(ErrorCode.OTHER_USER)
     raise Http404
 
 
 def logout(request):
     if request.method == 'POST':
-        if request.user.is_active:
-            auth.logout(request)
-            return StatusDone()
-        return StatusError('NL')
+        if not request.user.is_active:
+            return StatusError(ErrorCode.NOT_LOGIN)
+
+        auth.logout(request)
+        return StatusDone()
     raise Http404
 
 
@@ -160,13 +162,13 @@ def sign(request):
         password = request.POST.get('password', '')
         email = request.POST.get('email', '')
 
-        result_check_username = check_username(username)
-        if result_check_username:
-            return StatusError('RJ', result_check_username)
+        username_error = check_username(username)
+        if username_error:
+            return StatusError(ErrorCode.REJECT, username_error)
 
-        result_check_email = check_email(email)
-        if result_check_email:
-            return StatusError('RJ', result_check_email)
+        email_error = check_email(email)
+        if email_error:
+            return StatusError(ErrorCode.REJECT, email_error)
 
         new_user = User.objects.create_user(
             username,
@@ -203,16 +205,16 @@ def sign(request):
 
         if body.get('username', ''):
             if Post.objects.filter(author=request.user).count() > 0:
-                return StatusError('RJ', '이미 작성하신 포스트가 있습니다.')
+                return StatusError(ErrorCode.REJECT)
 
             if Comment.objects.filter(author=request.user).count() > 0:
-                return StatusError('RJ', '이미 작성하신 댓글이 있습니다.')
+                return StatusError(ErrorCode.REJECT)
 
             username = body.get('username', '')
 
             result_check_username = check_username(username)
             if result_check_username:
-                return StatusError('RJ', result_check_username)
+                return StatusError(ErrorCode.REJECT, result_check_username)
 
             user.username = username
 
@@ -235,58 +237,61 @@ def sign_social(request, social):
         if social == 'github':
             if request.POST.get('code'):
                 state = oauth.auth_github(request.POST.get('code'))
-                if state.success:
-                    avatar_url = state.user.get('avatar_url')
-                    node_id = state.user.get('node_id')
-                    user_id = state.user.get('login')
-                    name = state.user.get('name')
-                    token = f'{social}:{node_id}'
+                if not state.success:
+                    return StatusError(ErrorCode.REJECT)
 
-                    users = User.objects.filter(last_name=token)
-                    if users.exists():
-                        return common_auth(request, users.first())
+                avatar_url = state.user.get('avatar_url')
+                node_id = state.user.get('node_id')
+                user_id = state.user.get('login')
+                name = state.user.get('name')
+                token = f'{social}:{node_id}'
 
-                    user, profile, config = create_user_from_social(
-                        username=user_id,
-                        name=name,
-                        email='',
-                        avatar_url=avatar_url,
-                        token=token,
-                    )
+                users = User.objects.filter(last_name=token)
+                if users.exists():
+                    return common_auth(request, users.first())
 
-                    profile.github = user_id
-                    profile.save()
+                user, profile, config = create_user_from_social(
+                    username=user_id,
+                    name=name,
+                    email='',
+                    avatar_url=avatar_url,
+                    token=token,
+                )
 
-                    auth.login(request, user)
-                    return login_response(request.user, is_first_login=True)
-                return StatusError('RJ')
+                profile.github = user_id
+                profile.save()
+
+                auth.login(request, user)
+                return login_response(request.user, is_first_login=True)
 
         if social == 'google':
             if request.POST.get('code'):
                 state = oauth.auth_google(request.POST.get('code'))
-                if state.success:
-                    avatar_url = state.user.get('picture')
-                    node_id = state.user.get('id')
-                    user_id = state.user.get('email').split('@')[0]
-                    email = state.user.get('email')
-                    name = state.user.get('name')
-                    token = f'{social}:{node_id}'
+                if not state.success:
+                    return StatusError(ErrorCode.REJECT)
 
-                    users = User.objects.filter(last_name=token)
-                    if users.exists():
-                        return common_auth(request, users.first())
+                avatar_url = state.user.get('picture')
+                node_id = state.user.get('id')
+                user_id = state.user.get('email').split('@')[0]
+                email = state.user.get('email')
+                name = state.user.get('name')
+                token = f'{social}:{node_id}'
 
-                    user, profile, config = create_user_from_social(
-                        username=user_id,
-                        name=name,
-                        email=email,
-                        avatar_url=avatar_url,
-                        token=token,
-                    )
+                users = User.objects.filter(last_name=token)
+                if users.exists():
+                    return common_auth(request, users.first())
 
-                    auth.login(request, user)
-                    return login_response(request.user, is_first_login=True)
-                return StatusError('RJ')
+                user, profile, config = create_user_from_social(
+                    username=user_id,
+                    name=name,
+                    email=email,
+                    avatar_url=avatar_url,
+                    token=token,
+                )
+
+                auth.login(request, user)
+                return login_response(request.user, is_first_login=True)
+
     raise Http404
 
 
@@ -300,17 +305,18 @@ def email_verify(request, token):
 
     if request.method == 'POST':
         if user.is_active:
-            return StatusError('AV')
+            return StatusError(ErrorCode.ALREADY_VERIFICATION)
 
         if user.date_joined < timezone.now() - datetime.timedelta(days=7):
-            return StatusError('EP')
+            return StatusError(ErrorCode.EXPIRED)
 
         if settings.HCAPTCHA_SECRET_KEY:
             hctoken = request.POST.get('hctoken', '')
             if not hctoken:
-                return StatusError('RJ')
+                return StatusError(ErrorCode.VALIDATE)
+
             if not auth_hcaptcha(hctoken):
-                return StatusError('RJ')
+                return StatusError(ErrorCode.REJECT)
 
         user.is_active = True
         user.last_name = ''
@@ -334,19 +340,20 @@ def email_verify(request, token):
 
         auth.login(request, user)
         return login_response(request.user)
+
     raise Http404
 
 
 def security(request):
     if not request.user.is_active:
-        return StatusError('NL')
+        return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
         if not request.user.config.has_telegram_id():
-            return StatusError('NT')
+            return StatusError(ErrorCode.NEED_TELEGRAM)
 
         if hasattr(request.user, 'twofactorauth'):
-            return StatusError('AE')
+            return StatusError(ErrorCode.ALREADY_CONNECTED)
 
         recovery_key = randstr(45)
         # TODO: 이메일로 복구키 전송
@@ -358,10 +365,10 @@ def security(request):
 
     if request.method == 'DELETE':
         if not hasattr(request.user, 'twofactorauth'):
-            return StatusError('AU')
+            return StatusError(ErrorCode.ALREADY_DISCONNECTED)
 
         if not request.user.twofactorauth.has_been_a_day():
-            return StatusError('RJ')
+            return StatusError(ErrorCode.REJECT, '24시간 동안 해제할 수 없습니다.')
 
         request.user.twofactorauth.delete()
         return StatusDone()
@@ -375,17 +382,19 @@ def security_send(request):
         auth_token = body.get('auth_token', '')
         try:
             if len(auth_token) == 6:
-                two_factor_auth = TwoFactorAuth.objects.get(one_pass_token=auth_token)
+                two_factor_auth = TwoFactorAuth.objects.get(
+                    one_pass_token=auth_token)
                 if two_factor_auth:
                     if two_factor_auth.is_token_expire():
-                        return StatusError('EP')
+                        return StatusError(ErrorCode.EXPIRED)
                     user = two_factor_auth.user
                     two_factor_auth.one_pass_token = ''
                     two_factor_auth.save()
                     auth.login(request, user)
                     return login_response(request.user)
             else:
-                two_factor_auth = TwoFactorAuth.objects.get(recovery_key=auth_token)
+                two_factor_auth = TwoFactorAuth.objects.get(
+                    recovery_key=auth_token)
                 if two_factor_auth:
                     user = two_factor_auth.user
                     two_factor_auth.one_pass_token = ''
@@ -395,6 +404,6 @@ def security_send(request):
         except:
             traceback.print_exc()
 
-        return StatusError('RJ')
+        return StatusError(ErrorCode.REJECT)
 
     raise Http404

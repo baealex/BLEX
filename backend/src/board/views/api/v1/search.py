@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from board.models import Post, Search, SearchValue
 from board.modules.analytics import create_history, get_network_addr
-from board.modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 
 
@@ -20,7 +20,7 @@ def search(request):
         username = request.GET.get('username', '')
 
         if len(query) < 2:
-            return StatusError('RJ', '2글자 이상의 검색어를 입력하세요.')
+            return StatusError(ErrorCode.VALIDATE, '2글자 이상의 검색어를 입력하세요.')
 
         results = []
         search_words = [query]
@@ -82,7 +82,8 @@ def search(request):
         user_agent = request.META['HTTP_USER_AGENT']
         history = create_history(user_addr, user_agent)
 
-        search_value, search_value_created = SearchValue.objects.get_or_create(value=query)
+        search_value, search_value_created = SearchValue.objects.get_or_create(
+            value=query)
 
         six_hours_ago = timezone.now() - datetime.timedelta(hours=6)
         has_search_query = Search.objects.filter(
@@ -154,7 +155,8 @@ def search_history_list(request):
 def search_history_detail(request, item_id: int):
     if request.method == 'DELETE':
         if request.user.id:
-            search_item = get_object_or_404(Search, id=item_id, user=request.user.id)
+            search_item = get_object_or_404(
+                Search, id=item_id, user=request.user.id)
             search_item.user = None
             search_item.save()
             return StatusDone()

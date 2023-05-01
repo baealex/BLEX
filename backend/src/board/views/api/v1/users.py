@@ -10,7 +10,7 @@ from django.utils import timezone
 from board.models import (
     User, Post, Profile, Series,
     Comment, Follow, Tag)
-from board.modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_stamp
 from modules.markdown import parse_to_html, ParseData
 
@@ -71,7 +71,8 @@ def users(request, username):
 
                     heatmap = dict()
                     for element in activity:
-                        key = time_stamp(element.created_date, kind='grass')[:10]
+                        key = time_stamp(element.created_date,
+                                         kind='grass')[:10]
                         if key in heatmap:
                             heatmap[key] += 1
                         else:
@@ -111,7 +112,8 @@ def users(request, username):
                         thanks_count=Count('thanks', distinct=True),
                         nothanks_count=Count('nothanks', distinct=True),
                         likes_count=Count('likes', distinct=True),
-                        point=F('thanks_count') - F('nothanks_count') + (F('likes_count') * 1.5)
+                        point=F('thanks_count') - F('nothanks_count') +
+                        (F('likes_count') * 1.5)
                     ).order_by('-point', '-created_date')[:6]
 
                     data[include] = list(map(lambda post: {
@@ -176,10 +178,10 @@ def users(request, username):
             return StatusDone(data)
 
         if not request.user.is_active:
-            return StatusError('NL')
+            return StatusError(ErrorCode.NEED_LOGIN)
 
         if not request.user == user:
-            return StatusError('DU')
+            return StatusError(ErrorCode.AUTHENTICATION)
 
         if request.GET.get('get') == 'about':
             return StatusDone({
@@ -190,9 +192,10 @@ def users(request, username):
         put = QueryDict(request.body)
         if put.get('follow'):
             if not request.user.is_active:
-                return StatusError('NL')
+                return StatusError(ErrorCode.NEED_LOGIN)
+
             if request.user == user:
-                return StatusError('SU')
+                return StatusError(ErrorCode.AUTHENTICATION)
 
             follower = User.objects.get(username=request.user)
             follow_query = Follow.objects.filter(
@@ -208,7 +211,8 @@ def users(request, username):
 
         if put.get('about'):
             if not request.user == user:
-                return StatusError('DU')
+                return StatusError(ErrorCode.AUTHENTICATION)
+
             about_md = put.get('about_md')
             about_html = parse_to_html(settings.API_URL, ParseData.from_dict({
                 'text': about_md,

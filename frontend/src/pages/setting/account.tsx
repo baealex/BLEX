@@ -27,7 +27,7 @@ type Props = API.GetSettingAccountResponseData;
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { data } = await API.getSettingAccount({ 'Cookie': req.headers.cookie || '' });
 
-    if (data.errorCode === API.ERROR.NOT_LOGIN) {
+    if (data.errorCode === API.ERROR.NEED_LOGIN) {
         return {
             redirect: {
                 destination: '/',
@@ -48,9 +48,9 @@ interface AccountForm {
 }
 
 const AccountSetting: PageComponent<Props> = (props) => {
-    const [ isChangeUsername, setChangeUsername ] = useState(false);
-    const [ username, setUsername ] = useState(props.username);
-    const [ is2faSync ] = useValue(authStore, 'is2faSync');
+    const [isChangeUsername, setChangeUsername] = useState(false);
+    const [username, setUsername] = useState(props.username);
+    const [is2faSync] = useValue(authStore, 'is2faSync');
 
     const {
         reset,
@@ -119,7 +119,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
 
         const { data } = await API.deleteSecurity();
         if (data.status === 'ERROR') {
-            if (data.errorCode == API.ERROR.ALREADY_UNSYNC) {
+            if (data.errorCode == API.ERROR.ALREADY_DISCONNECTED) {
                 snackBar('😥 이미 해제되어 있습니다.');
                 return;
             }

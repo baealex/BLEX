@@ -29,7 +29,7 @@ export function ArticleComment(props: ArticleCommentProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     const [{ isLogin, username }] = useStore(authStore);
-    const [ commentText, setCommentText ] = useState('');
+    const [commentText, setCommentText] = useState('');
 
     const { data: comments = [], mutate: setComments } = useFetch(['posts', 'comments', props.url], async () => {
         if (props.totalComment > 0) {
@@ -71,14 +71,14 @@ export function ArticleComment(props: ArticleCommentProps) {
         const { data } = await API.putCommentLike(pk);
         if (data.status === 'ERROR') {
             switch (data.errorCode) {
-                case API.ERROR.NOT_LOGIN:
+                case API.ERROR.NEED_LOGIN:
                     snackBar('😅 로그인이 필요합니다.', {
-                        onClick:() => {
+                        onClick: () => {
                             modalStore.open('isOpenAuthGetModal');
                         }
                     });
                     return;
-                case API.ERROR.SAME_USER:
+                case API.ERROR.AUTHENTICATION:
                     snackBar('😅 자신의 댓글은 추천할 수 없습니다.');
                     return;
                 case API.ERROR.REJECT:

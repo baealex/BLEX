@@ -8,7 +8,7 @@ from django.utils.text import slugify
 
 from board.models import User, Post, Series
 from board.modules.paginator import Paginator
-from board.modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from modules.randomness import randstr
 
@@ -22,7 +22,7 @@ def user_series(request, username, url=None):
             ).annotate(
                 owner_username=F('owner__username'),
             ).order_by('order', '-id').distinct()
-            
+
             series = Paginator(
                 objects=series,
                 offset=10,
@@ -42,12 +42,13 @@ def user_series(request, username, url=None):
         if request.method == 'PUT':
             body = QueryDict(request.body)
             if request.GET.get('kind', '') == 'order':
-                series = Series.objects.filter(owner=request.user).order_by('order')
+                series = Series.objects.filter(
+                    owner=request.user).order_by('order')
                 prev_state = {}
 
                 for item in series:
                     prev_state[item.url] = (item.order, item)
-                
+
                 items = body.get('series').split(',')
                 for item in items:
                     [url, next_order] = item.split('=')
@@ -55,7 +56,7 @@ def user_series(request, username, url=None):
                     if int(prev_order) != int(next_order):
                         series_item.order = next_order
                         series_item.save()
-                
+
                 series = Series.objects.filter(
                     owner=request.user
                 ).annotate(
@@ -68,7 +69,7 @@ def user_series(request, username, url=None):
                         'total_posts': item.total_posts
                     }, series))
                 })
-        
+
         if request.method == 'POST':
             body = QueryDict(request.body)
             series = Series(
@@ -78,7 +79,7 @@ def user_series(request, username, url=None):
             series.url = slugify(series.name, allow_unicode=True)
             if series.url == '':
                 series.url = randstr(15)
-            i = 1
+
             while True:
                 try:
                     series.save()
@@ -86,13 +87,14 @@ def user_series(request, username, url=None):
                 except:
                     if i > 10:
                         traceback.print_exc()
-                        return StatusError('TO', '일시적으로 오류가 발생했습니다.')
-                    series.url = slugify(f'{series.name}-{randstr(8)}', allow_unicode=True)
+                        return StatusError(ErrorCode.REJECT, '일시적으로 오류가 발생했습니다.')
+                    series.url = slugify(
+                        f'{series.name}-{randstr(8)}', allow_unicode=True)
                     i += 1
             return StatusDone({
                 'url': series.url
             })
-    
+
     if url:
         user = get_object_or_404(User, username=username)
         series = get_object_or_404(Series.objects.annotate(
@@ -142,7 +144,8 @@ def user_series(request, username, url=None):
                 offset=12,
                 page=page
             )
-            start_number = series.total_posts - (posts.paginator.per_page * (int(page) - 1))
+            start_number = series.total_posts - \
+                (posts.paginator.per_page * (int(page) - 1))
             return StatusDone({
                 'name': series.name,
                 'url': series.url,
@@ -161,9 +164,9 @@ def user_series(request, username, url=None):
                 }, posts)),
                 'last_page': posts.paginator.num_pages
             })
-        
+
         if not request.user == series.owner:
-            return StatusError('DU')
+            return StatusError(ErrorCode.AUTHENTICATION)
 
         if request.method == 'PUT':
             put = QueryDict(request.body)
@@ -184,8 +187,9 @@ def user_series(request, username, url=None):
                 except:
                     if i > 10:
                         traceback.print_exc()
-                        return StatusError('TO', '일시적으로 오류가 발생했습니다.')
-                    series.url = slugify(f'{series.name}-{randstr(8)}', allow_unicode=True)
+                        return StatusError(ErrorCode.REJECT, '일시적으로 오류가 발생했습니다.')
+                    series.url = slugify(
+                        f'{series.name}-{randstr(8)}', allow_unicode=True)
                     i += 1
             return StatusDone({
                 'url': series.url
@@ -194,5 +198,5 @@ def user_series(request, username, url=None):
         if request.method == 'DELETE':
             series.delete()
             return StatusDone()
-        
+
         raise Http404

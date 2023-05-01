@@ -3,12 +3,12 @@ from django.http import Http404, QueryDict
 
 from board.models import Form
 from board.modules.time import convert_to_localtime
-from board.modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
 def forms_list(request):
     if not request.user.is_active:
-        return StatusError('NL')
+        return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'GET':
         forms = Form.objects.filter(user=request.user)
@@ -34,7 +34,7 @@ def forms_list(request):
 
 def forms_detail(request, id):
     if not request.user.is_active:
-        return StatusError('NL')
+        return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'GET':
         form = get_object_or_404(Form, id=id, user=request.user)
@@ -55,5 +55,5 @@ def forms_detail(request, id):
         form = get_object_or_404(Form, id=id)
         form.delete()
         return StatusDone()
-    
+
     raise Http404

@@ -50,19 +50,23 @@ def make_thumbnail(this, size, save_as=False, quality=100):
         return
 
     image.thumbnail((size, size), Image.ANTIALIAS)
-    image.save(f"static/{this.image}.minify.{str(this.image).split('.')[-1]}", quality=quality)
+    image.save(
+        f"static/{this.image}.minify.{str(this.image).split('.')[-1]}", quality=quality)
 
 
 # Models
 
 class Comment(models.Model):
-    author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    post = models.ForeignKey('board.Post', related_name='comments', on_delete=models.CASCADE)
+    author = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, null=True)
+    post = models.ForeignKey(
+        'board.Post', related_name='comments', on_delete=models.CASCADE)
     text_md = models.TextField(max_length=500)
     text_html = models.TextField()
     edited = models.BooleanField(default=False)
     heart = models.BooleanField(default=False)
-    likes = models.ManyToManyField(User, related_name='like_comments', blank=True)
+    likes = models.ManyToManyField(
+        User, related_name='like_comments', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def author_username(self):
@@ -95,6 +99,9 @@ class Comment(models.Model):
     def total_likes(self):
         return self.likes.count()
 
+    def is_deleted(self):
+        return self.author is None
+
     def __str__(self):
         return self.text_md
 
@@ -116,7 +123,8 @@ class EmailChange(models.Model):
 
 
 class UserConfigMeta(models.Model):
-    user = models.ForeignKey(User, related_name='conf_meta', on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, related_name='conf_meta', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     value = models.CharField(max_length=255)
     created_date = models.DateTimeField(default=timezone.now)
@@ -187,7 +195,8 @@ class Follow(models.Model):
     class Meta:
         db_table = 'board_user_follow'
 
-    following = models.ForeignKey('board.Profile', related_name='subscriber', on_delete=models.CASCADE)
+    following = models.ForeignKey(
+        'board.Profile', related_name='subscriber', on_delete=models.CASCADE)
     follower = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
@@ -259,7 +268,8 @@ class Tag(models.Model):
 
 class Post(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    series = models.ForeignKey('board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
+    series = models.ForeignKey(
+        'board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=50)
     url = models.SlugField(max_length=65, unique=True, allow_unicode=True)
     image = models.ImageField(blank=True, upload_to=title_image_path)
@@ -358,7 +368,8 @@ class Post(models.Model):
 
 
 class PostContent(models.Model):
-    posts = models.OneToOneField('board.Post', related_name='content', on_delete=models.CASCADE)
+    posts = models.OneToOneField(
+        'board.Post', related_name='content', on_delete=models.CASCADE)
     text_md = models.TextField(blank=True)
     text_html = models.TextField(blank=True)
 
@@ -367,7 +378,8 @@ class PostContent(models.Model):
 
 
 class PostConfig(models.Model):
-    posts = models.OneToOneField('board.Post', related_name='config', on_delete=models.CASCADE)
+    posts = models.OneToOneField(
+        'board.Post', related_name='config', on_delete=models.CASCADE)
     hide = models.BooleanField(default=False)
     notice = models.BooleanField(default=False)
     pinned = models.BooleanField(default=False)
@@ -387,7 +399,8 @@ class PostConfigMeta(models.Model):
 
 
 class PostAnalytics(models.Model):
-    posts = models.ForeignKey('board.Post', related_name='analytics', on_delete=models.CASCADE)
+    posts = models.ForeignKey(
+        'board.Post', related_name='analytics', on_delete=models.CASCADE)
     table = models.ManyToManyField('board.History', blank=True)
     created_date = models.DateField(default=timezone.now)
 
@@ -399,7 +412,8 @@ class PostLikes(models.Model):
     class Meta:
         db_table = 'board_post_likes'
 
-    post = models.ForeignKey('board.Post', related_name='likes', on_delete=models.CASCADE)
+    post = models.ForeignKey(
+        'board.Post', related_name='likes', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
@@ -408,7 +422,8 @@ class PostLikes(models.Model):
 
 
 class PostThanks(models.Model):
-    post = models.ForeignKey('board.Post', related_name='thanks', on_delete=models.CASCADE)
+    post = models.ForeignKey(
+        'board.Post', related_name='thanks', on_delete=models.CASCADE)
     history = models.ForeignKey('board.History', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
@@ -417,7 +432,8 @@ class PostThanks(models.Model):
 
 
 class PostNoThanks(models.Model):
-    post = models.ForeignKey('board.Post', related_name='nothanks', on_delete=models.CASCADE)
+    post = models.ForeignKey(
+        'board.Post', related_name='nothanks', on_delete=models.CASCADE)
     history = models.ForeignKey('board.History', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
@@ -497,7 +513,8 @@ class Profile(models.Model):
 
 class Referer(models.Model):
     posts = models.ForeignKey('board.PostAnalytics', on_delete=models.CASCADE)
-    referer_from = models.ForeignKey('board.RefererFrom', related_name='referers', on_delete=models.CASCADE)
+    referer_from = models.ForeignKey(
+        'board.RefererFrom', related_name='referers', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -546,7 +563,8 @@ class Report(models.Model):
 class Search(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     searcher = models.ForeignKey('board.history', on_delete=models.CASCADE)
-    search_value = models.ForeignKey('board.SearchValue', on_delete=models.CASCADE)
+    search_value = models.ForeignKey(
+        'board.SearchValue', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -706,7 +724,8 @@ class DeveloperToken(models.Model):
 
 
 class DeveloperTokenLog(models.Model):
-    developer = models.ForeignKey('board.DeveloperToken', on_delete=models.CASCADE)
+    developer = models.ForeignKey(
+        'board.DeveloperToken', on_delete=models.CASCADE)
     history = models.ForeignKey('board.History', on_delete=models.CASCADE)
     url = models.CharField(max_length=255)
     created_date = models.DateTimeField(default=timezone.now)

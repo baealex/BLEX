@@ -12,19 +12,19 @@ from board.models import (
     PostAnalytics, Form, Profile, Notify,
     OpenAIConnection, OpenAIUsageHistory)
 from board.modules.paginator import Paginator
-from board.modules.response import StatusDone, StatusError
+from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 
 
 def setting(request, parameter):
     if not request.user.is_active:
-        return StatusError('NL')
+        return StatusError(ErrorCode.NEED_LOGIN)
 
     user = get_object_or_404(
         User.objects.select_related('config'),
         username=request.user
     )
-    
+
     if request.method == 'GET':
         if parameter == 'notify':
             six_months_ago = timezone.now() - datetime.timedelta(days=180)
@@ -32,7 +32,7 @@ def setting(request, parameter):
                 Q(created_date__gt=six_months_ago) |
                 Q(is_read=False)
             ).order_by('-created_date')
-            
+
             return StatusDone({
                 'notify': list(map(lambda item: {
                     'pk': item.pk,
@@ -43,7 +43,7 @@ def setting(request, parameter):
                 }, notify)),
                 'is_telegram_sync': request.user.config.has_telegram_id()
             })
-        
+
         if parameter == 'account':
             return StatusDone({
                 'username': user.username,
@@ -53,7 +53,7 @@ def setting(request, parameter):
                 'agree_display_email': user.config.get_meta('AGREE_DISPLAY_EMAIL'),
                 'agree_send_email': user.config.get_meta('AGREE_SEND_EMAIL')
             })
-        
+
         if parameter == 'profile':
             profile = Profile.objects.get(user=user)
             return StatusDone({
@@ -66,7 +66,7 @@ def setting(request, parameter):
                 'facebook': profile.facebook,
                 'instagram': profile.instagram
             })
-        
+
         if parameter == 'posts':
             posts = Post.objects.select_related(
                 'config'
@@ -77,7 +77,7 @@ def setting(request, parameter):
             tag_filter = request.GET.get('tag_filter', '')
             if tag_filter:
                 posts = posts.filter(tags__value=tag_filter)
-            
+
             valid_orders = [
                 'title',
                 'read_time',
@@ -101,9 +101,11 @@ def setting(request, parameter):
                         hide=F('config__hide'),
                     )
                 if 'total_like_count' in order:
-                    posts = posts.annotate(total_like_count=Count('likes', distinct=True))
+                    posts = posts.annotate(
+                        total_like_count=Count('likes', distinct=True))
                 if 'total_comment_count' in order:
-                    posts = posts.annotate(total_comment_count=Count('comments', distinct=True))
+                    posts = posts.annotate(
+                        total_comment_count=Count('comments', distinct=True))
 
                 posts = posts.order_by(order)
 
@@ -129,7 +131,7 @@ def setting(request, parameter):
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
             })
-        
+
         if parameter == 'series':
             series_items = Series.objects.filter(
                 owner=user
@@ -144,7 +146,7 @@ def setting(request, parameter):
                     'total_posts': series_item.total_posts
                 }, series_items))
             })
-        
+
         if parameter == 'analytics-posts-view':
             posts = Post.objects.filter(author=user).annotate(
                 author_username=F('author__username'),
@@ -179,7 +181,8 @@ def setting(request, parameter):
 
         if parameter == 'analytics-view':
             one_month = 30
-            one_month_ago = convert_to_localtime(timezone.now() - datetime.timedelta(days=one_month))
+            one_month_ago = convert_to_localtime(
+                timezone.now() - datetime.timedelta(days=one_month))
 
             posts_analytics = PostAnalytics.objects.values(
                 'created_date',
@@ -192,13 +195,14 @@ def setting(request, parameter):
 
             date_dict = dict()
             for i in range(one_month):
-                key = str(convert_to_localtime(timezone.now() - datetime.timedelta(days=i)))[:10]
+                key = str(convert_to_localtime(
+                    timezone.now() - datetime.timedelta(days=i)))[:10]
                 date_dict[key] = 0
-            
+
             for item in posts_analytics:
                 key = str(item['created_date'])[:10]
                 date_dict[key] = item['table_count']
-            
+
             total = PostAnalytics.objects.filter(
                 posts__author=user
             ).annotate(
@@ -213,7 +217,7 @@ def setting(request, parameter):
                 }, date_dict)),
                 'total': total if total else 0
             })
-        
+
         if parameter == 'analytics-referer':
             one_year_ago = timezone.now() - datetime.timedelta(days=365)
 
@@ -247,7 +251,7 @@ def setting(request, parameter):
                     }
                 }, referers))
             })
-        
+
         if parameter == 'analytics-search':
             a_month_ago = timezone.now() - datetime.timedelta(days=30)
 
@@ -304,11 +308,11 @@ def setting(request, parameter):
                 if 'Google' == referer.title:
                     keyword = ''
                     platform = '구글'
-                
+
                 if 'DuckDuckGo' in referer.title:
                     keyword = ''
                     platform = '덕덕고'
-                
+
                 if 'Yahoo' in referer.title:
                     keyword = ''
                     platform = '야후'
@@ -333,7 +337,7 @@ def setting(request, parameter):
                     search_counter[f'{keyword} - {platform}'] += referer.count
                     continue
                 search_counter[f'{keyword} - {platform}'] = referer.count
-            
+
             platform_total = dict(
                 sorted(
                     filter(
@@ -354,7 +358,7 @@ def setting(request, parameter):
                     'platform': platform,
                     'count': item[1],
                 })
-        
+
             return StatusDone({
                 'platform_total': platform_total,
                 'top_searches': top_searches,
@@ -402,9 +406,11 @@ def setting(request, parameter):
         if parameter == 'integration-openai':
             api_key = request.POST.get('api_key', '')
             if not api_key:
-                return StatusError('VE', 'API 키를 입력해주세요.')
+                return StatusError(ErrorCode.VALIDATE, 'API 키를 입력해주세요.')
+
             if hasattr(request.user, 'openaiconnection'):
-                return StatusError('AE', '이미 연동되어 있습니다.')
+                return StatusError(ErrorCode.ALREADY_CONNECTED, '이미 연동되어 있습니다.')
+
             OpenAIConnection.objects.create(
                 user=request.user,
                 api_key=api_key,
@@ -420,7 +426,7 @@ def setting(request, parameter):
             notify.is_read = True
             notify.save()
             return StatusDone()
-        
+
         if parameter == 'account':
             should_update = False
             name = put.get('name', '')
@@ -434,16 +440,17 @@ def setting(request, parameter):
                 should_update = True
             if should_update:
                 user.save()
-            
+
             config_names = [
                 'AGREE_DISPLAY_EMAIL',
                 'AGREE_SEND_EMAIL',
             ]
             for config_name in config_names:
-                user.config.create_or_update_meta(config_name, put.get(config_name, ''))
+                user.config.create_or_update_meta(
+                    config_name, put.get(config_name, ''))
 
             return StatusDone()
-        
+
         if parameter == 'profile':
             profile = Profile.objects.get(user=user)
 
@@ -458,15 +465,16 @@ def setting(request, parameter):
             ]
             for social in socials:
                 setattr(profile, social, put.get(social, ''))
-            
+
             profile.save()
             return StatusDone()
-    
+
     if request.method == 'DELETE':
         if parameter == 'integration-openai':
             if not hasattr(request.user, 'openaiconnection'):
-                return StatusError('NE', '연동되어 있지 않습니다.')
+                return StatusError(ErrorCode.ALREADY_DISCONNECTED, '연동되어 있지 않습니다.')
+
             request.user.openaiconnection.delete()
             return StatusDone()
-    
+
     raise Http404

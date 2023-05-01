@@ -21,7 +21,7 @@ type Social = 'twitter' | 'facebook' | 'pinterest';
 
 export function ArticleAction(props: ArticleActionProps) {
     const [{ isLogin }] = useStore(authStore);
-    const [ state, setState ] = useState({
+    const [state, setState] = useState({
         isLiked: props.isLiked,
         totalLikes: props.totalLikes,
         totalComment: props.totalComment
@@ -76,9 +76,9 @@ export function ArticleAction(props: ArticleActionProps) {
             }
         }
         if (data.status === 'ERROR') {
-            if (data.errorCode === API.ERROR.NOT_LOGIN) {
+            if (data.errorCode === API.ERROR.NEED_LOGIN) {
                 snackBar('😅 로그인이 필요합니다.', {
-                    onClick:() => {
+                    onClick: () => {
                         modalStore.open('isOpenAuthGetModal');
                     }
                 });
@@ -98,19 +98,19 @@ export function ArticleAction(props: ArticleActionProps) {
             <ul>
                 {isLogin && (
                     <li onClick={onClickLike}>
-                        <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`}/>
+                        <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`} />
                         <span>{state.totalLikes}</span>
                     </li>
                 )}
                 <li onClick={onClickGoComment}>
-                    <i className="far fa-comment"/>
+                    <i className="far fa-comment" />
                     <span>{state.totalComment}</span>
                 </li>
                 {['twitter', 'facebook', 'pinterest'].map((social, idx) => (
                     <li
                         key={idx}
                         onClick={() => onClickShare(social as Social)}>
-                        <i className={`fab fa-${social}`}/>
+                        <i className={`fab fa-${social}`} />
                     </li>
                 ))}
             </ul>
