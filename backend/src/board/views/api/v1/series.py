@@ -101,6 +101,7 @@ def user_series(request, username, url=None):
             total_posts=Count(
                 Case(
                     When(
+                        posts__created_date__lte=timezone.now(),
                         posts__config__hide=False,
                         then=1
                     )
