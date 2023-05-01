@@ -30,18 +30,26 @@ from modules.discord import Discord
 def post_list(request):
     if request.method == 'POST':
         if not request.user.is_active:
-            return StatusError('NL')
+            raise Http404
 
+        title = request.POST.get('title', '')
         text_md = request.POST.get('text_md', '')
+
+        if not title:
+            return StatusError('NV', '제목을 입력해주세요.')
+        if not text_md:
+            return StatusError('NV', '내용을 입력해주세요.')
+
         text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
             'text': text_md,
             'token': settings.API_KEY,
         }))
+        read_time = calc_read_time(text_html)
 
         post = Post()
-        post.title = request.POST.get('title', '')
+        post.title = title
         post.author = request.user
-        post.read_time = calc_read_time(text_html)
+        post.read_time = read_time
 
         description = request.POST.get('description', '')
         if description:
@@ -55,7 +63,8 @@ def post_list(request):
                     user=request.user,
                 )
             else:
-                post.meta_description = create_post_description(post_content_html=text_html, write_type='general')
+                post.meta_description = create_post_description(
+                    post_content_html=text_html, write_type='general')
 
         reserved_date = request.POST.get('reserved_date', '')
         if reserved_date:
@@ -83,7 +92,7 @@ def post_list(request):
             url = slugify(url, allow_unicode=True)
         else:
             url = slugify(post.title, allow_unicode=True)
-        
+
         post.url = url
         has_url = Post.objects.filter(url=post.url).exists()
         while has_url:
@@ -100,7 +109,8 @@ def post_list(request):
 
         post_config = PostConfig(posts=post)
         post_config.hide = BooleanType(request.POST.get('is_hide', ''))
-        post_config.advertise = BooleanType(request.POST.get('is_advertise', ''))
+        post_config.advertise = BooleanType(
+            request.POST.get('is_advertise', ''))
         post_config.save()
 
         if not post_config.hide and settings.DISCORD_NEW_POSTS_WEBHOOK:
@@ -116,7 +126,8 @@ def post_list(request):
         token = request.POST.get('token')
         if token:
             try:
-                TempPosts.objects.get(token=token, author=request.user).delete()
+                TempPosts.objects.get(
+                    token=token, author=request.user).delete()
             except:
                 pass
         return StatusDone({
@@ -347,7 +358,8 @@ def post_analytics(request, url):
 
         date_dict = dict()
         for i in range(seven_days):
-            key = str(convert_to_localtime(timezone.now() - datetime.timedelta(days=i)))[:10]
+            key = str(convert_to_localtime(
+                timezone.now() - datetime.timedelta(days=i)))[:10]
             date_dict[key] = 0
 
         for item in posts_views:
@@ -468,7 +480,7 @@ def user_posts(request, username, url=None):
             if request.GET.get('mode') == 'view':
                 if post.config.hide and request.user != post.author:
                     raise Http404
-                
+
                 if not post.is_published() and request.user != post.author:
                     raise Http404
 
@@ -496,16 +508,22 @@ def user_posts(request, username, url=None):
             if not request.user == post.author:
                 raise Http404
 
+            title = request.POST.get('title', '')
             text_md = request.POST.get('text_md', '')
+
+            if not title:
+                return StatusError('NV', '제목을 입력해주세요.')
+            if not text_md:
+                return StatusError('NV', '내용을 입력해주세요.')
+
             text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
                 'text': text_md,
                 'token': settings.API_KEY,
             }))
+            read_time = calc_read_time(text_html)
 
-            post.title = request.POST.get('title', '')
-            if post.is_published():
-                post.updated_date = timezone.now()
-            post.read_time = calc_read_time(text_html)
+            post.title = title
+            post.read_time = read_time
 
             description = request.POST.get('description', '')
             if description:
@@ -534,8 +552,12 @@ def user_posts(request, username, url=None):
 
             post_config = post.config
             post_config.hide = BooleanType(request.POST.get('is_hide', ''))
-            post_config.advertise = BooleanType(request.POST.get('is_advertise', ''))
+            post_config.advertise = BooleanType(
+                request.POST.get('is_advertise', ''))
             post_config.save()
+
+            if post.is_published():
+                post.updated_date = timezone.now()
 
             post.save()
             post.set_tags(request.POST.get('tag', ''))
@@ -557,7 +579,8 @@ def user_posts(request, username, url=None):
                     PostLikes(post=post, user=user).save()
                     if request.user != post.author:
                         send_notify_content = f'\'{post.title}\' 글을 @{user.username}님께서 추천하였습니다.'
-                        create_notify(user=post.author, url=post.get_absolute_url(), infomation=send_notify_content)
+                        create_notify(user=post.author, url=post.get_absolute_url(
+                        ), infomation=send_notify_content)
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })
