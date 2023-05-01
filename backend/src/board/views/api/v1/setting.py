@@ -361,7 +361,7 @@ def setting(request, parameter):
             })
 
         if parameter == 'integration-telegram':
-            if hasattr(request.user, 'telegramsync'):
+            if hasattr(request.user, 'telegramsync') and request.user.telegramsync.tid:
                 return StatusDone({
                     'is_connected': True,
                     'telegram_id': request.user.telegramsync.tid.replace(request.user.telegramsync.tid[2:7], '*'.ljust(5, '*')),
@@ -447,7 +447,6 @@ def setting(request, parameter):
         if parameter == 'profile':
             profile = Profile.objects.get(user=user)
 
-            req_data = dict()
             socials = [
                 'bio',
                 'homepage',
