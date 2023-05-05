@@ -36,7 +36,7 @@ export function SettingLayout({
             </div>
             <style jsx>{`
                 :global(.content) {
-                    padding-top: 0px;
+                    padding-top: 0px !important;
                 }
             `}</style>
         </>
