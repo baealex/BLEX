@@ -1,0 +1,22 @@
+.date-input {
+    :global(.react-datepicker) {
+        border-color: #e5e5e5;
+    }
+
+    :global(.react-datepicker__header) {
+        background-color: #fff;
+        border-color: #e5e5e5;
+    }
+
+    :global(.react-datepicker__triangle::before) {
+        border-bottom-color: #e5e5e5 !important;
+    }
+
+    :global(.react-datepicker__triangle::after) {
+        border-bottom-color: #fff !important;
+    }
+
+    :global(.react-datepicker__time-container) {
+        border-color: #e5e5e5;
+    }
+}
