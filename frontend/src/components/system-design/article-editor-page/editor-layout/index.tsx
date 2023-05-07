@@ -52,6 +52,9 @@ interface Props {
     };
     onSubmit: (onFail: () => void) => void;
     addon?: EditorContentProps['addon'];
+    extended?: {
+        footer: React.ReactNode;
+    };
 }
 
 export function EditorLayout(props: Props) {
@@ -101,21 +104,22 @@ export function EditorLayout(props: Props) {
                 onChange={props.content.onChange}
                 addon={props.addon}
             />
+            <FormControl className="mb-3" required>
+                <Label>태그</Label>
+                <KeywordInput
+                    name="tags"
+                    maxLength={50}
+                    value={props.tags.value}
+                    onChange={(e) => props.tags.onChange(e.target.value)}
+                />
+            </FormControl>
+            {props.extended?.footer}
             <Modal
                 title={props.publish.title}
                 isOpen={isOpenArticlePublishModal}
                 onClose={() => modalStore.close('isOpenArticlePublishModal')}
                 submitText={props.publish.buttonText}
                 onSubmit={() => handleSubmit()}>
-                <FormControl className="mb-3" required>
-                    <Label>태그 (필수)</Label>
-                    <KeywordInput
-                        name="tags"
-                        maxLength={50}
-                        value={props.tags.value}
-                        onChange={(e) => props.tags.onChange(e.target.value)}
-                    />
-                </FormControl>
                 {props.url && (
                     <FormControl className="mb-3">
                         <Label>URL (옵션)</Label>

@@ -48,7 +48,7 @@ export function EditorContent(props: EditorContentProps) {
         return data.body.forms;
     });
 
-    const [ modal, setModal ] = useState({
+    const [modal, setModal] = useState({
         isOpenForms: false,
         isOpenYoutube: false
     });
@@ -188,9 +188,9 @@ export function EditorContent(props: EditorContentProps) {
                     });
 
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
+                    // @ts-ignoreß
                     easyMDE.codemirror.on('paste', async (instance, event) => {
-                        const item = event.clipboardData.items[0];
+                        const item = event.clipboardData?.items[0];
                         if (item && item.type.indexOf('image') !== -1) {
                             const imageFile = item.getAsFile();
                             if (imageFile) {
@@ -229,7 +229,7 @@ export function EditorContent(props: EditorContentProps) {
 
     useEffect(() => {
         if (editor.current) {
-            if (editor.current.value() !== props.value){
+            if (editor.current.value() !== props.value) {
                 editor.current.value(props.value);
             }
         }

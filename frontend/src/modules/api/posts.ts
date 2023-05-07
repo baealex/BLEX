@@ -39,7 +39,7 @@ export interface GetAnTempPostsResponseData {
     title: string;
     token: string;
     textMd: string;
-    tags: string[];
+    tags: string;
     createdDate: string;
 }
 

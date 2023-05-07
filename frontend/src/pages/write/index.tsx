@@ -2,6 +2,7 @@ import type { GetServerSideProps } from 'next';
 import React from 'react';
 import Router from 'next/router';
 
+import { Button, Card, Label, Toggle } from '~/components/design-system';
 import {
     EditorLayout,
     TempArticleModal
@@ -16,6 +17,7 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
 import { configStore } from '~/stores/config';
+import { modalStore } from '~/stores/modal';
 
 interface Props {
     username: string;
@@ -144,14 +146,14 @@ class Write extends React.Component<Props, State> {
             this.setState({
                 title: data.body.title,
                 content: data.body.textMd,
-                tags: data.body.tags.join(','),
+                tags: data.body.tags,
                 token: data.body.token,
                 tempPostsCache: {
                     ...tempPostsCache,
                     [data.body.token]: {
                         title: data.body.title,
                         content: data.body.textMd,
-                        tags: data.body.tags.join(',')
+                        tags: data.body.tags
                     }
                 }
             });
@@ -330,6 +332,52 @@ class Write extends React.Component<Props, State> {
                     buttonText: '이대로 발행하겠습니다'
                 }}
                 onSubmit={this.onSubmit.bind(this)}
+                extended={{
+                    footer: (
+                        <>
+                            <Label>임시 저장</Label>
+                            <Card className="p-2">
+                                <div className="d-flex justify-content-between">
+                                    <Toggle
+                                        label="자동 저장"
+                                        defaultChecked={this.state.isAutoSave}
+                                        onClick={(checked) => this.onCheckAutoSave(checked)}
+                                    />
+                                    <div className="d-flex">
+                                        <Button
+                                            gap="little"
+                                            color="transparent"
+                                            onClick={() => {
+                                                this.setState({ isOpenArticleModal: true });
+                                            }}>
+                                            목록
+                                        </Button>
+                                        <Button
+                                            color="transparent"
+                                            onClick={() => {
+                                                const {
+                                                    token, title, content, tags
+                                                } = this.state;
+                                                this.onTempSave(token, title, content, tags);
+                                            }}>
+                                            저장
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Card>
+                            <div className="d-flex justify-content-end">
+                                <Button
+                                    className="mt-3"
+                                    color="secondary"
+                                    onClick={() => {
+                                        modalStore.open('isOpenArticlePublishModal');
+                                    }}>
+                                    글 발행하기
+                                </Button>
+                            </div>
+                        </>
+                    )
+                }}
                 addon={{
                     toolbar: [
                         {
@@ -344,17 +392,9 @@ class Write extends React.Component<Props, State> {
                             token={this.state.token}
                             isOpen={this.state.isOpenArticleModal}
                             onClose={() => this.setState({ isOpenArticleModal: false })}
-                            isAutoSave={this.state.isAutoSave}
-                            onCheckAutoSave={this.onCheckAutoSave.bind(this)}
                             tempPosts={tempPosts}
                             onDelete={this.onDeleteTempPost.bind(this)}
                             onFetch={this.fetchTempPosts.bind(this)}
-                            onSave={() => {
-                                const {
-                                    token, title, content, tags
-                                } = this.state;
-                                this.onTempSave(token, title, content, tags);
-                            }}
                         />
                     )
                 }}

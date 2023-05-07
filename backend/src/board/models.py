@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.html import strip_tags
 
-from PIL import Image, ImageFilter
+from PIL import Image
 
 from board.modules.time import time_since, time_stamp
 from modules.randomness import randstr
