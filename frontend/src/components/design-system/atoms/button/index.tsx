@@ -13,7 +13,7 @@ export interface ButtonProps {
     children: React.ReactNode;
     gap?: 'none' | 'little';
     space?: 'default' | 'spare';
-    color?: 'default' | 'primary' | 'secondary' | 'point';
+    color?: 'default' | 'primary' | 'secondary' | 'point' | 'transparent';
     display?: 'inline-block' | 'block';
 }
 
@@ -68,7 +68,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
                 className
             )}
             onClick={handleClick}>
-            {isLoading ? <i className="fas fa-spinner fa-spin"/> : children}
+            {isLoading ? <i className="fas fa-spinner fa-spin" /> : children}
         </button>
     );
 });
