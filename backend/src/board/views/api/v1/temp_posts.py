@@ -37,6 +37,7 @@ def temp_posts_list(request):
         temp_post = TempPosts(token=token, author=request.user)
         temp_post.title = request.POST.get('title')
         temp_post.text_md = request.POST.get('text_md')
+        temp_post.tag = request.POST.get('tag')
         temp_post.save()
 
         return StatusDone({
@@ -55,7 +56,7 @@ def temp_posts_detail(request, token):
             'token': temp_post.token,
             'title': temp_post.title,
             'text_md': temp_post.text_md,
-            'tags': [],
+            'tags': temp_post.tag,
             'created_date': temp_post.time_since(),
         })
 
@@ -65,6 +66,7 @@ def temp_posts_detail(request, token):
             TempPosts, token=token, author=request.user)
         temp_post.title = body.get('title')
         temp_post.text_md = body.get('text_md')
+        temp_post.tag = body.get('tag')
         temp_post.updated_date = timezone.now()
         temp_post.save()
         return StatusDone()
