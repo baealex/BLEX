@@ -4,17 +4,17 @@ const cn = classNames.bind(styles);
 
 interface BadgeProps {
     isRounded?: boolean;
-    hasSharp?: boolean;
-    isSolo?: boolean;
-    size?: 'small' | 'normal';
+    hasHash?: boolean;
+    size?: 'small' | 'medium';
+    className?: string;
     children: React.ReactNode;
 }
 
 export function Badge({
     isRounded = false,
-    hasSharp = false,
-    isSolo = false,
-    size = 'normal',
+    hasHash = false,
+    size = 'medium',
+    className,
     children
 }: BadgeProps) {
     return (
@@ -22,9 +22,9 @@ export function Badge({
             className={cn(
                 'badge',
                 { ir: isRounded },
-                { hs: hasSharp },
-                { is: isSolo },
-                size !== 'normal' && 'size-' + size
+                { hs: hasHash },
+                size !== 'medium' && 'size-' + size,
+                className
             )}>
             {children}
         </div>

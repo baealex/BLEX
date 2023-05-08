@@ -114,13 +114,13 @@ export function ArticleCard(props: ArticleCardProps) {
                                         <Link className="deep-dark" href="/[author]" as={`/@${props.author}`}>
                                             {props.author}
                                         </Link>님이 작성함
-                                        <br/>
+                                        <br />
                                         {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
                                     </div>
                                 </div>
                                 {props.isAd && (
                                     <PopOver text="유료 광고 포함">
-                                        <Badge isRounded isSolo size="small">
+                                        <Badge isRounded size="small">
                                             AD
                                         </Badge>
                                     </PopOver>

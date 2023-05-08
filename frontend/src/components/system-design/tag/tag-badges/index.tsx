@@ -10,7 +10,7 @@ export function TagBadges(props: TagBadgesProps) {
         <div className="mb-3">
             {props.items.map((item, idx) => (
                 item && (
-                    <Badge isRounded hasSharp={!props.disableSharp} key={idx}>
+                    <Badge key={idx} className="mr-2" isRounded hasHash={!props.disableSharp}>
                         {item}
                     </Badge>
                 )

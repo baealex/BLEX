@@ -26,7 +26,9 @@ export function KeywordInput(props: Props) {
             </div>
             <div className="mt-2">
                 {badges.map((badge) => (
-                    <Badge>{badge}</Badge>
+                    <Badge className="mr-2" isRounded hasHash>
+                        {badge}
+                    </Badge>
                 ))}
             </div>
         </>
