@@ -8,7 +8,6 @@
     color: #ccc;
     background: #000;
     border-radius: 4px;
-    transform: translate(-110%, -8px);
     text-align: center;
 
     &.hover {
@@ -19,7 +18,7 @@
         position: absolute;
         transform: rotate(-90deg);
         right: -16px;
-        bottom: 4px;
+        top: 4px;
         width: 0;
         height: 0;
         content: '';
@@ -27,5 +26,32 @@
         border-style: solid;
         border-color: #000 transparent transparent transparent;
         filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.1));
+    }
+
+    &.top {
+        &::after {
+            top: auto;
+            bottom: -16px;
+            right: 50%;
+            transform: rotate(-180deg) translateX(-50%);
+            border-color: transparent transparent #000 transparent;
+        }
+    }
+
+    &.right {
+        &::after {
+            right: auto;
+            left: -16px;
+            transform: rotate(90deg);
+        }
+    }
+
+    &.bottom {
+        &::after {
+            top: -16px;
+            bottom: auto;
+            right: 50%;
+            transform: rotate(180deg) translateX(-50%);
+        }
     }
 }
