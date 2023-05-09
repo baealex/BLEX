@@ -16,8 +16,9 @@ const INIT_STATE = {
     avatar: '',
     notifyCount: 0,
     isFirstLogin: false,
-    isTelegramSync: false,
-    is2faSync: false
+    hasConnectedTelegram: false,
+    hasConnectedOpenai: false,
+    hasConnected2fa: false
 };
 
 class AuthStore extends Store<AuthStoreState> {

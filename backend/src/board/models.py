@@ -187,6 +187,11 @@ class Config(models.Model):
             return True
         return False
 
+    def has_openai_key(self):
+        if hasattr(self.user, 'openaiconnection'):
+            return True
+        return False
+
     def __str__(self):
         return self.user.username
 

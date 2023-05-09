@@ -50,7 +50,7 @@ interface AccountForm {
 const AccountSetting: PageComponent<Props> = (props) => {
     const [isChangeUsername, setChangeUsername] = useState(false);
     const [username, setUsername] = useState(props.username);
-    const [is2faSync] = useValue(authStore, 'is2faSync');
+    const [hasConnected2fa] = useValue(authStore, 'hasConnected2fa');
 
     const {
         reset,
@@ -260,7 +260,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                     label="서비스의 이메일 전송을 허용합니다."
                 />
             </Card>
-            {is2faSync ? (
+            {hasConnected2fa ? (
                 <Button gap="little" onClick={handleDeleteTwoFactorAuth}>
                     2차 인증 중지
                 </Button>

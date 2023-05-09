@@ -10,8 +10,9 @@ export interface GetLoginResponseData {
     avatar: string;
     notifyCount: number;
     isFirstLogin: boolean;
-    isTelegramSync: boolean;
-    is2faSync: boolean;
+    hasConnectedTelegram: boolean;
+    hasConnectedOpenai: boolean;
+    hasConnected2fa: boolean;
 }
 
 export async function getLogin(headers?: Headers) {

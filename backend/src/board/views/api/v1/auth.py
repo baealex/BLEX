@@ -51,8 +51,9 @@ def login_response(user, is_first_login=False):
         'avatar': avatar,
         'notify_count': notify_count,
         'is_first_login': is_first_login,
-        'is_telegram_sync': user.config.has_telegram_id(),
-        'is_2fa_sync': user.config.has_two_factor_auth(),
+        'has_connected_telegram': user.config.has_telegram_id(),
+        'has_connected_openai': user.config.has_openai_key(),
+        'has_connected_2fa': user.config.has_two_factor_auth(),
     })
 
 
