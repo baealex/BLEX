@@ -10,8 +10,8 @@ import { snackBar } from '~/modules/ui/snack-bar';
 type ErrorCode =
     'error:RJ' | 'error:EP' | 'error:AT' | 'error:OF' |
     'error:NL' | 'error:AV' | 'error:AU' | 'error:AC' |
-    'error:AE' | 'error:NT' | 'error:EN' | 'error:UN' |
-    'error:VA';
+    'error:AE' | 'error:NT' | 'error:NO' | 'error:EN' |
+    'error:UN' | 'error:VA';
 
 export const ERROR = {
     REJECT: 'error:RJ',
@@ -25,6 +25,7 @@ export const ERROR = {
     ALREADY_DISCONNECTED: 'error:AU',
     ALREADY_VERIFICATION: 'error:AV',
     NEED_TELEGRAM: 'error:NT',
+    NEED_OPENAI: 'error:NO',
     EMAIL_NOT_MATCH: 'error:EN',
     USERNAME_NOT_MATCH: 'error:UN'
 };

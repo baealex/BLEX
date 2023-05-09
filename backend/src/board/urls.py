@@ -26,7 +26,8 @@ urlpatterns = [
     # RSS and Etc
     path('rss', SitePostsFeed()),
     path('rss/@<username>', UserPostsFeed(), name='user_rss_feed'),
-    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
+    path('robots.txt', TemplateView.as_view(
+        template_name='robots.txt', content_type='text/plain')),
 
     # GraphQL
     # path('graphql', GraphQLView.as_view(graphiql=True)),
@@ -66,6 +67,7 @@ urlpatterns = [
     path('v1/image', api_v1.image),
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),
+    path('v1/openai/<parameter>', api_v1.openai),
     path('v1/telegram/<parameter>', api_v1.telegram),
     # ------------------------------------------------------------ API V1 End
 ]

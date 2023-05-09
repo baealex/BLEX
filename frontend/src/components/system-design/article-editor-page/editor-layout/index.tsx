@@ -7,6 +7,7 @@ import { useValue } from 'badland-react';
 import {
     Alert,
     BaseInput,
+    Button,
     CheckBox,
     DateInput,
     ErrorMessage,
@@ -37,7 +38,10 @@ interface Props {
     title: StateValue<string>;
     content: StateValue<string>;
     tags: StateValue<string>;
-    description: StateValue<string>;
+    description: StateValue<string> & {
+        visibleAutoGenerate?: boolean;
+        onClickAutoGenerate?: () => void;
+    };
     series: StateValue<string>;
     url?: StateValue<string>;
     reservedDate?: StateValue<Date | null>;
@@ -59,6 +63,7 @@ interface Props {
 
 export function EditorLayout(props: Props) {
     const [isSubmit, setIsSubmit] = useState(false);
+    const [isGenaerating, setIsGenerating] = useState(false);
     const [reservedDateErrorMessage, setReserverdDateErrorMessage] = useState<string | null>(null);
 
     const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
@@ -83,6 +88,15 @@ export function EditorLayout(props: Props) {
             document.body.removeEventListener('drop', handleDropEvent);
         };
     }, []);
+
+    const handleClickAutoGenerate = async () => {
+        setIsGenerating(true);
+        try {
+            await props.description.onClickAutoGenerate?.();
+        } finally {
+            setIsGenerating(false);
+        }
+    };
 
     const handleSubmit = async () => {
         modalStore.close('isOpenArticlePublishModal');
@@ -141,14 +155,29 @@ export function EditorLayout(props: Props) {
                 )}
                 <FormControl className="mb-3">
                     <Label>설명 (옵션)</Label>
-                    <BaseInput
-                        tag="textarea"
-                        name="series"
-                        value={props.description.value}
-                        maxLength={250}
-                        onChange={(e) => props.description.onChange(e.target.value)}
-                        placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 미작성시 글 요약이 서론 내용을 기반으로 생성됩니다 (최대 250자)"
-                    />
+                    {isGenaerating ? (
+                        <div className="m-5 d-flex justify-content-center">
+                            <Loading position="inline" />
+                        </div>
+                    ) : (
+                        <>
+                            <BaseInput
+                                tag="textarea"
+                                name="series"
+                                value={props.description.value}
+                                maxLength={250}
+                                onChange={(e) => props.description.onChange(e.target.value)}
+                                placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 미작성시 글 요약이 서론 내용을 기반으로 생성됩니다 (최대 250자)"
+                            />
+                            {props.description.visibleAutoGenerate && (
+                                <div className="mt-1 d-flex justify-content-end">
+                                    <Button color="transparent" onClick={handleClickAutoGenerate}>
+                                        <i className="fas fa-retweet" /> 자동 생성 (OpenAI)
+                                    </Button>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </FormControl>
                 <FormControl className="mb-3">
                     <Label>시리즈 (옵션)</Label>
