@@ -13,6 +13,7 @@ export * from './loading';
 export * from './masonry';
 export * from './page-navigation';
 export * from './pop-over';
+export * from './progress';
 export * from './speech-bubble';
 export * from './split-line';
 export * from './text';
