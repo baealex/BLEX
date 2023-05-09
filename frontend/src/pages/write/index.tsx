@@ -2,7 +2,7 @@ import type { GetServerSideProps } from 'next';
 import React from 'react';
 import Router from 'next/router';
 
-import { Button, Card, Label, Toggle } from '~/components/design-system';
+import { Button, Card, Label, Progress, Text, Toggle } from '~/components/design-system';
 import {
     EditorLayout,
     TempArticleModal
@@ -49,6 +49,9 @@ interface State {
     reservedDate: Date | null;
     image: File | undefined;
     isAutoSave: boolean;
+    isRunningAutoSave: boolean;
+    selectedTempPost: string;
+    lastSavedTime: string;
     isHide: boolean;
     isAd: boolean;
     isOpenArticleModal: boolean;
@@ -83,6 +86,9 @@ class Write extends React.Component<Props, State> {
             isAd: false,
             image: undefined,
             isAutoSave: configStore.state.isAutoSave,
+            isRunningAutoSave: false,
+            selectedTempPost: '',
+            lastSavedTime: '',
             isOpenArticleModal: false,
             tempPosts: [],
             tempPostsCache: {}
@@ -95,9 +101,8 @@ class Write extends React.Component<Props, State> {
         });
 
         this.saver = debounceEvent(() => {
-            const { token, title, content, tags } = this.state;
-            this.onTempSave(token, title, content, tags);
-        }, 5000);
+            this.setState({ isRunningAutoSave: true });
+        }, 0);
     }
 
     /* Component Method */
@@ -133,6 +138,7 @@ class Write extends React.Component<Props, State> {
                     title, content, tags
                 } = tempPostsCache[token];
                 this.setState({
+                    selectedTempPost: title,
                     title,
                     content,
                     tags,
@@ -144,6 +150,7 @@ class Write extends React.Component<Props, State> {
             // 캐시 없을 때
             const { data } = await API.getAnTempPosts(token);
             this.setState({
+                selectedTempPost: data.body.title,
                 title: data.body.title,
                 content: data.body.textMd,
                 tags: data.body.tags,
@@ -162,6 +169,7 @@ class Write extends React.Component<Props, State> {
 
         // 새 글 작성
         this.setState({
+            selectedTempPost: '',
             title: '',
             content: '',
             tags: '',
@@ -248,7 +256,10 @@ class Write extends React.Component<Props, State> {
                             content: this.state.content,
                             tags: this.state.tags
                         }
-                    }
+                    },
+                    isRunningAutoSave: false,
+                    selectedTempPost: title,
+                    lastSavedTime: new Date().toLocaleString()
                 });
                 snackBar('😀 임시 저장이 완료되었습니다.');
             }
@@ -265,8 +276,11 @@ class Write extends React.Component<Props, State> {
                 tempPosts: this.state.tempPosts.concat({
                     token: data.body.token,
                     title: title,
-                    createdDate: '0 minutes'
-                })
+                    createdDate: '0분 전'
+                }),
+                isRunningAutoSave: false,
+                selectedTempPost: title,
+                lastSavedTime: new Date().toLocaleString()
             });
             snackBar('😀 임시 저장이 완료되었습니다.');
         }
@@ -287,12 +301,23 @@ class Write extends React.Component<Props, State> {
             <EditorLayout
                 title={{
                     value: this.state.title,
-                    onChange: (value: string) => this.setState({ title: value })
+                    onChange: (value: string) => {
+                        this.setState({
+                            title: value,
+                            isRunningAutoSave: false
+                        });
+                        if (this.state.isAutoSave) {
+                            this.saver();
+                        }
+                    }
                 }}
                 content={{
                     value: this.state.content,
                     onChange: (value: string) => {
-                        this.setState({ content: value });
+                        this.setState({
+                            content: value,
+                            isRunningAutoSave: false
+                        });
                         if (this.state.isAutoSave) {
                             this.saver();
                         }
@@ -300,7 +325,15 @@ class Write extends React.Component<Props, State> {
                 }}
                 tags={{
                     value: this.state.tags,
-                    onChange: (value) => this.setState({ tags: value })
+                    onChange: (value) => {
+                        this.setState({
+                            tags: value,
+                            isRunningAutoSave: false
+                        });
+                        if (this.state.isAutoSave) {
+                            this.saver();
+                        }
+                    }
                 }}
                 url={{
                     value: this.state.url,
@@ -336,34 +369,69 @@ class Write extends React.Component<Props, State> {
                     footer: (
                         <>
                             <Label>임시 저장</Label>
-                            <Card className="p-2">
-                                <div className="d-flex justify-content-between">
-                                    <Toggle
-                                        label="자동 저장"
-                                        defaultChecked={this.state.isAutoSave}
-                                        onClick={(checked) => this.onCheckAutoSave(checked)}
-                                    />
-                                    <div className="d-flex">
-                                        <Button
-                                            gap="little"
-                                            color="transparent"
-                                            onClick={() => {
-                                                this.setState({ isOpenArticleModal: true });
-                                            }}>
-                                            목록
-                                        </Button>
-                                        <Button
-                                            color="transparent"
-                                            onClick={() => {
-                                                const {
-                                                    token, title, content, tags
-                                                } = this.state;
-                                                this.onTempSave(token, title, content, tags);
-                                            }}>
-                                            저장
-                                        </Button>
+                            <Card>
+                                <div className="p-2">
+                                    {this.state.selectedTempPost && (
+                                        <div className="p-1 d-flex align-items-center" style={{ gap: '4px' }}>
+                                            <Text fontSize={3} className="shallow-dark">
+                                                선택된 임시글
+                                            </Text>
+                                            <Text fontSize={3}>
+                                                {this.state.selectedTempPost}
+                                            </Text>
+                                        </div>
+                                    )}
+                                    {this.state.lastSavedTime && (
+                                        <div className="p-1 d-flex align-items-center" style={{ gap: '4px' }}>
+                                            <Text fontSize={3} className="shallow-dark">
+                                                최종 저장 시간
+                                            </Text>
+                                            <Text fontSize={3} >
+                                                {this.state.lastSavedTime}
+                                            </Text>
+                                        </div>
+                                    )}
+                                    <div className="p-1 d-flex justify-content-between">
+                                        <Toggle
+                                            label="자동 저장"
+                                            defaultChecked={this.state.isAutoSave}
+                                            onClick={(checked) => this.onCheckAutoSave(checked)}
+                                        />
+                                        <div className="d-flex">
+                                            <Button
+                                                gap="little"
+                                                color="transparent"
+                                                onClick={() => {
+                                                    this.setState({ isOpenArticleModal: true });
+                                                }}>
+                                                목록
+                                            </Button>
+                                            <Button
+                                                color="transparent"
+                                                onClick={() => {
+                                                    const {
+                                                        token, title, content, tags
+                                                    } = this.state;
+                                                    this.onTempSave(token, title, content, tags);
+                                                }}>
+                                                저장
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
+                                {this.state.isAutoSave && (
+                                    <Progress
+                                        type="timer"
+                                        time={8}
+                                        isReady={this.state.isRunningAutoSave}
+                                        onEnd={() => {
+                                            const {
+                                                token, title, content, tags
+                                            } = this.state;
+                                            this.onTempSave(token, title, content, tags);
+                                        }}
+                                    />
+                                )}
                             </Card>
                             <div className="d-flex justify-content-end">
                                 <Button
