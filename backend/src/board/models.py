@@ -474,13 +474,14 @@ class Profile(models.Model):
     youtube = models.CharField(max_length=30, blank=True)  # deprecated
     facebook = models.CharField(max_length=30, blank=True)  # deprecated
     instagram = models.CharField(max_length=15, blank=True)  # deprecated
+    linkedin = models.CharField(max_length=30, blank=True)  # deprecated
     socials = models.TextField(blank=True)  # deprecated
     about_md = models.TextField(blank=True)  # deprecated
     about_html = models.TextField(blank=True)  # deprecated
 
     def collect_social(self):
         result = dict()
-        for social in ['homepage', 'github', 'twitter', 'youtube', 'facebook', 'instagram']:
+        for social in ['homepage', 'github', 'twitter', 'youtube', 'facebook', 'instagram', 'linkedin']:
             if getattr(self, social):
                 result[social] = getattr(self, social)
         return result

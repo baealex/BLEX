@@ -46,6 +46,7 @@ export interface GetSettingProfileResponseData {
     youtube: string;
     facebook: string;
     instagram: string;
+    linkedin: string;
 }
 
 export async function getSettingProfile(headers?: Headers) {

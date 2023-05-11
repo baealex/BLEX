@@ -43,15 +43,16 @@ interface ProfileForm {
     homepage: string;
     github: string;
     twitter: string;
-    instagram: string;
     facebook: string;
+    instagram: string;
+    linkedin: string;
     youtube: string;
 }
 
 const ProfileSetting: PageComponent<Props> = (props) => {
     const router = useRouter();
-    const [ avatar, setAvatar ] = useState(props.avatar);
-    const [ username ] = useValue(authStore, 'username');
+    const [avatar, setAvatar] = useState(props.avatar);
+    const [username] = useValue(authStore, 'username');
 
     const {
         reset,
@@ -198,6 +199,18 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                         </div>
                         <input
                             {...register('instagram')}
+                            type="text"
+                            className="form-control"
+                            maxLength={100}
+                        />
+                    </div>
+                    <label>링크드인 주소 : </label>
+                    <div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">https://linkedin.com/in/</span>
+                        </div>
+                        <input
+                            {...register('linkedin')}
                             type="text"
                             className="form-control"
                             maxLength={100}

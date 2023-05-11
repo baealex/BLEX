@@ -64,7 +64,8 @@ def setting(request, parameter):
                 'twitter': profile.twitter,
                 'youtube': profile.youtube,
                 'facebook': profile.facebook,
-                'instagram': profile.instagram
+                'instagram': profile.instagram,
+                'linkedin': profile.linkedin,
             })
 
         if parameter == 'posts':
@@ -459,9 +460,10 @@ def setting(request, parameter):
                 'homepage',
                 'github',
                 'twitter',
+                'youtube',
                 'facebook',
                 'instagram',
-                'youtube'
+                'linkedin',
             ]
             for social in socials:
                 setattr(profile, social, put.get(social, ''))

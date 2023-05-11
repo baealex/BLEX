@@ -16,10 +16,10 @@ export function Social(props: SocialProps) {
         <ul className={cn('social')}>
             <li key={'rss'}>
                 <a href={`/rss/@${props.username}`} data-name="rss">
-                    <i className="fas fa-rss-square"/>
+                    <i className="fas fa-rss-square" />
                 </a>
             </li>
-            {['github', 'twitter', 'youtube', 'facebook', 'instagram'].map((name) => (
+            {['github', 'twitter', 'youtube', 'facebook', 'instagram', 'linkedin'].map((name) => (
                 props[name as keyof SocialProps] && (
                     <li key={name}>
                         <a
@@ -27,9 +27,11 @@ export function Social(props: SocialProps) {
                             href={(
                                 name === 'youtube'
                                     ? `https://youtube.com/channel/${props.youtube}`
-                                    : `https://${name}.com/${props[name as keyof SocialProps]}`
+                                    : name === 'linkedin'
+                                        ? `https://linkedin.com/in/${props.linkedin}`
+                                        : `https://${name}.com/${props[name as keyof SocialProps]}`
                             )}>
-                            <i className={`fab fa-${name}`}/>
+                            <i className={`fab fa-${name}`} />
                         </a>
                     </li>
                 )
