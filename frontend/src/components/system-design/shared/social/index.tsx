@@ -9,6 +9,7 @@ export interface SocialProps {
     youtube?: string;
     facebook?: string;
     instagram?: string;
+    linkedin?: string;
 }
 
 export function Social(props: SocialProps) {
