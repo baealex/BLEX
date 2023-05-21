@@ -40,7 +40,7 @@ export function EditorContent(props: EditorContentProps) {
     const editor = useRef<EasyMDE | null>(null);
     const textarea = useRef<HTMLTextAreaElement>(null);
     const imageInput = useRef<HTMLInputElement>(null);
-    const [isEdit, setIsEdit] = useState(true);
+    const [isPreview, setIsPreview] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
     const { data: forms } = useFetch('forms', async () => {
@@ -58,6 +58,7 @@ export function EditorContent(props: EditorContentProps) {
             if (typeof window !== 'undefined' && textarea.current && !editor.current) {
                 setIsLoading(true);
                 const { default: EasyMDE } = await import('easymde');
+                const { default: CodeMirror } = await import('codemirror');
                 setIsLoading(false);
                 if (textarea.current) {
                     const easyMDE = new EasyMDE({
@@ -161,7 +162,7 @@ export function EditorContent(props: EditorContentProps) {
                             {
                                 name: 'preview',
                                 action: (editor) => {
-                                    setIsEdit((prev) => !prev);
+                                    setIsPreview((isPreview) => !isPreview);
                                     EasyMDE.togglePreview(editor);
                                 },
                                 className: 'fa fa-eye no-disable',
@@ -187,8 +188,6 @@ export function EditorContent(props: EditorContentProps) {
                         props.onChange(easyMDE.value());
                     });
 
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignoreß
                     easyMDE.codemirror.on('paste', async (instance, event) => {
                         const item = event.clipboardData?.items[0];
                         if (item && item.type.indexOf('image') !== -1) {
@@ -205,6 +204,15 @@ export function EditorContent(props: EditorContentProps) {
                         }
                     });
 
+                    easyMDE.codemirror.setOption('extraKeys', {
+                        F11: function () {
+                            return CodeMirror.Pass;
+                        },
+                        Esc: function () {
+                            return CodeMirror.Pass;
+                        }
+                    });
+
                     editor.current = easyMDE;
                 }
             }
@@ -213,19 +221,21 @@ export function EditorContent(props: EditorContentProps) {
     }, []);
 
     useEffect(() => {
-        if (!isEdit) {
+        if (!isPreview) {
             const preview = document.querySelector(`.${styles.preview}`) as HTMLElement;
             const event = setTimeout(() => {
                 lazyLoadResource();
                 codeMirrorAll(preview);
-                editor.current?.codemirror.setSize('auto', preview?.scrollHeight || 0) + 'px';
-            }, 500);
-
+                const maxHeight = Math.max(
+                    editor.current?.codemirror.getScrollInfo().height || 0,
+                    preview.offsetHeight
+                );
+                editor.current?.codemirror.setSize('auto', maxHeight);
+            }, 0);
             return () => clearTimeout(event);
-        } else {
-            editor.current?.codemirror.setSize('auto', 'auto');
         }
-    }, [isEdit]);
+        editor.current?.codemirror.setSize('auto', 'auto');
+    }, [isPreview]);
 
     useEffect(() => {
         if (editor.current) {
