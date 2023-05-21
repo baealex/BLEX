@@ -62,8 +62,8 @@ interface Props {
 
 export function EditorLayout(props: Props) {
     const [isSubmit, setIsSubmit] = useState(false);
-    const [isGenaerating, setIsGenerating] = useState(false);
-    const [reservedDateErrorMessage, setReserverdDateErrorMessage] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [reservedDateErrorMessage, setReservedDateErrorMessage] = useState<string | null>(null);
 
     const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
     const [hasConnectedOpenai, setHasConnectedOpenai] = useValue(authStore, 'hasConnectedOpenai');
@@ -169,7 +169,7 @@ export function EditorLayout(props: Props) {
                 )}
                 <FormControl className="mb-3">
                     <Label>설명 (옵션)</Label>
-                    {isGenaerating ? (
+                    {isGenerating ? (
                         <div className="m-5 d-flex justify-content-center">
                             <Loading position="inline" />
                         </div>
@@ -223,7 +223,7 @@ export function EditorLayout(props: Props) {
                             selected={props.reservedDate.value}
                             onChange={(date) => {
                                 if (date === null) {
-                                    setReserverdDateErrorMessage(null);
+                                    setReservedDateErrorMessage(null);
                                     props.reservedDate?.onChange(null);
                                     return;
                                 }
@@ -231,10 +231,10 @@ export function EditorLayout(props: Props) {
                                     if (props.reservedDate?.value === null) {
                                         props.reservedDate?.onChange(new Date());
                                     }
-                                    setReserverdDateErrorMessage('예약 발행일은 현재 시간보다 이전일 수 없습니다.');
+                                    setReservedDateErrorMessage('예약 발행일은 현재 시간보다 이전일 수 없습니다.');
                                     return;
                                 }
-                                setReserverdDateErrorMessage(null);
+                                setReservedDateErrorMessage(null);
                                 props.reservedDate?.onChange(date);
                             }}
                         />
