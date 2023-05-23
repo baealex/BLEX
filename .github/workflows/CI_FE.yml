@@ -35,7 +35,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install
-      run: npm i
+      run: npm ci
       working-directory: frontend/src
     
     - name: Lint
