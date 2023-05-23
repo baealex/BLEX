@@ -68,21 +68,13 @@ def setting(request, parameter):
                 'linkedin': profile.linkedin,
             })
 
-        if parameter == 'posts' or parameter == 'reserved-posts':
+        if parameter == 'posts':
             posts = Post.objects.select_related(
                 'config'
             ).filter(
-                author=user
+                author=user,
+                created_date__lte=timezone.now(),
             ).order_by('-created_date')
-
-            if parameter == 'posts':
-                posts = posts.filter(
-                    created_date__lte=timezone.now(),
-                )
-            else:
-                posts = posts.filter(
-                    created_date__gt=timezone.now(),
-                )
 
             tag_filter = request.GET.get('tag_filter', '')
             if tag_filter:
@@ -137,6 +129,56 @@ def setting(request, parameter):
                     'today_count': post.today(),
                     'read_time': post.read_time,
                     'yesterday_count': post.yesterday(),
+                    'tag': ','.join(post.tagging()),
+                }, posts)),
+                'last_page': posts.paginator.num_pages,
+            })
+
+        if parameter == 'reserved-posts':
+            posts = Post.objects.select_related(
+                'config'
+            ).filter(
+                author=user,
+                created_date__gt=timezone.now(),
+            ).order_by('-created_date')
+
+            valid_orders = [
+                'title',
+                'read_time',
+                'created_date',
+                'updated_date',
+                'hide',
+            ]
+            order = request.GET.get('order', '')
+            if order:
+                is_valid = False
+                for valid_order in valid_orders:
+                    if order == valid_order or order == '-' + valid_order:
+                        is_valid = True
+                if not is_valid:
+                    raise Http404
+
+                if 'hide' in order:
+                    posts = posts.annotate(
+                        hide=F('config__hide'),
+                    )
+
+                posts = posts.order_by(order)
+
+            posts = Paginator(
+                objects=posts,
+                offset=10,
+                page=request.GET.get('page', 1)
+            )
+            return StatusDone({
+                'username': request.user.username,
+                'posts': list(map(lambda post: {
+                    'url': post.url,
+                    'title': post.title,
+                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
+                    'is_hide': post.config.hide,
+                    'today_count': post.today(),
+                    'read_time': post.read_time,
                     'tag': ','.join(post.tagging()),
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
