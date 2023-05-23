@@ -2,6 +2,7 @@ import request, {
     objectToForm,
     serializeObject
 } from './request';
+import type { Headers } from './request';
 
 export interface GetTempPostsResponseData {
     temps: {
@@ -43,10 +44,11 @@ export interface GetAnTempPostsResponseData {
     createdDate: string;
 }
 
-export async function getAnTempPosts(token: string) {
+export async function getAnTempPosts(token: string, headers?: Headers) {
     return await request<GetAnTempPostsResponseData>({
         url: `/v1/temp-posts/${token}`,
-        method: 'GET'
+        method: 'GET',
+        headers
     });
 }
 
@@ -127,7 +129,7 @@ export async function getTrendyTopPosts() {
     });
 }
 
-interface PostPostsRequestData {
+interface CreatePostRequestData {
     token: string;
     title: string;
     text_md: string;
@@ -141,12 +143,12 @@ interface PostPostsRequestData {
     is_advertise: string;
 }
 
-interface PostPostsResponseData {
+interface CreatePostResponseData {
     url: string;
 }
 
-export async function postPosts(data: PostPostsRequestData) {
-    return await request<PostPostsResponseData>({
+export async function createPost(data: CreatePostRequestData) {
+    return await request<CreatePostResponseData>({
         url: '/v1/posts',
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

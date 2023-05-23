@@ -5,6 +5,7 @@
     padding: 6px 12px;
     border-radius: 5px;
     user-select: none;
+    background: #fff;
 
     :global(body.dark) & {
         border: 1px solid #363636;

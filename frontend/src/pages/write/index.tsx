@@ -21,10 +21,13 @@ import { modalStore } from '~/stores/modal';
 
 interface Props {
     username: string;
-    hasConnectedOpenai: boolean;
+    token?: string;
+    title?: string;
+    content?: string;
+    tags?: string;
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
     const { cookies } = req;
     configStore.serverSideInject(cookies);
 
@@ -33,6 +36,26 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
     if (data.status !== 'DONE') {
         return { notFound: true };
+    }
+
+    const { token = '' } = query;
+
+    if (token) {
+        const { data: tempPost } = await API.getAnTempPosts(
+            String(token),
+            { 'Cookie': cookie || '' }
+        );
+        if (tempPost.status === 'DONE') {
+            return {
+                props: {
+                    username: data.body.username,
+                    token: String(token),
+                    title: tempPost.body.title,
+                    content: tempPost.body.textMd,
+                    tags: tempPost.body.tags
+                }
+            };
+        }
     }
 
     return {
@@ -79,12 +102,12 @@ class Write extends React.Component<Props, State> {
         super(props);
         this.state = {
             username: props.username,
-            title: '',
-            url: '',
-            content: '',
+            title: props.title || '',
+            content: props.content || '',
             description: '',
-            tags: '',
-            token: '',
+            tags: props.tags || '',
+            token: props.token || '',
+            url: '',
             series: '',
             reservedDate: null,
             isHide: false,
@@ -116,11 +139,13 @@ class Write extends React.Component<Props, State> {
         API.getTempPosts().then(({ data }) => {
             if (data.body.temps.length > 0) {
                 this.setState({ tempPosts: data.body.temps });
-                snackBar('😀 작성하던 포스트가 있으시네요!', {
-                    onClick: () => {
-                        this.setState({ isOpenArticleModal: true });
-                    }
-                });
+                if (!this.props.token) {
+                    snackBar('😀 작성하던 포스트가 있으시네요!', {
+                        onClick: () => {
+                            this.setState({ isOpenArticleModal: true });
+                        }
+                    });
+                }
             }
         });
     }
@@ -198,7 +223,7 @@ class Write extends React.Component<Props, State> {
                 this.saver.clear();
             }
 
-            const { data } = await API.postPosts({
+            const { data } = await API.createPost({
                 token: this.state.token,
                 title: this.state.title,
                 text_md: this.state.content,

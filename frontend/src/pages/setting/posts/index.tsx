@@ -10,7 +10,10 @@ import {
     Alert,
     Button,
     Card,
-    Dropdown
+    Dropdown,
+    FormControl,
+    KeywordInput,
+    Label
 } from '@design-system';
 import type { PageComponent } from '~/components';
 import { Pagination } from '@system-design/shared';
@@ -84,7 +87,7 @@ const POSTS_ORDER = [
 ];
 
 const PostsSetting: PageComponent<Props> = (props) => {
-    const [ posts, setPosts ] = useState(props.posts);
+    const [posts, setPosts] = useState(props.posts);
 
     useEffect(() => setPosts(props.posts), [props.posts]);
 
@@ -122,14 +125,10 @@ const PostsSetting: PageComponent<Props> = (props) => {
     const onTagSubmit = async (url: string) => {
         const thisPost = posts.find(post => post.url == url);
         const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', { tag: thisPost?.tag });
-        setPosts([...posts.map(post => (
-            post.url == url ? ({
-                ...post,
-                tag: data.body.tag  as string,
-                fixedTag: data.body.tag as string
-            }) : post
-        ))]);
-        snackBar(message('AFTER_REQ_DONE', '태그가 수정되었습니다.'));
+        if (data.status === 'DONE' && data.body.tag) {
+            onTagChange(url, data.body.tag);
+            snackBar(message('AFTER_REQ_DONE', '태그가 수정되었습니다.'));
+        }
     };
 
     return (
@@ -141,18 +140,18 @@ const PostsSetting: PageComponent<Props> = (props) => {
                             query: {
                                 ...router.query,
                                 order: router.query.order === item.order
-                                    ? item.order.replace('-' , '')
+                                    ? item.order.replace('-', '')
                                     : item.order,
                                 page: 1
                             }
                         }}
                         scroll={false}>
                         {item.name}&nbsp;
-                        {router.query.order?.includes(item.order.replace('-' , '')) && (
+                        {router.query.order?.includes(item.order.replace('-', '')) && (
                             router.query.order?.includes('-') ? (
-                                <i className="fas fa-sort-up"/>
+                                <i className="fas fa-sort-up" />
                             ) : (
-                                <i className="fas fa-sort-down"/>
+                                <i className="fas fa-sort-down" />
                             )
                         )}
                     </Link>
@@ -160,8 +159,8 @@ const PostsSetting: PageComponent<Props> = (props) => {
             />
             {posts.map((post, idx) => (
                 <Card key={idx} isRounded hasBackground className="mb-4">
-                    <div className="p-3 mb-1">
-                        <div className="d-flex justify-content-between mb-1">
+                    <div className="p-3">
+                        <div className="d-flex justify-content-between">
                             <span>
                                 <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${props.username}/${post.url}`}>
                                     {post.title}
@@ -187,46 +186,42 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 ]}
                             />
                         </div>
-                        <div className="mb-1">
+                        <div className="mt-1">
                             <time className="post-date shallow-dark">
                                 {post.createdDate}
                                 {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
                             </time>
                         </div>
-                        <div className="input-group mt-2">
-                            <div className="input-group-prepend">
-                                <div className="input-group-text">
-                                    TAG
+                        <FormControl className="mt-2">
+                            <Label>태그</Label>
+                            <div className="d-flex justify-content-between align-items-start" style={{ gap: '8px' }}>
+                                <div style={{ flex: '1' }}>
+                                    <KeywordInput
+                                        name="tag"
+                                        value={post.tag}
+                                        maxLength={50}
+                                        onChange={(e) => onTagChange(post.url, e.target.value)}
+                                    />
                                 </div>
+                                <Button onClick={() => onTagSubmit(post.url)}>변경</Button>
                             </div>
-                            <input
-                                type="text"
-                                name="tag"
-                                value={post.tag}
-                                onChange={(e) => onTagChange(post.url, e.target.value)}
-                                className="form-control"
-                                maxLength={255}
-                            />
-                            <div className="input-group-prepend">
-                                <Button onClick={() => onTagSubmit(post.url)}>
-                                    변경
-                                </Button>
-                            </div>
-                        </div>
+                        </FormControl>
                     </div>
-                    {post.readTime > 30 && (
-                        <Alert type="danger">
-                            이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
-                        </Alert>
-                    )}
-                    <div className="setting-info p-3">
+                    {
+                        post.readTime > 30 && (
+                            <Alert type="danger">
+                                이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
+                            </Alert>
+                        )
+                    }
+                    < div className="setting-info p-3" >
                         <div className="d-flex justify-content-between align-items-center shallow-dark ns">
                             <ul className="none-list mb-0">
                                 <li>
                                     <a onClick={() => onPostsHide(post.url)} className="element-lock c-pointer">
                                         {post.isHide
-                                            ? <i className="fas fa-lock"/>
-                                            : <i className="fas fa-lock-open"/>
+                                            ? <i className="fas fa-lock" />
+                                            : <i className="fas fa-lock-open" />
                                         }
                                     </a>
                                 </li>
@@ -241,8 +236,8 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
                             </span>
                         </div>
-                    </div>
-                </Card>
+                    </div >
+                </Card >
             ))}
             <Pagination
                 page={props.page}

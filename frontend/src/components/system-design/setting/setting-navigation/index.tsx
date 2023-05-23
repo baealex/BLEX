@@ -46,6 +46,16 @@ export const NAVIGATION_ITEMS = [
                 url: '/setting/posts'
             },
             {
+                title: '예약 포스트',
+                name: 'posts/reserved',
+                url: '/setting/posts/reserved'
+            },
+            {
+                title: '임시 포스트',
+                name: 'posts/draft',
+                url: '/setting/posts/draft'
+            },
+            {
                 title: '서식',
                 name: 'forms',
                 url: '/setting/forms'
@@ -109,7 +119,7 @@ export function SettingNavigation({ active }: SettingNavigationProps) {
             {NAVIGATION_ITEMS.map(item => (
                 <div key={item.title} className={cn('section')}>
                     <div className={cn('title', 'px-3', 'py-2')}>
-                        <i className={item.icon}/> {item.title}
+                        <i className={item.icon} /> {item.title}
                     </div>
                     <div className={cn('sub-item')}>
                         {item.subItems?.map(subItem => (

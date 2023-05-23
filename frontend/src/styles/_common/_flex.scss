@@ -18,6 +18,14 @@
   align-items: center;
 }
 
+.align-items-end {
+  align-items: flex-end;
+}
+
+.align-items-start {
+  align-items: flex-start;
+}
+
 .flex-column {
   flex-direction: column;
 }

@@ -90,6 +90,57 @@ export async function getSettingPosts(params: GetSettingPostsParams, headers?: H
     });
 }
 
+interface GetSettingReservedPostsParams {
+    order: string;
+    page: number;
+}
+
+export interface GetSettingReservedPostsResponseData {
+    username: string;
+    posts: {
+        url: string;
+        title: string;
+        createdDate: string;
+        readTime: number;
+        tag: string;
+    }[];
+    lastPage: number;
+}
+
+export async function getSettingReservedPosts(params: GetSettingReservedPostsParams, headers?: Headers) {
+    return await request<GetSettingReservedPostsResponseData>({
+        url: '/v1/setting/reserved-posts',
+        method: 'GET',
+        params,
+        headers
+    });
+}
+
+interface GetSettingDraftPostsParams {
+    page: number;
+}
+
+export interface GetSettingDraftPostsResponseData {
+    username: string;
+    posts: {
+        token: string;
+        title: string;
+        createdDate: string;
+        updatedDate: string;
+        tag: string;
+    }[];
+    lastPage: number;
+}
+
+export async function getSettingDraftPosts(params: GetSettingDraftPostsParams, headers?: Headers) {
+    return await request<GetSettingDraftPostsResponseData>({
+        url: '/v1/setting/temp-posts',
+        method: 'GET',
+        params,
+        headers
+    });
+}
+
 export interface GetSettingSeriesResponseData {
     username: string;
     series: {
