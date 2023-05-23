@@ -105,7 +105,7 @@ def post_list(request):
             request.POST.get('is_advertise', ''))
         post_config.save()
 
-        if not post_config.hide and settings.DISCORD_NEW_POSTS_WEBHOOK:
+        if not post_config.hide and post.is_published() and settings.DISCORD_NEW_POSTS_WEBHOOK:
             def func():
                 post_url = settings.SITE_URL + post.get_absolute_url()
                 Discord.send_webhook(
