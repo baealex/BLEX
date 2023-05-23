@@ -629,6 +629,16 @@ def user_posts(request, username, url=None):
                     'tag': ','.join(post.tagging())
                 })
 
+            if request.GET.get('reserved_date', ''):
+                if not request.user == post.author:
+                    raise Http404
+                reserved_date = put.get('reserved_date')
+                if reserved_date and not post.is_published():
+                    post.created_date = parse_datetime(reserved_date)
+                    post.updated_date = parse_datetime(reserved_date)
+                    post.save()
+                return StatusDone()
+
             if request.GET.get('series', ''):
                 if not request.user == post.author:
                     raise Http404
