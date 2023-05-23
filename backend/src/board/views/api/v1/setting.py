@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from board.models import (
     User, RefererFrom, Series, Post,
-    PostAnalytics, Form, Profile, Notify,
+    PostAnalytics, TempPosts, Profile, Notify,
     OpenAIConnection, OpenAIUsageHistory)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -68,12 +68,21 @@ def setting(request, parameter):
                 'linkedin': profile.linkedin,
             })
 
-        if parameter == 'posts':
+        if parameter == 'posts' or parameter == 'reserved-posts':
             posts = Post.objects.select_related(
                 'config'
             ).filter(
                 author=user
             ).order_by('-created_date')
+
+            if parameter == 'posts':
+                posts = posts.filter(
+                    created_date__lte=timezone.now(),
+                )
+            else:
+                posts = posts.filter(
+                    created_date__gt=timezone.now(),
+                )
 
             tag_filter = request.GET.get('tag_filter', '')
             if tag_filter:
@@ -129,6 +138,29 @@ def setting(request, parameter):
                     'read_time': post.read_time,
                     'yesterday_count': post.yesterday(),
                     'tag': ','.join(post.tagging()),
+                }, posts)),
+                'last_page': posts.paginator.num_pages,
+            })
+
+        if parameter == 'temp-posts':
+            posts = TempPosts.objects.filter(
+                created_date__lte=timezone.now(),
+                author=user,
+            ).order_by('-created_date')
+
+            posts = Paginator(
+                objects=posts,
+                offset=10,
+                page=request.GET.get('page', 1)
+            )
+            return StatusDone({
+                'username': request.user.username,
+                'posts': list(map(lambda post: {
+                    'token': post.token,
+                    'title': post.title,
+                    'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
+                    'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
+                    'tag': post.tag,
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
             })
