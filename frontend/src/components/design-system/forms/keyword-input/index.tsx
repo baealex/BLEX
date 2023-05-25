@@ -14,16 +14,14 @@ export function KeywordInput(props: Props) {
 
     return (
         <>
-            <div className="group">
-                <BaseInput
-                    tag="input"
-                    name={props.name}
-                    maxLength={props.maxLength}
-                    onChange={(e) => props.onChange(e)}
-                    placeholder={props.placeholder}
-                    value={props.value}
-                />
-            </div>
+            <BaseInput
+                tag="input"
+                name={props.name}
+                maxLength={props.maxLength}
+                onChange={(e) => props.onChange(e)}
+                placeholder={props.placeholder}
+                value={props.value}
+            />
             <div className="mt-2">
                 {badges.map((badge) => (
                     <Badge className="mr-2" isRounded hasHash>
