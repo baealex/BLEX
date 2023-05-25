@@ -6,17 +6,11 @@
 
 @import 'fontawesome.override';
 
-html {
-    overflow-x: hidden;
-}
-
 body {
     overflow-x: hidden;
-
+    
     &.dark {
-
-        img,
-        video {
+        img, video {
             filter: brightness(.8) contrast(1.2);
         }
     }
@@ -31,9 +25,7 @@ body {
     }
 }
 
-input,
-textarea,
-select {
+input, textarea, select {
     font-size: 16px;
 }
 
@@ -47,25 +39,18 @@ mark {
     }
 }
 
-// 각종 섬네일 클랴스 정의
 .thumb {
     float: left;
     border-radius: 100%;
     background: #fff;
 }
 
-/* ------------------------------ */
-/* POSTS : DETAIL : COMMON */
 .back-image {
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-/* ------------------------------ */
-/* SERIES : LAYOUT */
-/* ------------------------------ */
-/* SETTING */
 .setting-info {
     border-top: 1px solid #d3d3d3;
 
@@ -99,8 +84,6 @@ mark {
     height: 200px;
 }
 
-/* ------------------------------ */
-/* LOGIN PAGE */
 .login-form {
     margin: 4px 0;
     color: #000;
