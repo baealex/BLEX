@@ -5,9 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 
 import {
-    Badge,
     Card,
-    PopOver,
     Text
 } from '@design-system';
 
