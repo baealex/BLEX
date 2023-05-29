@@ -175,6 +175,10 @@ export async function getSettingAnalyticsView(headers?: Headers) {
     });
 }
 
+export interface GetSettingAnalyticsPostsViewParams {
+    date: string;
+}
+
 export interface GetSettingAnalyticsPostsViewResponseData {
     posts: {
         id: number;
@@ -186,10 +190,11 @@ export interface GetSettingAnalyticsPostsViewResponseData {
     }[];
 }
 
-export async function getSettingAnalyticsPostsView(headers?: Headers) {
+export async function getSettingAnalyticsPostsView(params: GetSettingAnalyticsPostsViewParams, headers?: Headers) {
     return await request<GetSettingAnalyticsPostsViewResponseData>({
         url: '/v1/setting/analytics-posts-view',
         method: 'GET',
+        params,
         headers
     });
 }

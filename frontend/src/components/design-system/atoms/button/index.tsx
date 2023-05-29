@@ -7,6 +7,7 @@ import { forwardRef, useCallback, useRef } from 'react';
 export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
     className?: string;
+    disabled?: boolean;
     isLoading?: boolean;
     isRounded?: boolean;
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
@@ -25,6 +26,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     color = 'default',
     display = 'inline-block',
     className,
+    disabled = false,
     isLoading = false,
     onClick,
     children
@@ -67,6 +69,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
                 display != 'inline-block' && `d-${display}`,
                 className
             )}
+            disabled={disabled || isLoading}
             onClick={handleClick}>
             {isLoading ? <i className="fas fa-spinner fa-spin" /> : children}
         </button>

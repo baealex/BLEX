@@ -6,6 +6,7 @@ from django.db.models import (
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from board.models import (
     User, RefererFrom, Series, Post,
@@ -223,12 +224,13 @@ def setting(request, parameter):
             })
 
         if parameter == 'analytics-posts-view':
+            date = request.GET.get('date', timezone.now().strftime('%Y-%m-%d'))
             posts = Post.objects.filter(author=user).annotate(
                 author_username=F('author__username'),
                 today_count=Count(
                     Case(
                         When(
-                            analytics__created_date=timezone.now(),
+                            analytics__created_date=parse_datetime(date),
                             then='analytics__table'
                         )
                     )
@@ -236,7 +238,8 @@ def setting(request, parameter):
                 yesterday_count=Count(
                     Case(
                         When(
-                            analytics__created_date=timezone.now() - datetime.timedelta(days=1),
+                            analytics__created_date=parse_datetime(
+                                date) - datetime.timedelta(days=1),
                             then='analytics__table'
                         )
                     )
