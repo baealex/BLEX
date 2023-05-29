@@ -24,7 +24,7 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
         };
     });
 
-    const { data: postViews } = useFetch(['settings/analytics/posts-views', visibleDate], async () => {
+    const { data: postViews, isLoading: isLoadingPostsView } = useFetch(['settings/analytics/posts-views', visibleDate], async () => {
         const { data } = await API.getSettingAnalyticsPostsView({ date: visibleDate });
         return data.body;
     });
@@ -68,7 +68,12 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                     </Card>
                 </>
             )}
-            {postViews && (
+            {isLoadingPostsView && (
+                <div className="d-flex justify-content-center p-3">
+                    <Loading position="inline" />
+                </div>
+            )}
+            {!isLoadingPostsView && postViews && (
                 <>
                     <div className="mt-5 mb-3 d-flex justify-content-between align-items-center">
                         <Text fontSize={6} fontWeight={600}>
