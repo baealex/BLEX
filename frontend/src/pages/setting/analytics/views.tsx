@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
-import { Alert, Button, Card, Loading, Text } from '@design-system';
+import { Alert, Card, DateInput, Loading, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -27,7 +27,7 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
     const { data: postViews, isLoading: isLoadingPostsView } = useFetch(['settings/analytics/posts-views', visibleDate], async () => {
         const { data } = await API.getSettingAnalyticsPostsView({ date: visibleDate });
         return data.body;
-    });
+    }, { disableRefetch: true });
 
     if (isLoading) {
         return <Loading />;
@@ -69,28 +69,23 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                 </>
             )}
             {isLoadingPostsView && (
-                <div className="d-flex justify-content-center p-3">
+                <div className="mt-5 d-flex justify-content-center p-3">
                     <Loading position="inline" />
                 </div>
             )}
             {!isLoadingPostsView && postViews && (
                 <>
-                    <div className="mt-5 mb-3 d-flex justify-content-between align-items-center">
+                    <div className="mt-5 mb-3 d-flex align-items-center" style={{ gap: '8px' }}>
+                        <DateInput
+                            selected={date}
+                            onChange={setDate}
+                            minDate={new Date(new Date().setDate(new Date().getDate() - 30))}
+                            maxDate={new Date()}
+                            style={{ width: '100px' }}
+                        />
                         <Text fontSize={6} fontWeight={600}>
-                            {visibleDate} 인기글
+                            의 인기글
                         </Text>
-                        <div>
-                            <Button
-                                className="mr-2"
-                                onClick={() => setDate(new Date(date.setDate(new Date(date).getDate() - 1)))}>
-                                이전
-                            </Button>
-                            <Button
-                                disabled={date >= new Date(new Date().setDate(new Date().getDate() - 1))}
-                                onClick={() => setDate(new Date(date.setDate(new Date(date).getDate() + 1)))}>
-                                다음
-                            </Button>
-                        </div>
                     </div>
                     {postViews.posts.length === 0 && (
                         <Alert className="mb-5">

@@ -14,12 +14,15 @@ export interface DateInputProps {
     className?: string;
     showTime?: boolean;
     minDate?: Date;
+    maxDate?: Date;
     selected: Date | null;
+    style?: React.CSSProperties;
     onChange: (date: Date) => void;
 }
 
 export const DateInput = ({
     showTime = false,
+    style,
     ...props
 }: DateInputProps) => {
     return (
@@ -29,6 +32,7 @@ export const DateInput = ({
                     <BaseInput
                         tag="input"
                         icon={(<i className="far fa-calendar-alt" />)}
+                        style={style}
                     />
                 )}
                 dateFormat={showTime ? 'yyyy-MM-dd HH:mm' : 'yyyy-MM-dd'}
