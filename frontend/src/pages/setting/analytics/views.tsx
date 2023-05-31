@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
-import { Alert, Card, DateInput, Loading, Text } from '@design-system';
+import { Alert, Button, Card, DateInput, Loading, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -75,17 +75,32 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
             )}
             {!isLoadingPostsView && postViews && (
                 <>
-                    <div className="mt-5 mb-3 d-flex align-items-center" style={{ gap: '8px' }}>
-                        <DateInput
-                            selected={date}
-                            onChange={setDate}
-                            minDate={new Date(new Date().setDate(new Date().getDate() - 30))}
-                            maxDate={new Date()}
-                            style={{ width: '100px' }}
-                        />
-                        <Text fontSize={6} fontWeight={600}>
-                            의 인기글
-                        </Text>
+                    <div className="mt-5 mb-3 d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center" style={{ gap: '8px' }}>
+                            <DateInput
+                                selected={date}
+                                onChange={setDate}
+                                minDate={new Date(new Date().setDate(new Date().getDate() - 30))}
+                                maxDate={new Date()}
+                                style={{ width: '100px' }}
+                            />
+                            <Text fontSize={6} fontWeight={600}>
+                                의 인기글
+                            </Text>
+                        </div>
+                        <div>
+                            <Button
+                                className="mr-2"
+                                disabled={date <= new Date(new Date().setDate(new Date().getDate() - 30))}
+                                onClick={() => setDate(new Date(date.setDate(new Date(date).getDate() - 1)))}>
+                                이전
+                            </Button>
+                            <Button
+                                disabled={date >= new Date(new Date().setDate(new Date().getDate() - 1))}
+                                onClick={() => setDate(new Date(date.setDate(new Date(date).getDate() + 1)))}>
+                                다음
+                            </Button>
+                        </div>
                     </div>
                     {postViews.posts.length === 0 && (
                         <Alert className="mb-5">
