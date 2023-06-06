@@ -48,7 +48,7 @@ def make_thumbnail(this, size, quality=100, type='normal'):
         convert_image = image.convert('RGB')
         preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
         preview_image.save(
-            f"static/{this.image}.preview.{str(this.image).split('.')[-1]}", quality=quality)
+            f"static/{this.image}.preview.jpg", quality=quality)
         return
     
     if type == 'minify':
