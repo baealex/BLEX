@@ -228,11 +228,7 @@ export function EditorContent(props: EditorContentProps) {
             const event = setTimeout(() => {
                 lazyLoadResource();
                 codeMirrorAll(preview);
-                const maxHeight = Math.max(
-                    editor.current?.codemirror.getScrollInfo().height || 0,
-                    preview.offsetHeight
-                );
-                editor.current?.codemirror.setSize('auto', maxHeight);
+                editor.current?.codemirror.setSize('auto', preview.scrollHeight);
             }, 0);
             return () => clearTimeout(event);
         }
