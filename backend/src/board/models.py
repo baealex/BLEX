@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.html import strip_tags
 
-from PIL import Image
+from PIL import Image, ImageFilter
 
 from board.modules.time import time_since, time_stamp
 from modules.randomness import randstr
@@ -39,19 +39,26 @@ def title_image_path(instance, filename):
     return f"{path}/{name}"
 
 
-def make_thumbnail(this, size, save_as=False, quality=100):
+def make_thumbnail(this, size, quality=100, type='normal'):
     if hasattr(this, 'avatar'):
         this.image = this.avatar
-
     image = Image.open(this.image)
-    if not save_as:
-        image.thumbnail((size, size), Image.ANTIALIAS)
-        image.save(f'static/{this.image}', quality=quality)
-        return
 
+    if type == 'preview':
+        convert_image = image.convert('RGB')
+        preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
+        preview_image.save(
+            f"static/{this.image}.preview.{str(this.image).split('.')[-1]}", quality=quality)
+        return
+    
+    if type == 'minify':
+        image.thumbnail((size, size), Image.ANTIALIAS)
+        image.save(
+            f"static/{this.image}.minify.{str(this.image).split('.')[-1]}", quality=quality)
+    
     image.thumbnail((size, size), Image.ANTIALIAS)
-    image.save(
-        f"static/{this.image}.minify.{str(this.image).split('.')[-1]}", quality=quality)
+    image.save(f'static/{this.image}', quality=quality)
+    return
 
 
 # Models
@@ -368,7 +375,8 @@ class Post(models.Model):
             pass
         super(Post, self).save(*args, **kwargs)
         if will_make_thumbnail:
-            make_thumbnail(self, size=750, save_as=True, quality=85)
+            make_thumbnail(self, size=750, quality=50, type='preview')
+            make_thumbnail(self, size=750, quality=85, type='minify')
             make_thumbnail(self, size=1920, quality=85)
 
 
