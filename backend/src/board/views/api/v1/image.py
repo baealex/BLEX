@@ -84,7 +84,7 @@ def image(request):
                         image_size = os.stat(image_path).st_size
                         resize_image = Image.open(image_path)
 
-                        if image_size > 0:
+                        if image_size > 1024 * 1024 * 2:
                             resize_image = resize_image.convert('RGB')
                             ext = 'jpg'
 
@@ -93,8 +93,7 @@ def image(request):
                         resize_image.save(image_path)
 
                         if ext == 'jpg':
-                            os.system('rm ' + upload_path + '/' +
-                                      file_name + '.' + '.png')
+                            os.system(f'rm {upload_path}/{file_name}.png')
 
                         if ext == 'png':
                             resize_image = resize_image.convert('RGB')
