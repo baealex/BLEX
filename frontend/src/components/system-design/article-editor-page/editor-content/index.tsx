@@ -26,7 +26,6 @@ import { codeMirrorAll } from '~/modules/library/codemirror';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 import { useFetch } from '~/hooks/use-fetch';
-import { optimizeEvent } from '~/modules/optimize/event';
 
 export interface EditorContentProps {
     value: string;
