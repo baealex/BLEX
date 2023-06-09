@@ -11,9 +11,16 @@ import * as API from '~/modules/api';
 
 import { useFetch } from '~/hooks/use-fetch';
 
+function getFormattedDate(date: Date) {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
+    return year + '-' + month + '-' + day;
+}
+
 const AnalyticsSetting: PageComponent<unknown> = () => {
     const [date, setDate] = useState(new Date());
-    const visibleDate = useMemo(() => date.toISOString().slice(0, 10), [date]);
+    const visibleDate = useMemo(() => getFormattedDate(date), [date]);
 
     const { data: views, isLoading } = useFetch('settings/analytics/views', async () => {
         const { data } = await API.getSettingAnalyticsView();
