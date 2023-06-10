@@ -48,6 +48,7 @@ def setting(request, parameter):
         if parameter == 'account':
             return StatusDone({
                 'username': user.username,
+                'can_change_username': not Post.objects.filter(author=request.user).exists(),
                 'name': user.first_name,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
                 'email': user.email,

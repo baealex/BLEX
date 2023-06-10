@@ -205,11 +205,8 @@ def sign(request):
         body = QueryDict(request.body)
 
         if body.get('username', ''):
-            if Post.objects.filter(author=request.user).count() > 0:
-                return StatusError(ErrorCode.REJECT)
-
-            if Comment.objects.filter(author=request.user).count() > 0:
-                return StatusError(ErrorCode.REJECT)
+            if Post.objects.filter(author=request.user).exists():
+                return StatusError(ErrorCode.REJECT, '이미 작성한 포스트가 있는 경우 변경할 수 없습니다.')
 
             username = body.get('username', '')
 

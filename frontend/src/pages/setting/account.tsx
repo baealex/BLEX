@@ -152,7 +152,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                     <Text fontSize={6} fontWeight={600}>
                         사용자 필명
                     </Text>
-                    {isChangeUsername ? (
+                    {isChangeUsername && (
                         <div>
                             <Button gap="little" onClick={handleChangeUsername}>
                                 업데이트
@@ -165,7 +165,8 @@ const AccountSetting: PageComponent<Props> = (props) => {
                                 취소
                             </Button>
                         </div>
-                    ) : (
+                    )}
+                    {!isChangeUsername && props.canChageUsername && (
                         <Button onClick={() => setChangeUsername(true)}>
                             변경
                         </Button>
@@ -173,6 +174,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                 </div>
                 <Alert type="warning">
                     사용자의 필명은 로그인시 사용되며 주소(URL)에 표기되는 이름입니다.
+                    작성한 포스트가 존재하는 경우 사용자의 필명은 변경이 불가능합니다.
                 </Alert>
                 <div className="mt-2">
                     {isChangeUsername ? (
