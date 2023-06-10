@@ -166,7 +166,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                             </Button>
                         </div>
                     )}
-                    {!isChangeUsername && props.canChageUsername && (
+                    {!isChangeUsername && props.canChangeUsername && (
                         <Button onClick={() => setChangeUsername(true)}>
                             변경
                         </Button>

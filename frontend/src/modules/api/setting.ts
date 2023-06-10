@@ -22,7 +22,7 @@ export async function getSettingNotify(headers?: Headers) {
 
 export interface GetSettingAccountResponseData {
     username: string;
-    canChageUsername: boolean;
+    canChangeUsername: boolean;
     name: string;
     createdDate: string;
     email: string;
