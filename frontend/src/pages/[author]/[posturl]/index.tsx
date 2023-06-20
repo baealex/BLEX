@@ -88,15 +88,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             }
         };
     } catch (error) {
-        console.log('xxxx');
         if (error instanceof AxiosError) {
             if (error.response?.status === 404) {
                 try {
                     const { data } = await API.checkRedirect({
                         username: author as string
                     });
-
-                    console.log(data);
 
                     if (data.body.newUsername) {
                         return {
