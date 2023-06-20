@@ -24,7 +24,7 @@ import { useForm } from '~/hooks/use-form';
 
 type Props = API.GetSettingAccountResponseData;
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
     const { data } = await API.getSettingAccount({ 'Cookie': req.headers.cookie || '' });
 
     if (data.errorCode === API.ERROR.NEED_LOGIN) {

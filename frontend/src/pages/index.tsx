@@ -5,7 +5,9 @@ import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';
 
-export const getServerSideProps: GetServerSideProps = async () => {
+type Props = API.GetPostsResponseData;
+
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
     try {
         const { data } = await API.getPopularPosts(1);
 
@@ -18,11 +20,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
         return { notFound: true };
     }
 };
-
-interface Props extends API.GetPostsResponseData {
-    trendy?: API.GetPostsResponseData;
-    page: number;
-}
 
 const TrendyArticles: PageComponent<Props> = () => {
     return <></>;

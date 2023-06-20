@@ -24,7 +24,7 @@ import { useForm } from '~/hooks/use-form';
 
 type Props = API.GetSettingProfileResponseData;
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
     const { data } = await API.getSettingProfile({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {

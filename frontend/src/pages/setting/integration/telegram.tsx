@@ -14,7 +14,7 @@ import { authStore } from '~/stores/auth';
 
 type Props = API.GetSettingIntegrationTelegramResponseData;
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
     const { data } = await API.getSettingIntegrationTelegram({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {
@@ -99,7 +99,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                     <div className="d-flex align-items-center justify-content-between flex-wrap">
                         <div>
                             <div className="flex items-center">
-                                <i className="fab fa-telegram-plane text-2xl mr-2"/>
+                                <i className="fab fa-telegram-plane text-2xl mr-2" />
                                 <Text tag="span" fontWeight={600}>연동된 아이디</Text>
                             </div>
                             <div className="mt-2">

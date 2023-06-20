@@ -27,7 +27,7 @@ interface Props {
     tags?: string;
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
     const { cookies } = req;
     configStore.serverSideInject(cookies);
 

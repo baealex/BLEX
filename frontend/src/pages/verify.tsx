@@ -13,8 +13,15 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
 
+interface Props {
+    token: string;
+    username: string;
+}
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { token } = context.query;
+    const { token } = context.query as {
+        [key: string]: string;
+    };
 
     try {
         const { data } = await API.getEmailVerify(token as string);
@@ -28,11 +35,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         return { notFound: true };
     }
 };
-
-interface Props {
-    token: string;
-    username: string;
-}
 
 export default function Verify(props: Props) {
     const onSubmit = async (hctoken?: string) => {

@@ -15,24 +15,26 @@ import * as API from '~/modules/api';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
 import { useFetch } from '~/hooks/use-fetch';
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const {
-        q = '',
-        page = 1
-    } = context.query;
-
-    return {
-        props: {
-            query: q,
-            page
-        }
-    };
-};
-
 interface Props {
     query: string;
     page: number;
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const {
+        q = '',
+        page = 1
+    } = context.query as {
+        [key: string]: string;
+    };
+
+    return {
+        props: {
+            query: q,
+            page: Number(page)
+        }
+    };
+};
 
 export default function Search(props: Props) {
     const router = useRouter();
@@ -77,7 +79,7 @@ export default function Search(props: Props) {
                 ) : (
                     <title>검색어를 입력하세요.</title>
                 )}
-                <meta name="robots" content="noindex"/>
+                <meta name="robots" content="noindex" />
             </Head>
 
             <div className="x-container">
@@ -85,7 +87,7 @@ export default function Search(props: Props) {
                     <SearchBox
                         maxLength={20}
                         placeholder="검색어를 입력하세요."
-                        button={<i className="fas fa-search"/>}
+                        button={<i className="fas fa-search" />}
                         onClick={(value) => router.push('/search?q=' + value)}
                         history={history || undefined}
                         onClickHistory={(value) => router.push('/search?q=' + value)}
@@ -121,7 +123,7 @@ export default function Search(props: Props) {
                 )}
             </div>
 
-            <Footer/>
+            <Footer />
         </>
     );
 }

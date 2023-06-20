@@ -13,7 +13,7 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 type Props = API.GetUserFormsResponseData;
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
     const { data } = await API.getUserForms({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {
@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
 const FormsSetting: PageComponent<Props> = (props) => {
     const router = useRouter();
-    const [ forms, setForms ] = useState(props.forms);
+    const [forms, setForms] = useState(props.forms);
 
     const onDelete = async (id: number) => {
         if (confirm(message('CONFIRM', '정말 이 서식을 삭제할까요?'))) {

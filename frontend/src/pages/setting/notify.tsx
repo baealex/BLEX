@@ -12,7 +12,7 @@ import { authStore } from '~/stores/auth';
 
 type Props = API.GetSettingNotifyResponseData;
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
     const { data } = await API.getSettingNotify({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {

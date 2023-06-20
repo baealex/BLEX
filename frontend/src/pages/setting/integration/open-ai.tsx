@@ -14,7 +14,7 @@ import { useForm } from '~/hooks/use-form';
 
 type Props = API.GetSettingIntegrationOpenAIResponseData;
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
     const { data } = await API.getSettingIntegrationOpenAI({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {
@@ -114,7 +114,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                         <div className="d-flex align-items-center justify-content-between flex-wrap">
                             <div>
                                 <div className="flex items-center">
-                                    <i className="fas fa-microchip text-2xl mr-2"/>
+                                    <i className="fas fa-microchip text-2xl mr-2" />
                                     <Text tag="span" fontWeight={600}>등록된 API KEY</Text>
                                 </div>
                                 <div className="mt-2">
@@ -134,7 +134,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                             <div className="d-flex align-items-center justify-content-between flex-wrap">
                                 <div>
                                     <div className="flex items-center">
-                                        <i className="fas fa-history text-2xl mr-2"/>
+                                        <i className="fas fa-history text-2xl mr-2" />
                                         <Text tag="span" fontWeight={600}>사용 내역</Text>
                                     </div>
                                     <div className="mt-2">

@@ -295,7 +295,7 @@ export type GetSettingIntegrationOpenAIResponseData = {
 };
 
 export async function getSettingIntegrationOpenAI(headers?: Headers) {
-    return await request<GetSettingIntegrationTelegramResponseData>({
+    return await request<GetSettingIntegrationOpenAIResponseData>({
         url: '/v1/setting/integration-openai',
         method: 'GET',
         headers

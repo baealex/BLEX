@@ -14,7 +14,7 @@ import { loadingStore } from '~/stores/loading';
 
 type Props = API.GetSettingSeriesResponseData;
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
     const { data } = await API.getSettingSeries({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {
@@ -29,8 +29,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 };
 
 const SeriesSetting: PageComponent<Props> = (props) => {
-    const [ newSeries, setNewSeries ] = useState('');
-    const [ series, setSeries ] = useState(props.series);
+    const [newSeries, setNewSeries] = useState('');
+    const [series, setSeries] = useState(props.series);
 
     const handleCreate = async () => {
         if (!newSeries) {
@@ -106,10 +106,10 @@ const SeriesSetting: PageComponent<Props> = (props) => {
             {series.map((item, idx) => (
                 <div key={item.url} className="d-flex mb-3">
                     <div className="d-flex flex-column justify-content-between mr-3">
-                        <div className="c-pointer" onClick={() => handleChangeOrder(item.url, idx, idx-1)}>
+                        <div className="c-pointer" onClick={() => handleChangeOrder(item.url, idx, idx - 1)}>
                             <i className="fas fa-angle-up"></i>
                         </div>
-                        <div className="c-pointer" onClick={() => handleChangeOrder(item.url, idx, idx+1)}>
+                        <div className="c-pointer" onClick={() => handleChangeOrder(item.url, idx, idx + 1)}>
                             <i className="fas fa-angle-down"></i>
                         </div>
                     </div>

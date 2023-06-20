@@ -18,7 +18,7 @@ interface Props extends API.GetSettingDraftPostsResponseData {
     page: number;
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
     const { page = 1 } = query;
 
     const { data } = await API.getSettingDraftPosts(

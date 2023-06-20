@@ -24,11 +24,11 @@ import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
-interface Props extends API.GetSettingPostsResponseData {
+interface Props extends API.GetSettingReservedPostsResponseData {
     page: number;
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
     const { page = 1, order = '' } = query;
 
     const { data } = await API.getSettingReservedPosts(
