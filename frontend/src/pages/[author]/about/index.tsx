@@ -3,6 +3,9 @@ import React, {
     useState
 } from 'react';
 import type { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
+
+import { authorRenameCheck } from '~/modules/middleware/author';
 
 import { Button, Text } from '@design-system';
 import { ArticleContent } from '@system-design/article-detail-page';
@@ -13,33 +16,36 @@ import { SEO } from '@system-design/shared';
 import * as API from '~/modules/api';
 
 import { authStore } from '~/stores/auth';
-import { useRouter } from 'next/router';
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { author = '' } = context.query;
+type Props = API.GetUserProfileResponseData;
+
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+    const { author = '' } = context.query as {
+        [key: string]: string;
+    };
+
+    if (!author.startsWith('@')) {
+        return { notFound: true };
+    }
 
     try {
-        if (!author.includes('@')) {
-            throw 'invalid author';
-        }
-
-        const userProfile = await API.getUserProfile(author as string, [
+        const userProfile = await API.getUserProfile(author, [
             'profile',
             'social',
             'about'
         ]);
-
         return { props: userProfile.data.body };
     } catch (error) {
-        return { notFound: true };
+        return await authorRenameCheck(error, {
+            author,
+            continuePath: '/about'
+        });
     }
 };
 
-type Props = API.GetUserProfileResponseData;
-
 const UserAbout: PageComponent<Props> = (props) => {
     const router = useRouter();
-    const [ username, setUsername ] = useState(authStore.state.username);
+    const [username, setUsername] = useState(authStore.state.username);
 
     useEffect(() => {
         const updateKey = authStore.subscribe((state) => {

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { AxiosError } from 'axios';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import Router from 'next/router';
 import { useStore } from 'badland-react';
+
+import { authorRenameCheck } from '~/modules/middleware/author';
 
 import {
     ArticleAction,
@@ -39,6 +40,45 @@ interface Props {
     post: API.GetAnUserPostsViewResponseData;
 }
 
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
+    const { cookies } = req;
+    configStore.serverSideInject(cookies);
+
+    const { author = '', posturl = '' } = query as {
+        [key: string]: string;
+    };
+
+    if (!author.startsWith('@') || !posturl) {
+        return { notFound: true };
+    }
+
+    const { cookie } = req.headers;
+
+    try {
+        const [post, profile] = await Promise.all([
+            API.getAnUserPostsView(author, posturl, cookie),
+            API.getUserProfile(author, ['profile'])
+        ]);
+        API.postPostAnalytics(posturl, {
+            user_agent: req.headers['user-agent'],
+            referer: req.headers.referer ? req.headers.referer : '',
+            ip: req.headers['x-real-ip'] || req.socket.remoteAddress,
+            time: new Date().getTime()
+        }, cookie).catch(console.error);
+        return {
+            props: {
+                post: post.data.body,
+                profile: profile.data.body
+            }
+        };
+    } catch (error) {
+        return await authorRenameCheck(error, {
+            author,
+            continuePath: `/${encodeURI(posturl)}`
+        });
+    }
+};
+
 function moveToHash() {
     const element = document.getElementById(decodeURIComponent(window.location.hash.replace('#', '')));
 
@@ -50,72 +90,6 @@ function moveToHash() {
         });
     }
 }
-
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-    const { cookies } = req;
-    configStore.serverSideInject(cookies);
-
-    const { author = '', posturl = '' } = query;
-    if (!author.includes('@') || !posturl) {
-        return { notFound: true };
-    }
-
-    const { cookie } = req.headers;
-
-    try {
-        const [post, profile] = await Promise.all([
-            API.getAnUserPostsView(
-                author as string,
-                posturl as string,
-                cookie
-            ),
-            API.getUserProfile(author as string, [
-                'profile'
-            ])
-        ]);
-
-        API.postPostAnalytics(posturl as string, {
-            user_agent: req.headers['user-agent'],
-            referer: req.headers.referer ? req.headers.referer : '',
-            ip: req.headers['x-real-ip'] || req.socket.remoteAddress,
-            time: new Date().getTime()
-        }, cookie).catch(console.error);
-
-        return {
-            props: {
-                post: post.data.body,
-                profile: profile.data.body
-            }
-        };
-    } catch (error) {
-        if (error instanceof AxiosError) {
-            if (error.response?.status === 404) {
-                try {
-                    const { data } = await API.checkRedirect({
-                        username: author as string
-                    });
-
-                    if (data.body.newUsername) {
-                        const encodedUsername = encodeURI(data.body.newUsername);
-                        const encodedPostURL = encodeURI(query.posturl as string);
-                        return {
-                            redirect: {
-                                destination: `/@${encodedUsername}/${encodedPostURL}`,
-                                permanent: true
-                            }
-                        };
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-
-                return { notFound: true };
-            }
-        }
-    }
-
-    return { notFound: true };
-};
 
 function PostDetail(props: Props) {
     const [{ username }] = useStore(authStore);

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
 
+import { authorRenameCheck } from '~/modules/middleware/author';
+
 import {
     ProfileLayout,
     UserSeries
@@ -15,19 +17,21 @@ import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useMemoryStore } from '~/hooks/use-memory-store';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { author = '' } = context.query;
+    const { author = '' } = context.query as {
+        [key: string]: string;
+    };
 
-    if (!author.includes('@')) {
+    if (!author.startsWith('@')) {
         return { notFound: true };
     }
 
     try {
         const [userProfile, userSeries] = await Promise.all([
-            API.getUserProfile(author as string, [
+            API.getUserProfile(author, [
                 'profile',
                 'social'
             ]),
-            API.getUserSeries(author as string, 1)
+            API.getUserSeries(author, 1)
         ]);
 
         return {
@@ -38,7 +42,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             }
         };
     } catch (error) {
-        return { notFound: true };
+        return await authorRenameCheck(error, {
+            author,
+            continuePath: '/series'
+        });
     }
 };
 

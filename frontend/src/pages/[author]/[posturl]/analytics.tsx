@@ -12,10 +12,17 @@ import {
 import * as API from '~/modules/api';
 import { useFetch } from '~/hooks/use-fetch';
 
-export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-    const { author = '', posturl = '' } = query;
+interface Props {
+    author: string;
+    posturl: string;
+}
 
-    if (!author.includes('@') || !posturl) {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
+    const { author = '', posturl = '' } = query as {
+        [key: string]: string;
+    };
+
+    if (!author.startsWith('@') || !posturl) {
         return { notFound: true };
     }
 
@@ -26,11 +33,6 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
         }
     };
 };
-
-interface Props {
-    author: string;
-    posturl: string;
-}
 
 function PostsAnalytics(props: Props) {
     const { data } = useFetch(['posts', 'analytics', props.posturl], async () => {

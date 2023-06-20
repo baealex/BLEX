@@ -8,22 +8,28 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { GetServerSideProps } from 'next';
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-    const { author = '', posturl = '' } = query;
+interface Props extends API.GetAnUserPostsEditResponseData {
+    posturl: string;
+    username: string;
+}
 
-    if (!author.includes('@') || !posturl) {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
+    const { author = '', posturl = '' } = query as {
+        [key: string]: string;
+    };
+
+    if (!author.startsWith('@') || !posturl) {
         return { notFound: true };
     }
 
-    try {
-        const cookie = req.headers.cookie;
+    const { cookie } = req.headers;
 
+    try {
         const { data } = await API.getAnUserPostsEdit(
-            author as string,
-            posturl as string,
+            author,
+            posturl,
             cookie
         );
-
         return {
             props: {
                 posturl: posturl,
@@ -36,21 +42,16 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
     }
 };
 
-interface Props extends API.GetAnUserPostsEditResponseData {
-    posturl: string;
-    username: string;
-}
-
 let imageFile: File | undefined;
 
 export default function Edit(props: Props) {
-    const [ title, setTitle ] = useState(props.title);
-    const [ content, setContent ] = useState(props.textMd);
-    const [ series, setSeries ] = useState(props.series);
-    const [ description, setDescription ] = useState(props.description);
-    const [ tags, setTags ] = useState(props.tags.join(','));
-    const [ isHide, setIsHide ] = useState(props.isHide);
-    const [ isAdvertise, setIsAdvertise ] = useState(props.isAdvertise);
+    const [title, setTitle] = useState(props.title);
+    const [content, setContent] = useState(props.textMd);
+    const [series, setSeries] = useState(props.series);
+    const [description, setDescription] = useState(props.description);
+    const [tags, setTags] = useState(props.tags.join(','));
+    const [isHide, setIsHide] = useState(props.isHide);
+    const [isAdvertise, setIsAdvertise] = useState(props.isAdvertise);
 
     const onSubmit = async (onFail: () => void) => {
         if (!title) {

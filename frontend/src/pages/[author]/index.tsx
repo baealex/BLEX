@@ -4,6 +4,8 @@ import {
 } from 'react';
 import type { GetServerSideProps } from 'next';
 
+import { authorRenameCheck } from '~/modules/middleware/author';
+
 import {
     FeaturedArticles,
     ProfileLayout,
@@ -19,15 +21,19 @@ import * as API from '~/modules/api';
 
 import { configStore } from '~/stores/config';
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { author = '' } = context.query;
+type Props = API.GetUserProfileResponseData;
 
-    if (!author.includes('@')) {
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+    const { author = '' } = context.query as {
+        [key: string]: string;
+    };
+
+    if (!author.startsWith('@')) {
         return { notFound: true };
     }
 
     try {
-        const { data } = await API.getUserProfile(author as string, [
+        const { data } = await API.getUserProfile(author, [
             'profile',
             'social',
             'heatmap',
@@ -36,14 +42,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         ]);
         return { props: { ...data.body } };
     } catch (error) {
-        return { notFound: true };
+        return await authorRenameCheck(error, { author });
     }
 };
 
-type Props = API.GetUserProfileResponseData;
-
 const Overview: PageComponent<Props> = (props) => {
-    const [ isNightMode, setIsNightMode ] = useState(configStore.state.theme === 'dark');
+    const [isNightMode, setIsNightMode] = useState(configStore.state.theme === 'dark');
 
     useEffect(() => {
         const updateKey = configStore.subscribe((state) => {
@@ -62,12 +66,12 @@ const Overview: PageComponent<Props> = (props) => {
             />
 
             <div className="x-container">
-                <FeaturedArticles articles={props.most || []}/>
+                <FeaturedArticles articles={props.most || []} />
                 <Heatmap
                     isNightMode={isNightMode}
                     data={props.heatmap}
                 />
-                <RecentActivity data={props.recent || []}/>
+                <RecentActivity data={props.recent || []} />
             </div>
         </>
     );

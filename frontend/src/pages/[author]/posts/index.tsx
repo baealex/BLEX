@@ -1,6 +1,8 @@
 import type { GetServerSideProps } from 'next';
 import React from 'react';
 
+import { authorRenameCheck } from '~/modules/middleware/author';
+
 import {
     Pagination,
     SEO
@@ -14,28 +16,31 @@ import { Text } from '@design-system';
 
 import * as API from '~/modules/api';
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+interface Props extends API.GetUserProfileResponseData, API.GetUserPostsResponseData {
+    page: number;
+    tag: string;
+}
+
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     const {
         author = '',
         page = 1
-    } = context.query;
+    } = context.query as {
+        [key: string]: string;
+    };
 
-    if (!author.includes('@')) {
+    if (!author.startsWith('@')) {
         return { notFound: true };
     }
 
     try {
-
         const [userProfile, userPosts] = await Promise.all([
-            API.getUserProfile(author as string, [
+            API.getUserProfile(author, [
                 'profile',
                 'social',
                 'tags'
             ]),
-            API.getUserPosts(
-                author as string,
-                Number(page)
-            )
+            API.getUserPosts(author, Number(page))
         ]);
 
         return {
@@ -47,14 +52,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             }
         };
     } catch (error) {
-        return { notFound: true };
+        return await authorRenameCheck(error, {
+            author,
+            continuePath: '/posts'
+        });
     }
 };
-
-interface Props extends API.GetUserProfileResponseData, API.GetUserPostsResponseData {
-    page: number;
-    tag: string;
-}
 
 const UserPosts: PageComponent<Props> = (props) => {
     return (

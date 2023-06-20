@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useStore } from 'badland-react';
 
+import { authorRenameCheck } from '~/modules/middleware/author';
+
 import {
     Button,
     Card,
@@ -15,9 +17,10 @@ import { SeriesArticleCard } from '@system-design/series';
 
 import { snackBar } from '~/modules/ui/snack-bar';
 
-import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
+
+import * as API from '~/modules/api';
 
 import { authStore } from '~/stores/auth';
 import { configStore } from '~/stores/config';
@@ -31,7 +34,7 @@ interface Props {
     series: API.GetAnUserSeriesResponseData;
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     const { cookies } = context.req;
     configStore.serverSideInject(cookies);
 
@@ -39,14 +42,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         order = 'latest',
         author = '',
         seriesurl = ''
-    } = context.query;
+    } = context.query as {
+        [key: string]: string;
+    };
 
-    if (!author.includes('@')) {
+    if (!author.startsWith('@')) {
         return { notFound: true };
     }
 
     try {
-        const { data } = await API.getAnUserSeries('' + author, '' + seriesurl, {
+        const { data } = await API.getAnUserSeries(author, seriesurl, {
             page: 1,
             order: order as Props['order']
         });
@@ -57,7 +62,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             }
         };
     } catch (error) {
-        return { notFound: true };
+        return await authorRenameCheck(error, {
+            author,
+            continuePath: `/series/${encodeURI(seriesurl)}`
+        });
     }
 };
 
