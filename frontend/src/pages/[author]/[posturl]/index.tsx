@@ -96,9 +96,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
                     });
 
                     if (data.body.newUsername) {
+                        const encodedUsername = encodeURI(data.body.newUsername);
+                        const encodedPostURL = encodeURI(query.posturl as string);
                         return {
                             redirect: {
-                                destination: `/@${data.body.newUsername}/${posturl}`,
+                                destination: `/@${encodedUsername}/${encodedPostURL}`,
                                 permanent: true
                             }
                         };
