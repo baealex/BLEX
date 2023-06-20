@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { AxiosError } from 'axios';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import Router from 'next/router';
 import { useStore } from 'badland-react';
-import { AxiosError } from 'axios';
 
 import {
     ArticleAction,
@@ -79,7 +79,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             referer: req.headers.referer ? req.headers.referer : '',
             ip: req.headers['x-real-ip'] || req.socket.remoteAddress,
             time: new Date().getTime()
-        }, cookie).catch(console.error)
+        }, cookie).catch(console.error);
 
         return {
             props: {
@@ -88,15 +88,15 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             }
         };
     } catch (error) {
-        console.log('xxxx')
+        console.log('xxxx');
         if (error instanceof AxiosError) {
             if (error.response?.status === 404) {
                 try {
                     const { data } = await API.checkRedirect({
-                        username: author as string,
-                    })
+                        username: author as string
+                    });
 
-                    console.log(data)
+                    console.log(data);
 
                     if (data.body.newUsername) {
                         return {
