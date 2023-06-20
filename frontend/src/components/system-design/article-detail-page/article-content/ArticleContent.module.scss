@@ -201,11 +201,12 @@
         align-items: center;
         grid-gap: 8px;
 
-        :not(img, figcaption) {
+        :not(img, figcaption, video) {
             display: none;
         }
 
-        img {
+        img,
+        video {
             order: -1;
             border-radius: 8px;
         }
@@ -222,9 +223,11 @@
     :global(figure.col-1) {
         grid-template: 1fr / minmax(0, 1fr);
 
-        img {
+        img,
+        video {
             margin: 0 auto;
         }
+
     }
 
     :global(figure.col-2) {

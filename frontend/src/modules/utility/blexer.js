@@ -64,12 +64,12 @@ export default function blexer(md) {
 
     // Custom Markdown
     html = html.replace(
-        /<p>@gif\[.*(https?:\/\/.*\.mp4).*\]<\/p>/g,
-        '<p><video class="lazy" autoplay muted loop playsinline poster="$1.preview.jpg"><source data-src="$1" type="video/mp4"/></video></p>'
+        /@gif\[.*(https?:\/\/.*\.mp4).*\]/g,
+        '<video class="lazy" autoplay muted loop playsinline poster="$1.preview.jpg"><source data-src="$1" type="video/mp4"/></video>'
     );
     html = html.replace(
-        /<p>@youtube\[(.*)\]<\/p>/g,
-        '<p><iframe width="100%" height="350" src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>'
+        /@youtube\[(.*)\]/g,
+        '<iframe width="100%" height="350" src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
     );
     html = html.replace(/>\[\s\]\s/g, '><input type="checkbox" disabled> ');
     html = html.replace(/>\[x\]\s/g, '><input type="checkbox" disabled checked> ');
