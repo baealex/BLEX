@@ -166,7 +166,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                             </Button>
                         </div>
                     )}
-                    {!isChangeUsername && props.canChangeUsername && (
+                    {!isChangeUsername && (
                         <Button onClick={() => setChangeUsername(true)}>
                             변경
                         </Button>
@@ -174,7 +174,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                 </div>
                 <Alert type="warning">
                     사용자의 필명은 로그인시 사용되며 주소(URL)에 표기되는 이름입니다.
-                    작성한 포스트가 존재하는 경우 사용자의 필명은 변경이 불가능합니다.
+                    작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다.
                 </Alert>
                 <div className="mt-2">
                     {isChangeUsername ? (

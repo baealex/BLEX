@@ -131,3 +131,21 @@ export async function postEmailVerify(token: string, hctoken?: string) {
         data: serializeObject({ hctoken })
     });
 }
+
+export interface CheckChangeUsernameRequestData {
+    username: string;
+}
+
+export interface CheckChangeUsernameResponseData {
+    oldUsername: string;
+    newUsername: string;
+    createdDate: string;
+}
+
+export function checkRedirect(data: CheckChangeUsernameRequestData) {
+    return request<CheckChangeUsernameResponseData>({
+        url: `/v1/users/${encodeURIComponent(data.username)}/check-redirect`,
+        method: 'GET',
+        data: serializeObject(data)
+    });
+}

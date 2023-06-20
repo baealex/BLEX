@@ -22,7 +22,6 @@ export async function getSettingNotify(headers?: Headers) {
 
 export interface GetSettingAccountResponseData {
     username: string;
-    canChangeUsername: boolean;
     name: string;
     createdDate: string;
     email: string;

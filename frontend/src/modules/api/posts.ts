@@ -12,8 +12,8 @@ export interface GetTempPostsResponseData {
     }[];
 }
 
-export async function getTempPosts() {
-    return await request<GetTempPostsResponseData>({
+export function getTempPosts() {
+    return request<GetTempPostsResponseData>({
         url: '/v1/temp-posts',
         method: 'GET'
     });
@@ -23,8 +23,8 @@ export interface PostTempPostsResponseData {
     token: string;
 }
 
-export async function postTempPosts(title: string, text_md: string, tag: string) {
-    return await request<PostTempPostsResponseData>({
+export function postTempPosts(title: string, text_md: string, tag: string) {
+    return request<PostTempPostsResponseData>({
         url: '/v1/temp-posts',
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -44,16 +44,16 @@ export interface GetAnTempPostsResponseData {
     createdDate: string;
 }
 
-export async function getAnTempPosts(token: string, headers?: Headers) {
-    return await request<GetAnTempPostsResponseData>({
+export function getAnTempPosts(token: string, headers?: Headers) {
+    return request<GetAnTempPostsResponseData>({
         url: `/v1/temp-posts/${token}`,
         method: 'GET',
         headers
     });
 }
 
-export async function putTempPosts(token: string, title: string, text_md: string, tag: string) {
-    return await request<unknown>({
+export function putTempPosts(token: string, title: string, text_md: string, tag: string) {
+    return request<unknown>({
         url: `/v1/temp-posts/${token}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -65,8 +65,8 @@ export async function putTempPosts(token: string, title: string, text_md: string
     });
 }
 
-export async function deleteTempPosts(token: string) {
-    return await request<unknown>({
+export function deleteTempPosts(token: string) {
+    return request<unknown>({
         url: `/v1/temp-posts/${token}`,
         method: 'DELETE',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
@@ -88,22 +88,22 @@ export interface GetPostsResponseData {
     lastPage: number;
 }
 
-export async function getPopularPosts(page: number) {
-    return await request<GetPostsResponseData>({
+export function getPopularPosts(page: number) {
+    return request<GetPostsResponseData>({
         url: `/v1/posts/popular?page=${page}`,
         method: 'GET'
     });
 }
 
-export async function getNewestPosts(page: number) {
-    return await request<GetPostsResponseData>({
+export function getNewestPosts(page: number) {
+    return request<GetPostsResponseData>({
         url: `/v1/posts/newest?page=${page}`,
         method: 'GET'
     });
 }
 
-export async function getLikedPosts(page: number, cookie?: string) {
-    return await request<GetPostsResponseData>({
+export function getLikedPosts(page: number, cookie?: string) {
+    return request<GetPostsResponseData>({
         url: `/v1/posts/liked?page=${page}`,
         method: 'GET',
         headers: cookie ? { cookie } : undefined
@@ -122,8 +122,8 @@ export interface GetTopTrendyPostsResponseData {
     }[];
 }
 
-export async function getTrendyTopPosts() {
-    return await request<GetTopTrendyPostsResponseData>({
+export function getTrendyTopPosts() {
+    return request<GetTopTrendyPostsResponseData>({
         url: '/v1/posts/top-trendy',
         method: 'GET'
     });
@@ -147,8 +147,8 @@ interface CreatePostResponseData {
     url: string;
 }
 
-export async function createPost(data: CreatePostRequestData) {
-    return await request<CreatePostResponseData>({
+export function createPost(data: CreatePostRequestData) {
+    return request<CreatePostResponseData>({
         url: '/v1/posts',
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -173,8 +173,8 @@ export interface GetUserPostsResponseData {
     lastPage: number;
 }
 
-export async function getUserPosts(author: string, page: number, tag = '') {
-    return await request<GetUserPostsResponseData>({
+export function getUserPosts(author: string, page: number, tag = '') {
+    return request<GetUserPostsResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
         method: 'GET'
     });
@@ -200,8 +200,8 @@ export interface GetAnUserPostsViewResponseData {
     isLiked: boolean;
 }
 
-export async function getAnUserPostsView(username: string, url: string, cookie?: string) {
-    return await request<GetAnUserPostsViewResponseData>({
+export function getAnUserPostsView(username: string, url: string, cookie?: string) {
+    return request<GetAnUserPostsViewResponseData>({
         url: `/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=view`,
         method: 'GET',
         headers: cookie ? { cookie } : undefined
@@ -219,16 +219,16 @@ export interface GetAnUserPostsEditResponseData {
     isAdvertise: boolean;
 }
 
-export async function getAnUserPostsEdit(username: string, url: string, cookie?: string) {
-    return await request<GetAnUserPostsEditResponseData>({
+export function getAnUserPostsEdit(username: string, url: string, cookie?: string) {
+    return request<GetAnUserPostsEditResponseData>({
         url: `/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=edit`,
         method: 'GET',
         headers: cookie ? { cookie } : undefined
     });
 }
 
-export async function postAnUserPosts(author: string, url: string, data: object) {
-    return await request<unknown>({
+export function postAnUserPosts(author: string, url: string, data: object) {
+    return request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -242,8 +242,8 @@ export interface PutAnUserPostsResponseData {
     tag?: string;
 }
 
-export async function putAnUserPosts(author: string, url: string, item: string, data = {}) {
-    return await request<PutAnUserPostsResponseData>({
+export function putAnUserPosts(author: string, url: string, item: string, data = {}) {
+    return request<PutAnUserPostsResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${item}=${item}`,
         method: 'PUT',
 
@@ -251,8 +251,8 @@ export async function putAnUserPosts(author: string, url: string, item: string, 
     });
 }
 
-export async function deleteAnUserPosts(author: string, url: string) {
-    return await request<unknown>({
+export function deleteAnUserPosts(author: string, url: string) {
+    return request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
         method: 'DELETE'
     });
@@ -270,8 +270,8 @@ export interface GetFeaturePostsResponseData {
     }[];
 }
 
-export async function getFeaturePosts(username: string, exclude: string) {
-    return await request<GetFeaturePostsResponseData>({
+export function getFeaturePosts(username: string, exclude: string) {
+    return request<GetFeaturePostsResponseData>({
         url: `/v1/posts/feature?${serializeObject({
             username,
             exclude
@@ -292,8 +292,8 @@ export interface GetFeatureTagPostsResponseData {
     }[];
 }
 
-export async function getFeatureTagPosts(tag: string, exclude: string) {
-    return await request<GetFeatureTagPostsResponseData>({
+export function getFeatureTagPosts(tag: string, exclude: string) {
+    return request<GetFeatureTagPostsResponseData>({
         url: `/v1/posts/feature/${tag}?${serializeObject({ exclude })}`,
         method: 'GET'
     });
@@ -312,8 +312,8 @@ export interface GetPostCommentResponseData {
     }[];
 }
 
-export async function getPostComments(url: string) {
-    return await request<GetPostCommentResponseData>({
+export function getPostComments(url: string) {
+    return request<GetPostCommentResponseData>({
         url: `/v1/posts/${encodeURIComponent(url)}/comments`,
         method: 'GET'
     });
@@ -335,8 +335,8 @@ export interface GetPostAnalytics {
     };
 }
 
-export async function getPostAnalytics(url: string) {
-    return await request<GetPostAnalytics>({
+export function getPostAnalytics(url: string) {
+    return request<GetPostAnalytics>({
         url: `/v1/posts/${encodeURIComponent(url)}/analytics`,
         method: 'GET'
     });
@@ -346,8 +346,8 @@ export interface PostPostAnalyticsData {
     rand: string;
 }
 
-export async function postPostAnalytics(url: string, data: object, cookie?: string) {
-    return await request<PostPostAnalyticsData>({
+export function postPostAnalytics(url: string, data: object, cookie?: string) {
+    return request<PostPostAnalyticsData>({
         url: `/v1/posts/${encodeURIComponent(url)}/analytics`,
         method: 'POST',
         headers: cookie ? { cookie } : undefined,
@@ -363,8 +363,8 @@ export interface PostAutoGenegrateDescriptionResponseData {
     description: string;
 }
 
-export async function postAutoGenerateDescription(data: PostAutoGenegrateDescriptionRequestData) {
-    return await request<PostAutoGenegrateDescriptionResponseData>({
+export function postAutoGenerateDescription(data: PostAutoGenegrateDescriptionRequestData) {
+    return request<PostAutoGenegrateDescriptionResponseData>({
         url: '/v1/openai/description',
         method: 'POST',
         data: serializeObject(data)

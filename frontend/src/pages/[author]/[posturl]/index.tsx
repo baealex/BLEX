@@ -3,6 +3,7 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import Router from 'next/router';
 import { useStore } from 'badland-react';
+import { AxiosError } from 'axios';
 
 import {
     ArticleAction,
@@ -62,17 +63,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
     const { cookie } = req.headers;
 
     try {
-        try {
-            API.postPostAnalytics(posturl as string, {
-                user_agent: req.headers['user-agent'],
-                referer: req.headers.referer ? req.headers.referer : '',
-                ip: req.headers['x-real-ip'] || req.socket.remoteAddress,
-                time: new Date().getTime()
-            }, cookie);
-        } catch (e) {
-            console.error(e);
-        }
-
         const [post, profile] = await Promise.all([
             API.getAnUserPostsView(
                 author as string,
@@ -84,6 +74,13 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             ])
         ]);
 
+        API.postPostAnalytics(posturl as string, {
+            user_agent: req.headers['user-agent'],
+            referer: req.headers.referer ? req.headers.referer : '',
+            ip: req.headers['x-real-ip'] || req.socket.remoteAddress,
+            time: new Date().getTime()
+        }, cookie).catch(console.error)
+
         return {
             props: {
                 post: post.data.body,
@@ -91,12 +88,38 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             }
         };
     } catch (error) {
-        return { notFound: true };
+        console.log('xxxx')
+        if (error instanceof AxiosError) {
+            if (error.response?.status === 404) {
+                try {
+                    const { data } = await API.checkRedirect({
+                        username: author as string,
+                    })
+
+                    console.log(data)
+
+                    if (data.body.newUsername) {
+                        return {
+                            redirect: {
+                                destination: `/@${data.body.newUsername}/${posturl}`,
+                                permanent: true
+                            }
+                        };
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+
+                return { notFound: true };
+            }
+        }
     }
+
+    return { notFound: true };
 };
 
 function PostDetail(props: Props) {
-    const [ { username } ] = useStore(authStore);
+    const [{ username }] = useStore(authStore);
 
     const [likes, setLikes] = useState<number>(props.post.totalLikes);
     const [isLike, setIsLike] = useState<boolean>(props.post.isLiked);
@@ -169,7 +192,7 @@ function PostDetail(props: Props) {
                 <div className="container">
                     <div className="row">
                         <div className="article-action">
-                            <ArticleAction {...props.post}/>
+                            <ArticleAction {...props.post} />
                         </div>
                         <div className="article-content">
                             {props.post.author == username && (
@@ -184,8 +207,8 @@ function PostDetail(props: Props) {
                                     </div>
                                 </Card>
                             )}
-                            <ArticleAuthor {...props.profile}/>
-                            <ArticleContent html={props.post.textHtml}/>
+                            <ArticleAuthor {...props.profile} />
+                            <ArticleContent html={props.post.textHtml} />
                             <TagBadges
                                 items={props.post.tags.map(item => (
                                     <Link href={`/@${props.post.author}/posts/${item}`}>
