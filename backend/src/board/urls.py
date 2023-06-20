@@ -63,6 +63,7 @@ urlpatterns = [
     path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
     path('v1/users/@<username>/series', api_v1.user_series),
     path('v1/users/@<username>/series/<url>', api_v1.user_series),
+    path('v1/users/@<username>/check-redirect', api_v1.check_redirect),
     path('v1/report/error', api_v1.error_report),
     path('v1/image', api_v1.image),
     path('v1/forms', api_v1.forms_list),

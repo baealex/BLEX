@@ -237,3 +237,4 @@ class PostNoThanksAdmin(admin.ModelAdmin):
 
 
 admin.site.register(UserConfigMeta)
+admin.site.register(UsernameChangeLog)

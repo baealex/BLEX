@@ -10,7 +10,7 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.models import Notify, TwoFactorAuth, Config, Profile, Post, Comment
+from board.models import Notify, TwoFactorAuth, Config, Profile, Post, UsernameChangeLog
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules import oauth
@@ -205,8 +205,12 @@ def sign(request):
         body = QueryDict(request.body)
 
         if body.get('username', ''):
-            if Post.objects.filter(author=request.user).exists():
-                return StatusError(ErrorCode.REJECT, '이미 작성한 포스트가 있는 경우 변경할 수 없습니다.')
+            six_months_ago = timezone.now() - datetime.timedelta(days=180)
+            if UsernameChangeLog.objects.filter(
+                user=user,
+                created_date__gte=six_months_ago
+            ).exists():
+                return StatusError(ErrorCode.REJECT, '6개월에 한번만 사용자 이름을 변경할 수 있습니다.')
 
             username = body.get('username', '')
 
@@ -214,6 +218,11 @@ def sign(request):
             if result_check_username:
                 return StatusError(ErrorCode.REJECT, result_check_username)
 
+            if Post.objects.filter(author=request.user).exists():
+                UsernameChangeLog.objects.create(
+                    user=user,
+                    username=user.username,
+                )
             user.username = username
 
         if body.get('name', ''):

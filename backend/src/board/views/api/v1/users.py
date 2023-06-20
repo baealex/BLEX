@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.models import (
-    User, Post, Profile, Series,
+    User, UsernameChangeLog, Post, Profile, Series,
     Comment, Follow, Tag)
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_stamp
@@ -229,4 +229,23 @@ def users(request, username):
                 profile.save()
 
             return StatusDone()
+    raise Http404
+
+def check_redirect(request, username):
+    if request.method == 'GET':
+        if not username:
+            return StatusError(ErrorCode.INVALID_PARAMETER)
+
+        log = UsernameChangeLog.objects.filter(
+            username=username
+        ).annotate(
+            user_username=F('user__username'),
+        ).first()
+
+        if log:
+            return StatusDone({
+                'old_username': log.username,
+                'new_username': log.user_username,
+                'created_date': convert_to_localtime(log.created_date).strftime('%Y년 %m월 %d일'),
+            })
     raise Http404

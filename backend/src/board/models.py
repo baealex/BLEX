@@ -743,3 +743,9 @@ class DeveloperTokenLog(models.Model):
     history = models.ForeignKey('board.History', on_delete=models.CASCADE)
     url = models.CharField(max_length=255)
     created_date = models.DateTimeField(default=timezone.now)
+
+
+class UsernameChangeLog(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    username = models.CharField(max_length=50)
+    created_date = models.DateTimeField(default=timezone.now)

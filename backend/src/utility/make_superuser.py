@@ -23,9 +23,11 @@ if __name__ == '__main__':
     
     if answer == 'Y':
         user.is_superuser = True
+        user.is_staff = True
         user.save()
     if answer == 'N':
         user.is_superuser = False
+        user.is_staff = False
         user.save()
     
     superusers = User.objects.filter(is_superuser=True)
