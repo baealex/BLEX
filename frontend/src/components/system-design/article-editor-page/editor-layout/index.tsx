@@ -11,6 +11,7 @@ import {
     CheckBox,
     DateInput,
     ErrorMessage,
+    Flex,
     FormControl,
     KeywordInput,
     Label,
@@ -127,6 +128,18 @@ export function EditorLayout(props: Props) {
                 onChange={props.title.onChange}
                 onChangeImage={props.image.onChange}
             />
+            <Alert
+                className="mb-3"
+                onClick={() => {
+                    window.open('https://baealex.notion.site/b3901e0837ec40e3983d16589314b59a');
+                }}>
+                <Flex align="center" gap={2}>
+                    <div>📌</div>
+                    <div>
+                        <div>블렉스의 마크다운 가이드</div>
+                    </div>
+                </Flex>
+            </Alert>
             <EditorContent
                 value={props.content.value}
                 onChange={props.content.onChange}
