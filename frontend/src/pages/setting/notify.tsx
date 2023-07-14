@@ -47,7 +47,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
         <>
             {!auth.hasConnectedTelegram && (
                 <Alert type="information" onClick={() => router.push('/setting/integration/telegram')}>
-                    <i className="fab fa-telegram-plane" /> 텔레그램 연동을 연동하여 알림을 받아보세요.
+                    <i className="fab fa-telegram-plane" /> 텔레그램을 연동하여 실시간 알림을 받아보세요.
                 </Alert>
             )}
             <div className="mt-3">
