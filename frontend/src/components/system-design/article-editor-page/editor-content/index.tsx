@@ -40,7 +40,7 @@ export function EditorContent(props: EditorContentProps) {
     const editor = useRef<EasyMDE | null>(null);
     const textarea = useRef<HTMLTextAreaElement>(null);
     const imageInput = useRef<HTMLInputElement>(null);
-    const [isPreview, setIsPreview] = useState(true);
+    const [isPreview, setIsPreview] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const { data: forms } = useFetch('forms', async () => {
@@ -167,13 +167,6 @@ export function EditorContent(props: EditorContentProps) {
                                 },
                                 className: 'fa fa-eye no-disable',
                                 title: '미리보기'
-                            },
-                            '|',
-                            {
-                                name: 'guide',
-                                action: '//notion.so/b3901e0837ec40e3983d16589314b59a',
-                                className: 'fa fa-question-circle',
-                                title: '마크다운 가이드'
                             }
                         ],
                         previewRender: blexer,
@@ -223,17 +216,28 @@ export function EditorContent(props: EditorContentProps) {
     }, []);
 
     useEffect(() => {
-        if (!isPreview) {
+        if (isPreview) {
             const preview = document.querySelector(`.${styles.preview}`) as HTMLElement;
+
+            const handleClickLink = (event: MouseEvent) => {
+                const target = event.target as HTMLAnchorElement;
+                if (target.tagName === 'A') {
+                    event.preventDefault();
+                    window.open(target.href, '_blank');
+                }
+            };
+            preview.addEventListener('click', handleClickLink);
+
             const event = setTimeout(() => {
                 lazyLoadResource();
                 codeMirrorAll(preview);
                 setTimeout(() => {
                     editor.current?.codemirror.setSize('auto', preview.scrollHeight);
-                }, 100);
+                }, 300);
             }, 0);
 
             return () => {
+                preview.removeEventListener('click', handleClickLink);
                 clearTimeout(event);
             };
         }
