@@ -5,8 +5,8 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useRef } from 'react';
 
+import { Flex, Text } from '@design-system';
 import { SubscribeButton } from '@system-design/shared';
-import { Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getPostsImage } from '~/modules/utility/image';
@@ -34,7 +34,7 @@ export function RelatedArticles(props: RelatedProps) {
 
     return (
         <div ref={ref} className="x-container pt-5 reverse-color">
-            <div className="d-flex algin-items-center justify-content-between">
+            <Flex justify="between" align="center" wrap="wrap" gap={3}>
                 <div>
                     <Text className="mb-1" fontWeight={600}>
                         <Link className="font-weight-bold deep-dark" href={`/@${props.author}`}>
@@ -46,10 +46,8 @@ export function RelatedArticles(props: RelatedProps) {
                         {props.bio}
                     </Text>
                 </div>
-                <div className="d-flex flex-column justify-content-center">
-                    <SubscribeButton author={props.author}/>
-                </div>
-            </div>
+                <SubscribeButton author={props.author} />
+            </Flex>
             {posts && posts.map((item) => (
                 <div key={item.url} className={cn('list')}>
                     <div className={cn('image')}>

@@ -6,6 +6,7 @@ export * from './card';
 export * from './carousel';
 export * from './check-box';
 export * from './dropdown';
+export * from './flex';
 export * from './glitch-text';
 export * from './image-input';
 export * from './image-preload';

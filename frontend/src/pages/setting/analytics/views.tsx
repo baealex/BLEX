@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
-import { Alert, Button, Card, DateInput, Loading, Text } from '@design-system';
+import { Alert, Button, Card, DateInput, Flex, Loading, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -82,8 +82,13 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
             )}
             {!isLoadingPostsView && postViews && (
                 <>
-                    <div className="mt-5 mb-3 d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center" style={{ gap: '8px' }}>
+                    <Flex
+                        className="mt-5 mb-3"
+                        justify="between"
+                        align="center"
+                        wrap="wrap"
+                        gap={3}>
+                        <Flex wrap="wrap" align="center" gap={2}>
                             <DateInput
                                 selected={date}
                                 onChange={setDate}
@@ -94,7 +99,7 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                             <Text fontSize={6} fontWeight={600}>
                                 의 인기글
                             </Text>
-                        </div>
+                        </Flex>
                         <div>
                             <Button
                                 className="mr-2"
@@ -108,33 +113,30 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                                 다음
                             </Button>
                         </div>
-                    </div>
+                    </Flex>
                     {postViews.posts.length === 0 && (
                         <Alert className="mb-5">
                             아직 작성한 포스트가 없습니다.
                         </Alert>
                     )}
                     {postViews.posts.map((item, idx) => (
-                        <Card key={item.url} hasBackground isRounded className="my-3">
-                            <div className="p-3">
-                                <div className="d-flex justify-content-between align-items-center flex-wrap" style={{ gap: '8px' }}>
-                                    <div>
-                                        <Link className="deep-dark" href={`/@${item.author}/${item.url}`}>
-                                            {`${idx + 1}. ${item.title}`}
-                                        </Link>
-                                    </div>
-                                    <div className="ns">
-                                        {item.todayCount}명 읽음
-                                        <span className="ml-1" style={{ color: item.increaseCount > 0 ? '#ff6700' : '#008fff' }}>
-                                            ({`${item.increaseCount > 0 ? '↑' : '↓'}${Math.abs(item.increaseCount)}`})
-                                        </span>
-                                    </div>
+                        <Card key={item.url} hasBackground isRounded className="my-3 p-3">
+                            <Flex justify="between" align="center" wrap="wrap" gap={2}>
+                                <Link className="deep-dark" href={`/@${item.author}/${item.url}`}>
+                                    {`${idx + 1}. ${item.title}`}
+                                </Link>
+                                <div className="ns">
+                                    {item.todayCount}명 읽음
+                                    <span className="ml-1" style={{ color: item.increaseCount > 0 ? '#ff6700' : '#008fff' }}>
+                                        ({`${item.increaseCount > 0 ? '↑' : '↓'}${Math.abs(item.increaseCount)}`})
+                                    </span>
                                 </div>
-                            </div>
+                            </Flex>
                         </Card>
                     ))}
                 </>
-            )}
+            )
+            }
         </>
     );
 };

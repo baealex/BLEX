@@ -3,7 +3,7 @@ import {
     useMemo, useState
 } from 'react';
 
-import { Button, Text } from '@design-system';
+import { Button, Flex, Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import { debounceEvent } from '~/modules/optimize/event';
@@ -45,23 +45,23 @@ export function ArticleThanks({
 
     return (
         <div className="text-center my-5">
-            <Text className="mb-2" fontWeight={600}>
+            <Text className="mb-3" fontWeight={600}>
                 이 글이 도움이 되었나요?
             </Text>
-            <Button
-                color={active === 0 ? 'secondary' : 'default'}
-                gap="little"
-                space="spare"
-                onClick={() => thanksEvent()}>
-                도움됐어요 😆
-            </Button>
-            <Button
-                color={active === 1 ? 'secondary' : 'default'}
-                gap="little"
-                space="spare"
-                onClick={() => noThanksEvent()}>
-                도움안돼요 😢
-            </Button>
+            <Flex justify="center" align="center" wrap="wrap" gap={2}>
+                <Button
+                    color={active === 0 ? 'secondary' : 'default'}
+                    space="spare"
+                    onClick={() => thanksEvent()}>
+                    도움됐어요 😆
+                </Button>
+                <Button
+                    color={active === 1 ? 'secondary' : 'default'}
+                    space="spare"
+                    onClick={() => noThanksEvent()}>
+                    도움안돼요 😢
+                </Button>
+            </Flex>
         </div>
     );
 }
