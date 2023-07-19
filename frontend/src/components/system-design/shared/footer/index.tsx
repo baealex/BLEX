@@ -24,10 +24,18 @@ export function Footer({
             <div className={cn('items')}>
                 <div className={cn('item')}>
                     <a
+                        href="https://about.blex.me"
+                        target="_blank"
+                        rel="noreferrer">
+                        <i className="fas fa-info-circle" /> 서비스 소개
+                    </a>
+                </div>
+                <div className={cn('item')}>
+                    <a
                         href="https://github.com/baealex/BLEX"
                         target="_blank"
                         rel="noreferrer">
-                        <i className="fab fa-github" /> 깃허브
+                        <i className="fab fa-github" /> 오픈소스
                     </a>
                 </div>
                 <div className={cn('item')}>
@@ -35,15 +43,7 @@ export function Footer({
                         href="https://discord.gg/cs2XcEwSr9"
                         target="_blank"
                         rel="noreferrer">
-                        <i className="fab fa-discord" /> 디스코드
-                    </a>
-                </div>
-                <div className={cn('item')}>
-                    <a
-                        href="mailto:im@baejino.com"
-                        target="_blank"
-                        rel="noreferrer">
-                        <i className="fas fa-at" /> 이메일
+                        <i className="fab fa-discord" /> 커뮤니티
                     </a>
                 </div>
             </div>
