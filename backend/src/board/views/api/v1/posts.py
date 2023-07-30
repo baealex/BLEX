@@ -22,6 +22,7 @@ from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from modules import markdown
+from modules.challenge import auth_hcaptcha
 from modules.randomness import randstr
 from modules.subtask import sub_task_manager
 from modules.discord import Discord
@@ -34,11 +35,20 @@ def post_list(request):
 
         title = request.POST.get('title', '')
         text_md = request.POST.get('text_md', '')
+        verification = request.POST.get('verification', '')
 
         if not title:
             return StatusError(ErrorCode.VALIDATE, '제목을 입력해주세요.')
         if not text_md:
             return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
+
+        # TODO: TESTING 여부를 확인하지 않고 해당 모듈을 모킹 해야함
+        if settings.HCAPTCHA_SECRET_KEY and not settings.TESTING:
+            if not verification:
+                return StatusError(ErrorCode.VALIDATE, '인증을 진행해주세요.')
+
+            if not auth_hcaptcha(verification):
+                return StatusError(ErrorCode.VALIDATE, '인증을 실패하였습니다.')
 
         text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
             'text': text_md,

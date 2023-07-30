@@ -138,6 +138,7 @@ interface CreatePostRequestData {
     url: string;
     description: string;
     series: string;
+    verification: string;
     reserved_date?: string;
     is_hide: string;
     is_advertise: string;

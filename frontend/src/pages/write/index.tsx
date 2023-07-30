@@ -74,6 +74,7 @@ interface State {
     description: string;
     token: string;
     series: string;
+    verification: string;
     reservedDate: Date | null;
     image: File | undefined;
     isAutoSave: boolean;
@@ -109,6 +110,7 @@ class Write extends React.Component<Props, State> {
             token: props.token || '',
             url: '',
             series: '',
+            verification: '',
             reservedDate: null,
             isHide: false,
             isAd: false,
@@ -209,12 +211,22 @@ class Write extends React.Component<Props, State> {
 
     async onSubmit(onFail: () => void) {
         if (!this.state.title) {
-            snackBar('😅 제목이 비어있습니다.');
+            snackBar('😅 제목을 작성해주세요.');
+            onFail();
+            return;
+        }
+        if (!this.state.content) {
+            snackBar('😅 본문을 작성해주세요.');
             onFail();
             return;
         }
         if (!this.state.tags) {
             snackBar('😅 태그를 작성해주세요.');
+            onFail();
+            return;
+        }
+        if (!this.state.verification) {
+            snackBar('😅 인증을 진행해주세요.');
             onFail();
             return;
         }
@@ -232,12 +244,19 @@ class Write extends React.Component<Props, State> {
                 url: this.state.url,
                 description: this.state.description,
                 series: this.state.series,
+                verification: this.state.verification,
                 reserved_date: this.state.reservedDate
                     ? this.state.reservedDate.toISOString()
                     : undefined,
                 is_hide: JSON.stringify(this.state.isHide),
                 is_advertise: JSON.stringify(this.state.isAd)
             });
+
+            if (data.status === 'ERROR') {
+                snackBar('😥 ' + data.errorMessage);
+                onFail();
+                return;
+            }
             Router.push('/[author]/[posturl]', `/@${this.state.username}/${data.body.url}`);
         } catch (e) {
             snackBar('😥 글 작성중 오류가 발생했습니다.');
@@ -394,6 +413,10 @@ class Write extends React.Component<Props, State> {
                     title: '포스트 발행',
                     buttonText: '이대로 발행하겠습니다'
                 }}
+                verification={{
+                    value: this.state.verification,
+                    onChange: (value) => this.setState({ verification: value })
+                }}
                 onSubmit={this.onSubmit.bind(this)}
                 extended={{
                     footer: (
@@ -465,7 +488,7 @@ class Write extends React.Component<Props, State> {
                             </Card>
                             <div className="d-flex justify-content-end">
                                 <Button
-                                    className="mt-3"
+                                    className="my-3"
                                     color="secondary"
                                     onClick={() => {
                                         modalStore.open('isOpenArticlePublishModal');
