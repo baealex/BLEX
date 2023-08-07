@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 export interface FooterProps {
     isDark?: boolean;
     className?: string;
-    children?: JSX.Element;
+    children?: React.ReactNode;
 }
 
 export function Footer({

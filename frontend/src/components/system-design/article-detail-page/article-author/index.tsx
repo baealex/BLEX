@@ -3,6 +3,9 @@ import styles from './ArticleAuthor.module.scss';
 
 import Link from 'next/link';
 
+import { Flex } from '@design-system';
+import { SubscribeButton } from '@system-design/shared';
+
 export interface ArticleAuthorProps {
     profile: {
         username: string;
@@ -14,16 +17,11 @@ export interface ArticleAuthorProps {
 
 export function ArticleAuthor(props: ArticleAuthorProps) {
     return (
-        <div className={`${styles.box} mb-5`}>
-            <div className="d-flex align-items-center">
-                <div>
+        <div className="pt-5 pb-3">
+            <Flex align="center" justify="between" wrap="wrap">
+                <div className={classNames(styles.image)}>
                     <Link href="/[author]" as={`/@${props.profile.username}`}>
-                        <img
-                            className={styles.image}
-                            src={props.profile.image}
-                            width="50"
-                            height="50"
-                        />
+                        <img src={props.profile.image} />
                     </Link>
                 </div>
                 <div className={classNames(styles.info)}>
@@ -38,7 +36,8 @@ export function ArticleAuthor(props: ArticleAuthorProps) {
                         </Link>
                     </div>
                 </div>
-            </div>
+                <SubscribeButton author={props.profile.username} />
+            </Flex>
         </div>
     );
 }

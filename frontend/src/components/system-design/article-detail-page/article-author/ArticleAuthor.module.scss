@@ -1,12 +1,16 @@
-@import 'mixin';;
-
-.box {
-    padding: 15px;
-}
+@import 'mixin';
 
 .image {
-    object-fit: cover;
-    border-radius: 100%;
+    width: 80px;
+    height: 80px;
+
+    img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center;
+    }
 }
 
 .info {
@@ -23,7 +27,7 @@
         @include COLOR_DARK;
         font-weight: 600;
     }
-    
+
     .bio a {
         text-decoration: none;
         @include COLOR_ASHGRAY;

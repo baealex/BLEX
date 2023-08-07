@@ -5,8 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useRef } from 'react';
 
-import { Flex, Text } from '@design-system';
-import { SubscribeButton } from '@system-design/shared';
+import { Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getPostsImage } from '~/modules/utility/image';
@@ -33,21 +32,7 @@ export function RelatedArticles(props: RelatedProps) {
     }, { observeRef: ref });
 
     return (
-        <div ref={ref} className="x-container pt-5 reverse-color">
-            <Flex justify="between" align="center" wrap="wrap" gap={3}>
-                <div>
-                    <Text className="mb-1" fontWeight={600}>
-                        <Link className="font-weight-bold deep-dark" href={`/@${props.author}`}>
-                            {props.name}
-                        </Link>
-                        님이 작성한 다른 글
-                    </Text>
-                    <Text className="shallow-dark">
-                        {props.bio}
-                    </Text>
-                </div>
-                <SubscribeButton author={props.author} />
-            </Flex>
+        <div ref={ref} className="pt-1 reverse-color">
             {posts && posts.map((item) => (
                 <div key={item.url} className={cn('list')}>
                     <div className={cn('image')}>

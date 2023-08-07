@@ -155,12 +155,13 @@ function PostDetail(props: Props) {
             />
             <article data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}>
                 <ArticleCover
+                    author={props.post.author}
                     series={props.post.seriesName}
+                    seriesUrl={props.post.series}
                     image={props.post.image}
                     title={props.post.title}
                     isAd={props.post.isAd}
                     createdDate={props.post.createdDate}
-                    updatedDate={props.post.updatedDate}
                 />
                 <div className="container">
                     <div className="row">
@@ -180,7 +181,6 @@ function PostDetail(props: Props) {
                                     </div>
                                 </Card>
                             )}
-                            <ArticleAuthor {...props.profile} />
                             <ArticleContent html={props.post.textHtml} />
                             <TagBadges
                                 items={props.post.tags.map(item => (
@@ -264,12 +264,15 @@ function PostDetail(props: Props) {
                 totalComment={props.post.totalComment}
             />
             <Footer isDark className="">
-                <RelatedArticles
-                    author={props.post.author}
-                    name={props.profile.profile.name}
-                    bio={props.profile.profile.bio}
-                    url={props.post.url}
-                />
+                <div className="x-container">
+                    <ArticleAuthor {...props.profile} />
+                    <RelatedArticles
+                        author={props.post.author}
+                        name={props.profile.profile.name}
+                        bio={props.profile.profile.bio}
+                        url={props.post.url}
+                    />
+                </div>
             </Footer>
         </>
     );

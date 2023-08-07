@@ -1,4 +1,40 @@
-@import 'mixin';;
+@import 'mixin';
+
+.series {
+    cursor: pointer;
+
+    &::before {
+        display: block;
+        content: attr(data-label);
+        color: $COLOR_DEFAULT_POINT;
+        letter-spacing: -1px;
+    }
+
+    &::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 2px;
+        background: $COLOR_DEFAULT_POINT;
+        margin: 15px 0 10px 0;
+    }
+}
+
+.post-info {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    a {
+        color: #eee;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        font-size: .825rem;
+        font-weight: 600;
+    }
+}
 
 .full-cover {
     position: relative;
@@ -6,7 +42,7 @@
     margin-bottom: 60px;
     height: 100vh;
     width: 100%;
-    
+
     @media only screen and (max-width: 991px) {
         margin-top: -100px;
     }
@@ -53,24 +89,7 @@
 
         time {
             font-size: .8rem;
-        }
-
-        span {
-            &::before {
-                display: block;
-                content: attr(data-label);
-                color: $COLOR_DEFAULT_POINT;
-                letter-spacing: -1px;
-            }
-
-            &::after {
-                content: '';
-                display: block;
-                width: 80px;
-                height: 2px;
-                background: $COLOR_DEFAULT_POINT;
-                margin: 15px 0 10px 0;
-            }
+            color: #aaa;
         }
     }
 
@@ -91,21 +110,15 @@
 }
 
 .image-cover {
-    div {
-        position: absolute;
-        top: 0;
-        left: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    img {
         width: 100%;
         height: 100%;
-        background-image: url(https://static.blex.me/assets/images/default-post.png);
-        background-attachment: fixed;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: cover;
-
-        @supports (-webkit-touch-callout: none) {
-            background-attachment: scroll;
-        }
+        object-fit: cover;
+        object-position: center;
     }
 
     &::after {
@@ -123,10 +136,7 @@
 .no-cover {
     position: relative;
     width: 100%;
-    height: 45vh;
-    margin: -120px 0 60px;
-    padding-bottom: 60px;
-    background: #000;
+    margin: 30px 0;
     word-break: keep-all;
     overflow-wrap: anywhere;
 
@@ -135,7 +145,11 @@
         font-weight: bold;
         letter-spacing: -2px;
         font-size: 2.5rem;
-        color: #fff;
+        color: #000;
+
+        :global(body.dark) & {
+            color: #eee;
+        }
 
         @media only screen and (max-width: 991px) {
             font-size: 2rem;
@@ -143,26 +157,31 @@
     }
 
     time {
-        margin-top: 10px;
-        font-size: .8rem;
-        color: #eee;
+        font-size: .825rem;
+        color: #777;
+
+        :global(body.dark) & {
+            color: #aaa;
+        }
     }
 
-    span {
+    .post-info {
+        a {
+            color: #000;
+
+            :global(body.dark) & {
+                color: #eee;
+            }
+        }
+    }
+
+    .series {
         &::before {
-            display: block;
-            content: attr(data-label);
-            color: $COLOR_DEFAULT_POINT;
-            letter-spacing: -1px;
+            color: $COLOR_DEFAULT_SECONDARY;
         }
 
         &::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 2px;
-            background: $COLOR_DEFAULT_POINT;
-            margin: 15px 0 10px 0;
+            background: $COLOR_DEFAULT_SECONDARY;
         }
     }
 }
