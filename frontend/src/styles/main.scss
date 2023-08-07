@@ -7,10 +7,10 @@
 @import 'fontawesome.override';
 
 body {
-    overflow-x: hidden;
-    
     &.dark {
-        img, video {
+
+        img,
+        video {
             filter: brightness(.8) contrast(1.2);
         }
     }
@@ -25,7 +25,9 @@ body {
     }
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
     font-size: 16px;
 }
 
