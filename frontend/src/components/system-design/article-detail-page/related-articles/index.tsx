@@ -9,6 +9,7 @@ import { Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getPostsImage } from '~/modules/utility/image';
+import { unescape } from '~/modules/utility/string';
 import { useFetch } from '~/hooks/use-fetch';
 
 export interface RelatedProps {
@@ -35,30 +36,34 @@ export function RelatedArticles(props: RelatedProps) {
         <div ref={ref} className="pt-1 reverse-color">
             {posts && posts.map((item) => (
                 <div key={item.url} className={cn('list')}>
-                    <div className={cn('image')}>
-                        <Link href="/[author]/[posturl]" as={`/@${item.author}/${item.url}`}>
-                            {item.image && (
-                                <img
-                                    className="lazy mt-4"
-                                    src={getPostsImage(item.image, { preview: true })}
-                                    data-src={getPostsImage(item.image, { minify: true })}
-                                    height="400"
-                                />
-                            )}
+                    {item.image && (
+                        <Link className={cn('image')} href={`/@${item.author}/${item.url}`}>
+                            <img
+                                className="lazy"
+                                src={getPostsImage(item.image, { preview: true })}
+                                data-src={getPostsImage(item.image, { minify: true })}
+                                height="400"
+                            />
                         </Link>
-                    </div>
+                    )}
                     <div>
-                        <Text tag="h3" className="mt-4 mb-2" fontSize={7} fontWeight={700}>
-                            <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${item.author}/${item.url}`}>
+                        <Text tag="h3" fontSize={7} fontWeight={700}>
+                            <Link className="deep-dark" href={`/@${item.author}/${item.url}`}>
                                 {item.title}
                             </Link>
                         </Text>
                         <Text className="my-2" fontSize={2}>
                             {item.createdDate} · <span className="shallow-dark">{item.readTime} min read</span>
                         </Text>
+                        <div className={styles.description}>
+                            <Link href={`/@${item.author}/${item.url}`}>
+                                {unescape(item.description)}
+                            </Link>
+                        </div>
                     </div>
                 </div>
-            ))}
-        </div>
+            ))
+            }
+        </div >
     );
 }

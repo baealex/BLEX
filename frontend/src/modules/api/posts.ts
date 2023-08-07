@@ -265,6 +265,7 @@ export interface GetFeaturePostsResponseData {
         title: string;
         image: string;
         readTime: number;
+        description: string;
         createdDate: string;
         authorImage: string;
         author: string;

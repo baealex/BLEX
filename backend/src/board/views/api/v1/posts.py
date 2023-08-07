@@ -295,6 +295,7 @@ def feature_post_list(request):
                 'title': post.title,
                 'image': str(post.image),
                 'read_time': post.read_time,
+                'description': post.meta_description,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
