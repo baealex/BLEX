@@ -1,11 +1,11 @@
 @import 'mixin';
 
-.footer { 
+.footer {
     margin-top: 45px;
 
     a {
         color: #a8a8a8;
-        
+
         &:hover {
             color: $COLOR_DEFAULT_SECONDARY;
             text-decoration: none;
@@ -39,10 +39,10 @@
     &.isDark {
         margin-top: 0px;
         background: #000;
-        color: #ccc !important;
+        color: #ccc;
 
         a {
-            color: #f1f1f1 !important;
+            color: #f1f1f1;
         }
 
         .items {

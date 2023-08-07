@@ -14,23 +14,19 @@
 }
 
 .info {
-    flex: 1;
-    min-width: 0;
-    margin-left: 16px;
-
     .username {
         margin-bottom: 4px;
     }
 
     .username a {
         text-decoration: none;
-        @include COLOR_DARK;
+        color: #eee;
         font-weight: 600;
     }
 
     .bio a {
         text-decoration: none;
-        @include COLOR_ASHGRAY;
+        color: #777;
     }
 
     ul {
