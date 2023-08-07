@@ -269,7 +269,7 @@ class PostTestCase(TestCase):
             'text_md': '# Test Reserved Post',
             'is_hide': False,
             'is_advertise': False,
-            'reserved_date': f"{datetime.date.today().strftime('%Y-%m-%d')}T12:00:00.000Z"
+            'reserved_date': f"{(datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')}T12:00:00.000Z"
         })
 
         self.assertEqual(response.status_code, 200)
@@ -290,6 +290,19 @@ class PostTestCase(TestCase):
         response = self.client.get(
             '/v1/users/@test/posts/test-reserved-post', params)
         self.assertEqual(response.status_code, 404)
+    
+    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
+    def test_create_post_reserved_before(self, mock_service):
+        self.client.login(username='test', password='test')
+
+        response = self.client.post('/v1/posts', {
+            'title': 'Test Reserved Post',
+            'text_md': '# Test Reserved Post',
+            'is_hide': False,
+            'is_advertise': False,
+            'reserved_date': f"{(datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')}T12:00:00.000Z"
+        })
+        self.assertEqual(response.json()['status'], 'ERROR')
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_auto_generate_description(self, mock_service):
