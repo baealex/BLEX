@@ -12,7 +12,7 @@
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
         border-left: 2px solid #eee;
 
         :global(body.dark) & {
@@ -34,7 +34,7 @@
         max-height: initial;
 
         ul {
-            gap: 4px;
+            gap: 2px;
         }
 
         li {
@@ -47,11 +47,11 @@
     }
 
     .title-2 {
-        margin-left: 28px;
+        margin-left: 32px;
     }
 
     .title-3 {
-        margin-left: 40px;
+        margin-left: 48px;
     }
 
     a {
