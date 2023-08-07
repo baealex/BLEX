@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: /search
 Allow: /
+Disallow: /search
 Sitemap: https://blex.me/sitemap.xml
