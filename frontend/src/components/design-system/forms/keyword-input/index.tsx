@@ -1,4 +1,4 @@
-import { Badge, BaseInput } from '~/components/design-system';
+import { BaseInput } from '~/components/design-system';
 import { TagBadges } from '~/components/system-design/tag';
 import { slugify } from '~/modules/utility/string';
 
