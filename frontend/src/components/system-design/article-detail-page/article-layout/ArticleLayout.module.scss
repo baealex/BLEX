@@ -1,0 +1,46 @@
+.layout {
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.action {
+    flex: 0 0 220px;
+    margin-bottom: 80px;
+}
+
+.content {
+    max-width: 100%;
+    width: 760px;
+    flex: 0 0 760px;
+    padding: 0 15px;
+}
+
+.navigation {
+    flex: 1;
+    padding: 0 15px;
+}
+
+@media (max-width: 1240px) {
+    .layout {
+        flex-direction: column;
+        align-items: center;
+        flex: 0 0 100%;
+    }
+
+    .action {
+        display: contents;
+    }
+
+    .content {
+        max-width: 100%;
+        width: 760px;
+        order: -1;
+    }
+
+    .navigation {
+        max-width: 100%;
+        width: 760px;
+        order: -2;
+    }
+}

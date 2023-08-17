@@ -12,6 +12,7 @@ import {
     ArticleComment,
     ArticleContent,
     ArticleCover,
+    ArticleLayout,
     ArticleNav,
     ArticleSeries,
     ArticleThanks,
@@ -163,12 +164,10 @@ function PostDetail(props: Props) {
                     isAd={props.post.isAd}
                     createdDate={props.post.createdDate}
                 />
-                <div className="container">
-                    <div className="row">
-                        <div className="article-action">
-                            <ArticleAction {...props.post} />
-                        </div>
-                        <div className="article-content">
+                <ArticleLayout
+                    action={<ArticleAction {...props.post} />}
+                    content={
+                        <>
                             {props.post.author == username && (
                                 <Card isRounded className="p-3 mb-4 d-flex justify-content-between align-items-center">
                                     <Text fontSize={5} fontWeight={600}>
@@ -198,65 +197,10 @@ function PostDetail(props: Props) {
                                 url={props.post.url}
                                 series={props.post.series}
                             />
-                        </div>
-                        <div className="article-nav">
-                            <ArticleNav text={props.post.textHtml} />
-                        </div>
-                    </div>
-                    <style jsx>{`
-                        .container {
-                            padding: 0;
-                        }
-
-                        .row {
-                            display: flex;
-                            flex-direction: row;
-                        }
-                        
-                        .article-action {
-                            flex: 0 0 220px;
-                            margin-bottom: 80px;
-                        }
-
-                        .article-content {
-                            max-width: 100%;
-                            width: 760px;
-                            flex: 0 0 760px;
-                            padding: 0 15px;
-                        }
-
-                        .article-nav {
-                            flex: 1;
-                            padding: 0 15px;
-                        }
-
-                        @media (max-width: 1240px) {
-                            .row {
-                                flex-direction: column;
-                                align-items: center;
-                            }
-
-                            .article-content {
-                                flex: 0 0 100%;
-                            }
-
-                            .article-action {
-                                order: 1;
-                                display: contents;
-                            }
-
-                            .article-nav {
-                                max-width: 100%;
-                                width: 760px;
-                                order: -1;
-                            }
-
-                            :global(footer) {
-                                margin-bottom: 54px;
-                            }
-                        }
-                    `}</style>
-                </div>
+                        </>
+                    }
+                    navigation={<ArticleNav text={props.post.textHtml} />}
+                />
             </article>
             <ArticleComment
                 author={props.post.author}
