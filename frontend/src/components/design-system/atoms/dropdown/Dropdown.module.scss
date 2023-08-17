@@ -5,7 +5,7 @@
         opacity: 0;
         transform: scale(0.8) translateX(-90%);
     }
-  
+
     to {
         opacity: 1;
         transform: scale(1) translateX(-90%);
@@ -17,7 +17,7 @@
         opacity: 0;
         transform: scale(0.8) translateX(10%);
     }
-  
+
     to {
         opacity: 1;
         transform: scale(1) translateX(10%);
@@ -42,7 +42,7 @@
         transform: translateX(10%);
         animation: right-in 0.2s ease;
     }
-    
+
     border-radius: 5px;
     background-color: #fff;
     box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.1);
@@ -65,11 +65,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid #f7f7f7;
             color: #333 !important;
 
             :global(body.dark) & {
-                border-bottom: 1px solid #525252;
                 color: #eee !important;
             }
 
@@ -85,7 +83,15 @@
                 border: none;
                 border-radius: 0 0 5px 5px;
             }
-            
+
+            &:not(:last-child) {
+                border-bottom: 1px solid #ccc;
+
+                :global(body.dark) & {
+                    border-bottom: 1px solid #333;
+                }
+            }
+
             &:hover {
                 background-color: #eee;
 
