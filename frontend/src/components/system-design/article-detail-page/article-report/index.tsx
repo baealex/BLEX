@@ -5,6 +5,8 @@ const cx = classNames.bind(styles);
 import { useEffect, useState } from 'react';
 
 import { CheckBox, Modal } from '~/components/design-system';
+
+import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { postReportArticle } from '~/modules/api';
@@ -40,8 +42,8 @@ export function ArticleReport(props: Props) {
             url: props.url,
             content: reportReasons.join(', ').replace('기타', `기타: ${reportText}`)
         });
-        snackBar('신고가 접수되었습니다.');
         setIsReportModalOpen(false);
+        snackBar(message('AFTER_REQ_DONE', '신고가 접수되었습니다.'));
     };
 
     useEffect(() => {

@@ -85,7 +85,7 @@
             }
 
             &:not(:last-child) {
-                border-bottom: 1px solid #ccc;
+                border-bottom: 1px solid #eee;
 
                 :global(body.dark) & {
                     border-bottom: 1px solid #333;

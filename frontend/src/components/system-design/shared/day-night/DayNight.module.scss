@@ -1,5 +1,5 @@
 $box-width: 52px;
-$box-height: 28px; 
+$box-height: 28px;
 $ball-size: 28px;
 $ball-padding: 3px;
 $icon-size: $ball-size - 8px;
@@ -20,7 +20,7 @@ $icon-size: $ball-size - 8px;
         background: #555;
     }
 
-    @media only screen and (max-width: 990px) {
+    @media only screen and (max-width: 1240px) {
         bottom: 12px;
         right: 12px;
     }
@@ -35,13 +35,13 @@ $icon-size: $ball-size - 8px;
     top: $ball-padding;
     left: $ball-padding;
     transition: all 0.1s ease;
-    box-shadow: 0 .15em .3em rgba(0,0,0,.15),0 .2em .5em rgba(0,0,0,.3);
+    box-shadow: 0 .15em .3em rgba(0, 0, 0, .15), 0 .2em .5em rgba(0, 0, 0, .3);
     transform: translate(0px, 0);
 
     &.isNight {
         transform: translate(($box-width - $ball-size), 0);
     }
-    
+
     :global(body.dark) & {
         background: #000;
     }
