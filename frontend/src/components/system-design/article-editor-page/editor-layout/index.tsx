@@ -129,7 +129,7 @@ export function EditorLayout(props: Props) {
                 onChangeImage={props.image.onChange}
             />
             <Alert
-                className="mb-3"
+                className="mb-2"
                 onClick={() => {
                     window.open('https://baealex.notion.site/b3901e0837ec40e3983d16589314b59a');
                 }}>
