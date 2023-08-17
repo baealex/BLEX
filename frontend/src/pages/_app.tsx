@@ -12,6 +12,7 @@ import type { PageComponent, PageLayout } from '~/components';
 import { Loading } from '@design-system';
 
 import { CONFIG } from '~/modules/settings';
+import { bindErrorReport } from '~/modules/utility/report';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
 import { minify } from '~/modules/utility/string';
 
@@ -37,6 +38,7 @@ class Main extends App<AppProps> {
     }
 
     componentDidMount() {
+        bindErrorReport();
         lazyLoadResource();
     }
 
