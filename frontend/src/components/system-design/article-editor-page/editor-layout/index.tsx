@@ -2,7 +2,6 @@ import {
     useEffect,
     useState
 } from 'react';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useValue } from 'badland-react';
 
 import {
@@ -27,12 +26,10 @@ import {
 import { EditorTitle } from '../editor-title';
 
 import * as API from '~/modules/api';
-import { CONFIG } from '~/modules/settings';
 import { slugify } from '~/modules/utility/string';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
-import { configStore } from '~/stores/config';
 import { modalStore } from '~/stores/modal';
 
 interface StateValue<T> {
@@ -50,7 +47,6 @@ interface Props {
     reservedDate?: StateValue<Date | null>;
     isHide: StateValue<boolean>;
     isAd: StateValue<boolean>;
-    verification?: StateValue<string>;
     image: {
         onChange: (image: File) => void;
     };
@@ -70,7 +66,6 @@ export function EditorLayout(props: Props) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [reservedDateErrorMessage, setReservedDateErrorMessage] = useState<string | null>(null);
 
-    const [theme] = useValue(configStore, 'theme');
     const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
     const [hasConnectedOpenai, setHasConnectedOpenai] = useValue(authStore, 'hasConnectedOpenai');
 
@@ -271,26 +266,6 @@ export function EditorLayout(props: Props) {
                     defaultChecked={props.isAd.value}
                     onClick={(e) => props.isAd.onChange(e.currentTarget.checked)}
                 />
-                {CONFIG.HCAPTCHA_SITE_KEY && props.verification && (
-                    <>
-                        <div
-                            className="my-3"
-                            style={{
-                                borderTop: theme === 'dark'
-                                    ? '1px solid #2d2d2d'
-                                    : '1px solid #e9ecef'
-                            }}>
-                            <div className="my-3">
-                                <small>포스트를 발행하기 전에 인증이 필요합니다.</small>
-                            </div>
-                            <HCaptcha
-                                theme={theme === 'dark' ? 'dark' : 'light'}
-                                sitekey={CONFIG.HCAPTCHA_SITE_KEY}
-                                onVerify={props.verification?.onChange}
-                            />
-                        </div>
-                    </>
-                )}
             </Modal>
 
             {props.addon?.modal}

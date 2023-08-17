@@ -74,7 +74,6 @@ interface State {
     description: string;
     token: string;
     series: string;
-    verification: string;
     reservedDate: Date | null;
     image: File | undefined;
     isAutoSave: boolean;
@@ -110,7 +109,6 @@ class Write extends React.Component<Props, State> {
             token: props.token || '',
             url: '',
             series: '',
-            verification: '',
             reservedDate: null,
             isHide: false,
             isAd: false,
@@ -225,11 +223,6 @@ class Write extends React.Component<Props, State> {
             onFail();
             return;
         }
-        if (!this.state.verification) {
-            snackBar('😅 인증을 진행해주세요.');
-            onFail();
-            return;
-        }
         try {
             if (this.saver) {
                 this.saver.clear();
@@ -244,7 +237,6 @@ class Write extends React.Component<Props, State> {
                 url: this.state.url,
                 description: this.state.description,
                 series: this.state.series,
-                verification: this.state.verification,
                 reserved_date: this.state.reservedDate
                     ? this.state.reservedDate.toISOString()
                     : undefined,
@@ -413,10 +405,6 @@ class Write extends React.Component<Props, State> {
                     title: '포스트 발행',
                     buttonText: '이대로 발행하겠습니다'
                 }}
-                verification={{
-                    value: this.state.verification,
-                    onChange: (value) => this.setState({ verification: value })
-                }}
                 onSubmit={this.onSubmit.bind(this)}
                 extended={{
                     footer: (
@@ -462,9 +450,7 @@ class Write extends React.Component<Props, State> {
                                             <Button
                                                 color="transparent"
                                                 onClick={() => {
-                                                    const {
-                                                        token, title, content, tags
-                                                    } = this.state;
+                                                    const { token, title, content, tags } = this.state;
                                                     this.onTempSave(token, title, content, tags);
                                                 }}>
                                                 저장
