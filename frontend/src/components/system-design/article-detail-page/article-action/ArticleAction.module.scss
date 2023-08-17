@@ -86,8 +86,8 @@
     }
 
     @media (max-width: $BREAKPOINT-DESKTOP-LARGE) {
-        position: fixed;
-        z-index: 999;
+        position: sticky;
+        z-index: 5;
         top: initial;
         left: 0;
         bottom: 0;
