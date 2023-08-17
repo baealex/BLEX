@@ -1,20 +1,21 @@
-import { Badge } from '@design-system';
+import { Badge, Flex } from '@design-system';
 
 export interface TagBadgesProps {
-    items: JSX.Element[];
+    className?: string;
+    items: React.ReactNode[];
     disableSharp?: boolean;
 }
 
 export function TagBadges(props: TagBadgesProps) {
     return (
-        <div className="mb-3">
+        <Flex wrap="wrap" gap={2} className={props.className}>
             {props.items.map((item, idx) => (
                 item && (
-                    <Badge key={idx} className="mr-2" isRounded hasHash={!props.disableSharp}>
+                    <Badge key={idx} isRounded hasHash={!props.disableSharp}>
                         {item}
                     </Badge>
                 )
             ))}
-        </div>
+        </Flex>
     );
 }

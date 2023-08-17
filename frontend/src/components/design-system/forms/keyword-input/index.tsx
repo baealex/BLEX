@@ -1,4 +1,5 @@
 import { Badge, BaseInput } from '~/components/design-system';
+import { TagBadges } from '~/components/system-design/tag';
 import { slugify } from '~/modules/utility/string';
 
 interface Props {
@@ -22,13 +23,7 @@ export function KeywordInput(props: Props) {
                 placeholder={props.placeholder}
                 value={props.value}
             />
-            <div className="mt-2">
-                {badges.map((badge) => (
-                    <Badge className="mr-2" isRounded hasHash>
-                        {badge}
-                    </Badge>
-                ))}
-            </div>
+            <TagBadges className="mt-2" items={badges} />
         </>
     );
 }

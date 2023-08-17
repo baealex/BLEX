@@ -130,6 +130,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
     return (
         <>
             <TagBadges
+                className="mb-4"
                 items={POSTS_ORDER.map((item) => (
                     <Link
                         href={{
