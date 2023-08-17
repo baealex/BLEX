@@ -5,6 +5,7 @@ export * from './article-content';
 export * from './article-cover';
 export * from './article-layout';
 export * from './article-nav';
+export * from './article-report';
 export * from './article-series';
 export * from './article-thanks';
 export * from './related-articles';

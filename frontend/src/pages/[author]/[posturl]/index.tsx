@@ -14,6 +14,7 @@ import {
     ArticleCover,
     ArticleLayout,
     ArticleNav,
+    ArticleReport,
     ArticleSeries,
     ArticleThanks,
     RelatedArticles
@@ -197,6 +198,7 @@ function PostDetail(props: Props) {
                                 url={props.post.url}
                                 series={props.post.series}
                             />
+                            <ArticleReport url={props.post.url} />
                         </>
                     }
                     navigation={<ArticleNav text={props.post.textHtml} />}
