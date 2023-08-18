@@ -168,7 +168,6 @@ export default function Write(props: Props) {
                 title: defaultTitle,
                 createdDate: '0분 전'
             }]);
-            router.replace(`/write?token=${data.body.token}`);
         } else {
             await API.putTempPosts(token, {
                 title: defaultTitle,
