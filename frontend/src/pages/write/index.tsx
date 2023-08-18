@@ -209,7 +209,7 @@ export default function Write(props: Props) {
 
     useEffect(() => {
         setSelectedTempPost(props.title);
-        if (props.token !== token) {
+        if (props.token && props.token !== token) {
             resetState();
         }
     }, [props.title, props.token, token]);
