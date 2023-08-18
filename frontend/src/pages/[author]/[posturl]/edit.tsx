@@ -1,12 +1,14 @@
+import type { GetServerSideProps } from 'next';
 import Router from 'next/router';
 import { useState } from 'react';
 
+import { Button, Flex } from '@design-system';
 import { EditorLayout } from '@system-design/article-editor-page';
 
 import * as API from '~/modules/api';
 import { snackBar } from '~/modules/ui/snack-bar';
 
-import { GetServerSideProps } from 'next';
+import { modalStore } from '~/stores/modal';
 
 interface Props extends API.GetAnUserPostsEditResponseData {
     posturl: string;
@@ -53,7 +55,7 @@ export default function Edit(props: Props) {
     const [isHide, setIsHide] = useState(props.isHide);
     const [isAdvertise, setIsAdvertise] = useState(props.isAdvertise);
 
-    const onSubmit = async (onFail: () => void) => {
+    const handleSubmit = async (onFail: () => void) => {
         if (!title) {
             snackBar('😅 제목이 비어있습니다.');
             onFail();
@@ -123,7 +125,21 @@ export default function Edit(props: Props) {
                 title: '포스트 수정',
                 buttonText: '이렇게 수정하겠습니다'
             }}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit}
+            extended={{
+                footer: (
+                    <Flex justify="end">
+                        <Button
+                            className="my-3"
+                            color="secondary"
+                            onClick={() => {
+                                modalStore.open('isOpenArticlePublishModal');
+                            }}>
+                            포스트 수정
+                        </Button>
+                    </Flex>
+                )
+            }}
         />
     );
 }

@@ -19,20 +19,22 @@ export function getTempPosts() {
     });
 }
 
+export interface PostTempPostsRequestData {
+    title: string;
+    text_md: string;
+    tag: string;
+}
+
 export interface PostTempPostsResponseData {
     token: string;
 }
 
-export function postTempPosts(title: string, text_md: string, tag: string) {
+export function postTempPosts(data: PostTempPostsRequestData) {
     return request<PostTempPostsResponseData>({
         url: '/v1/temp-posts',
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        data: serializeObject({
-            title,
-            text_md,
-            tag
-        })
+        data: serializeObject(data)
     });
 }
 
@@ -52,16 +54,12 @@ export function getAnTempPosts(token: string, headers?: Headers) {
     });
 }
 
-export function putTempPosts(token: string, title: string, text_md: string, tag: string) {
+export function putTempPosts(token: string, data: PostTempPostsRequestData) {
     return request<unknown>({
         url: `/v1/temp-posts/${token}`,
         method: 'PUT',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        data: serializeObject({
-            title,
-            text_md,
-            tag
-        })
+        data: serializeObject(data)
     });
 }
 

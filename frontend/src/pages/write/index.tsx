@@ -1,30 +1,29 @@
+import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
-import React from 'react';
-import Router from 'next/router';
+import { useRouter } from 'next/router';
 
-import { Button, Card, Label, Progress, Text, Toggle } from '~/components/design-system';
+import { Button, Card, Flex, Label, Progress, Text, Toggle } from '~/components/design-system';
 import {
     EditorLayout,
     TempArticleModal
 } from '@system-design/article-editor-page';
 
 import * as API from '~/modules/api';
-import {
-    DebounceEventRunner,
-    debounceEvent
-} from '~/modules/optimize/event';
+import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '~/stores/auth';
+import { useFetch } from '~/hooks/use-fetch';
+
 import { configStore } from '~/stores/config';
 import { modalStore } from '~/stores/modal';
+import { useValue } from 'badland-react';
 
 interface Props {
     username: string;
     token?: string;
-    title?: string;
-    content?: string;
-    tags?: string;
+    title: string;
+    content: string;
+    tags: string;
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
@@ -60,454 +59,307 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
 
     return {
         props: {
-            username: data.body.username
+            username: data.body.username,
+            title: '',
+            content: '',
+            tags: ''
         }
     };
 };
 
-interface State {
-    username: string;
-    title: string;
-    tags: string;
-    url: string;
-    content: string;
-    description: string;
-    token: string;
-    series: string;
-    reservedDate: Date | null;
-    image: File | undefined;
-    isAutoSave: boolean;
-    isRunningAutoSave: boolean;
-    selectedTempPost: string;
-    lastSavedTime: string;
-    isHide: boolean;
-    isAd: boolean;
-    isOpenArticleModal: boolean;
-    tempPosts: API.GetTempPostsResponseData['temps'];
-    tempPostsCache: {
-        [token: string]: {
-            title: string;
-            content: string;
-            tags: string;
-        };
+export default function Write(props: Props) {
+    const router = useRouter();
+
+    const [image, setImage] = useState<File | undefined>(undefined);
+    const [title, setTitle] = useState(props.title);
+    const [content, setContent] = useState(props.content);
+    const [tags, setTags] = useState(props.tags);
+    const [token, setToken] = useState(props.token || '');
+
+    const [url, setUrl] = useState('');
+    const [description, setDescription] = useState('');
+    const [series, setSeries] = useState('');
+    const [reservedDate, setReservedDate] = useState<Date | null>(null);
+    const [isHide, setIsHide] = useState(false);
+    const [isAd, setIsAd] = useState(false);
+
+    const [isAutoSave, setIsAutoSave] = useValue(configStore, 'isAutoSave');
+    const [isRunningAutoSave, setIsRunningAutoSave] = useState(false);
+    const [selectedTempPost, setSelectedTempPost] = useState('');
+    const [lastSavedTime, setLastSavedTime] = useState('');
+    const [isOpenTempArticleModal, setIsOpenTempArticleModal] = useState(false);
+
+    const { data: tempPosts, mutate: setTempPosts } = useFetch('getTempPosts', async () => {
+        const { data } = await API.getTempPosts();
+        return data.body.temps;
+    });
+
+    const resetState = () => {
+        setImage(undefined);
+        setTitle(props.title);
+        setContent(props.content);
+        setTags(props.tags);
+        setToken(props.token || '');
+
+        setUrl('');
+        setDescription('');
+        setSeries('');
+        setReservedDate(null);
+        setIsHide(false);
+        setIsAd(false);
+
+        setIsRunningAutoSave(false);
+        setSelectedTempPost('');
+        setLastSavedTime('');
+        setIsOpenTempArticleModal(false);
     };
-}
 
-class Write extends React.Component<Props, State> {
-    private saver: DebounceEventRunner<unknown>;
-    private authUpdateKey: string;
-    private configUpdateKey: string;
-
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            username: props.username,
-            title: props.title || '',
-            content: props.content || '',
-            description: '',
-            tags: props.tags || '',
-            token: props.token || '',
-            url: '',
-            series: '',
-            reservedDate: null,
-            isHide: false,
-            isAd: false,
-            image: undefined,
-            isAutoSave: configStore.state.isAutoSave,
-            isRunningAutoSave: false,
-            selectedTempPost: '',
-            lastSavedTime: '',
-            isOpenArticleModal: false,
-            tempPosts: [],
-            tempPostsCache: {}
-        };
-        this.authUpdateKey = authStore.subscribe((state) => {
-            this.setState({ username: state.username });
-        });
-        this.configUpdateKey = configStore.subscribe((state) => {
-            this.setState({ isAutoSave: state.isAutoSave });
-        });
-
-        this.saver = debounceEvent(() => {
-            this.setState({ isRunningAutoSave: true });
-        }, 0);
-    }
-
-    /* Component Method */
-
-    componentDidMount() {
-        API.getTempPosts().then(({ data }) => {
-            if (data.body.temps.length > 0) {
-                this.setState({ tempPosts: data.body.temps });
-                if (!this.props.token) {
-                    snackBar('😀 작성하던 포스트가 있으시네요!', {
-                        onClick: () => {
-                            this.setState({ isOpenArticleModal: true });
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    componentWillUnmount() {
-        this.saver.clear();
-        configStore.unsubscribe(this.configUpdateKey);
-        authStore.unsubscribe(this.authUpdateKey);
-    }
-
-    /* Inner Method */
-
-    async fetchTempPosts(token = '') {
-        if (token) {
-            const { tempPostsCache } = this.state;
-
-            // 캐시가 존재하는 경우
-            if (tempPostsCache[token]) {
-                const {
-                    title, content, tags
-                } = tempPostsCache[token];
-                this.setState({
-                    selectedTempPost: title,
-                    title,
-                    content,
-                    tags,
-                    token
-                });
-                return;
-            }
-
-            // 캐시 없을 때
-            const { data } = await API.getAnTempPosts(token);
-            this.setState({
-                selectedTempPost: data.body.title,
-                title: data.body.title,
-                content: data.body.textMd,
-                tags: data.body.tags,
-                token: data.body.token,
-                tempPostsCache: {
-                    ...tempPostsCache,
-                    [data.body.token]: {
-                        title: data.body.title,
-                        content: data.body.textMd,
-                        tags: data.body.tags
-                    }
-                }
-            });
-            return;
-        }
-
-        // 새 글 작성
-        this.setState({
-            selectedTempPost: '',
-            title: '',
-            content: '',
-            tags: '',
-            token: ''
-        });
-    }
-
-    async onSubmit(onFail: () => void) {
-        if (!this.state.title) {
-            snackBar('😅 제목을 작성해주세요.');
+    const handleSubmit = async (onFail: () => void) => {
+        if (!title) {
+            snackBar(message('BEFORE_REQ_ERR', '제목을 입력해주세요'));
             onFail();
             return;
         }
-        if (!this.state.content) {
-            snackBar('😅 본문을 작성해주세요.');
+        if (!content) {
+            snackBar(message('BEFORE_REQ_ERR', '내용을 입력해주세요'));
             onFail();
             return;
         }
-        if (!this.state.tags) {
-            snackBar('😅 태그를 작성해주세요.');
+        if (!tags) {
+            snackBar(message('BEFORE_REQ_ERR', '태그를 입력해주세요'));
             onFail();
             return;
         }
+
         try {
-            if (this.saver) {
-                this.saver.clear();
-            }
-
             const { data } = await API.createPost({
-                token: this.state.token,
-                title: this.state.title,
-                text_md: this.state.content,
-                image: this.state.image,
-                tag: this.state.tags,
-                url: this.state.url,
-                description: this.state.description,
-                series: this.state.series,
-                reserved_date: this.state.reservedDate
-                    ? this.state.reservedDate.toISOString()
-                    : undefined,
-                is_hide: JSON.stringify(this.state.isHide),
-                is_advertise: JSON.stringify(this.state.isAd)
+                title,
+                text_md: content,
+                tag: tags,
+                token,
+                url,
+                description,
+                series,
+                reserved_date: reservedDate?.toISOString() || '',
+                image,
+                is_hide: isHide.toString(),
+                is_advertise: isAd.toString()
             });
-
-            if (data.status === 'ERROR') {
-                snackBar('😥 ' + data.errorMessage);
-                onFail();
-                return;
-            }
-            Router.push('/[author]/[posturl]', `/@${this.state.username}/${data.body.url}`);
-        } catch (e) {
-            snackBar('😥 글 작성중 오류가 발생했습니다.');
+            router.push(`/@${props.username}/${data.body.url}`);
+        } catch (err) {
+            snackBar(message('AFTER_REQ_ERR', '발행중 오류가 발생했습니다'));
             onFail();
+            return;
         }
-    }
+    };
 
-    async onDeleteTempPost(token: string) {
+    const handleTempSave = async () => {
+        const defaultTitle = title || new Date().toLocaleString();
+
+        if (!token) {
+            const { data } = await API.postTempPosts({
+                title: defaultTitle,
+                text_md: content,
+                tag: tags
+            });
+            setToken(data.body.token);
+            setTempPosts((prev) => [...prev, {
+                token: data.body.token,
+                title: defaultTitle,
+                createdDate: '0분 전'
+            }]);
+            router.replace(`/write?token=${data.body.token}`);
+        } else {
+            await API.putTempPosts(token, {
+                title: defaultTitle,
+                text_md: content,
+                tag: tags
+            });
+            setTempPosts((prev) => prev.map((item) => item.token === token
+                ? {
+                    ...item,
+                    title: defaultTitle,
+                    createdDate: '0분 전'
+                } : item
+            ));
+        }
+
+        setTitle(defaultTitle);
+        setSelectedTempPost(title);
+        setIsRunningAutoSave(false);
+        setLastSavedTime(new Date().toLocaleString());
+    };
+
+    const handleDeleteTempPost = async (token: string) => {
         if (confirm('😅 정말 임시글을 삭제할까요?')) {
             const { data } = await API.deleteTempPosts(token);
             if (data.status === 'DONE') {
-                this.setState({
-                    token: '',
-                    tempPosts: this.state.tempPosts.filter(post =>
-                        post.token !== token
-                    )
-                });
+                setTempPosts((prev) => prev.filter((item) => item.token !== token));
                 snackBar('😀 임시글이 삭제되었습니다.');
             }
         }
-    }
+    };
 
-    async onTempSave(token: string, title: string, content: string, tags: string) {
-        if (!title) {
-            const date = new Date();
-            title = date.toLocaleString();
-            if (this.state.token == token) {
-                this.setState({ title });
-            }
+    const handleClickTempPost = async (token: string) => {
+        if (!token) {
+            router.push('/write');
+            return;
         }
+        router.push(`/write?token=${token}`);
+    };
 
-        if (token) {
-            const { data } = await API.putTempPosts(token, title, content, tags);
-            if (data.status === 'DONE') {
-                this.setState({
-                    tempPosts: this.state.tempPosts.map(post => (
-                        post.token == this.state.token ? ({
-                            ...post,
-                            title: this.state.title
-                        }) : post
-                    )),
-                    tempPostsCache: {
-                        ...this.state.tempPostsCache,
-                        [token]: {
-                            title: this.state.title,
-                            content: this.state.content,
-                            tags: this.state.tags
-                        }
-                    },
-                    isRunningAutoSave: false,
-                    selectedTempPost: title,
-                    lastSavedTime: new Date().toLocaleString()
-                });
-                snackBar('😀 임시 저장이 완료되었습니다.');
-            }
-        } else {
-            const { data } = await API.postTempPosts(title, content, tags);
-            if (data.status === 'ERROR') {
-                if (data.errorCode === API.ERROR.SIZE_OVERFLOW) {
-                    snackBar('😥 임시 저장글 갯수가 초과했습니다');
-                    return;
-                }
-            }
-            this.setState({
-                token: data.body.token,
-                tempPosts: this.state.tempPosts.concat({
-                    token: data.body.token,
-                    title: title,
-                    createdDate: '0분 전'
-                }),
-                isRunningAutoSave: false,
-                selectedTempPost: title,
-                lastSavedTime: new Date().toLocaleString()
-            });
-            snackBar('😀 임시 저장이 완료되었습니다.');
+    useEffect(() => {
+        setSelectedTempPost(props.title);
+        if (props.token !== token) {
+            resetState();
         }
-    }
+    }, [props.title, props.token, token]);
 
-    onCheckAutoSave(checked: boolean) {
-        !checked && this.saver.clear();
-        configStore.set((state) => ({
-            ...state,
-            isAutoSave: checked
-        }));
-    }
+    useEffect(() => {
+        setIsRunningAutoSave(false);
+        if (isAutoSave && (title !== props.title || content !== props.content || tags !== props.tags)) {
+            const timer = setTimeout(() => {
+                setIsRunningAutoSave(true);
+            }, 0);
+            return () => clearTimeout(timer);
+        }
+    }, [isAutoSave, title, content, tags, props.title, props.content, props.tags]);
 
-    render() {
-        const { tempPosts } = this.state;
-
-        return (
-            <EditorLayout
-                title={{
-                    value: this.state.title,
-                    onChange: (value: string) => {
-                        this.setState({
-                            title: value,
-                            isRunningAutoSave: false
-                        });
-                        if (this.state.isAutoSave) {
-                            this.saver();
-                        }
-                    }
-                }}
-                content={{
-                    value: this.state.content,
-                    onChange: (value: string) => {
-                        this.setState({
-                            content: value,
-                            isRunningAutoSave: false
-                        });
-                        if (this.state.isAutoSave) {
-                            this.saver();
-                        }
-                    }
-                }}
-                tags={{
-                    value: this.state.tags,
-                    onChange: (value) => {
-                        this.setState({
-                            tags: value,
-                            isRunningAutoSave: false
-                        });
-                        if (this.state.isAutoSave) {
-                            this.saver();
-                        }
-                    }
-                }}
-                url={{
-                    value: this.state.url,
-                    onChange: (value) => this.setState({ url: value })
-                }}
-                description={{
-                    value: this.state.description,
-                    onChange: (value) => this.setState({ description: value })
-                }}
-                series={{
-                    value: this.state.series,
-                    onChange: (value) => this.setState({ series: value })
-                }}
-                reservedDate={{
-                    value: this.state.reservedDate,
-                    onChange: (value) => this.setState({ reservedDate: value })
-                }}
-                isHide={{
-                    value: this.state.isHide,
-                    onChange: (value) => this.setState({ isHide: value })
-                }}
-                isAd={{
-                    value: this.state.isAd,
-                    onChange: (value) => this.setState({ isAd: value })
-                }}
-                image={{ onChange: (image) => this.setState({ image: image }) }}
-                publish={{
-                    title: '포스트 발행',
-                    buttonText: '이대로 발행하겠습니다'
-                }}
-                onSubmit={this.onSubmit.bind(this)}
-                extended={{
-                    footer: (
-                        <>
-                            <Label>임시 저장</Label>
-                            <Card>
-                                <div className="p-2">
-                                    {this.state.selectedTempPost && (
-                                        <div className="p-1 d-flex align-items-center" style={{ gap: '4px' }}>
-                                            <Text fontSize={3} className="shallow-dark">
-                                                선택된 임시글
-                                            </Text>
-                                            <Text fontSize={3}>
-                                                {this.state.selectedTempPost}
-                                            </Text>
-                                        </div>
-                                    )}
-                                    {this.state.lastSavedTime && (
-                                        <div className="p-1 d-flex align-items-center" style={{ gap: '4px' }}>
-                                            <Text fontSize={3} className="shallow-dark">
-                                                최종 저장 시간
-                                            </Text>
-                                            <Text fontSize={3} >
-                                                {this.state.lastSavedTime}
-                                            </Text>
-                                        </div>
-                                    )}
-                                    <div className="p-1 d-flex justify-content-between">
-                                        <Toggle
-                                            label="자동 저장"
-                                            defaultChecked={this.state.isAutoSave}
-                                            onClick={(checked) => this.onCheckAutoSave(checked)}
-                                        />
-                                        <div className="d-flex">
-                                            <Button
-                                                gap="little"
-                                                color="transparent"
-                                                onClick={() => {
-                                                    this.setState({ isOpenArticleModal: true });
-                                                }}>
-                                                목록
-                                            </Button>
-                                            <Button
-                                                color="transparent"
-                                                onClick={() => {
-                                                    const { token, title, content, tags } = this.state;
-                                                    this.onTempSave(token, title, content, tags);
-                                                }}>
-                                                저장
-                                            </Button>
-                                        </div>
+    return (
+        <EditorLayout
+            image={{
+                onChange: setImage
+            }}
+            title={{
+                value: title,
+                onChange: setTitle
+            }}
+            content={{
+                value: content,
+                onChange: setContent
+            }}
+            tags={{
+                value: tags,
+                onChange: setTags
+            }}
+            url={{
+                value: url,
+                onChange: setUrl
+            }}
+            description={{
+                value: description,
+                onChange: setDescription
+            }}
+            series={{
+                value: series,
+                onChange: setSeries
+            }}
+            reservedDate={{
+                value: reservedDate,
+                onChange: setReservedDate
+            }}
+            isHide={{
+                value: isHide,
+                onChange: setIsHide
+            }}
+            isAd={{
+                value: isAd,
+                onChange: setIsAd
+            }}
+            publish={{
+                title: '포스트 발행',
+                buttonText: '이대로 발행하겠습니다'
+            }}
+            onSubmit={handleSubmit}
+            extended={{
+                footer: (
+                    <>
+                        <Label>임시 저장</Label>
+                        <Card>
+                            <div className="p-2">
+                                {selectedTempPost && (
+                                    <div className="p-1 d-flex align-items-center" style={{ gap: '4px' }}>
+                                        <Text fontSize={3} className="shallow-dark">
+                                            선택된 임시글
+                                        </Text>
+                                        <Text fontSize={3}>
+                                            {selectedTempPost}
+                                        </Text>
+                                    </div>
+                                )}
+                                {lastSavedTime && (
+                                    <div className="p-1 d-flex align-items-center" style={{ gap: '4px' }}>
+                                        <Text fontSize={3} className="shallow-dark">
+                                            최종 저장 시간
+                                        </Text>
+                                        <Text fontSize={3} >
+                                            {lastSavedTime}
+                                        </Text>
+                                    </div>
+                                )}
+                                <div className="p-1 d-flex justify-content-between">
+                                    <Toggle
+                                        label="자동 저장"
+                                        defaultChecked={isAutoSave as boolean}
+                                        onClick={(checked) => setIsAutoSave(checked)}
+                                    />
+                                    <div className="d-flex">
+                                        <Button
+                                            gap="little"
+                                            color="transparent"
+                                            onClick={() => setIsOpenTempArticleModal(true)}>
+                                            목록
+                                        </Button>
+                                        <Button
+                                            color="transparent"
+                                            onClick={handleTempSave}>
+                                            저장
+                                        </Button>
                                     </div>
                                 </div>
-                                {this.state.isAutoSave && (
-                                    <Progress
-                                        type="timer"
-                                        time={8}
-                                        isReady={this.state.isRunningAutoSave}
-                                        onEnd={() => {
-                                            const {
-                                                token, title, content, tags
-                                            } = this.state;
-                                            this.onTempSave(token, title, content, tags);
-                                        }}
-                                    />
-                                )}
-                            </Card>
-                            <div className="d-flex justify-content-end">
-                                <Button
-                                    className="my-3"
-                                    color="secondary"
-                                    onClick={() => {
-                                        modalStore.open('isOpenArticlePublishModal');
-                                    }}>
-                                    글 발행하기
-                                </Button>
                             </div>
-                        </>
-                    )
-                }}
-                addon={{
-                    toolbar: [
-                        {
-                            name: 'saved',
-                            action: () => this.setState({ isOpenArticleModal: true }),
-                            className: 'far fa-save',
-                            title: '임시 저장'
-                        }
-                    ],
-                    modal: (
-                        <TempArticleModal
-                            token={this.state.token}
-                            isOpen={this.state.isOpenArticleModal}
-                            onClose={() => this.setState({ isOpenArticleModal: false })}
-                            tempPosts={tempPosts}
-                            onDelete={this.onDeleteTempPost.bind(this)}
-                            onFetch={this.fetchTempPosts.bind(this)}
-                        />
-                    )
-                }}
-            />
-        );
-    }
+                            {isAutoSave && (
+                                <Progress
+                                    type="timer"
+                                    time={8}
+                                    isReady={isRunningAutoSave}
+                                    onEnd={handleTempSave}
+                                />
+                            )}
+                        </Card>
+                        <Flex justify="end">
+                            <Button
+                                className="my-3"
+                                color="secondary"
+                                onClick={() => {
+                                    modalStore.open('isOpenArticlePublishModal');
+                                }}>
+                                포스트 발행
+                            </Button>
+                        </Flex>
+                    </>
+                )
+            }}
+            addon={{
+                toolbar: [
+                    {
+                        name: 'saved',
+                        action: () => setIsOpenTempArticleModal(true),
+                        className: 'far fa-save',
+                        title: '임시 저장'
+                    }
+                ],
+                modal: (
+                    <TempArticleModal
+                        token={token}
+                        isOpen={isOpenTempArticleModal}
+                        onClose={() => setIsOpenTempArticleModal(false)}
+                        tempPosts={tempPosts || []}
+                        onClick={handleClickTempPost}
+                        onDelete={handleDeleteTempPost}
+                    />
+                )
+            }}
+        />
+    );
 }
-
-export default Write;

@@ -125,14 +125,14 @@ export function TopNavigation() {
                     <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
                         <div className={cn('logo')}>
                             <Link href="/" onClick={() => clearMemoryStore()}>
-                                <img alt="logo" src={'/logob.svg'}/>
+                                <img alt="logo" src={'/logob.svg'} />
                             </Link>
                         </div>
                         <nav>
                             <ul className={cn('items')}>
                                 <li>
                                     <button aria-label="search" onClick={() => router.push('/search')}>
-                                        <i className="fas fa-search"/>
+                                        <i className="fas fa-search" />
                                     </button>
                                 </li>
                                 {auth.isLogin ? (
@@ -141,7 +141,7 @@ export function TopNavigation() {
                                             ref={notifyToggle}
                                             className={cn('notify')}>
                                             <button aria-label="notify" onClick={() => router.push('/setting/notify')}>
-                                                <i className="far fa-bell"/>
+                                                <i className="far fa-bell" />
                                             </button>
                                             {auth.notifyCount > 0 && (
                                                 <span>
@@ -153,14 +153,14 @@ export function TopNavigation() {
                                             <li className={cn('get-start')}>
                                                 <button aria-label="submit" onClick={() => modalStore.open('isOpenArticlePublishModal')}>
                                                     {path.lastIndexOf('/write') > -1
-                                                        ? '글 발행하기'
-                                                        : '글 수정하기'}
+                                                        ? '포스트 발행'
+                                                        : '포스트 수정'}
                                                 </button>
                                             </li>
                                         ) : (
                                             <li className={cn('get-start', 'outline')}>
                                                 <button aria-label="write" onClick={() => router.push('/write')}>
-                                                    글 작성하기
+                                                    새 포스트
                                                 </button>
                                             </li>
                                         )}
@@ -169,8 +169,8 @@ export function TopNavigation() {
                                                 position="left"
                                                 button={
                                                     <>
-                                                        <img alt={auth.username} src={getUserImage(auth.avatar)}/>
-                                                        <i className="fas fa-sort-down"/>
+                                                        <img alt={auth.username} src={getUserImage(auth.avatar)} />
+                                                        <i className="fas fa-sort-down" />
                                                     </>
                                                 }
                                                 menus={[

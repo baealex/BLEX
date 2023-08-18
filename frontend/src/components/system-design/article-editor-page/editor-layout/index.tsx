@@ -116,7 +116,7 @@ export function EditorLayout(props: Props) {
     const handleSubmit = async () => {
         modalStore.close('isOpenArticlePublishModal');
         setIsSubmit(true);
-        await props.onSubmit(() => {
+        props.onSubmit(() => {
             setIsSubmit(false);
         });
     };

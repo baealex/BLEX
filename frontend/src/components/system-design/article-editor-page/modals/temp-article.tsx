@@ -10,7 +10,7 @@ interface Props {
     onClose: () => void;
     token: string;
     tempPosts: API.GetTempPostsResponseData['temps'];
-    onFetch: (token: string) => void;
+    onClick: (token: string) => void;
     onDelete: (token: string) => void;
 }
 
@@ -23,7 +23,7 @@ export function TempArticleModal(props: Props) {
             {props.tempPosts.map((item, idx) => (
                 <Card key={idx} hasShadow isRounded className="p-3 mb-3">
                     <div className="d-flex justify-content-between">
-                        <span onClick={() => props.onFetch(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
+                        <span onClick={() => props.onClick(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
                             {item.title} <span className="vs">{item.createdDate}</span>
                         </span>
                         <a onClick={() => props.onDelete(item.token)}>
@@ -34,7 +34,7 @@ export function TempArticleModal(props: Props) {
             ))}
             <Card hasShadow isRounded className="p-3 mb-3">
                 <div className="d-flex justify-content-between">
-                    <span onClick={() => props.onFetch('')} className={`c-pointer ${props.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
+                    <span onClick={() => props.onClick('')} className={`c-pointer ${props.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
                         새 글 쓰기
                     </span>
                 </div>

@@ -16,7 +16,7 @@ export function ProgressTimer(props: ProgressTimerProps) {
     }, [props.isReady, props.repeat]);
 
     useEffect(() => {
-        ref.current?.addEventListener('animationend', () => {
+        const handleAnimationEnd = () => {
             setIsRunning(false);
             props.onEnd?.();
 
@@ -26,7 +26,12 @@ export function ProgressTimer(props: ProgressTimerProps) {
                 ref.current.classList.add(cx('progress-timer'));
                 setIsRunning(true);
             }
-        });
+        };
+        ref.current?.addEventListener('animationend', handleAnimationEnd);
+
+        return () => {
+            ref.current?.removeEventListener('animationend', handleAnimationEnd);
+        };
     }, [props.onEnd]);
 
     if (!props.isReady) {
