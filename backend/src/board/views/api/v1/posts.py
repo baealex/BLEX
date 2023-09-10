@@ -1,6 +1,7 @@
 import datetime
 
 from django.conf import settings
+from django.core.cache import cache
 from django.db.models import (
     F, Case, Exists, When,
     Value, OuterRef, Count)
@@ -131,8 +132,12 @@ def post_list(request):
 
 def popular_post_list(request):
     if request.method == 'GET':
-        one_month_ago = timezone.now() - datetime.timedelta(days=30)
-
+        page = request.GET.get('page', 1)
+        cache_key = f'popular_post_list_{page}'
+        cache_data = cache.get(cache_key)
+        if cache_data:
+            return StatusDone(cache_data)
+        
         posts = Post.objects.select_related(
             'config'
         ).filter(
@@ -142,33 +147,22 @@ def popular_post_list(request):
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            thanks_count=Count(
+            view_count=Count(
                 Case(
                     When(
-                        thanks__created_date__gt=one_month_ago,
-                        then='thanks__history'
+                        analytics__created_date=timezone.now() - datetime.timedelta(days=3),
+                        then='analytics__table'
                     )
                 ),
-                distinct=True
             ),
-            nothanks_count=Count(
-                Case(
-                    When(
-                        nothanks__created_date__gt=one_month_ago,
-                        then='nothanks__history'
-                    )
-                ),
-                distinct=True
-            ),
-            point=(F('thanks_count') - F('nothanks_count'))
-        ).order_by('-point', '-created_date')
+        ).order_by('-view_count', '-created_date')
 
         posts = Paginator(
             objects=posts,
             offset=24,
             page=request.GET.get('page', 1)
         )
-        return StatusDone({
+        data = {
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
@@ -181,7 +175,9 @@ def popular_post_list(request):
                 'is_ad': post.config.advertise,
             }, posts)),
             'last_page': posts.paginator.num_pages
-        })
+        }
+        cache.set(cache_key, data, 60 * 60)
+        return StatusDone(data)
 
 
 def newest_post_list(request):
