@@ -147,15 +147,24 @@ def popular_post_list(request):
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            view_count=Count(
+            today_count=Count(
                 Case(
                     When(
-                        analytics__created_date=timezone.now() - datetime.timedelta(days=3),
+                        analytics__created_date=timezone.now() - datetime.timedelta(days=0),
                         then='analytics__table'
                     )
                 ),
             ),
-        ).order_by('-view_count', '-created_date')
+            yesterday_count=Count(
+                Case(
+                    When(
+                        analytics__created_date=timezone.now() - datetime.timedelta(days=1),
+                        then='analytics__table'
+                    )
+                ),
+            ),
+            point=(F('today_count') * 2 + F('yesterday_count'))
+        ).order_by('-point', '-created_date')
 
         posts = Paginator(
             objects=posts,
