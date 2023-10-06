@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
+import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { CSS } from '@dnd-kit/utilities';
+
 import { Button, Card } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
@@ -28,9 +33,58 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
     return { props: data.body };
 };
 
+function SeriesItem(props: {
+    username: string;
+    url: string;
+    title: string;
+    totalPosts: number;
+    onClickDelete: () => void;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+        id: props.url
+    });
+
+    return (
+        <div
+            key={props.url}
+            ref={setNodeRef}
+            {...attributes}
+            style={{
+                transform: CSS.Translate.toString(transform),
+                transition
+            }}
+            className="d-flex mb-3">
+            <div className="d-flex justify-content-between align-items-center mr-3">
+                <div
+                    {...listeners}
+                    style={{ cursor: 'grab' }}>
+                    <i className="fas fa-bars"></i>
+                </div>
+            </div>
+            <Card hasBackground isRounded className="p-3">
+                <div className="d-flex justify-content-between">
+                    <Link className="deep-dark" href={`/@${props.username}/series/${props.url}`}>
+                        {props.title} <span className="vs">{props.totalPosts}</span>
+                    </Link>
+                    <a onClick={props.onClickDelete}>
+                        <i className="fas fa-times"></i>
+                    </a>
+                </div>
+            </Card>
+        </div>
+    );
+}
+
 const SeriesSetting: PageComponent<Props> = (props) => {
     const [newSeries, setNewSeries] = useState('');
     const [series, setSeries] = useState(props.series);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates
+        })
+    );
 
     const handleCreate = async () => {
         if (!newSeries) {
@@ -58,27 +112,25 @@ const SeriesSetting: PageComponent<Props> = (props) => {
         }
     };
 
-    const handleChangeOrder = async (url: string, prevIdx: number, nextIdx: number) => {
-        if (nextIdx < 0 || nextIdx > series.length - 1) return;
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
 
-        loadingStore.start();
+        if (over) {
+            loadingStore.start();
 
-        const nextOrders = series.map((item, idx) => {
-            if (item.url === url) {
-                return [item.url, nextIdx];
-            }
+            setSeries((prevSeries) => {
+                const oldIndex = prevSeries.findIndex((item) => item.url === active.id);
+                const newIndex = prevSeries.findIndex((item) => item.url === over.id);
+                const nextSeries = arrayMove(prevSeries, oldIndex, newIndex);
 
-            if (nextIdx === idx) {
-                return [item.url, prevIdx];
-            }
+                API.putUserSeriesOrder(
+                    '@' + props.username,
+                    nextSeries.map((item, idx) => [item.url, idx])
+                ).finally(() => loadingStore.end());
 
-            return [item.url, idx];
-        });
-
-        const { data } = await API.putUserSeriesOrder('@' + props.username, nextOrders);
-        setSeries(data.body.series);
-
-        loadingStore.end();
+                return nextSeries;
+            });
+        }
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -103,28 +155,27 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                     </Button>
                 </div>
             </form>
-            {series.map((item, idx) => (
-                <div key={item.url} className="d-flex mb-3">
-                    <div className="d-flex flex-column justify-content-between mr-3">
-                        <div className="c-pointer" onClick={() => handleChangeOrder(item.url, idx, idx - 1)}>
-                            <i className="fas fa-angle-up"></i>
-                        </div>
-                        <div className="c-pointer" onClick={() => handleChangeOrder(item.url, idx, idx + 1)}>
-                            <i className="fas fa-angle-down"></i>
-                        </div>
-                    </div>
-                    <Card hasBackground isRounded className="p-3">
-                        <div className="d-flex justify-content-between">
-                            <Link className="deep-dark" href={`/@${props.username}/series/${item.url}`}>
-                                {item.title} <span className="vs">{item.totalPosts}</span>
-                            </Link>
-                            <a onClick={() => handleDelete(item.url)}>
-                                <i className="fas fa-times"></i>
-                            </a>
-                        </div>
-                    </Card>
-                </div>
-            ))}
+            <DndContext
+                sensors={sensors}
+                modifiers={[
+                    restrictToVerticalAxis,
+                    restrictToFirstScrollableAncestor
+                ]}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}>
+                <SortableContext
+                    items={series.map((item) => item.url)}
+                    strategy={verticalListSortingStrategy}>
+                    {series.map((item) =>(
+                        <SeriesItem
+                            key={item.url}
+                            username={props.username}
+                            {...item}
+                            onClickDelete={() => handleDelete(item.url)}
+                        />
+                    ))}
+                </SortableContext>
+            </DndContext>
         </>
     );
 };
