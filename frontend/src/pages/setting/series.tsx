@@ -46,7 +46,6 @@ function SeriesItem(props: {
 
     return (
         <div
-            key={props.url}
             ref={setNodeRef}
             {...attributes}
             style={{
