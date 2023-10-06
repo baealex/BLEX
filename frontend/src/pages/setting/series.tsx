@@ -53,10 +53,14 @@ function SeriesItem(props: {
                 transition
             }}
             className="d-flex mb-3">
-            <div className="d-flex justify-content-between align-items-center mr-3">
+            <div className="d-flex justify-content-between align-items-center">
                 <div
                     {...listeners}
-                    style={{ cursor: 'grab' }}>
+                    className="p-3"
+                    style={{
+                        cursor: 'grab',
+                        touchAction: 'none'
+                    }}>
                     <i className="fas fa-bars"></i>
                 </div>
             </div>
