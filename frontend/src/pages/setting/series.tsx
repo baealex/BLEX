@@ -91,7 +91,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
 
     const handleCreate = async () => {
         if (!newSeries) {
-            snackBar(message('BEFORE_REQ_ERR', '시리즈의 이름을 입력하세요.'));
+            snackBar(message('BEFORE_REQ_ERR', '시리즈의 이름을 입력해주세요.'));
             return;
         }
         const { data } = await API.postUserSeries('@' + props.username, newSeries);
@@ -119,6 +119,8 @@ const SeriesSetting: PageComponent<Props> = (props) => {
         const { active, over } = event;
 
         if (over) {
+            if (active.id === over.id) return;
+
             loadingStore.start();
 
             setSeries((prevSeries) => {
@@ -146,7 +148,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
             <form onSubmit={handleSubmit} className="input-group mb-3">
                 <input
                     type="text"
-                    placeholder="시리즈의 이름"
+                    placeholder="시리즈 이름"
                     className="form-control"
                     maxLength={50}
                     onChange={(e) => setNewSeries(e.target.value)}
@@ -154,7 +156,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                 />
                 <div className="input-group-prepend">
                     <Button type="submit">
-                        새 시리즈 만들기
+                        추가
                     </Button>
                 </div>
             </form>
@@ -169,7 +171,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                 <SortableContext
                     items={series.map((item) => item.url)}
                     strategy={verticalListSortingStrategy}>
-                    {series.map((item) =>(
+                    {series.map((item) => (
                         <SeriesItem
                             key={item.url}
                             username={props.username}
