@@ -1,5 +1,6 @@
 .series {
     ul {
+        padding: 0;
         list-style: none;
         display: flex;
         flex-direction: column;
@@ -10,6 +11,8 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
     }
 
     .count {
