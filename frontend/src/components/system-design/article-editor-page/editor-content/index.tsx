@@ -233,8 +233,8 @@ export function EditorContent(props: EditorContentProps) {
                 codeMirrorAll(preview);
                 setTimeout(() => {
                     editor.current?.codemirror.setSize('auto', preview.scrollHeight);
-                }, 300);
-            }, 0);
+                }, 500);
+            }, 500);
 
             return () => {
                 preview.removeEventListener('click', handleClickLink);
