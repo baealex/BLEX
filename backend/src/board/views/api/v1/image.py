@@ -89,7 +89,7 @@ def image(request):
                             ext = 'jpg'
 
                         image_path = upload_path + '/' + file_name + '.' + ext
-                        resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
+                        resize_image.thumbnail((1920, 1920), Image.LANCZOS)
                         resize_image.save(image_path)
 
                         if ext == 'jpg':
@@ -110,7 +110,7 @@ def image(request):
                     try:
                         image_path = upload_path + '/' + file_name + '.' + ext
                         resize_image = Image.open(image_path)
-                        resize_image.thumbnail((1920, 1920), Image.ANTIALIAS)
+                        resize_image.thumbnail((1920, 1920), Image.LANCZOS)
                         resize_image.save(image_path)
 
                         if not ext == 'jpg':
