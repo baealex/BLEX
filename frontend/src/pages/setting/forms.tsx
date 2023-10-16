@@ -48,7 +48,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
                 글을 더 빠르게 작성할 수 있을거예요.
             </Alert>
             <Button isRounded space="spare" display="block" onClick={() => router.push('/forms/write')}>
-                나만의 서식 만들기
+                서식 추가
             </Button>
             <div className="mt-3">
                 {forms.map((item, idx) => (
