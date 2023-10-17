@@ -32,6 +32,13 @@ class SitePostsFeed(Feed):
     link = '/'
     description = 'BLOG EXPRESS ME'
 
+    def items(self):
+        posts = Post.objects.filter(
+            config__hide=False,
+            created_date__lte=timezone.now(),
+        ).select_related('content').order_by('-created_date')
+        return posts[:20]
+
     def item_title(self, item):
         return item.title
 
@@ -47,6 +54,14 @@ class SitePostsFeed(Feed):
 
 class UserPostsFeed(Feed):
     feed_type = ImageRssFeedGenerator
+
+    def items(self, item):
+        posts = Post.objects.filter(
+            author=item,
+            config__hide=False,
+            created_date__lte=timezone.now(),
+        ).select_related('content').order_by('-created_date')
+        return posts[:20]
     
     def get_object(self, request, username):
         return User.objects.select_related('profile').get(username=username)
@@ -57,22 +72,14 @@ class UserPostsFeed(Feed):
     def link(self, item):
         return f'/@{item.username}'
 
-    def feed_extra_kwargs(self, item):
-        return {'image_url': item.profile.get_thumbnail()}
-
     def description(self, item):
         if hasattr(item, 'profile') and item.profile.bio:
             return item.profile.bio
         else:
             return item.username + '\'s rss'
 
-    def items(self, item):
-        posts = Post.objects.filter(
-            author=item,
-            config__hide=False,
-            created_date__lte=timezone.now(),
-        ).select_related('content').order_by('-created_date')
-        return posts[:20]
+    def feed_extra_kwargs(self, item):
+        return {'image_url': item.profile.get_thumbnail()}
 
     def item_title(self, item):
         return item.title
