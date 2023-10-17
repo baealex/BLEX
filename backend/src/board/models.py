@@ -52,11 +52,11 @@ def make_thumbnail(this, size, quality=100, type='normal'):
         return
     
     if type == 'minify':
-        image.thumbnail((size, size), Image.ANTIALIAS)
+        image.thumbnail((size, size), Image.LANCZOS)
         image.save(
             f"static/{this.image}.minify.{str(this.image).split('.')[-1]}", quality=quality)
     
-    image.thumbnail((size, size), Image.ANTIALIAS)
+    image.thumbnail((size, size), Image.LANCZOS)
     image.save(f'static/{this.image}', quality=quality)
     return
 
