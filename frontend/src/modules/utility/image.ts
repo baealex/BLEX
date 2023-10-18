@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { getHash } from '~/modules/utility/hash';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -68,15 +70,16 @@ export function isImage(file: File) {
     return true;
 }
 
-export async function dropImage(e: any) {
+export async function dropImage(e: React.DragEvent<HTMLDivElement>) {
     e.stopPropagation();
     e.preventDefault();
-    const { files } = e.dataTransfer;
+
+    const { files } = e.dataTransfer as DataTransfer;
     if (files.length > 1) {
         snackBar(message('BEFORE_REQ_ERR', '하나씩 업로드 할 수 있습니다.'));
         return;
     }
-    const [ file ] = files;
+    const [ file ] = Array.from(files);
     return uploadImage(file);
 }
 
@@ -94,9 +97,9 @@ export async function uploadImage(file: File) {
             return;
         }
         return data.body.url;
-    } catch (error: any) {
+    } catch (error: unknown) {
         loadingStore.end();
-        const { status } = error.response;
+        const { status } = (error as { response: { status: number } }).response;
         if (status == 404) {
             snackBar(message('AFTER_REQ_ERR', '로그인이 필요합니다.'));
             return;

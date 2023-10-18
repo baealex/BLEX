@@ -11,6 +11,7 @@ import { useHidePrimaryButton } from '~/hooks/use-hide-primary-button';
 
 export default function UserAboutEdit() {
     const router = useRouter();
+
     useHidePrimaryButton();
 
     const { data, mutate } = useFetch(['user', 'about', router.query.author], async () => {

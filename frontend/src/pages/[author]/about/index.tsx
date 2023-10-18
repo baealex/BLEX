@@ -19,10 +19,8 @@ import { authStore } from '~/stores/auth';
 
 type Props = API.GetUserProfileResponseData;
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
-    const { author = '' } = context.query as {
-        [key: string]: string;
-    };
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { author = '' } = context.query as Record<string, string>;
 
     if (!author.startsWith('@')) {
         return { notFound: true };

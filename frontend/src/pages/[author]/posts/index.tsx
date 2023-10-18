@@ -21,13 +21,11 @@ interface Props extends API.GetUserProfileResponseData, API.GetUserPostsResponse
     tag: string;
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
         author = '',
         page = 1
-    } = context.query as {
-        [key: string]: string;
-    };
+    } = context.query as Record<string, string>;
 
     if (!author.startsWith('@')) {
         return { notFound: true };

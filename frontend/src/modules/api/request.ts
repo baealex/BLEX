@@ -84,23 +84,26 @@ export default async function axiosRequest<T>(config: AxiosRequestConfig) {
     }
 }
 
-export function serializeObject(obj: {
-    [key: string]: any;
-}) {
-    return Object.keys(obj).reduce((acc, cur) => {
-        return acc += `${cur}=${obj[cur] === undefined ? '' : encodeURIComponent(obj[cur])}&`;
-    }, '').slice(0, -1);
+export function serializeObject<T extends object>(record: T) {
+    let result = '';
+
+    for (const key in record) {
+        if (record[key] === undefined) {
+            continue;
+        }
+        result += `${key}=${encodeURIComponent(record[key] as string)}&`;
+    }
+    return result.slice(0, -1);
 }
 
-export function objectToForm(obj: {
-    [key: string]: any;
-}) {
+export function objectToForm<T extends object>(record: T) {
     const form = new FormData();
-    Object.keys(obj).forEach((key) => {
-        if (obj[key] === undefined) {
-            return;
+
+    for (const key in record) {
+        if (record[key] === undefined) {
+            continue;
         }
-        form.append(key, obj[key]);
-    });
+        form.append(key, record[key] as string);
+    }
     return form;
 }

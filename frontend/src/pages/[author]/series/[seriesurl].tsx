@@ -34,7 +34,7 @@ interface Props {
     series: API.GetAnUserSeriesResponseData;
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const { cookies } = context.req;
     configStore.serverSideInject(cookies);
 

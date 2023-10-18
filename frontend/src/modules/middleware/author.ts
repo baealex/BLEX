@@ -6,7 +6,12 @@ import * as API from '~/modules/api';
 export async function authorRenameCheck(error: unknown, options: {
     author: string;
     continuePath?: string;
-}): Promise<GetServerSidePropsResult<any>> {
+}): Promise<GetServerSidePropsResult<{
+        redirect: {
+            destination: string;
+            permanent: boolean;
+        };
+    } | { notFound: boolean }>> {
     if (error instanceof AxiosError) {
         if (error.response?.status === 404) {
             try {

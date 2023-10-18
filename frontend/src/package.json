@@ -9,7 +9,7 @@
     "start": "NODE_OPTIONS=--max_old_space_size=2048 next start",
     "build-and-start": "npm run build && npm run start",
     "test": "jest",
-    "eslint": "eslint .",
+    "lint": "eslint .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },

@@ -25,9 +25,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         author = '',
         tag = '',
         page = 1
-    } = context.query as {
-        [key: string]: string;
-    };
+    } = context.query as Record<string, string>;
 
     if (!author.startsWith('@')) {
         return { notFound: true };
