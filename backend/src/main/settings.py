@@ -47,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.DisableCSRF',
+    'main.middleware.AccessSitemapOnlyBot',
 ]
 
 if not DEBUG:

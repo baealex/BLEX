@@ -1,23 +1,29 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-from board.models import Post, Profile
+from board.models import Post, Series
 
 
-class StaticSitemap(Sitemap):
+class SiteSitemap(Sitemap):
     changefreq = 'daily'
     priority = 1.0
 
     def items(self):
-        return '', '/newest', '/tags', '/map'
+        return [
+            '',
+            '/newest',
+            '/user/sitemap.xml',
+            '/posts/sitemap.xml',
+            '/series/sitemap.xml'
+        ]
 
     def location(self, item):
         return str(item)
 
 
 class PostsSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 0.8
+    changefreq = 'daily'
+    priority = 0.9
 
     def items(self):
         return Post.objects.filter(config__hide=False).order_by('-updated_date')
@@ -27,28 +33,34 @@ class PostsSitemap(Sitemap):
 
 
 class UserSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 0.5
+    changefreq = 'daily'
+    priority = 0.8
 
     def items(self):
-        users = Profile.objects.all().order_by('pk')
-        user_site = []
-        for user in users:
-            user_site += [
-                reverse('user_profile', args=[user]),
-                # reverse('user_profile_tab', args=[user, 'about']),
-                # reverse('user_profile_tab', args=[user, 'series']),
-                # reverse('user_profile_tab', args=[user, 'posts']),
-                # reverse('user_profile_posts', args=[user]),
-            ]
-        return user_site
+        users = Post.objects.filter(config__hide=False).values_list('author__username', flat=True).distinct()
+        return [ reverse('user_profile', args=[user]) for user in users ]
 
     def location(self, item):
         return str(item)
 
 
+class SeriesSitemap(Sitemap):
+    changefreq = 'daily'
+    priority = 0.8
+
+    def items(self):
+        return Series.objects.filter(hide=False, posts__config__hide=False).order_by('-updated_date')
+
+    def lastmod(self, element):
+        return element.updated_date
+
+
 sitemaps = {
-    'static_sitemap': StaticSitemap,
-    'posts_sitemap': PostsSitemap,
-    'user_sitemap': UserSitemap,
+    'static': SiteSitemap,
+}
+
+sitemap_section = {
+    'user': UserSitemap,
+    'posts': PostsSitemap,
+    'series': SeriesSitemap,
 }

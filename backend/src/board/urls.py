@@ -3,7 +3,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 # from graphene_django.views import GraphQLView
 
-from board.sitemaps import sitemaps
+from board.sitemaps import sitemaps, sitemap_section
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
 
@@ -14,20 +14,16 @@ def empty():
 
 urlpatterns = [
     # Sitemap Generator
-    path('tags/<tag>', empty, name='post_list_in_tag'),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    path('<section>/sitemap.xml', sitemap, {'sitemaps': sitemap_section}, name='sitemap_section'),
     path('@<username>', empty, name='user_profile'),
-    path('@<username>/posts', empty, name='user_profile_posts'),
-    path('@<username>/posts/<tag>', empty, name='user_profile_posts'),
-    path('@<username>/<tab>', empty, name='user_profile_tab'),
     path('@<username>/<url>', empty, name='post_detail'),
     path('@<username>/series/<url>', empty, name='series_list'),
-    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
 
     # RSS and Etc
     path('rss', SitePostsFeed()),
     path('rss/@<username>', UserPostsFeed(), name='user_rss_feed'),
-    path('robots.txt', TemplateView.as_view(
-        template_name='robots.txt', content_type='text/plain')),
+    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
 
     # GraphQL
     # path('graphql', GraphQLView.as_view(graphiql=True)),

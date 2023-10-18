@@ -13,6 +13,10 @@ module.exports = withBundleAnalyzer({
             destination: process.env.PROXY_API_SERVER + '/sitemap.xml'
         },
         {
+            source: '/:section/sitemap.xml',
+            destination: process.env.PROXY_API_SERVER + '/:section/sitemap.xml'
+        },
+        {
             source: '/rss',
             destination: process.env.PROXY_API_SERVER + '/rss'
         },
