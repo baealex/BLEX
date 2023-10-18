@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
 };
 
 const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
-    const [_, setAuth] = useStore(authStore);
+    const [, setAuth] = useStore(authStore);
     const [token, setToken] = useState('');
 
     const handleDisconnectTelegram = async () => {

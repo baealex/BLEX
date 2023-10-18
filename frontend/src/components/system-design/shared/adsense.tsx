@@ -25,15 +25,12 @@ export const Adsense = ({
     ...rest
 }: Props) => {
     useEffect(() => {
-        const p: any = {};
-        if (pageLevelAds) {
-            p.google_ad_client = client;
-            p.enable_page_level_ads = true;
-        }
-
         try {
             if (typeof window === 'object') {
-                ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push(p);
+                (window.adsbygoogle = window.adsbygoogle || []).push({
+                    google_ad_client: client,
+                    enable_page_level_ads: pageLevelAds
+                });
             }
         } catch (e) {
             // pass
