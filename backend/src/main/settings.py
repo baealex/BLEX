@@ -47,11 +47,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.DisableCSRF',
-    'main.middleware.AccessSitemapOnlyBot',
 ]
 
 if not DEBUG:
     MIDDLEWARE.append('main.middleware.AccessAdminOnlyStaff')
+    MIDDLEWARE.append('main.middleware.AccessSitemapOnlyBot')
 
 if DEBUG and not TESTING:
     MIDDLEWARE.append('main.middleware.QueryDebugger')

@@ -40,25 +40,15 @@ NONE_HUMANS = [
 ]
 
 BOT_TYPES = [
-    'ahrefs',
     'applebot',
     'bingbot',
-    'coccoc',
-    'commoncrawl',
-    'dataforseo',
     'google',
     'kakao',
-    'mail.ru_bot',
-    'mj12',
     'naver',
-    'petal',
-    'semrush',
-    'seznam',
     'slack',
     'telegram',
     'twitter',
     'yandex',
-    'zoominfo',
     'facebook',
 ]
 
