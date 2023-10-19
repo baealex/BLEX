@@ -104,11 +104,11 @@ describe('blexer', () => {
             '- [x] List'
         ].join('\n')))).toContain(trimBetweenTags(`
             <ul>
-                <li>
-                    <input type="checkbox" disabled>List
+                <li class="checkbox">
+                    List
                 </li>
-                <li>
-                    <input type="checkbox" disabled checked>List
+                <li class="checkbox checked">
+                    List
                 </li>
             </ul>
         `));

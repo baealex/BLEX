@@ -71,8 +71,8 @@ export default function blexer(md) {
         /@youtube\[(.*)\]/g,
         '<iframe width="100%" height="350" src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
     );
-    html = html.replace(/>\[\s\]\s/g, '><input type="checkbox" disabled> ');
-    html = html.replace(/>\[x\]\s/g, '><input type="checkbox" disabled checked> ');
+    html = html.replace(/li>\[\s\]\s/g, 'li class="checkbox">');
+    html = html.replace(/li>\[x\]\s/g, 'li class="checkbox checked">');
 
     // Allow Markup
     html = html.replace(/&lt;br\/?&gt;/g, '<br/>');

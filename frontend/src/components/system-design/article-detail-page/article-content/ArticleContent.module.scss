@@ -83,6 +83,49 @@
         padding-left: 30px;
     }
 
+    :global(li.checkbox) {
+        list-style: none;
+        position: relative;
+
+        &::before, &::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -18px;
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+        }
+
+        &::before {
+            border: 1px solid #ccc;
+            background-color: #fff;
+
+            :global(body.dark) & {
+                border: 1px solid #555;
+                background-color: #333;
+            }
+        }
+
+        &:global(.checked) {
+            &::before {
+                border: 1px solid $COLOR_DEFAULT_SECONDARY;
+                background-color: $COLOR_DEFAULT_SECONDARY;
+
+                :global(body.dark) & {
+                    border: 1px solid $COLOR_DARK_SECONDARY;
+                    background-color: $COLOR_DARK_SECONDARY;
+                }
+            }
+
+            &::after {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%23fff" d="M6.5 11.5l-3-3 1.06-1.06L6.5 9.38l4.72-4.72L12.5 6.5l-6 6z"/></svg>');
+                background-size: 100% 100%;
+                z-index: 1;
+            }
+        }
+    }
+
     a {
         text-decoration: none;
         color: $COLOR_DEFAULT_PRIMARY;
