@@ -54,7 +54,7 @@ export function ArticleComment(props: ArticleCommentProps) {
             ...data.body
         }));
         setTimeout(lazyLoadResource, 300);
-    }, []);
+    }, [props.url]);
 
     const handleClickEdit = useCallback(async (pk: number) => {
         const { data } = await API.getComment(pk);
