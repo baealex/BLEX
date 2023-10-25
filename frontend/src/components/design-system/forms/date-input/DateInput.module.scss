@@ -1,6 +1,10 @@
 @import 'mixin';
 
 .date-input {
+    :global(.react-datepicker-wrapper) {
+        width: 100%;
+    }
+
     :global(.react-datepicker) {
         border-color: #e5e5e5;
         @each $theme, $color in $COLOR_CARD {
