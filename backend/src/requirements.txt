@@ -2,7 +2,7 @@ aniso8601==9.0.1
 asgiref==3.7.2
 certifi==2023.7.22
 charset-normalizer==3.3.0
-Django==4.2.6
+Django==4.2.7
 django-cors-headers==4.3.0
 graphene==3.3
 graphene-django==3.1.5
