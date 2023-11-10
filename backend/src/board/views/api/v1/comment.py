@@ -36,12 +36,11 @@ def comment_list(request):
         comment.save()
         comment.refresh_from_db()
 
-        content = strip_tags(text_html)[:50]
-        if not comment.author == post.author:
+        if not comment.author == post.author and post.author.config.get_meta('NOTIFY_POSTS_COMMENT'):
             send_notify_content = (
                 f"'{post.title}'글에 "
                 f"@{comment.author.username}님이 댓글을 남겼습니다. "
-                f"> {content} …")
+                f"#{comment.pk}")
             create_notify(
                 user=post.author,
                 url=post.get_absolute_url(),
@@ -59,7 +58,7 @@ def comment_list(request):
             for tag_user in tag_user_list:
                 if tag_user in commentors:
                     _user = User.objects.get(username=tag_user)
-                    if not _user == request.user:
+                    if not _user == request.user and _user.config.get_meta('NOTIFY_MENTION'):
                         send_notify_content = (
                             f"'{post.title}' 글에서 "
                             f"@{request.user.username}님이 "
@@ -110,14 +109,15 @@ def comment_detail(request, id):
             else:
                 comment.likes.add(user)
                 comment.save()
-                send_notify_content = (
-                    f"'{comment.post.title}'글에 작성한 "
-                    f"회원님의 #{comment.pk} 댓글을 "
-                    f"@{user.username}님께서 추천했습니다.")
-                create_notify(
-                    user=comment.author,
-                    url=comment.post.get_absolute_url(),
-                    infomation=send_notify_content)
+                if comment.author.config.get_meta('NOTIFY_COMMENT_LIKE'):
+                    send_notify_content = (
+                        f"'{comment.post.title}'글에 작성한 "
+                        f"회원님의 #{comment.pk} 댓글을 "
+                        f"@{user.username}님께서 추천했습니다.")
+                    create_notify(
+                        user=comment.author,
+                        url=comment.post.get_absolute_url(),
+                        infomation=send_notify_content)
             return StatusDone({
                 'total_likes': comment.total_likes()
             })

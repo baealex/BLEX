@@ -5,8 +5,8 @@ from modules.hash import get_sha256
 from modules.subtask import sub_task_manager
 from modules.telegram import TelegramBot
 
-def create_notify(user, url, infomation):
-    hash_key = get_sha256(user.username + url + infomation)
+def create_notify(user, url: str, infomation: str, hidden_key: str = None):
+    hash_key = get_sha256(user.username + url + infomation + (hidden_key if hidden_key else ''))
     if Notify.objects.filter(key=hash_key).exists():
         return
     

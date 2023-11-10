@@ -145,7 +145,35 @@ class UserConfigMeta(models.Model):
         'AGREE_SEND_EMAIL': {
             'name': 'AGREE_SEND_EMAIL',
             'type': lambda x: True if x == 'true' else False,
-        }
+        },
+        'NOTIFY_POSTS_COMMENT': {
+            'name': 'NOTIFY_COMMENT',
+            'type': lambda x: True if x == 'true' else False,
+        },
+        'NOTIFY_POSTS_LIKE': {
+            'name': 'NOTIFY_LIKE',
+            'type': lambda x: True if x == 'true' else False,
+        },
+        'NOTIFY_POSTS_THANKS': {
+            'name': 'NOTIFY_THANKS',
+            'type': lambda x: True if x == 'true' else False,
+        },
+        'NOTIFY_POSTS_NO_THANKS': {
+            'name': 'NOTIFY_NO_THANKS',
+            'type': lambda x: True if x == 'true' else False,
+        },
+        'NOTIFY_COMMENT_LIKE': {
+            'name': 'NOTIFY_COMMENT',
+            'type': lambda x: True if x == 'true' else False,
+        },
+        'NOTIFY_MENTION': {
+            'name': 'NOTIFY_MENTION',
+            'type': lambda x: True if x == 'true' else False,
+        },
+        'NOTIFY_FOLLOW': {
+            'name': 'NOTIFY_FOLLOW',
+            'type': lambda x: True if x == 'true' else False,
+        },
     }
     props = prop.keys()
 

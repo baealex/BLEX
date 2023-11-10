@@ -575,10 +575,14 @@ def user_posts(request, username, url=None):
                     post_like.delete()
                 else:
                     PostLikes(post=post, user=user).save()
-                    if request.user != post.author:
-                        send_notify_content = f'\'{post.title}\' 글을 @{user.username}님께서 추천하였습니다.'
-                        create_notify(user=post.author, url=post.get_absolute_url(
-                        ), infomation=send_notify_content)
+                    if request.user != post.author and post.author.config.get_meta('NOTIFY_POSTS_LIKE'):
+                        send_notify_content = (
+                            f"'{post.title}' 글을 "
+                            f"@{user.username}님께서 추천하였습니다.")
+                        create_notify(
+                            user=post.author,
+                            url=post.get_absolute_url(),
+                            infomation=send_notify_content)
                 return StatusDone({
                     'total_likes': post.total_likes()
                 })
@@ -596,6 +600,15 @@ def user_posts(request, username, url=None):
 
                 post_thanks = post.thanks.filter(history=history)
                 if not post_thanks.exists():
+                    if post.author.config.get_meta('NOTIFY_POSTS_THANKS'):
+                        send_notify_content = (
+                            f"'{post.title}' 글을 "
+                            f"누군가 도움이 되었다고 평가하였습니다.")
+                        create_notify(
+                            user=post.author,
+                            url=post.get_absolute_url(),
+                            infomation=send_notify_content,
+                            hidden_key=history.key)
                     PostThanks(post=post, history=history).save()
 
                 return StatusDone()
@@ -613,6 +626,15 @@ def user_posts(request, username, url=None):
 
                 post_nothanks = post.nothanks.filter(history=history)
                 if not post_nothanks.exists():
+                    if post.author.config.get_meta('NOTIFY_POSTS_NO_THANKS'):
+                        send_notify_content = (
+                            f"'{post.title}' 글을 "
+                            f"누군가 도움이 되지 않았다고 평가하였습니다.")
+                        create_notify(
+                            user=post.author,
+                            url=post.get_absolute_url(),
+                            infomation=send_notify_content,
+                            hidden_key=history.key)
                     PostNoThanks(post=post, history=history).save()
 
                 return StatusDone()

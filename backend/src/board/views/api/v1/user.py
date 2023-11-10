@@ -10,6 +10,7 @@ from django.utils import timezone
 from board.models import (
     User, UsernameChangeLog, Post, Profile, Series,
     Comment, Follow, Tag)
+from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_stamp
 from modules.markdown import parse_to_html, ParseData
@@ -206,6 +207,14 @@ def users(request, username):
                 follow_query.delete()
                 return StatusDone({'has_subscribe': False})
             else:
+                if user.config.get_meta('NOTIFY_FOLLOW'):
+                    send_notify_content = (
+                        f"@{follower.username}님께서 "
+                        f"회원님을 구독하기 시작했습니다.")
+                    create_notify(
+                        user=user,
+                        url='/setting/notify',
+                        infomation=send_notify_content)
                 Follow(follower=follower, following=user.profile).save()
                 return StatusDone({'has_subscribe': True})
 

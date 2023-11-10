@@ -44,6 +44,23 @@ def setting(request, parameter):
                 }, notify)),
                 'is_telegram_sync': request.user.config.has_telegram_id()
             })
+        
+        if parameter == 'notify-config':
+            config_names = [
+                'NOTIFY_POSTS_LIKE',
+                'NOTIFY_POSTS_COMMENT',
+                'NOTIFY_POSTS_THANKS',
+                'NOTIFY_POSTS_NO_THANKS',
+                'NOTIFY_COMMENT_LIKE',
+                'NOTIFY_FOLLOW',
+                'NOTIFY_MENTION',
+            ]
+            return StatusDone({
+                'config': list(map(lambda config_name: {
+                    'name': config_name,
+                    'value': user.config.get_meta(config_name)
+                }, config_names))
+            })
 
         if parameter == 'account':
             return StatusDone({
@@ -503,6 +520,22 @@ def setting(request, parameter):
             notify = Notify.objects.get(pk=pk)
             notify.is_read = True
             notify.save()
+            return StatusDone()
+
+        if parameter == 'notify-config':
+            config_names = [
+                'NOTIFY_POSTS_LIKE',
+                'NOTIFY_POSTS_COMMENT',
+                'NOTIFY_POSTS_THANKS',
+                'NOTIFY_POSTS_NO_THANKS',
+                'NOTIFY_COMMENT_LIKE',
+                'NOTIFY_FOLLOW',
+                'NOTIFY_MENTION',
+            ]
+            for config_name in config_names:
+                user.config.create_or_update_meta(
+                    config_name, put.get(config_name, ''))
+
             return StatusDone()
 
         if parameter == 'account':
