@@ -5,7 +5,7 @@ from unittest.mock import patch
 from django.test import TestCase
 
 from board.models import (
-    User, Post, PostContent, PostConfig,
+    User, Config, Post, PostContent, PostConfig,
     Profile, Comment, Notify)
 
 
@@ -17,6 +17,10 @@ class CommentTestCase(TestCase):
             password='test',
         )
 
+        Config.objects.create(
+            user=User.objects.get(username='author'),
+        )
+
         Profile.objects.create(
             user=User.objects.get(username='author'),
         )
@@ -24,6 +28,10 @@ class CommentTestCase(TestCase):
         User.objects.create_user(
             username='viewer',
             password='test',
+        )
+
+        Config.objects.create(
+            user=User.objects.get(username='viewer'),
         )
 
         Profile.objects.create(
@@ -71,15 +79,16 @@ class CommentTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_send_notification_on_create_comment(self, mock_service):
+        author = User.objects.get(username='author')
+        author.config.create_or_update_meta('NOTIFY_POSTS_COMMENT', 'true')
+
         self.client.login(username='viewer', password='test')
         data = {
             'comment_md': '# New Comment',
         }
-        response = self.client.post('/v1/comments?url=test-post', data)
+        self.client.post('/v1/comments?url=test-post', data)
 
-        last_notify = Notify.objects.filter(
-            user=User.objects.get(username='author'),
-        ).last()
+        last_notify = Notify.objects.filter(user=author).last()
         self.assertTrue(
             '@viewer' in last_notify.infomation and
             'Post' in last_notify.infomation
@@ -96,15 +105,16 @@ class CommentTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_user_tag_on_comment(self, mock_service):
+        viewer = User.objects.get(username='viewer')
+        viewer.config.create_or_update_meta('NOTIFY_MENTION', 'true')
+
         self.client.login(username='author', password='test')
         data = {
             'comment_md': '`@viewer` reply comment',
         }
         self.client.post('/v1/comments?url=test-post', data)
 
-        last_notify = Notify.objects.filter(
-            user=User.objects.get(username='viewer'),
-        ).last()
+        last_notify = Notify.objects.filter(user=viewer).last()
         self.assertTrue('@author' in last_notify.infomation)
 
     def test_user_comment_like(self):

@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from board.models import User, Post, PostContent, PostConfig, Profile
+from board.models import User, Config, Post, PostContent, PostConfig, Profile
 
 
 class PostListTestCase(TestCase):
@@ -19,6 +19,10 @@ class PostListTestCase(TestCase):
         )
 
         Profile.objects.create(
+            user=User.objects.get(username='test'),
+        )
+
+        Config.objects.create(
             user=User.objects.get(username='test'),
         )
 
