@@ -20,6 +20,30 @@ export async function getSettingNotify(headers?: Headers) {
     });
 }
 
+type NotifyConfig =
+    'NOTIFY_POSTS_COMMENT' |
+    'NOTIFY_POSTS_LIKE' |
+    'NOTIFY_POSTS_THANKS' |
+    'NOTIFY_POSTS_NO_THANKS' |
+    'NOTIFY_COMMENT_LIKE' |
+    'NOTIFY_FOLLOW' |
+    'NOTIFY_MENTION';
+
+export interface GetSettingNotifyConfigResponseData {
+    config: {
+        name: NotifyConfig;
+        value: boolean;
+    }[];
+}
+
+export async function getSettingNotifyConfig(headers?: Headers) {
+    return await request<GetSettingNotifyConfigResponseData>({
+        url: '/v1/setting/notify-config',
+        method: 'GET',
+        headers
+    });
+}
+
 export interface GetSettingAccountResponseData {
     username: string;
     name: string;

@@ -2,13 +2,15 @@ import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { useStore } from 'badland-react';
 
-import { Alert, Card } from '@design-system';
+import { Alert, Button, Card, Flex, Modal, Toggle } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
 import * as API from '~/modules/api';
 
 import { authStore } from '~/stores/auth';
+import { useFetch } from '~/hooks/use-fetch';
+import { useState } from 'react';
 
 type Props = API.GetSettingNotifyResponseData;
 
@@ -26,9 +28,27 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
     return { props: data.body };
 };
 
+const NOTIFY_CONFIG_LABEL = {
+    'NOTIFY_POSTS_LIKE': '다른 사용자가 내 글 추천',
+    'NOTIFY_POSTS_THANKS': '방문자가 내 글에 도움됐어요',
+    'NOTIFY_POSTS_NO_THANKS': '방문자가 내 글에 도움되지 않았어요',
+    'NOTIFY_POSTS_COMMENT': '다른 사용자가 내 글에 댓글 작성',
+    'NOTIFY_COMMENT_LIKE': '다른 사용자가 내 댓글 추천',
+    'NOTIFY_FOLLOW': '다른 사용자가 나를 팔로우',
+    'NOTIFY_MENTION': '다른 사용자가 댓글에서 나를 언급'
+} as const;
+
 const FormsSetting: PageComponent<Props> = (props) => {
     const router = useRouter();
+
     const [auth, setAuth] = useStore(authStore);
+
+    const [isOpenConfig, setIsOpenConfig] = useState(false);
+
+    const { data: notifyConfig, mutate } = useFetch(['setting', 'notify', 'config'], async () => {
+        const { data: { body } } = await API.getSettingNotifyConfig();
+        return body.config;
+    });
 
     const handleClickNotify = async ({ pk, url, isRead }: Props['notify'][0]) => {
         if (!isRead) {
@@ -43,6 +63,33 @@ const FormsSetting: PageComponent<Props> = (props) => {
         router.push(url);
     };
 
+    const handleToggleConfig = async (name: keyof typeof NOTIFY_CONFIG_LABEL) => {
+        if (!notifyConfig) {
+            return;
+        }
+
+        const nextState = notifyConfig.map((item) => {
+            if (item.name === name) {
+                return {
+                    ...item,
+                    value: !item.value
+                };
+            }
+            return item;
+        });
+
+        await API.putSetting('notify-config', nextState?.reduce<Record<string, boolean>>((acc, cur) => {
+            return {
+                ...acc,
+                [cur.name]: cur.value
+            };
+        }, {}));
+
+        mutate(nextState!);
+    };
+
+    console.log(notifyConfig);
+
     return (
         <>
             {!auth.hasConnectedTelegram && (
@@ -50,6 +97,11 @@ const FormsSetting: PageComponent<Props> = (props) => {
                     <i className="fab fa-telegram-plane" /> 텔레그램을 연동하여 실시간 알림을 받아보세요.
                 </Alert>
             )}
+            <Flex justify="between" className="my-3">
+                <Button onClick={() => setIsOpenConfig(true)}>
+                    알림 설정
+                </Button>
+            </Flex>
             <div className="mt-3">
                 {props.notify.map((item) => (
                     <Card key={item.pk} hasBackground isRounded className="p-3 mb-3">
@@ -62,6 +114,20 @@ const FormsSetting: PageComponent<Props> = (props) => {
                     </Card>
                 ))}
             </div>
+            <Modal title="알림 설정" isOpen={isOpenConfig} onClose={() => setIsOpenConfig(false)}>
+                {notifyConfig && (
+                    <Flex direction="column" gap={3}>
+                        {notifyConfig.map((item) => (
+                            <Toggle
+                                key={item.name}
+                                label={NOTIFY_CONFIG_LABEL[item.name]}
+                                defaultChecked={item.value}
+                                onClick={() => handleToggleConfig(item.name)}
+                            />
+                        ))}
+                    </Flex>
+                )}
+            </Modal>
         </>
     );
 };
