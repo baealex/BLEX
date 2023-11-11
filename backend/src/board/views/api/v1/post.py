@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 
+from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, Comment, Referer, PostAnalytics, Series,
     TempPosts, Post, PostContent, PostConfig,
@@ -575,7 +576,7 @@ def user_posts(request, username, url=None):
                     post_like.delete()
                 else:
                     PostLikes(post=post, user=user).save()
-                    if request.user != post.author and post.author.config.get_meta('NOTIFY_POSTS_LIKE'):
+                    if request.user != post.author and post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE):
                         send_notify_content = (
                             f"'{post.title}' 글을 "
                             f"@{user.username}님께서 추천하였습니다.")
@@ -600,7 +601,7 @@ def user_posts(request, username, url=None):
 
                 post_thanks = post.thanks.filter(history=history)
                 if not post_thanks.exists():
-                    if post.author.config.get_meta('NOTIFY_POSTS_THANKS'):
+                    if post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_THANKS):
                         send_notify_content = (
                             f"'{post.title}' 글을 "
                             f"누군가 도움이 되었다고 평가하였습니다.")
@@ -626,7 +627,7 @@ def user_posts(request, username, url=None):
 
                 post_nothanks = post.nothanks.filter(history=history)
                 if not post_nothanks.exists():
-                    if post.author.config.get_meta('NOTIFY_POSTS_NO_THANKS'):
+                    if post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_NO_THANKS):
                         send_notify_content = (
                             f"'{post.title}' 글을 "
                             f"누군가 도움이 되지 않았다고 평가하였습니다.")

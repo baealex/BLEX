@@ -12,6 +12,7 @@ from django.utils.html import strip_tags
 
 from PIL import Image, ImageFilter
 
+from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
 from modules.randomness import randstr
 
@@ -137,46 +138,6 @@ class UserConfigMeta(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
-    prop = {
-        'AGREE_DISPLAY_EMAIL': {
-            'name': 'AGREE_DISPLAY_EMAIL',
-            'type': lambda x: True if x == 'true' else False,
-        },
-        'AGREE_SEND_EMAIL': {
-            'name': 'AGREE_SEND_EMAIL',
-            'type': lambda x: True if x == 'true' else False,
-        },
-        'NOTIFY_POSTS_COMMENT': {
-            'name': 'NOTIFY_COMMENT',
-            'type': lambda x: True if x == 'true' else False,
-        },
-        'NOTIFY_POSTS_LIKE': {
-            'name': 'NOTIFY_LIKE',
-            'type': lambda x: True if x == 'true' else False,
-        },
-        'NOTIFY_POSTS_THANKS': {
-            'name': 'NOTIFY_THANKS',
-            'type': lambda x: True if x == 'true' else False,
-        },
-        'NOTIFY_POSTS_NO_THANKS': {
-            'name': 'NOTIFY_NO_THANKS',
-            'type': lambda x: True if x == 'true' else False,
-        },
-        'NOTIFY_COMMENT_LIKE': {
-            'name': 'NOTIFY_COMMENT',
-            'type': lambda x: True if x == 'true' else False,
-        },
-        'NOTIFY_MENTION': {
-            'name': 'NOTIFY_MENTION',
-            'type': lambda x: True if x == 'true' else False,
-        },
-        'NOTIFY_FOLLOW': {
-            'name': 'NOTIFY_FOLLOW',
-            'type': lambda x: True if x == 'true' else False,
-        },
-    }
-    props = prop.keys()
-
     def __str__(self):
         return f'{self.user.username} {self.name}'
 
@@ -184,11 +145,11 @@ class UserConfigMeta(models.Model):
 class Config(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    def create_or_update_meta(self, name, value):
-        if not name in UserConfigMeta.props:
+    def create_or_update_meta(self, config: CONFIG_TYPE, value):
+        if not config.value in CONFIG_TYPES:
             return None
 
-        meta = UserConfigMeta.objects.filter(user=self.user, name=name)
+        meta = UserConfigMeta.objects.filter(user=self.user, name=config.value)
         if meta.exists():
             meta = meta.first()
 
@@ -197,19 +158,19 @@ class Config(models.Model):
                 meta.save()
             return True
 
-        UserConfigMeta(user=self.user, name=name, value=str(value)).save()
+        UserConfigMeta(user=self.user, name=config.value, value=str(value)).save()
         return True
 
-    def get_meta(self, name):
-        if not name in UserConfigMeta.props:
+    def get_meta(self, config: CONFIG_TYPE):
+        if not config.value in CONFIG_TYPES:
             return None
 
-        meta = UserConfigMeta.objects.filter(user=self.user, name=name)
+        meta = UserConfigMeta.objects.filter(user=self.user, name=config.value)
         if not meta.exists():
             return None
 
         meta = meta.first()
-        return UserConfigMeta.prop[name]['type'](meta.value)
+        return CONFIG_MAP[meta.name]['type'](meta.value)
 
     def has_telegram_id(self):
         if hasattr(self.user, 'telegramsync'):

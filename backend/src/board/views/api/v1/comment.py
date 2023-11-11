@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from django.db.models import F
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
-from django.utils.html import strip_tags
 
+from board.constants.config_meta import CONFIG_TYPE
 from board.models import Comment, Post
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -36,7 +36,7 @@ def comment_list(request):
         comment.save()
         comment.refresh_from_db()
 
-        if not comment.author == post.author and post.author.config.get_meta('NOTIFY_POSTS_COMMENT'):
+        if not comment.author == post.author and post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT):
             send_notify_content = (
                 f"'{post.title}'글에 "
                 f"@{comment.author.username}님이 댓글을 남겼습니다. "
@@ -58,7 +58,7 @@ def comment_list(request):
             for tag_user in tag_user_list:
                 if tag_user in commentors:
                     _user = User.objects.get(username=tag_user)
-                    if not _user == request.user and _user.config.get_meta('NOTIFY_MENTION'):
+                    if not _user == request.user and _user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION):
                         send_notify_content = (
                             f"'{post.title}' 글에서 "
                             f"@{request.user.username}님이 "
@@ -109,7 +109,7 @@ def comment_detail(request, id):
             else:
                 comment.likes.add(user)
                 comment.save()
-                if comment.author.config.get_meta('NOTIFY_COMMENT_LIKE'):
+                if comment.author.config.get_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE):
                     send_notify_content = (
                         f"'{comment.post.title}'글에 작성한 "
                         f"회원님의 #{comment.pk} 댓글을 "

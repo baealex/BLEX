@@ -7,6 +7,7 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, UsernameChangeLog, Post, Profile, Series,
     Comment, Follow, Tag)
@@ -207,7 +208,7 @@ def users(request, username):
                 follow_query.delete()
                 return StatusDone({'has_subscribe': False})
             else:
-                if user.config.get_meta('NOTIFY_FOLLOW'):
+                if user.config.get_meta(CONFIG_TYPE.NOTIFY_FOLLOW):
                     send_notify_content = (
                         f"@{follower.username}님께서 "
                         f"회원님을 구독하기 시작했습니다.")
