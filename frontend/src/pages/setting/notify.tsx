@@ -30,8 +30,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
 
 const NOTIFY_CONFIG_LABEL = {
     'NOTIFY_POSTS_LIKE': '다른 사용자가 내 글 추천',
-    'NOTIFY_POSTS_THANKS': '방문자가 내 글에 도움됐어요',
-    'NOTIFY_POSTS_NO_THANKS': '방문자가 내 글에 도움되지 않았어요',
+    'NOTIFY_POSTS_THANKS': '방문자가 내 글에 도움됐어요 평가',
+    'NOTIFY_POSTS_NO_THANKS': '방문자가 내 글에 도움안돼요 평가',
     'NOTIFY_POSTS_COMMENT': '다른 사용자가 내 글에 댓글 작성',
     'NOTIFY_COMMENT_LIKE': '다른 사용자가 내 댓글 추천',
     'NOTIFY_FOLLOW': '다른 사용자가 나를 팔로우',
