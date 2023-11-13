@@ -7,6 +7,7 @@ import {
     Alert,
     Button,
     Card,
+    Flex,
     ImageInput,
     Text
 } from '@design-system';
@@ -40,19 +41,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
 
 interface ProfileForm {
     bio: string;
-    homepage: string;
-    github: string;
-    twitter: string;
-    facebook: string;
-    instagram: string;
-    linkedin: string;
-    youtube: string;
 }
 
 const ProfileSetting: PageComponent<Props> = (props) => {
     const router = useRouter();
     const [avatar, setAvatar] = useState(props.avatar);
     const [username] = useValue(authStore, 'username');
+
+    const [social, setSocial] = useState(props.social);
 
     const {
         reset,
@@ -69,6 +65,22 @@ const ProfileSetting: PageComponent<Props> = (props) => {
             snackBar(message('AFTER_REQ_DONE', '프로필이 업데이트 되었습니다.'));
         }
     });
+
+    const handleSocialSubmit = async () => {
+        console.log(social);
+    };
+
+    const handleSocialAdd = async () => {
+        setSocial([...social, {
+            id: Math.random().toString(36),
+            name: 'homepage',
+            value: ''
+        }]);
+    };
+
+    const handleSocialRemove = async (idx: number) => {
+        setSocial(social.filter((_, i) => i !== idx));
+    };
 
     return (
         <>
@@ -135,101 +147,45 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                         className="form-control mb-3"
                     />
                 </Card>
-                <Card hasBackground isRounded className="mb-4 p-3">
-                    <div className="d-flex justify-content-between mb-2">
-                        <Text fontSize={6} fontWeight={600}>
-                            소셜 정보
-                        </Text>
-                        <Button type="submit">
-                            업데이트
-                        </Button>
-                    </div>
-                    <label>개인 홈페이지 주소 : </label>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">https://</span>
-                        </div>
-                        <input
-                            {...register('homepage')}
-                            type="text"
-                            className="form-control"
-                            maxLength={100}
-                        />
-                    </div>
-                    <label>깃허브 주소 : </label>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">https://github.com/</span>
-                        </div>
-                        <input
-                            {...register('github')}
-                            type="text"
-                            className="form-control"
-                            maxLength={100}
-                        />
-                    </div>
-                    <label>트위터 주소 : </label>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">https://twitter.com/</span>
-                        </div>
-                        <input
-                            {...register('twitter')}
-                            type="text"
-                            className="form-control"
-                            maxLength={100}
-                        />
-                    </div>
-                    <label>페이스북 주소 : </label>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">https://facebook.com/</span>
-                        </div>
-                        <input
-                            {...register('facebook')}
-                            type="text"
-                            className="form-control"
-                            maxLength={100}
-                        />
-                    </div>
-                    <label>인스타그램 주소 : </label>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">https://instagram.com/</span>
-                        </div>
-                        <input
-                            {...register('instagram')}
-                            type="text"
-                            className="form-control"
-                            maxLength={100}
-                        />
-                    </div>
-                    <label>링크드인 주소 : </label>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">https://linkedin.com/in/</span>
-                        </div>
-                        <input
-                            {...register('linkedin')}
-                            type="text"
-                            className="form-control"
-                            maxLength={100}
-                        />
-                    </div>
-                    <label>유튜브 채널 주소 : </label>
-                    <div className="input-group mb-3">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">https://youtube.com/channel/</span>
-                        </div>
-                        <input
-                            {...register('youtube')}
-                            type="text"
-                            className="form-control"
-                            maxLength={100}
-                        />
-                    </div>
-                </Card>
             </form>
+            <Card hasBackground isRounded className="mb-4 p-3">
+                <div className="d-flex justify-content-between mb-2">
+                    <Text fontSize={6} fontWeight={600}>
+                        소셜 정보
+                    </Text>
+                    <Button onClick={handleSocialSubmit}>업데이트</Button>
+                </div>
+                {social.map((item, idx) => (
+                    <Flex key={idx} align="center" gap={3} className="mb-2">
+                        <div>
+                            <select className="form-select" defaultValue={item.name}>
+                                <option value="homepage">Homepage</option>
+                                <option value="github">GitHub</option>
+                                <option value="twitter">Twitter</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="linkedin">LinkedIn</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <input
+                                type="text"
+                                placeholder="주소"
+                                className="form-control"
+                                defaultValue={item.value}
+                            />
+                        </div>
+                        <Button onClick={() => handleSocialRemove(idx)}>
+                            삭제
+                        </Button>
+                    </Flex>
+                ))}
+                <Button display="block" onClick={handleSocialAdd}>
+                    새 링크 추가
+                </Button>
+            </Card>
         </>
     );
 };

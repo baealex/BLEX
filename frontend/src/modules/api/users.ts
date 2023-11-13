@@ -13,14 +13,9 @@ export interface GetUserProfileResponseData {
         bio: string;
     };
     social?: {
-        username: string;
-        homepage?: string;
-        github?: string;
-        twitter?: string;
-        youtube?: string;
-        facebook?: string;
-        instagram?: string;
-    };
+        name: string;
+        value: string;
+    }[];
     heatmap?: {
         [key: string]: number;
     };

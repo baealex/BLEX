@@ -139,7 +139,7 @@ class UserConfigMeta(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.user.username} {self.name}'
+        return f'{self.user.username} {self.name} {self.value}'
 
 
 class Config(models.Model):
@@ -443,7 +443,7 @@ class PostNoThanks(models.Model):
         return str(self.post)
 
 
-class UserProfileLayout(models.Model):
+class UserLinkMeta(models.Model):
     order = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
@@ -451,13 +451,8 @@ class UserProfileLayout(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
-
-class UserLinkMeta(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
-    value = models.CharField(max_length=255)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return f'{self.user.username} {self.name} {self.value}'
 
 
 class Profile(models.Model):
@@ -473,15 +468,19 @@ class Profile(models.Model):
     instagram = models.CharField(max_length=15, blank=True)  # deprecated
     linkedin = models.CharField(max_length=30, blank=True)  # deprecated
     socials = models.TextField(blank=True)  # deprecated
-    about_md = models.TextField(blank=True)  # deprecated
-    about_html = models.TextField(blank=True)  # deprecated
+    about_md = models.TextField(blank=True)
+    about_html = models.TextField(blank=True)
 
     def collect_social(self):
-        result = dict()
-        for social in ['homepage', 'github', 'twitter', 'youtube', 'facebook', 'instagram', 'linkedin']:
-            if getattr(self, social):
-                result[social] = getattr(self, social)
-        return result
+        socials = []
+        for meta in UserLinkMeta.objects.filter(user=self.user).order_by('order'):
+            socials.append({
+                'id': meta.id,
+                'name': meta.name,
+                'value': meta.value,
+                'order': meta.order
+            })
+        return socials
 
     def get_thumbnail(self):
         if self.avatar:

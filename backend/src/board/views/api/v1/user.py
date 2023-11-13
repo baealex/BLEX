@@ -48,7 +48,6 @@ def users(request, username):
 
                 elif include == 'social':
                     data[include] = user_profile.collect_social()
-                    data[include]['username'] = user.username
 
                 elif include == 'heatmap':
                     standard_date = timezone.now() - datetime.timedelta(days=365)

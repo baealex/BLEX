@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, RefererFrom, Series, Post,
     PostAnalytics, TempPosts, Profile, Notify,
@@ -68,8 +69,8 @@ def setting(request, parameter):
                 'name': user.first_name,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
                 'email': user.email,
-                'agree_display_email': user.config.get_meta('AGREE_DISPLAY_EMAIL'),
-                'agree_send_email': user.config.get_meta('AGREE_SEND_EMAIL')
+                'agree_display_email': user.config.get_meta(CONFIG_TYPE.AGREE_DISPLAY_EMAIL),
+                'agree_send_email': user.config.get_meta(CONFIG_TYPE.AGREE_SEND_EMAIL),
             })
 
         if parameter == 'profile':
@@ -77,13 +78,7 @@ def setting(request, parameter):
             return StatusDone({
                 'avatar': profile.get_thumbnail(),
                 'bio': profile.bio,
-                'homepage': profile.homepage,
-                'github': profile.github,
-                'twitter': profile.twitter,
-                'youtube': profile.youtube,
-                'facebook': profile.facebook,
-                'instagram': profile.instagram,
-                'linkedin': profile.linkedin,
+                'social': profile.collect_social(),
             })
 
         if parameter == 'posts':
@@ -552,13 +547,12 @@ def setting(request, parameter):
             if should_update:
                 user.save()
 
-            config_names = [
-                'AGREE_DISPLAY_EMAIL',
-                'AGREE_SEND_EMAIL',
+            configs = [
+                CONFIG_TYPE.AGREE_DISPLAY_EMAIL,
+                CONFIG_TYPE.AGREE_SEND_EMAIL,
             ]
-            for config_name in config_names:
-                user.config.create_or_update_meta(
-                    config_name, put.get(config_name, ''))
+            for config in configs:
+                user.config.create_or_update_meta(config, put.get(config.value, ''))
 
             return StatusDone()
 

@@ -4,13 +4,25 @@ const cn = classNames.bind(styles);
 
 export interface SocialProps {
     username: string;
-    github?: string;
-    twitter?: string;
-    youtube?: string;
-    facebook?: string;
-    instagram?: string;
-    linkedin?: string;
+    social: {
+        name: string;
+        value: string;
+    }[];
 }
+
+const getIconName = (name: string) => {
+    if (
+        name === 'github' ||
+        name === 'twitter' ||
+        name === 'facebook' ||
+        name === 'instagram' ||
+        name === 'linkedin' ||
+        name === 'youtube'
+    ) {
+        return name;
+    }
+    return 'edge';
+};
 
 export function Social(props: SocialProps) {
     return (
@@ -20,22 +32,12 @@ export function Social(props: SocialProps) {
                     <i className="fas fa-rss-square" />
                 </a>
             </li>
-            {['github', 'twitter', 'youtube', 'facebook', 'instagram', 'linkedin'].map((name) => (
-                props[name as keyof SocialProps] && (
-                    <li key={name}>
-                        <a
-                            data-name={name}
-                            href={(
-                                name === 'youtube'
-                                    ? `https://youtube.com/channel/${props.youtube}`
-                                    : name === 'linkedin'
-                                        ? `https://linkedin.com/in/${props.linkedin}`
-                                        : `https://${name}.com/${props[name as keyof SocialProps]}`
-                            )}>
-                            <i className={`fab fa-${name}`} />
-                        </a>
-                    </li>
-                )
+            {props.social.map((item) => (
+                <li key={item.value}>
+                    <a href={`://${item.value}`} data-name={item.name}>
+                        <i className={`fab fa-${getIconName(item.name)}`} />
+                    </a>
+                </li>
             ))}
         </ul>
     );

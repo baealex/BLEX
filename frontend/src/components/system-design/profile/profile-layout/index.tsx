@@ -23,7 +23,7 @@ export interface ProfileLayoutProps {
         username: string;
         bio: string;
     };
-    social?: { homepage?: string } & SocialProps;
+    social?: SocialProps['social'];
     active: string;
     children?: JSX.Element;
 }
@@ -31,36 +31,27 @@ export interface ProfileLayoutProps {
 export function ProfileLayout(props: ProfileLayoutProps) {
     const router = useRouter();
 
-    const [ username ] = useValue(authStore, 'username');
+    const [username] = useValue(authStore, 'username');
 
     return (
         <>
             <div className="container">
                 <div className={`${cn('user')}`}>
-                    <img className={cn('avatar')} src={props.profile.image}/>
+                    <img className={cn('avatar')} src={props.profile.image} />
                     <div className={cn('name')}>{props.profile.name}</div>
                     <div className={cn('username')}>@{props.profile.username}</div>
-                    {(props.social?.homepage || props.profile.bio) && (
-                        <div className="d-flex justify-content-center align-items-center">
-                            {props.social?.homepage && (
-                                <div className={cn('homepage')}>
-                                    <a href={`https://${props.social?.homepage}`}>
-                                        {props.social?.homepage.split('/')[0]}
-                                    </a>
-                                </div>
-                            )}
-                            {(props.social?.homepage && props.profile.bio) && (
-                                <div className={cn('divider')}>·</div>
-                            )}
-                            {props.profile.bio && (
-                                <div className={cn('bio')}>
-                                    {props.profile.bio}
-                                </div>
-                            )}
-                        </div>
+                    {(props.profile.bio) && (
+                        props.profile.bio && (
+                            <div className={cn('bio')}>
+                                {props.profile.bio}
+                            </div>
+                        )
                     )}
                     {props.social && (
-                        <Social {...props.social}/>
+                        <Social
+                            username={props.profile.username}
+                            social={props.social}
+                        />
                     )}
                     {username === props.profile.username ? (
                         <Button
@@ -74,13 +65,13 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                         <SubscribeButton author={props.profile.username} />
                     )}
                 </div>
-            </div>
+            </div >
             <ProfileNavigation
                 active={props.active}
                 username={props.profile.username}
             />
             {props.children}
-            <Footer/>
+            <Footer />
         </>
     );
 }
