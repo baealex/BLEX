@@ -19,7 +19,7 @@
     "@dnd-kit/sortable": "^7.0.2",
     "@dnd-kit/utilities": "^3.2.2",
     "@hcaptcha/react-hcaptcha": "^1.9.0",
-    "axios": "^0.27.2",
+    "axios": "^1.6.0",
     "badland": "^0.2.4",
     "badland-react": "^0.0.7",
     "classnames": "^2.3.2",
