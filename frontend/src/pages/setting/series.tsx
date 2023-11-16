@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
-import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { DragEndEvent } from '@dnd-kit/core';
 
-import { Button, Card } from '@design-system';
+import { Button, Card, VerticalSortable } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -82,13 +81,6 @@ const SeriesSetting: PageComponent<Props> = (props) => {
     const [newSeries, setNewSeries] = useState('');
     const [series, setSeries] = useState(props.series);
 
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates
-        })
-    );
-
     const handleCreate = async () => {
         if (!newSeries) {
             snackBar(message('BEFORE_REQ_ERR', '시리즈의 이름을 입력해주세요.'));
@@ -108,8 +100,7 @@ const SeriesSetting: PageComponent<Props> = (props) => {
         if (confirm(message('CONFIRM', '정말 이 시리즈를 삭제할까요?'))) {
             const { data } = await API.deleteUserSeries('@' + props.username, url);
             if (data.status === 'DONE') {
-                setSeries((prevSeries) => prevSeries
-                    .filter(series => series.url !== url));
+                setSeries((prevSeries) => prevSeries.filter(series => series.url !== url));
                 snackBar(message('AFTER_REQ_DONE', '시리즈가 삭제되었습니다.'));
             }
         }
@@ -160,27 +151,16 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                     </Button>
                 </div>
             </form>
-            <DndContext
-                sensors={sensors}
-                modifiers={[
-                    restrictToVerticalAxis,
-                    restrictToFirstScrollableAncestor
-                ]}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}>
-                <SortableContext
-                    items={series.map((item) => item.url)}
-                    strategy={verticalListSortingStrategy}>
-                    {series.map((item) => (
-                        <SeriesItem
-                            key={item.url}
-                            username={props.username}
-                            {...item}
-                            onClickDelete={() => handleDelete(item.url)}
-                        />
-                    ))}
-                </SortableContext>
-            </DndContext>
+            <VerticalSortable items={series.map((item) => item.url)} onDragEnd={handleDragEnd}>
+                {series.map((item) => (
+                    <SeriesItem
+                        key={item.url}
+                        username={props.username}
+                        {...item}
+                        onClickDelete={() => handleDelete(item.url)}
+                    />
+                ))}
+            </VerticalSortable>
         </>
     );
 };

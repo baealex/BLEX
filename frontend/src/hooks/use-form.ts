@@ -27,7 +27,9 @@ export function useForm<T>() {
                 if (ref.current) {
                     return {
                         ...acc,
-                        [ref.current.name]: ref.current.value
+                        [ref.current.name]: ref.current instanceof HTMLInputElement && ref.current.type === 'checkbox'
+                            ? ref.current.checked
+                            : ref.current.value
                     };
                 }
                 return acc;
@@ -40,9 +42,13 @@ export function useForm<T>() {
     const reset = useCallback(<K extends keyof T>(initData?: Pick<T, K>) => {
         forms.current.forEach(ref => {
             if (ref.current) {
-                ref.current.value = initData?.[ref.current.name as K]
-                    ? '' + initData[ref.current.name as K]
-                    : '';
+                if (ref.current instanceof HTMLInputElement && ref.current.type === 'checkbox') {
+                    ref.current.checked = !!initData?.[ref.current.name as K];
+                } else {
+                    ref.current.value = initData?.[ref.current.name as K]
+                        ? '' + initData[ref.current.name as K]
+                        : '';
+                }
             }
         });
     }, []);
