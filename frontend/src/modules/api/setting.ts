@@ -64,13 +64,12 @@ export async function getSettingAccount(headers?: Headers) {
 export interface GetSettingProfileResponseData {
     avatar: string;
     bio: string;
-    homepage: string;
-    github: string;
-    twitter: string;
-    youtube: string;
-    facebook: string;
-    instagram: string;
-    linkedin: string;
+    social: {
+        id: number;
+        name: string;
+        value: string;
+        order: number;
+    }[];
 }
 
 export async function getSettingProfile(headers?: Headers) {

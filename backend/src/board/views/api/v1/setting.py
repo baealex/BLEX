@@ -8,8 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    User, RefererFrom, Series, Post,
+    User, RefererFrom, Series, Post, UserLinkMeta,
     PostAnalytics, TempPosts, Profile, Notify,
     OpenAIConnection, OpenAIUsageHistory)
 from board.modules.paginator import Paginator
@@ -46,30 +47,31 @@ def setting(request, parameter):
             })
         
         if parameter == 'notify-config':
-            config_names = [
-                'NOTIFY_POSTS_LIKE',
-                'NOTIFY_POSTS_COMMENT',
-                'NOTIFY_POSTS_THANKS',
-                'NOTIFY_POSTS_NO_THANKS',
-                'NOTIFY_COMMENT_LIKE',
-                'NOTIFY_FOLLOW',
-                'NOTIFY_MENTION',
+            configs = [
+                CONFIG_TYPE.NOTIFY_POSTS_LIKE,
+                CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
+                CONFIG_TYPE.NOTIFY_POSTS_THANKS,
+                CONFIG_TYPE.NOTIFY_POSTS_NO_THANKS,
+                CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
+                CONFIG_TYPE.NOTIFY_FOLLOW,
+                CONFIG_TYPE.NOTIFY_MENTION,
             ]
             return StatusDone({
-                'config': list(map(lambda config_name: {
-                    'name': config_name,
-                    'value': user.config.get_meta(config_name)
-                }, config_names))
+                'config': list(map(lambda config: {
+                    'name': config.value,
+                    'value': user.config.get_meta(config)
+                }, configs))
             })
 
         if parameter == 'account':
+            print(user.config.get_meta(CONFIG_TYPE.AGREE_DISPLAY_EMAIL))
             return StatusDone({
                 'username': user.username,
                 'name': user.first_name,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
                 'email': user.email,
-                'agree_display_email': user.config.get_meta('AGREE_DISPLAY_EMAIL'),
-                'agree_send_email': user.config.get_meta('AGREE_SEND_EMAIL')
+                'agree_display_email': user.config.get_meta(CONFIG_TYPE.AGREE_DISPLAY_EMAIL),
+                'agree_send_email': user.config.get_meta(CONFIG_TYPE.AGREE_SEND_EMAIL),
             })
 
         if parameter == 'profile':
@@ -77,13 +79,7 @@ def setting(request, parameter):
             return StatusDone({
                 'avatar': profile.get_thumbnail(),
                 'bio': profile.bio,
-                'homepage': profile.homepage,
-                'github': profile.github,
-                'twitter': profile.twitter,
-                'youtube': profile.youtube,
-                'facebook': profile.facebook,
-                'instagram': profile.instagram,
-                'linkedin': profile.linkedin,
+                'social': profile.collect_social(),
             })
 
         if parameter == 'posts':
@@ -523,18 +519,18 @@ def setting(request, parameter):
             return StatusDone()
 
         if parameter == 'notify-config':
-            config_names = [
-                'NOTIFY_POSTS_LIKE',
-                'NOTIFY_POSTS_COMMENT',
-                'NOTIFY_POSTS_THANKS',
-                'NOTIFY_POSTS_NO_THANKS',
-                'NOTIFY_COMMENT_LIKE',
-                'NOTIFY_FOLLOW',
-                'NOTIFY_MENTION',
+            configs = [
+                CONFIG_TYPE.NOTIFY_POSTS_LIKE,
+                CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
+                CONFIG_TYPE.NOTIFY_POSTS_THANKS,
+                CONFIG_TYPE.NOTIFY_POSTS_NO_THANKS,
+                CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
+                CONFIG_TYPE.NOTIFY_FOLLOW,
+                CONFIG_TYPE.NOTIFY_MENTION,
             ]
-            for config_name in config_names:
+            for config in configs:
                 user.config.create_or_update_meta(
-                    config_name, put.get(config_name, ''))
+                    config, put.get(config, ''))
 
             return StatusDone()
 
@@ -552,34 +548,68 @@ def setting(request, parameter):
             if should_update:
                 user.save()
 
-            config_names = [
-                'AGREE_DISPLAY_EMAIL',
-                'AGREE_SEND_EMAIL',
+            configs = [
+                CONFIG_TYPE.AGREE_DISPLAY_EMAIL,
+                CONFIG_TYPE.AGREE_SEND_EMAIL,
             ]
-            for config_name in config_names:
-                user.config.create_or_update_meta(
-                    config_name, put.get(config_name, ''))
+            for config in configs:
+                user.config.create_or_update_meta(config, put.get(config.value, ''))
 
             return StatusDone()
 
         if parameter == 'profile':
             profile = Profile.objects.get(user=user)
 
-            socials = [
+            attrs = [
                 'bio',
-                'homepage',
-                'github',
-                'twitter',
-                'youtube',
-                'facebook',
-                'instagram',
-                'linkedin',
             ]
-            for social in socials:
-                setattr(profile, social, put.get(social, ''))
+            for attr in attrs:
+                setattr(profile, attr, put.get(attr, ''))
 
             profile.save()
             return StatusDone()
+    
+        if parameter == 'social':
+            update_items = put.get('update', '')
+            for update_item in update_items.split('&'):
+                if not update_item:
+                    continue
+
+                [id, name, value, order] = update_item.split(',')
+                UserLinkMeta.objects.update_or_create(
+                    user=user,
+                    id=id,
+                    defaults={
+                        'name': name,
+                        'value': value,
+                        'order': order,
+                    }
+                )                
+            
+            create_items = put.get('create', '')
+            for create_item in create_items.split('&'):
+                if not create_item:
+                    continue
+
+                [name, value, order] = create_item.split(',')
+                UserLinkMeta.objects.create(
+                    user=user,
+                    name=name,
+                    value=value,
+                    order=order,
+                )
+
+            delete_items = put.get('delete', '')
+            for delete_item in delete_items.split('&'):
+                if not delete_item:
+                    continue
+
+                UserLinkMeta.objects.filter(
+                    user=user,
+                    id=delete_item,
+                ).delete()
+            
+            return StatusDone(user.profile.collect_social())
 
     if request.method == 'DELETE':
         if parameter == 'integration-openai':
