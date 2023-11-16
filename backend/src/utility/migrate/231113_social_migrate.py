@@ -14,26 +14,39 @@ if __name__ == '__main__':
     profiles = Profile.objects.all()
 
     for profile in profiles:
-        socials = profile.collect_social()
-        for key in socials.keys():
-            url = ''
-            if key == 'homepage':
-                url = 'https://' + socials[key]
-            if key == 'facebook':
-                url = 'https://facebook.com/' + socials[key]
-            if key == 'twitter':
-                url = 'https://x.com/' + socials[key]
-            if key == 'instagram':
-                url = 'https://instagram.com/' + socials[key]
-            if key == 'github':
-                url = 'https://github.com/' + socials[key]
-            if key == 'linkedin':
-                url = 'https://linkedin.com/in/' + socials[key]
-            if key == 'youtube':
-                url = 'https://youtube.com/channel/' + socials[key]
-            
+        if profile.facebook:
             UserLinkMeta.objects.create(
                 user=profile.user,
-                name=key,
-                value=url
+                name='facebook',
+                value=profile.facebook
+            )
+        if profile.twitter:
+            UserLinkMeta.objects.create(
+                user=profile.user,
+                name='twitter',
+                value=profile.twitter
+            )
+        if profile.instagram:
+            UserLinkMeta.objects.create(
+                user=profile.user,
+                name='instagram',
+                value=profile.instagram
+            )
+        if profile.github:
+            UserLinkMeta.objects.create(
+                user=profile.user,
+                name='github',
+                value=profile.github
+            )
+        if profile.linkedin:
+            UserLinkMeta.objects.create(
+                user=profile.user,
+                name='linkedin',
+                value=profile.linkedin
+            )
+        if profile.youtube:
+            UserLinkMeta.objects.create(
+                user=profile.user,
+                name='youtube',
+                value=profile.youtube
             )
