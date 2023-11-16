@@ -1,6 +1,6 @@
 import axios, {
     AxiosRequestConfig,
-    AxiosRequestHeaders
+    RawAxiosRequestHeaders
 } from 'axios';
 
 import { CONFIG } from '~/modules/settings';
@@ -37,7 +37,7 @@ export interface ResponseData<T> {
     body: T;
 }
 
-export type Headers = AxiosRequestHeaders & {
+export type Headers = RawAxiosRequestHeaders & {
     'Cookie'?: string;
     'Content-Type'?: string;
 };
