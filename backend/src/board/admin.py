@@ -236,6 +236,22 @@ class PostNoThanksAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **kwargs)
 
 
-admin.site.register(UserConfigMeta)
-admin.site.register(UserLinkMeta)
+@admin.register(UserConfigMeta)
+class PostNoThanksAdmin(admin.ModelAdmin):
+    list_display = ['user', 'name', 'value']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user']
+        return super().get_form(request, obj, **kwargs)
+    
+
+@admin.register(UserLinkMeta)
+class PostNoThanksAdmin(admin.ModelAdmin):
+    list_display = ['user', 'name', 'value']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user']
+        return super().get_form(request, obj, **kwargs)
+
+
 admin.site.register(UsernameChangeLog)

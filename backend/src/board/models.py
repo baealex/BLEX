@@ -139,7 +139,7 @@ class UserConfigMeta(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.user.username} {self.name} {self.value}'
+        return self.user.username
 
 
 class Config(models.Model):
@@ -271,7 +271,7 @@ class Post(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     series = models.ForeignKey(
         'board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=65)
     url = models.SlugField(max_length=65, unique=True, allow_unicode=True)
     image = models.ImageField(blank=True, upload_to=title_image_path)
     read_time = models.IntegerField(default=0)
@@ -452,7 +452,7 @@ class UserLinkMeta(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.user.username} {self.name} {self.value}'
+        return self.user.username
 
 
 class Profile(models.Model):
@@ -461,13 +461,6 @@ class Profile(models.Model):
     cover = models.ImageField(blank=True, upload_to=cover_path)
     avatar = models.ImageField(blank=True, upload_to=avatar_path)
     homepage = models.CharField(max_length=100, blank=True)
-    github = models.CharField(max_length=15, blank=True)  # deprecated
-    twitter = models.CharField(max_length=15, blank=True)  # deprecated
-    youtube = models.CharField(max_length=30, blank=True)  # deprecated
-    facebook = models.CharField(max_length=30, blank=True)  # deprecated
-    instagram = models.CharField(max_length=15, blank=True)  # deprecated
-    linkedin = models.CharField(max_length=30, blank=True)  # deprecated
-    socials = models.TextField(blank=True)  # deprecated
     about_md = models.TextField(blank=True)
     about_html = models.TextField(blank=True)
 
