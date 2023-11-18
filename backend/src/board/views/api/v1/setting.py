@@ -543,6 +543,21 @@ def setting(request, parameter):
                 should_update = True
 
             if password:
+                if len(password) < 8:
+                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 8자 이상이어야 합니다.')
+
+                if not any(x.isdigit() for x in password):
+                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 숫자를 포함해야 합니다.')
+
+                if not any(x.islower() for x in password):
+                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 소문자를 포함해야 합니다.')
+
+                if not any(x.isupper() for x in password):
+                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 대문자를 포함해야 합니다.')
+
+                if not any(not x.isupper() and not x.islower() and not x.isdigit() for x in password):
+                    return StatusError(ErrorCode.VALIDATE, '비밀번호는 특수문자를 포함해야 합니다.')
+
                 user.set_password(password)
                 auth.login(request, user)
                 should_update = True

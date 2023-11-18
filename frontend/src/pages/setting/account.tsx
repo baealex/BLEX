@@ -70,6 +70,36 @@ const AccountSetting: PageComponent<Props> = (props) => {
             return;
         }
 
+        if (form.password.length < 8) {
+            setFocus('password');
+            snackBar(message('BEFORE_REQ_ERR', '패스워드는 8자 이상이어야 합니다.'));
+            return;
+        }
+
+        if (!/[0-9]/.test(form.password)) {
+            setFocus('password');
+            snackBar(message('BEFORE_REQ_ERR', '패스워드는 숫자를 포함해야 합니다.'));
+            return;
+        }
+
+        if (!/[a-z]/.test(form.password)) {
+            setFocus('password');
+            snackBar(message('BEFORE_REQ_ERR', '패스워드는 소문자를 포함해야 합니다.'));
+            return;
+        }
+
+        if (!/[A-Z]/.test(form.password)) {
+            setFocus('password');
+            snackBar(message('BEFORE_REQ_ERR', '패스워드는 대문자를 포함해야 합니다.'));
+            return;
+        }
+
+        if (!/[^a-zA-Z0-9]/.test(form.password)) {
+            setFocus('password');
+            snackBar(message('BEFORE_REQ_ERR', '패스워드는 특수문자를 포함해야 합니다.'));
+            return;
+        }
+
         if (form.password !== form.passwordConfirm) {
             setFocus('password');
             snackBar(message('BEFORE_REQ_ERR', '패스워드가 서로 다릅니다.'));
@@ -89,6 +119,8 @@ const AccountSetting: PageComponent<Props> = (props) => {
                 password: '',
                 passwordConfirm: ''
             });
+        } else {
+            snackBar(message('AFTER_REQ_ERR', data.errorMessage));
         }
     });
 
@@ -191,23 +223,12 @@ const AccountSetting: PageComponent<Props> = (props) => {
             <Card hasBackground isRounded className="mb-4 p-3">
                 <div className="d-flex justify-content-between mb-2">
                     <Text fontSize={6} fontWeight={600}>
-                        이메일
-                    </Text>
-                </div>
-                <Text>{props.email}</Text>
-            </Card>
-            <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
-                    <Text fontSize={6} fontWeight={600}>
-                        사용자 실명
+                        사용자 이름
                     </Text>
                     <Button type="submit">
                         업데이트
                     </Button>
                 </div>
-                <Alert type="warning">
-                    반드시 실명일 필요는 없으나 실명 사용을 권장합니다.
-                </Alert>
                 <div className="mt-2">
                     <input
                         {...register('name')}
@@ -221,12 +242,23 @@ const AccountSetting: PageComponent<Props> = (props) => {
             <Card hasBackground isRounded className="mb-4 p-3">
                 <div className="d-flex justify-content-between mb-2">
                     <Text fontSize={6} fontWeight={600}>
+                        이메일
+                    </Text>
+                </div>
+                <Text>{props.email}</Text>
+            </Card>
+            <Card hasBackground isRounded className="mb-4 p-3">
+                <div className="d-flex justify-content-between mb-2">
+                    <Text fontSize={6} fontWeight={600}>
                         비밀번호 변경
                     </Text>
                     <Button type="submit">
                         업데이트
                     </Button>
                 </div>
+                <Alert type="warning" className="mb-2">
+                    비밀번호는 8자 이상, 소문자, 대문자, 숫자, 특수문자를 포함해야 합니다.
+                </Alert>
                 <input
                     {...register('password')}
                     type="password"
