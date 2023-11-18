@@ -102,10 +102,7 @@ class PostLikesAdmin(admin.ModelAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'subscriber']
-
-    def subscriber(self, obj):
-        return obj.total_subscriber()
+    list_display = ['user', 'homepage', 'bio']
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user']
