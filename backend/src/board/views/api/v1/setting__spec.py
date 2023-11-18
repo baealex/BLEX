@@ -69,4 +69,3 @@ class SettingTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['body']['username'], 'test')
         self.assertEqual(content['body']['name'], 'Test User')
-        self.assertEqual(content['body']['agreeDisplayEmail'], None)

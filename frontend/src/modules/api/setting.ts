@@ -47,10 +47,8 @@ export async function getSettingNotifyConfig(headers?: Headers) {
 export interface GetSettingAccountResponseData {
     username: string;
     name: string;
-    createdDate: string;
     email: string;
-    agreeDisplayEmail: boolean;
-    agreeSendEmail: boolean;
+    createdDate: string;
 }
 
 export async function getSettingAccount(headers?: Headers) {

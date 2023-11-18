@@ -173,16 +173,16 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 }
                                 menus={[
                                     {
+                                        name: '분석',
+                                        onClick: () => router.push(`/@${props.username}/${post.url}/analytics`)
+                                    },
+                                    {
                                         name: '수정',
                                         onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
                                     },
                                     {
                                         name: '삭제',
                                         onClick: () => onPostsDelete(post.url)
-                                    },
-                                    {
-                                        name: '분석',
-                                        onClick: () => router.push(`/@${props.username}/${post.url}/analytics`)
                                     }
                                 ]}
                             />
@@ -204,17 +204,17 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                         onChange={(e) => onTagChange(post.url, e.target.value)}
                                     />
                                 </div>
-                                <Button onClick={() => onTagSubmit(post.url)}>변경</Button>
+                                <Button onClick={() => onTagSubmit(post.url)}>
+                                    변경
+                                </Button>
                             </div>
                         </FormControl>
                     </div>
-                    {
-                        post.readTime > 30 && (
-                            <Alert type="danger">
-                                이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
-                            </Alert>
-                        )
-                    }
+                    {post.readTime > 30 && (
+                        <Alert type="danger">
+                            이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
+                        </Alert>
+                    )}
                     < div className="setting-info p-3" >
                         <div className="d-flex justify-content-between align-items-center shallow-dark ns">
                             <ul className="none-list mb-0">

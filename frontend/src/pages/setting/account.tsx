@@ -43,8 +43,6 @@ interface AccountForm {
     name: string;
     password: string;
     passwordConfirm: string;
-    agreeDisplayEmail: boolean;
-    agreeSendEmail: boolean;
 }
 
 const AccountSetting: PageComponent<Props> = (props) => {
@@ -61,9 +59,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
 
     useDidMount(() => {
         reset({
-            name: props.name,
-            agreeDisplayEmail: props.agreeDisplayEmail,
-            agreeSendEmail: props.agreeSendEmail
+            name: props.name
         });
     });
 
@@ -82,9 +78,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
 
         const { data } = await API.putSetting('account', {
             name: form.name,
-            password: form.password,
-            AGREE_DISPLAY_EMAIL: form.agreeDisplayEmail,
-            AGREE_SEND_EMAIL: form.agreeSendEmail
+            password: form.password
         });
 
         if (data.status === 'DONE') {
