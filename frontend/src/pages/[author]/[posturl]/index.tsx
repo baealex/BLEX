@@ -19,7 +19,7 @@ import {
     ArticleThanks,
     RelatedArticles
 } from '@system-design/article-detail-page';
-import { Button, Card, Text } from '@design-system';
+import { Button, Card, Flex, Text } from '@design-system';
 import {
     Footer,
     SEO
@@ -174,11 +174,11 @@ function PostDetail(props: Props) {
                                     <Text fontSize={5} fontWeight={600}>
                                         포스트 관리
                                     </Text>
-                                    <div>
-                                        <Button gap="little" onClick={handleClickEdit}>수정</Button>
+                                    <Flex gap={1}>
                                         <Button gap="little" onClick={handleClickAnalytics}>분석</Button>
+                                        <Button gap="little" onClick={handleClickEdit}>수정</Button>
                                         <Button onClick={handleClickDelete}>삭제</Button>
-                                    </div>
+                                    </Flex>
                                 </Card>
                             )}
                             <ArticleContent html={props.post.textHtml} />
