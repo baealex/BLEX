@@ -23,7 +23,7 @@ export class AccountDeleteModal extends React.Component<Props, State> {
         this.state = { token: '' };
     }
 
-    async onSignOut() {
+    async handleAccountDelete() {
         const { data } = await API.deleteSign();
         if (data.status === 'DONE') {
             snackBar('😀 계정이 삭제되었습니다.');
@@ -36,11 +36,11 @@ export class AccountDeleteModal extends React.Component<Props, State> {
     render() {
         return (
             <Modal
-                title="정말 탈퇴 하시겠습니까?"
+                title="정말 삭제 하시겠습니까?"
                 isOpen={this.props.isOpen}
                 onClose={this.props.onClose}
-                submitText="네 탈퇴할게요"
-                onSubmit={this.onSignOut.bind(this)}>
+                submitText="네 삭제할게요"
+                onSubmit={this.handleAccountDelete.bind(this)}>
                 <>
                     다음 정보가 즉시 삭제됩니다.
                     <ul>

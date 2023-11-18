@@ -65,7 +65,7 @@ function SocialItem(props: {
                 transform: CSS.Translate.toString(transform),
                 transition
             }}>
-            <Flex align="center" gap={3} className="mb-2">
+            <Flex align="center" gap={2} className="mb-2">
                 <div className="d-flex justify-content-between align-items-center">
                     <div
                         {...listeners}
@@ -113,8 +113,8 @@ function SocialItem(props: {
                         }}
                     />
                 </div>
-                <Button onClick={() => props.onClickDelete()}>
-                    삭제
+                <Button color="default" onClick={() => props.onClickDelete()}>
+                    <i className="fas fa-times" />
                 </Button>
             </Flex>
         </div>
@@ -311,6 +311,11 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     </Text>
                     <Button onClick={handleSocialSubmit}>업데이트</Button>
                 </div>
+                {socials.some((social) => social.prepare) && (
+                    <Alert type="warning" className="mb-2">
+                        소셜 정보를 갱신 하시려면 반드시 업데이트 버튼을 눌러주세요.
+                    </Alert>
+                )}
                 <VerticalSortable
                     items={socials.map((social) => social.id.toString())}
                     onDragEnd={handleSocialDragEnd}>
@@ -347,7 +352,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     ))}
                 </VerticalSortable>
                 <Button display="block" onClick={handleSocialAdd}>
-                    새 링크 추가
+                    링크 추가
                 </Button>
             </Card>
         </>

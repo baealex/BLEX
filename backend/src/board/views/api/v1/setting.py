@@ -67,10 +67,8 @@ def setting(request, parameter):
             return StatusDone({
                 'username': user.username,
                 'name': user.first_name,
-                'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
                 'email': user.email,
-                'agree_display_email': user.config.get_meta(CONFIG_TYPE.AGREE_DISPLAY_EMAIL),
-                'agree_send_email': user.config.get_meta(CONFIG_TYPE.AGREE_SEND_EMAIL),
+                'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
             })
 
         if parameter == 'profile':
@@ -536,24 +534,21 @@ def setting(request, parameter):
 
         if parameter == 'account':
             should_update = False
+
             name = put.get('name', '')
             password = put.get('password', '')
+
             if name and user.first_name != name:
                 user.first_name = name
                 should_update = True
+
             if password:
                 user.set_password(password)
                 auth.login(request, user)
                 should_update = True
+
             if should_update:
                 user.save()
-
-            configs = [
-                CONFIG_TYPE.AGREE_DISPLAY_EMAIL,
-                CONFIG_TYPE.AGREE_SEND_EMAIL,
-            ]
-            for config in configs:
-                user.config.create_or_update_meta(config, put.get(config.value, ''))
 
             return StatusDone()
 

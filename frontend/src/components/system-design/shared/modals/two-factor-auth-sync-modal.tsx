@@ -55,10 +55,10 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
     render() {
         return (
             <Modal
-                title="2차 인증을 사용할까요?"
+                title="2차 인증을 활성화할까요?"
                 isOpen={this.props.isOpen}
                 onClose={this.props.onClose}
-                submitText="네 사용할게요"
+                submitText="네 활성화할게요"
                 onSubmit={this.onCreateTwoFactorAuth.bind(this)}>
                 <>
                     다음과 같은 요구사항이 필요합니다.
@@ -74,7 +74,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
                             사용할 수 있습니다.
                         </li>
                     </ul>
-                    연동 후 최소 하루동안 유지해야 하므로 신중하게 연동하여 주십시오.
+                    최소 하루동안 유지해야 하므로 신중하게 활성화하여 주십시오.
                 </>
             </Modal>
         );

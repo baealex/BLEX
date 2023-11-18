@@ -33,8 +33,6 @@ class SettingTestCase(TestCase):
                 url=f'/test-url-{i}',
                 key=f'test-key-{i}',
             )
-            
-
 
     def setUp(self):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
@@ -72,4 +70,3 @@ class SettingTestCase(TestCase):
         self.assertEqual(content['body']['username'], 'test')
         self.assertEqual(content['body']['name'], 'Test User')
         self.assertEqual(content['body']['agreeDisplayEmail'], None)
-    

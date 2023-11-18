@@ -3,8 +3,6 @@ from enum import Enum
 from board.modules.requests import BooleanType
 
 class CONFIG_TYPE(Enum):
-    AGREE_DISPLAY_EMAIL = 'AGREE_DISPLAY_EMAIL'
-    AGREE_SEND_EMAIL = 'AGREE_SEND_EMAIL'
     NOTIFY_POSTS_COMMENT = 'NOTIFY_POSTS_COMMENT'
     NOTIFY_POSTS_LIKE = 'NOTIFY_POSTS_LIKE'
     NOTIFY_POSTS_THANKS = 'NOTIFY_POSTS_THANKS'
@@ -14,14 +12,6 @@ class CONFIG_TYPE(Enum):
     NOTIFY_FOLLOW = 'NOTIFY_FOLLOW'
 
 CONFIG_MAP = {
-    CONFIG_TYPE.AGREE_DISPLAY_EMAIL.value: {
-        'name': CONFIG_TYPE.AGREE_DISPLAY_EMAIL.value,
-        'type': BooleanType
-    },
-    CONFIG_TYPE.AGREE_SEND_EMAIL.value: {
-        'name': CONFIG_TYPE.AGREE_SEND_EMAIL.value,
-        'type': BooleanType,
-    },
     CONFIG_TYPE.NOTIFY_POSTS_COMMENT.value: {
         'name': CONFIG_TYPE.NOTIFY_POSTS_COMMENT.value,
         'type': BooleanType,

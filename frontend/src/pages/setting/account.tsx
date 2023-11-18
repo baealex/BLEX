@@ -6,7 +6,7 @@ import {
     Alert,
     Button,
     Card,
-    CheckBox,
+    Flex,
     Text
 } from '@design-system';
 import type { PageComponent } from '~/components';
@@ -248,36 +248,20 @@ const AccountSetting: PageComponent<Props> = (props) => {
                     maxLength={200}
                 />
             </Card>
-            <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
-                    <Text fontSize={6} fontWeight={600}>
-                        개인정보 보호
-                    </Text>
-                    <Button type="submit">
-                        업데이트
+            <Flex justify="end" gap={2} className="mb-4">
+                {hasConnected2fa ? (
+                    <Button onClick={handleDeleteTwoFactorAuth}>
+                        2차 인증 중지
                     </Button>
-                </div>
-                <CheckBox
-                    {...register('agreeDisplayEmail')}
-                    label="다른 사용자에게 이메일을 노출합니다."
-                />
-                <CheckBox
-                    {...register('agreeSendEmail')}
-                    label="서비스의 이메일 전송을 허용합니다."
-                />
-            </Card>
-            {hasConnected2fa ? (
-                <Button gap="little" onClick={handleDeleteTwoFactorAuth}>
-                    2차 인증 중지
+                ) : (
+                    <Button onClick={() => modalStore.open('isOpenTwoFactorAuthSyncModal')}>
+                        2차 인증 활성화
+                    </Button>
+                )}
+                <Button onClick={() => modalStore.open('isOpenAccountDeleteModal')}>
+                    계정 삭제
                 </Button>
-            ) : (
-                <Button gap="little" onClick={() => modalStore.open('isOpenTwoFactorAuthSyncModal')}>
-                    2차 인증 등록
-                </Button>
-            )}
-            <Button onClick={() => modalStore.open('isOpenAccountDeleteModal')}>
-                사용자 탈퇴
-            </Button>
+            </Flex>
         </form>
     );
 };

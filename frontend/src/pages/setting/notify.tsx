@@ -97,9 +97,9 @@ const FormsSetting: PageComponent<Props> = (props) => {
                     <i className="fab fa-telegram-plane" /> 텔레그램을 연동하여 실시간 알림을 받아보세요.
                 </Alert>
             )}
-            <Flex justify="between" className="my-3">
+            <Flex justify="end" className="my-3">
                 <Button onClick={() => setIsOpenConfig(true)}>
-                    알림 설정
+                    <i className="fas fa-cog" /> 알림 설정
                 </Button>
             </Flex>
             <div className="mt-3">
