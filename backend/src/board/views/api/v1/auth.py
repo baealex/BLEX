@@ -10,7 +10,9 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from board.models import Notify, TwoFactorAuth, Config, Profile, Post, UsernameChangeLog
+from board.models import (
+    Notify, TwoFactorAuth, Config, Profile, Post,
+    UserLinkMeta, UsernameChangeLog)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules import oauth
@@ -265,8 +267,7 @@ def sign_social(request, social):
                     token=token,
                 )
 
-                profile.github = user_id
-                profile.save()
+                UserLinkMeta(user=user, name='github', value=user_id).save()
 
                 auth.login(request, user)
                 return login_response(request.user, is_first_login=True)
