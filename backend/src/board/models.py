@@ -730,3 +730,6 @@ class UsernameChangeLog(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     username = models.CharField(max_length=50)
     created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.username} -> {self.user.username}'
