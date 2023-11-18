@@ -46,7 +46,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                             {props.profile.homepage && (
                                 <div className={cn('homepage')}>
                                     <a href={`${props.profile.homepage}`}>
-                                        {props.profile.homepage.replace(/(^\w+:|^)\/\//, '')}
+                                        {props.profile.homepage.replace(/(^\w+:|^)\/\//, '').split('/')?.[0]}
                                     </a>
                                 </div>
                             )}
