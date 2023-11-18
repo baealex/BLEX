@@ -64,6 +64,7 @@ export async function getSettingAccount(headers?: Headers) {
 export interface GetSettingProfileResponseData {
     avatar: string;
     bio: string;
+    homepage: string;
     social: {
         id: number;
         name: string;

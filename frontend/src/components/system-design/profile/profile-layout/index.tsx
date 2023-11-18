@@ -22,6 +22,7 @@ export interface ProfileLayoutProps {
         name: string;
         username: string;
         bio: string;
+        homepage: string;
     };
     social?: SocialProps['social'];
     active: string;
@@ -40,12 +41,24 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                     <img className={cn('avatar')} src={props.profile.image} />
                     <div className={cn('name')}>{props.profile.name}</div>
                     <div className={cn('username')}>@{props.profile.username}</div>
-                    {(props.profile.bio) && (
-                        props.profile.bio && (
-                            <div className={cn('bio')}>
-                                {props.profile.bio}
-                            </div>
-                        )
+                    {(props.profile.homepage || props.profile.bio) && (
+                        <div className="d-flex justify-content-center align-items-center">
+                            {props.profile.homepage && (
+                                <div className={cn('homepage')}>
+                                    <a href={`${props.profile.homepage}`}>
+                                        {props.profile.homepage.replace(/(^\w+:|^)\/\//, '')}
+                                    </a>
+                                </div>
+                            )}
+                            {(props.profile.homepage && props.profile.bio) && (
+                                <div className={cn('divider')}>·</div>
+                            )}
+                            {props.profile.bio && (
+                                <div className={cn('bio')}>
+                                    {props.profile.bio}
+                                </div>
+                            )}
+                        </div>
                     )}
                     {props.social && (
                         <Social

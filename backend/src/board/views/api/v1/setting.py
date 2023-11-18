@@ -64,7 +64,6 @@ def setting(request, parameter):
             })
 
         if parameter == 'account':
-            print(user.config.get_meta(CONFIG_TYPE.AGREE_DISPLAY_EMAIL))
             return StatusDone({
                 'username': user.username,
                 'name': user.first_name,
@@ -79,6 +78,7 @@ def setting(request, parameter):
             return StatusDone({
                 'avatar': profile.get_thumbnail(),
                 'bio': profile.bio,
+                'homepage': profile.homepage,
                 'social': profile.collect_social(),
             })
 
@@ -562,6 +562,7 @@ def setting(request, parameter):
 
             attrs = [
                 'bio',
+                'homepage',
             ]
             for attr in attrs:
                 setattr(profile, attr, put.get(attr, ''))

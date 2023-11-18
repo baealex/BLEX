@@ -11,6 +11,7 @@ export interface GetUserProfileResponseData {
         username: string;
         name: string;
         bio: string;
+        homepage: string;
     };
     social?: {
         name: string;

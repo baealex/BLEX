@@ -40,6 +40,7 @@ def users(request, username):
                         'username': user.username,
                         'name': user.first_name,
                         'bio': user_profile.bio,
+                        'homepage': user_profile.homepage,
                         'has_subscribe': Follow.objects.filter(
                             follower__id=request.user.id,
                             following=user.profile

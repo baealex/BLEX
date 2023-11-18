@@ -103,7 +103,7 @@ function SocialItem(props: {
                 </div>
                 <div style={{ flex: 1 }}>
                     <input
-                        type="text"
+                        type="url"
                         placeholder="주소"
                         className="form-control"
                         defaultValue={props.value}
@@ -123,6 +123,7 @@ function SocialItem(props: {
 
 interface ProfileForm {
     bio: string;
+    homepage: string;
 }
 
 const ProfileSetting: PageComponent<Props> = (props) => {
@@ -282,23 +283,23 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                 <Card hasBackground isRounded className="mb-4 p-3">
                     <div className="d-flex justify-content-between mb-2">
                         <Text fontSize={6} fontWeight={600}>
-                            사용자 간략 소개
+                            사용자 간단 소개
                         </Text>
                         <Button type="submit">
                             업데이트
                         </Button>
                     </div>
-                    <div className="mb-2">
-                        <Alert type="warning">
-                            포스트 상단에서 작성자를 소개하는 문장입니다.
-                            자신을 한문장으로 표현해 본다면?
-                        </Alert>
-                    </div>
+                    <input
+                        {...register('homepage')}
+                        type="url"
+                        placeholder="개인 홈페이지"
+                        className="form-control mb-3"
+                    />
                     <textarea
                         {...register('bio')}
                         cols={40}
                         rows={4}
-                        placeholder="자신을 간단히 설명하세요."
+                        placeholder="본인을 한줄로 표현한다면?"
                         className="form-control mb-3"
                     />
                 </Card>
