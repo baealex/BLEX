@@ -145,6 +145,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
             pathname: router.pathname,
             query: {
                 ...router.query,
+                page: 1,
                 order: e.target.value
             }
         }, '', { scroll: false });
@@ -155,6 +156,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
             pathname: router.pathname,
             query: {
                 ...router.query,
+                page: 1,
                 tag: e.target.value
             }
         }, '', { scroll: false });
@@ -165,6 +167,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
             pathname: router.pathname,
             query: {
                 ...router.query,
+                page: 1,
                 series: e.target.value
             }
         }, '', { scroll: false });
@@ -180,6 +183,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                 pathname: router.pathname,
                 query: {
                     ...router.query,
+                    page: 1,
                     search: e.target.value
                 }
             }, '', { scroll: false });

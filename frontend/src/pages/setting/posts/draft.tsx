@@ -56,6 +56,17 @@ const PostsSetting: PageComponent<Props> = (props) => {
 
     return (
         <>
+            {props.posts.length === 0 && (
+                <Card isRounded hasBackground className="mb-4">
+                    <div className="p-3">
+                        <div className="d-flex justify-content-between">
+                            <span>
+                                작성중인 포스트가 없습니다.
+                            </span>
+                        </div>
+                    </div>
+                </Card>
+            )}
             {props.posts.map((post, idx) => (
                 <Card key={idx} isRounded hasBackground className="mb-4">
                     <div className="p-3">
@@ -78,10 +89,12 @@ const PostsSetting: PageComponent<Props> = (props) => {
                     </div>
                 </Card>
             ))}
-            <Pagination
-                page={props.page}
-                last={props.lastPage}
-            />
+            {props.posts.length > 0 && (
+                <Pagination
+                    page={props.page}
+                    last={props.lastPage}
+                />
+            )}
         </>
     );
 };

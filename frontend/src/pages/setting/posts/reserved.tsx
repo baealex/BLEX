@@ -95,6 +95,15 @@ const PostsSetting: PageComponent<Props> = (props) => {
 
     return (
         <>
+            {posts.length === 0 && (
+                <Card isRounded hasBackground className="mb-4">
+                    <div className="p-3">
+                        <div className="d-flex justify-content-between">
+                            <span>예약된 포스트가 없습니다.</span>
+                        </div>
+                    </div>
+                </Card>
+            )}
             {posts.map((post, idx) => (
                 <Card key={idx} isRounded hasBackground className="mb-4">
                     <div className="p-3 mb-1">
@@ -141,10 +150,12 @@ const PostsSetting: PageComponent<Props> = (props) => {
                     </div>
                 </Card>
             ))}
-            <Pagination
-                page={props.page}
-                last={props.lastPage}
-            />
+            {posts.length > 0 && (
+                <Pagination
+                    page={props.page}
+                    last={props.lastPage}
+                />
+            )}
         </>
     );
 };
