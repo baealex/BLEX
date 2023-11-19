@@ -15,8 +15,7 @@ import {
     Flex,
     FormControl,
     KeywordInput,
-    Label,
-    Loading
+    Label
 } from '@design-system';
 import type { PageComponent } from '~/components';
 import { Pagination } from '@system-design/shared';
@@ -242,7 +241,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         minWidth: '200px'
                     }}>
                     <div>태그 필터</div>
-                    {tags ? (
+                    {tags && (
                         <select
                             className="form-select mb-4"
                             defaultValue={router.query.tag as string || ''}
@@ -252,7 +251,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 <option key={idx} value={tag.name}>{tag.name} ({tag.count})</option>
                             ))}
                         </select>
-                    ) : <Loading />}
+                    )}
                 </div>
                 <div
                     style={{
