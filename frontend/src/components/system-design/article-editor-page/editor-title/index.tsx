@@ -56,7 +56,7 @@ export function EditorTitle(props: EditorTitleProps) {
                 <input
                     name="title"
                     placeholder="포스트 제목"
-                    maxLength={50}
+                    maxLength={65}
                     value={props.value}
                     onChange={(e) => props.onChange(e.target.value)}
                 />
