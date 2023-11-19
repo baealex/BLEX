@@ -14,9 +14,7 @@ import {
     Card,
     Dropdown,
     Flex,
-    FormControl,
-    KeywordInput,
-    Label
+    FormControl
 } from '@design-system';
 import type { PageComponent } from '~/components';
 import { Pagination } from '@system-design/shared';
@@ -25,6 +23,7 @@ import { SettingLayout } from '@system-design/setting';
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
+
 import { useFetch } from '~/hooks/use-fetch';
 
 interface Props extends API.GetSettingPostsResponseData {
@@ -119,10 +118,15 @@ const POSTS_ORDER = [
     }
 ];
 
+type Posts = API.GetSettingPostsResponseData['posts'][number] & {
+    hasTagChanged?: boolean;
+    hasSeriesChanged?: boolean;
+};
+
 const PostsSetting: PageComponent<Props> = (props) => {
     const router = useRouter();
 
-    const [posts, setPosts] = useState(props.posts);
+    const [posts, setPosts] = useState<Posts[]>(props.posts);
 
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -200,10 +204,11 @@ const PostsSetting: PageComponent<Props> = (props) => {
         }) : post)]);
     };
 
-    const handleTagChange = (url: string, value: string) => {
+    const handleTagChange = (url: string, value: string, hasChanged = true) => {
         setPosts((prevPosts) => [...prevPosts.map(post => post.url == url ? ({
             ...post,
-            tag: value
+            tag: value,
+            hasTagChanged: hasChanged
         }) : post)]);
     };
 
@@ -211,8 +216,26 @@ const PostsSetting: PageComponent<Props> = (props) => {
         const thisPost = posts.find(post => post.url == url);
         const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', { tag: thisPost?.tag });
         if (data.status === 'DONE' && data.body.tag) {
-            handleTagChange(url, data.body.tag);
+            handleTagChange(url, data.body.tag, false);
             snackBar(message('AFTER_REQ_DONE', '태그가 수정되었습니다.'));
+        }
+    };
+
+    const handleSeriesChange = (url: string, value: string, hasChanged = true) => {
+        setPosts((prevPosts) => [...prevPosts.map(post => post.url == url ? ({
+            ...post,
+            series: value,
+            hasSeriesChanged: hasChanged
+        }) : post)]);
+    };
+
+    const handleSeriesSubmit = async (url: string) => {
+        const thisPost = posts.find(post => post.url == url);
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'series', { series: thisPost?.series });
+        console.log(data);
+        if (data.status === 'DONE') {
+            handleSeriesChange(url, data.body.series || '', false);
+            snackBar(message('AFTER_REQ_DONE', '시리즈가 수정되었습니다.'));
         }
     };
 
@@ -282,88 +305,110 @@ const PostsSetting: PageComponent<Props> = (props) => {
                     onChange={handleChangeSearch}
                 />
             </div>
-            {
-                posts.map((post, idx) => (
-                    <Card key={idx} isRounded hasBackground className="mb-4">
-                        <div className="p-3">
-                            <div className="d-flex justify-content-between">
-                                <Link className="deep-dark" href={`/@${props.username}/${post.url}`}>
-                                    {post.title}
-                                </Link>
-                                <Dropdown
-                                    button={
-                                        <i className="fas fa-ellipsis-v" />
+            {posts.map((post, idx) => (
+                <Card key={idx} isRounded hasBackground className="mb-4">
+                    <div className="p-3">
+                        <div className="d-flex justify-content-between">
+                            <Link className="deep-dark" href={`/@${props.username}/${post.url}`}>
+                                {post.title}
+                            </Link>
+                            <Dropdown
+                                button={
+                                    <i className="fas fa-ellipsis-v" />
+                                }
+                                menus={[
+                                    {
+                                        name: '분석',
+                                        onClick: () => router.push(`/@${props.username}/${post.url}/analytics`)
+                                    },
+                                    {
+                                        name: '수정',
+                                        onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
+                                    },
+                                    {
+                                        name: '삭제',
+                                        onClick: () => handlePostsDelete(post.url)
                                     }
-                                    menus={[
-                                        {
-                                            name: '분석',
-                                            onClick: () => router.push(`/@${props.username}/${post.url}/analytics`)
-                                        },
-                                        {
-                                            name: '수정',
-                                            onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
-                                        },
-                                        {
-                                            name: '삭제',
-                                            onClick: () => handlePostsDelete(post.url)
-                                        }
-                                    ]}
-                                />
-                            </div>
-                            <div className="mt-1">
-                                <time className="post-date shallow-dark">
-                                    {post.createdDate}
-                                    {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
-                                </time>
-                            </div>
-                            <FormControl className="mt-2">
-                                <Label>태그</Label>
-                                <div className="d-flex justify-content-between align-items-start" style={{ gap: '8px' }}>
-                                    <div style={{ flex: '1' }}>
-                                        <KeywordInput
-                                            name="tag"
-                                            value={post.tag}
-                                            maxLength={50}
-                                            onChange={(e) => handleTagChange(post.url, e.target.value)}
-                                        />
-                                    </div>
-                                    <Button onClick={() => handleTagSubmit(post.url)}>
-                                        변경
-                                    </Button>
-                                </div>
-                            </FormControl>
+                                ]}
+                            />
                         </div>
-                        {post.readTime > 30 && (
-                            <Alert type="danger">
-                                이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
-                            </Alert>
-                        )}
-                        <div className="setting-info p-3" >
-                            <div className="d-flex justify-content-between align-items-center shallow-dark ns">
-                                <ul className="none-list mb-0">
-                                    <li>
-                                        <a onClick={() => handlePostsHide(post.url)} className="element-lock c-pointer">
-                                            {post.isHide
-                                                ? <i className="fas fa-lock" />
-                                                : <i className="fas fa-lock-open" />
-                                            }
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <i className="far fa-heart" /> {post.totalLikes}
-                                    </li>
-                                    <li>
-                                        <i className="far fa-comment" /> {post.totalComments}
-                                    </li>
-                                </ul>
-                                <span>
-                                    오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
-                                </span>
-                            </div>
-                        </div >
-                    </Card >
-                ))
-            }
+                        <div className="mt-1">
+                            <time className="post-date shallow-dark">
+                                {post.createdDate}
+                                {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
+                            </time>
+                        </div>
+                        <FormControl className="mt-2">
+                            <Flex justify="between" align="center" gap={2}>
+                                <div style={{ flex: '1' }}>
+                                    <BaseInput
+                                        tag="input"
+                                        icon={<i className="fas fa-tag" />}
+                                        value={post.tag}
+                                        maxLength={50}
+                                        onChange={(e) => handleTagChange(post.url, e.target.value)}
+                                    />
+                                </div>
+                                {post.hasTagChanged && (
+                                    <Button onClick={() => handleTagSubmit(post.url)}>
+                                        업데이트
+                                    </Button>
+                                )}
+                            </Flex>
+                        </FormControl>
+                        <FormControl className="mt-2">
+                            <Flex justify="between" align="center" gap={2}>
+                                <div style={{ flex: '1' }}>
+                                    <BaseInput
+                                        tag="select"
+                                        icon={<i className="fas fa-book" />}
+                                        value={post.series}
+                                        maxLength={50}
+                                        onChange={(e) => handleSeriesChange(post.url, e.target.value)}>
+                                        <option value="">선택하지 않음</option>
+                                        {series?.map((item, idx) => (
+                                            <option key={idx} value={item.url}>{item.title}</option>
+                                        ))}
+                                    </BaseInput>
+                                </div>
+                                {post.hasSeriesChanged && (
+                                    <Button onClick={() => handleSeriesSubmit(post.url)}>
+                                        업데이트
+                                    </Button>
+                                )}
+                            </Flex>
+                        </FormControl>
+                    </div>
+                    {post.readTime > 30 && (
+                        <Alert type="danger">
+                            이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
+                        </Alert>
+                    )}
+                    <div className="setting-info p-3" >
+                        <div className="d-flex justify-content-between align-items-center shallow-dark ns">
+                            <ul className="none-list mb-0">
+                                <li>
+                                    <a onClick={() => handlePostsHide(post.url)} className="element-lock c-pointer">
+                                        {post.isHide
+                                            ? <i className="fas fa-lock" />
+                                            : <i className="fas fa-lock-open" />
+                                        }
+                                    </a>
+                                </li>
+                                <li>
+                                    <i className="far fa-heart" /> {post.totalLikes}
+                                </li>
+                                <li>
+                                    <i className="far fa-comment" /> {post.totalComments}
+                                </li>
+                            </ul>
+                            <span>
+                                오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
+                            </span>
+                        </div>
+                    </div >
+                </Card >
+            ))}
             <Pagination
                 page={props.page}
                 last={props.lastPage}

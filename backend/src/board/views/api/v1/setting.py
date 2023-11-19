@@ -150,6 +150,7 @@ def setting(request, parameter):
                     'read_time': post.read_time,
                     'yesterday_count': post.yesterday(),
                     'tag': ','.join(post.tagging()),
+                    'series': post.series.url if post.series else '',
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
             })
@@ -162,29 +163,6 @@ def setting(request, parameter):
                 created_date__gt=timezone.now(),
             ).order_by('-created_date')
 
-            valid_orders = [
-                'title',
-                'read_time',
-                'created_date',
-                'updated_date',
-                'hide',
-            ]
-            order = request.GET.get('order', '')
-            if order:
-                is_valid = False
-                for valid_order in valid_orders:
-                    if order == valid_order or order == '-' + valid_order:
-                        is_valid = True
-                if not is_valid:
-                    raise Http404
-
-                if 'hide' in order:
-                    posts = posts.annotate(
-                        hide=F('config__hide'),
-                    )
-
-                posts = posts.order_by(order)
-
             posts = Paginator(
                 objects=posts,
                 offset=10,
@@ -196,10 +174,6 @@ def setting(request, parameter):
                     'url': post.url,
                     'title': post.title,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
-                    'is_hide': post.config.hide,
-                    'today_count': post.today(),
-                    'read_time': post.read_time,
-                    'tag': ','.join(post.tagging()),
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
             })

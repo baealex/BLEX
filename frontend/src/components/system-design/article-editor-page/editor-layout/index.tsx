@@ -29,9 +29,10 @@ import * as API from '~/modules/api';
 import { slugify } from '~/modules/utility/string';
 import { snackBar } from '~/modules/ui/snack-bar';
 
+import { useFetch } from '~/hooks/use-fetch';
+
 import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
-import { useFetch } from '~/hooks/use-fetch';
 
 interface StateValue<T> {
     value: T;

@@ -653,9 +653,35 @@ def user_posts(request, username, url=None):
             if request.GET.get('tag', ''):
                 if not request.user == post.author:
                     raise Http404
+
                 post.set_tags(put.get('tag'))
                 return StatusDone({
                     'tag': ','.join(post.tagging())
+                })
+
+            if request.GET.get('series', ''):
+                if not request.user == post.author:
+                    raise Http404
+
+                series_url = put.get('series')
+                if not series_url:
+                    post.series = None
+                    post.save()
+                    return StatusDone({
+                        'series': None
+                    })
+
+                series = Series.objects.filter(
+                    owner=request.user,
+                    url=series_url
+                )
+                if series.exists():
+                    post.series = series.first()
+                else:
+                    post.series = None
+                post.save()
+                return StatusDone({
+                    'series': post.series.url if post.series else None
                 })
 
             if request.GET.get('reserved_date', ''):
@@ -666,13 +692,6 @@ def user_posts(request, username, url=None):
                     post.created_date = parse_datetime(reserved_date)
                     post.updated_date = parse_datetime(reserved_date)
                     post.save()
-                return StatusDone()
-
-            if request.GET.get('series', ''):
-                if not request.user == post.author:
-                    raise Http404
-                post.series = None
-                post.save()
                 return StatusDone()
 
         if request.method == 'DELETE':

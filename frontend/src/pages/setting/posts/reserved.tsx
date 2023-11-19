@@ -11,14 +11,13 @@ import {
     Card,
     DateInput,
     Dropdown,
+    Flex,
     FormControl,
-    KeywordInput,
     Label
 } from '@design-system';
 import type { PageComponent } from '~/components';
 import { Pagination } from '@system-design/shared';
 import { SettingLayout } from '@system-design/setting';
-import { TagBadges } from '@system-design/tag';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';
@@ -54,21 +53,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
     };
 };
 
-const POSTS_ORDER = [
-    {
-        name: '제목',
-        order: '-title'
-    },
-    {
-        name: '분량',
-        order: '-read_time'
-    },
-    {
-        name: '예약',
-        order: '-created_date'
-    }
-];
-
 const PostsSetting: PageComponent<Props> = (props) => {
     const [posts, setPosts] = useState(props.posts);
 
@@ -86,15 +70,6 @@ const PostsSetting: PageComponent<Props> = (props) => {
         }
     };
 
-    const onTagChange = (url: string, value: string) => {
-        setPosts([...posts.map(post => (
-            post.url == url ? ({
-                ...post,
-                tag: value
-            }) : post
-        ))]);
-    };
-
     const onDateChange = (url: string, value: string) => {
         setPosts([...posts.map(post => (
             post.url == url ? ({
@@ -102,15 +77,6 @@ const PostsSetting: PageComponent<Props> = (props) => {
                 createdDate: value
             }) : post
         ))]);
-    };
-
-    const onTagSubmit = async (url: string) => {
-        const thisPost = posts.find(post => post.url == url);
-        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', { tag: thisPost?.tag });
-        if (data.status === 'DONE' && data.body.tag) {
-            onTagChange(url, data.body.tag);
-            snackBar(message('AFTER_REQ_DONE', '태그가 수정되었습니다.'));
-        }
     };
 
     const handleSubmitDate = async (url: string) => {
@@ -129,31 +95,6 @@ const PostsSetting: PageComponent<Props> = (props) => {
 
     return (
         <>
-            <TagBadges
-                className="mb-4"
-                items={POSTS_ORDER.map((item) => (
-                    <Link
-                        href={{
-                            query: {
-                                ...router.query,
-                                order: router.query.order === item.order
-                                    ? item.order.replace('-', '')
-                                    : item.order,
-                                page: 1
-                            }
-                        }}
-                        scroll={false}>
-                        {item.name}&nbsp;
-                        {router.query.order?.includes(item.order.replace('-', '')) && (
-                            router.query.order?.includes('-') ? (
-                                <i className="fas fa-sort-up" />
-                            ) : (
-                                <i className="fas fa-sort-down" />
-                            )
-                        )}
-                    </Link>
-                ))}
-            />
             {posts.map((post, idx) => (
                 <Card key={idx} isRounded hasBackground className="mb-4">
                     <div className="p-3 mb-1">
@@ -181,7 +122,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         </div>
                         <FormControl className="mt-2">
                             <Label>예약일</Label>
-                            <div className="d-flex justify-content-between align-items-start" style={{ gap: '8px' }}>
+                            <Flex align="center" gap={2}>
                                 <div style={{ flex: '1' }}>
                                     <DateInput
                                         showTime
@@ -194,25 +135,11 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                         }}
                                     />
                                 </div>
-                                <Button onClick={() => handleSubmitDate(post.url)}>변경</Button>
-                            </div>
+                                <Button onClick={() => handleSubmitDate(post.url)}>업데이트</Button>
+                            </Flex>
                         </FormControl>
-                        <FormControl className="mt-2">
-                            <Label>태그</Label>
-                            <div className="d-flex justify-content-between align-items-start" style={{ gap: '8px' }}>
-                                <div style={{ flex: '1' }}>
-                                    <KeywordInput
-                                        name="tag"
-                                        value={post.tag}
-                                        maxLength={50}
-                                        onChange={(e) => onTagChange(post.url, e.target.value)}
-                                    />
-                                </div>
-                                <Button onClick={() => onTagSubmit(post.url)}>변경</Button>
-                            </div>
-                        </FormControl>
-                    </div >
-                </Card >
+                    </div>
+                </Card>
             ))}
             <Pagination
                 page={props.page}

@@ -101,6 +101,7 @@ export interface GetSettingPostsResponseData {
         readTime: number;
         yesterdayCount: number;
         tag: string;
+        series: string;
     }[];
     lastPage: number;
 }

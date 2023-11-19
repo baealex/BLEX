@@ -236,6 +236,7 @@ export function postAnUserPosts(author: string, url: string, data: object) {
 
 export interface PutAnUserPostsResponseData {
     totalLikes?: number;
+    series?: string;
     isHide?: boolean;
     tag?: string;
 }
