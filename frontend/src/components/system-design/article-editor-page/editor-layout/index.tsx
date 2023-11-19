@@ -31,6 +31,7 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
+import { useFetch } from '~/hooks/use-fetch';
 
 interface StateValue<T> {
     value: T;
@@ -63,20 +64,23 @@ interface Props {
 
 export function EditorLayout(props: Props) {
     const [isSubmit, setIsSubmit] = useState(false);
-    const [isGenerating, setIsGenerating] = useState(false);
+    const [isDescriptionGenerating, setIsDescriptionGenerating] = useState(false);
     const [reservedDateErrorMessage, setReservedDateErrorMessage] = useState<string | null>(null);
 
     const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
     const [hasConnectedOpenai, setHasConnectedOpenai] = useValue(authStore, 'hasConnectedOpenai');
 
-    const [series, setSeries] = useState<API.GetSettingSeriesResponseData['series']>();
+    const { data: tags } = useFetch(['tags'], async () => {
+        const { data } = await API.getSettingTag();
+        return data.body.tags;
+    });
+
+    const { data: series } = useFetch(['series'], async () => {
+        const { data } = await API.getSettingSeries();
+        return data.body.series;
+    });
 
     useEffect(() => {
-        API.getSettingSeries().then((response) => {
-            const { data } = response;
-            setSeries(data.body.series);
-        });
-
         const handleDropEvent = (e: DragEvent) => {
             e.preventDefault();
         };
@@ -90,8 +94,8 @@ export function EditorLayout(props: Props) {
         };
     }, []);
 
-    const handleClickAutoGenerate = async () => {
-        setIsGenerating(true);
+    const handleClickDescriptionAutoGenerate = async () => {
+        setIsDescriptionGenerating(true);
         try {
             if (!props.content.value) {
                 snackBar('😅 내용을 작성해주세요.');
@@ -109,8 +113,23 @@ export function EditorLayout(props: Props) {
             }
             props.description.onChange(data.body.description);
         } finally {
-            setIsGenerating(false);
+            setIsDescriptionGenerating(false);
         }
+    };
+
+    const handleClickTagAutoGenerate = async () => {
+        if (!props.content.value) {
+            snackBar('😅 내용을 작성해주세요.');
+            return;
+        }
+        if (!tags) {
+            snackBar('😅 태그를 불러오는 중입니다.');
+            return;
+        }
+        const generatedTag = tags.filter(({ name }) => props.content.value.includes(name))
+            .map(({ name }) => name)
+            .join(', ');
+        props.tags.onChange(generatedTag);
     };
 
     const handleSubmit = async () => {
@@ -153,6 +172,13 @@ export function EditorLayout(props: Props) {
                     value={props.tags.value}
                     onChange={(e) => props.tags.onChange(e.target.value)}
                 />
+                {tags && tags.length > 0 && (
+                    <div className="mt-1 d-flex justify-content-end">
+                        <Button color="transparent" onClick={handleClickTagAutoGenerate}>
+                            <i className="fas fa-retweet" /> 자동 생성
+                        </Button>
+                    </div>
+                )}
             </FormControl>
             {props.extended?.footer}
             <Modal
@@ -182,7 +208,7 @@ export function EditorLayout(props: Props) {
                 )}
                 <FormControl className="mb-3">
                     <Label>설명 (옵션)</Label>
-                    {isGenerating ? (
+                    {isDescriptionGenerating ? (
                         <div className="m-5 d-flex justify-content-center">
                             <Loading position="inline" />
                         </div>
@@ -198,7 +224,7 @@ export function EditorLayout(props: Props) {
                             />
                             {hasConnectedOpenai && (
                                 <div className="mt-1 d-flex justify-content-end">
-                                    <Button color="transparent" onClick={handleClickAutoGenerate}>
+                                    <Button color="transparent" onClick={handleClickDescriptionAutoGenerate}>
                                         <i className="fas fa-retweet" /> 자동 생성 (OpenAI)
                                     </Button>
                                 </div>
