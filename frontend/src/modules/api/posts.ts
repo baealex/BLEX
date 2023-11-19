@@ -244,7 +244,6 @@ export function putAnUserPosts(author: string, url: string, item: string, data =
     return request<PutAnUserPostsResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${item}=${item}`,
         method: 'PUT',
-
         data: serializeObject(data)
     });
 }

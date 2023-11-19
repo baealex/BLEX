@@ -88,9 +88,17 @@ def setting(request, parameter):
                 created_date__lte=timezone.now(),
             ).order_by('-created_date')
 
-            tag_filter = request.GET.get('tag_filter', '')
-            if tag_filter:
-                posts = posts.filter(tags__value=tag_filter)
+            tag = request.GET.get('tag', '')
+            if tag:
+                posts = posts.filter(tags__value=tag)
+            
+            series = request.GET.get('series', '')
+            if series:
+                posts = posts.filter(series__url=series)
+
+            search = request.GET.get('search', '')
+            if search:
+                posts = posts.filter(title__icontains=search)
 
             valid_orders = [
                 'title',
@@ -217,6 +225,23 @@ def setting(request, parameter):
                     'tag': post.tag,
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
+            })
+    
+        if parameter == 'tag':
+            tags = Post.objects.filter(
+                author=user
+            ).values(
+                'tags__value'
+            ).annotate(
+                count=Count('tags__value')
+            ).order_by('-count')
+
+            return StatusDone({
+                'username': user.username,
+                'tags': list(map(lambda tag: {
+                    'name': tag['tags__value'],
+                    'count': tag['count']
+                }, tags))
             })
 
         if parameter == 'series':

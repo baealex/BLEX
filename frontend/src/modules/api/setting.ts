@@ -80,7 +80,9 @@ export async function getSettingProfile(headers?: Headers) {
 }
 
 interface GetSettingPostsParams {
-    tag_filter: string;
+    tag: string;
+    series: string;
+    search: string;
     order: string;
     page: number;
 }
@@ -159,6 +161,22 @@ export async function getSettingDraftPosts(params: GetSettingDraftPostsParams, h
         url: '/v1/setting/temp-posts',
         method: 'GET',
         params,
+        headers
+    });
+}
+
+export interface GetSettingTagResponseData {
+    username: string;
+    tags: {
+        name: string;
+        count: number;
+    }[];
+}
+
+export async function getSettingTag(headers?: Headers) {
+    return await request<GetSettingTagResponseData>({
+        url: '/v1/setting/tag',
+        method: 'GET',
         headers
     });
 }
