@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 
 import {
     Alert,
+    BaseInput,
     Button,
     Card,
     Dropdown,
@@ -128,41 +129,41 @@ const PostsSetting: PageComponent<Props> = (props) => {
     const { data: tags } = useFetch(['tags'], async () => {
         const { data } = await API.getSettingTag();
         return data.body.tags;
-    }, { disableRefetch: true });
+    });
 
     const { data: series } = useFetch(['series'], async () => {
         const { data } = await API.getSettingSeries();
         return data.body.series;
-    }, { disableRefetch: true });
+    });
 
     const handleChangeOrder = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        router.push({
+        router.replace({
             pathname: router.pathname,
             query: {
                 ...router.query,
                 order: e.target.value
             }
-        });
+        }, '', { scroll: false });
     };
 
     const handleChangeTagFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        router.push({
+        router.replace({
             pathname: router.pathname,
             query: {
                 ...router.query,
                 tag: e.target.value
             }
-        });
+        }, '', { scroll: false });
     };
 
     const handleChangeSeriesFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        router.push({
+        router.replace({
             pathname: router.pathname,
             query: {
                 ...router.query,
                 series: e.target.value
             }
-        });
+        }, '', { scroll: false });
     };
 
     const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,13 +172,13 @@ const PostsSetting: PageComponent<Props> = (props) => {
         }
 
         searchDebounce.current = setTimeout(() => {
-            router.push({
+            router.replace({
                 pathname: router.pathname,
                 query: {
                     ...router.query,
                     search: e.target.value
                 }
-            });
+            }, '', { scroll: false });
         }, 300);
     };
 
@@ -219,38 +220,38 @@ const PostsSetting: PageComponent<Props> = (props) => {
 
     return (
         <>
-            <Flex className="mb-4" justify="between" gap={2} wrap="wrap">
+            <Flex className="mb-3" justify="between" wrap="wrap" gap={2}>
                 <div
                     style={{
                         flex: '1',
                         minWidth: '200px'
                     }}>
-                    <div>정렬</div>
-                    <select
-                        className="form-select mb-4"
-                        defaultValue={router.query.order as string || 'created_date'}
+                    <BaseInput
+                        tag="select"
+                        icon={<i className="fas fa-sort" />}
+                        defaultValue={router.query.order as string || '-created_date'}
                         onChange={handleChangeOrder}>
                         {POSTS_ORDER.map((order, idx) => (
                             <option key={idx} value={order.order}>{order.name}</option>
                         ))}
-                    </select>
+                    </BaseInput>
                 </div>
                 <div
                     style={{
                         flex: '1',
                         minWidth: '200px'
                     }}>
-                    <div>태그 필터</div>
                     {tags && (
-                        <select
-                            className="form-select mb-4"
+                        <BaseInput
+                            tag="select"
+                            icon={<i className="fas fa-tag" />}
                             defaultValue={router.query.tag as string || ''}
                             onChange={handleChangeTagFilter}>
-                            <option value="">미선택</option>
-                            {tags.map((tag, idx) => (
+                            <option value="">태그 (미선택)</option>
+                            {tags?.map((tag, idx) => (
                                 <option key={idx} value={tag.name}>{tag.name} ({tag.count})</option>
                             ))}
-                        </select>
+                        </BaseInput>
                     )}
                 </div>
                 <div
@@ -258,113 +259,111 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         flex: '1',
                         minWidth: '200px'
                     }}>
-                    <div>시리즈 필터</div>
                     {series && (
-                        <select
-                            className="form-select mb-4"
-                            defaultValue={router.query.series as string || ''}
+                        <BaseInput
+                            tag="select"
+                            icon={<i className="fas fa-book" />}
+                            defaultValue={router.query.tag as string || ''}
                             onChange={handleChangeSeriesFilter}>
-                            <option value="">미선택</option>
-                            {series.map((series, idx) => (
-                                <option key={idx} value={series.url}>{series.title} ({series.totalPosts})</option>
+                            <option value="">시리즈 (미선택)</option>
+                            {series?.map((item, idx) => (
+                                <option key={idx} value={item.url}>{item.title} ({item.totalPosts})</option>
                             ))}
-                        </select>
+                        </BaseInput>
                     )}
-                </div>
-                <div
-                    style={{
-                        flex: '1',
-                        minWidth: '200px'
-                    }}>
-                    <div>검색</div>
-                    <input
-                        type="text"
-                        className="form-control mb-4"
-                        defaultValue={router.query.search as string || ''}
-                        onChange={handleChangeSearch}
-                    />
                 </div>
             </Flex>
-            {posts.map((post, idx) => (
-                <Card key={idx} isRounded hasBackground className="mb-4">
-                    <div className="p-3">
-                        <div className="d-flex justify-content-between">
-                            <Link className="deep-dark" href={`/@${props.username}/${post.url}`}>
-                                {post.title}
-                            </Link>
-                            <Dropdown
-                                button={
-                                    <i className="fas fa-ellipsis-v" />
-                                }
-                                menus={[
-                                    {
-                                        name: '분석',
-                                        onClick: () => router.push(`/@${props.username}/${post.url}/analytics`)
-                                    },
-                                    {
-                                        name: '수정',
-                                        onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
-                                    },
-                                    {
-                                        name: '삭제',
-                                        onClick: () => handlePostsDelete(post.url)
+            <div className="mb-3">
+                <BaseInput
+                    tag="input"
+                    icon={<i className="fas fa-search" />}
+                    defaultValue={router.query.search as string || ''}
+                    placeholder="검색어를 입력하세요."
+                    onChange={handleChangeSearch}
+                />
+            </div>
+            {
+                posts.map((post, idx) => (
+                    <Card key={idx} isRounded hasBackground className="mb-4">
+                        <div className="p-3">
+                            <div className="d-flex justify-content-between">
+                                <Link className="deep-dark" href={`/@${props.username}/${post.url}`}>
+                                    {post.title}
+                                </Link>
+                                <Dropdown
+                                    button={
+                                        <i className="fas fa-ellipsis-v" />
                                     }
-                                ]}
-                            />
-                        </div>
-                        <div className="mt-1">
-                            <time className="post-date shallow-dark">
-                                {post.createdDate}
-                                {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
-                            </time>
-                        </div>
-                        <FormControl className="mt-2">
-                            <Label>태그</Label>
-                            <div className="d-flex justify-content-between align-items-start" style={{ gap: '8px' }}>
-                                <div style={{ flex: '1' }}>
-                                    <KeywordInput
-                                        name="tag"
-                                        value={post.tag}
-                                        maxLength={50}
-                                        onChange={(e) => handleTagChange(post.url, e.target.value)}
-                                    />
-                                </div>
-                                <Button onClick={() => handleTagSubmit(post.url)}>
-                                    변경
-                                </Button>
-                            </div>
-                        </FormControl>
-                    </div>
-                    {post.readTime > 30 && (
-                        <Alert type="danger">
-                            이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
-                        </Alert>
-                    )}
-                    <div className="setting-info p-3" >
-                        <div className="d-flex justify-content-between align-items-center shallow-dark ns">
-                            <ul className="none-list mb-0">
-                                <li>
-                                    <a onClick={() => handlePostsHide(post.url)} className="element-lock c-pointer">
-                                        {post.isHide
-                                            ? <i className="fas fa-lock" />
-                                            : <i className="fas fa-lock-open" />
+                                    menus={[
+                                        {
+                                            name: '분석',
+                                            onClick: () => router.push(`/@${props.username}/${post.url}/analytics`)
+                                        },
+                                        {
+                                            name: '수정',
+                                            onClick: () => router.push(`/@${props.username}/${post.url}/edit`)
+                                        },
+                                        {
+                                            name: '삭제',
+                                            onClick: () => handlePostsDelete(post.url)
                                         }
-                                    </a>
-                                </li>
-                                <li>
-                                    <i className="far fa-heart" /> {post.totalLikes}
-                                </li>
-                                <li>
-                                    <i className="far fa-comment" /> {post.totalComments}
-                                </li>
-                            </ul>
-                            <span>
-                                오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
-                            </span>
+                                    ]}
+                                />
+                            </div>
+                            <div className="mt-1">
+                                <time className="post-date shallow-dark">
+                                    {post.createdDate}
+                                    {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
+                                </time>
+                            </div>
+                            <FormControl className="mt-2">
+                                <Label>태그</Label>
+                                <div className="d-flex justify-content-between align-items-start" style={{ gap: '8px' }}>
+                                    <div style={{ flex: '1' }}>
+                                        <KeywordInput
+                                            name="tag"
+                                            value={post.tag}
+                                            maxLength={50}
+                                            onChange={(e) => handleTagChange(post.url, e.target.value)}
+                                        />
+                                    </div>
+                                    <Button onClick={() => handleTagSubmit(post.url)}>
+                                        변경
+                                    </Button>
+                                </div>
+                            </FormControl>
                         </div>
-                    </div >
-                </Card >
-            ))}
+                        {post.readTime > 30 && (
+                            <Alert type="danger">
+                                이 글은 너무 깁니다. 긴 글은 검색 엔진의 색인을 어렵게 만들고 사용자 접근성을 낮춥니다.
+                            </Alert>
+                        )}
+                        <div className="setting-info p-3" >
+                            <div className="d-flex justify-content-between align-items-center shallow-dark ns">
+                                <ul className="none-list mb-0">
+                                    <li>
+                                        <a onClick={() => handlePostsHide(post.url)} className="element-lock c-pointer">
+                                            {post.isHide
+                                                ? <i className="fas fa-lock" />
+                                                : <i className="fas fa-lock-open" />
+                                            }
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <i className="far fa-heart" /> {post.totalLikes}
+                                    </li>
+                                    <li>
+                                        <i className="far fa-comment" /> {post.totalComments}
+                                    </li>
+                                </ul>
+                                <span>
+                                    오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
+                                </span>
+                            </div>
+                        </div >
+                    </Card >
+                ))
+            }
             <Pagination
                 page={props.page}
                 last={props.lastPage}
