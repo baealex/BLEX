@@ -2,7 +2,7 @@ import re
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import F
+from django.db.models import F, Count, Case, When, Exists, OuterRef, Value
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 
@@ -83,7 +83,24 @@ def comment_list(request):
 
 
 def comment_detail(request, id):
-    comment = get_object_or_404(Comment, id=id)
+    comment = get_object_or_404(Comment.objects.select_related(
+        'author',
+        'author__config'
+    ).annotate(
+        count_likes=Count('likes'),
+        has_liked=Case(
+            When(
+                Exists(
+                    Comment.objects.filter(
+                        id=OuterRef('id'),
+                        likes__id=request.user.id if request.user.id else -1
+                    )
+                ),
+                then=Value(True)
+            ),
+            default=Value(False),
+        )
+    ), id=id)
 
     if request.method == 'GET':
         return StatusDone({
@@ -92,6 +109,7 @@ def comment_detail(request, id):
 
     if request.method == 'PUT':
         body = QueryDict(request.body)
+
         if body.get('like'):
             if not request.user.is_active:
                 return StatusError(ErrorCode.NEED_LOGIN)
@@ -102,25 +120,25 @@ def comment_detail(request, id):
             if comment.is_deleted():
                 return StatusError(ErrorCode.REJECT)
 
-            user = User.objects.get(username=request.user)
-            if comment.likes.filter(id=user.id).exists():
-                comment.likes.remove(user)
-                comment.save()
+            if comment.has_liked:
+                comment.likes.remove(request.user)
+                return StatusDone({
+                    'total_likes': comment.count_likes - 1,
+                })
             else:
-                comment.likes.add(user)
-                comment.save()
+                comment.likes.add(request.user)
                 if comment.author.config.get_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE):
                     send_notify_content = (
                         f"'{comment.post.title}'글에 작성한 "
                         f"회원님의 #{comment.pk} 댓글을 "
-                        f"@{user.username}님께서 추천했습니다.")
+                        f"@{request.user.username}님께서 추천했습니다.")
                     create_notify(
                         user=comment.author,
                         url=comment.post.get_absolute_url(),
                         infomation=send_notify_content)
-            return StatusDone({
-                'total_likes': comment.total_likes()
-            })
+                return StatusDone({
+                    'total_likes': comment.count_likes + 1,
+                })
 
         if body.get('comment'):
             if not request.user == comment.author:

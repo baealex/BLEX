@@ -13,7 +13,7 @@ from django.utils.text import slugify
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    User, Comment, Referer, PostAnalytics, Series,
+    Comment, Referer, PostAnalytics, Series,
     TempPosts, Post, PostContent, PostConfig,
     PostLikes, PostThanks, PostNoThanks, calc_read_time)
 from board.modules.analytics import create_history, get_network_addr, view_count
@@ -308,8 +308,8 @@ def post_comment_list(request, url):
             'author',
             'author__profile'
         ).annotate(
-            total_likes=Count('likes'),
-            is_liked=Case(
+            count_likes=Count('likes'),
+            has_liked=Case(
                 When(
                     Exists(
                         Comment.objects.filter(
@@ -331,8 +331,8 @@ def post_comment_list(request, url):
                 'is_edited': comment.edited,
                 'text_html': comment.get_text_html(),
                 'created_date': comment.time_since(),
-                'total_likes': comment.total_likes,
-                'is_liked': comment.is_liked,
+                'total_likes': comment.count_likes,
+                'is_liked': comment.has_liked,
             }, comments))
         })
 
@@ -458,6 +458,14 @@ def user_posts(request, username, url=None):
             author_image=F('author__profile__avatar'),
             series_url=F('series__url'),
             series_name=F('series__name'),
+            count_likes=Count('likes'),
+            count_comments=Count('comments'),
+            has_liked=Exists(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id'),
+                    user__id=request.user.id if request.user.id else -1
+                )
+            ),
         ), author__username=username, url=url)
 
         if request.method == 'GET':
@@ -496,11 +504,11 @@ def user_posts(request, username, url=None):
                     'author_image': str(post.author_image),
                     'author': post.author_username,
                     'text_html': post.content.text_html,
-                    'total_likes': post.total_likes(),
-                    'total_comment': post.total_comment(),
+                    'total_likes': post.count_likes,
+                    'total_comment': post.count_comments,
                     'is_ad': post.config.advertise,
                     'tags': post.tagging(),
-                    'is_liked': post.likes.filter(user__id=request.user.id).exists()
+                    'is_liked': post.has_liked,
                 })
 
         if request.method == 'POST':
@@ -567,26 +575,27 @@ def user_posts(request, username, url=None):
             put = QueryDict(request.body)
 
             if request.GET.get('like', ''):
-                if not request.user.is_active:
+                if not request.user:
                     return StatusError(ErrorCode.NEED_LOGIN)
 
-                user = User.objects.get(username=request.user)
-                post_like = post.likes.filter(user=user)
-                if post_like.exists():
-                    post_like.delete()
+                if post.has_liked:
+                    PostLikes.objects.filter(post=post, user=request.user).delete()
+                    return StatusDone({
+                        'total_likes': post.count_likes - 1
+                    })
                 else:
-                    PostLikes(post=post, user=user).save()
+                    PostLikes(post=post, user=request.user).save()
                     if request.user != post.author and post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE):
                         send_notify_content = (
                             f"'{post.title}' 글을 "
-                            f"@{user.username}님께서 추천하였습니다.")
+                            f"@{request.user.username}님께서 추천하였습니다.")
                         create_notify(
                             user=post.author,
                             url=post.get_absolute_url(),
                             infomation=send_notify_content)
-                return StatusDone({
-                    'total_likes': post.total_likes()
-                })
+                    return StatusDone({
+                        'total_likes': post.count_likes + 1
+                    })
 
             if request.GET.get('thanks', ''):
                 if request.user == post.author:

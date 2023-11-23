@@ -104,9 +104,6 @@ class Comment(models.Model):
     def time_since(self):
         return time_since(self.created_date)
 
-    def total_likes(self):
-        return self.likes.count()
-
     def is_deleted(self):
         return self.author is None
 
@@ -294,12 +291,6 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[self.author, self.url])
-
-    def total_likes(self):
-        return self.likes.count()
-
-    def total_comment(self):
-        return self.comments.count()
 
     def today(self):
         count = 0
