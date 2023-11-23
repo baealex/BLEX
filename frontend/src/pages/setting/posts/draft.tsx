@@ -4,7 +4,8 @@ import React from 'react';
 import { useRouter } from 'next/router';
 
 import {
-    Card
+    Card,
+    Flex
 } from '@design-system';
 import type { PageComponent } from '~/components';
 import { Pagination } from '@system-design/shared';
@@ -69,8 +70,8 @@ const PostsSetting: PageComponent<Props> = (props) => {
             )}
             {props.posts.map((post, idx) => (
                 <Card key={idx} isRounded hasBackground className="mb-4">
-                    <div className="p-3">
-                        <div className="d-flex justify-content-between mb-1">
+                    <Flex justify="between" direction="column" gap={1} className="p-3">
+                        <Flex justify="between" style={{ width: '100%' }}>
                             <span>
                                 <Link className="deep-dark" href={`/write?token=${post.token}`}>
                                     {post.title}
@@ -79,14 +80,12 @@ const PostsSetting: PageComponent<Props> = (props) => {
                             <a onClick={() => onDelete(post.token)}>
                                 <i className="fas fa-times"></i>
                             </a>
-                        </div>
-                        <div className="mb-1">
-                            <time className="post-date shallow-dark">
-                                {post.createdDate}
-                                {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
-                            </time>
-                        </div>
-                    </div>
+                        </Flex>
+                        <time className="post-date shallow-dark">
+                            {post.createdDate}
+                            {post.createdDate !== post.updatedDate && ` (Updated: ${post.updatedDate})`}
+                        </time>
+                    </Flex>
                 </Card>
             ))}
             {props.posts.length > 0 && (
