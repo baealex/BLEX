@@ -81,11 +81,14 @@ def setting(request, parameter):
             })
 
         if parameter == 'posts':
-            posts = Post.objects.select_related(
-                'config'
-            ).filter(
+            posts = Post.objects.filter(
                 author=user,
                 created_date__lte=timezone.now(),
+            ).annotate(
+                hide=F('config__hide'),
+                series_url=F('series__url'),
+                total_like_count=Count('likes', distinct=True),
+                total_comment_count=Count('comments', distinct=True),
             ).order_by('-created_date')
 
             tag = request.GET.get('tag', '')
@@ -118,17 +121,6 @@ def setting(request, parameter):
                 if not is_valid:
                     raise Http404
 
-                if 'hide' in order:
-                    posts = posts.annotate(
-                        hide=F('config__hide'),
-                    )
-                if 'total_like_count' in order:
-                    posts = posts.annotate(
-                        total_like_count=Count('likes', distinct=True))
-                if 'total_comment_count' in order:
-                    posts = posts.annotate(
-                        total_comment_count=Count('comments', distinct=True))
-
                 posts = posts.order_by(order)
 
             posts = Paginator(
@@ -143,14 +135,14 @@ def setting(request, parameter):
                     'title': post.title,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
-                    'is_hide': post.config.hide,
-                    'total_likes': post.total_likes(),
-                    'total_comments': post.total_comment(),
+                    'is_hide': post.hide,
+                    'total_likes': post.total_like_count,
+                    'total_comments': post.total_comment_count,
                     'today_count': post.today(),
                     'read_time': post.read_time,
                     'yesterday_count': post.yesterday(),
                     'tag': ','.join(post.tagging()),
-                    'series': post.series.url if post.series else '',
+                    'series': post.series_url,
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
             })
