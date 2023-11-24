@@ -19,7 +19,9 @@ class CommentAdmin(admin.ModelAdmin):
         return super().get_queryset(request).select_related('author', 'post')
     
     def author_link(self, obj):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.author.id,)), obj.author.username))
+        if obj.author:
+            return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.author.id,)), obj.author.username))
+        return None
     author_link.short_description = 'author'
 
     def post_link(self, obj):
