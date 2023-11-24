@@ -1,16 +1,12 @@
-import traceback
-
 from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.utils.text import slugify
 
 from board.models import User, Post, Series
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
-from modules.randomness import randstr
 
 
 def user_series(request, username, url=None):
@@ -72,25 +68,19 @@ def user_series(request, username, url=None):
 
         if request.method == 'POST':
             body = QueryDict(request.body)
+
+            if not body.get('title', ''):
+                return StatusError(ErrorCode.REQUIRE, '제목을 입력해주세요.')
+
             series = Series(
                 owner=request.user,
-                name=body.get('title')
+                name=body.get('title'),
+                text_md=body.get('description', ''),
+                text_html=body.get('description', ''),
             )
-            series.url = slugify(series.name, allow_unicode=True)
-            if series.url == '':
-                series.url = randstr(15)
+            series.create_unique_url()
+            series.save()
 
-            while True:
-                try:
-                    series.save()
-                    break
-                except:
-                    if i > 10:
-                        traceback.print_exc()
-                        return StatusError(ErrorCode.REJECT, '일시적으로 오류가 발생했습니다.')
-                    series.url = slugify(
-                        f'{series.name}-{randstr(8)}', allow_unicode=True)
-                    i += 1
             return StatusDone({
                 'url': series.url
             })
@@ -110,6 +100,7 @@ def user_series(request, username, url=None):
                 )
             )
         ), owner=user, url=url)
+
         if request.method == 'GET':
             if request.GET.get('kind', '') == 'continue':
                 posts = Post.objects.filter(
@@ -172,25 +163,9 @@ def user_series(request, username, url=None):
             put = QueryDict(request.body)
             series.name = put.get('title')
             series.text_md = put.get('description')
+            series.create_unique_url()
+            series.save()
 
-            if not series.name in series.url:
-                series.url = slugify(series.name, allow_unicode=True)
-
-            if not series.url:
-                series.url = randstr(15)
-
-            i = 1
-            while True:
-                try:
-                    series.save()
-                    break
-                except:
-                    if i > 10:
-                        traceback.print_exc()
-                        return StatusError(ErrorCode.REJECT, '일시적으로 오류가 발생했습니다.')
-                    series.url = slugify(
-                        f'{series.name}-{randstr(8)}', allow_unicode=True)
-                    i += 1
             return StatusDone({
                 'url': series.url
             })

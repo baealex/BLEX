@@ -4,7 +4,7 @@ from django.http import HttpResponse, Http404
 from modules.telegram import TelegramBot
 
 from board.models import Post, Report
-from board.modules.analytics import create_history, get_network_addr
+from board.modules.analytics import create_device, get_network_addr
 
 
 def article_report(request, url):
@@ -14,12 +14,12 @@ def article_report(request, url):
 
         user_addr = get_network_addr(request)
         user_agent = request.META['HTTP_USER_AGENT']
-        history = create_history(user_addr, user_agent)
+        history = create_device(user_addr, user_agent)
 
         report = Report.objects.create(
             user=request.user,
-            reporter=history,
-            posts=article,
+            device=history,
+            post=article,
             content=content
         )
         report.save()

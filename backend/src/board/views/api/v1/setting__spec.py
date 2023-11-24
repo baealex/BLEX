@@ -29,7 +29,7 @@ class SettingTestCase(TestCase):
         for i in range(2):
             Notify.objects.create(
                 user=User.objects.get(username='test'),
-                infomation=f'test notify {i}',
+                content=f'test notify {i}',
                 url=f'/test-url-{i}',
                 key=f'test-key-{i}',
             )

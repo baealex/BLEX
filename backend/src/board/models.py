@@ -65,16 +65,13 @@ def make_thumbnail(this, size, quality=100, type='normal'):
 # Models
 
 class Comment(models.Model):
-    author = models.ForeignKey(
-        'auth.User', on_delete=models.SET_NULL, null=True)
-    post = models.ForeignKey(
-        'board.Post', related_name='comments', on_delete=models.CASCADE)
+    author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    post = models.ForeignKey('board.Post', related_name='comments', on_delete=models.CASCADE)
     text_md = models.TextField(max_length=500)
     text_html = models.TextField()
     edited = models.BooleanField(default=False)
     heart = models.BooleanField(default=False)
-    likes = models.ManyToManyField(
-        User, related_name='like_comments', blank=True)
+    likes = models.ManyToManyField('auth.User', related_name='like_comments', blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def author_username(self):
@@ -112,7 +109,7 @@ class Comment(models.Model):
 
 
 class EmailChange(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     email = models.CharField(max_length=255)
     auth_token = models.CharField(max_length=8, blank=True)
     created_date = models.DateTimeField(default=timezone.now)
@@ -128,8 +125,7 @@ class EmailChange(models.Model):
 
 
 class UserConfigMeta(models.Model):
-    user = models.ForeignKey(
-        User, related_name='conf_meta', on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', related_name='conf_meta', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     value = models.CharField(max_length=255)
     created_date = models.DateTimeField(default=timezone.now)
@@ -140,7 +136,7 @@ class UserConfigMeta(models.Model):
 
 
 class Config(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
 
     def create_or_update_meta(self, config: CONFIG_TYPE, value):
         if not config.value in CONFIG_TYPES:
@@ -193,9 +189,8 @@ class Follow(models.Model):
     class Meta:
         db_table = 'board_user_follow'
 
-    following = models.ForeignKey(
-        'board.Profile', related_name='subscriber', on_delete=models.CASCADE)
-    follower = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    following = models.ForeignKey('board.Profile', related_name='subscriber', on_delete=models.CASCADE) # TODO: Change filed name to 'to'
+    follower = models.ForeignKey('auth.User', on_delete=models.CASCADE) # TODO: Change filed name to 'from'
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -214,7 +209,7 @@ class Form(models.Model):
         return self.title
 
 
-class History(models.Model):
+class Device(models.Model):
     key = models.CharField(max_length=44, unique=True)
     ip = models.CharField(max_length=39)
     agent = models.CharField(max_length=200)
@@ -225,6 +220,7 @@ class History(models.Model):
 
 
 class ImageCache(models.Model):
+    user = models.ForeignKey('auth.User', null=True, on_delete=models.SET_NULL)
     key = models.CharField(max_length=44, unique=True)
     path = models.CharField(max_length=128, unique=True)
     size = models.IntegerField(default=0)
@@ -237,8 +233,8 @@ class Notify(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     key = models.CharField(max_length=44, unique=True)
     url = models.CharField(max_length=255)
-    is_read = models.BooleanField(default=False)
-    infomation = models.TextField()
+    content = models.TextField()
+    has_read = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
@@ -246,7 +242,7 @@ class Notify(models.Model):
         return {
             'pk': self.pk,
             'user': self.user.username,
-            'infomation': self.infomation,
+            'content': self.content,
             'created_date': time_since(self.created_date)
         }
 
@@ -266,8 +262,7 @@ class Tag(models.Model):
 
 class Post(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    series = models.ForeignKey(
-        'board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
+    series = models.ForeignKey('board.Series', related_name='posts', on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=65)
     url = models.SlugField(max_length=65, unique=True, allow_unicode=True)
     image = models.ImageField(blank=True, upload_to=title_image_path)
@@ -276,6 +271,16 @@ class Post(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
     meta_description = models.CharField(max_length=250, blank=True)
+
+    def create_unique_url(self, url=None):
+        url = url if url else slugify(self.title, allow_unicode=True)
+
+        post_exists = Post.objects.filter(url=url).exists()
+        while post_exists:
+            url = url + '-' + randstr(8)
+            post_exists = Post.objects.filter(url=url).exists()
+
+        self.url = url
 
     def get_image(self):
         if self.image:
@@ -296,7 +301,7 @@ class Post(models.Model):
         count = 0
         try:
             today = timezone.now()
-            count = self.analytics.get(created_date=today).table.count()
+            count = self.analytics.get(created_date=today).devices.count()
         except:
             pass
         return count
@@ -305,16 +310,16 @@ class Post(models.Model):
         count = 0
         try:
             yesterday = timezone.now() - datetime.timedelta(days=1)
-            count = self.analytics.get(created_date=yesterday).table.count()
+            count = self.analytics.get(created_date=yesterday).devices.count()
         except:
             pass
         return count
 
     def total(self):
-        count = PostAnalytics.objects.annotate(table_count=Count('table')).filter(posts=self).aggregate(
-            Sum('table_count'))
-        if count['table_count__sum']:
-            return count['table_count__sum']
+        count = PostAnalytics.objects.annotate(device_count=Count('devices')).filter(post=self).aggregate(
+            Sum('device_count'))
+        if count['device_count__sum']:
+            return count['device_count__sum']
         else:
             return 0
 
@@ -361,18 +366,16 @@ class Post(models.Model):
 
 
 class PostContent(models.Model):
-    posts = models.OneToOneField(
-        'board.Post', related_name='content', on_delete=models.CASCADE)
+    post = models.OneToOneField('board.Post', related_name='content', on_delete=models.CASCADE)
     text_md = models.TextField(blank=True)
     text_html = models.TextField(blank=True)
 
     def __str__(self):
-        return self.posts.title
+        return self.post.title
 
 
 class PostConfig(models.Model):
-    posts = models.OneToOneField(
-        'board.Post', related_name='config', on_delete=models.CASCADE)
+    post = models.OneToOneField('board.Post', related_name='config', on_delete=models.CASCADE)
     hide = models.BooleanField(default=False)
     notice = models.BooleanField(default=False)
     pinned = models.BooleanField(default=False)
@@ -380,7 +383,7 @@ class PostConfig(models.Model):
     block_comment = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.posts.title
+        return self.post.title
 
 
 class PostConfigMeta(models.Model):
@@ -392,22 +395,20 @@ class PostConfigMeta(models.Model):
 
 
 class PostAnalytics(models.Model):
-    posts = models.ForeignKey(
-        'board.Post', related_name='analytics', on_delete=models.CASCADE)
-    table = models.ManyToManyField('board.History', blank=True)
+    post = models.ForeignKey('board.Post', related_name='analytics', on_delete=models.CASCADE)
+    devices = models.ManyToManyField('board.Device', blank=True)
     created_date = models.DateField(default=timezone.now)
 
     def __str__(self):
-        return str(self.posts)
+        return str(self.post)
 
 
 class PostLikes(models.Model):
     class Meta:
         db_table = 'board_post_likes'
 
-    post = models.ForeignKey(
-        'board.Post', related_name='likes', on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', related_name='likes', on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -415,9 +416,8 @@ class PostLikes(models.Model):
 
 
 class PostThanks(models.Model):
-    post = models.ForeignKey(
-        'board.Post', related_name='thanks', on_delete=models.CASCADE)
-    history = models.ForeignKey('board.History', on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', related_name='thanks', on_delete=models.CASCADE)
+    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -425,9 +425,8 @@ class PostThanks(models.Model):
 
 
 class PostNoThanks(models.Model):
-    post = models.ForeignKey(
-        'board.Post', related_name='nothanks', on_delete=models.CASCADE)
-    history = models.ForeignKey('board.History', on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', related_name='nothanks', on_delete=models.CASCADE)
+    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -436,7 +435,7 @@ class PostNoThanks(models.Model):
 
 class UserLinkMeta(models.Model):
     order = models.IntegerField(default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     value = models.CharField(max_length=255)
     created_date = models.DateTimeField(default=timezone.now)
@@ -498,9 +497,9 @@ class Profile(models.Model):
 
 
 class Referer(models.Model):
-    posts = models.ForeignKey('board.PostAnalytics', on_delete=models.CASCADE)
-    referer_from = models.ForeignKey(
-        'board.RefererFrom', related_name='referers', on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', on_delete=models.SET_NULL, null=True) # TODO: SET_NULL -> CASCADE
+    analytics = models.ForeignKey('board.PostAnalytics', on_delete=models.CASCADE)
+    referer_from = models.ForeignKey('board.RefererFrom', related_name='referers', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -532,25 +531,24 @@ class RefererFrom(models.Model):
         self.save()
 
     def __str__(self):
-        return self.location
+        return self.title if self.title else self.location
 
 
 class Report(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    reporter = models.ForeignKey('board.history', on_delete=models.CASCADE)
-    posts = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
     content = models.TextField(blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.posts.title
+        return self.post.title
 
 
 class Search(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    searcher = models.ForeignKey('board.history', on_delete=models.CASCADE)
-    search_value = models.ForeignKey(
-        'board.SearchValue', on_delete=models.CASCADE)
+    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
+    search_value = models.ForeignKey('board.SearchValue', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -576,6 +574,16 @@ class Series(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
+    def create_unique_url(self, url=None):
+        url = url if url else slugify(self.name, allow_unicode=True)
+
+        series_exists = Series.objects.filter(url=url).exists()
+        while series_exists:
+            url = url + '-' + randstr(8)
+            series_exists = Series.objects.filter(url=url).exists()
+
+        self.url = url
+
     def thumbnail(self):
         posts = Post.objects.filter(series=self, config__hide=False)
         return posts[0].get_thumbnail() if posts else ''
@@ -596,7 +604,7 @@ class SeriesConfigMeta(models.Model):
 
 
 class TelegramSync(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     tid = models.CharField(max_length=15, blank=True)
     auth_token = models.CharField(max_length=8, blank=True)
     auth_token_exp = models.DateTimeField(default=timezone.now)
@@ -613,7 +621,7 @@ class TelegramSync(models.Model):
 
 
 class OpenAIConnection(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     api_key = models.CharField(max_length=100, blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
@@ -622,7 +630,7 @@ class OpenAIConnection(models.Model):
 
 
 class OpenAIUsageHistory(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     query = models.TextField()
     response = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
@@ -650,18 +658,18 @@ class TempPosts(models.Model):
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
     recovery_key = models.CharField(max_length=45, blank=True)
-    one_pass_token = models.CharField(max_length=15, blank=True)
-    one_pass_token_exp = models.DateTimeField(default=timezone.now)
+    otp = models.CharField(max_length=15, blank=True)
+    otp_exp_date = models.DateTimeField(default=timezone.now)
     created_date = models.DateTimeField(default=timezone.now)
 
     def create_token(self, token):
-        self.one_pass_token = token
-        self.one_pass_token_exp = timezone.now()
+        self.otp = token
+        self.otp_exp_date = timezone.now()
         self.save()
 
     def is_token_expire(self):
         five_minute_ago = timezone.now() - datetime.timedelta(minutes=5)
-        if self.one_pass_token_exp < five_minute_ago:
+        if self.otp_exp_date < five_minute_ago:
             return True
         return False
 
@@ -676,7 +684,7 @@ class TwoFactorAuth(models.Model):
 
 
 class EditHistory(models.Model):
-    posts = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     title = models.CharField(max_length=50, default='_NO_CHANGED_')
     content = models.TextField(blank=True, default='_NO_CHANGED_')
     created_date = models.DateTimeField(default=timezone.now)
@@ -687,7 +695,7 @@ class EditHistory(models.Model):
 
 class EditRequest(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    posts = models.ForeignKey('board.Post', on_delete=models.CASCADE)
+    post = models.ForeignKey('board.Post', on_delete=models.CASCADE)
     title = models.CharField(max_length=50, default='_NO_CHANGED_')
     content = models.TextField(blank=True, default='_NO_CHANGED_')
     is_merged = models.BooleanField(default=False)
@@ -699,21 +707,22 @@ class EditRequest(models.Model):
 
 
 class DeveloperToken(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=50, blank=True)
     token = models.CharField(max_length=50, blank=True)
     is_deleted = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.title
+        return self.user
 
 
-class DeveloperTokenLog(models.Model):
-    developer = models.ForeignKey(
-        'board.DeveloperToken', on_delete=models.CASCADE)
-    history = models.ForeignKey('board.History', on_delete=models.CASCADE)
-    url = models.CharField(max_length=255)
+class DeveloperRequestLog(models.Model):
+    developer = models.ForeignKey('board.DeveloperToken', on_delete=models.CASCADE)
+    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
+    endpoint = models.CharField(max_length=255)
+    headers = models.TextField(blank=True)
+    payload = models.TextField(blank=True)
     created_date = models.DateTimeField(default=timezone.now)
 
 
@@ -724,3 +733,24 @@ class UsernameChangeLog(models.Model):
 
     def __str__(self):
         return f'{self.username} -> {self.user.username}'
+
+
+class SocialAuthProvider(models.Model):
+    key = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=20)
+    icon = models.CharField(max_length=20)
+    color = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.name
+
+
+class SocialAuth(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    provider = models.ForeignKey('board.SocialAuthProvider', on_delete=models.CASCADE)
+    uid = models.CharField(max_length=50)
+    extra_data = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.provider.name} - {self.user.username}'

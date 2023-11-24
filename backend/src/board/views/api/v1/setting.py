@@ -32,15 +32,15 @@ def setting(request, parameter):
             six_months_ago = timezone.now() - datetime.timedelta(days=180)
             notify = Notify.objects.filter(user=user).filter(
                 Q(created_date__gt=six_months_ago) |
-                Q(is_read=False)
+                Q(has_read=False)
             ).order_by('-created_date')
 
             return StatusDone({
                 'notify': list(map(lambda item: {
                     'pk': item.pk,
                     'url': item.url,
-                    'is_read': item.is_read,
-                    'content': item.infomation,
+                    'is_read': item.has_read,
+                    'content': item.content,
                     'created_date': item.time_since()
                 }, notify)),
                 'is_telegram_sync': request.user.config.has_telegram_id()
@@ -87,8 +87,8 @@ def setting(request, parameter):
             ).annotate(
                 hide=F('config__hide'),
                 series_url=F('series__url'),
-                total_like_count=Count('likes', distinct=True),
-                total_comment_count=Count('comments', distinct=True),
+                count_likes=Count('likes', distinct=True),
+                count_comments=Count('comments', distinct=True),
             ).order_by('-created_date')
 
             tag = request.GET.get('tag', '')
@@ -108,8 +108,8 @@ def setting(request, parameter):
                 'read_time',
                 'created_date',
                 'updated_date',
-                'total_like_count',
-                'total_comment_count',
+                'count_likes',
+                'count_comments',
                 'hide',
             ]
             order = request.GET.get('order', '')
@@ -136,8 +136,8 @@ def setting(request, parameter):
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
                     'is_hide': post.hide,
-                    'total_likes': post.total_like_count,
-                    'total_comments': post.total_comment_count,
+                    'total_likes': post.count_likes,
+                    'total_comments': post.count_comments,
                     'today_count': post.today(),
                     'read_time': post.read_time,
                     'yesterday_count': post.yesterday(),
@@ -233,16 +233,15 @@ def setting(request, parameter):
                     Case(
                         When(
                             analytics__created_date=parse_datetime(date),
-                            then='analytics__table'
+                            then='analytics__devices'
                         )
                     )
                 ),
                 yesterday_count=Count(
                     Case(
                         When(
-                            analytics__created_date=parse_datetime(
-                                date) - datetime.timedelta(days=1),
-                            then='analytics__table'
+                            analytics__created_date=parse_datetime(date) - datetime.timedelta(days=1),
+                            then='analytics__devices'
                         )
                     )
                 )
@@ -264,12 +263,12 @@ def setting(request, parameter):
             one_month_ago = convert_to_localtime(
                 timezone.now() - datetime.timedelta(days=one_month))
 
-            posts_analytics = PostAnalytics.objects.values(
+            post_analytics = PostAnalytics.objects.values(
                 'created_date',
             ).annotate(
-                table_count=Count('table'),
+                table_count=Count('devices'),
             ).filter(
-                posts__author=user,
+                post__author=user,
                 created_date__gt=one_month_ago,
             ).order_by('-created_date')
 
@@ -279,14 +278,14 @@ def setting(request, parameter):
                     timezone.now() - datetime.timedelta(days=i)))[:10]
                 date_dict[key] = 0
 
-            for item in posts_analytics:
+            for item in post_analytics:
                 key = str(item['created_date'])[:10]
                 date_dict[key] = item['table_count']
 
             total = PostAnalytics.objects.filter(
-                posts__author=user
+                post__author=user
             ).annotate(
-                table_count=Count('table'),
+                table_count=Count('devices'),
             ).aggregate(sum=Sum('table_count'))['sum']
 
             return StatusDone({
@@ -302,12 +301,12 @@ def setting(request, parameter):
             one_year_ago = timezone.now() - datetime.timedelta(days=365)
 
             referers = RefererFrom.objects.filter(
-                referers__posts__posts__author=user,
+                referers__post__author=user,
                 referers__created_date__gt=one_year_ago,
             ).annotate(
-                posts_title=F('referers__posts__posts__title'),
-                posts_author=F('referers__posts__posts__author__username'),
-                posts_url=F('referers__posts__posts__url')
+                post_title=F('referers__post__title'),
+                post_author=F('referers__post__author__username'),
+                post_url=F('referers__post__url')
             ).exclude(
                 Q(title__contains='검색') |
                 Q(title__contains='Bing') |
@@ -336,7 +335,7 @@ def setting(request, parameter):
             a_month_ago = timezone.now() - datetime.timedelta(days=30)
 
             referers = RefererFrom.objects.filter(
-                referers__posts__posts__author=request.user,
+                referers__post__author=request.user,
             ).filter(
                 Q(title__contains='검색') |
                 Q(title__contains='Bing') |
@@ -503,7 +502,7 @@ def setting(request, parameter):
         if parameter == 'notify':
             pk = put.get('pk')
             notify = Notify.objects.get(pk=pk)
-            notify.is_read = True
+            notify.has_read = True
             notify.save()
             return StatusDone()
 

@@ -36,13 +36,13 @@ class PostListTestCase(TestCase):
             )
 
             PostContent.objects.create(
-                posts=Post.objects.get(url=f'test-post-{post_num}'),
+                post=Post.objects.get(url=f'test-post-{post_num}'),
                 text_md=f'# Test Post {post_num}',
                 text_html=f'<h1>Test Post {post_num}</h1>'
             )
 
             PostConfig.objects.create(
-                posts=Post.objects.get(url=f'test-post-{post_num}'),
+                post=Post.objects.get(url=f'test-post-{post_num}'),
                 hide=False,
                 advertise=False,
             )
@@ -115,13 +115,13 @@ class PostTestCase(TestCase):
         )
 
         PostContent.objects.create(
-            posts=Post.objects.get(url=f'test-post'),
+            post=Post.objects.get(url=f'test-post'),
             text_md=f'# Test Post',
             text_html=f'<h1>Test Post Content</h1>'
         )
 
         PostConfig.objects.create(
-            posts=Post.objects.get(url=f'test-post'),
+            post=Post.objects.get(url=f'test-post'),
             hide=False,
             advertise=False,
         )
