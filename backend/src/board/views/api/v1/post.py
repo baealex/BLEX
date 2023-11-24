@@ -16,7 +16,7 @@ from board.models import (
     Comment, Referer, PostAnalytics, Series,
     TempPosts, Post, PostContent, PostConfig,
     PostLikes, PostThanks, PostNoThanks, calc_read_time)
-from board.modules.analytics import create_history, get_network_addr, view_count
+from board.modules.analytics import create_device, get_network_addr, view_count
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
 from board.modules.post_description import create_post_description
@@ -87,25 +87,22 @@ def post_list(request):
         else:
             url = slugify(post.title, allow_unicode=True)
 
-        post.url = url
-        has_url = Post.objects.filter(url=post.url).exists()
-        while has_url:
-            post.url = url + '-' + randstr(8)
-            has_url = Post.objects.filter(url=post.url).exists()
+        post.create_unique_url(url)
         post.save()
 
         post.set_tags(request.POST.get('tag', ''))
 
-        post_content = PostContent(posts=post)
-        post_content.text_md = text_md
-        post_content.text_html = text_html
-        post_content.save()
+        post_content = PostContent.objects.create(
+            post=post,
+            text_md=text_md,
+            text_html=text_html
+        )
 
-        post_config = PostConfig(posts=post)
-        post_config.hide = BooleanType(request.POST.get('is_hide', ''))
-        post_config.advertise = BooleanType(
-            request.POST.get('is_advertise', ''))
-        post_config.save()
+        post_config = PostConfig.objects.create(
+            post=post,
+            hide=BooleanType(request.POST.get('is_hide', '')),
+            advertise=BooleanType(request.POST.get('is_advertise', ''))
+        )
 
         if not post_config.hide and post.is_published() and settings.DISCORD_NEW_POSTS_WEBHOOK:
             def func():
@@ -114,7 +111,6 @@ def post_list(request):
                     url=settings.DISCORD_NEW_POSTS_WEBHOOK,
                     content=f'[새 글이 발행되었어요!]({post_url})'
                 )
-
             sub_task_manager.append(func)
 
         token = request.POST.get('token')
@@ -152,7 +148,7 @@ def popular_post_list(request):
                 Case(
                     When(
                         analytics__created_date=timezone.now() - datetime.timedelta(days=0),
-                        then='analytics__table'
+                        then='analytics__devices'
                     )
                 ),
             ),
@@ -160,7 +156,7 @@ def popular_post_list(request):
                 Case(
                     When(
                         analytics__created_date=timezone.now() - datetime.timedelta(days=1),
-                        then='analytics__table'
+                        then='analytics__devices'
                     )
                 ),
             ),
@@ -308,7 +304,7 @@ def post_comment_list(request, url):
             'author',
             'author__profile'
         ).annotate(
-            count_likes=Count('likes'),
+            count_likes=Count('likes', distinct=True),
             has_liked=Case(
                 When(
                     Exists(
@@ -349,10 +345,10 @@ def post_analytics(request, url):
         posts_views = PostAnalytics.objects.values(
             'created_date'
         ).filter(
-            posts__id=post.pk,
+            post__id=post.pk,
             created_date__gt=seven_days_ago
         ).annotate(
-            table_count=Count('table')
+            table_count=Count('devices')
         ).order_by('-created_date')
 
         date_dict = dict()
@@ -366,7 +362,7 @@ def post_analytics(request, url):
             date_dict[key] = item['table_count']
 
         posts_referers = Referer.objects.filter(
-            posts__posts__id=post.pk,
+            post__id=post.pk,
             created_date__gt=seven_days_ago
         ).select_related(
             'referer_from'
@@ -400,13 +396,12 @@ def post_analytics(request, url):
         })
 
     if request.method == 'POST':
-        ip = request.POST.get('ip', '')
-        user_agent = request.POST.get('user_agent', '')
-        referer = request.POST.get('referer', '')
-        time = request.POST.get('time', '')
-
-        view_count(post, request, ip, user_agent, referer)
-
+        view_count(
+            post=post,
+            request=request,
+            ip=request.POST.get('ip', ''),
+            user_agent=request.POST.get('user_agent', ''),
+            referer=request.POST.get('referer', ''))
         return StatusDone()
 
 
@@ -458,8 +453,8 @@ def user_posts(request, username, url=None):
             author_image=F('author__profile__avatar'),
             series_url=F('series__url'),
             series_name=F('series__name'),
-            count_likes=Count('likes'),
-            count_comments=Count('comments'),
+            count_likes=Count('likes', distinct=True),
+            count_comments=Count('comments', distinct=True),
             has_liked=Exists(
                 PostLikes.objects.filter(
                     post__id=OuterRef('id'),
@@ -592,7 +587,7 @@ def user_posts(request, username, url=None):
                         create_notify(
                             user=post.author,
                             url=post.get_absolute_url(),
-                            infomation=send_notify_content)
+                            content=send_notify_content)
                     return StatusDone({
                         'total_likes': post.count_likes + 1
                     })
@@ -602,7 +597,7 @@ def user_posts(request, username, url=None):
                     return StatusError(ErrorCode.AUTHENTICATION)
                 user_addr = get_network_addr(request)
                 user_agent = request.META['HTTP_USER_AGENT']
-                history = create_history(user_addr, user_agent)
+                history = create_device(user_addr, user_agent)
 
                 post_nothanks = post.nothanks.filter(history=history)
                 if post_nothanks.exists():
@@ -617,7 +612,7 @@ def user_posts(request, username, url=None):
                         create_notify(
                             user=post.author,
                             url=post.get_absolute_url(),
-                            infomation=send_notify_content,
+                            content=send_notify_content,
                             hidden_key=history.key)
                     PostThanks(post=post, history=history).save()
 
@@ -628,7 +623,7 @@ def user_posts(request, username, url=None):
                     return StatusError(ErrorCode.AUTHENTICATION)
                 user_addr = get_network_addr(request)
                 user_agent = request.META['HTTP_USER_AGENT']
-                history = create_history(user_addr, user_agent)
+                history = create_device(user_addr, user_agent)
 
                 post_thanks = post.thanks.filter(history=history)
                 if post_thanks.exists():
@@ -643,7 +638,7 @@ def user_posts(request, username, url=None):
                         create_notify(
                             user=post.author,
                             url=post.get_absolute_url(),
-                            infomation=send_notify_content,
+                            content=send_notify_content,
                             hidden_key=history.key)
                     PostNoThanks(post=post, history=history).save()
 

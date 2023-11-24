@@ -215,7 +215,7 @@ def users(request, username):
                     create_notify(
                         user=user,
                         url='/setting/notify',
-                        infomation=send_notify_content)
+                        content=send_notify_content)
                 Follow(follower=follower, following=user.profile).save()
                 return StatusDone({'has_subscribe': True})
 

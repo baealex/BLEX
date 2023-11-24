@@ -25,7 +25,7 @@ if __name__ == '__main__':
     today_views = PostAnalytics.objects.filter(
         created_date=today
     ).annotate(
-        table_count=Count('table')
+        table_count=Count('devices')
     ).aggregate(
         total=Sum('table_count')
     )
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         created_date=today
     ).annotate(
         title=F('posts__title'),
-        table_count=Count('table')
+        table_count=Count('devices')
     ).order_by('-table_count')[:10]
     print('- Today best article TOP 10')
     for article in best_articles:

@@ -10,6 +10,7 @@ from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Notify, TwoFactorAuth, Config, Profile, Post,
     UserLinkMeta, UsernameChangeLog)
@@ -43,7 +44,7 @@ def login_response(user, is_first_login=False):
     avatar = str(user.profile.avatar)
     notify_count = Notify.objects.filter(
         user=user,
-        is_read=False
+        has_read=False
     ).count()
 
     return StatusDone({
@@ -78,7 +79,7 @@ def common_auth(request, user):
     return login_response(request.user)
 
 
-def create_user_from_social(token, username, name, email, avatar_url):
+def create_user(username, name, email, avatar_url, token=None):
     counter = 0
     created_username = username.lower()
     user = User.objects.filter(username=created_username)
@@ -90,9 +91,12 @@ def create_user_from_social(token, username, name, email, avatar_url):
     user = User.objects.create_user(
         username=created_username,
         email=email,
-        last_name=token,
         first_name=name,
     )
+
+    if token:
+        user.last_name = token
+        user.save()
 
     user_profile = Profile.objects.create(user=user)
 
@@ -103,11 +107,13 @@ def create_user_from_social(token, username, name, email, avatar_url):
             user_profile.save()
 
     user_config = Config.objects.create(user=user)
+    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, True)
+    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, True)
 
     create_notify(
         user=user,
         url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-        infomation=(
+        content=(
             f'{user.first_name}님의 가입을 진심으로 환영합니다! '
             f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
             f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
@@ -259,7 +265,7 @@ def sign_social(request, social):
                 if users.exists():
                     return common_auth(request, users.first())
 
-                user, profile, config = create_user_from_social(
+                user, profile, config = create_user(
                     username=user_id,
                     name=name,
                     email='',
@@ -289,7 +295,7 @@ def sign_social(request, social):
                 if users.exists():
                     return common_auth(request, users.first())
 
-                user, profile, config = create_user_from_social(
+                user, profile, config = create_user(
                     username=user_id,
                     name=name,
                     email=email,
@@ -339,7 +345,7 @@ def email_verify(request, token):
         create_notify(
             user=user,
             url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
-            infomation=(
+            content=(
                 f'{user.first_name}님의 가입을 진심으로 환영합니다! '
                 f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
                 f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
@@ -390,13 +396,12 @@ def security_send(request):
         auth_token = body.get('auth_token', '')
         try:
             if len(auth_token) == 6:
-                two_factor_auth = TwoFactorAuth.objects.get(
-                    one_pass_token=auth_token)
+                two_factor_auth = TwoFactorAuth.objects.get(otp=auth_token)
                 if two_factor_auth:
                     if two_factor_auth.is_token_expire():
                         return StatusError(ErrorCode.EXPIRED)
                     user = two_factor_auth.user
-                    two_factor_auth.one_pass_token = ''
+                    two_factor_auth.otp = ''
                     two_factor_auth.save()
                     auth.login(request, user)
                     return login_response(request.user)
@@ -405,7 +410,7 @@ def security_send(request):
                     recovery_key=auth_token)
                 if two_factor_auth:
                     user = two_factor_auth.user
-                    two_factor_auth.one_pass_token = ''
+                    two_factor_auth.otp = ''
                     two_factor_auth.save()
                     auth.login(request, user)
                     return login_response(request.user)

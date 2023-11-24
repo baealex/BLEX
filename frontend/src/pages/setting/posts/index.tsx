@@ -86,11 +86,11 @@ const POSTS_ORDER = [
     },
     {
         name: '추천 적은 순',
-        order: 'total_like_count'
+        order: 'count_likes'
     },
     {
         name: '추천 많은 순',
-        order: '-total_like_count'
+        order: '-count_likes'
     },
     {
         name: '분량 적은 순',
@@ -102,11 +102,11 @@ const POSTS_ORDER = [
     },
     {
         name: '댓글 적은 순',
-        order: 'total_comment_count'
+        order: 'count_comments'
     },
     {
         name: '댓글 많은 순',
-        order: '-total_comment_count'
+        order: '-count_comments'
     },
     {
         name: '숨긴 글',

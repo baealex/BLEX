@@ -46,13 +46,13 @@ class CommentTestCase(TestCase):
         )
 
         PostContent.objects.create(
-            posts=Post.objects.get(url='test-post'),
+            post=Post.objects.get(url='test-post'),
             text_md='# Post',
             text_html='<h1>Post</h1>'
         )
 
         PostConfig.objects.create(
-            posts=Post.objects.get(url='test-post'),
+            post=Post.objects.get(url='test-post'),
             hide=False,
             advertise=False,
         )
@@ -90,8 +90,8 @@ class CommentTestCase(TestCase):
 
         last_notify = Notify.objects.filter(user=author).last()
         self.assertTrue(
-            '@viewer' in last_notify.infomation and
-            'Post' in last_notify.infomation
+            '@viewer' in last_notify.content and
+            'Post' in last_notify.content
         )
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
@@ -100,7 +100,7 @@ class CommentTestCase(TestCase):
         Notify.objects.create(
             user=author,
             url='/mock',
-            infomation='mock last notify',
+            content='mock last notify',
         )
         author.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT, 'false')
 
@@ -110,7 +110,7 @@ class CommentTestCase(TestCase):
         })
 
         last_notify = Notify.objects.filter(user=author).last()
-        self.assertTrue('mock last notify' in last_notify.infomation)
+        self.assertTrue('mock last notify' in last_notify.content)
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_comment_not_logged_in(self, mock_service):
@@ -133,7 +133,7 @@ class CommentTestCase(TestCase):
         self.client.post('/v1/comments?url=test-post', data)
 
         last_notify = Notify.objects.filter(user=viewer).last()
-        self.assertTrue('@author' in last_notify.infomation)
+        self.assertTrue('@author' in last_notify.content)
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_not_notify_user_tag_on_comment_when_user_disagree_notify(self, mock_service):
@@ -141,7 +141,7 @@ class CommentTestCase(TestCase):
         Notify.objects.create(
             user=viewer,
             url='/mock',
-            infomation='mock last notify',
+            content='mock last notify',
         )
         viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'false')
 
@@ -151,7 +151,7 @@ class CommentTestCase(TestCase):
         })
 
         last_notify = Notify.objects.filter(user=viewer).last()
-        self.assertTrue('mock last notify' in last_notify.infomation)
+        self.assertTrue('mock last notify' in last_notify.content)
 
     def test_user_comment_like(self):
         last_comment = Comment.objects.last()
@@ -171,14 +171,14 @@ class CommentTestCase(TestCase):
             f'/v1/comments/{last_comment.id}', "like=like")
 
         last_notify = Notify.objects.filter(user=viewer).last()
-        self.assertTrue('@author' in last_notify.infomation)
+        self.assertTrue('@author' in last_notify.content)
     
     def test_not_notify_user_comment_like_when_user_disagree_notify(self):
         viewer = User.objects.get(username='viewer')
         Notify.objects.create(
             user=viewer,
             url='/mock',
-            infomation='mock last notify',
+            content='mock last notify',
         )
         viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'false')
 
@@ -188,7 +188,7 @@ class CommentTestCase(TestCase):
             f'/v1/comments/{last_comment.id}', "like=like")
 
         last_notify = Notify.objects.filter(user=viewer).last()
-        self.assertTrue('mock last notify' in last_notify.infomation)
+        self.assertTrue('mock last notify' in last_notify.content)
 
     def test_user_comment_unlike(self):
         last_comment = Comment.objects.last()

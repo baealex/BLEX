@@ -33,13 +33,13 @@ class SearchTestCase(TestCase):
             )
 
             PostContent.objects.create(
-                posts=Post.objects.get(url=f'test-post-{post_num}'),
+                post=Post.objects.get(url=f'test-post-{post_num}'),
                 text_md='description',
                 text_html='description'
             )
 
             PostConfig.objects.create(
-                posts=Post.objects.get(url=f'test-post-{post_num}'),
+                post=Post.objects.get(url=f'test-post-{post_num}'),
                 hide=False,
                 advertise=False,
             )

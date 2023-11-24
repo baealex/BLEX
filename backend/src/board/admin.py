@@ -5,36 +5,64 @@ from .models import *
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = [
-        'created_date',
-        'author',
-        'post',
-        'text_md'
-    ]
-    list_filter = ['author']
+    list_display = ['created_date', 'author', 'post']
+    list_per_page = 30
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['author', 'post']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(EmailChange)
+class EmailChangeAdmin(admin.ModelAdmin):
+    list_display = ['user', 'email', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(UserConfigMeta)
+class PostNoThanksAdmin(admin.ModelAdmin):
+    list_display = ['user', 'name', 'value']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(Config)
+class ConfigAdmin(admin.ModelAdmin):
+    list_display = ['user']
     list_per_page = 30
 
 
 @admin.register(Follow)
 class FormAdmin(admin.ModelAdmin):
     list_display = ['following', 'follower']
+    list_per_page = 30
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['following', 'follower']
+        return super().get_form(request, obj, **kwargs)
 
 
 @admin.register(Form)
 class FormAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'title']
+    list_per_page = 30
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user']
+        return super().get_form(request, obj, **kwargs)
 
 
-@admin.register(History)
-class HistoryAdmin(admin.ModelAdmin):
-    list_display = [
-        'ip',
-        'agent',
-        'category'
-    ]
+@admin.register(Device)
+class DeviceAdmin(admin.ModelAdmin):
+    list_display = ['ip', 'agent', 'category']
     list_editable = ['category']
     list_filter = ['category']
-    list_per_page = 100
+    list_per_page = 50
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['key']
@@ -49,7 +77,7 @@ class ImageCacheAdmin(admin.ModelAdmin):
 
 @admin.register(Notify)
 class NotifyAdmin(admin.ModelAdmin):
-    list_display = ['user', 'infomation', 'created_date', 'is_read']
+    list_display = ['user', 'content', 'created_date', 'has_read']
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user', 'key']
@@ -62,15 +90,18 @@ class FormAdmin(admin.ModelAdmin):
     list_per_page = 30
 
     def count(self, obj):
-        return obj.posts.count()
+        return obj.post.count()
 
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ['author', 'title', 'read_time', 'created_date', 'updated_date']
     list_display_links = ['title']
-    list_filter = ['author']
     list_per_page = 30
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['author', 'series']
+        return super().get_form(request, obj, **kwargs)
 
 
 admin.site.register(PostContent)
@@ -79,7 +110,7 @@ admin.site.register(PostConfig)
 
 @admin.register(PostAnalytics)
 class PostAnalyticsAdmin(admin.ModelAdmin):
-    list_display = ['posts', 'view_count', 'created_date']
+    list_display = ['post', 'view_count', 'created_date']
     list_filter = ['created_date']
     list_per_page = 30
 
@@ -87,7 +118,7 @@ class PostAnalyticsAdmin(admin.ModelAdmin):
         return obj.table.count()
 
     def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['posts', 'table']
+        kwargs['exclude'] = ['post', 'table']
         return super().get_form(request, obj, **kwargs)
 
 
@@ -109,15 +140,10 @@ class ProfileAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **kwargs)
 
 
-@admin.register(Config)
-class ConfigAdmin(admin.ModelAdmin):
-    list_display = ['user']
-
-
 @admin.register(Referer)
 class RefererAdmin(admin.ModelAdmin):
-    list_display = ['created_date', 'posts', 'referer']
-    list_display_links = ['posts']
+    list_display = ['created_date', 'post', 'referer']
+    list_display_links = ['post']
 
     def referer(self, obj):
         return obj.referer_from.title if obj.referer_from.title else obj.referer_from.location
@@ -142,16 +168,21 @@ class RefererFromAdmin(admin.ModelAdmin):
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    list_display = ['posts', 'content', 'created_date']
-    list_per_page = 10
+    list_display = ['user', 'post', 'content', 'created_date']
+    list_per_page = 50
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user', 'post', 'device']
+        return super().get_form(request, obj, **kwargs)
 
 
 @admin.register(Search)
 class SearchAdmin(admin.ModelAdmin):
     list_display = ['search_value', 'user', 'created_date']
+    list_per_page = 50
 
     def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['search_value', 'user', 'searcher']
+        kwargs['exclude'] = ['search_value', 'user', 'device']
         return super().get_form(request, obj, **kwargs)
 
 
@@ -160,10 +191,10 @@ admin.site.register(SearchValue)
 
 @admin.register(Series)
 class SeriesAdmin(admin.ModelAdmin):
-    list_display = ['owner', 'name', 'posts_count', 'created_date']
+    list_display = ['owner', 'name', 'post_count', 'created_date']
 
-    def posts_count(self, obj):
-        return obj.posts.count()
+    def post_count(self, obj):
+        return obj.post.count()
 
     actions = ['hide']
 
@@ -217,30 +248,21 @@ admin.site.register(EditRequest)
 
 @admin.register(PostThanks)
 class PostThanksAdmin(admin.ModelAdmin):
-    list_display = ['post', 'created_date', 'history']
+    list_display = ['post', 'created_date', 'device']
 
     def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['history', 'post']
+        kwargs['exclude'] = ['device', 'post']
         return super().get_form(request, obj, **kwargs)
 
 
 @admin.register(PostNoThanks)
 class PostNoThanksAdmin(admin.ModelAdmin):
-    list_display = ['post', 'created_date', 'history']
+    list_display = ['post', 'created_date', 'device']
 
     def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['history', 'post']
+        kwargs['exclude'] = ['device', 'post']
         return super().get_form(request, obj, **kwargs)
 
-
-@admin.register(UserConfigMeta)
-class PostNoThanksAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'value']
-
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['user']
-        return super().get_form(request, obj, **kwargs)
-    
 
 @admin.register(UserLinkMeta)
 class PostNoThanksAdmin(admin.ModelAdmin):
@@ -252,3 +274,54 @@ class PostNoThanksAdmin(admin.ModelAdmin):
 
 
 admin.site.register(UsernameChangeLog)
+
+
+@admin.register(OpenAIConnection)
+class OpenAIConnectionAdmin(admin.ModelAdmin):
+    list_display = ['user', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user', 'api_key']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(OpenAIUsageHistory)
+class OpenAIUsageHistoryAdmin(admin.ModelAdmin):
+    list_display = ['user', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(DeveloperToken)
+class DeveloperTokenAdmin(admin.ModelAdmin):
+    list_display = ['user', 'name', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user', 'token']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(DeveloperRequestLog)
+class DeveloperRequestLogAdmin(admin.ModelAdmin):
+    list_display = ['developer', 'endpoint', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(SocialAuth)
+class SocialAuthAdmin(admin.ModelAdmin):
+    list_display = ['user', 'provider', 'created_date']
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ['user', 'provider', 'uid']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(SocialAuthProvider)
+class SocialAuthProviderAdmin(admin.ModelAdmin):
+    list_display = ['key', 'name', 'icon', 'color']
+    list_editable = ['name', 'icon', 'color']

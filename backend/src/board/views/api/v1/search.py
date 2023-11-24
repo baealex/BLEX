@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.models import Post, Search, SearchValue
-from board.modules.analytics import create_history, get_network_addr
+from board.modules.analytics import create_device, get_network_addr
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 
@@ -80,14 +80,14 @@ def search(request):
 
         user_addr = get_network_addr(request)
         user_agent = request.META['HTTP_USER_AGENT']
-        history = create_history(user_addr, user_agent)
+        history = create_device(user_addr, user_agent)
 
         search_value, search_value_created = SearchValue.objects.get_or_create(
             value=query)
 
         six_hours_ago = timezone.now() - datetime.timedelta(hours=6)
         has_search_query = Search.objects.filter(
-            searcher=history,
+            device=history,
             search_value=search_value,
             created_date__gt=six_hours_ago,
         )
@@ -99,13 +99,13 @@ def search(request):
             if not has_search_query.exists():
                 Search.objects.create(
                     user=request.user,
-                    searcher=history,
+                    device=history,
                     search_value=search_value,
                 )
         else:
             if not has_search_query.exists():
                 Search.objects.create(
-                    searcher=history,
+                    device=history,
                     search_value=search_value,
                 )
 

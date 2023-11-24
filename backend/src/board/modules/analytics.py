@@ -1,10 +1,7 @@
-import datetime
-
 from django.conf import settings
 from django.utils import timezone
 
-from board.models import History, Post, PostAnalytics, Referer, RefererFrom
-from board.modules.time import convert_to_localtime
+from board.models import Device, Post, PostAnalytics, Referer, RefererFrom
 from modules.subtask import sub_task_manager
 from modules.scrap import page_parser
 from modules.hash import get_sha256
@@ -60,21 +57,21 @@ def get_network_addr(request):
     return ip_addr
 
 
-def view_count(posts: Post, request, ip, user_agent, referer):
-    if posts.author == request.user:
+def view_count(post: Post, request, ip, user_agent, referer):
+    if post.author == request.user:
         return
 
-    if posts.config.hide or not posts.is_published():
+    if post.config.hide or not post.is_published():
         return
 
     if ip and user_agent:
-        create_viewer(posts, ip, user_agent)
+        create_viewer(post, ip, user_agent)
 
     if referer:
-        create_referer(posts, referer)
+        create_referer(post, referer)
 
 
-def create_referer(posts, referer):
+def create_referer(post, referer):
     if not has_vaild_referer(referer):
         return
 
@@ -82,9 +79,11 @@ def create_referer(posts, referer):
     today_analytics = None
     try:
         today_analytics = PostAnalytics.objects.get(
-            created_date=today, posts=posts)
+            created_date=today,
+            post=post
+        )
     except:
-        today_analytics = PostAnalytics(posts=posts)
+        today_analytics = PostAnalytics(post=post)
         today_analytics.save()
         today_analytics.refresh_from_db()
 
@@ -111,7 +110,7 @@ def create_referer(posts, referer):
             referer_from.update()
         sub_task_manager.append(func)
     Referer(
-        posts=today_analytics,
+        post=today_analytics,
         referer_from=referer_from
     ).save()
 
@@ -123,47 +122,49 @@ def has_vaild_referer(referer):
     return True
 
 
-def create_history(ip, user_agent):
+def create_device(ip, user_agent):
     key = get_sha256(ip)
-    try:
-        history = History.objects.get(key=key)
+
+    device = Device.objects.filter(key=key)
+    if device.exists():
+        device = device.first()
         should_save = False
-        if not history.ip:
-            history.ip = ip
+        if not device.ip:
+            device.ip = ip
             should_save = True
-        if not history.agent == user_agent[:200]:
-            history.agent = user_agent[:200]
-            history.category = bot_check(user_agent)
+        if not device.agent == user_agent[:200]:
+            device.agent = user_agent[:200]
+            device.category = bot_check(user_agent)
             should_save = True
         if should_save:
-            history.save()
-            history.refresh_from_db()
-    except:
-        history = History(key=key)
-        history.ip = ip
-        history.agent = user_agent[:200]
-        history.category = bot_check(user_agent)
-        history.save()
-        history.refresh_from_db()
-    return history
+            device.save()
+            device.refresh_from_db()
+    else:
+        device = Device(key=key)
+        device.ip = ip
+        device.agent = user_agent[:200]
+        device.category = bot_check(user_agent)
+        device.save()
+        device.refresh_from_db()
+    return device
 
 
 def create_viewer(posts, ip, user_agent):
-    history = create_history(ip, user_agent)
+    history = create_device(ip, user_agent)
 
     if not 'bot' in history.category:
         today = timezone.now()
         today_analytics = None
         try:
             today_analytics = PostAnalytics.objects.get(
-                created_date=today, posts=posts)
+                created_date=today, post=posts)
         except:
-            today_analytics = PostAnalytics(posts=posts)
+            today_analytics = PostAnalytics(post=posts)
             today_analytics.save()
             today_analytics.refresh_from_db()
 
-        if not today_analytics.table.filter(id=history.id).exists():
-            today_analytics.table.add(history)
+        if not today_analytics.devices.filter(id=history.id).exists():
+            today_analytics.devices.add(history)
             today_analytics.save()
 
 

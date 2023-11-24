@@ -44,7 +44,7 @@ def comment_list(request):
             create_notify(
                 user=post.author,
                 url=post.get_absolute_url(),
-                infomation=send_notify_content)
+                content=send_notify_content)
 
         regex = re.compile(r'\`\@([a-zA-Z0-9\.]*)\`\s?')
         if regex.search(comment.text_md):
@@ -66,7 +66,7 @@ def comment_list(request):
                         create_notify(
                             user=_user,
                             url=post.get_absolute_url(),
-                            infomation=send_notify_content)
+                            content=send_notify_content)
 
         return StatusDone({
             'pk': comment.pk,
@@ -87,7 +87,7 @@ def comment_detail(request, id):
         'author',
         'author__config'
     ).annotate(
-        count_likes=Count('likes'),
+        count_likes=Count('likes', distinct=True),
         has_liked=Case(
             When(
                 Exists(
@@ -135,7 +135,7 @@ def comment_detail(request, id):
                     create_notify(
                         user=comment.author,
                         url=comment.post.get_absolute_url(),
-                        infomation=send_notify_content)
+                        content=send_notify_content)
                 return StatusDone({
                     'total_likes': comment.count_likes + 1,
                 })

@@ -22,6 +22,7 @@ def StatusDone(body=None):
 
 
 class ErrorCode(Enum):
+    REQUIRE = 'RE'
     REJECT = 'RJ'
     EXPIRED = 'EP'
     VALIDATE = 'VA'
