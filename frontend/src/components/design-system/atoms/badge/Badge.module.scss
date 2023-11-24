@@ -3,20 +3,22 @@
 
 .badge {
     display: inline-block;
-    background-color: #f8f9fa;
+    background-color: #f7f7fa;
     border-radius: 3px;
     padding: 8px 12px;
+    font-size: 14px;
     color: #555;
 
     :global(body.dark) & {
         color: #aaa;
+        background-color: #272727;
     }
 
     &>a {
-        color: #777;
+        color: #666;
 
         :global(body.dark) & {
-            color: #ccc;
+            color: #aaa;
         }
 
         &:hover {
@@ -29,25 +31,21 @@
         }
     }
 
-    :global(body.dark) & {
-        background-color: #3b3b3b;
-    }
-
     &.ir {
         // isRounded
         border-radius: 100px;
     }
 
     &.hs {
-
         // hasSharp
         &::before {
             content: '#';
-            color: $COLOR_DEFAULT_PRIMARY;
+            margin-right: 2px;
+            color: $COLOR_DEFAULT_SECONDARY;
             font-weight: bold;
 
             :global(body.dark) & {
-                color: $COLOR_DARK_PRIMARY;
+                color: $COLOR_DARK_SECONDARY;
             }
         }
     }

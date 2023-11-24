@@ -36,7 +36,7 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     </Link>
                 )}
                 <div className={cn('content')}>
-                    <Text tag="h3" fontWeight={700} fontSize={8}>
+                    <Text tag="h3" fontWeight={700} fontSize={5}>
                         <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                             {props.title}
                         </Link>
@@ -52,7 +52,7 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     <TagBadges
                         className="mt-3"
                         items={props.tags.map(item => (
-                            <Link href={`/@${props.author}/posts/${item}`}>
+                            <Link href={`/@${props.author}/posts/${item}#profile`}>
                                 {item}
                             </Link>
                         ))}

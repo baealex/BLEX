@@ -1,10 +1,16 @@
 .list {
-    padding: 24px 0 32px;
+    padding: 24px 0 48px;
+    margin: 0 0 32px;
     display: flex;
     justify-content: space-between;
     word-break: keep-all;
     border-bottom: 1px solid #eee;
     gap: 24px;
+
+    @media (max-width: 678px) {
+        padding: 24px 0;
+        margin: 0 0 8px;
+    }
 
     :global(body.dark) & {
         border-bottom: 1px solid #333;
@@ -36,7 +42,7 @@
         overflow: hidden;
 
         a {
-            color: #555;
+            color: #666;
 
             :global(body.dark) & {
                 color: #aaa;

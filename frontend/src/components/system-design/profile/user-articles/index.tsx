@@ -30,7 +30,7 @@ export function UserArticles(props: PostsProps) {
                     grid-template: 1fr / 280px 1fr;
                     gap: 1.5rem;
 
-                    @media (max-width: 880px) {
+                    @media only screen and (max-width: 880px) {
                         grid-template: 1fr / 1fr;
                         gap: 0.5rem;
                     }

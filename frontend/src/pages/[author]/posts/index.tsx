@@ -66,6 +66,7 @@ const UserPosts: PageComponent<Props> = (props) => {
                 description={`${props.profile.name}님이 작성한 모든 포스트를 만나보세요.`}
             />
             <Pagination
+                hash="profile"
                 page={props.page}
                 last={props.lastPage}
             />

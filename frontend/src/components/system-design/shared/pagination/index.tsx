@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 
 export interface Props {
     disableScroll?: boolean;
+    hash?: string;
     page: number;
     last: number;
 }
@@ -59,6 +60,7 @@ export function Pagination(props: Props) {
         return {
             as: {
                 pathname: router.asPath.split('?')[0],
+                hash: props.hash,
                 query: {
                     ...asQuery,
                     page: num
@@ -66,6 +68,7 @@ export function Pagination(props: Props) {
             },
             href: {
                 pathname: router.pathname,
+                hash: props.hash,
                 query: {
                     ...router.query,
                     page: num

@@ -29,7 +29,7 @@ export interface ProfileNavigationProps {
 
 export function ProfileNavigation(props: ProfileNavigationProps) {
     return (
-        <div className={`${cn('navigation')} back-image mt-5`}>
+        <div id="profile" className={`${cn('navigation')} back-image mt-5`}>
             <div className={cn('mask')}>
                 <ul>
                     {TAB_ITEMS.map((item, idx) => (

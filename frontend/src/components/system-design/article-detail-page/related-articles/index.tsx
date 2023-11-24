@@ -47,7 +47,7 @@ export function RelatedArticles(props: RelatedProps) {
                         </Link>
                     )}
                     <div className={cn('content')}>
-                        <Text tag="h3" fontSize={7} fontWeight={700}>
+                        <Text tag="h3" fontSize={5} fontWeight={700}>
                             <Link className="deep-dark" href={`/@${item.author}/${item.url}`}>
                                 {item.title}
                             </Link>
