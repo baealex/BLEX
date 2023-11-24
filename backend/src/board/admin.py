@@ -1,9 +1,10 @@
 from django.contrib import admin
+from django.contrib.admin.models import LogEntry
+from django.db.models import F, Count
 from django.urls import reverse
 from django.utils.safestring import mark_safe    
 
 from .models import *
-from django.contrib.admin.models import LogEntry
 
 
 admin.site.register(LogEntry)
@@ -11,11 +12,22 @@ admin.site.register(LogEntry)
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ['author', 'post', 'created_date']
+    list_display = ['id', 'author_link', 'post_link', 'content', 'created_date']
     list_per_page = 30
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('author', 'post')
+    
+    def author_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.author.id,)), obj.author.username))
+    author_link.short_description = 'author'
+
+    def post_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:board_post_change', args=(obj.post.id,)), obj.post.title))
+    post_link.short_description = 'post'
+
+    def content(self, obj):
+        return truncatewords(strip_tags(obj.text_html), 5)
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['author', 'post']
@@ -33,7 +45,16 @@ class EmailChangeAdmin(admin.ModelAdmin):
 
 @admin.register(UserConfigMeta)
 class PostNoThanksAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'value']
+    list_display = ['user_link', 'name', 'value']
+    list_display_links = ['name']
+    list_filter = ['name']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+
+    def user_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.user.id,)), obj.user.username))
+    user_link.short_description = 'user'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user']
@@ -47,9 +68,25 @@ class ConfigAdmin(admin.ModelAdmin):
 
 
 @admin.register(Follow)
-class FormAdmin(admin.ModelAdmin):
-    list_display = ['following', 'follower']
+class FollowAdmin(admin.ModelAdmin):
+    list_display = ['id', 'to_link', 'from_link', 'created_date']
     list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(
+            from_id=F('follower__id'),
+            from_username=F('follower__username'),
+            to_id=F('following__user__id'),
+            to_username=F('following__user__username'),
+        )
+
+    def to_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.to_id,)), obj.to_username))
+    to_link.short_description = 'to'
+
+    def from_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.from_id,)), obj.from_username))
+    from_link.short_description = 'from'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['following', 'follower']
@@ -58,8 +95,15 @@ class FormAdmin(admin.ModelAdmin):
 
 @admin.register(Form)
 class FormAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'title']
+    list_display = ['id', 'user_link', 'title', 'is_public', 'created_date']
     list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+
+    def user_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.user.id,)), obj.user.username))
+    user_link.short_description = 'user'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user']
@@ -78,15 +122,70 @@ class DeviceAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **kwargs)
 
 
+class ImageFilter(admin.SimpleListFilter):
+    title = 'image type'
+    parameter_name = 'image_type'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('jpeg', 'JPEG'),
+            ('jpg', 'JPG'),
+            ('png', 'PNG'),
+            ('gif', 'GIF'),
+            ('mp4', 'MP4'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == None:
+            return queryset
+        return queryset.filter(path__endswith=f'.{self.value()}')
+
+
 @admin.register(ImageCache)
 class ImageCacheAdmin(admin.ModelAdmin):
-    list_display = ['id', 'path']
+    list_display = ['id', 'file_size', 'image', 'open_image']
     list_per_page = 50
+
+    def get_list_filter(self, request):
+        return [ImageFilter]
+
+    def file_size(self, obj):
+        size = obj.size
+        if size > 1024 * 1024:
+            return f'{round(size / 1024 / 1024, 2)} mb'
+        elif size > 1024:
+            return f'{round(size / 1024, 2)} kb'
+        return f'{size} b'
+    file_size.short_description = 'size'
+    file_size.admin_order_field = 'size'
+
+    def image(self, obj):
+        image_size = '480px'
+        media_path = settings.MEDIA_URL + obj.path
+
+        if obj.path.endswith('.mp4'):
+            return mark_safe('<video src="{}" controls autoplay loop muted playsinline width="{}"></video>'.format(media_path, image_size))
+        return mark_safe('<img src="{}" lazy="loading" width="{}"/>'.format(media_path, image_size))
+    image.admin_order_field = 'path'
+
+    def open_image(self, obj):
+        return mark_safe('<a href="{}" target="_blank">🔗</a>'.format(settings.MEDIA_URL + obj.path))
+    open_image.short_description = 'open'
 
 
 @admin.register(Notify)
 class NotifyAdmin(admin.ModelAdmin):
-    list_display = ['user', 'content', 'created_date', 'has_read']
+    list_display = ['id', 'user_link', 'x_content', 'has_read', 'created_date']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+
+    def user_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.user.id,)), obj.user.username))
+    user_link.short_description = 'user'
+
+    def x_content(self, obj):
+        return truncatewords(obj.content, 8)
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user', 'key']
@@ -125,6 +224,7 @@ class PostAdmin(admin.ModelAdmin):
 
     def author_link(self, obj):
         return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.author.id,)), obj.author.username))
+    author_link.short_description = 'author'
 
     def content_link(self, obj):
         return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:board_postcontent_change', args=(obj.content.id,)), '🚀'))
@@ -276,7 +376,17 @@ class SearchAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **kwargs)
 
 
-admin.site.register(SearchValue)
+@admin.register(SearchValue)
+class SearchValueAdmin(admin.ModelAdmin):
+    list_display = ['value', 'count']
+    list_per_page = 50
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(count=Count('searches', distinct=True))
+
+    def count(self, obj):
+        return obj.count
+    count.admin_order_field = 'count'
 
 
 @admin.register(Series)
@@ -313,7 +423,17 @@ class TempPostsAdmin(admin.ModelAdmin):
 
 @admin.register(TelegramSync)
 class TelegramSyncAdmin(admin.ModelAdmin):
-    list_display = ['user', 'tid', 'created_date']
+    list_display = ['id', 'user_link', 'synced', 'created_date']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+
+    def user_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.user.id,)), obj.user.username))
+    user_link.short_description = 'user'
+
+    def synced(self, obj):
+        return '✅' if obj.tid else '✅'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user']
@@ -365,7 +485,14 @@ admin.site.register(UsernameChangeLog)
 
 @admin.register(OpenAIConnection)
 class OpenAIConnectionAdmin(admin.ModelAdmin):
-    list_display = ['user', 'created_date']
+    list_display = ['id', 'user_link', 'created_date']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+
+    def user_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.user.id,)), obj.user.username))
+    user_link.short_description = 'user'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user', 'api_key']
@@ -374,7 +501,20 @@ class OpenAIConnectionAdmin(admin.ModelAdmin):
 
 @admin.register(OpenAIUsageHistory)
 class OpenAIUsageHistoryAdmin(admin.ModelAdmin):
-    list_display = ['user', 'created_date']
+    list_display = ['id', 'user_link', 'query_size', 'response_size', 'created_date']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+    
+    def user_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.user.id,)), obj.user.username))
+    user_link.short_description = 'user'
+
+    def query_size(self, obj):
+        return len(obj.query)
+
+    def response_size(self, obj):
+        return len(obj.response)
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user']

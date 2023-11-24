@@ -548,7 +548,7 @@ class Report(models.Model):
 class Search(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
-    search_value = models.ForeignKey('board.SearchValue', on_delete=models.CASCADE)
+    search_value = models.ForeignKey('board.SearchValue', related_name='searches', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
