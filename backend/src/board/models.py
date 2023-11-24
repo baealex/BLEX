@@ -531,7 +531,7 @@ class RefererFrom(models.Model):
         self.save()
 
     def __str__(self):
-        return self.location
+        return self.title if self.title else self.location
 
 
 class Report(models.Model):
