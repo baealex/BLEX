@@ -42,7 +42,7 @@ export function RelatedArticles(props: RelatedProps) {
                                 className="lazy"
                                 src={getPostsImage(item.image, { preview: true })}
                                 data-src={getPostsImage(item.image, { minify: true })}
-                                height="400"
+                                height="400px"
                             />
                         </Link>
                     )}
@@ -62,8 +62,7 @@ export function RelatedArticles(props: RelatedProps) {
                         </div>
                     </div>
                 </div>
-            ))
-            }
-        </div >
+            ))}
+        </div>
     );
 }

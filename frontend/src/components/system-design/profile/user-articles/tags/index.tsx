@@ -26,9 +26,9 @@ export function Tags(props: TagsProps) {
 
     return (
         <div className={cn('tags', 'mt-4')}>
-            <div className={cn('d-flex justify-content-between', 'category')}>
+            <div className={cn('d-flex justify-content-between align-items-center', 'category')}>
                 <Text fontWeight={600} fontSize={4}>
-                    카테고리
+                    태그
                 </Text>
                 <Dropdown
                     button={

@@ -23,37 +23,42 @@ export interface ArticleCardListProps {
 
 export function ArticleCardList(props: ArticleCardListProps) {
     return (
-        <article className={cn('list')}>
-            <Link href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+        <article>
+            <div className={cn('list')}>
                 {props.image && (
-                    <img
-                        className="lazy mt-4"
-                        src={getPostsImage(props.image, { preview: true })}
-                        data-src={getPostsImage(props.image, { minify: true })}
-                        height="400"
-                    />
-                )}
-            </Link>
-            <Text tag="h3" className="mt-4 mb-2" fontWeight={700} fontSize={8}>
-                <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                    {props.title}
-                </Link>
-            </Text>
-            <Text className="my-2" fontSize={4}>
-                <Link className="shallow-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                    {unescape(props.description)}
-                </Link>
-            </Text>
-            <Text className="my-2" fontSize={2}>
-                {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
-            </Text>
-            <TagBadges
-                items={props.tags.map(item => (
-                    <Link href={`/@${props.author}/posts/${item}`}>
-                        {item}
+                    <Link className={cn('image')} href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                        <img
+                            className="lazy"
+                            src={getPostsImage(props.image, { preview: true })}
+                            data-src={getPostsImage(props.image, { minify: true })}
+                            height="400px"
+                        />
                     </Link>
-                ))}
-            />
+                )}
+                <div className={cn('content')}>
+                    <Text tag="h3" fontWeight={700} fontSize={8}>
+                        <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                            {props.title}
+                        </Link>
+                    </Text>
+                    <Text className={cn('description', 'mt-2')} fontSize={4}>
+                        <Link className="shallow-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                            {unescape(props.description)}
+                        </Link>
+                    </Text>
+                    <Text className="mt-2" fontSize={2}>
+                        {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
+                    </Text>
+                    <TagBadges
+                        className="mt-3"
+                        items={props.tags.map(item => (
+                            <Link href={`/@${props.author}/posts/${item}`}>
+                                {item}
+                            </Link>
+                        ))}
+                    />
+                </div>
+            </div>
         </article>
     );
 }
