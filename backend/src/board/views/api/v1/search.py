@@ -1,7 +1,7 @@
 import datetime
 import time
 
-from django.db.models import F, Q, When, Case
+from django.db.models import F, Q, Count, When, Case, Subquery, OuterRef, BooleanField
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -23,28 +23,104 @@ def search(request):
             return StatusError(ErrorCode.VALIDATE, '검색어를 입력하세요.')
 
         start_time = time.time()
-        posts = Post.objects.select_related(
-            'content',
-        ).filter(
-            Q(title__contains=query) | Q(tags__value__contains=query) | Q(content__text_md__contains=query),
+
+        subqueries = Post.objects.filter(
+            Q(title__contains=query) |
+            Q(meta_description__contains=query) |
+            Q(tags__value__contains=query) |
+            Q(content__text_md__contains=query),
             config__hide=False,
             created_date__lte=timezone.now(),
         ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar'),
-            is_contain_tags=Case(
-                When(tags__value__contains=query, then=True),
-                default=False,
-            ),
             is_contain_title=Case(
                 When(title__contains=query, then=True),
                 default=False,
+                output_field=BooleanField(),
+            ),
+            is_contain_description=Case(
+                When(meta_description__contains=query, then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+            is_contain_tags=Case(
+                When(tags__value__contains=query, then=True),
+                default=False,
+                output_field=BooleanField(),
             ),
             is_contain_content=Case(
                 When(content__text_md__contains=query, then=True),
                 default=False,
+                output_field=BooleanField(),
             ),
-        ).order_by('-is_contain_title', '-is_contain_tags', '-is_contain_content', '-created_date')
+        ).distinct().values_list('id', flat=True)
+
+        posts = Post.objects.filter(id__in=subqueries).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar'),
+            thanks_count=Count('thanks', filter=Q(
+                thanks__created_date__gte=timezone.now() - datetime.timedelta(days=180)
+            )),
+            is_contain_title=Case(
+                When(
+                    id__in=Subquery(
+                        subqueries.filter(
+                            id=OuterRef('id'),
+                            is_contain_content=True
+                        )
+                    ),
+                    then=True
+                ),
+                default=False,
+                output_field=BooleanField(),
+            ),
+            is_contain_description=Case(
+                When(
+                    id__in=Subquery(
+                        subqueries.filter(
+                            id=OuterRef('id'),
+                            is_contain_description=True
+                        )
+                    ),
+                    then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+            is_contain_tags=Case(
+                When(
+                    id__in=Subquery(
+                        subqueries.filter(
+                            id=OuterRef('id'),
+                            is_contain_tags=True
+                        )
+                    ),
+                    then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+            is_contain_content=Case(
+                When(
+                    id__in=Subquery(
+                        subqueries.filter(
+                            id=OuterRef('id'),
+                            is_contain_content=True
+                        )
+                    ),
+                    then=True),
+                default=False,
+                output_field=BooleanField(),
+            ),
+        ).order_by(
+            '-is_contain_title',
+            '-is_contain_description',
+            '-is_contain_tags',
+            '-is_contain_content',
+            '-thanks_count',
+            '-created_date',
+        )
+
+        for post in posts:
+            print(post.is_contain_title, post.is_contain_description,
+                    post.is_contain_tags, post.is_contain_content)
 
         if username:
             posts = posts.filter(author__username=username)
@@ -75,10 +151,9 @@ def search(request):
         )
 
         if request.user.id:
-            has_search_query = has_search_query.filter(
-                user=request.user,
-            )
-            if not has_search_query.exists():
+            if has_search_query.exists():
+                has_search_query.update(user=request.user)
+            else:
                 Search.objects.create(
                     user=request.user,
                     device=device,
@@ -106,8 +181,10 @@ def search(request):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
+                'thanks_count': post.thanks_count,
                 'positions': list(filter(lambda item: item, [
                     '제목' if post.is_contain_title else '',
+                    '설명' if post.is_contain_description else '',
                     '태그' if post.is_contain_tags else '',
                     '내용' if post.is_contain_content else '',
                 ])),
