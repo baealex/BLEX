@@ -15,11 +15,11 @@ admin.site.register(EditRequest)
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
+    search_fields = ['title', 'content__text_md', 'author__username', 'series__name']
+
     list_display = ['title', 'content_link', 'config_link', 'author_link', 'series_link', 'created_date', 'updated_date']
     list_display_links = ['title']
     list_per_page = 30
-
-    search_fields = ['title', 'author__username', 'series__name']
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('author', 'content', 'config', 'series')

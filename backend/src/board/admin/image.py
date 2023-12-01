@@ -27,6 +27,8 @@ class ImageFilter(admin.SimpleListFilter):
 
 @admin.register(ImageCache)
 class ImageCacheAdmin(admin.ModelAdmin):
+    search_fields = ['path']
+
     list_display = ['id', 'file_size', 'image', 'open_image']
     list_per_page = 50
 
