@@ -169,7 +169,7 @@ def search_suggest(request):
                 When(value__contains=query, then=True),
                 default=False,
             ),
-        ).order_by('-reference_count', '-startswith', '-is_contain')[:8]
+        ).order_by('-reference_count', '-is_startswith', '-is_contain')[:8]
 
         return StatusDone({
             'results': list(map(lambda item: item.value, search_values))
