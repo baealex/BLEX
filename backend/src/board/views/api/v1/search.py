@@ -107,9 +107,9 @@ def search(request):
                 'author_image': post.author_image,
                 'author': post.author_username,
                 'positions': list(filter(lambda item: item, [
-                    '제목' if post.contained_title else '',
-                    '태그' if post.contained_tags else '',
-                    '내용' if post.contained_content else '',
+                    '제목' if post.is_contain_title else '',
+                    '태그' if post.is_contain_tags else '',
+                    '내용' if post.is_contain_content else '',
                 ])),
             }, posts)),
         })
