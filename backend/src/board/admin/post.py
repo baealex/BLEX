@@ -4,10 +4,9 @@ from django.db.models import Count
 from board.models import (
     EditHistory, EditRequest, Post, PostAnalytics, PostConfig,
     PostContent, PostLikes, PostNoThanks, PostThanks, TempPosts,
-    Tag, Report
 )
 
-from .service import AdminLinkService
+from .service import AdminDisplayService, AdminLinkService
 
 
 admin.site.register(EditHistory)
@@ -16,7 +15,7 @@ admin.site.register(EditRequest)
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['author_link', 'title', 'series_link', 'content_link', 'config_link', 'created_date', 'updated_date']
+    list_display = ['title', 'content_link', 'config_link', 'author_link', 'series_link', 'created_date', 'updated_date']
     list_display_links = ['title']
     list_per_page = 30
 
@@ -60,12 +59,26 @@ class PostConfigAdmin(admin.ModelAdmin):
 
 @admin.register(PostContent)
 class PostContentAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': ('text_md', 'text_html'),
+        }),
+        ('Preview', {
+            'fields': ('text_html_preview',),
+        }),
+    )
+
+    readonly_fields = ['text_html_preview']
+
+    def text_html_preview(self, obj):
+        return AdminDisplayService.html(
+            obj.text_html,
+            use_folding=True,
+            remove_lazy_load=True,
+        )
+
     list_display = ['id']
     list_per_page = 100
-
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['post', 'author', 'series', 'tags']
-        return super().get_form(request, obj, **kwargs)
 
 
 @admin.register(TempPosts)
@@ -129,47 +142,4 @@ class PostNoThanksAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['device', 'post']
-        return super().get_form(request, obj, **kwargs)
-
-
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    actions = ['clear']
-    list_display = ['value', 'count']
-    list_per_page = 30
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).annotate(count=Count('posts', distinct=True))
-
-    def clear(self, request, queryset):
-        for data in queryset:
-            if data.count == 0:
-                data.delete()
-        self.message_user(request, str(len(queryset)) + '개의 태그중 포스트가 없는 태그 삭제')
-    clear.short_description = '포스트가 없는 태그 삭제'
-
-    def count(self, obj):
-        return obj.count
-    count.admin_order_field = 'count'
-
-
-@admin.register(Report)
-class ReportAdmin(admin.ModelAdmin):
-    list_display = ['user', 'post_link', 'content_link', 'config_link', 'content', 'created_date']
-    list_per_page = 50
-
-    def post_link(self, obj):
-        return AdminLinkService.create_post_link(obj.post)
-    post_link.short_description = 'post'
-    
-    def content_link(self, obj):
-        return AdminLinkService.create_post_content_link(obj.post.content)
-    content_link.short_description = 'content'
-    
-    def config_link(self, obj):
-        return AdminLinkService.create_post_config_link(obj.post.config)
-    config_link.short_description = 'config'
-
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['user', 'post', 'device']
         return super().get_form(request, obj, **kwargs)

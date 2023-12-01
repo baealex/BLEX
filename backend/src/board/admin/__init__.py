@@ -5,11 +5,13 @@ from .developer import *
 from .form import *
 from .image import *
 from .notify import *
-from .user import *
 from .referer import *
+from .report import *
 from .search import *
 from .series import *
 from .post import *
+from .tag import *
+from .user import *
 
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry

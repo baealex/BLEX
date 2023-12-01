@@ -1,12 +1,11 @@
+from django import forms
 from django.contrib import admin
-from django.db.models import F
-from django.urls import reverse
-from django.utils.safestring import mark_safe
 
 from board.models import (
     UserConfigMeta, UserLinkMeta, Config, Follow, UsernameChangeLog,
     EmailChange,
 )
+from board.constants.config_meta import CONFIG_TYPES
 
 from .service import AdminLinkService
 
@@ -16,7 +15,21 @@ admin.site.register(UsernameChangeLog)
 
 
 @admin.register(UserConfigMeta)
-class PostNoThanksAdmin(admin.ModelAdmin):
+class UserConfigMetaAdmin(admin.ModelAdmin):
+    class UserConfigMetaForm(forms.ModelForm):
+        class Meta:
+            model = UserConfigMeta
+            fields = '__all__'
+            widgets = {
+                'name': forms.Select(
+                    choices=[
+                        (config_type, config_type) for config_type in CONFIG_TYPES
+                    ],
+                ),
+            }
+
+    form = UserConfigMetaForm
+
     list_display = ['user_link', 'name', 'value']
     list_display_links = ['name']
     list_filter = ['name']
@@ -28,11 +41,6 @@ class PostNoThanksAdmin(admin.ModelAdmin):
         return AdminLinkService.create_user_link(obj.user)
     user_link.short_description = 'user'
 
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['widgets'] = {
-            'name': admin.widgets.AdminTextInputWidget,
-        }
-        return super().get_form(request, obj, **kwargs)
 
 
 @admin.register(UserLinkMeta)

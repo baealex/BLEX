@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.conf import settings
-from django.utils.safestring import mark_safe
 
 from board.models import ImageCache
+
+from .service import AdminDisplayService
 
 
 class ImageFilter(admin.SimpleListFilter):
@@ -47,10 +48,10 @@ class ImageCacheAdmin(admin.ModelAdmin):
         media_path = settings.MEDIA_URL + obj.path
 
         if obj.path.endswith('.mp4'):
-            return mark_safe('<video src="{}" controls autoplay loop muted playsinline width="{}"></video>'.format(media_path, image_size))
-        return mark_safe('<img src="{}" lazy="loading" width="{}"/>'.format(media_path, image_size))
+            return AdminDisplayService.video(media_path, image_size)
+        return AdminDisplayService.image(media_path, image_size)
     image.admin_order_field = 'path'
 
     def open_image(self, obj):
-        return mark_safe('<a href="{}" target="_blank">🔗</a>'.format(settings.MEDIA_URL + obj.path))
+        return AdminDisplayService.link(settings.MEDIA_URL + obj.path)
     open_image.short_description = 'open'
