@@ -124,7 +124,7 @@ def search_history_list(request):
                 user=request.user.id
             ).annotate(
                 value=F('search_value__value')
-            ).order_by('-created_date')[:8]
+            ).order_by('-created_date')[:4]
 
             return StatusDone({
                 'searches': list(map(lambda item: {
@@ -169,7 +169,7 @@ def search_suggest(request):
                 When(value__contains=query, then=True),
                 default=False,
             ),
-        ).order_by('-reference_count', '-is_startswith', '-is_contain')[:8]
+        ).order_by('-is_startswith', '-is_contain')[:4]
 
         return StatusDone({
             'results': list(map(lambda item: item.value, search_values))

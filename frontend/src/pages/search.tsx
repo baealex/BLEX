@@ -14,12 +14,14 @@ import { lazyLoadResource } from '~/modules/optimize/lazy';
 import * as API from '~/modules/api';
 
 interface Props {
-    query: string;
     page: number;
+    query: string;
+    username: string;
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
+        u = '',
         q = '',
         page = 1
     } = context.query as {
@@ -28,8 +30,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     return {
         props: {
+            page: Number(page),
             query: q,
-            page: Number(page)
+            username: u
         }
     };
 };
@@ -43,7 +46,7 @@ export default function Search(props: Props) {
         props.page
     ], async () => {
         if (props.query) {
-            const { data } = await API.getSearch(props.query, props.page);
+            const { data } = await API.getSearch(props.query, props.page, props.username);
             return data;
         }
     });
@@ -87,7 +90,7 @@ export default function Search(props: Props) {
                         defaultValue={props.query}
                         placeholder="검색어를 입력하세요."
                         button={<i className="fas fa-search" />}
-                        onClick={(value) => router.push('/search?q=' + value)}
+                        onClick={(value) => router.push(`/search?q=${value}&u=${props.username}`)}
                         history={history || undefined}
                         onClickHistory={(value) => router.push('/search?q=' + value)}
                         onRemoveHistory={handleRemoveHistory}
@@ -104,7 +107,7 @@ export default function Search(props: Props) {
                                 <Text className="shallow-dark">
                                     <Flex align="center" gap={2}>
                                         <i className="fas fa-search" />
-                                        '{props.query}' 검색
+                                        '{props.query} {props.username && `of @${props.username}`}' 검색
                                     </Flex>
                                 </Text>
                                 <Text className="shallow-dark">
