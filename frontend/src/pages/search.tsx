@@ -107,7 +107,7 @@ export default function Search(props: Props) {
                                 <Text className="shallow-dark">
                                     <Flex align="center" gap={2}>
                                         <i className="fas fa-search" />
-                                        '{props.query} {props.username && `of @${props.username}`}' 검색
+                                        '{props.query}{props.username && ` of @${props.username}`}' 검색
                                     </Flex>
                                 </Text>
                                 <Text className="shallow-dark">
