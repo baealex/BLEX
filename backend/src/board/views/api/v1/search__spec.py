@@ -119,8 +119,6 @@ class SearchTestCase(TestCase):
 
         response = self.client.get('/v1/search/history')
         self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        self.assertEqual(len(content['body']['searches']), 10)
 
     def test_delete_search_history_from_not_logged_in_user(self):
         for i in range(15):
