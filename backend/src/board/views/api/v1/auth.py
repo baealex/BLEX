@@ -107,8 +107,8 @@ def create_user(username, name, email, avatar_url, token=None):
             user_profile.save()
 
     user_config = Config.objects.create(user=user)
-    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, True)
-    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, True)
+    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
+    user_config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
 
     create_notify(
         user=user,

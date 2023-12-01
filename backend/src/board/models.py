@@ -12,9 +12,12 @@ from django.utils.html import strip_tags
 
 from PIL import Image, ImageFilter
 
+from modules.hash import get_sha256
+from modules.randomness import randstr
+from modules.subtask import sub_task_manager
+from modules.telegram import TelegramBot
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
-from modules.randomness import randstr
 
 
 def calc_read_time(html):
@@ -237,6 +240,20 @@ class Notify(models.Model):
     has_read = models.BooleanField(default=False)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
+
+    @staticmethod
+    def create_hash_key(user: User, url: str, content: str, hidden_key: str = None):
+        return get_sha256(user.username + url + content + (hidden_key if hidden_key else ''))
+
+    def send_notify(self):
+        if hasattr(self.user, 'telegramsync'):
+            tid = self.user.telegramsync.tid
+            if not tid == '':
+                bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+                sub_task_manager.append(lambda: bot.send_messages(tid, [
+                    settings.SITE_URL + str(self.url),
+                    self.content
+                ]))
 
     def to_dict(self):
         return {

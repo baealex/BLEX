@@ -13,6 +13,7 @@ admin.site.register(LogEntry)
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ['id', 'author_link', 'post_link', 'content', 'created_date']
+    list_display_links = ['content']
     list_per_page = 30
 
     def get_queryset(self, request):
@@ -177,7 +178,8 @@ class ImageCacheAdmin(admin.ModelAdmin):
 
 @admin.register(Notify)
 class NotifyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user_link', 'x_content', 'has_read', 'created_date']
+    list_display = ['id', 'user_link', '_content', 'has_read', 'created_date']
+    list_display_links = ['_content']
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user')
@@ -186,12 +188,29 @@ class NotifyAdmin(admin.ModelAdmin):
         return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.user.id,)), obj.user.username))
     user_link.short_description = 'user'
 
-    def x_content(self, obj):
+    def _content(self, obj):
         return truncatewords(obj.content, 8)
+    _content.short_description = 'content'
 
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['user', 'key']
-        return super().get_form(request, obj, **kwargs)
+    def save_model(self, request, obj: Notify, form, change):
+        obj.key = Notify.create_hash_key(user=obj.user, url=obj.url, content=obj.content)
+        if Notify.objects.filter(key=obj.key).exists():
+            return
+
+        super().save_model(request, obj, form, change)
+        obj.send_notify()
+    
+    def get_fieldsets(self, request, obj: Notify):
+        return (
+            (None, {
+                'fields': (
+                    'user',
+                    'url',
+                    'content',
+                    'has_read',
+                )
+            }),
+        )
 
 
 @admin.register(Tag)
@@ -414,9 +433,16 @@ class SeriesAdmin(admin.ModelAdmin):
 
 @admin.register(TempPosts)
 class TempPostsAdmin(admin.ModelAdmin):
-    list_display = ['author', 'title', 'created_date', 'updated_date']
+    list_display = ['author_link', 'title', 'created_date', 'updated_date']
     list_display_links = ['title']
     list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('author')
+
+    def author_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:auth_user_change', args=(obj.author.id,)), obj.author.username))
+    author_link.short_description = 'author'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['author', 'token']
@@ -435,7 +461,7 @@ class TelegramSyncAdmin(admin.ModelAdmin):
     user_link.short_description = 'user'
 
     def synced(self, obj):
-        return '✅' if obj.tid else '✅'
+        return '✅' if obj.tid else '❌'
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user']

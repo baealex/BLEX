@@ -1,22 +1,15 @@
-from django.conf import settings
-
 from board.models import Notify
-from modules.hash import get_sha256
-from modules.subtask import sub_task_manager
-from modules.telegram import TelegramBot
 
 def create_notify(user, url: str, content: str, hidden_key: str = None):
-    hash_key = get_sha256(user.username + url + content + (hidden_key if hidden_key else ''))
-    if Notify.objects.filter(key=hash_key).exists():
+    key = Notify.create_hash_key(user=user, url=url, content=content, hidden_key=hidden_key)
+
+    if Notify.objects.filter(key=key).exists():
         return
-    
-    new_notify = Notify(user=user, url=url, content=content, key=hash_key)
-    new_notify.save()
-    if hasattr(user, 'telegramsync'):
-        tid = user.telegramsync.tid
-        if not tid == '':
-            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            sub_task_manager.append(lambda: bot.send_messages(tid, [
-                settings.SITE_URL + str(url),
-                content
-            ]))
+
+    new_notify = Notify.objects.create(
+        user=user,
+        key=key,
+        url=url,
+        content=content,
+    )
+    new_notify.send_notify()
