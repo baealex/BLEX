@@ -38,6 +38,7 @@ urlpatterns = [
     path('v1/auth/security/send', api_v1.security_send),
     path('v1/setting/<parameter>', api_v1.setting),
     path('v1/search', api_v1.search),
+    path('v1/search/suggest', api_v1.search_suggest),
     path('v1/search/history', api_v1.search_history_list),
     path('v1/search/history/<int:item_id>', api_v1.search_history_detail),
     path('v1/tags', api_v1.tag_list),

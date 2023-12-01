@@ -1,4 +1,4 @@
-@import 'mixin';;
+@import 'mixin';
 
 .input-group {
     @include MAIN_SHADOW;
@@ -51,19 +51,36 @@
 
 .histories {
     @include MAIN_SHADOW;
-    padding: 8px 0 0 0;
+
+    .suggestion {
+        color: #777;
+        padding: 16px 16px 8px;
+    }
 
     .recent {
         color: #777;
+        padding: 16px 16px 8px;
+
+        &.hasSuggestion {
+            margin-top: 8px;
+            border-top: 1px solid #ddd;
+
+            :global(body.dark) & {
+                border-top: 1px solid #555;
+            }
+        }
     }
 
-    .recent, .history {
-        padding: 8px 16px;
+    .suggestion,
+    .recent,
+    .history {
         display: flex;
         justify-content: space-between;
     }
 
     .history {
+        padding: 8px 16px;
+
         span {
             cursor: pointer;
         }

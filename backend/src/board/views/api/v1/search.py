@@ -1,8 +1,7 @@
 import datetime
-import math
 import time
 
-from django.db.models import F, Q
+from django.db.models import F, Q, When, Case
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -10,6 +9,7 @@ from django.utils import timezone
 from board.models import Post, Search, SearchValue
 from board.modules.analytics import create_device, get_network_addr
 from board.modules.response import StatusDone, StatusError, ErrorCode
+from board.modules.paginator import Paginator
 from board.modules.time import convert_to_localtime
 
 
@@ -19,75 +19,57 @@ def search(request):
         page = int(request.GET.get('page', 1))
         username = request.GET.get('username', '')
 
-        if len(query) < 2:
-            return StatusError(ErrorCode.VALIDATE, '2글자 이상의 검색어를 입력하세요.')
+        if len(query) < 0:
+            return StatusError(ErrorCode.VALIDATE, '검색어를 입력하세요.')
 
-        results = []
-        search_words = [query]
-
+        start_time = time.time()
         posts = Post.objects.select_related(
-            'content'
+            'content',
         ).filter(
+            Q(title__contains=query) | Q(tags__value__contains=query) | Q(content__text_md__contains=query),
             config__hide=False,
-            created_date__lte=timezone.now()
+            created_date__lte=timezone.now(),
         ).annotate(
             author_username=F('author__username'),
-            author_image=F('author__profile__avatar')
-        )
+            author_image=F('author__profile__avatar'),
+            is_contain_tags=Case(
+                When(tags__value__contains=query, then=True),
+                default=False,
+            ),
+            is_contain_title=Case(
+                When(title__contains=query, then=True),
+                default=False,
+            ),
+            is_contain_content=Case(
+                When(content__text_md__contains=query, then=True),
+                default=False,
+            ),
+        ).order_by('-is_contain_title', '-is_contain_tags', '-is_contain_content', '-created_date')
+
         if username:
             posts = posts.filter(author__username=username)
 
-        start_time = time.time()
-        for post in posts.iterator():
-            max_score = 0
-            save_search_word = ''
+        total_size = posts.count()
 
-            for search_word in search_words:
-                score = 0
-
-                post_title_lower = post.title.lower()
-                if search_word in post_title_lower:
-                    score += 3
-                    word_pos = post_title_lower.find(search_word)
-                    if word_pos == 0 or post_title_lower[word_pos - 1] == ' ':
-                        score += 2
-
-                if search_word in post.content.text_md.lower():
-                    score += 1
-
-                if score > max_score:
-                    max_score = score
-                    save_search_word = search_word
-
-            if max_score > 0:
-                results.append((post, max_score, save_search_word))
-        elapsed_time = round(time.time() - start_time, 3)
-
-        total_size = len(results)
-        results = sorted(results, key=lambda x: x[1], reverse=True)
-
-        limit = 30
-        last_page = math.ceil(total_size / limit)
-        results = results[(page - 1) * limit:page * limit]
-
-        if page > 1 > len(results):
-            raise Http404
-
-        results = list(map(lambda x: {
-            'post': x[0],
-            'word': x[2],
-        }, results))
+        posts = Paginator(
+            objects=posts,
+            offset=30,
+            page=request.GET.get('page', 1)
+        )
 
         user_addr = get_network_addr(request)
         user_agent = request.META['HTTP_USER_AGENT']
-        history = create_device(user_addr, user_agent)
+        device = create_device(user_addr, user_agent)
 
         search_value, search_value_created = SearchValue.objects.get_or_create(
-            value=query)
+            value=query,
+        )
+        search_value.reference_count = total_size
+        search_value.save()
 
         six_hours_ago = timezone.now() - datetime.timedelta(hours=6)
         has_search_query = Search.objects.filter(
-            device=history,
+            device=device,
             search_value=search_value,
             created_date__gt=six_hours_ago,
         )
@@ -99,30 +81,37 @@ def search(request):
             if not has_search_query.exists():
                 Search.objects.create(
                     user=request.user,
-                    device=history,
+                    device=device,
                     search_value=search_value,
                 )
         else:
             if not has_search_query.exists():
                 Search.objects.create(
-                    device=history,
+                    device=device,
                     search_value=search_value,
                 )
 
+        elapsed_time = round(time.time() - start_time, 3)
         return StatusDone({
             'elapsed_time': elapsed_time,
             'total_size': total_size,
-            'last_page': last_page,
-            'results': list(map(lambda x: {
-                'url': x['post'].url,
-                'title': x['post'].title,
-                'image': str(x['post'].image),
-                'description': x['post'].meta_description,
-                'read_time': x['post'].read_time,
-                'created_date': convert_to_localtime(x['post'].created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': x['post'].author_image,
-                'author': x['post'].author_username,
-            }, results)),
+            'last_page': posts.paginator.num_pages,
+            'query': query,
+            'results': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'image': str(post.image),
+                'description': post.meta_description,
+                'read_time': post.read_time,
+                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'author_image': post.author_image,
+                'author': post.author_username,
+                'positions': list(filter(lambda item: item, [
+                    '제목' if post.contained_title else '',
+                    '태그' if post.contained_tags else '',
+                    '내용' if post.contained_content else '',
+                ])),
+            }, posts)),
         })
 
     raise Http404
@@ -135,7 +124,7 @@ def search_history_list(request):
                 user=request.user.id
             ).annotate(
                 value=F('search_value__value')
-            ).order_by('-created_date')[:10]
+            ).order_by('-created_date')[:8]
 
             return StatusDone({
                 'searches': list(map(lambda item: {
@@ -160,5 +149,30 @@ def search_history_detail(request, item_id: int):
             search_item.user = None
             search_item.save()
             return StatusDone()
+
+    raise Http404
+
+
+def search_suggest(request):
+    if request.method == 'GET':
+        query = request.GET.get('q', '')[:20].lower()
+
+        search_values = SearchValue.objects.filter(
+            Q(value__startswith=query) | Q(value__contains=query),
+            reference_count__gt=0,
+        ).annotate(
+            is_startswith=Case(
+                When(value__startswith=query, then=True),
+                default=False,
+            ),
+            is_contain=Case(
+                When(value__contains=query, then=True),
+                default=False,
+            ),
+        ).order_by('-reference_count', '-startswith', '-is_contain')[:8]
+
+        return StatusDone({
+            'results': list(map(lambda item: item.value, search_values))
+        })
 
     raise Http404

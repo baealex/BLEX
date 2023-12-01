@@ -13,10 +13,11 @@ export interface GetSearchResponseData {
         createdDate: string;
         authorImage: string;
         author: string;
+        positions: string[];
     }[];
 }
 
-export async function getSearch(query: string, page=1, username='') {
+export async function getSearch(query: string, page = 1, username = '') {
     return await request<GetSearchResponseData>({
         url: '/v1/search',
         params: {
@@ -47,5 +48,19 @@ export async function deleteSearchHistory(pk: number) {
     return await request<unknown>({
         url: `/v1/search/history/${pk}`,
         method: 'DELETE'
+    });
+}
+
+export interface GetSearchSuggestionResponseData {
+    results: string[];
+}
+
+export async function getSearchSuggestion(query: string) {
+    return await request<GetSearchSuggestionResponseData>({
+        url: '/v1/search/suggest',
+        params: {
+            q: query
+        },
+        method: 'GET'
     });
 }

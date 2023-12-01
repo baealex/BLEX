@@ -3,17 +3,15 @@ import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import {
-    Footer,
-    Pagination,
-    SearchBox
-} from '@system-design/shared';
-import { Alert } from '@design-system';
+import { Alert, Flex, Text } from '@design-system';
+import { Footer, Pagination, SearchBox } from '@system-design/shared';
 import { ArticleCard } from '@system-design/article';
 
-import * as API from '~/modules/api';
-import { lazyLoadResource } from '~/modules/optimize/lazy';
 import { useFetch } from '~/hooks/use-fetch';
+
+import { lazyLoadResource } from '~/modules/optimize/lazy';
+
+import * as API from '~/modules/api';
 
 interface Props {
     query: string;
@@ -86,6 +84,7 @@ export default function Search(props: Props) {
                 <div className="mb-4">
                     <SearchBox
                         maxLength={20}
+                        defaultValue={props.query}
                         placeholder="검색어를 입력하세요."
                         button={<i className="fas fa-search" />}
                         onClick={(value) => router.push('/search?q=' + value)}
@@ -101,16 +100,30 @@ export default function Search(props: Props) {
                 ) : (
                     response?.body.results && (
                         <>
-                            <div className="shallow-dark text-right">
-                                {response?.body.totalSize}건의 결과 ({response?.body.elapsedTime}초)
-                            </div>
+                            <Flex align="center" justify="between">
+                                <Text className="shallow-dark">
+                                    <Flex align="center" gap={2}>
+                                        <i className="fas fa-search" />
+                                        '{props.query}' 검색
+                                    </Flex>
+                                </Text>
+                                <Text className="shallow-dark">
+                                    {response?.body.totalSize}개의 결과 ({response?.body.elapsedTime}초 소요)
+                                </Text>
+                            </Flex>
                             {response.body.results.map((item, idx) => (
-                                <ArticleCard
-                                    key={idx}
-                                    className="mt-4"
-                                    highlight={props.query}
-                                    {...item}
-                                />
+                                <div key={idx}>
+                                    <ArticleCard
+                                        className="mt-4"
+                                        highlight={props.query}
+                                        {...item}
+                                    />
+                                    <Flex align="center" justify="end">
+                                        <Text className="mt-3 gray-dark" fontSize={3}>
+                                            {item.positions.join(', ')}에서 검색됨
+                                        </Text>
+                                    </Flex>
+                                </div>
                             ))}
                             {response.body.lastPage > 0 && (
                                 <Pagination

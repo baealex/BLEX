@@ -41,6 +41,10 @@ export function ArticleCard(props: ArticleCardProps) {
 
     const url = props.author ? `/@${props.author}/${props.url}` : props.url;
 
+    const title = props.highlight
+        ? props.title?.replace(props.highlight, `<mark>${props.highlight}</mark>`) || ''
+        : props.title;
+
     const description = props.highlight
         ? props.description?.replace(props.highlight, `<mark>${props.highlight}</mark>`) || ''
         : props.description;
@@ -75,19 +79,22 @@ export function ArticleCard(props: ArticleCardProps) {
                             </div>
                         )}
                         <Link href={url}>
-                            <Text
-                                tag="h3"
-                                fontWeight={600}
-                                className={cn(
-                                    'title',
-                                    'deep-dark',
-                                    'mb-2'
-                                )}>
-                                {props.title}
-                            </Text>
+                            {title && props.highlight ? (
+                                <h3
+                                    className={cn('title', 'deep-dark', 'mb-2')}
+                                    dangerouslySetInnerHTML={{ __html: title }}
+                                />
+                            ) : (
+                                <Text
+                                    tag="h3"
+                                    fontWeight={600}
+                                    className={cn('title', 'deep-dark', 'mb-2')}>
+                                    {props.title}
+                                </Text>
+                            )}
                             {description && props.highlight ? (
                                 <p
-                                    className={cn('description', 'shallow-dark')}
+                                    className={cn('description', 'shallow-dark', 'mb-3')}
                                     dangerouslySetInnerHTML={{ __html: description }}
                                 />
                             ) : (

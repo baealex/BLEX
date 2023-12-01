@@ -574,6 +574,7 @@ class Search(models.Model):
 
 class SearchValue(models.Model):
     value = models.CharField(max_length=50, unique=True)
+    reference_count = models.IntegerField(default=0)
 
     def __str__(self):
         return self.value
