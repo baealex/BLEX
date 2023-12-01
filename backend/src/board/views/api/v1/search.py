@@ -60,6 +60,10 @@ def search(request):
             thanks_count=Count('thanks', filter=Q(
                 thanks__created_date__gte=timezone.now() - datetime.timedelta(days=180)
             )),
+            nothanks_count=Count('nothanks', filter=Q(
+                nothanks__created_date__gte=timezone.now() - datetime.timedelta(days=180)
+            )),
+            score=F('thanks_count') - F('nothanks_count'),
             is_contain_title=Case(
                 When(
                     id__in=Subquery(
@@ -114,7 +118,7 @@ def search(request):
             '-is_contain_description',
             '-is_contain_tags',
             '-is_contain_content',
-            '-thanks_count',
+            '-score',
             '-created_date',
         )
 
@@ -181,7 +185,6 @@ def search(request):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
-                'thanks_count': post.thanks_count,
                 'positions': list(filter(lambda item: item, [
                     '제목' if post.is_contain_title else '',
                     '설명' if post.is_contain_description else '',
