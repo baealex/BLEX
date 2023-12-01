@@ -65,7 +65,7 @@ def search(request):
                     id__in=Subquery(
                         subqueries.filter(
                             id=OuterRef('id'),
-                            is_contain_content=True
+                            is_contain_title=True
                         )
                     ),
                     then=True
