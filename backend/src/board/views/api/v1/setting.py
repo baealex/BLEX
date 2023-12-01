@@ -324,9 +324,9 @@ def setting(request, parameter):
                     'image': referer.image,
                     'description': referer.description,
                     'posts': {
-                        'author': referer.posts_author,
-                        'title': referer.posts_title,
-                        'url': referer.posts_url
+                        'author': referer.post_author,
+                        'title': referer.post_title,
+                        'url': referer.post_url
                     }
                 }, referers))
             })

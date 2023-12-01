@@ -71,7 +71,7 @@ def view_count(post: Post, request, ip, user_agent, referer):
         create_referer(post, referer)
 
 
-def create_referer(post, referer):
+def create_referer(post: Post, referer: str):
     if not has_vaild_referer(referer):
         return
 
@@ -110,7 +110,8 @@ def create_referer(post, referer):
             referer_from.update()
         sub_task_manager.append(func)
     Referer(
-        post=today_analytics,
+        post=post,
+        analytics=today_analytics,
         referer_from=referer_from
     ).save()
 
