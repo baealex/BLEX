@@ -4,11 +4,21 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./*"],
-      "@design-system": ["./components/design-system"],
-      "@design-system/*": ["./components/design-system/*"],
-      "@system-design": ["./components/system-design"],
-      "@system-design/*": ["./components/system-design/*"]
+      "~/*": [
+        "./*"
+      ],
+      "@design-system": [
+        "./components/design-system"
+      ],
+      "@design-system/*": [
+        "./components/design-system/*"
+      ],
+      "@system-design": [
+        "./components/system-design"
+      ],
+      "@system-design/*": [
+        "./components/system-design/*"
+      ]
     },
     "jsx": "preserve",
     "lib": [
@@ -37,7 +47,8 @@
   ],
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "pages/tags"
   ],
   "exclude": [
     "node_modules"

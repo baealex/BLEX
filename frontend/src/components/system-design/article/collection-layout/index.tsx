@@ -21,15 +21,20 @@ const NAVIGATION_ITEMS = [
     {
         link: '/newest',
         name: '최신 포스트'
+    },
+    {
+        link: '/tags',
+        name: '태그 클라우드'
     }
 ];
 
 const LOGGED_IN_NAVIGATION_ITEMS = [
-    ...NAVIGATION_ITEMS,
+    ...NAVIGATION_ITEMS.slice(0, 2),
     {
         link: '/liked',
         name: '관심 포스트'
-    }
+    },
+    ...NAVIGATION_ITEMS.slice(2)
 ];
 
 export interface CollectionLayoutProps {
@@ -52,8 +57,8 @@ export function CollectionLayout(props: CollectionLayoutProps) {
         posts: props.posts
     });
 
-    const [ page, setPage ] = useState(memoryStore.page);
-    const [ posts, setPosts ] = useState(memoryStore.posts);
+    const [page, setPage] = useState(memoryStore.page);
+    const [posts, setPosts] = useState(memoryStore.posts);
 
     const { isLoading } = useInfinityScroll(async () => {
         const { data } = props.active === '인기 포스트'
@@ -90,7 +95,7 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                 />
                 <Masonry
                     items={posts.map((post) => (
-                        <ArticleCard key={post.url} {...post}/>
+                        <ArticleCard key={post.url} {...post} />
                     ))}
                 />
                 {isLoading && (
@@ -100,7 +105,7 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                 )}
                 {props.children}
             </div>
-            <Footer/>
+            <Footer />
         </>
     );
 }

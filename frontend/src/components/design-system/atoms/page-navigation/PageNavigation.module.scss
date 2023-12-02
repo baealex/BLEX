@@ -1,4 +1,5 @@
-@import 'mixin';;
+@import 'mixin';
+;
 
 $ITEM_WIDTH: 100px;
 
@@ -6,35 +7,36 @@ $ITEM_WIDTH: 100px;
     position: relative;
     display: flex;
     flex-wrap: wrap;
-	margin: 0;
-	padding: 0;
-	list-style: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
     border-bottom: 1px solid #ddd;
 
     :global(body.dark) & {
         border-bottom: 1px solid #555;
     }
 
-    & > li {
+    &>li {
         display: block;
-	    margin: 10px 0;
+        margin: 10px 0;
         width: $ITEM_WIDTH;
         text-align: center;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
 
-        & > a {
+        &>a {
             @include COLOR_GRAY;
             text-decoration: none;
         }
 
-        &.active, &.active > a {
+        &.active,
+        &.active>a {
             @include COLOR_DARK;
             font-weight: bold;
         }
     }
-    
+
     .line {
         position: absolute;
         top: 100%;
@@ -48,7 +50,7 @@ $ITEM_WIDTH: 100px;
             content: '';
             display: block;
             width: 30px;
-            margin: 0 auto; 
+            margin: 0 auto;
             height: 2px;
             background: #000;
 
@@ -56,14 +58,14 @@ $ITEM_WIDTH: 100px;
                 background: #fff;
             }
         }
-        
+
         @for $i from 0 to 5 {
             &.active-#{$i} {
                 transform: translate3d($i * 100%, 0, 0);
             }
         }
 
-        @media only screen and (max-width: 346px) {
+        @media only screen and (max-width: 430px) {
             display: none;
         }
     }
