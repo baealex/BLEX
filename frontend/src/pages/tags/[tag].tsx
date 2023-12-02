@@ -69,7 +69,6 @@ export default function TagDetail(props: Props) {
                     items={props.posts.map((item, idx) => (
                         <ArticleCard
                             key={idx}
-                            className="col-lg-4 col-md-6 mt-4"
                             {...item}
                         />
                     ))}

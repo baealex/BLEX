@@ -24,13 +24,15 @@ export function Masonry({ items }: MasonryProps) {
             new MasonryLayout(ref.current!, {
                 itemSelector: '.' + cn('item'),
                 gutter: 16,
-                percentPosition: true
+                percentPosition: true,
+                transitionDuration: 0,
+                stagger: 0
             });
         });
     }, [ref, items]);
 
     return (
-        <div ref={ref} className={cn('masonry')}>
+        <div ref={ref} className={cn('masonry')} style={{ height: items.length * 200 }}>
             {items.map((item, index) => (
                 <div key={index} className={cn('item')}>
                     {item}

@@ -2,15 +2,10 @@
     display: flex;
     flex-direction: column;
 
-    a {
-        text-decoration: none;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        color: #555;
-
-        :global(body.dark) & {
-            color: #bababa;
-        }
+    .card-image {
+        object-fit: cover;
+        width: 100%;
+        height: 200px;
+        border-radius: 0 0 16px 16px;
     }
 }

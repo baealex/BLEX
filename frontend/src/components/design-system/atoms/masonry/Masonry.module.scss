@@ -11,10 +11,22 @@
   }
 }
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .item {
   position: relative;
   margin-bottom: 16px;
   width: calc(100% / 3 - 12px);
+  animation: fadeIn 0.5s ease-in-out;
 
   @media (max-width: 768px) {
     width: calc(100% / 2 - 12px);

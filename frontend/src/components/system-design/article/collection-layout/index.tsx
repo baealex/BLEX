@@ -77,7 +77,7 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                 return memoryStore.posts;
             });
         }
-    }, { enabled: memoryStore.page < props.lastPage });
+    }, { enabled: memoryStore.page < props.lastPage && props.active !== '태그 클라우드' });
 
     useEffect(lazyLoadResource, [posts]);
 
