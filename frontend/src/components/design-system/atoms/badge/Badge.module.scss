@@ -37,6 +37,7 @@
     }
 
     &.hs {
+
         // hasSharp
         &::before {
             content: '#';
@@ -48,6 +49,11 @@
                 color: $COLOR_DARK_SECONDARY;
             }
         }
+    }
+
+    &.clickable {
+        cursor: pointer;
+        user-select: none;
     }
 
     &.size-small {

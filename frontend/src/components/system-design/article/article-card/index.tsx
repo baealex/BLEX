@@ -3,6 +3,7 @@ import styles from './ArticleCard.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 import {
     Card,
@@ -41,13 +42,16 @@ export function ArticleCard(props: ArticleCardProps) {
 
     const url = props.author ? `/@${props.author}/${props.url}` : props.url;
 
-    const title = props.highlight
-        ? props.title?.replace(props.highlight, `<mark>${props.highlight}</mark>`) || ''
-        : props.title;
-
-    const description = props.highlight
-        ? props.description?.replace(props.highlight, `<mark>${props.highlight}</mark>`) || ''
-        : props.description;
+    const title = useMemo(() => {
+        return props.highlight
+            ? props.title.replace(new RegExp(props.highlight, 'gi'), (match) => `<mark>${match}</mark>`)
+            : props.title;
+    }, [props.highlight, props.title]);
+    const description = useMemo(() => {
+        return props.highlight
+            ? props.description?.replace(new RegExp(props.highlight, 'gi'), (match) => `<mark>${match}</mark>`)
+            : props.description;
+    }, [props.description, props.highlight]);
 
     return (
         <article className={props.className}>

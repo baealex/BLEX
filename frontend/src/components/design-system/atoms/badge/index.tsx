@@ -7,6 +7,7 @@ interface BadgeProps {
     hasHash?: boolean;
     size?: 'small' | 'medium';
     className?: string;
+    onClick?: () => void;
     children: React.ReactNode;
 }
 
@@ -15,14 +16,17 @@ export function Badge({
     hasHash = false,
     size = 'medium',
     className,
+    onClick,
     children
 }: BadgeProps) {
     return (
         <div
+            onClick={onClick}
             className={cn(
                 'badge',
                 { ir: isRounded },
                 { hs: hasHash },
+                { clickable: !!onClick },
                 size !== 'medium' && 'size-' + size,
                 className
             )}>

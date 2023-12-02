@@ -11,9 +11,11 @@ import {
     useState
 } from 'react';
 
+import { Badge, Flex } from '~/components/design-system';
+
 export interface SearchBoxProps {
     placeholder?: string;
-    defaultValue?: string;
+    query?: string;
     button: React.ReactNode;
     onClick?: (value?: string) => void;
     maxLength?: number;
@@ -31,7 +33,7 @@ const memoSuggestions: Map<string, string[]> = new Map();
 export function SearchBox(props: SearchBoxProps) {
     const form = useRef<HTMLFormElement>(null);
 
-    const [value, setValue] = useState(props.defaultValue || '');
+    const [value, setValue] = useState(props.query || '');
     const [active, setActive] = useState(false);
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -50,6 +52,7 @@ export function SearchBox(props: SearchBoxProps) {
 
     const handleClickHistory = useCallback((value: string) => {
         if (props.onClickHistory) {
+            setValue(value);
             props.onClickHistory(value);
         }
     }, [props.onClickHistory]);
@@ -71,7 +74,7 @@ export function SearchBox(props: SearchBoxProps) {
     }, []);
 
     useEffect(() => {
-        if (!value || value === props.defaultValue) {
+        if (!value || value === props.query) {
             setSuggestions([]);
             return;
         }
@@ -88,12 +91,12 @@ export function SearchBox(props: SearchBoxProps) {
                     setSuggestions(data.body.results);
                 });
             }
-        }, 300);
+        }, 200);
 
         return () => {
             clearTimeout(debounce);
         };
-    }, [value]);
+    }, [value, props.query]);
 
 
     return (
@@ -125,13 +128,13 @@ export function SearchBox(props: SearchBoxProps) {
                                 추천 검색어
                             </span>
                         </div>
-                        {suggestions.map(item => (
-                            <div key={item} className={cn('history')}>
-                                <span onClick={() => handleClickHistory(item)}>
+                        <Flex wrap="wrap" gap={2} className={cn('suggestions')}>
+                            {suggestions.map(item => (
+                                <Badge key={item} className={cn('history')} onClick={() => handleClickHistory(item)}>
                                     {item}
-                                </span>
-                            </div>
-                        ))}
+                                </Badge>
+                            ))}
+                        </Flex>
                     </>
                 )}
                 {props.history && props.history.length > 0 && (
