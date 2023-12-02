@@ -1,7 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-from board.models import Post, Series
+from board.models import Post, Series, Tag
 
 
 class SiteSitemap(Sitemap):
@@ -12,24 +12,14 @@ class SiteSitemap(Sitemap):
         return [
             '',
             '/newest',
+            '/tags',
             '/user/sitemap.xml',
             '/posts/sitemap.xml',
-            '/series/sitemap.xml'
+            '/series/sitemap.xml',
         ]
 
     def location(self, item):
         return str(item)
-
-
-class PostsSitemap(Sitemap):
-    changefreq = 'daily'
-    priority = 0.9
-
-    def items(self):
-        return Post.objects.filter(config__hide=False).order_by('-updated_date')
-
-    def lastmod(self, element):
-        return element.updated_date
 
 
 class UserSitemap(Sitemap):
@@ -42,6 +32,17 @@ class UserSitemap(Sitemap):
 
     def location(self, item):
         return str(item)
+
+
+class PostsSitemap(Sitemap):
+    changefreq = 'daily'
+    priority = 1.0
+
+    def items(self):
+        return Post.objects.filter(config__hide=False).order_by('-updated_date')
+
+    def lastmod(self, element):
+        return element.updated_date
 
 
 class SeriesSitemap(Sitemap):

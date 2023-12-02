@@ -42,7 +42,7 @@ urlpatterns = [
     path('v1/search/history', api_v1.search_history_list),
     path('v1/search/history/<int:item_id>', api_v1.search_history_detail),
     path('v1/tags', api_v1.tag_list),
-    path('v1/tags/<tag>', api_v1.tag_detail),
+    path('v1/tags/<name>', api_v1.tag_detail),
     path('v1/posts', api_v1.post_list),
     path('v1/posts/popular', api_v1.popular_post_list),
     path('v1/posts/newest', api_v1.newest_post_list),

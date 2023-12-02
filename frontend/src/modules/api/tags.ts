@@ -4,6 +4,7 @@ export interface GetTagsResponseData {
     tags: {
         name: string;
         count: number;
+        description: string;
     }[];
     lastPage: number;
 }
@@ -18,7 +19,7 @@ export async function getTags(page: number) {
 
 export interface GetTagResponseData {
     tag: string;
-    desc: {
+    headPost?: {
         url: string;
         author: string;
         authorImage: string;

@@ -1,4 +1,4 @@
-from django.db.models import F, Count, Case, When
+from django.db.models import F, Count, Case, When, Subquery, OuterRef
 from django.http import Http404
 from django.utils import timezone
 
@@ -20,18 +20,33 @@ def tag_list(request):
                         then='posts'
                     ),
                 )
+            ),
+            image=Subquery(
+                Post.objects.filter(
+                    tags__value=OuterRef('value'),
+                    config__hide=False,
+                    image__contains='images'
+                ).order_by('-id').values('image')[:1]
+            ),
+            description=Subquery(
+                Post.objects.filter(
+                    url=OuterRef('value'),
+                    config__hide=False
+                ).values('meta_description')[:1]
             )
-        ).order_by('-count')
+        ).order_by('-count', 'value')
 
         tags = Paginator(
             objects=tags,
-            offset=48,
+            offset=50,
             page=request.GET.get('page', 1)
         )
         return StatusDone({
             'tags': list(map(lambda tag: {
                 'name': tag.value,
                 'count': tag.count,
+                'image': str(tag.image) if tag.image is not None else None,
+                'description': tag.description,
             }, tags)),
             'last_page': tags.paginator.num_pages
         })
@@ -60,30 +75,23 @@ def tag_detail(request, name):
             offset=24,
             page=request.GET.get('page', 1)
         )
-        desc_object = dict()
-        try:
-            article = Post.objects.select_related(
-                'content'
-            ).filter(
-                url=name,
-                config__hide=False,
-            ).annotate(
-                author_username=F('author__username'),
-                author_image=F('author__profile__avatar'),
-            ).first()
 
-            desc_object = {
-                'url': article.url,
-                'author': article.author_username,
-                'author_image': article.author_image,
-                'description': post.meta_description,
-            }
-        except:
-            pass
+        head_post = Post.objects.filter(
+            url=name,
+            config__hide=False
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar')
+        ).first()
 
         return StatusDone({
             'tag': name,
-            'desc': desc_object,
+            'head_post': {
+                'author': head_post.author_username,
+                'author_image': head_post.author_image,
+                'url': head_post.url,
+                'description': head_post.meta_description,
+            } if head_post is not None else None,
             'last_page': posts.paginator.num_pages,
             'posts': list(map(lambda post: {
                 'url': post.url,
