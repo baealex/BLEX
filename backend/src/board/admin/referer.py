@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db.models import Count
 
 from board.models import Referer, RefererFrom
+from modules.scrap import page_parser
 
 from .service import AdminLinkService
 
@@ -29,7 +30,7 @@ class RefererAdmin(admin.ModelAdmin):
 
 @admin.register(RefererFrom)
 class RefererFromAdmin(admin.ModelAdmin):
-    actions = ['clear']
+    actions = ['clear', 'collect']
 
     list_display = ['title_or_location', 'total_count', 'created_date']
     list_per_page = 30
@@ -45,6 +46,22 @@ class RefererFromAdmin(admin.ModelAdmin):
                 data.delete()
         self.message_user(request, f'{len(queryset)}개의 레퍼러중 참조가 없는 {count}개의 레퍼러 삭제')
     clear.short_description = '참조가 없는 소스 삭제'
+
+    def collect(self, request, queryset):
+        count = 0
+        for referer_from in queryset:
+            if not referer_from.title and not referer_from.image and not referer_from.description:
+                count += 1
+                data = page_parser(referer_from.location)
+                if data['title']:
+                    referer_from.title = data['title']
+                if data['image']:
+                    referer_from.image = data['image']
+                if data['description']:
+                    referer_from.description = data['description']
+                referer_from.update()
+        self.message_user(request, f'{len(queryset)}개의 레퍼러중 {count}개의 레퍼러 수집')
+    collect.short_description = '레퍼러 정보 수집'
 
     def title_or_location(self, obj):
         return obj.title if obj.title else obj.location
