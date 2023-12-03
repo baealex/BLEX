@@ -1,40 +1,31 @@
-import asyncio
+import threading
+import queue
 import time
-import traceback
 
-from functools import wraps, partial
-from threading import Thread
-
-def asynchronously(func):
-    @wraps(func)
-    async def coro(*args, loop=None, executor=None, **kwargs):
-        if loop is None:
-            loop = asyncio.get_event_loop()
-        partial_func = partial(func, *args, **kwargs)
-        return await loop.run_in_executor(executor, partial_func)
-    return coro
-
-class AsyncLoopThread(Thread):
+class SubTaskManager:
     def __init__(self):
-        super().__init__(daemon=True)
-        self.loop = asyncio.new_event_loop()
+        self.task_queue = queue.Queue()
+        self.thread = threading.Thread(target=self._process_thread)
+        self.thread.daemon = True
+        self.thread.start()
 
-    def run(self):
-        asyncio.set_event_loop(self.loop)
-        self.loop.run_forever()
-        return self.loop
-    
-    def append(self, func):
-        coro = asynchronously(func)
-        self.append_async(coro())
-    
-    def append_async(self, coro):
-        async def decorator():
+    def append(self, func, *args, **kwargs):
+        self.task_queue.put((func, args, kwargs))
+
+    def _process_thread(self):
+        while True:
+            time.sleep(0.1)
+            task = self.task_queue.get()
+            if task is None:
+                break
+            func, args, kwargs = task
             try:
-                await coro
-            except:
-                traceback.print_exc()
-        asyncio.run_coroutine_threadsafe(decorator(), self.loop)
+                func(*args, **kwargs)
+            except Exception as e:
+                print(f"Error in background task: {e}")
 
-sub_task_manager = AsyncLoopThread()
-sub_task_manager.start()
+    def stop(self):
+        self.task_queue.put(None)
+        self.thread.join()
+
+sub_task_manager = SubTaskManager()
