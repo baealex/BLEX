@@ -50,7 +50,7 @@ class RefererFromAdmin(admin.ModelAdmin):
     def collect(self, request, queryset):
         count = 0
         for referer_from in queryset:
-            if not referer_from.title and not referer_from.image and not referer_from.description:
+            if referer_from.should_update():
                 count += 1
                 data = page_parser(referer_from.location)
                 if data['title']:
@@ -59,7 +59,7 @@ class RefererFromAdmin(admin.ModelAdmin):
                     referer_from.image = data['image']
                 if data['description']:
                     referer_from.description = data['description']
-                referer_from.update()
+                referer_from.save()
         self.message_user(request, f'{len(queryset)}개의 레퍼러중 {count}개의 레퍼러 수집')
     collect.short_description = '레퍼러 정보 수집'
 

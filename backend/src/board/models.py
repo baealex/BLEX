@@ -532,20 +532,18 @@ class RefererFrom(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
     def should_update(self):
-        created_date = self.created_date.strftime('%x%X')
-        updated_date = self.updated_date.strftime('%x%X')
-        if created_date == updated_date:
+        six_month_ago = timezone.now() - datetime.timedelta(days=180)
+        if self.updated_date < six_month_ago:
             return True
 
-        three_month_ago = timezone.now() - datetime.timedelta(days=180)
-        if self.updated_date < three_month_ago:
-            return True
+        if self.title and self.image and self.description:
+            return False
+        
+        return True
 
-        return False
-
-    def update(self):
-        self.updated_date = timezone.now() + datetime.timedelta(minutes=1)
-        self.save()
+    def save(self, *args, **kwargs):
+        self.updated_date = timezone.now()
+        super(RefererFrom, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.title if self.title else self.location

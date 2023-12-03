@@ -6,7 +6,7 @@ from modules.subtask import sub_task_manager
 from modules.scrap import page_parser
 from modules.hash import get_sha256
 
-UNVAILD_REFERERS = [
+INVALID_REFERERS = [
     settings.SITE_URL.split('//')[-1],
     'http://localhost',
     'http://127.0.0.1',
@@ -72,7 +72,7 @@ def view_count(post: Post, request, ip, user_agent, referer):
 
 
 def create_referer(post: Post, referer: str):
-    if not has_vaild_referer(referer):
+    if not has_valid_referer(referer):
         return
 
     today = timezone.now()
@@ -92,12 +92,14 @@ def create_referer(post: Post, referer: str):
     if 'google' in referer and 'url' in referer:
         referer = 'https://www.google.com/'
 
-    try:
-        referer_from = RefererFrom.objects.get(location=referer)
-    except:
+    referer_from = RefererFrom.objects.filter(location=referer)
+    if referer_from.exists():
+        referer_from = referer_from.first()
+    else:
         referer_from = RefererFrom(location=referer)
         referer_from.save()
         referer_from.refresh_from_db()
+
     if referer_from.should_update():
         def func():
             data = page_parser(referer)
@@ -107,7 +109,7 @@ def create_referer(post: Post, referer: str):
                 referer_from.image = data['image']
             if data['description']:
                 referer_from.description = data['description']
-            referer_from.update()
+            referer_from.save()
         sub_task_manager.append(func)
     Referer(
         post=post,
@@ -116,8 +118,8 @@ def create_referer(post: Post, referer: str):
     ).save()
 
 
-def has_vaild_referer(referer):
-    for item in UNVAILD_REFERERS:
+def has_valid_referer(referer):
+    for item in INVALID_REFERERS:
         if item in referer:
             return False
     return True
