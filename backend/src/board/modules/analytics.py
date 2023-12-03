@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from board.models import Device, Post, PostAnalytics, Referer, RefererFrom
-from modules.subtask import sub_task_manager
+from modules.sub_task import SubTaskProcessor
 from modules.scrap import page_parser
 from modules.hash import get_sha256
 
@@ -110,7 +110,7 @@ def create_referer(post: Post, referer: str):
             if data['description']:
                 referer_from.description = data['description']
             referer_from.save()
-        sub_task_manager.append(func)
+        SubTaskProcessor.process(func)
     Referer(
         post=post,
         analytics=today_analytics,

@@ -14,7 +14,7 @@ from PIL import Image, ImageFilter
 
 from modules.hash import get_sha256
 from modules.randomness import randstr
-from modules.subtask import sub_task_manager
+from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
 from board.constants.config_meta import CONFIG_TYPE, CONFIG_TYPES, CONFIG_MAP
 from board.modules.time import time_since, time_stamp
@@ -250,7 +250,7 @@ class Notify(models.Model):
             tid = self.user.telegramsync.tid
             if not tid == '':
                 bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-                sub_task_manager.append(lambda: bot.send_messages(tid, [
+                SubTaskProcessor.process(lambda: bot.send_messages(tid, [
                     settings.SITE_URL + str(self.url),
                     self.content
                 ]))

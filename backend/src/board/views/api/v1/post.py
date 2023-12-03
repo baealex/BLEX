@@ -24,8 +24,7 @@ from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 from modules import markdown
-from modules.randomness import randstr
-from modules.subtask import sub_task_manager
+from modules.sub_task import SubTaskProcessor
 from modules.discord import Discord
 
 
@@ -111,7 +110,7 @@ def post_list(request):
                     url=settings.DISCORD_NEW_POSTS_WEBHOOK,
                     content=f'[새 글이 발행되었어요!]({post_url})'
                 )
-            sub_task_manager.append(func)
+            SubTaskProcessor.process(func)
 
         token = request.POST.get('token')
         if token:

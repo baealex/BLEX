@@ -18,7 +18,7 @@ from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules import oauth
 from modules.challenge import auth_hcaptcha
-from modules.subtask import sub_task_manager
+from modules.sub_task import SubTaskProcessor
 from modules.telegram import TelegramBot
 from modules.randomness import randnum, randstr
 from modules.scrap import download_image
@@ -70,7 +70,7 @@ def common_auth(request, user):
                 bot.send_message(user.telegramsync.tid,
                                  f'2차 인증 코드입니다 : {token}')
 
-            sub_task_manager.append(create_auth_token)
+            SubTaskProcessor.process(create_auth_token)
             return StatusDone({
                 'username': user.username,
                 'security': True,
