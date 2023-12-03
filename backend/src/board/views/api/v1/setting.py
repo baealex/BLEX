@@ -518,7 +518,7 @@ def setting(request, parameter):
             ]
             for config in configs:
                 user.config.create_or_update_meta(
-                    config, put.get(config, ''))
+                    config, put.get(config.value, ''))
 
             return StatusDone()
 
