@@ -113,7 +113,7 @@ export default function Search(props: Props) {
                 )}
                 {!isLoading && response?.status === 'DONE' && response?.body.results && (
                     <>
-                        <Flex align="center" justify="between">
+                        <Flex align="center" justify="between" wrap="wrap" gap={3}>
                             <Text className="shallow-dark">
                                 <Flex align="center" gap={2}>
                                     <i className="fas fa-search" />
