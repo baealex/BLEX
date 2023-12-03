@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.urls import reverse
 
 from board.models import (
     UserConfigMeta, UserLinkMeta, Config, Follow, UsernameChangeLog,
@@ -7,7 +8,7 @@ from board.models import (
 )
 from board.constants.config_meta import CONFIG_TYPES
 
-from .service import AdminLinkService
+from .service import AdminDisplayService, AdminLinkService
 
 
 admin.site.register(EmailChange)
@@ -27,8 +28,12 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
                     ],
                 ),
             }
-
     form = UserConfigMetaForm
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj:
+            kwargs['exclude'] = ['user']
+        return super().get_form(request, obj, **kwargs)
 
     list_display = ['user_link', 'name', 'value']
     list_display_links = ['name']
@@ -42,7 +47,6 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
     user_link.short_description = 'user'
 
 
-
 @admin.register(UserLinkMeta)
 class PostNoThanksAdmin(admin.ModelAdmin):
     list_display = ['user', 'name', 'value']
@@ -54,6 +58,22 @@ class PostNoThanksAdmin(admin.ModelAdmin):
 
 @admin.register(Config)
 class ConfigAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Preview', {
+            'fields': ('configs_preview',),
+        }),
+    )
+    readonly_fields = ['configs_preview']
+
+    def configs_preview(self, obj):
+        configs = obj.user.conf_meta.all()
+        return AdminDisplayService.html(f"""
+                <ul>
+                    {"".join([f'<li><a href="{reverse("admin:board_userconfigmeta_change", args=[config.id])}">{config.name} ({config.value})</a></li>' for config in configs])}
+                </ul>
+            """
+        )
+
     list_display = ['user']
     list_per_page = 30
 

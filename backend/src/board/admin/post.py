@@ -67,7 +67,6 @@ class PostContentAdmin(admin.ModelAdmin):
             'fields': ('text_html_preview',),
         }),
     )
-
     readonly_fields = ['text_html_preview']
 
     def text_html_preview(self, obj):

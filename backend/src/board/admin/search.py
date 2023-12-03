@@ -19,7 +19,7 @@ class SearchAdmin(admin.ModelAdmin):
 
 @admin.register(SearchValue)
 class SearchValueAdmin(admin.ModelAdmin):
-    list_display = ['value', 'count']
+    list_display = ['value', 'reference_count', 'count']
     list_per_page = 50
 
     def get_queryset(self, request):

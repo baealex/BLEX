@@ -140,7 +140,8 @@ def search(request):
         search_value, search_value_created = SearchValue.objects.get_or_create(
             value=query,
         )
-        search_value.reference_count = total_size
+        if not username:
+            search_value.reference_count = total_size
         search_value.save()
 
         six_hours_ago = timezone.now() - datetime.timedelta(hours=6)

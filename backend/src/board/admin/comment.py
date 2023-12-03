@@ -4,12 +4,29 @@ from django.template.defaultfilters import truncatewords
 
 from board.models import Comment
 
-from .service import AdminLinkService
+from .service import AdminDisplayService, AdminLinkService
 
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author_link', 'post_link', 'content', 'created_date']
+    fieldsets = (
+        (None, {
+            'fields': ('text_md', 'text_html', 'edited',)
+        }),
+        ('Preview', {
+            'fields': ('text_html_preview',),
+        }),
+    )
+    readonly_fields = ['text_html_preview']
+
+    def text_html_preview(self, obj):
+        return AdminDisplayService.html(
+            obj.text_html,
+            use_folding=True,
+            remove_lazy_load=True,
+        )
+
+    list_display = ['id', 'content', 'post_link', 'author_link', 'created_date']
     list_display_links = ['content']
     list_per_page = 30
 
@@ -28,7 +45,3 @@ class CommentAdmin(admin.ModelAdmin):
 
     def content(self, obj):
         return truncatewords(strip_tags(obj.text_html), 5)
-
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['author', 'post']
-        return super().get_form(request, obj, **kwargs)
