@@ -273,7 +273,11 @@ def sign_social(request, social):
                     token=token,
                 )
 
-                UserLinkMeta(user=user, name='github', value=user_id).save()
+                UserLinkMeta.objects.create(
+                    user=user,
+                    name='github',
+                    value=f'https://github.com/{user_id}'
+                )
 
                 auth.login(request, user)
                 return login_response(request.user, is_first_login=True)
