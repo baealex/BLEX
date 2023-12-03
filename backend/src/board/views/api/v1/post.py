@@ -3,7 +3,7 @@ import datetime
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import (
-    F, Case, Exists, When,
+    F, Case, Exists, When, Subquery,
     Value, OuterRef, Count)
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
@@ -130,11 +130,7 @@ def post_list(request):
 def popular_post_list(request):
     if request.method == 'GET':
         page = request.GET.get('page', 1)
-        cache_key = f'popular_post_list_{page}'
-        cache_data = cache.get(cache_key)
-        if cache_data:
-            return StatusDone(cache_data)
-        
+
         posts = Post.objects.select_related(
             'config'
         ).filter(
@@ -144,21 +140,21 @@ def popular_post_list(request):
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            today_count=Count(
-                Case(
-                    When(
-                        analytics__created_date=timezone.now() - datetime.timedelta(days=0),
-                        then='analytics__devices'
-                    )
-                ),
+            today_count=Subquery(
+                PostAnalytics.objects.filter(
+                    post__id=OuterRef('id'),
+                    created_date=timezone.now(),
+                ).values('post__id').annotate(
+                    count=Count('devices')
+                ).values('count')
             ),
-            yesterday_count=Count(
-                Case(
-                    When(
-                        analytics__created_date=timezone.now() - datetime.timedelta(days=1),
-                        then='analytics__devices'
-                    )
-                ),
+            yesterday_count=Subquery(
+                PostAnalytics.objects.filter(
+                    post__id=OuterRef('id'),
+                    created_date=timezone.now() - datetime.timedelta(days=1),
+                ).values('post__id').annotate(
+                    count=Count('devices')
+                ).values('count')
             ),
             point=(F('today_count') * 2 + F('yesterday_count'))
         ).order_by('-point', '-created_date')
@@ -168,7 +164,7 @@ def popular_post_list(request):
             offset=24,
             page=request.GET.get('page', 1)
         )
-        data = {
+        return StatusDone({
             'posts': list(map(lambda post: {
                 'url': post.url,
                 'title': post.title,
@@ -181,9 +177,7 @@ def popular_post_list(request):
                 'is_ad': post.config.advertise,
             }, posts)),
             'last_page': posts.paginator.num_pages
-        }
-        cache.set(cache_key, data, 60 * 60)
-        return StatusDone(data)
+        })
 
 
 def newest_post_list(request):
