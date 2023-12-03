@@ -122,10 +122,6 @@ def search(request):
             '-created_date',
         )
 
-        for post in posts:
-            print(post.is_contain_title, post.is_contain_description,
-                    post.is_contain_tags, post.is_contain_content)
-
         if username:
             posts = posts.filter(author__username=username)
 
