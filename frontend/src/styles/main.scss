@@ -41,6 +41,12 @@ mark {
     }
 }
 
+option {
+    body.dark & {
+        background-color: #333;
+    }
+}
+
 .thumb {
     float: left;
     border-radius: 100%;
