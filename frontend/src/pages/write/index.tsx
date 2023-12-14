@@ -114,28 +114,18 @@ export default function Write(props: Props) {
         setIsOpenTempArticleModal(false);
     };
 
-    const handleSubmit = async (onFail: () => void) => {
+    const handleSubmit = async (onFail?: () => void) => {
         if (!title) {
             snackBar(message('BEFORE_REQ_ERR', '제목을 입력해주세요'));
-            onFail();
-            return;
-        }
-        if (!content) {
-            snackBar(message('BEFORE_REQ_ERR', '내용을 입력해주세요'));
-            onFail();
-            return;
-        }
-        if (!tags) {
-            snackBar(message('BEFORE_REQ_ERR', '태그를 입력해주세요'));
-            onFail();
+            onFail?.();
             return;
         }
 
         try {
             const { data } = await API.createPost({
                 title,
-                text_md: content,
-                tag: tags,
+                text_md: content || '내용 없음',
+                tag: tags || '미분류',
                 token,
                 url,
                 description,
@@ -148,7 +138,7 @@ export default function Write(props: Props) {
             router.push(`/@${props.username}/${data.body.url}`);
         } catch (err) {
             snackBar(message('AFTER_REQ_ERR', '발행중 오류가 발생했습니다'));
-            onFail();
+            onFail?.();
             return;
         }
     };
@@ -326,7 +316,13 @@ export default function Write(props: Props) {
                                 />
                             )}
                         </Card>
-                        <Flex justify="end">
+                        <Flex justify="end" gap={2}>
+                            <Button
+                                className="my-3"
+                                color="secondary"
+                                onClick={() => handleSubmit()}>
+                                간편 발행
+                            </Button>
                             <Button
                                 className="my-3"
                                 color="secondary"

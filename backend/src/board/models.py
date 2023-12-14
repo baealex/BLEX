@@ -292,10 +292,10 @@ class Post(models.Model):
     def create_unique_url(self, url=None):
         url = url if url else slugify(self.title, allow_unicode=True)
 
-        post_exists = Post.objects.filter(url=url).exists()
-        while post_exists:
+        post = Post.objects.filter(url=url)
+        while post.exists():
             url = url + '-' + randstr(8)
-            post_exists = Post.objects.filter(url=url).exists()
+            post = Post.objects.filter(url=url)
 
         self.url = url
 
@@ -593,10 +593,10 @@ class Series(models.Model):
     def create_unique_url(self, url=None):
         url = url if url else slugify(self.name, allow_unicode=True)
 
-        series_exists = Series.objects.filter(url=url).exists()
-        while series_exists:
+        series = Series.objects.filter(url=url)
+        while series.exists():
             url = url + '-' + randstr(8)
-            series_exists = Series.objects.filter(url=url).exists()
+            series = Series.objects.filter(url=url)
 
         self.url = url
 

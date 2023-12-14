@@ -55,24 +55,19 @@ export default function Edit(props: Props) {
     const [isHide, setIsHide] = useState(props.isHide);
     const [isAdvertise, setIsAdvertise] = useState(props.isAdvertise);
 
-    const handleSubmit = async (onFail: () => void) => {
+    const handleSubmit = async (onFail?: () => void) => {
         if (!title) {
             snackBar('😅 제목이 비어있습니다.');
-            onFail();
-            return;
-        }
-        if (!tags) {
-            snackBar('😅 키워드를 작성해주세요.');
-            onFail();
+            onFail?.();
             return;
         }
         try {
             const { data } = await API.postAnUserPosts(props.username, props.posturl, {
                 title: title,
-                text_md: content,
+                text_md: content || '내용 없음',
                 image: imageFile,
                 description: description,
-                tag: tags,
+                tag: tags || '미분류',
                 series,
                 is_hide: JSON.stringify(isHide),
                 is_advertise: JSON.stringify(isAdvertise)
@@ -82,7 +77,7 @@ export default function Edit(props: Props) {
             }
         } catch (e) {
             snackBar('😥 글 수정중 오류가 발생했습니다.');
-            onFail();
+            onFail?.();
         }
     };
 
@@ -128,7 +123,13 @@ export default function Edit(props: Props) {
             onSubmit={handleSubmit}
             extended={{
                 footer: (
-                    <Flex justify="end">
+                    <Flex justify="end" gap={2}>
+                        <Button
+                            className="my-3"
+                            color="secondary"
+                            onClick={() => handleSubmit()}>
+                            간편 수정
+                        </Button>
                         <Button
                             className="my-3"
                             color="secondary"
