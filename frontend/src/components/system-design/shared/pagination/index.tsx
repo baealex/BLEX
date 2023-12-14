@@ -17,9 +17,10 @@ export interface Props {
 export function Pagination(props: Props) {
     const router = useRouter();
 
-    const pageRange = [];
     const page = Number(props.page);
     const last = Number(props.last);
+
+    const pageRange = [];
     for (let num = 1; num < last + 1; num++) {
         if (page == num) {
             pageRange.push(num);
@@ -40,7 +41,6 @@ export function Pagination(props: Props) {
             pageRange.push(num);
         }
     }
-
 
     const gotoPage = (num: number) => {
         const visibleQueries = [
@@ -81,7 +81,7 @@ export function Pagination(props: Props) {
     return (
         <>
             <nav className={cn('nav')}>
-                <div className={cn('pages')}>
+                <div className={cn('action', 'prev')}>
                     {page != 1 ? (
                         <>
                             <div className={cn('item')}>
@@ -109,6 +109,8 @@ export function Pagination(props: Props) {
                             </div>
                         </>
                     )}
+                </div>
+                <div className={cn('pages')}>
                     {pageRange.map((item, idx) => (
                         <div
                             key={idx}
@@ -118,6 +120,8 @@ export function Pagination(props: Props) {
                             </Link>
                         </div>
                     ))}
+                </div>
+                <div className={cn('action', 'next')}>
                     {page != last ? (
                         <>
                             <div className={cn('item')}>

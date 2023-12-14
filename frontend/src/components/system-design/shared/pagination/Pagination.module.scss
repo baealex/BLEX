@@ -1,37 +1,59 @@
 @import 'mixin';
 
 .nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     width: 100%;
     margin: 30px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 
-    .pages {
-        flex-basis: 100%;
+    .pages,
+    .action {
         display: flex;
         justify-content: center;
         align-items: center;
-        flex-wrap: wrap;
         gap: 10px;
     }
 
-    .item {
-        border-radius: 5px;
-        transition: all 0.2s ease-in-out;
+    @media (max-width: 768px) {
+        display: grid;
+        grid-template-areas:
+            "page page page page page"
+            "prev prev span next next";
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: 1fr 80px;
 
-        &.active {
-            background: #000;
+        .pages {
+            grid-area: page;
+        }
 
-            :global(body.dark) & {
-                background: #eee;
+        .action {
+            &.prev {
+                grid-area: prev;
+            }
+
+            &.next {
+                grid-area: next;
             }
         }
 
-        &.disabled {
-            cursor: default;
-            background: transparent;
+        .pages {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
         }
+
+        .action {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .link {
@@ -45,24 +67,33 @@
         width: 30px;
         height: 30px;
         color: #000;
+        border-radius: 5px;
 
         :global(body.dark) & {
             color: #eee;
+        }
+
+        @media (max-width: 768px) {
+            width: 40px;
+            height: 40px;
         }
     }
 
     .active .link {
         cursor: default;
         color: #fff;
+        background: #000;
 
         :global(body.dark) & {
             color: #555;
+            background: #eee;
         }
     }
 
     .disabled .link {
         cursor: default;
         color: #ccc;
+        background: transparent;
 
         :global(body.dark) & {
             color: #555;
