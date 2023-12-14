@@ -78,12 +78,6 @@ export function Pagination(props: Props) {
         };
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const { value } = (e.target as HTMLFormElement).page as HTMLInputElement;
-        router.push(gotoPage(Number(value)).as);
-    };
-
     return (
         <>
             <nav className={cn('nav')}>
@@ -152,24 +146,6 @@ export function Pagination(props: Props) {
                         </>
                     )}
                 </div>
-                <form className={`${cn('search')}`} onSubmit={handleSubmit}>
-                    <label className="d-flex align-items-center">
-                        <span className="vs shallow-dark">
-                            Go to page
-                        </span>
-                        <input
-                            name="page"
-                            className={cn('num', 'ml-2')}
-                            type="number"
-                            min={1}
-                            max={last}
-                            defaultValue={page}
-                        />
-                    </label>
-                    <button type="submit" aria-label="go-page" className={`${cn('go')} shallow-dark`}>
-                        Go <i className="fas fa-chevron-right"></i>
-                    </button>
-                </form>
             </nav>
         </>
     );

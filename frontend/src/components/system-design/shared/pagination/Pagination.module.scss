@@ -1,4 +1,4 @@
-@import 'mixin';;
+@import 'mixin';
 
 .nav {
     display: flex;
@@ -7,96 +7,65 @@
     width: 100%;
     margin: 30px 0;
 
-    @media (max-width:768px) {
-        .pages {
-            flex-basis: 100%;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+    .pages {
+        flex-basis: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .item {
-        position: relative;
-        display: inline;
-        margin: 10px;
-        line-height: 1.6em;
-        font-size: 1.025em;
+        border-radius: 5px;
+        transition: all 0.2s ease-in-out;
 
         &.active {
-            ::before {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                border-radius: 100%;
-                border: 2px solid #9b59b6;
-                width: 30px;
-                height: 30px;
-                transform: translate(-50%, -50%);
-
-                :global(body.dark) & {
-                    border: 2px solid $COLOR_DARK_PRIMARY;
-                }
-            }
-        }
-    }
-
-    a.link {
-        color: #3a3a3a;
-
-        :global(body.dark) & {
-            color: #c7c7c7;
-        }
-
-        &:hover {
-            color: $COLOR_DEFAULT_PRIMARY;
-            text-decoration: none;
+            background: #000;
 
             :global(body.dark) & {
-                color: $COLOR_DARK_PRIMARY;
+                background: #eee;
             }
+        }
+
+        &.disabled {
+            cursor: default;
+            background: transparent;
         }
     }
 
-    .disabled a.link {
+    .link {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1.6em;
+        font-size: 1.025em;
+        font-weight: 600;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        color: #000;
+
+        :global(body.dark) & {
+            color: #eee;
+        }
+    }
+
+    .active .link {
         cursor: default;
-        color: #cfcfcf;
-        
+        color: #fff;
+
         :global(body.dark) & {
             color: #555;
         }
     }
 
-    .search {
-        display: flex;
-        align-items: center;
+    .disabled .link {
+        cursor: default;
+        color: #ccc;
 
-        input.num {
-            background: none;
-            border: 1px solid #8e44ad;
-            border-radius: 5px;
-            padding: 2px;
-            width: 50px;
-
-            :global(body.dark) & {
-                color: #fff;
-                border: 1px solid $COLOR_DARK_PRIMARY;
-            }
-        }
-
-        button.go {
-            margin-left: 4px;
-            border: none;
-            background: none;
-        }
-
-        *:focus {
-            outline: none;
-        }
-
-        @media (max-width:768px) {
-            display: none;
+        :global(body.dark) & {
+            color: #555;
         }
     }
 }
