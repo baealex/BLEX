@@ -70,40 +70,42 @@ const AccountSetting: PageComponent<Props> = (props) => {
             return;
         }
 
-        if (form.password.length < 8) {
-            setFocus('password');
-            snackBar(message('BEFORE_REQ_ERR', '패스워드는 8자 이상이어야 합니다.'));
-            return;
-        }
+        if (form.password) {
+            if (form.password.length < 8) {
+                setFocus('password');
+                snackBar(message('BEFORE_REQ_ERR', '패스워드는 8자 이상이어야 합니다.'));
+                return;
+            }
 
-        if (!/[0-9]/.test(form.password)) {
-            setFocus('password');
-            snackBar(message('BEFORE_REQ_ERR', '패스워드는 숫자를 포함해야 합니다.'));
-            return;
-        }
+            if (!/[0-9]/.test(form.password)) {
+                setFocus('password');
+                snackBar(message('BEFORE_REQ_ERR', '패스워드는 숫자를 포함해야 합니다.'));
+                return;
+            }
 
-        if (!/[a-z]/.test(form.password)) {
-            setFocus('password');
-            snackBar(message('BEFORE_REQ_ERR', '패스워드는 소문자를 포함해야 합니다.'));
-            return;
-        }
+            if (!/[a-z]/.test(form.password)) {
+                setFocus('password');
+                snackBar(message('BEFORE_REQ_ERR', '패스워드는 소문자를 포함해야 합니다.'));
+                return;
+            }
 
-        if (!/[A-Z]/.test(form.password)) {
-            setFocus('password');
-            snackBar(message('BEFORE_REQ_ERR', '패스워드는 대문자를 포함해야 합니다.'));
-            return;
-        }
+            if (!/[A-Z]/.test(form.password)) {
+                setFocus('password');
+                snackBar(message('BEFORE_REQ_ERR', '패스워드는 대문자를 포함해야 합니다.'));
+                return;
+            }
 
-        if (!/[^a-zA-Z0-9]/.test(form.password)) {
-            setFocus('password');
-            snackBar(message('BEFORE_REQ_ERR', '패스워드는 특수문자를 포함해야 합니다.'));
-            return;
-        }
+            if (!/[^a-zA-Z0-9]/.test(form.password)) {
+                setFocus('password');
+                snackBar(message('BEFORE_REQ_ERR', '패스워드는 특수문자를 포함해야 합니다.'));
+                return;
+            }
 
-        if (form.password !== form.passwordConfirm) {
-            setFocus('password');
-            snackBar(message('BEFORE_REQ_ERR', '패스워드가 서로 다릅니다.'));
-            return;
+            if (form.password !== form.passwordConfirm) {
+                setFocus('password');
+                snackBar(message('BEFORE_REQ_ERR', '패스워드가 서로 다릅니다.'));
+                return;
+            }
         }
 
         const { data } = await API.putSetting('account', {
