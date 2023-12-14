@@ -69,7 +69,7 @@ const Tags: PageComponent<Props> = (props) => {
         <>
             <SEO
                 title={`태그 클라우드 | ${CONFIG.BLOG_TITLE}`}
-                description="태그 클라우드 페이지입니다. 다양한 분야의 태그를 만나보세요."
+                description="태그 클라우드 페이지입니다. 다양한 분야의 주제를 만나보세요."
             />
             <Masonry
                 items={tags.map((item) => (

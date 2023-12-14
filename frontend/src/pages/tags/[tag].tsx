@@ -82,10 +82,10 @@ export default function TagDetail(props: Props) {
     return (
         <>
             <SEO
-                title={`${props.tag} | ${CONFIG.BLOG_TITLE}`}
+                title={`태그 - ${props.tag} | ${CONFIG.BLOG_TITLE}`}
                 description={props.headPost
                     ? props.headPost.description
-                    : `블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}
+                    : `${props.tag} 주제로 작성된 포스트를 모아 볼 수 있는 페이지입니다. 다양한 분야의 포스트를 만나보세요.`}
             />
             <div className="container">
                 <Text fontSize={8} fontWeight={600}>— {props.tag} —</Text>
