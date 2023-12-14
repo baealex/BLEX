@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
 import {
+    Loading,
     Masonry,
     SpeechBubble,
     Text
@@ -9,13 +11,17 @@ import {
 
 import {
     Footer,
-    Pagination,
     SEO
 } from '@system-design/shared';
 import { ArticleCard } from '@system-design/article';
 
 import * as API from '~/modules/api';
+import { CONFIG } from '~/modules/settings';
 import { getUserImage } from '~/modules/utility/image';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
+
+import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
+import { useMemoryStore } from '~/hooks/use-memory-store';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
@@ -28,6 +34,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         return {
             props: {
                 ...data.body,
+                tag,
                 page
             }
         };
@@ -37,14 +44,45 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 interface Props extends API.GetTagResponseData {
+    tag: string;
     page: number;
 }
 
 export default function TagDetail(props: Props) {
+    const memoryStore = useMemoryStore(['article', props.tag], {
+        page: 1,
+        posts: props.posts
+    });
+
+    const [page, setPage] = useState(memoryStore.page);
+    const [posts, setPosts] = useState(memoryStore.posts);
+
+    const { isLoading } = useInfinityScroll(async () => {
+        const { data } = await API.getTag(props.tag, page + 1);
+
+        if (data.status === 'DONE') {
+            setPage((prevPage) => {
+                memoryStore.page = prevPage + 1;
+                return memoryStore.page;
+            });
+            setPosts((prevPosts) => {
+                memoryStore.posts = [...prevPosts, ...data.body.posts];
+                return memoryStore.posts;
+            });
+        }
+    }, { enabled: memoryStore.page < props.lastPage });
+
+    useEffect(lazyLoadResource, [posts]);
+
+    useEffect(() => {
+        setPage(memoryStore.page);
+        setPosts(memoryStore.posts);
+    }, [memoryStore]);
+
     return (
         <>
             <SEO
-                title={`${props.tag}${props.page > 1 ? ` | ${props.page} 페이지` : ''}`}
+                title={`${props.tag} | ${CONFIG.BLOG_TITLE}`}
                 description={props.headPost
                     ? props.headPost.description
                     : `블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}
@@ -65,17 +103,18 @@ export default function TagDetail(props: Props) {
                     </div>
                 )}
                 <Masonry
-                    items={props.posts.map((item, idx) => (
+                    items={posts.map((item, idx) => (
                         <ArticleCard
                             key={idx}
                             {...item}
                         />
                     ))}
                 />
-                <Pagination
-                    page={props.page}
-                    last={props.lastPage}
-                />
+                {isLoading && (
+                    <div className="d-flex justify-content-center p-3">
+                        <Loading position="inline" />
+                    </div>
+                )}
             </div >
             <Footer />
         </>
