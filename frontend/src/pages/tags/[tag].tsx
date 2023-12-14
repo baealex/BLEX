@@ -45,7 +45,6 @@ export default function TagDetail(props: Props) {
         <>
             <SEO
                 title={`${props.tag}${props.page > 1 ? ` | ${props.page} 페이지` : ''}`}
-                image="https://static.blex.me/assets/images/default-post.png"
                 description={props.headPost
                     ? props.headPost.description
                     : `블렉스에서 '${props.tag}' 주제로 작성된 모든 포스트 만나보세요.`}

@@ -11,6 +11,7 @@ import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';
 
 import * as API from '~/modules/api';
+import { CONFIG } from '~/modules/settings';
 import blexer from '~/modules/utility/blexer';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -189,7 +190,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                     <CommentCard
                         pk={-1}
                         author="Ghost"
-                        authorImage="https://static.blex.me/assets/images/ghost.jpg"
+                        authorImage={`${CONFIG.STATIC_SERVER}/assets/images/ghost.jpg`}
                         createdDate="0분 전"
                         html="작성된 댓글이 없습니다. 첫 댓글을 달아보세요!"
                         isEdited={false}

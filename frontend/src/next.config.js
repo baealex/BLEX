@@ -44,5 +44,6 @@ module.exports = withBundleAnalyzer({
         MICROSOFT_CLARITY: process.env.PUBLIC_MICROSFT_CLARITY,
         HCAPTCHA_SITE_KEY: process.env.PUBLIC_HCAPTCHA_SITE_KEY,
         GOOGLE_ADSENSE_CLIENT_ID: process.env.PUBLIC_GOOGLE_ADSENESE_CLIENT_ID,
+        BLOG_TITLE: process.env.PUBLIC_BLOG_TITLE,
     },
 });

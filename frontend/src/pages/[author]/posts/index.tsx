@@ -61,9 +61,9 @@ const UserPosts: PageComponent<Props> = (props) => {
     return (
         <>
             <SEO
-                title={`${props.profile.username} (${props.profile.name}) — Posts`}
+                title={`포스트 | ${props.profile.username}`}
                 image={props.profile.image}
-                description={`${props.profile.name}님이 작성한 모든 포스트를 만나보세요.`}
+                description={`${props.profile.name}님이 작성한 포스트에요.`}
             />
             <Pagination
                 hash="profile"

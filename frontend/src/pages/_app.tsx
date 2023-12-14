@@ -61,12 +61,12 @@ class Main extends App<AppProps> {
         return (
             <>
                 <Head>
-                    <meta name="referrer" content="origin"/>
+                    <meta name="referrer" content="origin" />
                 </Head>
 
                 <SEO
-                    title="BLEX"
-                    image="https://static.blex.me/assets/images/default-post.png"
+                    title={CONFIG.BLOG_TITLE}
+                    image={`${CONFIG.STATIC_SERVER}/assets/images/default-cover-2.jpg`}
                     description={[
                         '누구나 경험과 지식을 공유할 수 있는 블로그 플랫폼입니다.',
                         '마크다운으로 글을 작성할 수 있으며 코드 강조 표시, 수식, 이미지 삽입 등을 지원합니다.',
@@ -77,7 +77,7 @@ class Main extends App<AppProps> {
 
                 {CONFIG.GOOGLE_ANALYTICS_V4 && (
                     <>
-                        <Script src={`https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_V4}`}/>
+                        <Script src={`https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ANALYTICS_V4}`} />
                         <Script
                             id="gtag-init"
                             dangerouslySetInnerHTML={{
@@ -119,17 +119,17 @@ class Main extends App<AppProps> {
                     />
                 )}
 
-                <TopNavigation/>
+                <TopNavigation />
 
                 {this.state.isLoading && (
-                    <Loading/>
+                    <Loading />
                 )}
 
                 <main role="main" className="content">
-                    {getLayout(<Component {...pageProps}/>, pageProps)}
+                    {getLayout(<Component {...pageProps} />, pageProps)}
                 </main>
 
-                <DayNight/>
+                <DayNight />
             </>
         );
     }

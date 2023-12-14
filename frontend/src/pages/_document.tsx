@@ -6,6 +6,8 @@ import Document, {
     NextScript
 } from 'next/document';
 
+import { CONFIG } from '~/modules/settings';
+
 class MyDocument extends Document {
     static async getInitialProps(ctx: DocumentContext) {
         const initialProps = await Document.getInitialProps(ctx);
@@ -30,7 +32,7 @@ class MyDocument extends Document {
                     <link rel="icon" type="image/png" sizes="192x192" href="/logo192.png" />
                     <link rel="icon" type="image/png" sizes="512x512" href="/logo512.png" />
                     <meta name="theme-color" content="#000" />
-                    <meta name="application-name" content="BLEX" />
+                    <meta name="application-name" content={CONFIG.BLOG_TITLE} />
                     <meta name="msapplication-TileImage" content="/logo144.png" />
                     <meta name="msapplication-TileColor" content="#000" />
                     <link

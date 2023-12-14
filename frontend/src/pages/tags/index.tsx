@@ -8,11 +8,11 @@ import { SEO } from '@system-design/shared';
 import { TagCard } from '@system-design/tag';
 
 import * as API from '~/modules/api';
+import { CONFIG } from '~/modules/settings';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useMemoryStore } from '~/hooks/use-memory-store';
-
-import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;
@@ -68,8 +68,7 @@ const Tags: PageComponent<Props> = (props) => {
     return (
         <>
             <SEO
-                title={'태그 클라우드 | BLEX'}
-                image="https://static.blex.me/assets/images/default-post.png"
+                title={`태그 클라우드 | ${CONFIG.BLOG_TITLE}`}
                 description="태그 클라우드 페이지입니다. 다양한 분야의 태그를 만나보세요."
             />
             <Masonry

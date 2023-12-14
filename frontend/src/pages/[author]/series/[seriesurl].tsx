@@ -192,7 +192,7 @@ export default function Series(props: Props) {
     return (
         <>
             <SEO
-                title={`'${props.series.name}' 시리즈 — ${props.series.owner}`}
+                title={`시리즈 - ${props.series.name} | ${props.series.owner}`}
                 image={props.series.image}
             />
 

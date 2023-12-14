@@ -9,6 +9,7 @@ import {
 } from '@design-system';
 
 import * as API from '~/modules/api';
+import { CONFIG } from '~/modules/settings';
 import { message } from '~/modules/utility/message';
 import { oauth } from '~/modules/utility/oauth';
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -104,7 +105,7 @@ export class AuthGetModal extends React.Component<Props, State> {
                 onClose={() => this.props.onClose()}>
                 <div className={styles.split}>
                     <div className={styles.welcome}>
-                        <img src="/illustrators/welcome.svg"/>
+                        <img src="/illustrators/welcome.svg" />
                         <p>
                             당신이 찾던 예쁘고 유니크한 블로그
                         </p>
@@ -120,7 +121,7 @@ export class AuthGetModal extends React.Component<Props, State> {
                             onClick={() => oauth('github')}>
                             <i className="fab fa-github"></i> GitHub 계정으로 로그인
                         </button>
-                        <SplitLine/>
+                        <SplitLine />
                         <form onSubmit={this.handleSubmitLogin.bind(this)}>
                             <input
                                 className="login-form"
@@ -141,7 +142,7 @@ export class AuthGetModal extends React.Component<Props, State> {
                                 type="submit"
                                 className="login-button"
                                 isLoading={this.state.isLoading}>
-                                BLEX 계정으로 로그인
+                                {CONFIG.BLOG_TITLE} 계정으로 로그인
                             </Button>
                         </form>
                         <div className="login-hint">

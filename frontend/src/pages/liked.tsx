@@ -5,6 +5,7 @@ import type { PageComponent } from '~/components';
 import { SEO } from '@system-design/shared';
 
 import * as API from '~/modules/api';
+import { CONFIG } from '~/modules/settings';
 
 type Props = API.GetPostsResponseData;
 
@@ -25,7 +26,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
 const TrendyArticles: PageComponent<Props> = () => {
     return (
         <>
-            <SEO title="관심 포스트 | BLEX" />
+            <SEO title={`관심 포스트 | ${CONFIG.BLOG_TITLE}`} />
         </>
     );
 };

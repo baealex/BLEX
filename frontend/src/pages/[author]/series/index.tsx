@@ -83,9 +83,9 @@ const SeriesProfile: PageComponent<Props> = (props) => {
     return (
         <>
             <SEO
-                title={`${props.profile.username} (${props.profile.name}) — Series`}
+                title={`시리즈 | ${props.profile.username}`}
                 image={props.profile.image}
-                description={`${props.profile.name}님이 생성한 모든 시리즈를 만나보세요.`}
+                description={`${props.profile.name}님이 작성한 시리즈에요.`}
             />
             <UserSeries series={series} />
             <style jsx>{`

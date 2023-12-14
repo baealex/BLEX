@@ -10,6 +10,7 @@ interface Config {
     MICROSOFT_CLARITY: string;
     HCAPTCHA_SITE_KEY: string;
     GOOGLE_ADSENSE_CLIENT_ID: string;
+    BLOG_TITLE: string;
 }
 
 const {
@@ -19,5 +20,6 @@ const {
 
 export const CONFIG: Config = {
     ...publicRuntimeConfig,
-    ...serverRuntimeConfig
+    ...serverRuntimeConfig,
+    BLOG_TITLE: publicRuntimeConfig.BLOG_TITLE || 'BLEX'
 };
