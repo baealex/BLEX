@@ -43,25 +43,25 @@ def title_image_path(instance, filename):
     return f"{path}/{name}"
 
 
-def make_thumbnail(this, size, quality=100, type='normal'):
-    if hasattr(this, 'avatar'):
-        this.image = this.avatar
-    image = Image.open(this.image)
+def make_thumbnail(instance, size, quality=100, type='normal'):
+    if hasattr(instance, 'avatar'):
+        instance.image = instance.avatar
+    image = Image.open(instance.image)
 
     if type == 'preview':
         convert_image = image.convert('RGB')
         preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
         preview_image.save(
-            f"static/{this.image}.preview.jpg", quality=quality)
+            f"static/{instance.image}.preview.jpg", quality=quality)
         return
     
     if type == 'minify':
         image.thumbnail((size, size), Image.LANCZOS)
         image.save(
-            f"static/{this.image}.minify.{str(this.image).split('.')[-1]}", quality=quality)
+            f"static/{instance.image}.minify.{str(instance.image).split('.')[-1]}", quality=quality)
     
     image.thumbnail((size, size), Image.LANCZOS)
-    image.save(f'static/{this.image}', quality=quality)
+    image.save(f'static/{instance.image}', quality=quality)
     return
 
 
@@ -368,13 +368,13 @@ class Post(models.Model):
         will_make_thumbnail = False
         if not self.pk and self.image:
             will_make_thumbnail = True
-        try:
-            this = Post.objects.get(id=self.id)
-            if this.image != self.image:
-                this.image.delete(save=False)
+
+        post = Post.objects.filter(id=self.id)
+        if post.exists():
+            post = post.first()
+            if post.image != self.image:
                 will_make_thumbnail = True
-        except:
-            pass
+
         super(Post, self).save(*args, **kwargs)
         if will_make_thumbnail:
             make_thumbnail(self, size=750, quality=50, type='preview')
@@ -495,13 +495,13 @@ class Profile(models.Model):
         will_make_thumbnail = False
         if not self.pk and self.avatar:
             will_make_thumbnail = True
-        try:
-            this = Profile.objects.get(id=self.id)
-            if this.avatar != self.avatar:
-                this.avatar.delete(save=False)
+
+        profile = Profile.objects.filter(id=self.id)
+        if profile.exists():
+            profile = profile.first()
+            if profile.avatar != self.avatar:
                 will_make_thumbnail = True
-        except:
-            pass
+
         super(Profile, self).save(*args, **kwargs)
         if will_make_thumbnail:
             make_thumbnail(self, size=500)
