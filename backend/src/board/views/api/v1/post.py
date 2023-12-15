@@ -138,27 +138,11 @@ def popular_post_list(request):
             author_image=F('author__profile__avatar'),
             series_url=F('series__url'),
             series_name=F('series__name'),
-            count_likes=Subquery(
-                PostLikes.objects.filter(
-                    post__id=OuterRef('id')
-                ).values('post__id').annotate(
-                    count=Count('user')
-                ).values('count')
-            ),
-            count_comments=Subquery(
-                Comment.objects.filter(
-                    post__id=OuterRef('id')
-                ).values('post__id').annotate(
-                    count=Count('author')
-                ).values('count')
-            ),
-            has_liked=Subquery(
+            has_liked=Exists(
                 PostLikes.objects.filter(
                     post__id=OuterRef('id'),
                     user__id=request.user.id if request.user.id else -1
-                ).values('post__id').annotate(
-                    count=Count('user')
-                ).values('count')
+                )
             ),
             today_count=Subquery(
                 PostAnalytics.objects.filter(
@@ -199,8 +183,7 @@ def popular_post_list(request):
                     'url': post.series_url,
                     'name': post.series_name,
                 } if post.series_url else None,
-                'count_likes': post.count_likes,
-                'count_comments': post.count_comments,
+                'count_likes': 0,
                 'has_liked': post.has_liked,
             }, posts)),
             'last_page': posts.paginator.num_pages
