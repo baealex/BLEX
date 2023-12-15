@@ -138,13 +138,27 @@ def popular_post_list(request):
             author_image=F('author__profile__avatar'),
             series_url=F('series__url'),
             series_name=F('series__name'),
-            count_likes=Count('likes', distinct=True),
-            count_comments=Count('comments', distinct=True),
-            has_liked=Exists(
+            count_likes=Subquery(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id')
+                ).values('post__id').annotate(
+                    count=Count('user')
+                ).values('count')
+            ),
+            count_comments=Subquery(
+                Comment.objects.filter(
+                    post__id=OuterRef('id')
+                ).values('post__id').annotate(
+                    count=Count('author')
+                ).values('count')
+            ),
+            has_liked=Subquery(
                 PostLikes.objects.filter(
                     post__id=OuterRef('id'),
                     user__id=request.user.id if request.user.id else -1
-                )
+                ).values('post__id').annotate(
+                    count=Count('user')
+                ).values('count')
             ),
             today_count=Subquery(
                 PostAnalytics.objects.filter(
