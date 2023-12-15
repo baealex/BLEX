@@ -236,7 +236,6 @@ const PostsSetting: PageComponent<Props> = (props) => {
     const handleSeriesSubmit = async (url: string) => {
         const thisPost = posts.find(post => post.url == url);
         const { data } = await API.putAnUserPosts('@' + props.username, url, 'series', { series: thisPost?.series });
-        console.log(data);
         if (data.status === 'DONE') {
             handleSeriesChange(url, data.body.series || '', false);
             snackBar(message('AFTER_REQ_DONE', '시리즈가 수정되었습니다.'));
@@ -371,7 +370,9 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                         onChange={(e) => handleSeriesChange(post.url, e.target.value)}>
                                         <option value="">선택하지 않음</option>
                                         {series?.map((item, idx) => (
-                                            <option key={idx} value={item.url}>{item.title}</option>
+                                            <option key={idx} value={item.url} selected={post.series === item.url}>
+                                                {item.title}
+                                            </option>
                                         ))}
                                     </BaseInput>
                                 </div>
