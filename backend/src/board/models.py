@@ -273,6 +273,17 @@ class Notify(models.Model):
 class Tag(models.Model):
     value = models.CharField(max_length=50)
 
+    def get_image(self):
+        post = Post.objects.filter(
+            config__hide=False,
+            tags__value=self.value,
+            image__contains='images'
+        ).order_by('-created_date')
+
+        if post.exists():
+            return post.first().image.url
+        return ''
+
     def __str__(self):
         return str(self.value)
 

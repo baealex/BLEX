@@ -184,6 +184,7 @@ def popular_post_list(request):
                     'name': post.series_name,
                 } if post.series_url else None,
                 'count_likes': 0,
+                'count_comments': post.comments.count(),
                 'has_liked': post.has_liked,
             }, posts)),
             'last_page': posts.paginator.num_pages

@@ -21,12 +21,6 @@ def tag_list(request):
                     ),
                 )
             ),
-            image=Subquery(
-                Post.objects.filter(
-                    tags__value=OuterRef('value'),
-                    config__hide=False
-                ).values('image')[:1]
-            )
         ).order_by('-count', 'value')
 
         tags = Paginator(
@@ -38,7 +32,7 @@ def tag_list(request):
             'tags': list(map(lambda tag: {
                 'name': tag.value,
                 'count': tag.count,
-                'image': str(tag.image) if tag.image is not None else None,
+                'image': tag.get_image(),
             }, tags)),
             'last_page': tags.paginator.num_pages
         })
