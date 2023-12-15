@@ -32,7 +32,7 @@ export function Masonry({ items }: MasonryProps) {
     }, [ref, items]);
 
     return (
-        <div ref={ref} className={cn('masonry')} style={{ height: items.length * 200 }}>
+        <div ref={ref} className={cn('masonry')} style={{ height: items.length * 400 }}>
             {items.map((item, index) => (
                 <div key={index} className={cn('item')}>
                     {item}
