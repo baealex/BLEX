@@ -8,19 +8,17 @@ import {
 } from './activity-item';
 
 export interface RecentActivityProps {
-    data: ActivityItemProps[];
+    items: ActivityItemProps[];
 }
 
-export function RecentActivity(props: RecentActivityProps) {
-    return (
-        <>
-            {props.data.length > 0 && (
-                <ul className={`${cn('activity')} p-0`}>
-                    {props.data.map((item: ActivityItemProps, idx: number) => (
-                        <ActivityItem key={idx} {...item}/>
-                    ))}
-                </ul>
-            )}
-        </>
+export function RecentActivity({ items }: RecentActivityProps) {
+    return items.length > 0 && (
+        <ul className={`${cn('activity')}`}>
+            {items.map((item, idx) => (
+                <li>
+                    <ActivityItem key={idx} {...item} />
+                </li>
+            ))}
+        </ul>
     );
 }

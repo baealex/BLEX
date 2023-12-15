@@ -13,7 +13,7 @@ from board.models import (
     Comment, Follow, Tag)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
-from board.modules.time import convert_to_localtime, time_stamp
+from board.modules.time import convert_to_localtime, time_since, time_stamp
 from modules.markdown import parse_to_html, ParseData
 
 
@@ -73,8 +73,7 @@ def users(request, username):
 
                     heatmap = dict()
                     for element in activity:
-                        key = time_stamp(element.created_date,
-                                         kind='grass')[:10]
+                        key = time_stamp(element.created_date, kind='grass')[:10]
                         if key in heatmap:
                             heatmap[key] += 1
                         else:
@@ -172,6 +171,7 @@ def users(request, username):
                                 'text': active.name
                             }
                         active_dict['url'] = active.get_absolute_url()
+                        active_dict['created_date'] = time_since(active.created_date)
                         data[include].append(active_dict)
 
                 elif include == 'about':

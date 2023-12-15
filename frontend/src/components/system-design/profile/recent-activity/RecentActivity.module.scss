@@ -1,10 +1,45 @@
 .activity {
+    position: relative;
+    margin-top: 1rem;
+    padding: 0;
+
+    &::before {
+        content: '';
+        z-index: -1;
+        position: absolute;
+        top: 0;
+        left: 1.5rem;
+        width: 1px;
+        height: 100%;
+        background-color: #eee;
+
+        :global(body.dark) & {
+            background-color: #333;
+        }
+    }
+
     li {
         list-style: none;
-        word-wrap: break-word;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
+        margin-bottom: 0.25rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
 
         i {
-            margin-right: 10px;
+            margin-top: -0.125rem;
+            font-size: 0.75rem;
+            background-color: #eee;
+            border-radius: 50%;
+            min-width: 1.5rem;
+            min-height: 1.5rem;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+
+            :global(body.dark) & {
+                background-color: #333;
+            }
         }
     }
 }

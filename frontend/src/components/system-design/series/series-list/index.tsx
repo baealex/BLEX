@@ -23,7 +23,7 @@ export function SeriesList(props: SeriesListProps) {
             <Link className={cn('title')} href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <div className={cn('mask')}>
                     <Text className="mb-2" fontSize={6} fontWeight={600}>
-                        ‘{props.name}’ 시리즈
+                        “{props.name}” 시리즈
                     </Text>
                     <span className="ns">
                         {props.createdDate}

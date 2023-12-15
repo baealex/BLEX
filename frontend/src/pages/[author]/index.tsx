@@ -16,6 +16,7 @@ import {
     SEO
 } from '@system-design/shared';
 import type { PageComponent } from '~/components';
+import { Text } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 
@@ -64,12 +65,18 @@ const Overview: PageComponent<Props> = (props) => {
             />
 
             <div className="x-container">
+                <Text className="mt-5" fontWeight={700} fontSize={8}>
+                    인기 컨텐츠
+                </Text>
                 <FeaturedArticles articles={props.most || []} />
+                <Text className="mt-5" fontWeight={700} fontSize={8}>
+                    최근 활동
+                </Text>
                 <Heatmap
                     isNightMode={isNightMode}
                     data={props.heatmap}
                 />
-                <RecentActivity data={props.recent || []} />
+                <RecentActivity items={props.recent || []} />
             </div>
         </>
     );

@@ -1,34 +1,50 @@
 import Link from 'next/link';
 
-import { Card } from '@design-system';
+import { Flex, Text } from '@design-system';
 
 export interface ActivityItemProps {
     url: string;
     type: string;
     text: string;
+    createdDate: string;
 }
 
 export function ActivityItem(props: ActivityItemProps) {
     const className = `fas fa-${props.type}`;
 
-    let desc = '';
+    let description = '';
     switch (props.type) {
         case 'edit':
-            desc = '포스트를 작성하였습니다.';
+            description = '포스트를 작성하였습니다.';
             break;
         case 'comment':
-            desc = '포스트에 댓글을 남겼습니다.';
+            description = '포스트에 댓글을 남겼습니다.';
             break;
         case 'bookmark':
-            desc = '시리즈를 생성하였습니다.';
+            description = '시리즈를 생성하였습니다.';
             break;
     }
 
     return (
-        <li>
-            <Card isRounded hasShadow className="mt-3 p-4">
-                <i className={className}/> <Link className="shallow-dark" href={props.url}>'{props.text}'</Link> {desc}
-            </Card>
-        </li>
+        <Flex align="start" gap={2}>
+            <i className={className} />
+            <Flex
+                className="w-100"
+                justify="between"
+                align="center"
+                wrap="wrap"
+                gap={1}>
+                <Text fontSize={3}>
+                    <Link className="shallow-dark" href={props.url}>
+                        “{props.text}”
+                    </Link>
+                    {' '}
+                    <span>{description}</span>
+                </Text>
+                <Text fontSize={2} className="shallow-dark">
+                    {props.createdDate}
+                </Text>
+            </Flex>
+        </Flex>
     );
 }

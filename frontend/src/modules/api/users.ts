@@ -42,6 +42,7 @@ export interface GetUserProfileResponseData {
         type: string;
         text: string;
         url: string;
+        createdDate: string;
     }[];
     about?: string;
 }

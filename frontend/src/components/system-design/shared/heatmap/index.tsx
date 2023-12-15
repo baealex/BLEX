@@ -2,10 +2,10 @@ import classNames from 'classnames/bind';
 import styles from './Heatmap.module.scss';
 const cn = classNames.bind(styles);
 
+import { useEffect, useMemo } from 'react';
 import { Chart } from 'frappe-charts';
-import { useEffect } from 'react';
 
-import { Card, Text } from '@design-system';
+import { Card } from '@design-system';
 
 export interface HeatmapProps {
     isNightMode: boolean;
@@ -17,10 +17,14 @@ export interface HeatmapProps {
 export function Heatmap(props: HeatmapProps) {
     const { data = {} } = props;
 
+    const totalActivity = useMemo(() => {
+        return Object.values(data).reduce((acc, cur) => acc + cur, 0);
+    }, [data]);
+
     useEffect(() => {
         new Chart('#heatmap', {
             type: 'heatmap',
-            title: `${Object.keys(data).length} activity in the last year`,
+            title: `지난 1년 동안 ${totalActivity}건의 활동을 기록했습니다.`,
             data: {
                 end: new Date(),
                 dataPoints: data
@@ -30,16 +34,11 @@ export function Heatmap(props: HeatmapProps) {
             discreteDomains: 0,
             colors: props.isNightMode ? ['#14120f', '#391b74', '#843690', '#dc65c4', '#e69ed8'] : undefined
         });
-    }, [props.isNightMode]);
+    }, [data, props.isNightMode]);
 
     return (
-        <>
-            <Text className="mt-5" fontWeight={700} fontSize={8}>
-                최근 활동
-            </Text>
-            <Card isRounded hasShadow className={`${cn('heatmap')} mt-3`}>
-                <div id="heatmap"/>
-            </Card>
-        </>
+        <Card isRounded hasShadow className={`${cn('heatmap')} mt-3 pt-2`}>
+            <div id="heatmap" />
+        </Card>
     );
 }
