@@ -1,8 +1,8 @@
-from django.db.models import F, Count, Case, When, Subquery, OuterRef
+from django.db.models import F, Count, Case, When, Subquery, OuterRef, Exists
 from django.http import Http404
 from django.utils import timezone
 
-from board.models import Tag, Post
+from board.models import Tag, Post, PostLikes
 from board.modules.response import StatusDone
 from board.modules.paginator import Paginator
 from board.modules.time import convert_to_localtime
@@ -56,7 +56,15 @@ def tag_detail(request, name):
             tags__value=name
         ).annotate(
             author_username=F('author__username'),
-            author_image=F('author__profile__avatar')
+            author_image=F('author__profile__avatar'),
+            count_likes=Count('likes', distinct=True),
+            count_comments=Count('comments', distinct=True),
+            has_liked=Exists(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id'),
+                    user__id=request.user.id if request.user.id else -1
+                )
+            ),
         ).order_by('-created_date')
 
         if len(posts) == 0:
@@ -73,7 +81,7 @@ def tag_detail(request, name):
             config__hide=False
         ).annotate(
             author_username=F('author__username'),
-            author_image=F('author__profile__avatar')
+            author_image=F('author__profile__avatar'),
         ).first()
 
         return StatusDone({
@@ -94,6 +102,9 @@ def tag_detail(request, name):
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
                 'author_image': post.author_image,
                 'author': post.author_username,
+                'count_likes': post.count_likes,
+                'count_comments': post.count_comments,
+                'has_liked': post.has_liked,
             }, posts))
         })
 

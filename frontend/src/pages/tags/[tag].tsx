@@ -19,9 +19,12 @@ import * as API from '~/modules/api';
 import { CONFIG } from '~/modules/settings';
 import { getUserImage } from '~/modules/utility/image';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useMemoryStore } from '~/hooks/use-memory-store';
+
+import { modalStore } from '~/stores/modal';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
@@ -72,6 +75,30 @@ export default function TagDetail(props: Props) {
         }
     }, { enabled: memoryStore.page < props.lastPage });
 
+    const handleLike = async (post: API.GetTagResponseData['posts'][number]) => {
+        const { data } = await API.putAnUserPosts('@' + post.author, post.url, 'like');
+        if (data.status === 'DONE') {
+            if (typeof data.body.totalLikes === 'number') {
+                setPosts((prevState) => prevState.map((_post) => {
+                    if (_post.url === post.url) {
+                        _post.hasLiked = !_post.hasLiked;
+                        _post.countLikes = data.body.totalLikes as number;
+                    }
+                    return _post;
+                }));
+            }
+        }
+        if (data.status === 'ERROR') {
+            if (data.errorCode === API.ERROR.NEED_LOGIN) {
+                snackBar('😅 로그인이 필요합니다.', {
+                    onClick: () => {
+                        modalStore.open('isOpenAuthGetModal');
+                    }
+                });
+            }
+        }
+    };
+
     useEffect(lazyLoadResource, [posts]);
 
     useEffect(() => {
@@ -107,6 +134,7 @@ export default function TagDetail(props: Props) {
                         <ArticleCard
                             key={idx}
                             {...item}
+                            onLike={() => handleLike(item)}
                         />
                     ))}
                 />

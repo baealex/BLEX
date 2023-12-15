@@ -33,6 +33,9 @@ export interface GetTagResponseData {
         createdDate: string;
         author: string;
         authorImage: string;
+        hasLiked: boolean;
+        countLikes: number;
+        countComments: number;
     }[];
     lastPage: number;
 }
