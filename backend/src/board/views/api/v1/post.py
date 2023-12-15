@@ -641,13 +641,13 @@ def user_posts(request, username, url=None):
                     return StatusError(ErrorCode.AUTHENTICATION)
                 user_addr = get_network_addr(request)
                 user_agent = request.META['HTTP_USER_AGENT']
-                history = create_device(user_addr, user_agent)
+                device = create_device(user_addr, user_agent)
 
-                post_nothanks = post.nothanks.filter(history=history)
+                post_nothanks = post.nothanks.filter(device=device)
                 if post_nothanks.exists():
                     post_nothanks.delete()
 
-                post_thanks = post.thanks.filter(history=history)
+                post_thanks = post.thanks.filter(device=device)
                 if not post_thanks.exists():
                     if post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_THANKS):
                         send_notify_content = (
@@ -657,8 +657,8 @@ def user_posts(request, username, url=None):
                             user=post.author,
                             url=post.get_absolute_url(),
                             content=send_notify_content,
-                            hidden_key=history.key)
-                    PostThanks(post=post, history=history).save()
+                            hidden_key=device.key)
+                    PostThanks(post=post, device=device).save()
 
                 return StatusDone()
 
@@ -667,13 +667,13 @@ def user_posts(request, username, url=None):
                     return StatusError(ErrorCode.AUTHENTICATION)
                 user_addr = get_network_addr(request)
                 user_agent = request.META['HTTP_USER_AGENT']
-                history = create_device(user_addr, user_agent)
+                device = create_device(user_addr, user_agent)
 
-                post_thanks = post.thanks.filter(history=history)
+                post_thanks = post.thanks.filter(device=device)
                 if post_thanks.exists():
                     post_thanks.delete()
 
-                post_nothanks = post.nothanks.filter(history=history)
+                post_nothanks = post.nothanks.filter(device=device)
                 if not post_nothanks.exists():
                     if post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_NO_THANKS):
                         send_notify_content = (
@@ -683,8 +683,8 @@ def user_posts(request, username, url=None):
                             user=post.author,
                             url=post.get_absolute_url(),
                             content=send_notify_content,
-                            hidden_key=history.key)
-                    PostNoThanks(post=post, history=history).save()
+                            hidden_key=device.key)
+                    PostNoThanks(post=post, device=device).save()
 
                 return StatusDone()
 
