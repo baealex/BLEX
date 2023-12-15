@@ -13,7 +13,7 @@ export interface CommentEditorProps {
 }
 
 export function CommentEditor(props: CommentEditorProps) {
-    const [ content, setContent ] = useState(props.content);
+    const [content, setContent] = useState(props.content);
 
     const handleSubmit = () => {
         if (content == '') {

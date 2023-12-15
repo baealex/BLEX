@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { useCallback, useRef, useState } from 'react';
 import { useStore } from 'badland-react';
 
-import { Alert } from '@design-system';
+import { Alert, Flex, Loading } from '@design-system';
 import { CommentCard } from './comment-card';
 import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';
@@ -31,6 +31,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const [{ isLogin, username }] = useStore(authStore);
     const [commentText, setCommentText] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { data: comments = [], mutate: setComments } = useFetch(['posts', 'comments', props.url], async () => {
         if (props.totalComment > 0) {
@@ -44,6 +45,10 @@ export function ArticleComment(props: ArticleCommentProps) {
     }, { observeRef: ref });
 
     const handleSubmit = useCallback(async (content: string) => {
+        if (isSubmitting) {
+            return;
+        }
+        setIsSubmitting(true);
         const { data } = await API.postComments(props.url, content);
         if (data.status !== 'DONE') {
             snackBar('😅 댓글 작성중 오류가 발생했습니다!');
@@ -55,6 +60,8 @@ export function ArticleComment(props: ArticleCommentProps) {
             ...data.body
         }));
         setTimeout(lazyLoadResource, 300);
+        setCommentText('');
+        setIsSubmitting(false);
     }, [props.url]);
 
     const handleClickEdit = useCallback(async (pk: number) => {
@@ -98,6 +105,10 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const handleClickDelete = useCallback(async (pk: number) => {
         if (confirm('😮 정말 이 댓글을 삭제할까요?')) {
+            if (isSubmitting) {
+                return;
+            }
+            setIsSubmitting(true);
             const { data } = await API.deleteComment(pk);
             if (data.status === 'DONE') {
                 setComments(prevComments => prevComments?.map(comment => (
@@ -108,6 +119,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 )));
                 snackBar('😀 댓글이 삭제되었습니다.');
             }
+            setIsSubmitting(false);
         }
     }, []);
 
@@ -129,6 +141,10 @@ export function ArticleComment(props: ArticleCommentProps) {
     }, [username, commentText]);
 
     const handleEditSubmit = useCallback(async (pk: number, content: string) => {
+        if (isSubmitting) {
+            return;
+        }
+        setIsSubmitting(true);
         const { data } = await API.putComment(pk, content);
         if (data.status !== 'DONE') {
             snackBar('😅 댓글 수정중 오류가 발생했습니다!');
@@ -142,8 +158,8 @@ export function ArticleComment(props: ArticleCommentProps) {
                 textHtml: blexer(content)
             }) : comment
         )));
-        snackBar('😀 댓글이 수정되었습니다.');
         setTimeout(lazyLoadResource, 300);
+        setIsSubmitting(false);
     }, []);
 
     const handleEditCancel = useCallback(async (pk: number) => {
@@ -157,7 +173,7 @@ export function ArticleComment(props: ArticleCommentProps) {
     }, []);
 
     return (
-        <div ref={ref} className={`comments ${cn('background')} py-5`}>
+        <div ref={ref} id="comments" className={`comments ${cn('background')} py-5`}>
             <div className="x-container">
                 {comments?.length > 0 ? comments.map((comment) => (
                     comment.isEdit ? (
@@ -197,6 +213,11 @@ export function ArticleComment(props: ArticleCommentProps) {
                         totalLikes={0}
                         isLiked={false}
                     />
+                )}
+                {isSubmitting && (
+                    <Flex justify="center" className="my-5">
+                        <Loading position="inline" />
+                    </Flex>
                 )}
                 {isLogin ? (
                     <CommentForm
