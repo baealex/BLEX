@@ -5,25 +5,35 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from board.models import User, Config, Post, PostContent, PostConfig, Profile
+from board.models import (
+    User, Config, Post, PostContent, PostConfig, Profile,
+    PostThanks, PostNoThanks
+)
 
 
 class PostListTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         User.objects.create_user(
-            username='test',
-            password='test',
-            email='test@test.com',
-            first_name='Test User',
+            username='author',
+            password='author',
+            email='author@author.com',
+            first_name='Author User',
+        )
+
+        User.objects.create_user(
+            username='viewer',
+            password='viewer',
+            email='viewer@author.com',
+            first_name='Viewer User',
         )
 
         Profile.objects.create(
-            user=User.objects.get(username='test'),
+            user=User.objects.get(username='author'),
         )
 
         Config.objects.create(
-            user=User.objects.get(username='test'),
+            user=User.objects.get(username='author'),
         )
 
         number_of_posts = 100
@@ -32,7 +42,7 @@ class PostListTestCase(TestCase):
             Post.objects.create(
                 url=f'test-post-{post_num}',
                 title=f'Test Post {post_num}',
-                author=User.objects.get(username='test'),
+                author=User.objects.get(username='author'),
             )
 
             PostContent.objects.create(
@@ -46,6 +56,9 @@ class PostListTestCase(TestCase):
                 hide=False,
                 advertise=False,
             )
+    
+    def setUp(self):
+        self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
 
     def test_get_popular_posts_list(self):
         response = self.client.get('/v1/posts/popular')
@@ -74,81 +87,48 @@ class PostListTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_liked_posts_list(self):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.get('/v1/posts/liked')
         self.assertEqual(response.status_code, 200)
 
     def test_get_feature_posts_list(self):
-        params = {'username': '@test'}
+        params = {'username': '@author'}
         response = self.client.get('/v1/posts/feature', params)
         self.assertEqual(response.status_code, 200)
 
     def test_get_user_post_list(self):
-        response = self.client.get('/v1/users/@test/posts')
+        response = self.client.get('/v1/users/@author/posts')
         self.assertEqual(response.status_code, 200)
 
     def test_get_user_post_list_pagination(self):
-        response = self.client.get('/v1/users/@test/posts')
+        response = self.client.get('/v1/users/@author/posts')
         content = json.loads(response.content)
         self.assertEqual(len(content['body']['posts']), 10)
 
-
-class PostTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        User.objects.create_user(
-            username='test',
-            password='test',
-            email='test@test.com',
-            first_name='Test User',
-        )
-
-        Profile.objects.create(
-            user=User.objects.get(username='test'),
-        )
-
-        Post.objects.create(
-            url=f'test-post',
-            title=f'Test Post',
-            author=User.objects.get(username='test'),
-        )
-
-        PostContent.objects.create(
-            post=Post.objects.get(url=f'test-post'),
-            text_md=f'# Test Post',
-            text_html=f'<h1>Test Post Content</h1>'
-        )
-
-        PostConfig.objects.create(
-            post=Post.objects.get(url=f'test-post'),
-            hide=False,
-            advertise=False,
-        )
-
     def test_get_user_post_detail(self):
         params = {'mode': 'view'}
-        response = self.client.get('/v1/users/@test/posts/test-post', params)
+        response = self.client.get('/v1/users/@author/posts/test-post-1', params)
         self.assertEqual(response.status_code, 200)
 
     def test_no_access_other_user_post_edit_mode(self):
         params = {'mode': 'edit'}
-        response = self.client.get('/v1/users/@test/posts/test-post', params)
+        response = self.client.get('/v1/users/@author/posts/test-post-1', params)
         self.assertEqual(response.status_code, 404)
 
     def test_get_user_post_detail_edit_mode(self):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         params = {'mode': 'edit'}
-        response = self.client.get('/v1/users/@test/posts/test-post', params)
+        response = self.client.get('/v1/users/@author/posts/test-post-1', params)
         self.assertEqual(response.status_code, 200)
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_update_user_post(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
-        post = Post.objects.get(url='test-post')
-        response = self.client.post('/v1/users/@test/posts/test-post', {
+        post = Post.objects.get(url='test-post-1')
+        response = self.client.post('/v1/users/@author/posts/test-post-1', {
             'title': f'{post.title} Updated',
             'text_md': post.content.text_md,
             'hide': post.config.hide,
@@ -157,38 +137,38 @@ class PostTestCase(TestCase):
 
         post.refresh_from_db()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(post.title, 'Test Post Updated')
+        self.assertEqual(post.title, 'Test Post 1 Updated')
 
     def test_get_user_post_detail_edit_mode_with_not_exist_post(self):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         params = {'mode': 'edit'}
         response = self.client.get(
-            '/v1/users/@test/posts/not-exist-post', params)
+            '/v1/users/@author/posts/not-exist-post', params)
         self.assertEqual(response.status_code, 404)
 
     def test_get_user_post_detail_edit_mode_with_not_exist_user(self):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         params = {'mode': 'edit'}
         response = self.client.get(
-            '/v1/users/@not-exist-user/posts/test-post', params)
+            '/v1/users/@not-exist-user/posts/test-post-1', params)
         self.assertEqual(response.status_code, 404)
 
     def test_get_user_post_detail_edit_mode_with_not_match_user(self):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         params = {'mode': 'edit'}
         response = self.client.get(
-            '/v1/users/@not-test-user/posts/test-post', params)
+            '/v1/users/@not-test-user/posts/test-post-1', params)
         self.assertEqual(response.status_code, 404)
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_duplicate_url(self, mock_servic4e):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
-            'title': 'Test Post',
+            'title': 'Test Post 1',
             'text_md': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
@@ -196,14 +176,14 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
         self.assertEqual(len(content['body']['url']),
-                         len('test-post-00000000'))
+                         len('test-post-1-00000000'))
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_custom_url(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
-            'title': 'Test Post',
+            'title': 'Test Post 1',
             'text_md': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
@@ -216,10 +196,10 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
-            'title': 'Test Post 1',
+            'title': 'Test Post 1000',
             'text_md': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
@@ -227,7 +207,7 @@ class PostTestCase(TestCase):
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content['body']['url'], 'test-post-1')
+        self.assertEqual(content['body']['url'], 'test-post-1000')
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_with_not_logged_in_user(self, return_value):
@@ -242,7 +222,7 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_empty_title(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': '',
@@ -254,7 +234,7 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_empty_text(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
@@ -266,7 +246,7 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_reserved(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Reserved Post',
@@ -282,7 +262,7 @@ class PostTestCase(TestCase):
 
         params = {'mode': 'view'}
         response = self.client.get(
-            '/v1/users/@test/posts/test-reserved-post', params)
+            '/v1/users/@author/posts/test-reserved-post', params)
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/v1/posts/newest')
@@ -292,12 +272,12 @@ class PostTestCase(TestCase):
 
         self.client.logout()
         response = self.client.get(
-            '/v1/users/@test/posts/test-reserved-post', params)
+            '/v1/users/@author/posts/test-reserved-post', params)
         self.assertEqual(response.status_code, 404)
     
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_reserved_before(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Reserved Post',
@@ -310,7 +290,7 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_auto_generate_description(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
@@ -326,7 +306,7 @@ class PostTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_custom_description(self, mock_service):
-        self.client.login(username='test', password='test')
+        self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
@@ -340,3 +320,59 @@ class PostTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.meta_description, 'Custom Description')
+
+    def test_post_thanks(self):
+        response = self.client.put('/v1/users/@author/posts/test-post-1?thanks=thanks')
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_no_thanks(self):
+        response = self.client.put('/v1/users/@author/posts/test-post-1?nothanks=nothanks')
+        self.assertEqual(response.status_code, 200)
+    
+    def test_post_ignore_self_thanks(self):
+        self.client.login(username='author', password='author')
+        response = self.client.put('/v1/users/@author/posts/test-post-1?thanks=thanks')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ERROR')
+    
+    def test_post_ignore_self_nothanks(self):
+        self.client.login(username='author', password='author')
+        response = self.client.put('/v1/users/@author/posts/test-post-1?nothanks=nothanks')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'ERROR')
+    
+    def test_post_cancel_thanks(self):
+        response = self.client.put('/v1/users/@author/posts/test-post-1?thanks=thanks')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'DONE')
+
+        response = self.client.put('/v1/users/@author/posts/test-post-1?nothanks=nothanks')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'DONE')
+
+        count_thanks = PostThanks.objects.all().count()
+        count_nothanks = PostNoThanks.objects.all().count()
+
+        self.assertEqual(count_thanks, 0)
+        self.assertEqual(count_nothanks, 1)
+    
+    def test_post_cancel_nothanks(self):
+        response = self.client.put('/v1/users/@author/posts/test-post-1?nothanks=nothanks')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'DONE')
+
+        response = self.client.put('/v1/users/@author/posts/test-post-1?thanks=thanks')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'DONE')
+
+        count_thanks = PostThanks.objects.all().count()
+        count_nothanks = PostNoThanks.objects.all().count()
+
+        self.assertEqual(count_thanks, 1)
+        self.assertEqual(count_nothanks, 0)
+
+    def test_post_like(self):
+        self.client.login(username='author', password='author')
+        response = self.client.put('/v1/users/@author/posts/test-post-1?like=like')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'DONE')
