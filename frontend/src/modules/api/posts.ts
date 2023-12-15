@@ -82,21 +82,30 @@ export interface GetPostsResponseData {
         author: string;
         authorImage: string;
         isAd: boolean;
+        series?: {
+            url: string;
+            name: string;
+        };
+        hasLiked: boolean;
+        countLikes: number;
+        countComments: number;
     }[];
     lastPage: number;
 }
 
-export function getPopularPosts(page: number) {
+export function getPopularPosts(page: number, cookie?: string) {
     return request<GetPostsResponseData>({
         url: `/v1/posts/popular?page=${page}`,
-        method: 'GET'
+        method: 'GET',
+        headers: cookie ? { cookie } : undefined
     });
 }
 
-export function getNewestPosts(page: number) {
+export function getNewestPosts(page: number, cookie?: string) {
     return request<GetPostsResponseData>({
         url: `/v1/posts/newest?page=${page}`,
-        method: 'GET'
+        method: 'GET',
+        headers: cookie ? { cookie } : undefined
     });
 }
 

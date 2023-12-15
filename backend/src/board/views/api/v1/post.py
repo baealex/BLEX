@@ -1,7 +1,6 @@
 import datetime
 
 from django.conf import settings
-from django.core.cache import cache
 from django.db.models import (
     F, Case, Exists, When, Subquery,
     Value, OuterRef, Count)
@@ -128,8 +127,6 @@ def post_list(request):
 
 def popular_post_list(request):
     if request.method == 'GET':
-        page = request.GET.get('page', 1)
-
         posts = Post.objects.select_related(
             'config'
         ).filter(
@@ -139,6 +136,16 @@ def popular_post_list(request):
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
+            series_url=F('series__url'),
+            series_name=F('series__name'),
+            count_likes=Count('likes', distinct=True),
+            count_comments=Count('comments', distinct=True),
+            has_liked=Exists(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id'),
+                    user__id=request.user.id if request.user.id else -1
+                )
+            ),
             today_count=Subquery(
                 PostAnalytics.objects.filter(
                     post__id=OuterRef('id'),
@@ -174,6 +181,13 @@ def popular_post_list(request):
                 'author_image': post.author_image,
                 'author': post.author_username,
                 'is_ad': post.config.advertise,
+                'series': {
+                    'url': post.series_url,
+                    'name': post.series_name,
+                } if post.series_url else None,
+                'count_likes': post.count_likes,
+                'count_comments': post.count_comments,
+                'has_liked': post.has_liked,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -189,7 +203,17 @@ def newest_post_list(request):
             config__hide=False,
         ).annotate(
             author_username=F('author__username'),
-            author_image=F('author__profile__avatar')
+            author_image=F('author__profile__avatar'),
+            series_url=F('series__url'),
+            series_name=F('series__name'),
+            count_likes=Count('likes', distinct=True),
+            count_comments=Count('comments', distinct=True),
+            has_liked=Exists(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id'),
+                    user__id=request.user.id if request.user.id else -1
+                )
+            ),
         ).order_by('-created_date')
 
         posts = Paginator(
@@ -208,6 +232,13 @@ def newest_post_list(request):
                 'author_image': post.author_image,
                 'author': post.author_username,
                 'is_ad': post.config.advertise,
+                'series': {
+                    'url': post.series_url,
+                    'name': post.series_name,
+                } if post.series_url else None,
+                'count_likes': post.count_likes,
+                'count_comments': post.count_comments,
+                'has_liked': post.has_liked,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -226,9 +257,24 @@ def liked_post_list(request):
             config__hide=False,
             likes__user=request.user,
         ).annotate(
-            liked_date=F('likes__created_date'),
             author_username=F('author__username'),
-            author_image=F('author__profile__avatar')
+            author_image=F('author__profile__avatar'),
+            series_url=F('series__url'),
+            series_name=F('series__name'),
+            count_likes=Count('likes', distinct=True),
+            count_comments=Count('comments', distinct=True),
+            has_liked=Exists(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id'),
+                    user__id=request.user.id if request.user.id else -1
+                )
+            ),
+            liked_date=Subquery(
+                PostLikes.objects.filter(
+                    post__id=OuterRef('id'),
+                    user__id=request.user.id if request.user.id else -1
+                ).values('created_date')[:1]
+            ),
         ).order_by('-liked_date')
 
         posts = Paginator(
@@ -247,6 +293,13 @@ def liked_post_list(request):
                 'author_image': post.author_image,
                 'author': post.author_username,
                 'is_ad': post.config.advertise,
+                'series': {
+                    'url': post.series_url,
+                    'name': post.series_name,
+                } if post.series_url else None,
+                'count_likes': post.count_likes,
+                'count_comments': post.count_comments,
+                'has_liked': post.has_liked,
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -563,7 +616,7 @@ def user_posts(request, username, url=None):
             put = QueryDict(request.body)
 
             if request.GET.get('like', ''):
-                if not request.user:
+                if not request.user.id:
                     return StatusError(ErrorCode.NEED_LOGIN)
 
                 if post.has_liked:

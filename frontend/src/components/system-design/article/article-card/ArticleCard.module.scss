@@ -34,11 +34,9 @@
     height: 40px;
     border-radius: 100%;
     object-fit: cover;
-    margin-right: 4px;
 }
 
 .description {
-    min-height: 72px;
     letter-spacing: -0.009em;
     overflow: hidden;
     display: -webkit-box;
@@ -46,4 +44,28 @@
     -webkit-box-orient: vertical;
     word-break: keep-all;
     overflow-wrap: anywhere;
+}
+
+.footer {
+    border-top: 1px solid #e6e6e6;
+    background-color: #fafafa;
+
+    :global(body.dark) & {
+        border-top: 1px solid #333;
+        background-color: #222;
+    }
+
+    button {
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: #999;
+    }
+
+    .like {
+        &.active {
+            color: #ff6b6b;
+        }
+    }
 }

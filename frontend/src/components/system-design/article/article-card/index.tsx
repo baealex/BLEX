@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 
 import {
     Card,
+    Flex,
     Text
 } from '@design-system';
 
@@ -15,6 +16,7 @@ import {
     getUserImage
 } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
+import { useRouter } from 'next/router';
 
 export interface ArticleCardProps {
     number?: number;
@@ -32,9 +34,19 @@ export interface ArticleCardProps {
     hasShadow?: boolean;
     isRounded?: boolean;
     highlight?: string;
+    countComments?: number;
+    countLikes?: number;
+    hasLiked?: boolean;
+    onLike?: () => void;
+    series?: {
+        name: string;
+        url: string;
+    };
 }
 
 export function ArticleCard(props: ArticleCardProps) {
+    const router = useRouter();
+
     const {
         hasShadow = true,
         isRounded = true
@@ -98,19 +110,29 @@ export function ArticleCard(props: ArticleCardProps) {
                             )}
                             {description && props.highlight ? (
                                 <p
-                                    className={cn('description', 'shallow-dark', 'mb-3')}
+                                    className={cn('description', 'shallow-dark')}
                                     dangerouslySetInnerHTML={{ __html: description }}
                                 />
                             ) : (
-                                <Text className={cn('description', 'shallow-dark', 'mb-3')}>
+                                <Text className={cn('description', 'shallow-dark')}>
                                     {unescape(description || '')}
                                 </Text>
                             )}
                         </Link>
-                        {props.author && (
-                            <div className="d-flex align-items-center justify-content-between">
-                                <div className="d-flex align-items-center">
-                                    <Link href="/[author]" as={`/@${props.author}`}>
+                    </div>
+                    <Flex className={cn('px-3', 'py-2')} justify="between" align="center">
+                        <Text fontSize={2} className="shallow-dark">
+                            {props.createdDate}
+                        </Text>
+                        <Text fontSize={2} className="shallow-dark">
+                            {props.readTime}분 분량
+                        </Text>
+                    </Flex>
+                    <div className={cn('footer', 'py-2', 'px-3')}>
+                        <Flex justify="between" align="center">
+                            {props.author && (
+                                <Link className="deep-dark" href={`/@${props.author}`}>
+                                    <Flex align="center" gap={1}>
                                         <img
                                             className={cn('author-image')}
                                             alt={props.author}
@@ -118,17 +140,32 @@ export function ArticleCard(props: ArticleCardProps) {
                                             width="35"
                                             height="35"
                                         />
-                                    </Link>
-                                    <div className="vs mx-2">
-                                        <Link className="deep-dark" href="/[author]" as={`/@${props.author}`}>
-                                            {props.author}
-                                        </Link>님이 작성함
-                                        <br />
-                                        {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                                        <Text fontSize={3}>
+                                            @{props.author}
+                                        </Text>
+                                    </Flex>
+                                </Link>
+                            )}
+                            <Flex align="center" gap={3}>
+                                {typeof props.countComments === 'number' && (
+                                    <button onClick={() => router.push(url + '#comments')} className={cn('comment')}>
+                                        <Flex align="center" gap={1}>
+                                            <i className="far fa-comment" />
+                                            <Text>{props.countComments}</Text>
+                                        </Flex>
+                                    </button>
+                                )}
+                                {typeof props.countLikes === 'number' && (
+                                    <button onClick={props.onLike} className={cn('like', { active: props.hasLiked })}>
+                                        <Flex align="center" gap={1}>
+                                            {props.hasLiked
+                                                ? <i className="fas fa-heart" />
+                                                : <i className="far fa-heart" />}
+                                        </Flex>
+                                    </button>
+                                )}
+                            </Flex>
+                        </Flex>
                     </div>
                 </>
             </Card>

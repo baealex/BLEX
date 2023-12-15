@@ -7,8 +7,10 @@ import { Footer } from '@system-design/shared';
 
 import * as API from '~/modules/api';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
+import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
+import { modalStore } from '~/stores/modal';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useMemoryStore } from '~/hooks/use-memory-store';
@@ -79,6 +81,30 @@ export function CollectionLayout(props: CollectionLayoutProps) {
         }
     }, { enabled: memoryStore.page < props.lastPage && props.active !== '태그 클라우드' });
 
+    const handleLike = async (post: API.GetPostsResponseData['posts'][number]) => {
+        const { data } = await API.putAnUserPosts('@' + post.author, post.url, 'like');
+        if (data.status === 'DONE') {
+            if (typeof data.body.totalLikes === 'number') {
+                setPosts((prevState) => prevState.map((_post) => {
+                    if (_post.url === post.url) {
+                        _post.hasLiked = !_post.hasLiked;
+                        _post.countLikes = data.body.totalLikes as number;
+                    }
+                    return _post;
+                }));
+            }
+        }
+        if (data.status === 'ERROR') {
+            if (data.errorCode === API.ERROR.NEED_LOGIN) {
+                snackBar('😅 로그인이 필요합니다.', {
+                    onClick: () => {
+                        modalStore.open('isOpenAuthGetModal');
+                    }
+                });
+            }
+        }
+    };
+
     useEffect(lazyLoadResource, [posts]);
 
     useEffect(() => {
@@ -95,7 +121,11 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                 />
                 <Masonry
                     items={posts.map((post) => (
-                        <ArticleCard key={post.url} {...post} />
+                        <ArticleCard
+                            key={post.url}
+                            {...post}
+                            onLike={() => handleLike(post)}
+                        />
                     ))}
                 />
                 {isLoading && (

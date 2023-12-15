@@ -9,9 +9,9 @@ import { CONFIG } from '~/modules/settings';
 
 type Props = API.GetPostsResponseData;
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     try {
-        const { data } = await API.getNewestPosts(1);
+        const { data } = await API.getNewestPosts(1, context.req.headers.cookie);
 
         return {
             props: {
