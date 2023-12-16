@@ -65,7 +65,7 @@ export function ArticleCover(props: {
                         <span
                             className={cn('series')}
                             onClick={handleClickSeries}
-                            data-label={`‘${props.series}’ 시리즈`}
+                            data-label={`‘${props.series.name}’ 시리즈`}
                         />
                     )}
                     <h1>{props.title}</h1>
