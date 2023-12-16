@@ -193,8 +193,10 @@ export interface GetAnUserPostsViewResponseData {
     image: string;
     description: string;
     readTime: number;
-    series?: string;
-    seriesName?: string;
+    series?: {
+        url: string;
+        name: string;
+    };
     createdDate: string;
     updatedDate: string;
     authorImage: string;

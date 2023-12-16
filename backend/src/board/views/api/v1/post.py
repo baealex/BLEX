@@ -128,16 +128,14 @@ def post_list(request):
 def popular_post_list(request):
     if request.method == 'GET':
         posts = Post.objects.select_related(
-            'config'
+            'author', 'author__profile','config', 'series'
+        ).prefetch_related(
+            'comments'
         ).filter(
             created_date__lte=timezone.now(),
             config__notice=False,
             config__hide=False,
         ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar'),
-            series_url=F('series__url'),
-            series_name=F('series__name'),
             has_liked=Exists(
                 PostLikes.objects.filter(
                     post__id=OuterRef('id'),
@@ -176,13 +174,13 @@ def popular_post_list(request):
                 'description': post.meta_description,
                 'read_time': post.read_time,
                 'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author_image,
-                'author': post.author_username,
+                'author_image': post.author.profile.get_thumbnail(),
+                'author': post.author.username,
                 'is_ad': post.config.advertise,
                 'series': {
-                    'url': post.series_url,
-                    'name': post.series_name,
-                } if post.series_url else None,
+                    'url': post.series.url,
+                    'name': post.series.name,
+                } if post.series else None,
                 'count_likes': 0,
                 'count_comments': post.comments.count(),
                 'has_liked': post.has_liked,
@@ -194,7 +192,7 @@ def popular_post_list(request):
 def newest_post_list(request):
     if request.method == 'GET':
         posts = Post.objects.select_related(
-            'config'
+            'config', 'series'
         ).filter(
             created_date__lte=timezone.now(),
             config__notice=False,
@@ -202,8 +200,6 @@ def newest_post_list(request):
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            series_url=F('series__url'),
-            series_name=F('series__name'),
             count_likes=Count('likes', distinct=True),
             count_comments=Count('comments', distinct=True),
             has_liked=Exists(
@@ -231,9 +227,9 @@ def newest_post_list(request):
                 'author': post.author_username,
                 'is_ad': post.config.advertise,
                 'series': {
-                    'url': post.series_url,
-                    'name': post.series_name,
-                } if post.series_url else None,
+                    'url': post.series.url,
+                    'name': post.series.name,
+                } if post.series else None,
                 'count_likes': post.count_likes,
                 'count_comments': post.count_comments,
                 'has_liked': post.has_liked,
@@ -248,7 +244,7 @@ def liked_post_list(request):
 
     if request.method == 'GET':
         posts = Post.objects.select_related(
-            'config'
+            'config', 'series'
         ).filter(
             created_date__lte=timezone.now(),
             config__notice=False,
@@ -257,8 +253,6 @@ def liked_post_list(request):
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            series_url=F('series__url'),
-            series_name=F('series__name'),
             count_likes=Count('likes', distinct=True),
             count_comments=Count('comments', distinct=True),
             has_liked=Exists(
@@ -292,9 +286,9 @@ def liked_post_list(request):
                 'author': post.author_username,
                 'is_ad': post.config.advertise,
                 'series': {
-                    'url': post.series_url,
-                    'name': post.series_name,
-                } if post.series_url else None,
+                    'url': post.series.url,
+                    'name': post.series.name,
+                } if post.series else None,
                 'count_likes': post.count_likes,
                 'count_comments': post.count_comments,
                 'has_liked': post.has_liked,
@@ -365,15 +359,12 @@ def post_comment_list(request, url):
 
         return StatusDone({
             'comments': list(map(lambda comment: {
-                'pk': comment.pk,
                 'id': comment.id,
                 'author': comment.author_username(),
                 'author_image': comment.author_thumbnail(),
                 'is_edited': comment.edited,
-                'text_html': comment.get_text_html(),
                 'rendered_content': comment.get_text_html(),
                 'created_date': comment.time_since(),
-                'total_likes': comment.count_likes,
                 'count_likes': comment.count_likes,
                 'is_liked': comment.has_liked,
             }, comments))
@@ -494,12 +485,10 @@ def user_posts(request, username, url=None):
             })
     if url:
         post = get_object_or_404(Post.objects.select_related(
-            'config', 'content'
+            'config', 'content', 'series'
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            series_url=F('series__url'),
-            series_name=F('series__name'),
             count_likes=Count('likes', distinct=True),
             count_comments=Count('comments', distinct=True),
             has_liked=Exists(
@@ -519,7 +508,10 @@ def user_posts(request, username, url=None):
                     'image': post.get_thumbnail(),
                     'title': post.title,
                     'description': post.meta_description,
-                    'series': post.series_url if post.series_url else None,
+                    'series': {
+                        'url': post.series.url,
+                        'name': post.series.name,
+                    } if post.series else None,
                     'text_md': post.content.text_md,
                     'tags': post.tagging(),
                     'is_hide': post.config.hide,
@@ -539,17 +531,16 @@ def user_posts(request, username, url=None):
                     'image': str(post.image),
                     'description': post.meta_description,
                     'read_time': post.read_time,
-                    'series': post.series_url if post.series_url else None,
-                    'series_name': post.series_name if post.series_name else None,
+                    'series': {
+                        'url': post.series.url,
+                        'name': post.series.name,
+                    } if post.series else None,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d %H:%M'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d %H:%M'),
                     'author_image': str(post.author_image),
                     'author': post.author_username,
-                    'text_html': post.content.text_html,
                     'rendered_content': post.content.text_html,
-                    'total_likes': post.count_likes,
                     'count_likes': post.count_likes,
-                    'total_comment': post.count_comments,
                     'count_comments': post.count_comments,
                     'is_ad': post.config.advertise,
                     'tags': post.tagging(),
@@ -626,7 +617,6 @@ def user_posts(request, username, url=None):
                 if post.has_liked:
                     PostLikes.objects.filter(post=post, user=request.user).delete()
                     return StatusDone({
-                        'total_likes': post.count_likes - 1,
                         'count_likes': post.count_likes - 1,
                     })
                 else:
@@ -640,7 +630,6 @@ def user_posts(request, username, url=None):
                             url=post.get_absolute_url(),
                             content=send_notify_content)
                     return StatusDone({
-                        'total_likes': post.count_likes + 1,
                         'count_likes': post.count_likes + 1,
                     })
 

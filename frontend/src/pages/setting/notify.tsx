@@ -88,8 +88,6 @@ const FormsSetting: PageComponent<Props> = (props) => {
         mutate(nextState!);
     };
 
-    console.log(notifyConfig);
-
     return (
         <>
             {!auth.hasConnectedTelegram && (

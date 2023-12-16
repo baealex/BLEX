@@ -158,8 +158,7 @@ function PostDetail(props: Props) {
             <article data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}>
                 <ArticleCover
                     author={props.post.author}
-                    series={props.post.seriesName}
-                    seriesUrl={props.post.series}
+                    series={props.post.series}
                     image={props.post.image}
                     title={props.post.title}
                     isAd={props.post.isAd}

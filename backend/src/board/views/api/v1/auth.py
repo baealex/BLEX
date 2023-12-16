@@ -6,14 +6,15 @@ from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core.files import File
+from django.db.models import Count, Case, When, Value, Exists, OuterRef
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    Notify, TwoFactorAuth, Config, Profile, Post,
-    UserLinkMeta, UsernameChangeLog)
+    TwoFactorAuth, Config, Profile, Post,
+    UserLinkMeta, UsernameChangeLog, TelegramSync, OpenAIConnection)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules import oauth
@@ -40,23 +41,43 @@ def check_email(email: str):
         return '올바른 이메일 주소가 아닙니다.'
 
 
-def login_response(user, is_first_login=False):
-    avatar = str(user.profile.avatar)
-    notify_count = Notify.objects.filter(
-        user=user,
-        has_read=False
-    ).count()
+def login_response(user: User, is_first_login=False):
+    _user = get_object_or_404(User.objects.select_related(
+        'profile', 'config'
+    ).annotate(
+        notify_count=Count(
+            Case(
+                When(notify__has_read=False, then=Value(1))
+            )
+        ),
+        has_connected_telegram=Exists(
+            TelegramSync.objects.filter(
+                user_id=OuterRef('id'),
+                tid__regex=r'^.+'
+            )
+        ),
+        has_connected_openai=Exists(
+            OpenAIConnection.objects.filter(
+                user_id=OuterRef('id')
+            )
+        ),
+        has_connected_2fa=Exists(
+            TwoFactorAuth.objects.filter(
+                user_id=OuterRef('id')
+            )
+        )
+    ), id=user.id)
 
     return StatusDone({
-        'username': user.username,
-        'name': user.first_name,
-        'email': user.email,
-        'avatar': avatar,
-        'notify_count': notify_count,
+        'username': _user.username,
+        'name': _user.first_name,
+        'email': _user.email,
+        'avatar': _user.profile.avatar.url if _user.profile.avatar else '',
+        'notify_count': _user.notify_count,
         'is_first_login': is_first_login,
-        'has_connected_telegram': user.config.has_telegram_id(),
-        'has_connected_openai': user.config.has_openai_key(),
-        'has_connected_2fa': user.config.has_two_factor_auth(),
+        'has_connected_telegram': _user.has_connected_telegram,
+        'has_connected_openai': _user.has_connected_openai,
+        'has_connected_2fa': _user.has_connected_2fa,
     })
 
 

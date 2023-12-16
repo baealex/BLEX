@@ -109,6 +109,22 @@ const POSTS_ORDER = [
         order: '-count_comments'
     },
     {
+        name: '오늘 적게 조회된 순',
+        order: 'today_count'
+    },
+    {
+        name: '오늘 많이 조회된 순',
+        order: '-today_count'
+    },
+    {
+        name: '어제 적게 조회된 순',
+        order: 'yesterday_count'
+    },
+    {
+        name: '어제 많이 조회된 순',
+        order: '-yesterday_count'
+    },
+    {
         name: '숨긴 글',
         order: '-hide'
     },

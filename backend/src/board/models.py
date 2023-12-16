@@ -257,7 +257,6 @@ class Notify(models.Model):
 
     def to_dict(self):
         return {
-            'pk': self.pk,
             'id': self.id,
             'user': self.user.username,
             'content': self.content,
@@ -275,7 +274,7 @@ class Tag(models.Model):
     value = models.CharField(max_length=50)
 
     def get_image(self):
-        post = Post.objects.filter(
+        post = self.posts.filter(
             config__hide=False,
             tags__value=self.value,
             image__contains='images'

@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib import auth
 from django.db.models import (
-    Q, F, Count, Case, When, Sum)
+    Q, F, Count, Case, When, Sum, Subquery, OuterRef)
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -23,7 +23,10 @@ def setting(request, parameter):
         return StatusError(ErrorCode.NEED_LOGIN)
 
     user = get_object_or_404(
-        User.objects.select_related('config'),
+        User.objects.select_related(
+            'config',
+            'profile'
+        ),
         username=request.user
     )
 
@@ -37,7 +40,6 @@ def setting(request, parameter):
 
             return StatusDone({
                 'notify': list(map(lambda item: {
-                    'pk': item.pk,
                     'id': item.id,
                     'url': item.url,
                     'is_read': item.has_read,
@@ -73,23 +75,38 @@ def setting(request, parameter):
             })
 
         if parameter == 'profile':
-            profile = Profile.objects.get(user=user)
             return StatusDone({
-                'avatar': profile.get_thumbnail(),
-                'bio': profile.bio,
-                'homepage': profile.homepage,
-                'social': profile.collect_social(),
+                'avatar': user.profile.get_thumbnail(),
+                'bio': user.profile.bio,
+                'homepage': user.profile.homepage,
+                'social': user.profile.collect_social(),
             })
 
         if parameter == 'posts':
-            posts = Post.objects.filter(
+            posts = Post.objects.select_related(
+                'config', 'series',
+            ).prefetch_related(
+                'tags', 'likes', 'comments'
+            ).filter(
                 author=user,
                 created_date__lte=timezone.now(),
             ).annotate(
-                hide=F('config__hide'),
-                series_url=F('series__url'),
-                count_likes=Count('likes', distinct=True),
-                count_comments=Count('comments', distinct=True),
+                today_count=Subquery(
+                    PostAnalytics.objects.filter(
+                        post__id=OuterRef('id'),
+                        created_date=timezone.now(),
+                    ).values('post__id').annotate(
+                        count=Count('devices')
+                    ).values('count')
+                ),
+                yesterday_count=Subquery(
+                    PostAnalytics.objects.filter(
+                        post__id=OuterRef('id'),
+                        created_date=timezone.now() - datetime.timedelta(days=1),
+                    ).values('post__id').annotate(
+                        count=Count('devices')
+                    ).values('count')
+                ),
             ).order_by('-created_date')
 
             tag = request.GET.get('tag', '')
@@ -111,6 +128,8 @@ def setting(request, parameter):
                 'updated_date',
                 'count_likes',
                 'count_comments',
+                'today_count',
+                'yesterday_count',
                 'hide',
             ]
             order = request.GET.get('order', '')
@@ -121,6 +140,19 @@ def setting(request, parameter):
                         is_valid = True
                 if not is_valid:
                     raise Http404
+
+                if order == 'hide':
+                    order = 'config__hide'
+                elif order == '-hide':
+                    order = '-config__hide'
+                elif order == 'count_likes':
+                    order = 'likes__count'
+                elif order == '-count_likes':
+                    order = '-likes__count'
+                elif order == 'count_comments':
+                    order = 'comments__count'
+                elif order == '-count_comments':
+                    order = '-comments__count'
 
                 posts = posts.order_by(order)
 
@@ -136,16 +168,14 @@ def setting(request, parameter):
                     'title': post.title,
                     'created_date': convert_to_localtime(post.created_date).strftime('%Y-%m-%d'),
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
-                    'is_hide': post.hide,
-                    'total_likes': post.count_likes,
-                    'count_likes': post.count_likes,
-                    'total_comments': post.count_comments,
-                    'count_comments': post.count_comments,
-                    'today_count': post.today(),
+                    'is_hide': post.config.hide,
+                    'count_likes': post.likes.count(),
+                    'count_comments': post.comments.count(),
+                    'today_count': post.today_count if post.today_count else 0,
+                    'yesterday_count': post.yesterday_count if post.yesterday_count else 0,
                     'read_time': post.read_time,
-                    'yesterday_count': post.yesterday(),
                     'tag': ','.join(post.tagging()),
-                    'series': post.series_url,
+                    'series': post.series.url if post.series else '',
                 }, posts)),
                 'last_page': posts.paginator.num_pages,
             })

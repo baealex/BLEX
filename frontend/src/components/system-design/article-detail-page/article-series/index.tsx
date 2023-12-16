@@ -14,7 +14,10 @@ import { useFetch } from '~/hooks/use-fetch';
 export interface ArticleSeriesProps {
     author: string;
     url: string;
-    series?: string;
+    series?: {
+        url: string;
+        name: string;
+    };
 }
 
 export function ArticleSeries(props: ArticleSeriesProps) {
@@ -22,7 +25,7 @@ export function ArticleSeries(props: ArticleSeriesProps) {
 
     const { data: series } = useFetch(['series', props.author, props.series], async () => {
         if (props.series) {
-            const { data: { body } } = await API.getAnUserSeries('@' + props.author, props.series, {
+            const { data: { body } } = await API.getAnUserSeries('@' + props.author, props.series.url, {
                 kind: 'continue'
             });
             return body;
