@@ -46,7 +46,7 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                         <Text className="title-2-spacing" fontWeight={600} fontSize={5}>
                             “{series.name}” 시리즈
                         </Text>
-                        <Link className="shallow-dark" href={`/@${props.author}/series/${props.series}`}>
+                        <Link className="shallow-dark" href={`/@${props.author}/series/${series.url}`}>
                             <Text>
                                 전체 목록<i className="fas fa-angle-right ml-1" />
                             </Text>

@@ -21,7 +21,7 @@ export function ArticleCover(props: {
     const router = useRouter();
 
     const handleClickSeries = () => {
-        if (props.series?.url) {
+        if (props.series) {
             router.push(`/@${props.author}/series/${props.series.url}`);
         }
     };
