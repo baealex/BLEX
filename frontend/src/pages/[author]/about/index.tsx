@@ -69,7 +69,7 @@ const UserAbout: PageComponent<Props> = (props) => {
                         </Text>
                     </div>
                 ) : (
-                    <ArticleContent html={props.about || ''} />
+                    <ArticleContent renderedContent={props.about || ''} />
                 )}
                 {props.profile.username == username && (
                     <Button

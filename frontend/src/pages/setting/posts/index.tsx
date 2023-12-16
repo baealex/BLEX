@@ -401,10 +401,10 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                     </a>
                                 </li>
                                 <li>
-                                    <i className="far fa-heart" /> {post.totalLikes}
+                                    <i className="far fa-heart" /> {post.countLikes}
                                 </li>
                                 <li>
-                                    <i className="far fa-comment" /> {post.totalComments}
+                                    <i className="far fa-comment" /> {post.countComments}
                                 </li>
                             </ul>
                             <span>

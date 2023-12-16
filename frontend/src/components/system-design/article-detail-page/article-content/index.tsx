@@ -6,11 +6,11 @@ import React from 'react';
 import Router from 'next/router';
 
 export interface ArticleContentProps {
-    html: string;
+    renderedContent: string;
 }
 
 export function ArticleContent({
-    html
+    renderedContent
 }: ArticleContentProps) {
     const handleClickContent = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target instanceof HTMLAnchorElement) {
@@ -33,7 +33,7 @@ export function ArticleContent({
         <div
             className={cn('article')}
             onClick={handleClickContent}
-            dangerouslySetInnerHTML={{ __html: html }}
+            dangerouslySetInnerHTML={{ __html: renderedContent }}
         />
     );
 }

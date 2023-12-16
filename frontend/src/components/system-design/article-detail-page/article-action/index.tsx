@@ -23,15 +23,15 @@ export function ArticleAction(props: ArticleActionProps) {
     const [{ isLogin }] = useStore(authStore);
     const [state, setState] = useState({
         isLiked: props.isLiked,
-        totalLikes: props.totalLikes,
-        totalComment: props.totalComment
+        countLikes: props.countLikes,
+        countComments: props.countComments
     });
 
     useEffect(() => {
         setState({
             isLiked: props.isLiked,
-            totalLikes: props.totalLikes,
-            totalComment: props.totalComment
+            countLikes: props.countLikes,
+            countComments: props.countComments
         });
     }, [props]);
 
@@ -61,7 +61,7 @@ export function ArticleAction(props: ArticleActionProps) {
         } = props;
         const { data } = await API.putAnUserPosts('@' + author, url, 'like');
         if (data.status === 'DONE') {
-            if (typeof data.body.totalLikes === 'number') {
+            if (typeof data.body.countLikes === 'number') {
                 setState((prevState) => {
                     prevState.isLiked
                         ? snackBar(message('AFTER_REQ_DONE', '관심 포스트에서 제거되었습니다.'))
@@ -70,7 +70,7 @@ export function ArticleAction(props: ArticleActionProps) {
                     return {
                         ...prevState,
                         isLiked: !prevState.isLiked,
-                        totalLikes: data.body.totalLikes || 0
+                        countLikes: data.body.countLikes || 0
                     };
                 });
             }
@@ -99,12 +99,12 @@ export function ArticleAction(props: ArticleActionProps) {
                 {isLogin && (
                     <li onClick={onClickLike}>
                         <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`} />
-                        <span>{state.totalLikes}</span>
+                        <span>{state.countLikes}</span>
                     </li>
                 )}
                 <li onClick={onClickGoComment}>
                     <i className="far fa-comment" />
-                    <span>{state.totalComment}</span>
+                    <span>{state.countComments}</span>
                 </li>
                 {['twitter', 'facebook', 'pinterest'].map((social, idx) => (
                     <li

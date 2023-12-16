@@ -6,10 +6,10 @@ import { EditorContent } from '@system-design/article-editor-page';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 export interface CommentEditorProps {
-    pk: number;
+    id: number;
     content: string;
-    onCancel: (pk: number) => void;
-    onSubmit: (pk: number, content: string) => void;
+    onCancel: (id: number) => void;
+    onSubmit: (id: number, content: string) => void;
 }
 
 export function CommentEditor(props: CommentEditorProps) {
@@ -21,10 +21,10 @@ export function CommentEditor(props: CommentEditorProps) {
             return;
         }
         if (content === props.content) {
-            props.onCancel(props.pk);
+            props.onCancel(props.id);
             return;
         }
-        props.onSubmit(props.pk, content);
+        props.onSubmit(props.id, content);
     };
 
     return (

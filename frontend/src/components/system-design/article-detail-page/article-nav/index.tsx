@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { useCallback, useEffect, useState } from 'react';
 
 interface Props {
-    text: string;
+    renderedContent: string;
 }
 
 export function ArticleNav(props: Props) {
@@ -57,7 +57,7 @@ export function ArticleNav(props: Props) {
 
             return () => observer.disconnect();
         }
-    }, [props.text]);
+    }, [props.renderedContent]);
 
     return (
         <aside className={cn('article-nav', 'none-drag')}>

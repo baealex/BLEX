@@ -14,7 +14,7 @@ export async function postComments(url: string, content: string) {
 }
 
 export interface PutCommentLikeResponseData {
-    totalLikes: number;
+    countLikes: number;
 }
 
 export async function putCommentLike(pk: number) {

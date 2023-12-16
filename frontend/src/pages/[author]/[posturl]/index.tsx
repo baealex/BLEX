@@ -96,12 +96,12 @@ function moveToHash() {
 function PostDetail(props: Props) {
     const [{ username }] = useStore(authStore);
 
-    const [likes, setLikes] = useState<number>(props.post.totalLikes);
+    const [countLikes, setCountLikes] = useState<number>(props.post.countLikes);
     const [isLike, setIsLike] = useState<boolean>(props.post.isLiked);
 
     useEffect(() => {
-        if (likes !== props.post.totalLikes) {
-            setLikes(props.post.totalLikes);
+        if (countLikes !== props.post.countLikes) {
+            setCountLikes(props.post.countLikes);
         }
 
         if (isLike !== props.post.isLiked) {
@@ -181,7 +181,7 @@ function PostDetail(props: Props) {
                                     </Flex>
                                 </Card>
                             )}
-                            <ArticleContent html={props.post.textHtml} />
+                            <ArticleContent renderedContent={props.post.renderedContent} />
                             <TagBadges
                                 items={props.post.tags.map(item => (
                                     <Link href={`/@${props.post.author}/posts/${item}`}>
@@ -201,13 +201,13 @@ function PostDetail(props: Props) {
                             <ArticleReport url={props.post.url} />
                         </>
                     }
-                    navigation={<ArticleNav text={props.post.textHtml} />}
+                    navigation={<ArticleNav renderedContent={props.post.renderedContent} />}
                 />
             </article>
             <ArticleComment
                 author={props.post.author}
                 url={props.post.url}
-                totalComment={props.post.totalComment}
+                countComments={props.post.countComments}
             />
             <Footer isDark className="">
                 <div className="x-container">

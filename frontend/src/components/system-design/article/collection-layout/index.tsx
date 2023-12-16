@@ -84,11 +84,11 @@ export function CollectionLayout(props: CollectionLayoutProps) {
     const handleLike = async (post: API.GetPostsResponseData['posts'][number]) => {
         const { data } = await API.putAnUserPosts('@' + post.author, post.url, 'like');
         if (data.status === 'DONE') {
-            if (typeof data.body.totalLikes === 'number') {
+            if (typeof data.body.countLikes === 'number') {
                 setPosts((prevState) => prevState.map((_post) => {
                     if (_post.url === post.url) {
                         _post.hasLiked = !_post.hasLiked;
-                        _post.countLikes = data.body.totalLikes as number;
+                        _post.countLikes = data.body.countLikes as number;
                     }
                     return _post;
                 }));

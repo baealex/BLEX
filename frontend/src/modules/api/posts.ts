@@ -199,9 +199,9 @@ export interface GetAnUserPostsViewResponseData {
     updatedDate: string;
     authorImage: string;
     author: string;
-    textHtml: string;
-    totalLikes: number;
-    totalComment: number;
+    renderedContent: string;
+    countLikes: number;
+    countComments: number;
     isAd: boolean;
     tags: string[];
     isLiked: boolean;
@@ -244,7 +244,7 @@ export function postAnUserPosts(author: string, url: string, data: object) {
 }
 
 export interface PutAnUserPostsResponseData {
-    totalLikes?: number;
+    countLikes?: number;
     series?: string;
     isHide?: boolean;
     tag?: string;
@@ -309,13 +309,14 @@ export function getFeatureTagPosts(tag: string, exclude: string) {
 
 export interface GetPostCommentResponseData {
     comments: {
-        pk: number;
+        id: number;
         author: string;
         authorImage: string;
         isEdited: boolean;
         textHtml: string;
+        renderedContent: string;
         createdDate: string;
-        totalLikes: number;
+        countLikes: number;
         isLiked: boolean;
     }[];
 }

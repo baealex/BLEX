@@ -7,19 +7,19 @@ import Link from 'next/link';
 import { Card, Dropdown, Text } from '@design-system';
 
 export interface CommentCardProps {
-    pk: number;
+    id: number;
     author: string;
     authorImage: string;
     createdDate: string;
     isLiked: boolean;
     isEdited: boolean;
     isOwner?: boolean;
-    onClickLike?: (pk: number) => void;
-    onClickEdit?: (pk: number) => void;
-    onClickDelete?: (pk: number) => void;
+    countLikes: number;
+    renderedContent: string;
+    onClickLike?: (id: number) => void;
+    onClickEdit?: (id: number) => void;
+    onClickDelete?: (id: number) => void;
     onClickUserTag?: (username: string) => void;
-    html: string;
-    totalLikes: number;
 }
 
 export function CommentCard(props: CommentCardProps) {
@@ -62,11 +62,11 @@ export function CommentCard(props: CommentCardProps) {
                         menus={[
                             {
                                 name: '수정',
-                                onClick: () => props.onClickEdit?.(props.pk)
+                                onClick: () => props.onClickEdit?.(props.id)
                             },
                             {
                                 name: '삭제',
-                                onClick: () => props.onClickDelete?.(props.pk)
+                                onClick: () => props.onClickDelete?.(props.id)
                             }
                         ]}
                     />
@@ -74,22 +74,22 @@ export function CommentCard(props: CommentCardProps) {
             </div>
             <div
                 className={`${cn('content')} mt-4`}
-                dangerouslySetInnerHTML={{ __html: props.html }}
+                dangerouslySetInnerHTML={{ __html: props.renderedContent }}
             />
             <div className="my-2">
                 <ul className={`${cn('action')} none-list ns`}>
                     {props.onClickLike && (
-                        <li onClick={() => props.onClickLike?.(props.pk)}>
+                        <li onClick={() => props.onClickLike?.(props.id)}>
                             {props.isLiked ? (
-                                <i className="fas fa-heart"/>
+                                <i className="fas fa-heart" />
                             ) : (
-                                <i className="far fa-heart"/>
-                            )} {props.totalLikes}
+                                <i className="far fa-heart" />
+                            )} {props.countLikes}
                         </li>
                     )}
                     {props.onClickUserTag && !props.isOwner && (
                         <li onClick={() => props.onClickUserTag?.(props.author)}>
-                            <i className="fas fa-reply"/> 사용자 태그
+                            <i className="fas fa-reply" /> 사용자 태그
                         </li>
                     )}
                 </ul>

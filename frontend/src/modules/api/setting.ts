@@ -95,8 +95,8 @@ export interface GetSettingPostsResponseData {
         createdDate: string;
         updatedDate: string;
         isHide: boolean;
-        totalLikes: number;
-        totalComments: number;
+        countLikes: number;
+        countComments: number;
         todayCount: number;
         readTime: number;
         yesterdayCount: number;
