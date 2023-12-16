@@ -11,7 +11,7 @@ from board.models import (
 )
 
 
-class PostListTestCase(TestCase):
+class PostTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         User.objects.create_user(

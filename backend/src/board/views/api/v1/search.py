@@ -206,6 +206,7 @@ def search_history_list(request):
             return StatusDone({
                 'searches': list(map(lambda item: {
                     'pk': item.id,
+                    'id': item.id,
                     'value': item.value,
                     'created_date': convert_to_localtime(item.created_date).strftime('%Y. %m. %d.'),
                 }, searches))

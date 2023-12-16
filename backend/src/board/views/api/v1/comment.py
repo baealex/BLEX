@@ -70,12 +70,15 @@ def comment_list(request):
 
         return StatusDone({
             'pk': comment.pk,
+            'id': comment.id,
             'author': comment.author.username,
             'author_image': comment.author.profile.get_thumbnail(),
             'is_edited': comment.edited,
             'text_html': comment.text_html,
+            'rendered_content': comment.text_html,
             'created_date': comment.time_since(),
             'total_likes': 0,
+            'count_likes': 0,
             'is_liked': False,
         })
 
@@ -124,6 +127,7 @@ def comment_detail(request, id):
                 comment.likes.remove(request.user)
                 return StatusDone({
                     'total_likes': comment.count_likes - 1,
+                    'count_likes': comment.count_likes - 1,
                 })
             else:
                 comment.likes.add(request.user)
@@ -138,6 +142,7 @@ def comment_detail(request, id):
                         content=send_notify_content)
                 return StatusDone({
                     'total_likes': comment.count_likes + 1,
+                    'count_likes': comment.count_likes + 1,
                 })
 
         if body.get('comment'):
@@ -166,6 +171,7 @@ def comment_detail(request, id):
             'author': comment.author_username(),
             'author_image': comment.author_thumbnail(),
             'text_html': comment.get_text_html(),
+            'rendered_content': comment.get_text_html(),
         })
 
     raise Http404

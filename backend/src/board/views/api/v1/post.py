@@ -366,12 +366,15 @@ def post_comment_list(request, url):
         return StatusDone({
             'comments': list(map(lambda comment: {
                 'pk': comment.pk,
+                'id': comment.id,
                 'author': comment.author_username(),
                 'author_image': comment.author_thumbnail(),
                 'is_edited': comment.edited,
                 'text_html': comment.get_text_html(),
+                'rendered_content': comment.get_text_html(),
                 'created_date': comment.time_since(),
                 'total_likes': comment.count_likes,
+                'count_likes': comment.count_likes,
                 'is_liked': comment.has_liked,
             }, comments))
         })
@@ -543,8 +546,11 @@ def user_posts(request, username, url=None):
                     'author_image': str(post.author_image),
                     'author': post.author_username,
                     'text_html': post.content.text_html,
+                    'rendered_content': post.content.text_html,
                     'total_likes': post.count_likes,
+                    'count_likes': post.count_likes,
                     'total_comment': post.count_comments,
+                    'count_comments': post.count_comments,
                     'is_ad': post.config.advertise,
                     'tags': post.tagging(),
                     'is_liked': post.has_liked,
@@ -620,7 +626,8 @@ def user_posts(request, username, url=None):
                 if post.has_liked:
                     PostLikes.objects.filter(post=post, user=request.user).delete()
                     return StatusDone({
-                        'total_likes': post.count_likes - 1
+                        'total_likes': post.count_likes - 1,
+                        'count_likes': post.count_likes - 1,
                     })
                 else:
                     PostLikes(post=post, user=request.user).save()
@@ -633,7 +640,8 @@ def user_posts(request, username, url=None):
                             url=post.get_absolute_url(),
                             content=send_notify_content)
                     return StatusDone({
-                        'total_likes': post.count_likes + 1
+                        'total_likes': post.count_likes + 1,
+                        'count_likes': post.count_likes + 1,
                     })
 
             if request.GET.get('thanks', ''):

@@ -258,6 +258,7 @@ class Notify(models.Model):
     def to_dict(self):
         return {
             'pk': self.pk,
+            'id': self.id,
             'user': self.user.username,
             'content': self.content,
             'created_date': time_since(self.created_date)

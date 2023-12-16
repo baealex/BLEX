@@ -38,6 +38,7 @@ def setting(request, parameter):
             return StatusDone({
                 'notify': list(map(lambda item: {
                     'pk': item.pk,
+                    'id': item.id,
                     'url': item.url,
                     'is_read': item.has_read,
                     'content': item.content,
@@ -137,7 +138,9 @@ def setting(request, parameter):
                     'updated_date': convert_to_localtime(post.updated_date).strftime('%Y-%m-%d'),
                     'is_hide': post.hide,
                     'total_likes': post.count_likes,
+                    'count_likes': post.count_likes,
                     'total_comments': post.count_comments,
+                    'count_comments': post.count_comments,
                     'today_count': post.today(),
                     'read_time': post.read_time,
                     'yesterday_count': post.yesterday(),

@@ -56,6 +56,7 @@ def temp_posts_detail(request, token):
             'token': temp_post.token,
             'title': temp_post.title,
             'text_md': temp_post.text_md,
+            'raw_content': temp_post.text_md,
             'tags': temp_post.tag,
             'created_date': temp_post.time_since(),
         })
