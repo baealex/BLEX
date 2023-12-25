@@ -3,7 +3,7 @@ import type { Headers } from './request';
 
 export interface GetSettingNotifyResponseData {
     notify: {
-        pk: number;
+        id: number;
         url: string;
         isRead: boolean;
         content: string;

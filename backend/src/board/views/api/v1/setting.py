@@ -533,8 +533,13 @@ def setting(request, parameter):
         put = QueryDict(request.body)
 
         if parameter == 'notify':
-            pk = put.get('pk')
-            notify = Notify.objects.get(pk=pk)
+            id = put.get('id')
+
+            notify = Notify.objects.filter(id=id)
+            if not notify.exists():
+                return StatusError(ErrorCode.NOT_FOUND, '알림을 찾을 수 없습니다.')
+
+            notify = notify.first()
             notify.has_read = True
             notify.save()
             return StatusDone()

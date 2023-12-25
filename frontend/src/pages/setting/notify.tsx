@@ -50,9 +50,9 @@ const FormsSetting: PageComponent<Props> = (props) => {
         return body.config;
     });
 
-    const handleClickNotify = async ({ pk, url, isRead }: Props['notify'][0]) => {
+    const handleClickNotify = async ({ id, url, isRead }: Props['notify'][number]) => {
         if (!isRead) {
-            const { data } = await API.putSetting('notify', { pk });
+            const { data } = await API.putSetting('notify', { id });
             if (data.status === 'DONE') {
                 setAuth((prevState) => ({
                     ...prevState,
@@ -102,7 +102,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
             </Flex>
             <div className="mt-3">
                 {props.notify.map((item) => (
-                    <Card key={item.pk} hasBackground isRounded className="p-3 mb-3">
+                    <Card key={item.id} hasBackground isRounded className="p-3 mb-3">
                         <a style={{ opacity: item.isRead ? 0.4 : 1 }} onClick={() => handleClickNotify(item)}>
                             {item.content}
                             <div className={'ns'}>
