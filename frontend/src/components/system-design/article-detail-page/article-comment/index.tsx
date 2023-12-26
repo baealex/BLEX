@@ -155,7 +155,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 ...comment,
                 isEdit: false,
                 isEdited: true,
-                textHtml: blexer(content)
+                renderedContent: blexer(content)
             }) : comment
         )));
         setTimeout(lazyLoadResource, 300);
