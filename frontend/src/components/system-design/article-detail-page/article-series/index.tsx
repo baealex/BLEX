@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import React, { useRef } from 'react';
 import Link from 'next/link';
 
-import { SpeechBubble, Text } from '@design-system';
+import { SpeechBubble, Text, Flex } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
@@ -42,7 +42,12 @@ export function ArticleSeries(props: ArticleSeriesProps) {
         <div ref={ref}>
             {series && activeSeries !== undefined && seriesLength !== undefined && (
                 <div className={cn('series', 'my-5')}>
-                    <div className="d-flex justify-content-between align-items-center mb-3">
+                    <Flex
+                        className="mb-3"
+                        justify="between"
+                        align="center"
+                        wrap="wrap"
+                        gap={2}>
                         <Text className="title-2-spacing" fontWeight={600} fontSize={5}>
                             “{series.name}” 시리즈
                         </Text>
@@ -51,7 +56,7 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                                 전체 목록<i className="fas fa-angle-right ml-1" />
                             </Text>
                         </Link>
-                    </div>
+                    </Flex>
                     <SpeechBubble
                         href={`/@${series.owner}`}
                         alt={series.owner}
