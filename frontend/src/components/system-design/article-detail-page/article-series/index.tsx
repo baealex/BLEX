@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import React, { useRef } from 'react';
 import Link from 'next/link';
 
-import { SpeechBubble, Text, Flex } from '@design-system';
+import { Flex, SpeechBubble, Text } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
