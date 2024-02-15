@@ -57,7 +57,7 @@ def get_network_addr(request):
         'REMOTE_ADDR',
     ]
     for ip_map in ip_maps:
-        ip_addr = request.META.get(ip_map).split(',')[0]
+        ip_addr = request.META.get(ip_map, '').split(',')[0]
         if ip_addr:
             return ip_addr
     return None
