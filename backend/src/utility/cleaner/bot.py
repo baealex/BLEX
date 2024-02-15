@@ -10,7 +10,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
 from board.models import *
-from board.modules.analytics import NONE_HUMANS, bot_check
+from board.modules.analytics import NONE_HUMANS, get_bot_name
 
 if __name__ == '__main__':
     humans = History.objects.exclude(category__contains='bot')
@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     for bot in bots:
         prev_category = bot.category
-        next_category = bot_check(bot.category)
+        next_category = get_bot_name(bot.category)
         
         if prev_category != next_category:
             print(f'{prev_category} ==> {next_category}')

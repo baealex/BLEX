@@ -51,10 +51,16 @@ BOT_TYPES = [
 
 
 def get_network_addr(request):
-    ip_addr = request.META.get('REMOTE_ADDR')
-    if not ip_addr:
-        ip_addr = request.META.get('HTTP_X_FORWARDED_FOR')
-    return ip_addr
+    ip_maps = [
+        'HTTP_CF_CONNECTING_IP',
+        'HTTP_X_FORWARDED_FOR',
+        'REMOTE_ADDR',
+    ]
+    for ip_map in ip_maps:
+        ip_addr = request.META.get(ip_map).split(',')[0]
+        if ip_addr:
+            return ip_addr
+    return None
 
 
 def view_count(post: Post, request, ip, user_agent, referer):
@@ -137,7 +143,7 @@ def create_device(ip, user_agent):
             should_save = True
         if not device.agent == user_agent[:200]:
             device.agent = user_agent[:200]
-            device.category = bot_check(user_agent)
+            device.category = get_bot_name(user_agent)
             should_save = True
         if should_save:
             device.save()
@@ -146,7 +152,7 @@ def create_device(ip, user_agent):
         device = Device(key=key)
         device.ip = ip
         device.agent = user_agent[:200]
-        device.category = bot_check(user_agent)
+        device.category = get_bot_name(user_agent)
         device.save()
         device.refresh_from_db()
     return device
@@ -179,7 +185,7 @@ def has_bot_keyword(user_agent):
     return False
 
 
-def bot_check(user_agent):
+def get_bot_name(user_agent):
     if not has_bot_keyword(user_agent):
         return ''
 
