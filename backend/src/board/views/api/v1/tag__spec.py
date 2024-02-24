@@ -2,17 +2,21 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from board.models import User, Tag
+from board.models import User, Tag, Invitation
 
 
 class TagTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='test',
             password='test',
             email='test@test.com',
             first_name='test User',
+        )
+
+        Invitation.objects.create(
+            receiver=user
         )
 
         Tag.objects.create(value='test1')

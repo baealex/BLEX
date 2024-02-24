@@ -4,27 +4,22 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from board.models import User, UsernameChangeLog, Profile, Config
+from board.models import User, UsernameChangeLog, Profile, Config, Invitation
 from modules import oauth
 
 
 class AuthTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='test',
             password='test',
             email='test@test.com',
             first_name='Test User',
         )
-
-        Profile.objects.create(
-            user=User.objects.get(username='test'),
-        )
-
-        Config.objects.create(
-            user=User.objects.get(username='test'),
-        )
+        Invitation.objects.create(receiver=user)
+        Profile.objects.create(user=user)
+        Config.objects.create(user=user)
 
     def test_login_not_logged_in_user(self):
         response = self.client.get('/v1/login')

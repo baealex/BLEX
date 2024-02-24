@@ -5,7 +5,7 @@ from django.test import TestCase
 from board.models import User, Profile, TempPosts
 
 
-class PostTestCase(TestCase):
+class TempPostTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         User.objects.create_user(

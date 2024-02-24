@@ -7,52 +7,47 @@ from django.test import TestCase
 
 from board.models import (
     User, Config, Post, PostContent, PostConfig, Profile,
-    PostThanks, PostNoThanks
+    PostThanks, PostNoThanks, Invitation
 )
 
 
 class PostTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        User.objects.create_user(
+        author = User.objects.create_user(
             username='author',
             password='author',
             email='author@author.com',
             first_name='Author User',
         )
+        Profile.objects.create(user=author)
+        Config.objects.create(user=author)
+        Invitation.objects.create(receiver=author)
 
-        User.objects.create_user(
+        viewer = User.objects.create_user(
             username='viewer',
             password='viewer',
             email='viewer@author.com',
             first_name='Viewer User',
         )
-
-        Profile.objects.create(
-            user=User.objects.get(username='author'),
-        )
-
-        Config.objects.create(
-            user=User.objects.get(username='author'),
-        )
+        Profile.objects.create(user=viewer)
+        Config.objects.create(user=viewer)
 
         number_of_posts = 100
 
         for post_num in range(number_of_posts):
-            Post.objects.create(
+            post = Post.objects.create(
                 url=f'test-post-{post_num}',
                 title=f'Test Post {post_num}',
-                author=User.objects.get(username='author'),
+                author=author,
             )
-
             PostContent.objects.create(
-                post=Post.objects.get(url=f'test-post-{post_num}'),
+                post=post,
                 text_md=f'# Test Post {post_num}',
                 text_html=f'<h1>Test Post {post_num}</h1>'
             )
-
             PostConfig.objects.create(
-                post=Post.objects.get(url=f'test-post-{post_num}'),
+                post=post,
                 hide=False,
                 advertise=False,
             )
@@ -164,7 +159,7 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_duplicate_url(self, mock_servic4e):
+    def test_create_post_duplicate_url(self, mock_service):
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
@@ -320,6 +315,20 @@ class PostTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.meta_description, 'Custom Description')
+    
+    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
+    def test_create_post_without_invitation(self, mock_service):
+        self.client.login(username='viewer', password='viewer')
+
+        response = self.client.post('/v1/posts', {
+            'title': 'Test Post',
+            'text_md': '# Test Post',
+            'is_hide': False,
+            'is_advertise': False,
+            'description': 'Custom Description'
+        })
+        content = json.loads(response.content)
+        self.assertEqual(content['errorCode'], 'error:VA')
 
     def test_post_thanks(self):
         response = self.client.put('/v1/users/@author/posts/test-post-1?thanks=thanks')
