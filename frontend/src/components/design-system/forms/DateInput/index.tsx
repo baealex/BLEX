@@ -7,7 +7,7 @@ import { default as ReactDatePicker } from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { BaseInput } from '../base-input';
+import { BaseInput } from '../BaseInput';
 
 export interface DateInputProps {
     placeholder?: string;

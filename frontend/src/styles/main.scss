@@ -195,29 +195,6 @@ option {
     gap: 6px;
 }
 
-.form-check {
-    margin: 4px 0;
-    border: none;
-    width: 100%;
-    border-radius: 5px;
-    padding: 2px 0;
-
-    .form-check-input {
-        margin: 0;
-    }
-
-    .form-check-label {
-        color: #000;
-        font-size: 0.9em;
-        padding: 0 4px;
-        margin: 0;
-
-        body.dark & {
-            color: #eee;
-        }
-    }
-}
-
 a {
     cursor: pointer;
 }

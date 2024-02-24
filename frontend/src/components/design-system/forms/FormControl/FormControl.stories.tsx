@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { FormControl } from './index';
 
-import { BaseInput } from '../base-input';
-import { ErrorMessage } from '../error-message';
-import { Label } from '../label';
+import { BaseInput } from '../BaseInput';
+import { ErrorMessage } from '../ErrorMessage';
+import { Label } from '../Label';
 
 const meta: Meta<typeof FormControl> = {
     title: 'DesignSystem/Forms/FormControl',
