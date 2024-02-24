@@ -477,7 +477,7 @@ def setting(request, parameter):
             })
 
         if parameter == 'integration-telegram':
-            if hasattr(request.user, 'telegramsync') and request.user.telegramsync.tid:
+            if hasattr(request.user, 'telegramsync') and request.user.telegramsync.get_decrypted_tid():
                 return StatusDone({
                     'is_connected': True,
                     'telegram_id': request.user.telegramsync.tid.replace(request.user.telegramsync.tid[2:7], '*'.ljust(5, '*')),
@@ -494,7 +494,7 @@ def setting(request, parameter):
                 ).order_by('-created_date')
                 return StatusDone({
                     'is_connected': True,
-                    'api_key': request.user.openaiconnection.api_key.replace(request.user.openaiconnection.api_key[3:27], '*'.ljust(24, '*')),
+                    'api_key': request.user.openaiconnection.get_decrypted_api_key().replace(request.user.openaiconnection.api_key[3:27], '*'.ljust(24, '*')),
                     'usage_histories': list(map(lambda history: {
                         'id': history.id,
                         'query': history.query,

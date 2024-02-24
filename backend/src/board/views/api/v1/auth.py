@@ -88,7 +88,7 @@ def common_auth(request, user):
                 token = randnum(6)
                 user.twofactorauth.create_token(token)
                 bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-                bot.send_message(user.telegramsync.tid,
+                bot.send_message(user.telegramsync.get_decrypted_tid(),
                                  f'2차 인증 코드입니다 : {token}')
 
             SubTaskProcessor.process(create_auth_token)

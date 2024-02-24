@@ -19,7 +19,7 @@ def openai(request, parameter):
                 description = create_post_description(
                     post_content_html=text_html,
                     write_type='detail',
-                    api_key=request.user.openaiconnection.api_key,
+                    api_key=request.user.openaiconnection.get_decrypted_api_key(),
                     user=request.user,
                 )
                 return StatusDone({

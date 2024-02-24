@@ -11,6 +11,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
+CIPHER_KEY = os.environ.get('CIPHER_KEY').encode()
+
 DEBUG = os.environ.get('DEBUG') == 'TRUE'
 
 TESTING = sys.argv[1:2] == ['test']

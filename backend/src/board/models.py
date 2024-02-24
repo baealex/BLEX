@@ -12,6 +12,7 @@ from django.utils.html import strip_tags
 
 from PIL import Image, ImageFilter
 
+from modules.cipher import encrypt_value, decrypt_value
 from modules.hash import get_sha256
 from modules.randomness import randstr
 from modules.sub_task import SubTaskProcessor
@@ -247,7 +248,7 @@ class Notify(models.Model):
 
     def send_notify(self):
         if hasattr(self.user, 'telegramsync'):
-            tid = self.user.telegramsync.tid
+            tid = self.user.telegramsync.get_decrypted_tid()
             if not tid == '':
                 bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
                 SubTaskProcessor.process(lambda: bot.send_messages(tid, [
@@ -632,10 +633,13 @@ class SeriesConfigMeta(models.Model):
 
 class TelegramSync(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
-    tid = models.CharField(max_length=15, blank=True)
+    tid = models.CharField(max_length=200, blank=True) # encrypted
     auth_token = models.CharField(max_length=8, blank=True)
     auth_token_exp = models.DateTimeField(default=timezone.now)
     created_date = models.DateTimeField(default=timezone.now)
+
+    def get_decrypted_tid(self):
+        return decrypt_value(self.tid)
 
     def is_token_expire(self):
         one_day_ago = timezone.now() - datetime.timedelta(days=1)
@@ -645,15 +649,26 @@ class TelegramSync(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def save(self, *args, **kwargs):
+        self.tid = encrypt_value(self.tid).decode()
+        super().save(*args, **kwargs)
 
 
 class OpenAIConnection(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
-    api_key = models.CharField(max_length=100, blank=True)
+    api_key = models.CharField(max_length=200, blank=True) # encrypted
     created_date = models.DateTimeField(default=timezone.now)
+
+    def get_decrypted_api_key(self):
+        return decrypt_value(self.api_key)
 
     def __str__(self):
         return self.user.username
+
+    def save(self, *args, **kwargs):
+        self.api_key = encrypt_value(self.api_key).decode()
+        super().save(*args, **kwargs)
 
 
 class OpenAIUsageHistory(models.Model):
