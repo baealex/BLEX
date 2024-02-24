@@ -1,6 +1,4 @@
 @import 'mixin';
-@import 'useful';
-
 @import 'reset';
 @import 'common';
 
@@ -218,4 +216,30 @@ option {
             color: #eee;
         }
     }
+}
+
+a {
+    cursor: pointer;
+}
+
+.c-pointer {
+    cursor: pointer;
+}
+
+.none-drag {
+    user-select: none;
+}
+
+.none-list {
+    @include NONE_LIST;
+
+    li {
+        &:not(:last-child) {
+            margin-right: 8px;
+        }
+    }
+}
+
+.hide {
+    display: none;
 }

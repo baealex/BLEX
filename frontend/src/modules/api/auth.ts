@@ -13,6 +13,7 @@ export interface GetLoginResponseData {
     hasConnectedTelegram: boolean;
     hasConnectedOpenai: boolean;
     hasConnected2fa: boolean;
+    hasEditorRole: boolean;
 }
 
 export async function getLogin(headers?: Headers) {

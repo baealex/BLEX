@@ -66,7 +66,7 @@ function SocialItem(props: {
                 transition
             }}>
             <Flex align="center" gap={2} className="mb-2">
-                <div className="d-flex justify-content-between align-items-center">
+                <Flex justify="between" align="center">
                     <div
                         {...listeners}
                         className="px-2"
@@ -76,12 +76,12 @@ function SocialItem(props: {
                         }}>
                         <i className="fas fa-bars"></i>
                     </div>
-                </div>
-                <div className="d-flex justify-content-between align-items-center">
+                </Flex>
+                <Flex justify="between" align="center">
                     <div style={{ width: '16px' }}>
                         <i className={getIconClassName(props.name)} />
                     </div>
-                </div>
+                </Flex>
                 <div>
                     <select
                         className="form-select"
@@ -260,7 +260,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                 />
             </Card>
             <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
+                <Flex justify="between" className="mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         사용자 상세 소개
                     </Text>
@@ -272,7 +272,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                             소개 작성
                         </Button>
                     </div>
-                </div>
+                </Flex>
                 <div className="mb-2">
                     <Alert type="warning">
                         프로필 소개 페이지에 표시됩니다.
@@ -281,14 +281,14 @@ const ProfileSetting: PageComponent<Props> = (props) => {
             </Card>
             <form onSubmit={handleSubmit}>
                 <Card hasBackground isRounded className="mb-4 p-3">
-                    <div className="d-flex justify-content-between mb-2">
+                    <Flex justify="between" className="mb-2">
                         <Text fontSize={6} fontWeight={600}>
                             사용자 간단 소개
                         </Text>
                         <Button type="submit">
                             업데이트
                         </Button>
-                    </div>
+                    </Flex>
                     <input
                         {...register('homepage')}
                         type="url"
@@ -305,12 +305,12 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                 </Card>
             </form>
             <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
+                <Flex justify="between" className="mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         소셜 정보
                     </Text>
                     <Button onClick={handleSocialSubmit}>업데이트</Button>
-                </div>
+                </Flex>
                 {socials.some((social) => social.prepare) && (
                     <Alert type="warning" className="mb-2">
                         소셜 정보를 갱신 하시려면 반드시 업데이트 버튼을 눌러주세요.

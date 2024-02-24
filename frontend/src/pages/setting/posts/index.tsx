@@ -327,7 +327,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
             {posts.map((post, idx) => (
                 <Card key={idx} isRounded hasBackground className="mb-4">
                     <div className="p-3">
-                        <div className="d-flex justify-content-between">
+                        <Flex justify="between">
                             <Link className="deep-dark" href={`/@${props.username}/${post.url}`}>
                                 {post.title}
                             </Link>
@@ -350,7 +350,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                     }
                                 ]}
                             />
-                        </div>
+                        </Flex>
                         <div className="mt-1">
                             <time className="post-date shallow-dark">
                                 {post.createdDate}
@@ -406,7 +406,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         </Alert>
                     )}
                     <div className="setting-info p-3" >
-                        <div className="d-flex justify-content-between align-items-center shallow-dark ns">
+                        <Flex justify="between" align="center" className="shallow-dark ns">
                             <ul className="none-list mb-0">
                                 <li>
                                     <a onClick={() => handlePostsHide(post.url)} className="element-lock c-pointer">
@@ -426,9 +426,9 @@ const PostsSetting: PageComponent<Props> = (props) => {
                             <span>
                                 오늘 : {post.todayCount}, 어제 : {post.yesterdayCount}
                             </span>
-                        </div>
-                    </div >
-                </Card >
+                        </Flex>
+                    </div>
+                </Card>
             ))}
             <Pagination
                 page={props.page}

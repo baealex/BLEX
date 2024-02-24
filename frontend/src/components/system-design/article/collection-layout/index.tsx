@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useValue } from 'badland-react';
 
-import { Loading, Masonry, PageNavigation } from '@design-system';
+import { Flex, Loading, Masonry, PageNavigation } from '@design-system';
 import { ArticleCard } from '../article-card';
 import { Footer } from '@system-design/shared';
 
@@ -129,9 +129,9 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                     ))}
                 />
                 {isLoading && (
-                    <div className="d-flex justify-content-center p-3">
+                    <Flex justify="center" className="p-3">
                         <Loading position="inline" />
-                    </div>
+                    </Flex>
                 )}
                 {props.children}
             </div>

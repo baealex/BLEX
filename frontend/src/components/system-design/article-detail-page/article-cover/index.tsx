@@ -5,6 +5,8 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
+import { Flex } from '~/components/design-system';
+
 import { getPostsImage } from '~/modules/utility/image';
 
 export function ArticleCover(props: {
@@ -29,7 +31,7 @@ export function ArticleCover(props: {
     if (!props.image) {
         return (
             <header className={cn('no-cover')}>
-                <div className="x-container h-100 d-flex flex-column justify-content-end">
+                <Flex direction="column" justify="end" className="x-container h-100">
                     {props.series && (
                         <span
                             className={cn('series')}
@@ -45,7 +47,7 @@ export function ArticleCover(props: {
                             {props.createdDate}
                         </time>
                     </div>
-                </div>
+                </Flex>
             </header>
         );
     }

@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Button, Text } from '@design-system';
+import { Button, Flex, Text } from '@design-system';
 import { ArticleContent } from '@system-design/article-detail-page';
 import type { PageComponent } from '~/components';
 import { ProfileLayout } from '@system-design/profile';
@@ -62,12 +62,12 @@ const UserAbout: PageComponent<Props> = (props) => {
             />
             <div className="x-container mt-4">
                 {(props.about || '').length <= 0 ? (
-                    <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                    <Flex justify="center" align="center" direction="column" className="py-5">
                         <img className="w-100" src="/illustrators/doll-play.svg" />
                         <Text className="mt-5" fontSize={6}>
                             아직 작성된 소개가 없습니다.
                         </Text>
-                    </div>
+                    </Flex>
                 ) : (
                     <ArticleContent renderedContent={props.about || ''} />
                 )}

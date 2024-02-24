@@ -4,6 +4,7 @@ from .connection import *
 from .developer import *
 from .form import *
 from .image import *
+from .invitation import *
 from .notify import *
 from .referer import *
 from .report import *

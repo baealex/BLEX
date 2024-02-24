@@ -180,7 +180,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                 <Text>{props.createdDate}</Text>
             </Card>
             <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
+                <Flex justify="between" className="mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         사용자 필명
                     </Text>
@@ -203,7 +203,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                             변경
                         </Button>
                     )}
-                </div>
+                </Flex>
                 <Alert type="warning">
                     사용자의 필명은 로그인시 사용되며 주소(URL)에 표기되는 이름입니다.
                     작성한 포스트가 존재하는 경우 6개월에 한번만 변경할 수 있습니다.
@@ -223,14 +223,14 @@ const AccountSetting: PageComponent<Props> = (props) => {
                 </div>
             </Card>
             <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
+                <Flex justify="between" className="mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         사용자 이름
                     </Text>
                     <Button type="submit">
                         업데이트
                     </Button>
-                </div>
+                </Flex>
                 <div className="mt-2">
                     <input
                         {...register('name')}
@@ -242,22 +242,22 @@ const AccountSetting: PageComponent<Props> = (props) => {
                 </div>
             </Card>
             <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
+                <Flex justify="between" className="mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         이메일
                     </Text>
-                </div>
+                </Flex>
                 <Text>{props.email}</Text>
             </Card>
             <Card hasBackground isRounded className="mb-4 p-3">
-                <div className="d-flex justify-content-between mb-2">
+                <Flex justify="between" className="mb-2">
                     <Text fontSize={6} fontWeight={600}>
                         비밀번호 변경
                     </Text>
                     <Button type="submit">
                         업데이트
                     </Button>
-                </div>
+                </Flex>
                 <Alert type="warning" className="mb-2">
                     비밀번호는 8자 이상, 소문자, 대문자, 숫자, 특수문자를 포함해야 합니다.
                 </Alert>

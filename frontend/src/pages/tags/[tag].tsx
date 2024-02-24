@@ -3,6 +3,7 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
 import {
+    Flex,
     Loading,
     Masonry,
     SpeechBubble,
@@ -139,9 +140,9 @@ export default function TagDetail(props: Props) {
                     ))}
                 />
                 {isLoading && (
-                    <div className="d-flex justify-content-center p-3">
+                    <Flex justify="center" className="p-3">
                         <Loading position="inline" />
-                    </div>
+                    </Flex>
                 )}
             </div >
             <Footer />

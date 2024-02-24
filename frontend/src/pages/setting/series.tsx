@@ -6,7 +6,7 @@ import { arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { DragEndEvent } from '@dnd-kit/core';
 
-import { Button, Card, VerticalSortable } from '@design-system';
+import { Button, Card, Flex, VerticalSortable } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -51,28 +51,30 @@ function SeriesItem(props: {
                 transform: CSS.Translate.toString(transform),
                 transition
             }}
-            className="d-flex mb-3">
-            <div className="d-flex justify-content-between align-items-center">
-                <div
-                    {...listeners}
-                    className="p-3"
-                    style={{
-                        cursor: 'grab',
-                        touchAction: 'none'
-                    }}>
-                    <i className="fas fa-bars"></i>
-                </div>
-            </div>
-            <Card hasBackground isRounded className="p-3">
-                <div className="d-flex justify-content-between">
-                    <Link className="deep-dark" href={`/@${props.username}/series/${props.url}`}>
-                        {props.title} <span className="vs">{props.totalPosts}</span>
-                    </Link>
-                    <a onClick={props.onClickDelete}>
-                        <i className="fas fa-times"></i>
-                    </a>
-                </div>
-            </Card>
+            className="mb-3">
+            <Flex>
+                <Flex align="center" justify="center">
+                    <div
+                        {...listeners}
+                        className="p-3"
+                        style={{
+                            cursor: 'grab',
+                            touchAction: 'none'
+                        }}>
+                        <i className="fas fa-bars" />
+                    </div>
+                </Flex>
+                <Card hasBackground isRounded className="p-3">
+                    <Flex justify="between">
+                        <Link className="deep-dark" href={`/@${props.username}/series/${props.url}`}>
+                            {props.title} <span className="vs">{props.totalPosts}</span>
+                        </Link>
+                        <a onClick={props.onClickDelete}>
+                            <i className="fas fa-times" />
+                        </a>
+                    </Flex>
+                </Card>
+            </Flex>
         </div>
     );
 }

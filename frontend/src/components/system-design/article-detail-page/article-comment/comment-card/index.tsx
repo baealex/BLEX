@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card, Dropdown, Text } from '@design-system';
+import { Card, Dropdown, Flex, Text } from '@design-system';
 
 export interface CommentCardProps {
     id: number;
@@ -31,8 +31,8 @@ export function CommentCard(props: CommentCardProps) {
             hasBackground
             backgroundType="background"
             className={`${cn('card')} mb-3`}>
-            <div className="d-flex justify-content-between">
-                <div className="d-flex align-items-center">
+            <Flex justify="between">
+                <Flex align="center">
                     <Link href={`/@${props.author}`}>
                         <div
                             className={`${cn('thumbnail')} back-image thumb`}
@@ -53,7 +53,7 @@ export function CommentCard(props: CommentCardProps) {
                             </small>
                         </div>
                     </div>
-                </div>
+                </Flex>
                 {props.isOwner && (
                     <Dropdown
                         button={
@@ -71,7 +71,7 @@ export function CommentCard(props: CommentCardProps) {
                         ]}
                     />
                 )}
-            </div>
+            </Flex>
             <div
                 className={`${cn('content')} mt-4`}
                 dangerouslySetInnerHTML={{ __html: props.renderedContent }}

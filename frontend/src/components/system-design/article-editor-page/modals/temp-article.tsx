@@ -1,5 +1,6 @@
 import {
     Card,
+    Flex,
     Modal
 } from '@design-system';
 
@@ -22,22 +23,22 @@ export function TempArticleModal(props: Props) {
             onClose={props.onClose}>
             {props.tempPosts.map((item, idx) => (
                 <Card key={idx} hasShadow isRounded className="p-3 mb-3">
-                    <div className="d-flex justify-content-between">
+                    <Flex justify="between">
                         <span onClick={() => props.onClick(item.token)} className={`c-pointer ${props.token == item.token ? 'deep-dark' : 'shallow-dark'}`}>
                             {item.title} <span className="vs">{item.createdDate}</span>
                         </span>
                         <a onClick={() => props.onDelete(item.token)}>
                             <i className="fas fa-times"></i>
                         </a>
-                    </div>
+                    </Flex>
                 </Card>
             ))}
             <Card hasShadow isRounded className="p-3 mb-3">
-                <div className="d-flex justify-content-between">
+                <Flex justify="between">
                     <span onClick={() => props.onClick('')} className={`c-pointer ${props.token == '' ? 'deep-dark' : 'shallow-dark'}`}>
                         새 글 쓰기
                     </span>
-                </div>
+                </Flex>
             </Card>
         </Modal>
     );

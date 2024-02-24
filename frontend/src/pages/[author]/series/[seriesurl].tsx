@@ -9,6 +9,7 @@ import { authorRenameCheck } from '~/modules/middleware/author';
 import {
     Button,
     Card,
+    Flex,
     Loading,
     Modal
 } from '@design-system';
@@ -176,14 +177,14 @@ export default function Series(props: Props) {
             />
             {posts.map((post, idx) => (
                 <Card key={post.url} hasShadow isRounded className="p-3 mt-3">
-                    <div className="d-flex justify-content-between">
+                    <Flex justify="between">
                         <span className="deep-dark">
                             {idx + 1}. {post.title}
                         </span>
                         <a onClick={() => handleRemovePosts(post.url)}>
                             <i className="fas fa-times"></i>
                         </a>
-                    </div>
+                    </Flex>
                 </Card>
             ))}
         </Modal>
@@ -221,7 +222,7 @@ export default function Series(props: Props) {
             </div>
 
             <div className="b-container">
-                <div className="d-flex justify-content-end mb-4">
+                <Flex justify="end" className="mb-4">
                     {props.order === 'latest' ? (
                         <Button
                             onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}?order=past`, '', {
@@ -237,7 +238,7 @@ export default function Series(props: Props) {
                             과거부터 <i className="fas fa-sort-amount-up"></i>
                         </Button>
                     )}
-                </div>
+                </Flex>
                 <div className={'series-list'}>
                     {posts.map((post) => (
                         <SeriesArticleCard
@@ -247,9 +248,9 @@ export default function Series(props: Props) {
                         />
                     ))}
                     {isLoading && (
-                        <div className="d-flex justify-content-center pb-4">
+                        <Flex justify="center" className="pb-4">
                             <Loading position="inline" />
-                        </div>
+                        </Flex>
                     )}
                 </div>
             </div>

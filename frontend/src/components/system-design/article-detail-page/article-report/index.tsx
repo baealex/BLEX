@@ -4,7 +4,7 @@ const cx = classNames.bind(styles);
 
 import { useEffect, useState } from 'react';
 
-import { CheckBox, Modal } from '~/components/design-system';
+import { Checkbox, Modal } from '~/components/design-system';
 
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -65,7 +65,7 @@ export function ArticleReport(props: Props) {
                 onClose={() => setIsReportModalOpen(false)}>
                 <div className={cx('report-reasons')}>
                     {REASONS.map(reason => (
-                        <CheckBox
+                        <Checkbox
                             key={reason}
                             label={reason}
                             value={reason}

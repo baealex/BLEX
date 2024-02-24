@@ -58,14 +58,8 @@ const PostsSetting: PageComponent<Props> = (props) => {
     return (
         <>
             {props.posts.length === 0 && (
-                <Card isRounded hasBackground className="mb-4">
-                    <div className="p-3">
-                        <div className="d-flex justify-content-between">
-                            <span>
-                                작성중인 포스트가 없습니다.
-                            </span>
-                        </div>
-                    </div>
+                <Card isRounded hasBackground className="mb-4 p-3">
+                    작성중인 포스트가 없습니다.
                 </Card>
             )}
             {props.posts.map((post, idx) => (

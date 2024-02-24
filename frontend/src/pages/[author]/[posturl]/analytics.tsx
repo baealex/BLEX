@@ -6,6 +6,7 @@ import ReactFrappeChart from 'react-frappe-charts';
 import {
     Alert,
     Card,
+    Flex,
     Text
 } from '@design-system';
 
@@ -50,11 +51,11 @@ function PostsAnalytics(props: Props) {
                 조회수 추이
             </Text>
             <Card hasBackground isRounded className="mb-5">
-                <div className="pt-3 px-3 d-flex justify-content-end">
+                <Flex justify="end" className="pt-3 px-3">
                     <div className="ns shallow-dark">
                         기간 : 7일 이내
                     </div>
-                </div>
+                </Flex>
 
                 <ReactFrappeChart
                     type="axis-mixed"
@@ -81,11 +82,11 @@ function PostsAnalytics(props: Props) {
                 </Alert>
             ) : (
                 <Card hasBackground isRounded className="mb-5">
-                    <div className="pt-3 px-3 d-flex justify-content-end">
+                    <Flex justify="end" className="pt-3 px-3">
                         <div className="ns shallow-dark">
                             기간 : 30일 이내
                         </div>
-                    </div>
+                    </Flex>
 
                     <ReactFrappeChart
                         type="pie"

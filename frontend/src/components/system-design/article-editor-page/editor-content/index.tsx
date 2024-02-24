@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import type EasyMDE from 'easymde';
 
-import { Loading } from '@design-system';
+import { Flex, Loading } from '@design-system';
 
 import {
     FormsModal,
@@ -296,9 +296,9 @@ export function EditorContent(props: EditorContentProps) {
     return (
         <>
             {isLoading && (
-                <div className="d-flex justify-content-center p-3">
+                <Flex justify="center" className="p-3">
                     <Loading position="inline" />
-                </div>
+                </Flex>
             )}
             <input
                 ref={imageInput}

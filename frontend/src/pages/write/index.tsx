@@ -31,10 +31,19 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
     configStore.serverSideInject(cookies);
 
     const { cookie } = req.headers;
-    const { data } = await API.getLogin({ 'Cookie': cookie || '' });
+    const { data: loginData } = await API.getLogin({ 'Cookie': cookie || '' });
 
-    if (data.status !== 'DONE') {
+    if (loginData.status !== 'DONE') {
         return { notFound: true };
+    }
+
+    if (!loginData.body.hasEditorRole) {
+        return {
+            redirect: {
+                destination: '/invitation',
+                permanent: false
+            }
+        };
     }
 
     const { token = '' } = query;
@@ -47,7 +56,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
         if (tempPost.status === 'DONE') {
             return {
                 props: {
-                    username: data.body.username,
+                    username: loginData.body.username,
                     token: String(token),
                     title: tempPost.body.title,
                     content: tempPost.body.textMd,
@@ -59,7 +68,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
 
     return {
         props: {
-            username: data.body.username,
+            username: loginData.body.username,
             title: '',
             content: '',
             tags: ''
@@ -135,6 +144,11 @@ export default function Write(props: Props) {
                 is_hide: isHide.toString(),
                 is_advertise: isAd.toString()
             });
+            if (data.errorMessage) {
+                snackBar(message('AFTER_REQ_ERR', data.errorMessage));
+                onFail?.();
+                return;
+            }
             router.push(`/@${props.username}/${data.body.url}`);
         } catch (err) {
             snackBar(message('AFTER_REQ_ERR', '발행중 오류가 발생했습니다'));
@@ -267,32 +281,32 @@ export default function Write(props: Props) {
                         <Card>
                             <div className="p-2">
                                 {selectedTempPost && (
-                                    <div className="p-1 d-flex align-items-center" style={{ gap: '4px' }}>
+                                    <Flex align="center" gap={1} className="p-1">
                                         <Text fontSize={3} className="shallow-dark">
                                             선택된 임시글
                                         </Text>
                                         <Text fontSize={3}>
                                             {selectedTempPost}
                                         </Text>
-                                    </div>
+                                    </Flex>
                                 )}
                                 {lastSavedTime && (
-                                    <div className="p-1 d-flex align-items-center" style={{ gap: '4px' }}>
+                                    <Flex align="center" gap={1} className="p-1">
                                         <Text fontSize={3} className="shallow-dark">
                                             최종 저장 시간
                                         </Text>
                                         <Text fontSize={3} >
                                             {lastSavedTime}
                                         </Text>
-                                    </div>
+                                    </Flex>
                                 )}
-                                <div className="p-1 d-flex justify-content-between">
+                                <Flex align="center" className="p-1">
                                     <Toggle
                                         label="자동 저장"
                                         defaultChecked={isAutoSave as boolean}
                                         onClick={(checked) => setIsAutoSave(checked)}
                                     />
-                                    <div className="d-flex">
+                                    <Flex>
                                         <Button
                                             gap="little"
                                             color="transparent"
@@ -304,8 +318,8 @@ export default function Write(props: Props) {
                                             onClick={handleTempSave}>
                                             저장
                                         </Button>
-                                    </div>
-                                </div>
+                                    </Flex>
+                                </Flex>
                             </div>
                             {isAutoSave && (
                                 <Progress

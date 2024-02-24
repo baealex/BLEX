@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import { Button, GlitchText } from '@design-system';
+import { Button, Flex, GlitchText } from '@design-system';
 import { SEO } from '@system-design/shared';
 
 export default function NotFound() {
@@ -9,12 +9,12 @@ export default function NotFound() {
 
     return (
         <>
-            <SEO title="404 Not Found"/>
+            <SEO title="404 Not Found" />
 
             <div className="container h-100">
-                <div className="d-flex justify-content-center align-items-center flex-wrap h-100">
+                <Flex justify="center" align="center" wrap="wrap" className="h-100">
                     <div className="text-center">
-                        <GlitchText letters={letters}/>
+                        <GlitchText letters={letters} />
                         <p>찾으시는 페이지는 삭제되어 존재하지 않습니다.</p>
                         <div className="mt-3">
                             <Link href="/search">
@@ -25,7 +25,7 @@ export default function NotFound() {
                             </Link>
                         </div>
                     </div>
-                </div>
+                </Flex>
             </div>
 
             <style jsx>{`

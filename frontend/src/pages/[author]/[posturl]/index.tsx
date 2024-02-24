@@ -169,14 +169,16 @@ function PostDetail(props: Props) {
                     content={
                         <>
                             {props.post.author == username && (
-                                <Card isRounded className="p-3 mb-4 d-flex justify-content-between align-items-center">
-                                    <Text fontSize={5} fontWeight={600}>
-                                        포스트 관리
-                                    </Text>
-                                    <Flex gap={1}>
-                                        <Button gap="little" onClick={handleClickAnalytics}>분석</Button>
-                                        <Button gap="little" onClick={handleClickEdit}>수정</Button>
-                                        <Button onClick={handleClickDelete}>삭제</Button>
+                                <Card isRounded className="p-3 mb-4">
+                                    <Flex justify="between" align="center">
+                                        <Text fontSize={5} fontWeight={600}>
+                                            포스트 관리
+                                        </Text>
+                                        <Flex gap={1}>
+                                            <Button gap="little" onClick={handleClickAnalytics}>분석</Button>
+                                            <Button gap="little" onClick={handleClickEdit}>수정</Button>
+                                            <Button onClick={handleClickDelete}>삭제</Button>
+                                        </Flex>
                                     </Flex>
                                 </Card>
                             )}

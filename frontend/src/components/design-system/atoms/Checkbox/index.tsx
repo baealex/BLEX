@@ -1,11 +1,13 @@
 import { forwardRef } from 'react';
 
-export interface CheckBoxProps extends React.InputHTMLAttributes<HTMLInputElement> {
+import { Flex } from '../Flex';
+
+export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
 }
 
-export const CheckBox = forwardRef<HTMLInputElement, CheckBoxProps>((props, ref) => (
-    <div className="d-flex align-items-center form-check">
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>((props, ref) => (
+    <Flex align="center" className="form-check">
         <label>
             <input
                 ref={ref}
@@ -19,5 +21,5 @@ export const CheckBox = forwardRef<HTMLInputElement, CheckBoxProps>((props, ref)
                 </span>
             )}
         </label>
-    </div>
+    </Flex>
 ));

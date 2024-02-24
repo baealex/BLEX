@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { Accordion, Button, Card, Text } from '@design-system';
+import { Accordion, Button, Card, Flex, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -111,7 +111,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
             {props.isConnected && (
                 <>
                     <Card className="mt-3 p-3" isRounded hasBackground>
-                        <div className="d-flex align-items-center justify-content-between flex-wrap">
+                        <Flex align="center" justify="between" wrap="wrap">
                             <div>
                                 <div className="flex items-center">
                                     <i className="fas fa-microchip text-2xl mr-2" />
@@ -121,7 +121,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                                     <span className="text-lg">{props.apiKey}</span>
                                 </div>
                             </div>
-                        </div>
+                        </Flex>
                         <Button
                             display="block"
                             className="mt-3"
@@ -131,17 +131,19 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
                     </Card>
                     {props.usageHistories.map((history) => (
                         <Card className="mt-3 p-3" isRounded>
-                            <div className="d-flex align-items-center justify-content-between flex-wrap">
+                            <Flex align="center" justify="between" wrap="wrap">
                                 <div>
-                                    <div className="flex items-center">
+                                    <Flex justify="center">
                                         <i className="fas fa-history text-2xl mr-2" />
                                         <Text tag="span" fontWeight={600}>사용 내역</Text>
-                                    </div>
+                                    </Flex>
                                     <div className="mt-2">
-                                        <Accordion minHeight={24}>{JSON.stringify(history)}</Accordion>
+                                        <Accordion minHeight={24}>
+                                            {JSON.stringify(history)}
+                                        </Accordion>
                                     </div>
                                 </div>
-                            </div>
+                            </Flex>
                         </Card>
                     ))}
                 </>

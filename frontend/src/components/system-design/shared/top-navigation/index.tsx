@@ -18,7 +18,7 @@ import {
     TwoFactorAuthGetModal,
     TwoFactorAuthSyncModal
 } from '../modals';
-import { Dropdown } from '@design-system';
+import { Dropdown, Flex } from '@design-system';
 
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';
@@ -122,7 +122,7 @@ export function TopNavigation() {
             />
             <header className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
-                    <div className={cn('d-flex', 'justify-content-between', 'align-items-center', 'h-100')}>
+                    <Flex justify="between" align="center" className="h-100">
                         <div className={cn('logo')}>
                             <Link href="/" onClick={() => clearMemoryStore()}>
                                 <img alt="logo" src={'/logob.svg'} />
@@ -208,9 +208,9 @@ export function TopNavigation() {
                                 )}
                             </ul>
                         </nav>
-                    </div>
+                    </Flex>
                 </div>
-            </header>
+            </header >
         </>
     );
 }

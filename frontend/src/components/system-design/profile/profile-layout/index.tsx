@@ -5,12 +5,12 @@ const cn = classNames.bind(styles);
 import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
+import { Button, Flex } from '@design-system';
 import {
     Footer,
     Social,
     SocialProps
 } from '@system-design/shared';
-import { Button } from '@design-system';
 import { ProfileNavigation } from '@system-design/profile';
 import { SubscribeButton } from '@system-design/shared';
 
@@ -42,7 +42,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                     <div className={cn('name')}>{props.profile.name}</div>
                     <div className={cn('username')}>@{props.profile.username}</div>
                     {(props.profile.homepage || props.profile.bio) && (
-                        <div className="d-flex justify-content-center align-items-center">
+                        <Flex justify="center" align="center">
                             {props.profile.homepage && (
                                 <div className={cn('homepage')}>
                                     <a href={`${props.profile.homepage}`}>
@@ -58,7 +58,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                                     {props.profile.bio}
                                 </div>
                             )}
-                        </div>
+                        </Flex>
                     )}
                     {props.social && (
                         <Social

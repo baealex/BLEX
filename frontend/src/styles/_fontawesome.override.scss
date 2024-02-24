@@ -7,6 +7,7 @@ $rotates: 45, 90, 180, 270;
 }
 
 .fa-heading {
+
     .one &,
     .two &,
     .three & {
@@ -24,7 +25,15 @@ $rotates: 45, 90, 180, 270;
         right: -5px;
     }
 
-    .one &::after { content: '1' }
-    .two &::after { content: '2' }
-    .three &::after { content: '3' }
+    .one &::after {
+        content: '1'
+    }
+
+    .two &::after {
+        content: '2'
+    }
+
+    .three &::after {
+        content: '3'
+    }
 }

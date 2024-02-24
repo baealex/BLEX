@@ -3,6 +3,7 @@ import React from 'react';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
+import { Flex, Text } from '@design-system';
 import {
     Pagination,
     SEO
@@ -12,7 +13,6 @@ import {
     UserArticles
 } from '@system-design/profile';
 import type { PageComponent } from '~/components';
-import { Text } from '@design-system';
 
 import * as API from '~/modules/api';
 
@@ -81,12 +81,12 @@ UserPosts.pageLayout = (page, props) => (
         social={props.social}>
         {props.posts.length <= 0 ? (
             <div className="x-container">
-                <div className="d-flex justify-content-center align-items-center flex-column py-5">
+                <Flex justify="center" align="center" direction="column" className="py-5">
                     <img className="w-100" src="/illustrators/notify.svg" />
                     <Text className="mt-5" fontSize={6}>
                         아직 작성된 포스트가 없습니다.
                     </Text>
-                </div>
+                </Flex>
             </div>
         ) : (
             <div className="container">

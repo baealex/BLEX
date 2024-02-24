@@ -8,7 +8,7 @@ import {
     Alert,
     BaseInput,
     Button,
-    CheckBox,
+    Checkbox,
     DateInput,
     ErrorMessage,
     Flex,
@@ -174,11 +174,11 @@ export function EditorLayout(props: Props) {
                     onChange={(e) => props.tags.onChange(e.target.value)}
                 />
                 {tags && tags.length > 0 && (
-                    <div className="mt-1 d-flex justify-content-end">
+                    <Flex justify="end" className="mt-1">
                         <Button color="transparent" onClick={handleClickTagAutoGenerate}>
                             <i className="fas fa-retweet" /> 자동 생성
                         </Button>
-                    </div>
+                    </Flex>
                 )}
             </FormControl>
             {props.extended?.footer}
@@ -210,9 +210,9 @@ export function EditorLayout(props: Props) {
                 <FormControl className="mb-3">
                     <Label>설명 (옵션)</Label>
                     {isDescriptionGenerating ? (
-                        <div className="m-5 d-flex justify-content-center">
+                        <Flex justify="center" className="m-5">
                             <Loading position="inline" />
-                        </div>
+                        </Flex>
                     ) : (
                         <>
                             <BaseInput
@@ -224,11 +224,11 @@ export function EditorLayout(props: Props) {
                                 placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 미작성시 글 요약이 서론 내용을 기반으로 생성됩니다 (최대 250자)"
                             />
                             {hasConnectedOpenai && (
-                                <div className="mt-1 d-flex justify-content-end">
+                                <Flex justify="end" className="mt-1">
                                     <Button color="transparent" onClick={handleClickDescriptionAutoGenerate}>
                                         <i className="fas fa-retweet" /> 자동 생성 (OpenAI)
                                     </Button>
-                                </div>
+                                </Flex>
                             )}
                         </>
                     )}
@@ -283,12 +283,12 @@ export function EditorLayout(props: Props) {
                         </ErrorMessage>
                     </FormControl>
                 )}
-                <CheckBox
+                <Checkbox
                     label="포스트를 숨깁니다."
                     defaultChecked={props.isHide.value}
                     onClick={(e) => props.isHide.onChange(e.currentTarget.checked)}
                 />
-                <CheckBox
+                <Checkbox
                     label="포스트에 광고가 있습니다."
                     defaultChecked={props.isAd.value}
                     onClick={(e) => props.isAd.onChange(e.currentTarget.checked)}

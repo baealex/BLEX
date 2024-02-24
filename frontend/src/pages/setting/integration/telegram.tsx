@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useStore } from 'badland-react';
 
-import { Button, Card, Text } from '@design-system';
+import { Button, Card, Flex, Text } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -96,24 +96,24 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
             </Card>
             {props.isConnected && (
                 <Card className="mt-3 p-3" isRounded hasBackground>
-                    <div className="d-flex align-items-center justify-content-between flex-wrap">
+                    <Flex align="center" justify="between" wrap="wrap">
                         <div>
-                            <div className="flex items-center">
+                            <Flex justify="center">
                                 <i className="fab fa-telegram-plane text-2xl mr-2" />
                                 <Text tag="span" fontWeight={600}>연동된 아이디</Text>
-                            </div>
+                            </Flex>
                             <div className="mt-2">
                                 <span className="text-lg">{props.telegramId}</span>
                             </div>
                         </div>
-                    </div>
+                    </Flex>
                     <Button
                         display="block"
                         className="mt-3"
                         onClick={handleDisconnectTelegram}>
                         연동 해제
                     </Button>
-                </Card>
+                </Card >
             )}
         </>
     );

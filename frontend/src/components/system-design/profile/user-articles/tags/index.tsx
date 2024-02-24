@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { Dropdown, Text } from '@design-system';
+import { Dropdown, Flex, Text } from '@design-system';
 
 import { sorted } from '~/modules/utility/object';
 
@@ -26,7 +26,7 @@ export function Tags(props: TagsProps) {
 
     return (
         <div className={cn('tags', 'mt-4')}>
-            <div className={cn('d-flex justify-content-between align-items-center', 'category')}>
+            <Flex justify="between" align="center" className={cn('category')}>
                 <Text fontWeight={600} fontSize={4}>
                     태그
                 </Text>
@@ -48,7 +48,7 @@ export function Tags(props: TagsProps) {
                         }
                     ]}
                 />
-            </div>
+            </Flex>
             <ul>
                 <li>
                     <Link

@@ -48,14 +48,14 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                         조회수 추이
                     </Text>
                     <Card hasBackground isRounded>
-                        <div className="pt-3 px-3 d-flex justify-content-between">
+                        <Flex justify="between" className="pt-3 px-3">
                             <div className="ns shallow-dark">
                                 총 조회수 : {views.total.toLocaleString()}
                             </div>
                             <div className="ns shallow-dark">
                                 기간 : 30일 이내
                             </div>
-                        </div>
+                        </Flex>
                         <ReactFrappeChart
                             type="axis-mixed"
                             data={{
@@ -76,9 +76,9 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                 </>
             )}
             {isLoadingPostsView && (
-                <div className="mt-5 d-flex justify-content-center p-3">
+                <Flex justify="center" className="mt-5 p-3">
                     <Loading position="inline" />
-                </div>
+                </Flex>
             )}
             {!isLoadingPostsView && postViews && (
                 <>

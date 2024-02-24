@@ -1,15 +1,14 @@
 $MARGIN_SIZE_0: 0;
-$MARGIN_SIZE_1: 0.25rem;
-$MARGIN_SIZE_2: 0.5rem;
-$MARGIN_SIZE_3: 1rem;
-$MARGIN_SIZE_4: 1.5rem;
-$MARGIN_SIZE_5: 3rem;
+$MARGIN_SIZE_1: 4px;
+$MARGIN_SIZE_2: 8px;
+$MARGIN_SIZE_3: 16px;
+$MARGIN_SIZE_4: 24px;
+$MARGIN_SIZE_5: 48px;
 
-$marginSizes : (
-  0: $MARGIN_SIZE_0,
-  1: $MARGIN_SIZE_1,
-  2: $MARGIN_SIZE_2,
-  3: $MARGIN_SIZE_3,
-  4: $MARGIN_SIZE_4,
-  5: $MARGIN_SIZE_5,
+$marginSizes : (0: $MARGIN_SIZE_0,
+    1: $MARGIN_SIZE_1,
+    2: $MARGIN_SIZE_2,
+    3: $MARGIN_SIZE_3,
+    4: $MARGIN_SIZE_4,
+    5: $MARGIN_SIZE_5,
 );

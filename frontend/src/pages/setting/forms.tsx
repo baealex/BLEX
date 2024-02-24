@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { Alert, Button, Card } from '@design-system';
+import { Alert, Button, Card, Flex } from '@design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '@system-design/setting';
 
@@ -53,14 +53,14 @@ const FormsSetting: PageComponent<Props> = (props) => {
             <div className="mt-3">
                 {forms.map((item, idx) => (
                     <Card key={idx} hasBackground isRounded className="p-3 mb-3">
-                        <div className="d-flex justify-content-between">
+                        <Flex justify="between">
                             <Link className="deep-dark" href={`/forms/${item.id}/edit`}>
                                 {item.title}
                             </Link>
                             <a onClick={() => onDelete(item.id)}>
                                 <i className="fas fa-times"></i>
                             </a>
-                        </div>
+                        </Flex>
                     </Card>
                 ))}
             </div>

@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    TwoFactorAuth, Config, Profile, Post,
+    TwoFactorAuth, Config, Profile, Post, Invitation,
     UserLinkMeta, UsernameChangeLog, TelegramSync, OpenAIConnection)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -65,7 +65,12 @@ def login_response(user: User, is_first_login=False):
             TwoFactorAuth.objects.filter(
                 user_id=OuterRef('id')
             )
-        )
+        ),
+        has_editor_role=Exists(
+            Invitation.objects.filter(
+                receiver_id=OuterRef('id'),
+            )
+        ),
     ), id=user.id)
 
     return StatusDone({
@@ -78,6 +83,7 @@ def login_response(user: User, is_first_login=False):
         'has_connected_telegram': _user.has_connected_telegram,
         'has_connected_openai': _user.has_connected_openai,
         'has_connected_2fa': _user.has_connected_2fa,
+        'has_editor_role': _user.has_editor_role,
     })
 
 

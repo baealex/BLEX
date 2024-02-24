@@ -1,5 +1,6 @@
 import {
     Card,
+    Flex,
     Modal
 } from '@design-system';
 
@@ -22,11 +23,11 @@ export function FormsModal(props: Props) {
             onClose={props.onClose}>
             {forms.map((item, idx) => (
                 <Card key={idx} hasShadow isRounded className="p-3 mb-3">
-                    <div className="d-flex justify-content-between">
+                    <Flex justify="between">
                         <span onClick={() => props.onFetch(item.id)} className="c-pointer">
                             {item.title}
                         </span>
-                    </div>
+                    </Flex>
                 </Card>
             ))}
         </Modal>

@@ -13,7 +13,7 @@ from django.utils.text import slugify
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Comment, Referer, PostAnalytics, Series,
-    TempPosts, Post, PostContent, PostConfig,
+    TempPosts, Post, PostContent, PostConfig, Invitation,
     PostLikes, PostThanks, PostNoThanks, calc_read_time)
 from board.modules.analytics import create_device, get_network_addr, view_count
 from board.modules.notify import create_notify
@@ -31,6 +31,9 @@ def post_list(request):
     if request.method == 'POST':
         if not request.user.is_active:
             raise Http404
+
+        if not Invitation.objects.filter(receiver=request.user).exists(): 
+            return StatusError(ErrorCode.VALIDATE, '작성 권한이 없습니다.')
 
         title = request.POST.get('title', '')
         text_md = request.POST.get('text_md', '')
