@@ -1,3 +1,3 @@
 export * from './atoms';
 export * from './forms';
-export * from './moleculex';
+export * from './molecules';

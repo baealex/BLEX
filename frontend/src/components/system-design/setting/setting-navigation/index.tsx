@@ -22,6 +22,11 @@ export const NAVIGATION_ITEMS = [
                 title: '프로필',
                 name: 'profile',
                 url: '/setting/profile'
+            },
+            {
+                title: '초대장',
+                name: 'invitation',
+                url: '/setting/invitation'
             }
         ]
     },

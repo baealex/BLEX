@@ -2,6 +2,7 @@ export * from './auth';
 export * from './comments';
 export * from './forms';
 export * from './image';
+export * from './invitation';
 export * from './posts';
 export * from './report';
 export * from './search';

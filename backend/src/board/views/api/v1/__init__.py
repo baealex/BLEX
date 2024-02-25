@@ -3,6 +3,7 @@ from .auth import *
 from .comment import *
 from .form import *
 from .image import *
+from .invitation import *
 from .openai import *
 from .post import *
 from .report import *

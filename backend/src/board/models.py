@@ -799,18 +799,18 @@ class SocialAuth(models.Model):
 
 
 class Invitation(models.Model):
-    sender = models.ForeignKey('auth.User', related_name='invitations_sent', null=True, default=None, on_delete=models.SET_NULL)
-    receiver = models.ForeignKey('auth.User', related_name='invitations_received', null=True, default=None, on_delete=models.SET_NULL)
+    sender = models.ForeignKey('auth.User', related_name='invitations_sent', null=True, on_delete=models.SET_NULL)
+    receiver = models.ForeignKey('auth.User', related_name='invitations_received', null=True, blank=True, on_delete=models.SET_NULL)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.sender.username} -> {self.receiver.username}'
+        return f'{self.sender.username} -> {self.receiver.username if self.receiver else "None"}'
 
 
 class InvitationRequest(models.Model):
-    sender = models.ForeignKey('auth.User', related_name='invitation_requests_sent', null=True, default=None, on_delete=models.SET_NULL)
-    receiver = models.ForeignKey('auth.User', related_name='invitation_requests_received', null=True, default=None, on_delete=models.SET_NULL)
+    sender = models.ForeignKey('auth.User', related_name='invitation_requests_sent', null=True, on_delete=models.SET_NULL)
+    receiver = models.ForeignKey('auth.User', related_name='invitation_requests_received', null=True, on_delete=models.SET_NULL)
     content = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(default=timezone.now)
