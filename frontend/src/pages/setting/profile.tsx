@@ -264,14 +264,14 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     <Text fontSize={6} fontWeight={600}>
                         사용자 상세 소개
                     </Text>
-                    <div>
-                        <Button gap="little" onClick={() => router.push(`/@${username}/about`)}>
+                    <Flex gap={1}>
+                        <Button onClick={() => router.push(`/@${username}/about`)}>
                             페이지 확인
                         </Button>
                         <Button onClick={() => router.push(`/@${username}/about/edit`)}>
                             소개 작성
                         </Button>
-                    </div>
+                    </Flex>
                 </Flex>
                 <div className="mb-2">
                     <Alert type="warning">

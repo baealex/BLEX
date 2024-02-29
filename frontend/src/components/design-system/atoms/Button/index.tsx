@@ -12,7 +12,6 @@ export interface ButtonProps {
     isRounded?: boolean;
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
     children: React.ReactNode;
-    gap?: 'none' | 'little';
     space?: 'default' | 'spare';
     color?: 'default' | 'primary' | 'secondary' | 'point' | 'transparent';
     display?: 'inline-block' | 'block';
@@ -20,7 +19,6 @@ export interface ButtonProps {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     type = 'button',
-    gap = 'none',
     isRounded = false,
     space = 'default',
     color = 'default',
@@ -63,7 +61,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
             className={cn(
                 'button',
                 { isRounded },
-                gap != 'none' && `g-${gap}`,
                 space != 'default' && `s-${space}`,
                 color != 'default' && `c-${color}`,
                 display != 'inline-block' && `d-${display}`,

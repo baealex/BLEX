@@ -35,7 +35,7 @@ export function SubscribeButton(props: Props) {
             });
             return;
         }
-        if  (username === props.author) {
+        if (username === props.author) {
             snackBar(message('BEFORE_REQ_ERR', '자신의 계정은 구독할 수 없습니다.'));
             return;
         }
@@ -55,7 +55,6 @@ export function SubscribeButton(props: Props) {
             ref={ref}
             isRounded
             space="spare"
-            gap="little"
             color={hasSubscribe ? 'secondary' : 'default'}
             onClick={handleClickSubscribe}>
             {hasSubscribe ? '구독중' : '구독하기'}

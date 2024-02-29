@@ -1,37 +1,56 @@
-import type { GetServerSideProps } from 'next';
+import { useState } from 'react';
+import { useStore } from 'badland-react';
 
-import { Button, Card, Flex, Text } from '~/components/design-system';
-import { useFetch } from '~/hooks/use-fetch';
+import { BaseInput, Button, Card, Flex, Modal, Text } from '~/components/design-system';
 
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
+import { useFetch } from '~/hooks/use-fetch';
 
 import * as API from '~/modules/api';
 
-type Props = API.GetPostsResponseData;
-
-export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
-    try {
-        const { data } = await API.getPopularPosts(1, context.req.headers.cookie);
-
-        return {
-            props: {
-                ...data.body
-            }
-        };
-    } catch (error) {
-        return { notFound: true };
-    }
-};
+import { authStore } from '~/stores/auth';
 
 const Invitation = () => {
+    const [isOpenRequestModal, setIsOpenRequestModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState('');
+    const [requestContent, setRequestContent] = useState('');
+
+    const [authState] = useStore(authStore);
+
     const { data } = useFetch(['invitation', 'owners'], async () => {
         const { data } = await API.getInvitationOwners();
         return data.body;
     });
 
-    const handleClickRequest = () => {
-        snackBar(message('BEFORE_REQ_ERR', '개발중인 기능입니다.'));
+    const handleClickRequest = (username: string) => {
+        if (authState.hasEditorRole) {
+            snackBar(message('BEFORE_REQ_ERR', '이미 에디터로 초대되었습니다.'));
+            return;
+        }
+        setSelectedUser(username);
+        setIsOpenRequestModal(true);
+    };
+
+    const handleSubmit = async () => {
+        if (!selectedUser) {
+            snackBar(message('BEFORE_REQ_ERR', '선택된 유저가 없어요.'));
+            return;
+        }
+        if (!requestContent) {
+            snackBar(message('BEFORE_REQ_ERR', '내용을 입력해 주세요.'));
+            return;
+        }
+        const { data } = await API.createRequestInvitation({
+            receiver: selectedUser,
+            content: requestContent
+        });
+        if (data.status === 'ERROR') {
+            snackBar(message('AFTER_REQ_ERR', data.errorMessage));
+            return;
+        }
+        snackBar(message('AFTER_REQ_DONE', '요청이 완료되었습니다.'));
+        setIsOpenRequestModal(false);
     };
 
     return (
@@ -69,13 +88,36 @@ const Invitation = () => {
                                     </Text>
                                 </div>
                             </Flex>
-                            <Button onClick={handleClickRequest}>
+                            <Button onClick={() => handleClickRequest(user)}>
                                 초대장 요청
                             </Button>
                         </Flex>
                     </Card>
                 ))}
             </Flex>
+            <Modal
+                title="초대장 요청"
+                isOpen={isOpenRequestModal}
+                onClose={() => {
+                    setRequestContent('');
+                    setIsOpenRequestModal(false);
+                }}
+                submitText="요청 보내기"
+                onSubmit={handleSubmit}>
+                <Flex style={{ width: '100%' }} direction="column" gap={3}>
+                    <BaseInput
+                        disabled
+                        tag="input"
+                        value={selectedUser}
+                    />
+                    <BaseInput
+                        tag="textarea"
+                        value={requestContent}
+                        onChange={(e) => setRequestContent(e.currentTarget.value)}
+                        placeholder="내용을 입력하세요."
+                    />
+                </Flex>
+            </Modal>
         </div >
     );
 };

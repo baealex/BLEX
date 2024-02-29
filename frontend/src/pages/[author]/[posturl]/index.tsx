@@ -174,9 +174,9 @@ function PostDetail(props: Props) {
                                         <Text fontSize={5} fontWeight={600}>
                                             포스트 관리
                                         </Text>
-                                        <Flex gap={1}>
-                                            <Button gap="little" onClick={handleClickAnalytics}>분석</Button>
-                                            <Button gap="little" onClick={handleClickEdit}>수정</Button>
+                                        <Flex gap={2}>
+                                            <Button onClick={handleClickAnalytics}>분석</Button>
+                                            <Button onClick={handleClickEdit}>수정</Button>
                                             <Button onClick={handleClickDelete}>삭제</Button>
                                         </Flex>
                                     </Flex>

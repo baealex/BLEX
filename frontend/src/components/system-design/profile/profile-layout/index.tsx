@@ -70,7 +70,6 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                         <Button
                             isRounded
                             space="spare"
-                            gap="little"
                             onClick={() => router.push('/setting/profile')}>
                             프로필 편집
                         </Button>
@@ -78,7 +77,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                         <SubscribeButton author={props.profile.username} />
                     )}
                 </div>
-            </div >
+            </div>
             <ProfileNavigation
                 active={props.active}
                 username={props.profile.username}

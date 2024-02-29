@@ -300,15 +300,14 @@ export default function Write(props: Props) {
                                         </Text>
                                     </Flex>
                                 )}
-                                <Flex align="center" className="p-1">
+                                <Flex align="center" justify="between" className="p-1">
                                     <Toggle
                                         label="자동 저장"
                                         defaultChecked={isAutoSave as boolean}
                                         onClick={(checked) => setIsAutoSave(checked)}
                                     />
-                                    <Flex>
+                                    <Flex gap={2}>
                                         <Button
-                                            gap="little"
                                             color="transparent"
                                             onClick={() => setIsOpenTempArticleModal(true)}>
                                             목록

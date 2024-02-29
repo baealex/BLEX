@@ -185,8 +185,8 @@ const AccountSetting: PageComponent<Props> = (props) => {
                         사용자 필명
                     </Text>
                     {isChangeUsername && (
-                        <div>
-                            <Button gap="little" onClick={handleChangeUsername}>
+                        <Flex gap={1}>
+                            <Button onClick={handleChangeUsername}>
                                 업데이트
                             </Button>
                             <Button
@@ -196,7 +196,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
                                 }}>
                                 취소
                             </Button>
-                        </div>
+                        </Flex>
                     )}
                     {!isChangeUsername && (
                         <Button onClick={() => setChangeUsername(true)}>
