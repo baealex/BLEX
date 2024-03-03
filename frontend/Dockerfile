@@ -3,9 +3,9 @@ FROM node:20.11.1
 WORKDIR /app
 
 COPY ./src/package.json ./
-COPY ./src/package-lock.json ./
+COPY ./src/pnpm-lock.yaml ./
 
-RUN npm i
+RUN npx pnpm i
 
 COPY ./src/ ./
 
