@@ -1,14 +1,25 @@
-FROM ubuntu:22.04
+FROM alpine:latest
 
-ARG DEBIAN_FRONTEND=noninteractive
+ARG PYTHON_VERSION=3.12.2
 
-RUN apt-get update
-
-RUN apt-get install -y \
-    build-essential libssl-dev zlib1g-dev libbz2-dev \
-    libreadline-dev libsqlite3-dev wget curl llvm \
-    libncurses5-dev libncursesw5-dev xz-utils tk-dev \
-    libffi-dev liblzma-dev git ffmpeg
+RUN apk update && apk add --no-cache \
+    build-base \
+    libffi-dev \
+    openssl-dev \
+    zlib-dev \
+    bzip2-dev \
+    readline-dev \
+    sqlite-dev \
+    wget \
+    curl \
+    llvm \
+    ncurses \
+    ncurses-dev \
+    xz \
+    tk \
+    git \
+    ffmpeg \
+    bash
 
 ENV LANG="C.UTF-8" \
     LC_ALL="C.UTF-8" \
@@ -16,9 +27,10 @@ ENV LANG="C.UTF-8" \
     PYENV_ROOT="/root/.pyenv" \
     PYENV_SHELL="bash"
 
-ENV PYTHON_VERSION=3.12.2
-
 RUN git clone https://github.com/pyenv/pyenv.git $PYENV_ROOT \
+    && cd $PYENV_ROOT \
+    && src/configure \
+    && make -C src \
     && pyenv install $PYTHON_VERSION \
     && pyenv global $PYTHON_VERSION
 
