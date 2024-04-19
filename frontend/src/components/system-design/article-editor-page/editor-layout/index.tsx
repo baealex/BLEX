@@ -239,14 +239,12 @@ export function EditorLayout(props: Props) {
                         tag="select"
                         name="series"
                         icon={(<i className="fas fa-book" />)}
+                        value={props.series.value}
                         onChange={(e) => props.series.onChange(e.target.value)}>
                         <>
                             <option value="">선택하지 않음</option>
                             {series?.map((item, idx) => (
-                                <option
-                                    key={idx}
-                                    value={item.url}
-                                    selected={props.series.value == item.url ? true : false}>
+                                <option key={idx} value={item.url}>
                                     {item.title}
                                 </option>
                             ))}

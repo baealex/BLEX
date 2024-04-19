@@ -220,7 +220,7 @@ export function getAnUserPostsView(username: string, url: string, cookie?: strin
 export interface GetAnUserPostsEditResponseData {
     image: string;
     title: string;
-    series: string;
+    series: { name: string; url: string };
     description: string;
     textMd: string;
     tags: string[];
