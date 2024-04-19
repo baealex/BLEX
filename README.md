@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/nextjs-13.2.3-yellow?style=flat-square">
-    <img src="https://img.shields.io/badge/django-4.1.7-blue?style=flat-square">
+    <img src="https://img.shields.io/badge/nextjs-14-yellow?style=flat-square">
+    <img src="https://img.shields.io/badge/django-5-blue?style=flat-square">
 </p>
 
 <br>
