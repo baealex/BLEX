@@ -118,16 +118,18 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                             <Loading position="inline" />
                         </Flex>
                     )}
-                    {posts.map((post) => (
-                        <ArticleCard
-                            className="mb-4"
-                            hasShadow={false}
-                            isRounded={false}
-                            key={post.url}
-                            onLike={() => handleLike(post)}
-                            {...post}
-                        />
-                    ))}
+                    <div className="mt-2">
+                        {posts.map((post) => (
+                            <ArticleCard
+                                className="mb-4"
+                                hasShadow={false}
+                                isRounded={false}
+                                key={post.url}
+                                onLike={() => handleLike(post)}
+                                {...post}
+                            />
+                        ))}
+                    </div>
                     {props.children}
                 </WidgetLayout>
             </PageNavigationLayout>
