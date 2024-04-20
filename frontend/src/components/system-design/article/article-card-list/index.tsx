@@ -23,11 +23,11 @@ export interface ArticleCardListProps {
 
 export function ArticleCardList(props: ArticleCardListProps) {
     return (
-        <article>
-            <Text className="mt-2" fontSize={2}>
+        <article className="mb-4">
+            <Text fontSize={2} className="mb-3">
                 {props.createdDate} · <span className="shallow-dark">{props.readTime}분 분량</span>
             </Text>
-            <div className={cn('list')}>
+            <div className={cn('list', 'pb-4')}>
                 {props.image && (
                     <Link className={cn('image')} href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                         <img
