@@ -1,0 +1,7 @@
+@import 'var';
+
+.layout {
+    display: flex;
+    flex-direction: column;
+    gap: $MARGIN_SIZE_3;
+}

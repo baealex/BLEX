@@ -29,7 +29,7 @@
         overflow: hidden;
     }
 
-    @media (max-width: $BREAKPOINT-DESKTOP-LARGE) {
+    @media (max-width: $BREAKPOINT_DESKTOP-LARGE) {
         display: block;
         max-height: initial;
 

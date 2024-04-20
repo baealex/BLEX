@@ -1,0 +1,27 @@
+@import 'var';
+
+.container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 $MARGIN_SIZE_3;
+
+    &.size-xs {
+        max-width: 480px;
+    }
+
+    &.size-sm {
+        max-width: 768px;
+    }
+
+    &.size-md {
+        max-width: 992px;
+    }
+
+    &.size-lg {
+        max-width: 1200px;
+    }
+
+    &.size-xl {
+        max-width: 1440px;
+    }
+}

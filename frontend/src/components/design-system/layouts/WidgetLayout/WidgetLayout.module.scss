@@ -1,0 +1,28 @@
+@import 'var';
+
+.layout {
+    display: flex;
+    gap: $MARGIN_SIZE_4;
+    flex-wrap: wrap;
+
+    .content {
+        flex: 1;
+    }
+
+    .widgetContainer {
+        order: 1;
+        flex: 0 0 300px;
+    }
+
+    .widget {
+        position: sticky;
+        top: 90px;
+    }
+
+    @media (max-width: $BREAKPOINT-TABLET) {
+        .widgetContainer {
+            order: -1;
+            flex: 0 0 100%;
+        }
+    }
+}

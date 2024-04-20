@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useValue } from 'badland-react';
 
-import { Flex, Loading, PageNavigation } from '@design-system';
+import { Container, Flex, Loading, PageNavigationLayout, WidgetLayout } from '@design-system';
 import { ArticleCard } from '../article-card';
 import { Footer } from '@system-design/shared';
 
@@ -64,7 +64,6 @@ export function CollectionLayout(props: CollectionLayoutProps) {
             ? await API.getNewestPosts(page + 1)
             : await API.getLikedPosts(page + 1);
 
-
         if (data.status === 'DONE') {
             setPage((prevPage) => {
                 memoryStore.page = prevPage + 1;
@@ -109,34 +108,29 @@ export function CollectionLayout(props: CollectionLayoutProps) {
     }, [memoryStore]);
 
     return (
-        <>
-            <div className="container">
-                <PageNavigation
-                    items={props.itemExpended?.(navItems) ?? navItems}
-                    active={props.active}
-                />
-                <Flex className="mt-4" gap={4} wrap="wrap">
-                    <Flex direction="column" gap={3} style={{ flex: '1 1 500px' }}>
-                        {posts.map((post) => (
-                            <ArticleCard
-                                hasShadow={false}
-                                isRounded={false}
-                                key={post.url}
-                                onLike={() => handleLike(post)}
-                                {...post}
-                            />
-                        ))}
-                    </Flex>
-                    {props.widget}
-                </Flex>
-                {isLoading && (
-                    <Flex justify="center" className="p-3">
-                        <Loading position="inline" />
-                    </Flex>
-                )}
-                {props.children}
-            </div>
+        <Container>
+            <PageNavigationLayout
+                navigationItems={props.itemExpended?.(navItems) ?? navItems}
+                navigationActive={props.active}>
+                <WidgetLayout widget={props.widget}>
+                    {isLoading && (
+                        <Flex justify="center" className="p-3">
+                            <Loading position="inline" />
+                        </Flex>
+                    )}
+                    {posts.map((post) => (
+                        <ArticleCard
+                            hasShadow={false}
+                            isRounded={false}
+                            key={post.url}
+                            onLike={() => handleLike(post)}
+                            {...post}
+                        />
+                    ))}
+                    {props.children}
+                </WidgetLayout>
+            </PageNavigationLayout>
             <Footer />
-        </>
+        </Container>
     );
 }

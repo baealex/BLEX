@@ -4,6 +4,7 @@ export * from './Badge';
 export * from './Button';
 export * from './Card';
 export * from './Carousel';
+export * from './Container';
 export * from './Dropdown';
 export * from './Flex';
 export * from './GlitchText';
