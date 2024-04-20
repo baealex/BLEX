@@ -8,6 +8,7 @@ export * from './Container';
 export * from './Dropdown';
 export * from './Flex';
 export * from './GlitchText';
+export * from './Grid';
 export * from './ImageInput';
 export * from './ImagePreload';
 export * from './Loading';

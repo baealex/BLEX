@@ -24,6 +24,9 @@ export interface ArticleCardListProps {
 export function ArticleCardList(props: ArticleCardListProps) {
     return (
         <article>
+            <Text className="mt-2" fontSize={2}>
+                {props.createdDate} · <span className="shallow-dark">{props.readTime}분 분량</span>
+            </Text>
             <div className={cn('list')}>
                 {props.image && (
                     <Link className={cn('image')} href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
@@ -45,9 +48,6 @@ export function ArticleCardList(props: ArticleCardListProps) {
                         <Link className="shallow-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                             {unescape(props.description)}
                         </Link>
-                    </Text>
-                    <Text className="mt-2" fontSize={2}>
-                        {props.createdDate} · <span className="shallow-dark">{props.readTime} min read</span>
                     </Text>
                     <TagBadges
                         className="mt-3"

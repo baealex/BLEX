@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { Button, Text } from '@design-system';
+import { Button, Container, Text } from '@design-system';
 import { EditorContent, EditorTitle } from '@system-design/article-editor-page';
 
 import * as API from '~/modules/api';
@@ -46,7 +46,7 @@ export default function UserFormEdit() {
     if (!data) return null;
 
     return (
-        <div className="x-container mb-5">
+        <Container size="sm">
             <Link className="shallow-dark" href="/setting/forms">
                 <Text className="mb-3">
                     <i className="fas fa-angle-left ml-1" /> 서식 목록
@@ -67,9 +67,9 @@ export default function UserFormEdit() {
                     content
                 })}
             />
-            <Button display="block" onClick={handleUpdateUserForm}>
+            <Button display="block" className="mb-5" onClick={handleUpdateUserForm}>
                 서식 업데이트
             </Button>
-        </div>
+        </Container>
     );
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStore } from 'badland-react';
 
-import { BaseInput, Button, Card, Flex, Modal, Text } from '~/components/design-system';
+import { BaseInput, Button, Card, Container, Flex, Modal, Text } from '~/components/design-system';
 
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -54,7 +54,7 @@ const Invitation = () => {
     };
 
     return (
-        <div className="x-container">
+        <Container size="sm">
             <Card isRounded hasShadow className="p-3 mb-3">
                 <Text tag="h2" fontSize={6} fontWeight={600} className="mb-2">
                     <Flex gap={2} align="center">
@@ -118,7 +118,7 @@ const Invitation = () => {
                     />
                 </Flex>
             </Modal>
-        </div >
+        </Container>
     );
 };
 

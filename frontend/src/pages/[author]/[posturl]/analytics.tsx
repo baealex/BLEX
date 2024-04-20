@@ -6,6 +6,7 @@ import ReactFrappeChart from 'react-frappe-charts';
 import {
     Alert,
     Card,
+    Container,
     Flex,
     Text
 } from '@design-system';
@@ -46,7 +47,7 @@ function PostsAnalytics(props: Props) {
     });
 
     return data && (
-        <div className="x-container">
+        <Container size="sm">
             <Text className="my-3" fontSize={6} fontWeight={600}>
                 조회수 추이
             </Text>
@@ -120,7 +121,7 @@ function PostsAnalytics(props: Props) {
                     </li>
                 ))}
             </ul>
-        </div>
+        </Container>
     );
 }
 

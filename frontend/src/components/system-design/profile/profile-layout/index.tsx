@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
-import { Button, Flex } from '@design-system';
+import { Button, Container, Flex } from '@design-system';
 import {
     Footer,
     Social,
@@ -36,7 +36,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
 
     return (
         <>
-            <div className="container">
+            <Container>
                 <div className={`${cn('user')}`}>
                     <img className={cn('avatar')} src={props.profile.image} />
                     <div className={cn('name')}>{props.profile.name}</div>
@@ -77,7 +77,7 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                         <SubscribeButton author={props.profile.username} />
                     )}
                 </div>
-            </div>
+            </Container>
             <ProfileNavigation
                 active={props.active}
                 username={props.profile.username}

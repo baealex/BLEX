@@ -6,6 +6,7 @@ import type { GetServerSideProps } from 'next';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
+import { Container, Text } from '~/components/design-system';
 import {
     FeaturedArticles,
     ProfileLayout,
@@ -16,7 +17,6 @@ import {
     SEO
 } from '@system-design/shared';
 import type { PageComponent } from '~/components';
-import { Text } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 
@@ -64,7 +64,7 @@ const Overview: PageComponent<Props> = (props) => {
                 description={props.profile.bio}
             />
 
-            <div className="x-container">
+            <Container size="sm">
                 <Text className="mt-5" fontWeight={700} fontSize={8}>
                     인기 컨텐츠
                 </Text>
@@ -77,7 +77,7 @@ const Overview: PageComponent<Props> = (props) => {
                     data={props.heatmap}
                 />
                 <RecentActivity items={props.recent || []} />
-            </div>
+            </Container>
         </>
     );
 };

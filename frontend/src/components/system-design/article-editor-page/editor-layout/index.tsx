@@ -9,6 +9,7 @@ import {
     BaseInput,
     Button,
     Checkbox,
+    Container,
     DateInput,
     ErrorMessage,
     Flex,
@@ -142,7 +143,7 @@ export function EditorLayout(props: Props) {
     };
 
     return (
-        <div className="x-container">
+        <Container size="sm">
             <EditorTitle
                 value={props.title.value}
                 onChange={props.title.onChange}
@@ -296,6 +297,6 @@ export function EditorLayout(props: Props) {
             {props.addon?.modal}
 
             {isSubmit && <Loading position="full" />}
-        </div >
+        </Container>
     );
 }

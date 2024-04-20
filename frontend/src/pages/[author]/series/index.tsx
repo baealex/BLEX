@@ -3,7 +3,7 @@ import type { GetServerSideProps } from 'next';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Flex, Text } from '@design-system';
+import { Container, Flex, Text } from '@design-system';
 import {
     ProfileLayout,
     UserSeries
@@ -107,14 +107,14 @@ SeriesProfile.pageLayout = (page, props) => (
         profile={props.profile}
         social={props.social}>
         {props.series.length <= 0 ? (
-            <div className="x-container">
+            <Container size="sm">
                 <Flex justify="center" align="center" direction="column" className="py-5">
                     <img className="w-100" src="/illustrators/focus.svg" />
                     <Text className="mt-5" fontSize={6}>
                         아직 생성된 시리즈가 없습니다.
                     </Text>
                 </Flex>
-            </div>
+            </Container>
         ) : page}
     </ProfileLayout>
 );

@@ -19,7 +19,7 @@ import {
     ArticleThanks,
     RelatedArticles
 } from '@system-design/article-detail-page';
-import { Button, Card, Flex, Text } from '@design-system';
+import { Button, Card, Container, Flex, Text } from '@design-system';
 import {
     Footer,
     SEO
@@ -210,8 +210,8 @@ function PostDetail(props: Props) {
                 url={props.post.url}
                 countComments={props.post.countComments}
             />
-            <Footer isDark className="">
-                <div className="x-container">
+            <Footer isDark>
+                <Container size="sm">
                     <ArticleAuthor {...props.profile} />
                     <RelatedArticles
                         author={props.post.author}
@@ -219,7 +219,7 @@ function PostDetail(props: Props) {
                         bio={props.profile.profile.bio}
                         url={props.post.url}
                     />
-                </div>
+                </Container>
             </Footer>
         </>
     );

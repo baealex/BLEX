@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Button, Flex, Text } from '@design-system';
+import { Button, Container, Flex, Text } from '@design-system';
 import { SEO } from '@system-design/shared';
 
 export default function NotFound() {
@@ -8,7 +8,7 @@ export default function NotFound() {
         <>
             <SEO title="404 Not Found" />
 
-            <div className="x-container">
+            <Container size="sm">
                 <Flex direction="column" gap={4} align="center">
                     <img className="w-100" src="/illustrators/doll-play.svg" />
                     <Text fontSize={6} fontWeight={600}>
@@ -23,7 +23,7 @@ export default function NotFound() {
                         </Link>
                     </Flex>
                 </Flex>
-            </div>
+            </Container>
         </>
     );
 }

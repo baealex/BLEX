@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { useCallback, useRef, useState } from 'react';
 import { useStore } from 'badland-react';
 
-import { Alert, Flex, Loading } from '@design-system';
+import { Alert, Container, Flex, Loading } from '@design-system';
 import { CommentCard } from './comment-card';
 import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';
@@ -174,7 +174,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     return (
         <div ref={ref} id="comments" className={`comments ${cn('background')} py-5`}>
-            <div className="x-container">
+            <Container size="sm">
                 {comments?.length > 0 ? comments.map((comment) => (
                     comment.isEdit ? (
                         <CommentEditor
@@ -227,7 +227,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                         댓글을 작성하려면 로그인이 필요합니다.
                     </Alert>
                 )}
-            </div>
+            </Container>
         </div>
     );
 }

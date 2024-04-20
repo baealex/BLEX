@@ -120,6 +120,7 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                     )}
                     {posts.map((post) => (
                         <ArticleCard
+                            className="mb-4"
                             hasShadow={false}
                             isRounded={false}
                             key={post.url}

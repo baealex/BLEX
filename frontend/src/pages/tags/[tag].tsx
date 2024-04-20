@@ -3,6 +3,7 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
 import {
+    Container,
     Flex,
     Loading,
     SpeechBubble,
@@ -114,7 +115,7 @@ export default function TagDetail(props: Props) {
                     ? props.headPost.description
                     : `${props.tag} 주제로 작성된 포스트를 모아 볼 수 있는 페이지입니다. 다양한 분야의 포스트를 만나보세요.`}
             />
-            <div className="x-container">
+            <Container size="sm">
                 <Text fontSize={8} fontWeight={600}>— {props.tag} —</Text>
                 {props.headPost && (
                     <div className="mt-3">
@@ -129,23 +130,22 @@ export default function TagDetail(props: Props) {
                         </SpeechBubble>
                     </div>
                 )}
-                <Flex className="mt-4" gap={4} wrap="wrap">
-                    <Flex direction="column" gap={3} style={{ flex: 1 }}>
-                        {posts.map((item, idx) => (
-                            <ArticleCard
-                                key={idx}
-                                {...item}
-                                onLike={() => handleLike(item)}
-                            />
-                        ))}
-                    </Flex>
-                </Flex>
+                <div className="mt-4">
+                    {posts.map((item, idx) => (
+                        <ArticleCard
+                            key={idx}
+                            className="mb-4"
+                            {...item}
+                            onLike={() => handleLike(item)}
+                        />
+                    ))}
+                </div>
                 {isLoading && (
                     <Flex justify="center" className="p-3">
                         <Loading position="inline" />
                     </Flex>
                 )}
-            </div >
+            </Container>
             <Footer />
         </>
     );

@@ -60,8 +60,8 @@ export function ArticleCard(props: ArticleCardProps) {
     }, [props.description, props.highlight]);
 
     return (
-        <article className={cn(props.className, 'w-100', 'mt-2')}>
-            <Flex align="center" justify="between">
+        <article className={cn(props.className)}>
+            <Flex className="mb-3" align="center" justify="between">
                 <Flex align="center" gap={1}>
                     {props.author && (
                         <Link className="deep-dark" href={`/@${props.author}`}>
@@ -110,7 +110,7 @@ export function ArticleCard(props: ArticleCardProps) {
                     )}
                 </Flex>
             </Flex>
-            <div className={cn('posts')}>
+            <div className={cn('posts', 'pb-4')}>
                 <>
                     {props.image && (
                         <Link href={url} className={cn('image')}>

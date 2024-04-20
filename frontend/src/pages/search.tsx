@@ -3,7 +3,7 @@ import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { Alert, Flex, Loading, Text } from '@design-system';
+import { Alert, Container, Flex, Loading, Text } from '@design-system';
 import { Footer, Pagination, SearchBox } from '@system-design/shared';
 import { ArticleCard } from '@system-design/article';
 
@@ -83,7 +83,7 @@ export default function Search(props: Props) {
                 <meta name="robots" content="noindex" />
             </Head>
 
-            <div className="x-container">
+            <Container size="sm">
                 <div className="mb-4">
                     <SearchBox
                         maxLength={20}
@@ -146,7 +146,7 @@ export default function Search(props: Props) {
                         )}
                     </>
                 )}
-            </div>
+            </Container>
 
             <Footer />
         </>

@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Button, Flex, Text } from '@design-system';
+import { Button, Container, Flex, Text } from '@design-system';
 import { ArticleContent } from '@system-design/article-detail-page';
 import type { PageComponent } from '~/components';
 import { ProfileLayout } from '@system-design/profile';
@@ -60,7 +60,7 @@ const UserAbout: PageComponent<Props> = (props) => {
                 image={props.profile.image}
                 description={props.profile.bio}
             />
-            <div className="x-container mt-4">
+            <Container size="sm">
                 {(props.about || '').length <= 0 ? (
                     <Flex justify="center" align="center" direction="column" className="py-5">
                         <img className="w-100" src="/illustrators/doll-play.svg" />
@@ -81,7 +81,7 @@ const UserAbout: PageComponent<Props> = (props) => {
                             : '수정하기'}
                     </Button>
                 )}
-            </div>
+            </Container>
         </>
     );
 };

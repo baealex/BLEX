@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { Flex } from '~/components/design-system';
+import { Container, Flex } from '~/components/design-system';
 
 import { getPostsImage } from '~/modules/utility/image';
 
@@ -31,23 +31,25 @@ export function ArticleCover(props: {
     if (!props.image) {
         return (
             <header className={cn('no-cover')}>
-                <Flex direction="column" justify="end" className="x-container h-100">
-                    {props.series && (
-                        <span
-                            className={cn('series')}
-                            onClick={handleClickSeries}
-                            data-label={`‘${props.series.name}’ 시리즈`}
-                        />
-                    )}
-                    <h1>{props.title}</h1>
-                    <div className={cn('post-info')}>
-                        <Link href={`/@${props.author}`}>@{props.author}</Link>
-                        ·
-                        <time dateTime={props.createdDate}>
-                            {props.createdDate}
-                        </time>
-                    </div>
-                </Flex>
+                <Container size="sm">
+                    <Flex direction="column" justify="end" className="h-100">
+                        {props.series && (
+                            <span
+                                className={cn('series')}
+                                onClick={handleClickSeries}
+                                data-label={`‘${props.series.name}’ 시리즈`}
+                            />
+                        )}
+                        <h1>{props.title}</h1>
+                        <div className={cn('post-info')}>
+                            <Link href={`/@${props.author}`}>@{props.author}</Link>
+                            ·
+                            <time dateTime={props.createdDate}>
+                                {props.createdDate}
+                            </time>
+                        </div>
+                    </Flex>
+                </Container>
             </header>
         );
     }

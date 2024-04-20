@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 
-import { Button, Carousel, Text } from '@design-system';
+import { Button, Carousel, Container, Text } from '@design-system';
 import { EditorContent } from '@system-design/article-editor-page';
 
 import * as API from '~/modules/api';
@@ -37,7 +37,7 @@ export default function UserAboutEdit() {
     if (!data) return null;
 
     return (
-        <div className="x-container mb-5">
+        <Container size="sm">
             <Text fontSize={8} fontWeight={700} className="mb-2">
                 자신을 소개해 보세요.
             </Text>
@@ -63,9 +63,9 @@ export default function UserAboutEdit() {
                     aboutMd
                 })}
             />
-            <Button display="block" onClick={handleUpdateUserAbout}>
+            <Button display="block" className="mb-5" onClick={handleUpdateUserAbout}>
                 작성 완료
             </Button>
-        </div>
+        </Container>
     );
 }

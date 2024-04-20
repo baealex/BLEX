@@ -1,13 +1,9 @@
 @import 'mixin';
 
 .posts {
-    width: 100%;
-    flex: 0 0 500px;
-    padding: 16px 0 32px;
-    margin: 0 0 4px;
     display: flex;
-    justify-content: space-between;
     word-break: keep-all;
+    justify-content: space-between;
     border-bottom: 1px solid #eee;
     gap: 24px;
 

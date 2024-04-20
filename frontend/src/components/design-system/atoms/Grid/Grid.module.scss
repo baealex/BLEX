@@ -1,0 +1,61 @@
+@import 'var';
+
+$gridCellSizes: (
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 5,
+);
+
+.grid {
+    display: grid;
+
+    @each $key,
+    $value in $gridCellSizes {
+        @media (min-width: $BREAKPOINT_MOBILE) {
+            &.gtc-m-#{$key} {
+                grid-template-columns: repeat($value, minmax(0, 1fr));
+            }
+
+            &.gtr-m-#{$key} {
+                grid-template-rows: repeat($value, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: $BREAKPOINT_TABLET) {
+            &.gtc-t-#{$key} {
+                grid-template-columns: repeat($value, minmax(0, 1fr));
+            }
+
+            &.gtr-t-#{$key} {
+                grid-template-rows: repeat($value, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: $BREAKPOINT_DESKTOP) {
+            &.gtc-p-#{$key} {
+                grid-template-columns: repeat($value, minmax(0, 1fr));
+            }
+
+            &.gtr-p-#{$key} {
+                grid-template-rows: repeat($value, minmax(0, 1fr));
+            }
+        }
+    }
+
+    @each $key,
+    $value in $marginSizes {
+        &.g-#{$key} {
+            gap: $value;
+        }
+
+        &.rg-#{$key} {
+            row-gap: $value;
+        }
+
+        &.cg-#{$key} {
+            column-gap: $value;
+        }
+    }
+}

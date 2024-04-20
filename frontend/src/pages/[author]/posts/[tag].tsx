@@ -14,6 +14,7 @@ import {
 import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';
+import { Container } from '~/components/design-system';
 
 interface Props extends API.GetUserProfileResponseData, API.GetUserPostsResponseData {
     page: number;
@@ -78,7 +79,7 @@ UserPosts.pageLayout = (page, props) => (
         active="posts"
         profile={props.profile}
         social={props.social}>
-        <div className="container">
+        <Container>
             <UserArticles
                 allCount={props.allCount}
                 active={props.tag}
@@ -87,7 +88,7 @@ UserPosts.pageLayout = (page, props) => (
                 posts={props.posts}>
                 {page}
             </UserArticles>
-        </div>
+        </Container>
     </ProfileLayout>
 );
 
