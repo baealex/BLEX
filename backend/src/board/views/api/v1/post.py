@@ -153,20 +153,12 @@ def popular_post_list(request):
                     count=Count('devices')
                 ).values('count')
             ),
-            yesterday_count=Subquery(
-                PostAnalytics.objects.filter(
-                    post__id=OuterRef('id'),
-                    created_date=timezone.now() - datetime.timedelta(days=1),
-                ).values('post__id').annotate(
-                    count=Count('devices')
-                ).values('count')
-            ),
-            point=(F('today_count') * 2 + F('yesterday_count'))
+            point=(F('today_count'))
         ).order_by('-point', '-created_date')
 
         posts = Paginator(
             objects=posts,
-            offset=24,
+            offset=5,
             page=request.GET.get('page', 1)
         )
         return StatusDone({
@@ -184,6 +176,7 @@ def popular_post_list(request):
                     'url': post.series.url,
                     'name': post.series.name,
                 } if post.series else None,
+                'point': post.point,
                 'count_likes': 0,
                 'count_comments': post.comments.count(),
                 'has_liked': post.has_liked,
