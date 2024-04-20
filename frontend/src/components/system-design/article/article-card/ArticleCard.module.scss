@@ -3,7 +3,7 @@
 .posts {
     width: 100%;
     flex: 0 0 500px;
-    padding: 0 0 16px;
+    padding: 16px 0 32px;
     margin: 0 0 4px;
     display: flex;
     justify-content: space-between;
@@ -63,8 +63,8 @@
 }
 
 .author-image {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     border-radius: 100%;
     object-fit: cover;
 }
@@ -73,24 +73,20 @@
     letter-spacing: -0.009em;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     word-break: keep-all;
     overflow-wrap: anywhere;
 }
 
-.footer {
-    width: 100%;
+.action {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #999;
 
-    button {
-        padding: 0;
-        border: none;
-        background: none;
-        cursor: pointer;
-        color: #999;
-    }
-
-    .like {
+    &.like {
         &.active {
             color: #ff6b6b;
         }
