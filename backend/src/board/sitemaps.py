@@ -11,7 +11,6 @@ class SiteSitemap(Sitemap):
     def items(self):
         return [
             '',
-            '/newest',
             '/tags',
             '/user/sitemap.xml',
             '/posts/sitemap.xml',
