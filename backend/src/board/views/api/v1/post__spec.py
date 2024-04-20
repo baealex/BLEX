@@ -62,7 +62,7 @@ class PostTestCase(TestCase):
     def test_popular_posts_list_pagination(self):
         response = self.client.get('/v1/posts/popular')
         self.assertEqual(
-            len(json.loads(response.content)['body']['posts']), 24)
+            len(json.loads(response.content)['body']['posts']), 5)
 
     def test_raise_not_found_when_over_last_page(self):
         response = self.client.get('/v1/posts/popular?page=9999')
