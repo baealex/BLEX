@@ -113,11 +113,6 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                 navigationItems={props.itemExpended?.(navItems) ?? navItems}
                 navigationActive={props.active}>
                 <WidgetLayout widget={props.widget}>
-                    {isLoading && (
-                        <Flex justify="center" className="p-3">
-                            <Loading position="inline" />
-                        </Flex>
-                    )}
                     <div className="mt-2">
                         {posts.map((post) => (
                             <ArticleCard
@@ -129,6 +124,11 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                                 {...post}
                             />
                         ))}
+                        {isLoading && (
+                            <Flex justify="center" className="p-3">
+                                <Loading position="inline" />
+                            </Flex>
+                        )}
                     </div>
                     {props.children}
                 </WidgetLayout>
