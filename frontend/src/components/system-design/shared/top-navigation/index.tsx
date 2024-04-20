@@ -15,6 +15,7 @@ import {
     AccountCreateModal,
     AccountDeleteModal,
     AuthGetModal,
+    HelpModal,
     TwoFactorAuthGetModal,
     TwoFactorAuthSyncModal
 } from '../modals';
@@ -120,6 +121,10 @@ export function TopNavigation() {
                 isOpen={modal.isOpenTwoFactorAuthSyncModal}
                 onClose={() => modalStore.close('isOpenTwoFactorAuthSyncModal')}
             />
+            <HelpModal
+                isOpen={modal.isOpenHelpModal}
+                onClose={() => modalStore.close('isOpenHelpModal')}
+            />
             <header className={cn('top-nav', { isRollup })}>
                 <div className={cn('container', 'h-100')}>
                     <Flex justify="between" align="center" className="h-100">
@@ -188,6 +193,13 @@ export function TopNavigation() {
                                                         onClick: () => {
                                                             clearMemoryStore();
                                                             router.push('/setting/account');
+                                                        }
+                                                    },
+                                                    {
+                                                        name: '도움말',
+                                                        icon: 'fas fa-question-circle',
+                                                        onClick: () => {
+                                                            modalStore.open('isOpenHelpModal');
                                                         }
                                                     },
                                                     {

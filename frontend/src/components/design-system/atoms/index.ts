@@ -10,7 +10,6 @@ export * from './GlitchText';
 export * from './ImageInput';
 export * from './ImagePreload';
 export * from './Loading';
-export * from './Masonry';
 export * from './PageNavigation';
 export * from './PopOver';
 export * from './Progress';

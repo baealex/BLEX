@@ -1,15 +1,18 @@
 import type { GetServerSideProps } from 'next';
+import Link from 'next/link';
 
 import { CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';
+import { Card, Flex, Loading, Text } from '~/components/design-system';
+import { useFetch } from '~/hooks/use-fetch';
 
 type Props = API.GetPostsResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     try {
-        const { data } = await API.getPopularPosts(1, context.req.headers.cookie);
+        const { data } = await API.getNewestPosts(1, context.req.headers.cookie);
 
         return {
             props: {
@@ -22,13 +25,64 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
 };
 
 const TrendyArticles: PageComponent<Props> = () => {
-    return <></>;
+    const { data: trendyPosts, isLoading } = useFetch(['trend'], async () => {
+        const { data } = await API.getPopularPosts(1);
+        return data.body.posts;
+    });
+
+    return (
+        <div
+            style={{
+                flex: '0 0 300px',
+                position: 'sticky',
+                top: '90px'
+            }}>
+            <Card className="p-3" hasShadow isRounded>
+                <Flex direction="column" gap={3}>
+                    <Flex align="center" gap={2}>
+                        <Text fontWeight={600} className="gray-dark">
+                            <i className="fas fa-fire"></i>
+                        </Text>
+                        <Text fontWeight={600} className="gray-dark">
+                            Trending Posts
+                        </Text>
+                    </Flex>
+                    {isLoading && (
+                        <Flex justify="center" className="mt-3 w-100">
+                            <Loading position="inline" />
+                        </Flex>
+                    )}
+                    <Flex direction="column" gap={4}>
+                        {trendyPosts?.map((post) => (
+                            <Flex direction="column" gap={2}>
+                                <Flex justify="between">
+                                    <Link className="deep-dark" href={`/@${post.author}/${post.url}`}>
+                                        <Text fontWeight={600} fontSize={3}>
+                                            {post.title}
+                                        </Text>
+                                    </Link>
+                                </Flex>
+                                <Link href={`/@${post.author}`} className="shallow-dark">
+                                    <Flex gap={2} align="center">
+                                        <img width={30} height={30} style={{ borderRadius: '50%' }} src={post.authorImage} />
+                                        <Text fontSize={3}>@{post.author}</Text>
+                                    </Flex>
+                                </Link>
+                            </Flex>
+                        ))}
+                    </Flex>
+                </Flex>
+            </Card>
+        </div>
+    );
 };
 
 TrendyArticles.pageLayout = (page, props) => (
-    <CollectionLayout active="인기 포스트" {...props}>
-        {page}
-    </CollectionLayout>
+    <CollectionLayout
+        active="Home"
+        {...props}
+        widget={page}>
+    </CollectionLayout >
 );
 
 export default TrendyArticles;

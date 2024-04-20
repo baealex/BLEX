@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 
-import { Flex, Loading, Masonry } from '~/components/design-system';
+import { Flex, Loading } from '~/components/design-system';
 import { CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
 import { SEO } from '@system-design/shared';
@@ -71,11 +71,11 @@ const Tags: PageComponent<Props> = (props) => {
                 title={`태그 클라우드 | ${CONFIG.BLOG_TITLE}`}
                 description="태그 클라우드 페이지입니다. 다양한 분야의 주제를 만나보세요."
             />
-            <Masonry
-                items={tags.map((item) => (
+            <div className="grid-321">
+                {tags.map((item) => (
                     <TagCard {...item} />
                 ))}
-            />
+            </div>
             {isLoading && (
                 <Flex justify="center" className="mt-3">
                     <Loading position="inline" />
@@ -86,7 +86,7 @@ const Tags: PageComponent<Props> = (props) => {
 };
 
 Tags.pageLayout = (page, props) => (
-    <CollectionLayout active="태그 클라우드" {...props} posts={[]}>
+    <CollectionLayout active="Tags" {...props} posts={[]}>
         {page}
     </CollectionLayout>
 );

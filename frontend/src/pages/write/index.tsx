@@ -333,12 +333,6 @@ export default function Write(props: Props) {
                             <Button
                                 className="my-3"
                                 color="secondary"
-                                onClick={() => handleSubmit()}>
-                                간편 발행
-                            </Button>
-                            <Button
-                                className="my-3"
-                                color="secondary"
                                 onClick={() => {
                                     modalStore.open('isOpenArticlePublishModal');
                                 }}>

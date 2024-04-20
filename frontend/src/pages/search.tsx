@@ -126,16 +126,16 @@ export default function Search(props: Props) {
                         </Flex>
                         {response.body.results.map((item, idx) => (
                             <div key={idx}>
-                                <ArticleCard
-                                    className="mt-4"
-                                    highlight={props.query}
-                                    {...item}
-                                />
                                 <Flex align="center" justify="end">
                                     <Text className="mt-3 gray-dark" fontSize={3}>
                                         {item.positions.join(', ')}에서 검색됨
                                     </Text>
                                 </Flex>
+                                <ArticleCard
+                                    className="mt-3"
+                                    highlight={props.query}
+                                    {...item}
+                                />
                             </div>
                         ))}
                         {response.body.lastPage > 0 && (

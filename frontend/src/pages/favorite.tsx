@@ -11,7 +11,7 @@ type Props = API.GetPostsResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     try {
-        const { data } = await API.getNewestPosts(1, context.req.headers.cookie);
+        const { data } = await API.getLikedPosts(1, context.req.headers.cookie);
 
         return {
             props: {
@@ -26,16 +26,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
 const TrendyArticles: PageComponent<Props> = () => {
     return (
         <>
-            <SEO
-                title={`최신 포스트 | ${CONFIG.BLOG_TITLE}`}
-                description="최신 정보를 모아 볼 수 있는 페이지입니다. 다양한 분야의 최신 포스트를 제공됩니다. 다양한 의견과 정보를 만나보세요."
-            />
+            <SEO title={`Favorite | ${CONFIG.BLOG_TITLE}`} />
         </>
     );
 };
 
 TrendyArticles.pageLayout = (page, props) => (
-    <CollectionLayout active="최신 포스트" {...props}>
+    <CollectionLayout active="Favorite" {...props}>
         {page}
     </CollectionLayout>
 );

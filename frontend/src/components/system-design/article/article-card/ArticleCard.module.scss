@@ -1,19 +1,52 @@
 @import 'mixin';
 
 .posts {
+    width: 100%;
+    flex: 0 0 500px;
+    padding: 0 0 16px;
+    margin: 0 0 4px;
+    display: flex;
+    justify-content: space-between;
+    word-break: keep-all;
+    border-bottom: 1px solid #eee;
+    gap: 24px;
+
+    :global(body.dark) & {
+        border-color: #333;
+    }
+
     a {
         text-decoration: none;
     }
+
+    @media (max-width: 678px) {
+        flex-direction: column;
+
+        .image {
+            order: 0;
+            width: 100%;
+            height: 220px;
+        }
+    }
+}
+
+.content {
+    flex: 1;
+    width: 100%;
 }
 
 .image {
-    object-fit: cover;
-    width: 100%;
-    height: 250px;
-    float: initial;
-    font-size: 0;
-    margin-left: 0;
-    @include BACKGROUND;
+    order: 1;
+    width: 180px;
+    height: 180px;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 16px;
+    }
 }
 
 .title {
@@ -40,20 +73,14 @@
     letter-spacing: -0.009em;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     word-break: keep-all;
     overflow-wrap: anywhere;
 }
 
 .footer {
-    border-top: 1px solid #e6e6e6;
-    background-color: #fafafa;
-
-    :global(body.dark) & {
-        border-top: 1px solid #333;
-        background-color: #222;
-    }
+    width: 100%;
 
     button {
         padding: 0;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useValue } from 'badland-react';
 
-import { Flex, Loading, Masonry, PageNavigation } from '@design-system';
+import { Flex, Loading, PageNavigation } from '@design-system';
 import { ArticleCard } from '../article-card';
 import { Footer } from '@system-design/shared';
 
@@ -18,32 +18,29 @@ import { useMemoryStore } from '~/hooks/use-memory-store';
 const NAVIGATION_ITEMS = [
     {
         link: '/',
-        name: '인기 포스트'
-    },
-    {
-        link: '/newest',
-        name: '최신 포스트'
+        name: 'Home'
     },
     {
         link: '/tags',
-        name: '태그 클라우드'
+        name: 'Tags'
     }
 ];
 
 const LOGGED_IN_NAVIGATION_ITEMS = [
-    ...NAVIGATION_ITEMS.slice(0, 2),
+    ...NAVIGATION_ITEMS.slice(0, 1),
     {
-        link: '/liked',
-        name: '관심 포스트'
+        link: '/favorite',
+        name: 'Favorite'
     },
-    ...NAVIGATION_ITEMS.slice(2)
+    ...NAVIGATION_ITEMS.slice(1)
 ];
 
 export interface CollectionLayoutProps {
-    active: '인기 포스트' | '최신 포스트' | string;
+    active: 'Home' | 'Favorite' | 'Tags';
     posts: API.GetPostsResponseData['posts'];
     lastPage: number;
-    children: React.ReactNode;
+    children?: React.ReactNode;
+    widget?: React.ReactNode;
     itemExpended?: (tag: typeof NAVIGATION_ITEMS) => typeof NAVIGATION_ITEMS;
 }
 
@@ -63,11 +60,10 @@ export function CollectionLayout(props: CollectionLayoutProps) {
     const [posts, setPosts] = useState(memoryStore.posts);
 
     const { isLoading } = useInfinityScroll(async () => {
-        const { data } = props.active === '인기 포스트'
-            ? await API.getPopularPosts(page + 1)
-            : props.active === '최신 포스트'
-                ? await API.getNewestPosts(page + 1)
-                : await API.getLikedPosts(page + 1);
+        const { data } = props.active === 'Home'
+            ? await API.getNewestPosts(page + 1)
+            : await API.getLikedPosts(page + 1);
+
 
         if (data.status === 'DONE') {
             setPage((prevPage) => {
@@ -79,7 +75,7 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                 return memoryStore.posts;
             });
         }
-    }, { enabled: memoryStore.page < props.lastPage && props.active !== '태그 클라우드' });
+    }, { enabled: memoryStore.page < props.lastPage && props.active !== 'Tags' });
 
     const handleLike = async (post: API.GetPostsResponseData['posts'][number]) => {
         const { data } = await API.putAnUserPosts('@' + post.author, post.url, 'like');
@@ -119,15 +115,20 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                     items={props.itemExpended?.(navItems) ?? navItems}
                     active={props.active}
                 />
-                <Masonry
-                    items={posts.map((post) => (
-                        <ArticleCard
-                            key={post.url}
-                            {...post}
-                            onLike={() => handleLike(post)}
-                        />
-                    ))}
-                />
+                <Flex className="mt-4" gap={4} wrap="wrap">
+                    <Flex direction="column" gap={3} style={{ flex: '1 1 500px' }}>
+                        {posts.map((post) => (
+                            <ArticleCard
+                                hasShadow={false}
+                                isRounded={false}
+                                key={post.url}
+                                onLike={() => handleLike(post)}
+                                {...post}
+                            />
+                        ))}
+                    </Flex>
+                    {props.widget}
+                </Flex>
                 {isLoading && (
                     <Flex justify="center" className="p-3">
                         <Loading position="inline" />
