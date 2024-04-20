@@ -146,7 +146,7 @@ export function ArticleCard(props: ArticleCardProps) {
                                         <Text
                                             tag="h3"
                                             fontWeight={600}
-                                            className={cn('title', 'deep-dark', 'mb-2')}>
+                                            className={cn('deep-dark', 'mb-2')}>
                                             {props.title}
                                         </Text>
                                     )}
