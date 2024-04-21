@@ -1,7 +1,6 @@
 import { useValue } from 'badland-react';
 
 import { Container, PageNavigationLayout, WidgetLayout } from '@design-system';
-import { Footer } from '@system-design/shared';
 
 import { authStore } from '~/stores/auth';
 
@@ -48,7 +47,6 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                     {props.children}
                 </WidgetLayout>
             </PageNavigationLayout>
-            <Footer />
         </Container>
     );
 }

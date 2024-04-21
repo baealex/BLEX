@@ -6,7 +6,7 @@ import type { PageComponent } from '~/components';
 import { Flex, Loading } from '~/components/design-system';
 import { SEO } from '@system-design/shared';
 
-import { CalendarWidget, TrendingPostsWidget } from '~/components/system-design/widgets';
+import { ServiceInfoWidget, TrendingPostsWidget } from '~/components/system-design/widgets';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useLikePost } from '~/hooks/use-like-post';
@@ -87,8 +87,8 @@ TrendyArticles.pageLayout = (page) => (
         active="Favorite"
         widget={(
             <>
-                <CalendarWidget />
                 <TrendingPostsWidget />
+                <ServiceInfoWidget />
             </>
         )}>
         {page}

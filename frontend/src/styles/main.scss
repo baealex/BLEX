@@ -239,3 +239,15 @@ a {
     animation: fire 1s infinite;
     color: #fc923b;
 }
+
+.discord {
+    color: #7289da;
+}
+
+.github {
+    color: #333;
+
+    body.dark & {
+        color: #fff;
+    }
+}
