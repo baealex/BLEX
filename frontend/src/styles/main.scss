@@ -220,3 +220,22 @@ a {
 .hide {
     display: none;
 }
+
+@keyframes fire {
+    0% {
+        color: #fc923b;
+    }
+
+    50% {
+        color: #dc3b3b;
+    }
+
+    100% {
+        color: #fc923b;
+    }
+}
+
+.fire {
+    animation: fire 1s infinite;
+    color: #fc923b;
+}

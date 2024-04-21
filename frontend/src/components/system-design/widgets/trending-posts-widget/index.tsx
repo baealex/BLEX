@@ -17,10 +17,10 @@ export function TrendingPostsWidget() {
             <Flex direction="column" gap={3}>
                 <Flex align="center" gap={2}>
                     <Text fontWeight={600} className="gray-dark">
-                        <i className="fas fa-fire"></i>
+                        <i className="fas fa-fire fire"></i>
                     </Text>
                     <Text fontWeight={600} className="gray-dark">
-                        Trending Posts
+                        Trending
                     </Text>
                 </Flex>
                 {isLoading && (
