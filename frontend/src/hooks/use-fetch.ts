@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import {
-    lazyIntersection,
-    lazyLoadResource
+    lazyIntersection
 } from '~/modules/optimize/lazy';
 
 const cache = new Map();
@@ -47,9 +46,6 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
         if (options.observeRef) {
             const observer = lazyIntersection(options.observeRef.current, async () => {
                 await run();
-                setTimeout(() => {
-                    lazyLoadResource();
-                }, 100);
             });
             return () => observer?.disconnect();
         }

@@ -3,7 +3,6 @@ export * from './article-author';
 export * from './article-comment';
 export * from './article-content';
 export * from './article-cover';
-export * from './article-layout';
 export * from './article-nav';
 export * from './article-report';
 export * from './article-series';

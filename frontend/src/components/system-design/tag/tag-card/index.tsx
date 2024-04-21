@@ -4,8 +4,8 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Text } from '@design-system';
-import { getPostsImage } from '~/modules/utility/image';
+import { LazyLoadedImage, Text } from '@design-system';
+import { createColorHash, getPostImage } from '~/modules/utility/image';
 import { useMemo } from 'react';
 
 export interface TagCardProps {
@@ -14,14 +14,6 @@ export interface TagCardProps {
     image?: string;
 }
 
-const createColorHash = (str: string) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-    return '#' + '00000'.substring(0, 6 - c.length) + c;
-};
 
 export function TagCard(props: TagCardProps) {
     const colorHash = useMemo(() => createColorHash(props.name), [props.name]);
@@ -30,11 +22,11 @@ export function TagCard(props: TagCardProps) {
         <Link className={cn('white')} href={`/tags/${props.name}`}>
             <div className={cn('card')} style={{ backgroundColor: colorHash }}>
                 {props.image && (
-                    <img
-                        className={cn('card-image', 'lazy')}
-                        src={getPostsImage(props.image, { preview: true })}
-                        data-src={getPostsImage(props.image)}
+                    <LazyLoadedImage
+                        className={cn('card-image')}
                         alt={props.name}
+                        src={getPostImage(props.image)}
+                        previewImage={getPostImage(props.image, { preview: true })}
                     />
                 )}
                 <div className={cn('card-body', { 'has-image': props.image })}>

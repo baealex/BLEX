@@ -4,9 +4,9 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card } from '@design-system';
+import { Card, LazyLoadedImage } from '@design-system';
 
-import { getPostsImage } from '~/modules/utility/image';
+import { getPostImage } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
 
 export interface SeriesArticleCardProps {
@@ -34,10 +34,11 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
                     {unescape(props.description)}
                 </div>
                 {props.image && (
-                    <img
-                        className={cn('thumbnail', 'lazy')}
-                        src={getPostsImage(props.image, { preview: true })}
-                        data-src={getPostsImage(props.image, { minify: true })}
+                    <LazyLoadedImage
+                        className={cn('thumbnail')}
+                        alt={props.title}
+                        src={getPostImage(props.image, { preview: true })}
+                        previewImage={getPostImage(props.image, { minify: true })}
                     />
                 )}
                 <span className="shallow-dark">

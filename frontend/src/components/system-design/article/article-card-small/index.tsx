@@ -1,11 +1,12 @@
-import classNames from 'classnames';
+import classNames from 'classnames/bind';
 import styles from './ArticleCardSmall.module.scss';
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card } from '@design-system';
+import { Card, LazyLoadedImage } from '@design-system';
 
-import { getPostsImage } from '~/modules/utility/image';
+import { getDefaultPostCoverImage, getPostImage } from '~/modules/utility/image';
 
 export interface ArticleCardSmallProps {
     author: string;
@@ -21,19 +22,15 @@ export function ArticleCardSmall(props: ArticleCardSmallProps) {
         <div className="col-md-4 mt-3">
             <Card hasShadow isRounded>
                 <Link className="deep-dark" href={`/@${props.author}/${props.url}`}>
-                    <img
-                        className={classNames(
-                            styles.image,
-                            'lazy'
-                        )}
-                        src={getPostsImage(props.image, {
-                            preview: true,
-                            title: props.title
-                        })}
-                        data-src={getPostsImage(props.image, {
-                            minify: true,
-                            title: props.title
-                        })}
+                    <LazyLoadedImage
+                        alt={props.title}
+                        className={cx('image')}
+                        src={props.image
+                            ? getPostImage(props.image, { minify: true })
+                            : getDefaultPostCoverImage(props.title)}
+                        previewImage={props.image
+                            ? getPostImage(props.image, { preview: true })
+                            : getDefaultPostCoverImage(props.title)}
                     />
                     <div className="p-3">
                         <div className={styles.title}>

@@ -5,9 +5,9 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { Container, Flex } from '~/components/design-system';
+import { Container, Flex, LazyLoadedImage } from '~/components/design-system';
 
-import { getPostsImage } from '~/modules/utility/image';
+import { getPostImage } from '~/modules/utility/image';
 
 export function ArticleCover(props: {
     author: string;
@@ -57,10 +57,10 @@ export function ArticleCover(props: {
     return (
         <header className={cn('full-cover')}>
             <div className={cn('image-cover')}>
-                <img
-                    className={'lazy'}
-                    src={getPostsImage(props.image, { minify: true })}
-                    data-src={getPostsImage(props.image)}
+                <LazyLoadedImage
+                    previewImage={getPostImage(props.image, { minify: true })}
+                    src={getPostImage(props.image)}
+                    alt={props.title}
                 />
             </div>
             <div className={cn('inner')}>

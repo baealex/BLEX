@@ -1,6 +1,5 @@
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
-import { useEffect } from 'react';
 
 import {
     Container,
@@ -21,7 +20,6 @@ import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import * as API from '~/modules/api';
 import { CONFIG } from '~/modules/settings';
 import { getUserImage } from '~/modules/utility/image';
-import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 import { useLikePost } from '~/hooks/use-like-post';
 
@@ -75,8 +73,6 @@ export default function TagDetail(props: Props) {
             }));
         }
     });
-
-    useEffect(lazyLoadResource, [posts]);
 
     return (
         <>

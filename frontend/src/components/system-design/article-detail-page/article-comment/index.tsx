@@ -2,7 +2,7 @@ import classNames from 'classnames/bind';
 import styles from './Comment.module.scss';
 const cn = classNames.bind(styles);
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from 'badland-react';
 
 import { Alert, Container, Flex, Loading } from '@design-system';
@@ -158,7 +158,6 @@ export function ArticleComment(props: ArticleCommentProps) {
                 renderedContent: blexer(content)
             }) : comment
         )));
-        setTimeout(lazyLoadResource, 300);
         setIsSubmitting(false);
     }, []);
 
@@ -169,8 +168,11 @@ export function ArticleComment(props: ArticleCommentProps) {
                 isEdit: false
             }) : comment
         )));
-        setTimeout(lazyLoadResource, 300);
     }, []);
+
+    useEffect(() => {
+        lazyLoadResource();
+    }, [comments]);
 
     return (
         <div ref={ref} id="comments" className={`comments ${cn('background')} py-5`}>

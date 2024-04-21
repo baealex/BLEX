@@ -4,10 +4,10 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
+import { LazyLoadedImage, Text } from '~/components/design-system';
 import { TagBadges } from '../../tag';
-import { Text } from '~/components/design-system';
 
-import { getPostsImage } from '~/modules/utility/image';
+import { getPostImage } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
 
 export interface ArticleCardListProps {
@@ -30,11 +30,11 @@ export function ArticleCardList(props: ArticleCardListProps) {
             <div className={cn('list', 'pb-4')}>
                 {props.image && (
                     <Link className={cn('image')} href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
-                        <img
-                            className="lazy"
-                            src={getPostsImage(props.image, { preview: true })}
-                            data-src={getPostsImage(props.image, { minify: true })}
-                            height="400px"
+                        <LazyLoadedImage
+                            className={cn('image')}
+                            alt={props.title}
+                            previewImage={getPostImage(props.image, { preview: true })}
+                            src={getPostImage(props.image, { minify: true })}
                         />
                     </Link>
                 )}

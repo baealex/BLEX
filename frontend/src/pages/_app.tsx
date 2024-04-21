@@ -1,6 +1,5 @@
 import App, { AppProps } from 'next/app';
 import Head from 'next/head';
-import Router from 'next/router';
 import Script from 'next/script';
 
 import {
@@ -12,8 +11,6 @@ import type { PageComponent, PageLayout } from '~/components';
 import { Loading } from '@design-system';
 
 import { CONFIG } from '~/modules/settings';
-// import { bindErrorReport } from '~/modules/utility/report';
-import { lazyLoadResource } from '~/modules/optimize/lazy';
 import { minify } from '~/modules/utility/string';
 
 import { loadingStore } from '~/stores/loading';
@@ -23,10 +20,6 @@ import 'easymde/src/css/easymde.css';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material-darker.css';
 
-Router.events.on('routeChangeComplete', () => {
-    lazyLoadResource();
-});
-
 class Main extends App<AppProps> {
     state = { isLoading: loadingStore.state.isLoading };
 
@@ -35,11 +28,6 @@ class Main extends App<AppProps> {
         loadingStore.subscribe((state) => {
             this.setState({ isLoading: state.isLoading });
         });
-    }
-
-    componentDidMount() {
-        // bindErrorReport();
-        lazyLoadResource();
     }
 
     render() {

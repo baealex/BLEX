@@ -11,6 +11,7 @@ export * from './GlitchText';
 export * from './Grid';
 export * from './ImageInput';
 export * from './ImagePreload';
+export * from './LazyLoadedImage';
 export * from './Loading';
 export * from './PageNavigation';
 export * from './PopOver';

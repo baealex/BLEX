@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import { useEffect } from 'react';
 
 import { ArticleCard, CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
@@ -9,8 +8,6 @@ import { TrendingPostsWidget } from '~/components/system-design/widgets';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useLikePost } from '~/hooks/use-like-post';
-
-import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 import * as API from '~/modules/api';
 
@@ -56,8 +53,6 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
             }));
         }
     });
-
-    useEffect(lazyLoadResource, [posts]);
 
     return (
         <>

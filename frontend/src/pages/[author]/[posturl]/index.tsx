@@ -12,14 +12,13 @@ import {
     ArticleComment,
     ArticleContent,
     ArticleCover,
-    ArticleLayout,
     ArticleNav,
     ArticleReport,
     ArticleSeries,
     ArticleThanks,
     RelatedArticles
 } from '@system-design/article-detail-page';
-import { Button, Card, Container, Flex, Text } from '@design-system';
+import { Button, Card, Container, DualWidgetLayout, Flex, Text } from '@design-system';
 import {
     Footer,
     SEO
@@ -28,7 +27,7 @@ import { TagBadges } from '@system-design/tag';
 
 import * as API from '~/modules/api';
 import { codeMirrorAll } from '~/modules/library/codemirror';
-import { getPostsImage } from '~/modules/utility/image';
+import { getPostImage } from '~/modules/utility/image';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
 import { snackBar } from '~/modules/ui/snack-bar';
 
@@ -152,7 +151,7 @@ function PostDetail(props: Props) {
                 description={props.post.description}
                 author={props.post.author}
                 keywords={props.post.tags.join(',')}
-                image={props.post.image && getPostsImage(props.post.image)}
+                image={props.post.image && getPostImage(props.post.image)}
                 isArticle={true}
             />
             <article data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}>
@@ -164,46 +163,48 @@ function PostDetail(props: Props) {
                     isAd={props.post.isAd}
                     createdDate={props.post.createdDate}
                 />
-                <ArticleLayout
-                    action={<ArticleAction {...props.post} />}
-                    content={
-                        <>
-                            {props.post.author == username && (
-                                <Card isRounded className="p-3 mb-4">
-                                    <Flex justify="between" align="center">
-                                        <Text fontSize={5} fontWeight={600}>
-                                            포스트 관리
-                                        </Text>
-                                        <Flex gap={2}>
-                                            <Button onClick={handleClickAnalytics}>분석</Button>
-                                            <Button onClick={handleClickEdit}>수정</Button>
-                                            <Button onClick={handleClickDelete}>삭제</Button>
+                <Container>
+                    <DualWidgetLayout
+                        leftWidget={<ArticleAction {...props.post} />}
+                        content={
+                            <>
+                                {props.post.author == username && (
+                                    <Card isRounded className="p-3 mb-4">
+                                        <Flex justify="between" align="center">
+                                            <Text fontSize={5} fontWeight={600}>
+                                                포스트 관리
+                                            </Text>
+                                            <Flex gap={2}>
+                                                <Button onClick={handleClickAnalytics}>분석</Button>
+                                                <Button onClick={handleClickEdit}>수정</Button>
+                                                <Button onClick={handleClickDelete}>삭제</Button>
+                                            </Flex>
                                         </Flex>
-                                    </Flex>
-                                </Card>
-                            )}
-                            <ArticleContent renderedContent={props.post.renderedContent} />
-                            <TagBadges
-                                items={props.post.tags.map(item => (
-                                    <Link href={`/@${props.post.author}/posts/${item}`}>
-                                        {item}
-                                    </Link>
-                                ))}
-                            />
-                            <ArticleThanks
-                                author={props.post.author}
-                                url={props.post.url}
-                            />
-                            <ArticleSeries
-                                author={props.post.author}
-                                url={props.post.url}
-                                series={props.post.series}
-                            />
-                            <ArticleReport url={props.post.url} />
-                        </>
-                    }
-                    navigation={<ArticleNav renderedContent={props.post.renderedContent} />}
-                />
+                                    </Card>
+                                )}
+                                <ArticleContent renderedContent={props.post.renderedContent} />
+                                <TagBadges
+                                    items={props.post.tags.map(item => (
+                                        <Link href={`/@${props.post.author}/posts/${item}`}>
+                                            {item}
+                                        </Link>
+                                    ))}
+                                />
+                                <ArticleThanks
+                                    author={props.post.author}
+                                    url={props.post.url}
+                                />
+                                <ArticleSeries
+                                    author={props.post.author}
+                                    url={props.post.url}
+                                    series={props.post.series}
+                                />
+                                <ArticleReport url={props.post.url} />
+                            </>
+                        }
+                        rightWidget={<ArticleNav renderedContent={props.post.renderedContent} />}
+                    />
+                </Container>
             </article>
             <ArticleComment
                 author={props.post.author}

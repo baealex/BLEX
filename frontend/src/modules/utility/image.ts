@@ -16,12 +16,6 @@ export function getImage(path: string) {
     return `${CONFIG.STATIC_SERVER}/${path}`;
 }
 
-interface GetPostsImageOptions {
-    preview?: boolean;
-    minify?: boolean;
-    title?: string;
-}
-
 const DEFAULT_COVER_LIST = [
     'assets/images/default-cover-1.jpg',
     'assets/images/default-cover-2.jpg',
@@ -31,9 +25,20 @@ const DEFAULT_COVER_LIST = [
     'assets/images/default-cover-6.jpg'
 ];
 
-export function getPostsImage(path: string, options?: GetPostsImageOptions) {
+export function getDefaultPostCoverImage(title: string) {
+    const hash = getHash(title);
+    const index = hash % DEFAULT_COVER_LIST.length;
+    return getImage(DEFAULT_COVER_LIST[index]);
+}
+
+interface GetPostImageOptions {
+    preview?: boolean;
+    minify?: boolean;
+}
+
+export function getPostImage(path: string, options?: GetPostImageOptions) {
     if (path !== '') {
-        const [ ext ] = path.split('.').slice(-1);
+        const [ext] = path.split('.').slice(-1);
         if (options?.preview) {
             return getImage(path) + '.preview.jpg';
         }
@@ -41,11 +46,6 @@ export function getPostsImage(path: string, options?: GetPostsImageOptions) {
             return getImage(path) + '.minify.' + ext;
         }
         return getImage(path);
-    }
-    if (options?.title) {
-        const hash = getHash(options.title);
-        const index = hash % DEFAULT_COVER_LIST.length;
-        return getImage(DEFAULT_COVER_LIST[index]);
     }
     return DEFAULT_COVER_LIST[0];
 }
@@ -55,6 +55,15 @@ export function getUserImage(path: string) {
         return getImage(path);
     }
     return getImage('assets/images/default-avatar.jpg');
+}
+
+export function createColorHash(str: string) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return '#' + '00000'.substring(0, 6 - c.length) + c;
 }
 
 export function isImage(file: File) {
@@ -79,7 +88,7 @@ export async function dropImage(e: React.DragEvent<HTMLDivElement>) {
         snackBar(message('BEFORE_REQ_ERR', '하나씩 업로드 할 수 있습니다.'));
         return;
     }
-    const [ file ] = Array.from(files);
+    const [file] = Array.from(files);
     return uploadImage(file);
 }
 

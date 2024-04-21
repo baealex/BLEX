@@ -1,5 +1,4 @@
 import type { GetServerSideProps } from 'next';
-import { useEffect } from 'react';
 
 import { Flex, Grid, Loading } from '~/components/design-system';
 import { CollectionLayout } from '@system-design/article';
@@ -10,7 +9,6 @@ import { TagCard } from '@system-design/tag';
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 
 import { CONFIG } from '~/modules/settings';
-import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 import * as API from '~/modules/api';
 
@@ -44,8 +42,6 @@ const Tags: PageComponent<Props> = (props) => {
         initialValue: props.tags,
         lastPage: props.lastPage
     });
-
-    useEffect(lazyLoadResource, [tags]);
 
     return (
         <>

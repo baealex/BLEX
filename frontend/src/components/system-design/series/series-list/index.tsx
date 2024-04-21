@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { Text } from '~/components/design-system';
 
-import { getPostsImage } from '~/modules/utility/image';
+import { getPostImage } from '~/modules/utility/image';
 
 export interface SeriesListProps {
     url: string;
@@ -19,7 +19,7 @@ export function SeriesList(props: SeriesListProps) {
     return (
         <div
             className={cn('card')}
-            style={{ backgroundImage: `url(${getPostsImage(props.image, { title: props.name })})` }}>
+            style={{ backgroundImage: `url(${getPostImage(props.image)})` }}>
             <Link className={cn('title')} href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
                 <div className={cn('mask')}>
                     <Text className="mb-2" fontSize={6} fontWeight={600}>

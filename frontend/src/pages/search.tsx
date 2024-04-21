@@ -9,8 +9,6 @@ import { ArticleCard } from '@system-design/article';
 
 import { useFetch } from '~/hooks/use-fetch';
 
-import { lazyLoadResource } from '~/modules/optimize/lazy';
-
 import * as API from '~/modules/api';
 
 interface Props {
@@ -69,7 +67,6 @@ export default function Search(props: Props) {
         API.getSearchHistory().then(({ data }) => {
             setHistory(data.body.searches);
         });
-        lazyLoadResource();
     }, [response]);
 
     return (

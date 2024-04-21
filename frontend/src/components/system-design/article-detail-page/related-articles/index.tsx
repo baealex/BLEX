@@ -5,10 +5,10 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useRef } from 'react';
 
-import { Text } from '@design-system';
+import { LazyLoadedImage, Text } from '@design-system';
 
 import * as API from '~/modules/api';
-import { getPostsImage } from '~/modules/utility/image';
+import { getPostImage } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
 import { useFetch } from '~/hooks/use-fetch';
 
@@ -38,11 +38,10 @@ export function RelatedArticles(props: RelatedProps) {
                 <div key={item.url} className={cn('list')}>
                     {item.image && (
                         <Link className={cn('image')} href={`/@${item.author}/${item.url}`}>
-                            <img
-                                className="lazy"
-                                src={getPostsImage(item.image, { preview: true })}
-                                data-src={getPostsImage(item.image, { minify: true })}
-                                height="400px"
+                            <LazyLoadedImage
+                                alt={item.title}
+                                src={getPostImage(item.image, { minify: true })}
+                                previewImage={getPostImage(item.image, { preview: true })}
                             />
                         </Link>
                     )}

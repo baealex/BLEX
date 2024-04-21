@@ -7,11 +7,12 @@ import { useMemo } from 'react';
 
 import {
     Flex,
+    LazyLoadedImage,
     Text
 } from '@design-system';
 
 import {
-    getPostsImage,
+    getPostImage,
     getUserImage
 } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
@@ -114,17 +115,11 @@ export function ArticleCard(props: ArticleCardProps) {
                 <>
                     {props.image && (
                         <Link href={url} className={cn('image')}>
-                            <img
-                                className={cn('image', 'lazy')}
+                            <LazyLoadedImage
+                                className={cn('image')}
                                 alt={props.title}
-                                src={getPostsImage(props.image, {
-                                    preview: true,
-                                    title: props.title
-                                })}
-                                data-src={getPostsImage(props.image, {
-                                    minify: true,
-                                    title: props.title
-                                })}
+                                src={getPostImage(props.image, { minify: true })}
+                                previewImage={getPostImage(props.image, { preview: true })}
                             />
                         </Link>
                     )}
