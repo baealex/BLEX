@@ -37,8 +37,8 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
                     <LazyLoadedImage
                         className={cn('thumbnail')}
                         alt={props.title}
-                        src={getPostImage(props.image, { preview: true })}
-                        previewImage={getPostImage(props.image, { minify: true })}
+                        src={getPostImage(props.image, { minify: true })}
+                        previewImage={getPostImage(props.image, { preview: true })}
                     />
                 )}
                 <span className="shallow-dark">

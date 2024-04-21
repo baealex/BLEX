@@ -12,7 +12,8 @@ import {
     Container,
     Flex,
     Loading,
-    Modal
+    Modal,
+    Text
 } from '@design-system';
 import { SEO } from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
@@ -85,7 +86,7 @@ export default function Series(props: Props) {
         key: ['series', props.series.url, props.order],
         callback: async (nextPage) => {
             const { data } = await API.getAnUserSeries(
-                props.series.owner,
+                '@' + props.series.owner,
                 props.series.url,
                 {
                     page: nextPage,
@@ -181,8 +182,8 @@ export default function Series(props: Props) {
 
             <div className="series-header">
                 <div className="series-header-content">
-                    <h1 className="series-title">“{props.series.name}” 시리즈</h1>
-                    <p className="series-description">{props.series.description}</p>
+                    <Text tag="h1" fontSize={6} fontWeight={600} className="mb-2">“{props.series.name}” 시리즈</Text>
+                    <Text>{props.series.description}</Text>
                 </div>
                 {props.series.owner == username && (
                     <div className="corner">
@@ -258,29 +259,6 @@ export default function Series(props: Props) {
                         width: 100%;
                         max-width: 720px;
                         padding: 0 15px;
-
-                        .series-title {
-                            font-size: 2rem;
-                            font-weight: bold;
-                            margin-bottom: 1rem;
-                            letter-spacing: -1px;
-
-                            @media (max-width: 768px) {
-                                font-size: 1.5rem;
-                            }
-                        }
-
-                        .series-description {
-                            font-size: 1.2rem;
-                            line-height: 1.5;
-                            margin-bottom: 1rem;
-                            word-break: keep-all;
-
-                            @media (max-width: 768px) {
-                                font-size: 1rem;
-                                word-break: break-all;
-                            }
-                        }
                     }
 
                     .corner {
@@ -293,7 +271,7 @@ export default function Series(props: Props) {
                 .series-header::after {
                     content: '';
                     position: absolute;
-                    bottom: -30px;
+                    bottom: -28px;
                     left: 50%;
                     transform: translateX(-50%);
                     width: 0;

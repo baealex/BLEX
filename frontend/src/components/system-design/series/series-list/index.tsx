@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { Text } from '~/components/design-system';
 
-import { getPostImage } from '~/modules/utility/image';
+import { getDefaultPostCoverImage, getPostImage } from '~/modules/utility/image';
 
 export interface SeriesListProps {
     url: string;
@@ -19,8 +19,11 @@ export function SeriesList(props: SeriesListProps) {
     return (
         <div
             className={cn('card')}
-            style={{ backgroundImage: `url(${getPostImage(props.image)})` }}>
-            <Link className={cn('title')} href="/[author]/series/[seriesurl]" as={`/@${props.owner}/series/${props.url}`}>
+            style={{ backgroundImage: `url(${props.image
+                ? getPostImage(props.image)
+                : getDefaultPostCoverImage(props.name)})`
+            }}>
+            <Link className={cn('title')} href={`/@${props.owner}/series/${props.url}`}>
                 <div className={cn('mask')}>
                     <Text className="mb-2" fontSize={6} fontWeight={600}>
                         “{props.name}” 시리즈
