@@ -2,6 +2,8 @@
 
 .text {
     line-height: 1.5;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
 
     @for $i from 1 through 9 {
         &.fw-#{$i * 100} {

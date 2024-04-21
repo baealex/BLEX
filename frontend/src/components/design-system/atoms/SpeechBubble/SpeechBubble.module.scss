@@ -1,12 +1,14 @@
 .box {
-	position: relative;
-	width: 100%;
+    position: relative;
+    width: 100%;
 
     blockquote {
         position: relative;
         margin: 0;
         padding: 1em 1.5em;
         line-height: 1.7;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
         border-radius: 0.3em;
         background: #fafafa;
         box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
