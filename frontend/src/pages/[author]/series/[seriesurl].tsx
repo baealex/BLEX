@@ -181,10 +181,12 @@ export default function Series(props: Props) {
             )}
 
             <div className="series-header">
-                <div className="series-header-content">
-                    <Text tag="h1" fontSize={6} fontWeight={600} className="mb-2">“{props.series.name}” 시리즈</Text>
-                    <Text>{props.series.description}</Text>
-                </div>
+                <Flex align="center" justify="center" style={{ minHeight: '280px' }}>
+                    <Container size="sm">
+                        <Text tag="h1" fontSize={6} fontWeight={600} className="mt-5 mb-2">“{props.series.name}” 시리즈</Text>
+                        <Text>{props.series.description}</Text>
+                    </Container>
+                </Flex>
                 {props.series.owner == username && (
                     <div className="corner">
                         <Button onClick={() => setIsOpenSeriesUpdateModal(true)}>
@@ -244,22 +246,11 @@ export default function Series(props: Props) {
                 }
                 
                 .series-header {
-                    height: 380px;
                     background: #000;
-                    width: 100%;
                     position: relative;
-
-                    .series-header-content {
-                        position: absolute;
-                        top: calc(50% + 40px);
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        text-align: center;
-                        color: #fff;
-                        width: 100%;
-                        max-width: 720px;
-                        padding: 0 15px;
-                    }
+                    padding: 64px 0;
+                    text-align: center;
+                    color: #eee;
 
                     .corner {
                         position: absolute;
