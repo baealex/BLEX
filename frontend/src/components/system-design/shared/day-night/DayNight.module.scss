@@ -1,3 +1,5 @@
+@import 'var';
+
 $box-width: 52px;
 $box-height: 28px;
 $ball-size: 28px;
@@ -20,7 +22,7 @@ $icon-size: $ball-size - 8px;
         background: #555;
     }
 
-    @media only screen and (max-width: 1240px) {
+    @media only screen and (max-width: $BREAKPOINT_DESKTOP_LARGE) {
         bottom: 12px;
         right: 12px;
     }

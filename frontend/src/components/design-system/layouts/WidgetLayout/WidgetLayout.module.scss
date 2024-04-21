@@ -1,25 +1,24 @@
 @import 'var';
 
 .layout {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
     gap: $MARGIN_SIZE_4;
-    flex-wrap: wrap;
 
     .content {
-        flex: 1;
+        order: 0;
     }
 
     .widgetContainer {
         order: 1;
-        flex: 0 0 330px;
     }
 
     .widget {
-        max-height: calc(100vh - 90px);
         position: sticky;
         top: 90px;
-        padding: $MARGIN_SIZE_3;
+        max-height: calc(100vh - 90px);
         overflow-y: auto;
+        padding: $MARGIN_SIZE_3;
         gap: $MARGIN_SIZE_4;
 
         &>*:not(:first-child) {
@@ -28,14 +27,16 @@
     }
 
     @media (max-width: $BREAKPOINT-TABLET) {
+        grid-template-columns: minmax(0, 1fr);
+
         .widgetContainer {
             order: -1;
-            flex: 0 0 100%;
         }
 
         .widget {
+            padding: 0;
             max-height: none;
-            overflow-y: hidden;
+            overflow-y: initial;
         }
     }
 }
