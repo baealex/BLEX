@@ -1,12 +1,12 @@
 @import 'mixin';
 
-@keyframes like-it {
+@keyframes heart-beat {
     0% {
-        transform: scale(0);
+        transform: scale(1);
     }
 
     50% {
-        transform: scale(1.5);
+        transform: scale(1.1);
     }
 
     100% {
@@ -17,72 +17,27 @@
 .actions {
     user-select: none;
     position: sticky;
+    margin-bottom: $MARGIN_SIZE_5;
     top: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    p {
-        font-size: 0.95rem;
-    }
-
-    ul {
+    .box {
+        width: auto;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1.2rem;
-        list-style: none;
-        padding: 0;
+        gap: $MARGIN_SIZE_4;
+        padding: $MARGIN_SIZE_4;
 
-        li {
-            color: rgba(0, 0, 0, .33);
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
+        i {
+            transition: color 0.2s;
+            font-size: 20px;
 
-            :global(body.dark) & {
-                color: #aaa;
-            }
-
-            i {
-                transition: color 0.2s;
-                font-size: 20px;
-
-                &:global(.fa-heart.fas) {
-                    animation: like-it 0.5s ease-out 1;
-                    color: $COLOR_DEFAULT_PRIMARY;
-
-                    :global(body.dark) & {
-                        color: $COLOR_DARK_PRIMARY;
-                    }
-                }
-
-                &:hover {
-                    color: $COLOR_DEFAULT_PRIMARY;
-
-                    :global(body.dark) & {
-                        color: $COLOR_DARK_PRIMARY;
-                    }
-                }
-
-                &:global(.fa-facebook:hover) {
-                    color: #3b5998 !important;
-                }
-
-                &:global(.fa-twitter:hover) {
-                    color: #00acee !important;
-                }
-
-                &:global(.fa-pinterest:hover) {
-                    color: #c51f26 !important;
-                }
-            }
-
-            span {
-                display: block;
-
-                @media (max-width: $BREAKPOINT_DESKTOP-LARGE) {
-                    display: none;
-                }
+            &:global(.fa-heart.fas) {
+                animation: heart-beat 0.5s ease-out infinite;
+                color: #ff6b6b;
             }
         }
     }
@@ -92,15 +47,12 @@
         z-index: 5;
         top: initial;
         left: 0;
-        bottom: 0;
-        width: calc(100% + 32px);
-        @include MAIN_SHADOW;
-        @include BACKGROUND;
-        padding: 1rem;
+        margin-bottom: $MARGIN_SIZE_3;
+        bottom: $MARGIN_SIZE_3;
 
-        ul {
+        .box {
             flex-direction: row;
-            gap: 1.5rem;
+            padding: $MARGIN_SIZE_3 $MARGIN_SIZE_4;
         }
     }
 }

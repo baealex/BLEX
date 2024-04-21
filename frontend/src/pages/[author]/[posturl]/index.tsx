@@ -163,7 +163,7 @@ function PostDetail(props: Props) {
                     isAd={props.post.isAd}
                     createdDate={props.post.createdDate}
                 />
-                <Container>
+                <Container size="lg">
                     <DualWidgetLayout
                         leftWidget={<ArticleAction {...props.post} />}
                         content={

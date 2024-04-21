@@ -4,22 +4,20 @@
     padding: 0;
     display: flex;
     flex-direction: row;
+    gap: $MARGIN_SIZE_3;
 }
 
 .left-widget {
-    flex: 0 0 220px;
-    margin-bottom: 80px;
+    flex: 0 0 210px;
 }
 
 .content {
     max-width: 100%;
-    width: 760px;
-    flex: 0 0 760px;
+    flex: 1;
 }
 
 .right-widget {
-    flex: 1;
-    padding: 0 0 0 $MARGIN_SIZE_3;
+    flex: 0 0 210px;
 }
 
 @media (max-width: 1240px) {

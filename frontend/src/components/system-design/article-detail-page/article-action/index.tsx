@@ -6,21 +6,18 @@ import {
     useEffect,
     useState
 } from 'react';
-import { useStore } from 'badland-react';
+
+import { Card, Flex, Text } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
-import { authStore } from '~/stores/auth';
 import { modalStore } from '~/stores/modal';
 
 export type ArticleActionProps = API.GetAnUserPostsViewResponseData;
 
-type Social = 'twitter' | 'facebook' | 'pinterest';
-
 export function ArticleAction(props: ArticleActionProps) {
-    const [{ isLogin }] = useStore(authStore);
     const [state, setState] = useState({
         isLiked: props.isLiked,
         countLikes: props.countLikes,
@@ -34,26 +31,6 @@ export function ArticleAction(props: ArticleActionProps) {
             countComments: props.countComments
         });
     }, [props]);
-
-    const onClickShare = (social: Social) => {
-        let href = '';
-        let size = '';
-        switch (social) {
-            case 'twitter':
-                href = `https://twitter.com/intent/tweet?text=${props.title}&url=${window.location.href}`;
-                size = 'width=550,height=235';
-                break;
-            case 'facebook':
-                href = `https://facebook.com/sharer.php?u=${window.location.href}`;
-                size = 'width=550,height=435';
-                break;
-            case 'pinterest':
-                href = `https://pinterest.com/pin/create/button/?url=${window.location.href}&media=${props.image}&description=${props.description}`;
-                size = 'width=650,height=500';
-                break;
-        }
-        window.open(href, `${social}-share`, size);
-    };
 
     const onClickLike = async () => {
         const {
@@ -94,26 +71,22 @@ export function ArticleAction(props: ArticleActionProps) {
     };
 
     return (
-        <aside className={cn('actions')}>
-            <ul>
-                {isLogin && (
-                    <li onClick={onClickLike}>
-                        <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`} />
-                        <span>{state.countLikes}</span>
-                    </li>
-                )}
-                <li onClick={onClickGoComment}>
+        <div className={cn('actions')}>
+            <Card
+                hasShadow
+                isRounded
+                hasBackground
+                backgroundType="background"
+                className={cn('box')}>
+                <Flex className="c-pointer shallow-dark" align="center" gap={2} onClick={onClickLike}>
+                    <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`} />
+                    <Text fontSize={3}>{state.countLikes}</Text>
+                </Flex>
+                <Flex className="c-pointer shallow-dark" align="center" gap={2} onClick={onClickGoComment}>
                     <i className="far fa-comment" />
-                    <span>{state.countComments}</span>
-                </li>
-                {['twitter', 'facebook', 'pinterest'].map((social, idx) => (
-                    <li
-                        key={idx}
-                        onClick={() => onClickShare(social as Social)}>
-                        <i className={`fab fa-${social}`} />
-                    </li>
-                ))}
-            </ul>
-        </aside>
+                    <Text fontSize={3}>{state.countComments}</Text>
+                </Flex>
+            </Card>
+        </div>
     );
 }
