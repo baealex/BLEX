@@ -11,18 +11,31 @@
 
     .widgetContainer {
         order: 1;
-        flex: 0 0 300px;
+        flex: 0 0 330px;
     }
 
     .widget {
+        max-height: calc(100vh - 90px);
         position: sticky;
         top: 90px;
+        padding: $MARGIN_SIZE_3;
+        overflow-y: auto;
+        gap: $MARGIN_SIZE_4;
+
+        &>*:not(:first-child) {
+            margin-top: $MARGIN_SIZE_4;
+        }
     }
 
     @media (max-width: $BREAKPOINT-TABLET) {
         .widgetContainer {
             order: -1;
             flex: 0 0 100%;
+        }
+
+        .widget {
+            max-height: none;
+            overflow-y: hidden;
         }
     }
 }

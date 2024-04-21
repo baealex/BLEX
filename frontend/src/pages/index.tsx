@@ -4,7 +4,8 @@ import { ArticleCard, CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
 
 import { Flex, Loading } from '~/components/design-system';
-import { TrendingPostsWidget } from '~/components/system-design/widgets';
+
+import { CalendarWidget, TrendingPostsWidget } from '~/components/system-design/widgets';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useLikePost } from '~/hooks/use-like-post';
@@ -55,7 +56,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
     });
 
     return (
-        <>
+        <div className="mt-4">
             {posts.map((post) => (
                 <ArticleCard
                     key={post.url}
@@ -71,7 +72,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
                     <Loading position="inline" />
                 </Flex>
             )}
-        </>
+        </div>
     );
 };
 
@@ -79,7 +80,10 @@ TrendyArticles.pageLayout = (page) => (
     <CollectionLayout
         active="Home"
         widget={(
-            <TrendingPostsWidget />
+            <>
+                <CalendarWidget />
+                <TrendingPostsWidget />
+            </>
         )}>
         {page}
     </CollectionLayout >
