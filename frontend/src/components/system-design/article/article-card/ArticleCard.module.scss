@@ -72,6 +72,12 @@
     overflow-wrap: anywhere;
 }
 
+.actions {
+    @media (max-width: $BREAKPOINT_TABLET) {
+        display: none;
+    }
+}
+
 .action {
     padding: 0;
     border: none;

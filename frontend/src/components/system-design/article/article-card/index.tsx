@@ -91,7 +91,7 @@ export function ArticleCard(props: ArticleCardProps) {
                         {props.readTime}분 분량
                     </Text>
                 </Flex>
-                <Flex align="center" gap={3}>
+                <Flex align="center" gap={3} className={cn('actions')}>
                     {typeof props.countComments === 'number' && (
                         <button className={cn('action')} onClick={() => router.push(url + '#comments')}>
                             <Flex align="center" gap={1}>
