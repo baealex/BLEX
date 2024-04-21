@@ -25,5 +25,11 @@ export const useDetectBottomApproach = (options: Options) => {
         return () => window.removeEventListener('scroll', handleDetectBottomApproach);
     }, [handleDetectBottomApproach]);
 
+    useEffect(() => {
+        if (isBottomApproach) {
+            setIsBottomApproach(false);
+        }
+    }, [isBottomApproach]);
+
     return isBottomApproach;
 };
