@@ -30,7 +30,7 @@ export function TrendingPostsWidget() {
                 )}
                 <Flex direction="column" gap={4}>
                     {trendyPosts?.map((post) => (
-                        <Flex direction="column" gap={2}>
+                        <Flex key={post.url} direction="column" gap={2}>
                             <Flex justify="between">
                                 <Link className="deep-dark" href={`/@${post.author}/${post.url}`}>
                                     <Text fontWeight={600} fontSize={3}>

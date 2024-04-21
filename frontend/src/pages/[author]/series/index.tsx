@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
+import React from 'react';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
@@ -14,7 +14,6 @@ import { SEO } from '@system-design/shared';
 import * as API from '~/modules/api';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
-import { useMemoryStore } from '~/hooks/use-memory-store';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { author = '' } = context.query as {
@@ -54,31 +53,15 @@ interface Props extends API.GetUserProfileResponseData, API.GetUserSeriesRespons
 }
 
 const SeriesProfile: PageComponent<Props> = (props) => {
-    const memoryStore = useMemoryStore([props.author, 'series'], {
-        page: 1,
-        series: props.series
+    const { data: series } = useInfinityScroll({
+        key: [props.author, 'sereis'],
+        callback: async (nextPage) => {
+            const { data } = await API.getUserSeries(props.author, nextPage);
+            return data.body.series;
+        },
+        initialValue: props.series,
+        lastPage: props.lastPage
     });
-
-    const [page, setPage] = useState(memoryStore.page);
-    const [series, setSeries] = useState(memoryStore.series);
-
-    useInfinityScroll(async () => {
-        const { data } = await API.getUserSeries(
-            props.author,
-            page + 1
-        );
-
-        if (data.status === 'DONE') {
-            setPage((prevPage) => {
-                memoryStore.page = prevPage + 1;
-                return memoryStore.page;
-            });
-            setSeries((prevSeries) => {
-                memoryStore.series = [...prevSeries, ...data.body.series];
-                return memoryStore.series;
-            });
-        }
-    }, { enabled: page < props.lastPage });
 
     return (
         <>

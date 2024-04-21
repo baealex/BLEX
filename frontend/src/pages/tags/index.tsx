@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
+import { useEffect } from 'react';
 
 import { Flex, Grid, Loading } from '~/components/design-system';
 import { CollectionLayout } from '@system-design/article';
@@ -7,12 +7,12 @@ import type { PageComponent } from '~/components';
 import { SEO } from '@system-design/shared';
 import { TagCard } from '@system-design/tag';
 
-import * as API from '~/modules/api';
+import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
+
 import { CONFIG } from '~/modules/settings';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
 
-import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
-import { useMemoryStore } from '~/hooks/use-memory-store';
+import * as API from '~/modules/api';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { page = 1 } = context.query;
@@ -35,35 +35,17 @@ interface Props extends API.GetTagsResponseData {
 }
 
 const Tags: PageComponent<Props> = (props) => {
-    const memoryStore = useMemoryStore(['tags'], {
-        page: 1,
-        tags: props.tags
+    const { data: tags, isLoading } = useInfinityScroll({
+        key: ['tags'],
+        callback: async (nextPage) => {
+            const { data } = await API.getTags(nextPage);
+            return data.body.tags;
+        },
+        initialValue: props.tags,
+        lastPage: props.lastPage
     });
 
-    const [page, setPage] = useState(memoryStore.page);
-    const [tags, setTags] = useState(memoryStore.tags);
-
-    const { isLoading } = useInfinityScroll(async () => {
-        const { data } = await API.getTags(page + 1);
-
-        if (data.status === 'DONE') {
-            setPage((prevPage) => {
-                memoryStore.page = prevPage + 1;
-                return memoryStore.page;
-            });
-            setTags((prevTags) => {
-                memoryStore.tags = [...prevTags, ...data.body.tags];
-                return memoryStore.tags;
-            });
-        }
-    }, { enabled: memoryStore.page < props.lastPage });
-
     useEffect(lazyLoadResource, [tags]);
-
-    useEffect(() => {
-        setPage(memoryStore.page);
-        setTags(memoryStore.tags);
-    }, [memoryStore]);
 
     return (
         <>
@@ -91,8 +73,8 @@ const Tags: PageComponent<Props> = (props) => {
     );
 };
 
-Tags.pageLayout = (page, props) => (
-    <CollectionLayout active="Tags" {...props} posts={[]}>
+Tags.pageLayout = (page) => (
+    <CollectionLayout active="Tags">
         {page}
     </CollectionLayout>
 );

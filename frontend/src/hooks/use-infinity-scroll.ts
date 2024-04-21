@@ -1,43 +1,73 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { optimizeEvent } from '~/modules/optimize/event';
+import { useDetectBottomApproach } from './use-detect-bottom-approach';
+import { useMemoryStore } from './use-memory-store';
 
-export const useInfinityScroll = (callback: () => Promise<void>, options?: {
-    enabled?: boolean;
-}) => {
+interface Options<T> {
+    key: string | string[];
+    lastPage: number;
+    initialValue: T[];
+    callback: (nextPage: number) => Promise<T[]>;
+}
+
+export const useInfinityScroll = <T>({
+    key,
+    lastPage,
+    initialValue,
+    callback
+}: Options<T>) => {
+    if (typeof key !== 'string') key = key.join('/');
+
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
 
-    const handleScroll = useMemo(() => optimizeEvent(() => {
-        if (options && !options?.enabled) return;
+    const memoryStore = useMemoryStore(key, {
+        page: 1,
+        data: initialValue
+    });
 
-        const {
-            scrollTop,
-            scrollHeight,
-            clientHeight
-        } = document.documentElement;
+    const [page, setPage] = useState(memoryStore.page);
+    const [data, setData] = useState<T[]>(memoryStore.data);
 
-        if (scrollTop + clientHeight < scrollHeight - 100 || isLoading) return;
-
-        setIsLoading(true);
-    }), [isLoading, options?.enabled]);
+    const isBottomApproach = useDetectBottomApproach({
+        enabled: memoryStore.page < lastPage && !isLoading
+    });
 
     useEffect(() => {
-        handleScroll();
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [handleScroll]);
+        if (!isBottomApproach || isLoading) return;
 
-    useEffect(() => {
-        if (!isLoading) return;
-
-        callback()
-            .then(() => setIsError(false))
+        callback(page + 1)
+            .then((data) => {
+                memoryStore.page += 1;
+                memoryStore.data = data;
+                setPage(prevPage => {
+                    memoryStore.page = prevPage + 1;
+                    return memoryStore.page;
+                });
+                setData(prevData => {
+                    memoryStore.data = [...prevData, ...data];
+                    return memoryStore.data;
+                });
+                setIsError(false);
+            })
             .catch(() => setIsError(true))
             .finally(() => setIsLoading(false));
-    }, [isLoading]);
+    }, [isBottomApproach, isLoading]);
+
+    useEffect(() => {
+        setPage(memoryStore.page);
+        setData(memoryStore.data);
+    }, [memoryStore]);
 
     return {
+        data,
+        mutate: (callback: (data: T[]) => T[]) => {
+            const newData = callback(data);
+            setData(() => {
+                memoryStore.data = newData;
+                return memoryStore.data;
+            });
+        },
         isError,
         isLoading
     };

@@ -97,7 +97,7 @@ export function getPopularPosts(page: number, cookie?: string) {
     return request<GetPostsResponseData>({
         url: `/v1/posts/popular?page=${page}`,
         method: 'GET',
-        headers: cookie ? { cookie } : undefined
+        headers: { cookie }
     });
 }
 
@@ -105,7 +105,7 @@ export function getNewestPosts(page: number, cookie?: string) {
     return request<GetPostsResponseData>({
         url: `/v1/posts/newest?page=${page}`,
         method: 'GET',
-        headers: cookie ? { cookie } : undefined
+        headers: { cookie }
     });
 }
 
@@ -113,7 +113,7 @@ export function getLikedPosts(page: number, cookie?: string) {
     return request<GetPostsResponseData>({
         url: `/v1/posts/liked?page=${page}`,
         method: 'GET',
-        headers: cookie ? { cookie } : undefined
+        headers: { cookie }
     });
 }
 

@@ -1,7 +1,7 @@
 import styles from './Container.module.scss';
 
 interface Container {
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'xs' | 'xs-sm' | 'sm' | 'md' | 'lg' | 'xl';
     children: React.ReactNode;
 }
 

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 import {
     Container,
@@ -16,16 +16,14 @@ import {
 } from '@system-design/shared';
 import { ArticleCard } from '@system-design/article';
 
+import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
+
 import * as API from '~/modules/api';
 import { CONFIG } from '~/modules/settings';
 import { getUserImage } from '~/modules/utility/image';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
-import { snackBar } from '~/modules/ui/snack-bar';
 
-import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
-import { useMemoryStore } from '~/hooks/use-memory-store';
-
-import { modalStore } from '~/stores/modal';
+import { useLikePost } from '~/hooks/use-like-post';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const {
@@ -34,7 +32,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     } = context.query;
 
     try {
-        const { data } = await API.getTag(String(tag), Number(page));
+        const { data } = await API.getTag(String(tag), Number(page), context.req.headers.cookie);
         return {
             props: {
                 ...data.body,
@@ -53,59 +51,32 @@ interface Props extends API.GetTagResponseData {
 }
 
 export default function TagDetail(props: Props) {
-    const memoryStore = useMemoryStore(['article', props.tag], {
-        page: 1,
-        posts: props.posts
+    const { data: posts, mutate: setPosts, isLoading } = useInfinityScroll({
+        key: ['article'],
+        callback: async (nextPage) => {
+            const { data } = await API.getNewestPosts(nextPage);
+            return data.body.posts;
+        },
+        initialValue: props.posts,
+        lastPage: props.lastPage
     });
 
-    const [page, setPage] = useState(memoryStore.page);
-    const [posts, setPosts] = useState(memoryStore.posts);
-
-    const { isLoading } = useInfinityScroll(async () => {
-        const { data } = await API.getTag(props.tag, page + 1);
-
-        if (data.status === 'DONE') {
-            setPage((prevPage) => {
-                memoryStore.page = prevPage + 1;
-                return memoryStore.page;
-            });
-            setPosts((prevPosts) => {
-                memoryStore.posts = [...prevPosts, ...data.body.posts];
-                return memoryStore.posts;
-            });
+    const handleLike = useLikePost({
+        onLike: (post, countLikes) => {
+            setPosts((prevPosts) => prevPosts.map((_post) => {
+                if (_post.url === post.url) {
+                    return {
+                        ..._post,
+                        countLikes,
+                        hasLiked: !_post.hasLiked
+                    };
+                }
+                return _post;
+            }));
         }
-    }, { enabled: memoryStore.page < props.lastPage });
-
-    const handleLike = async (post: API.GetTagResponseData['posts'][number]) => {
-        const { data } = await API.putAnUserPosts('@' + post.author, post.url, 'like');
-        if (data.status === 'DONE') {
-            if (typeof data.body.countLikes === 'number') {
-                setPosts((prevState) => prevState.map((_post) => {
-                    if (_post.url === post.url) {
-                        _post.hasLiked = !_post.hasLiked;
-                        _post.countLikes = data.body.countLikes as number;
-                    }
-                    return _post;
-                }));
-            }
-        }
-        if (data.status === 'ERROR') {
-            if (data.errorCode === API.ERROR.NEED_LOGIN) {
-                snackBar('😅 로그인이 필요합니다.', {
-                    onClick: () => {
-                        modalStore.open('isOpenAuthGetModal');
-                    }
-                });
-            }
-        }
-    };
+    });
 
     useEffect(lazyLoadResource, [posts]);
-
-    useEffect(() => {
-        setPage(memoryStore.page);
-        setPosts(memoryStore.posts);
-    }, [memoryStore]);
 
     return (
         <>

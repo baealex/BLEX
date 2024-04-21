@@ -40,10 +40,11 @@ export interface GetTagResponseData {
     lastPage: number;
 }
 
-export async function getTag(tag: string, page: number) {
+export async function getTag(tag: string, page: number, cookie?: string) {
     return await request<GetTagResponseData>({
         url: `/v1/tags/${encodeURIComponent(tag)}`,
         method: 'GET',
-        params: { page }
+        params: { page },
+        headers: { cookie }
     });
 }

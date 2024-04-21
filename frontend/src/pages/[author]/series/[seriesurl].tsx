@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,6 +9,7 @@ import { authorRenameCheck } from '~/modules/middleware/author';
 import {
     Button,
     Card,
+    Container,
     Flex,
     Loading,
     Modal
@@ -19,7 +20,6 @@ import { SeriesArticleCard } from '@system-design/series';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { getUserImage } from '~/modules/utility/image';
-import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 import * as API from '~/modules/api';
 
@@ -28,7 +28,6 @@ import { configStore } from '~/stores/config';
 
 import { useForm } from '~/hooks/use-form';
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
-import { useMemoryStore } from '~/hooks/use-memory-store';
 
 interface Props {
     order: 'latest' | 'past';
@@ -78,42 +77,26 @@ interface Form {
 export default function Series(props: Props) {
     const router = useRouter();
 
-    const memoryStore = useMemoryStore([props.series.url, props.order], {
-        page: 1,
-        posts: props.series.posts
-    });
-
     const [{ username }] = useStore(authStore);
-
-    const [page, setPage] = useState(memoryStore.page);
-    const [posts, setPosts] = useState<API.GetAnUserSeriesResponseData['posts']>(memoryStore.posts);
 
     const [isOpenSeriesUpdateModal, setIsOpenSeriesUpdateModal] = useState(false);
 
-    useEffect(() => {
-        setPage(memoryStore.page);
-        setPosts(memoryStore.posts);
-    }, [memoryStore]);
-
-    useEffect(lazyLoadResource, [posts]);
-
-    const { isLoading } = useInfinityScroll(async () => {
-        const { data } = await API.getAnUserSeries('@' + props.series.owner, props.series.url, {
-            page: page + 1,
-            order: props.order
-        });
-
-        if (data.status === 'DONE') {
-            setPage((prevPage) => {
-                memoryStore.page = prevPage + 1;
-                return memoryStore.page;
-            });
-            setPosts((prevPosts) => {
-                memoryStore.posts = [...prevPosts, ...data.body.posts];
-                return memoryStore.posts;
-            });
-        }
-    }, { enabled: page < props.series.lastPage });
+    const { data: posts, mutate: setPosts, isLoading } = useInfinityScroll({
+        key: ['series', props.series.url, props.order],
+        callback: async (nextPage) => {
+            const { data } = await API.getAnUserSeries(
+                props.series.owner,
+                props.series.url,
+                {
+                    page: nextPage,
+                    order: props.order
+                }
+            );
+            return data.body.posts;
+        },
+        initialValue: props.series.posts,
+        lastPage: props.series.lastPage
+    });
 
     const { register, handleSubmit } = useForm<Form>();
 
@@ -133,12 +116,7 @@ export default function Series(props: Props) {
         if (confirm('😮 이 포스트를 시리즈에서 제거할까요?')) {
             const { data } = await API.putAnUserPosts('@' + props.series.owner, url, 'series');
             if (data.status === 'DONE') {
-                setPosts((prevPosts) => {
-                    memoryStore.posts = prevPosts.filter(post => (
-                        post.url !== url
-                    ));
-                    return memoryStore.posts;
-                });
+                setPosts((prevPosts) => prevPosts.filter(post => post.url !== url));
                 snackBar('😀 시리즈가 업데이트 되었습니다.');
             } else {
                 snackBar('😯 변경중 오류가 발생했습니다.');
@@ -221,7 +199,7 @@ export default function Series(props: Props) {
                 </Link>
             </div>
 
-            <div className="b-container">
+            <Container size="xs-sm">
                 <Flex justify="end" className="mb-4">
                     {props.order === 'latest' ? (
                         <Button
@@ -239,21 +217,19 @@ export default function Series(props: Props) {
                         </Button>
                     )}
                 </Flex>
-                <div className={'series-list'}>
-                    {posts.map((post) => (
-                        <SeriesArticleCard
-                            key={post.url}
-                            author={props.series.owner}
-                            {...post}
-                        />
-                    ))}
-                    {isLoading && (
-                        <Flex justify="center" className="pb-4">
-                            <Loading position="inline" />
-                        </Flex>
-                    )}
-                </div>
-            </div>
+                {posts.map((post) => (
+                    <SeriesArticleCard
+                        key={post.url}
+                        author={props.series.owner}
+                        {...post}
+                    />
+                ))}
+                {isLoading && (
+                    <Flex justify="center" className="pb-4">
+                        <Loading position="inline" />
+                    </Flex>
+                )}
+            </Container>
 
             <style jsx>{`
                 :global(main.content) {
@@ -344,22 +320,6 @@ export default function Series(props: Props) {
                         }
 
                         transition: transform 0.2s ease-in-out;
-                    }
-                }
-
-                .b-container {
-                    padding: 0 15px;
-                    width: 100%;
-                    max-width: 600px;
-                    margin: 0 auto;
-                }
-
-                .series-list {
-                    display: flex;
-                    flex-direction: column;
-
-                    &.reversed {
-                        flex-direction: column-reverse;
                     }
                 }
             `}</style>
