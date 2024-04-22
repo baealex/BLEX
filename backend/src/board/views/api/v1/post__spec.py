@@ -55,18 +55,9 @@ class PostTestCase(TestCase):
     def setUp(self):
         self.client.defaults['HTTP_USER_AGENT'] = 'BLEX_TEST'
 
-    def test_get_popular_posts_list(self):
-        response = self.client.get('/v1/posts/popular')
+    def test_get_trending_posts_list(self):
+        response = self.client.get('/v1/posts/trending')
         self.assertEqual(response.status_code, 200)
-
-    def test_popular_posts_list_pagination(self):
-        response = self.client.get('/v1/posts/popular')
-        self.assertEqual(
-            len(json.loads(response.content)['body']['posts']), 5)
-
-    def test_raise_not_found_when_over_last_page(self):
-        response = self.client.get('/v1/posts/popular?page=9999')
-        self.assertEqual(response.status_code, 404)
 
     def test_get_newest_posts_list(self):
         response = self.client.get('/v1/posts/newest')
@@ -76,6 +67,10 @@ class PostTestCase(TestCase):
         response = self.client.get('/v1/posts/newest')
         self.assertEqual(
             len(json.loads(response.content)['body']['posts']), 24)
+
+    def test_raise_not_found_when_over_last_page(self):
+        response = self.client.get('/v1/posts/newest?page=9999')
+        self.assertEqual(response.status_code, 404)
 
     def test_no_access_liked_posts_to_not_logged_in_user(self):
         response = self.client.get('/v1/posts/liked')

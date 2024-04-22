@@ -128,10 +128,10 @@ def post_list(request):
     raise Http404
 
 
-def popular_post_list(request):
+def trending_post_list(request):
     if request.method == 'GET':
         posts = Post.objects.select_related(
-            'author', 'author__profile','config', 'series'
+            'author', 'author__profile', 'config'
         ).prefetch_related(
             'comments'
         ).filter(
@@ -139,12 +139,6 @@ def popular_post_list(request):
             config__notice=False,
             config__hide=False,
         ).annotate(
-            has_liked=Exists(
-                PostLikes.objects.filter(
-                    post__id=OuterRef('id'),
-                    user__id=request.user.id if request.user.id else -1
-                )
-            ),
             today_count=Subquery(
                 PostAnalytics.objects.filter(
                     post__id=OuterRef('id'),
@@ -153,36 +147,21 @@ def popular_post_list(request):
                     count=Count('devices')
                 ).values('count')
             ),
-            point=(F('today_count'))
-        ).order_by('-point', '-created_date')
+        ).order_by('-today_count', '-created_date')
 
         posts = Paginator(
             objects=posts,
             offset=5,
-            page=request.GET.get('page', 1)
+            page=1
         )
-        return StatusDone({
-            'posts': list(map(lambda post: {
-                'url': post.url,
-                'title': post.title,
-                'image': str(post.image),
-                'description': post.meta_description,
-                'read_time': post.read_time,
-                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author.profile.get_thumbnail(),
-                'author': post.author.username,
-                'is_ad': post.config.advertise,
-                'series': {
-                    'url': post.series.url,
-                    'name': post.series.name,
-                } if post.series else None,
-                'point': post.point,
-                'count_likes': 0,
-                'count_comments': post.comments.count(),
-                'has_liked': post.has_liked,
-            }, posts)),
-            'last_page': posts.paginator.num_pages
-        })
+        return StatusDone(list(map(lambda post: {
+            'url': post.url,
+            'title': post.title,
+            'image': str(post.image),
+            'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+            'author_image': post.author.profile.get_thumbnail(),
+            'author': post.author.username,
+        }, posts)))
 
 
 def newest_post_list(request):
@@ -229,6 +208,7 @@ def newest_post_list(request):
                 'count_likes': post.count_likes,
                 'count_comments': post.count_comments,
                 'has_liked': post.has_liked,
+                'tags': post.tagging(),
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -288,6 +268,7 @@ def liked_post_list(request):
                 'count_likes': post.count_likes,
                 'count_comments': post.count_comments,
                 'has_liked': post.has_liked,
+                'tags': post.tagging(),
             }, posts)),
             'last_page': posts.paginator.num_pages
         })

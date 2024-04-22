@@ -99,6 +99,7 @@ def tag_detail(request, name):
                 'count_likes': post.count_likes,
                 'count_comments': post.count_comments,
                 'has_liked': post.has_liked,
+                'tags': post.tagging(),
             }, posts))
         })
 
