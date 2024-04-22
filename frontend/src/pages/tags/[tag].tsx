@@ -52,7 +52,7 @@ export default function TagDetail(props: Props) {
     const { data: posts, mutate: setPosts, isLoading } = useInfinityScroll({
         key: ['tags', props.tag],
         callback: async (nextPage) => {
-            const { data } = await API.getNewestPosts(nextPage);
+            const { data } = await API.getTag(props.tag, nextPage);
             return data.body.posts;
         },
         initialValue: props.posts,
