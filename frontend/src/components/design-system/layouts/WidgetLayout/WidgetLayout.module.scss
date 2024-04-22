@@ -1,24 +1,25 @@
 @import 'var';
 
 .layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 330px;
+    display: flex;
     gap: $MARGIN_SIZE_4;
+    flex-wrap: wrap;
 
     .content {
-        order: 0;
+        flex: 1;
     }
 
     .widgetContainer {
         order: 1;
+        flex: 0 0 300px;
     }
 
     .widget {
+        max-height: calc(100vh - 90px);
         position: sticky;
         top: 90px;
-        max-height: calc(100vh - 90px);
-        overflow-y: auto;
         padding: $MARGIN_SIZE_3;
+        overflow-y: auto;
         gap: $MARGIN_SIZE_4;
 
         &>*:not(:first-child) {
@@ -27,10 +28,9 @@
     }
 
     @media (max-width: $BREAKPOINT-TABLET) {
-        grid-template-columns: minmax(0, 1fr);
-
         .widgetContainer {
             order: -1;
+            flex: 0 0 100%;
         }
 
         .widget {
