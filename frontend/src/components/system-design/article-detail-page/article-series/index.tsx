@@ -23,7 +23,7 @@ export interface ArticleSeriesProps {
 export function ArticleSeries(props: ArticleSeriesProps) {
     const ref = useRef<HTMLDivElement>(null);
 
-    const { data: series } = useFetch(['series', props.author, props.series], async () => {
+    const { data: series } = useFetch(['series', props.author, props.series?.url], async () => {
         if (props.series) {
             const { data: { body } } = await API.getAnUserSeries('@' + props.author, props.series.url, {
                 kind: 'continue'
