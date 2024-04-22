@@ -1,15 +1,15 @@
 import Link from 'next/link';
 
-import { Card, Flex, Loading, Text } from '~/components/design-system';
+import { Card, Flex, Text } from '~/components/design-system';
 
 import { useFetch } from '~/hooks/use-fetch';
 
 import * as API from '~/modules/api';
 
 export function TrendingPostsWidget() {
-    const { data: trendyPosts, isLoading } = useFetch(['trend'], async () => {
-        const { data } = await API.getPopularPosts(1);
-        return data.body.posts;
+    const { data: trendyPosts } = useFetch(['trend'], async () => {
+        const { data } = await API.getTrendingPosts();
+        return data.body;
     });
 
     return (
@@ -23,12 +23,7 @@ export function TrendingPostsWidget() {
                         Trending
                     </Text>
                 </Flex>
-                {isLoading && (
-                    <Flex justify="center" className="mt-3 w-100">
-                        <Loading position="inline" />
-                    </Flex>
-                )}
-                <Flex direction="column" gap={4}>
+                <Flex className="w-100" style={{ minHeight: '391px' }} direction="column" gap={4}>
                     {trendyPosts?.map((post) => (
                         <Flex key={post.url} direction="column" gap={2}>
                             <Flex justify="between">

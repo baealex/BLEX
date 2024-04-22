@@ -71,6 +71,22 @@ export function deleteTempPosts(token: string) {
     });
 }
 
+export type GetTrendingPostsResponseData = {
+    url: string;
+    title: string;
+    image: string;
+    createdDate: string;
+    authorImage: string;
+    author: string;
+}[];
+
+export function getTrendingPosts() {
+    return request<GetTrendingPostsResponseData>({
+        url: '/v1/posts/trending',
+        method: 'GET'
+    });
+}
+
 export interface GetPostsResponseData {
     posts: {
         url: string;
@@ -89,17 +105,11 @@ export interface GetPostsResponseData {
         hasLiked: boolean;
         countLikes: number;
         countComments: number;
+        tags: string[];
     }[];
     lastPage: number;
 }
 
-export function getPopularPosts(page: number, cookie?: string) {
-    return request<GetPostsResponseData>({
-        url: `/v1/posts/popular?page=${page}`,
-        method: 'GET',
-        headers: { cookie }
-    });
-}
 
 export function getNewestPosts(page: number, cookie?: string) {
     return request<GetPostsResponseData>({
@@ -114,25 +124,6 @@ export function getLikedPosts(page: number, cookie?: string) {
         url: `/v1/posts/liked?page=${page}`,
         method: 'GET',
         headers: { cookie }
-    });
-}
-
-export interface GetTopTrendyPostsResponseData {
-    posts: {
-        url: string;
-        title: string;
-        readTime: number;
-        createdDate: string;
-        author: string;
-        authorImage: string;
-        isAd: boolean;
-    }[];
-}
-
-export function getTrendyTopPosts() {
-    return request<GetTopTrendyPostsResponseData>({
-        url: '/v1/posts/top-trendy',
-        method: 'GET'
     });
 }
 

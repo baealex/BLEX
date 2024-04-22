@@ -1,5 +1,7 @@
-import { BaseInput } from '~/components/design-system';
-import { TagBadges } from '~/components/system-design/tag';
+import { useMemo } from 'react';
+
+import { BadgeGroup, BaseInput } from '~/components/design-system';
+
 import { slugify } from '~/modules/utility/string';
 
 interface Props {
@@ -11,7 +13,9 @@ interface Props {
 }
 
 export function KeywordInput(props: Props) {
-    const badges = [...new Set(slugify(props.value).split('-').filter(x => !!x))];
+    const badges = useMemo(() => {
+        return [...new Set(slugify(props.value).split('-').filter(x => !!x))];
+    }, [props.value]);
 
     return (
         <>
@@ -23,7 +27,7 @@ export function KeywordInput(props: Props) {
                 placeholder={props.placeholder}
                 value={props.value}
             />
-            <TagBadges className="mt-2" items={badges} />
+            <BadgeGroup className="mt-2" items={badges} />
         </>
     );
 }

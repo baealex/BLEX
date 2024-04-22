@@ -2,11 +2,11 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
 import {
+    Breadcrumb,
     Container,
     Flex,
     Loading,
-    SpeechBubble,
-    Text
+    SpeechBubble
 } from '@design-system';
 
 import {
@@ -50,7 +50,7 @@ interface Props extends API.GetTagResponseData {
 
 export default function TagDetail(props: Props) {
     const { data: posts, mutate: setPosts, isLoading } = useInfinityScroll({
-        key: ['article'],
+        key: ['tags', props.tag],
         callback: async (nextPage) => {
             const { data } = await API.getNewestPosts(nextPage);
             return data.body.posts;
@@ -83,7 +83,24 @@ export default function TagDetail(props: Props) {
                     : `${props.tag} 주제로 작성된 포스트를 모아 볼 수 있는 페이지입니다. 다양한 분야의 포스트를 만나보세요.`}
             />
             <Container size="sm">
-                <Text fontSize={8} fontWeight={600}>— {props.tag} —</Text>
+                <Breadcrumb
+                    className="mb-4"
+                    current={props.tag}
+                    depths={[
+                        {
+                            label: 'Home',
+                            url: '/'
+                        },
+                        {
+                            label: 'Tags',
+                            url: '/tags'
+                        },
+                        {
+                            label: props.tag,
+                            url: `/tags/${props.tag}`
+                        }
+                    ]}
+                />
                 {props.headPost && (
                     <div className="mt-3">
                         <SpeechBubble

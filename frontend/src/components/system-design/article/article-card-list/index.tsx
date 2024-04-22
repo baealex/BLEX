@@ -4,8 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { LazyLoadedImage, Text } from '~/components/design-system';
-import { TagBadges } from '../../tag';
+import { BadgeGroup, LazyLoadedImage, Text } from '~/components/design-system';
 
 import { getPostImage } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
@@ -49,7 +48,7 @@ export function ArticleCardList(props: ArticleCardListProps) {
                             {unescape(props.description)}
                         </Link>
                     </Text>
-                    <TagBadges
+                    <BadgeGroup
                         className="mt-3"
                         items={props.tags.map(item => (
                             <Link href={`/@${props.author}/posts/${item}#profile`}>

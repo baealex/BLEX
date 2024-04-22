@@ -18,12 +18,11 @@ import {
     ArticleThanks,
     RelatedArticles
 } from '@system-design/article-detail-page';
-import { Button, Card, Container, DualWidgetLayout, Flex, Text } from '@design-system';
+import { BadgeGroup, Button, Card, Container, DualWidgetLayout, Flex, Text } from '@design-system';
 import {
     Footer,
     SEO
 } from '@system-design/shared';
-import { TagBadges } from '@system-design/tag';
 
 import * as API from '~/modules/api';
 import { codeMirrorAll } from '~/modules/library/codemirror';
@@ -183,7 +182,7 @@ function PostDetail(props: Props) {
                                     </Card>
                                 )}
                                 <ArticleContent renderedContent={props.post.renderedContent} />
-                                <TagBadges
+                                <BadgeGroup
                                     items={props.post.tags.map(item => (
                                         <Link href={`/@${props.post.author}/posts/${item}`}>
                                             {item}
