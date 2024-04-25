@@ -36,6 +36,7 @@ export const useInfinityScroll = <T>({
     useEffect(() => {
         if (!isBottomApproach || isLoading) return;
 
+        setIsLoading(true);
         callback(page + 1)
             .then((data) => {
                 memoryStore.page += 1;
@@ -69,6 +70,7 @@ export const useInfinityScroll = <T>({
             });
         },
         isError,
-        isLoading
+        isLoading,
+        isLastPage: page === lastPage
     };
 };
