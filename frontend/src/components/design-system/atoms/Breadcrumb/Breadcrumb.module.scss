@@ -13,10 +13,11 @@
     }
 
     .depth {
-        @include COLOR_DARK;
+        @include COLOR_ASHGRAY;
     }
 
     .current {
+        @include COLOR_DARK;
         font-weight: 600;
     }
 }
