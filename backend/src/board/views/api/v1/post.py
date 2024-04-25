@@ -21,7 +21,7 @@ from board.modules.paginator import Paginator
 from board.modules.post_description import create_post_description
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
-from board.modules.time import convert_to_localtime
+from board.modules.time import convert_to_localtime, time_since
 from modules import markdown
 from modules.sub_task import SubTaskProcessor
 from modules.discord import Discord
@@ -197,7 +197,7 @@ def newest_post_list(request):
                 'image': str(post.image),
                 'description': post.meta_description,
                 'read_time': post.read_time,
-                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'created_date': post.time_since(),
                 'author_image': post.author_image,
                 'author': post.author_username,
                 'is_ad': post.config.advertise,
@@ -256,7 +256,8 @@ def liked_post_list(request):
                 'image': str(post.image),
                 'description': post.meta_description,
                 'read_time': post.read_time,
-                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'liked_date': time_since(post.liked_date),
+                'created_date': post.time_since(),
                 'author_image': post.author_image,
                 'author': post.author_username,
                 'is_ad': post.config.advertise,

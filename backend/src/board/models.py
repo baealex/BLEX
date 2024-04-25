@@ -326,6 +326,9 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post_detail', args=[self.author, self.url])
 
+    def time_since(self):
+        return time_since(self.created_date)
+
     def today(self):
         count = 0
         try:

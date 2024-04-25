@@ -93,7 +93,7 @@ def tag_detail(request, name):
                 'image': str(post.image),
                 'description': post.meta_description,
                 'read_time': post.read_time,
-                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
+                'created_date': post.time_since(),
                 'author_image': post.author_image,
                 'author': post.author_username,
                 'count_likes': post.count_likes,
