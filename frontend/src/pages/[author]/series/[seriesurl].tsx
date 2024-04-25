@@ -220,13 +220,15 @@ export default function Series(props: Props) {
                         </Button>
                     )}
                 </Flex>
-                {posts.map((post) => (
-                    <SeriesArticleCard
-                        key={post.url}
-                        author={props.series.owner}
-                        {...post}
-                    />
-                ))}
+                <div className="pb-4">
+                    {posts.map((post) => (
+                        <SeriesArticleCard
+                            key={post.url}
+                            author={props.series.owner}
+                            {...post}
+                        />
+                    ))}
+                </div>
                 {isLoading && (
                     <Flex justify="center" className="pb-4">
                         <Loading position="inline" />
