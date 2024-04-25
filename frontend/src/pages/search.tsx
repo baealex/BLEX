@@ -121,7 +121,7 @@ export default function Search(props: Props) {
                                 {response?.body.totalSize}개의 결과 ({response?.body.elapsedTime}초 소요)
                             </Text>
                         </Flex>
-                        <ArticleCardGroup className="mt-4 mb-5" gap={5}>
+                        <ArticleCardGroup hasDivider className="mt-4 mb-5" gap={5}>
                             {response.body.results.map((item, idx) => (
                                 <div key={idx}>
                                     <ArticleCard

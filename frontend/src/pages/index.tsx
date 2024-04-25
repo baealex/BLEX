@@ -56,7 +56,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
     });
 
     return (
-        <ArticleCardGroup className="mt-4 mb-5" gap={5}>
+        <ArticleCardGroup hasDivider className="mt-4 mb-5" gap={5}>
             {posts.map((post) => (
                 <div key={post.url}>
                     <ArticleCard onLike={() => handleLike(post)} {...post} />

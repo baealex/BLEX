@@ -111,7 +111,7 @@ export default function TagDetail(props: Props) {
                         </SpeechBubble>
                     </div>
                 )}
-                <ArticleCardGroup gap={5}>
+                <ArticleCardGroup hasDivider gap={5}>
                     {posts.map((item, idx) => (
                         <ArticleCard
                             key={idx}

@@ -11,7 +11,7 @@ export interface ArticlesProps {
 
 export function Articles(props: ArticlesProps) {
     return (
-        <ArticleCardGroup gap={5}>
+        <ArticleCardGroup hasDivider gap={5}>
             {props.posts.map((item, idx) => (
                 <ArticleCardList key={idx} {...item}/>
             ))}
