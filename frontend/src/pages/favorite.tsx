@@ -3,7 +3,7 @@ import type { GetServerSideProps } from 'next';
 import { ArticleCard, ArticleCardGroup, CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
 
-import { Flex, Loading } from '~/components/design-system';
+import { Flex, Loading, Text } from '~/components/design-system';
 import { SEO } from '@system-design/shared';
 
 import { ServiceInfoWidget, TrendingPostsWidget } from '~/components/system-design/widgets';
@@ -15,11 +15,11 @@ import { CONFIG } from '~/modules/settings';
 
 import * as API from '~/modules/api';
 
-type Props = API.GetPostsResponseData;
+type Props = API.GetFavoritePostsResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     try {
-        const { data } = await API.getLikedPosts(1, context.req.headers.cookie);
+        const { data } = await API.getFavoritePosts(1, context.req.headers.cookie);
 
         return {
             props: {
@@ -35,7 +35,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
     const { data: posts, mutate: setPosts, isLoading } = useInfinityScroll({
         key: ['article', 'favorite'],
         callback: async (nextPage) => {
-            const { data } = await API.getNewestPosts(nextPage);
+            const { data } = await API.getFavoritePosts(nextPage);
             return data.body.posts;
         },
         initialValue: props.posts,
@@ -63,14 +63,20 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
 
             <ArticleCardGroup className="mt-4 mb-5" gap={5}>
                 {posts.map((post) => (
-                    <ArticleCard
-                        key={post.url}
-                        className="mb-4"
-                        hasShadow={false}
-                        isRounded={false}
-                        onLike={() => handleLike(post)}
-                        {...post}
-                    />
+                    <div key={post.url}>
+                        <ArticleCard
+                            className="mb-4"
+                            hasShadow={false}
+                            isRounded={false}
+                            onLike={() => handleLike(post)}
+                            {...post}
+                        />
+                        <Flex align="center" justify="end">
+                            <Text className="mt-3 gray-dark" fontSize={3}>
+                                {post.likedDate}
+                            </Text>
+                        </Flex>
+                    </div>
                 ))}
                 {isLoading && (
                     <Flex justify="center" className="p-3">

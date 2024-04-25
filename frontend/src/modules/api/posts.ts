@@ -119,8 +119,15 @@ export function getNewestPosts(page: number, cookie?: string) {
     });
 }
 
-export function getLikedPosts(page: number, cookie?: string) {
-    return request<GetPostsResponseData>({
+export interface GetFavoritePostsResponseData {
+    posts: (GetPostsResponseData['posts'][number] & {
+        likedDate: string;
+    })[];
+    lastPage: number;
+}
+
+export function getFavoritePosts(page: number, cookie?: string) {
+    return request<GetFavoritePostsResponseData>({
         url: `/v1/posts/liked?page=${page}`,
         method: 'GET',
         headers: { cookie }
