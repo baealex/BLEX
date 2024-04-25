@@ -22,11 +22,11 @@ export interface ArticleCardListProps {
 
 export function ArticleCardList(props: ArticleCardListProps) {
     return (
-        <article className="mb-4">
+        <article>
             <Text fontSize={2} className="mb-3">
                 {props.createdDate} · <span className="shallow-dark">{props.readTime}분 분량</span>
             </Text>
-            <div className={cn('list', 'pb-4')}>
+            <div className={cn('list')}>
                 {props.image && (
                     <Link className={cn('image')} href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                         <LazyLoadedImage

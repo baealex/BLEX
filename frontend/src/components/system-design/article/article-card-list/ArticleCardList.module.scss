@@ -2,7 +2,6 @@
     display: flex;
     justify-content: space-between;
     word-break: keep-all;
-    border-bottom: 1px solid #eee;
     gap: 24px;
 
     :global(body.dark) & {

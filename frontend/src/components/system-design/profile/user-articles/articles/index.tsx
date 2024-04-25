@@ -1,4 +1,5 @@
 import {
+    ArticleCardGroup,
     ArticleCardList,
     ArticleCardListProps
 } from '@system-design/article';
@@ -10,11 +11,11 @@ export interface ArticlesProps {
 
 export function Articles(props: ArticlesProps) {
     return (
-        <div>
+        <ArticleCardGroup gap={5}>
             {props.posts.map((item, idx) => (
                 <ArticleCardList key={idx} {...item}/>
             ))}
             {props.children}
-        </div>
+        </ArticleCardGroup>
     );
 }
