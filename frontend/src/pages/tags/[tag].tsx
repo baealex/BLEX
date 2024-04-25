@@ -99,7 +99,7 @@ export default function TagDetail(props: Props) {
                     ]}
                 />
                 {props.headPost && (
-                    <div className="mt-3">
+                    <div className="mt-3 mb-5">
                         <SpeechBubble
                             href={`/@${props.headPost.author}`}
                             alt={props.headPost.author}
