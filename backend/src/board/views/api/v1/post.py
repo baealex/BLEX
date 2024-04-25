@@ -208,7 +208,6 @@ def newest_post_list(request):
                 'count_likes': post.count_likes,
                 'count_comments': post.count_comments,
                 'has_liked': post.has_liked,
-                'tags': post.tagging(),
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
@@ -268,7 +267,6 @@ def liked_post_list(request):
                 'count_likes': post.count_likes,
                 'count_comments': post.count_comments,
                 'has_liked': post.has_liked,
-                'tags': post.tagging(),
             }, posts)),
             'last_page': posts.paginator.num_pages
         })
