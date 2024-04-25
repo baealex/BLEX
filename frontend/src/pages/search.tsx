@@ -4,8 +4,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 import { Alert, Container, Flex, Loading, Text } from '@design-system';
+import { ArticleCard, ArticleCardGroup } from '@system-design/article';
 import { Footer, Pagination, SearchBox } from '@system-design/shared';
-import { ArticleCard } from '@system-design/article';
 
 import { useFetch } from '~/hooks/use-fetch';
 
@@ -121,20 +121,21 @@ export default function Search(props: Props) {
                                 {response?.body.totalSize}개의 결과 ({response?.body.elapsedTime}초 소요)
                             </Text>
                         </Flex>
-                        {response.body.results.map((item, idx) => (
-                            <div key={idx}>
-                                <Flex align="center" justify="end">
-                                    <Text className="mt-3 gray-dark" fontSize={3}>
-                                        {item.positions.join(', ')}에서 검색됨
-                                    </Text>
-                                </Flex>
-                                <ArticleCard
-                                    className="mt-3"
-                                    highlight={props.query}
-                                    {...item}
-                                />
-                            </div>
-                        ))}
+                        <ArticleCardGroup className="mt-4 mb-5" gap={5}>
+                            {response.body.results.map((item, idx) => (
+                                <div key={idx}>
+                                    <ArticleCard
+                                        highlight={props.query}
+                                        {...item}
+                                    />
+                                    <Flex align="center" justify="end">
+                                        <Text className="mt-3 gray-dark" fontSize={3}>
+                                            {item.positions.join(', ')}에서 검색됨
+                                        </Text>
+                                    </Flex>
+                                </div>
+                            ))}
+                        </ArticleCardGroup>
                         {response.body.lastPage > 0 && (
                             <Pagination
                                 page={props.page}

@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from 'next';
 
-import { ArticleCard, CollectionLayout } from '@system-design/article';
+import { ArticleCard, ArticleCardGroup, CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
 
 import { Flex, Loading } from '~/components/design-system';
@@ -61,7 +61,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
         <>
             <SEO title={`Favorite | ${CONFIG.BLOG_TITLE}`} />
 
-            <div className="mt-4">
+            <ArticleCardGroup className="mt-4 mb-5" gap={5}>
                 {posts.map((post) => (
                     <ArticleCard
                         key={post.url}
@@ -77,7 +77,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
                         <Loading position="inline" />
                     </Flex>
                 )}
-            </div>
+            </ArticleCardGroup>
         </>
     );
 };

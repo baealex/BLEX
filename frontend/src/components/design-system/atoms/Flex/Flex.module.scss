@@ -79,8 +79,7 @@
         flex-wrap: wrap-reverse;
     }
 
-    @each $key,
-    $value in $marginSizes {
+    @each $key, $value in $marginSizes {
         &.g-#{$key} {
             gap: $value;
         }

@@ -4,7 +4,7 @@ const cx = classNames.bind(styles);
 
 type Gap = 0 | 1 | 2 | 3 | 4 | 5;
 
-interface FlexProps {
+export interface FlexProps {
     direction?: 'row' | 'column';
     justify?: 'start' | 'end' | 'center' | 'between' | 'around';
     align?: 'start' | 'end' | 'center' | 'stretch' | 'baseline';

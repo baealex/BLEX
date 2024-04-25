@@ -113,7 +113,7 @@ export function ArticleCard(props: ArticleCardProps) {
                     )}
                 </Flex>
             </Flex>
-            <div className={cn('posts', props.image ? 'pb-4' : 'pb-3')}>
+            <div className={cn('posts')}>
                 <>
                     {props.image && (
                         <Link href={url} className={cn('image')}>

@@ -9,11 +9,8 @@ import {
     SpeechBubble
 } from '@design-system';
 
-import {
-    Footer,
-    SEO
-} from '@system-design/shared';
-import { ArticleCard } from '@system-design/article';
+import { ArticleCard, ArticleCardGroup } from '@system-design/article';
+import { Footer, SEO } from '@system-design/shared';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 
@@ -114,16 +111,15 @@ export default function TagDetail(props: Props) {
                         </SpeechBubble>
                     </div>
                 )}
-                <div className="mt-4">
+                <ArticleCardGroup gap={5}>
                     {posts.map((item, idx) => (
                         <ArticleCard
                             key={idx}
-                            className="mb-4"
                             {...item}
                             onLike={() => handleLike(item)}
                         />
                     ))}
-                </div>
+                </ArticleCardGroup>
                 {isLoading && (
                     <Flex justify="center" className="p-3">
                         <Loading position="inline" />

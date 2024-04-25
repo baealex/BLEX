@@ -1,0 +1,23 @@
+@import 'var';
+
+.group {    
+    & > :not(:last-child) {
+        width: 100%;
+        border-bottom: 1px solid #ede9f5;
+
+        :global(body.dark) & {
+            border-color: #313136;
+        }
+    }
+
+    @each $key, $value in $marginSizes {
+        &.g-#{$key} {
+            & > :not(:first-child) {
+                margin-top: $value;
+            }
+            & > :not(:last-child) {
+                padding-bottom: $value;
+            }
+        }
+    }
+}
