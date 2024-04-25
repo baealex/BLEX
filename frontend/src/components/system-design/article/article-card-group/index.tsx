@@ -2,12 +2,12 @@ import classNames from 'classnames/bind';
 import styles from './ArticleCardGroup.module.scss';
 const cx = classNames.bind(styles);
 
-import { FlexProps } from '~/components/design-system';
+import type { Gap } from '~/types/style';
 
 interface ArticleCardGroupProps {
     className?: string;
     children: React.ReactNode;
-    gap?: FlexProps['gap'];
+    gap?: Gap;
 }
 
 export function ArticleCardGroup({

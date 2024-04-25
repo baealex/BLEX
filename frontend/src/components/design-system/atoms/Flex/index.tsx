@@ -2,9 +2,9 @@ import classNames from 'classnames/bind';
 import styles from './Flex.module.scss';
 const cx = classNames.bind(styles);
 
-type Gap = 0 | 1 | 2 | 3 | 4 | 5;
+import type { Gap } from '~/types/style';
 
-export interface FlexProps {
+interface FlexProps {
     direction?: 'row' | 'column';
     justify?: 'start' | 'end' | 'center' | 'between' | 'around';
     align?: 'start' | 'end' | 'center' | 'stretch' | 'baseline';
