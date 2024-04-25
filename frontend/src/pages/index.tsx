@@ -1,9 +1,10 @@
 import type { GetServerSideProps } from 'next';
+import Link from 'next/link';
 
 import { ArticleCard, ArticleCardGroup, CollectionLayout } from '@system-design/article';
 import type { PageComponent } from '~/components';
 
-import { Flex, Loading } from '~/components/design-system';
+import { Badge, Flex, Loading, Text } from '~/components/design-system';
 
 import { ServiceInfoWidget, TrendingPostsWidget } from '~/components/system-design/widgets';
 
@@ -11,7 +12,6 @@ import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useLikePost } from '~/hooks/use-like-post';
 
 import * as API from '~/modules/api';
-
 
 type Props = API.GetPostsResponseData;
 
@@ -58,13 +58,32 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
     return (
         <ArticleCardGroup className="mt-4 mb-5" gap={5}>
             {posts.map((post) => (
-                <ArticleCard
-                    key={post.url}
-                    hasShadow={false}
-                    isRounded={false}
-                    onLike={() => handleLike(post)}
-                    {...post}
-                />
+                <div key={post.url}>
+                    <ArticleCard
+                        key={post.url}
+                        hasShadow={false}
+                        isRounded={false}
+                        onLike={() => handleLike(post)}
+                        {...post}
+                    />
+                    {post.series && (
+                        <Flex className="shallow-dark mt-3" align="center">
+                            <Flex align="center" gap={1}>
+                                <Text fontSize={2}>
+                                    시리즈
+                                </Text>
+                                ·
+                                <Link href={`/@${post.author}/series/${post.series.url}`}>
+                                    <Badge isRounded>
+                                        <Text fontSize={2}>
+                                            {post.series.name}
+                                        </Text>
+                                    </Badge>
+                                </Link>
+                            </Flex>
+                        </Flex>
+                    )}
+                </div>
             ))}
             {isLoading && (
                 <Flex justify="center" className="p-3">

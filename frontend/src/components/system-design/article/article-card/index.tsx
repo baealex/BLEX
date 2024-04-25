@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 
 import {
-    BadgeGroup,
     Flex,
     LazyLoadedImage,
     Text
@@ -31,7 +30,6 @@ export interface ArticleCardProps {
     readTime?: number;
     isAd?: boolean;
     className?: string;
-    children?: JSX.Element;
     hasShadow?: boolean;
     isRounded?: boolean;
     highlight?: string;
@@ -43,7 +41,6 @@ export interface ArticleCardProps {
         name: string;
         url: string;
     };
-    tags?: string[];
 }
 
 export function ArticleCard(props: ArticleCardProps) {
@@ -125,7 +122,7 @@ export function ArticleCard(props: ArticleCardProps) {
                             />
                         </Link>
                     )}
-                    <Flex className={cn('content')} direction="column" justify="between">
+                    <Flex className={cn('content')} direction="column">
                         <div className="w-100">
                             <div className="py-2">
                                 {props.number && (
@@ -160,14 +157,6 @@ export function ArticleCard(props: ArticleCardProps) {
                                 </Link>
                             </div>
                         </div>
-                        {props.tags && (
-                            <BadgeGroup
-                                className={props.description ? 'mt-2' : ''}
-                                items={props.tags.map((tag) => (
-                                    <Link href={`/tags/${tag}`}>{tag}</Link>
-                                ))}
-                            />
-                        )}
                     </Flex>
                 </>
             </div>

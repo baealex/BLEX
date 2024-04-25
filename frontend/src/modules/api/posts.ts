@@ -105,7 +105,6 @@ export interface GetPostsResponseData {
         hasLiked: boolean;
         countLikes: number;
         countComments: number;
-        tags: string[];
     }[];
     lastPage: number;
 }

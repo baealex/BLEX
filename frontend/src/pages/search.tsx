@@ -128,8 +128,8 @@ export default function Search(props: Props) {
                                         highlight={props.query}
                                         {...item}
                                     />
-                                    <Flex align="center" justify="end">
-                                        <Text className="mt-3 gray-dark" fontSize={3}>
+                                    <Flex className="mt-3" align="center" justify="end">
+                                        <Text className="gray-dark" fontSize={3}>
                                             {item.positions.join(', ')}에서 검색됨
                                         </Text>
                                     </Flex>

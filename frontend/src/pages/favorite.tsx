@@ -71,8 +71,8 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
                             onLike={() => handleLike(post)}
                             {...post}
                         />
-                        <Flex align="center" justify="end">
-                            <Text className="mt-3 gray-dark" fontSize={3}>
+                        <Flex className="mt-3" align="center" justify="end">
+                            <Text className="gray-dark" fontSize={3}>
                                 {post.likedDate}에 추가됨
                             </Text>
                         </Flex>
