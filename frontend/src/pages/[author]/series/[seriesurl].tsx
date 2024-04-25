@@ -236,16 +236,15 @@ export default function Series(props: Props) {
 
             <style jsx>{`
                 :global(main.content) {
-                    padding-top: 0;
-                    padding-bottom: 50px;
                     background-color: #F2F2F2;
 
                     :global(body.dark) & {
                         background-color: #151515;
                     }
                 }
-                
+
                 .series-header {
+                    margin: -100px 0 0;
                     background: #000;
                     position: relative;
                     padding: 64px 0;
