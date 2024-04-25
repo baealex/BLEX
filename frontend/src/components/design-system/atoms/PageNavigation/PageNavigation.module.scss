@@ -1,7 +1,6 @@
 @import 'mixin';
-;
 
-$ITEM_WIDTH: 100px;
+$ITEM_WIDTH: 88px;
 
 .nav {
     position: relative;
@@ -16,7 +15,7 @@ $ITEM_WIDTH: 100px;
         border-bottom: 1px solid #555;
     }
 
-    &>li {
+    & > li {
         display: block;
         margin: 10px 0;
         width: $ITEM_WIDTH;
@@ -25,13 +24,13 @@ $ITEM_WIDTH: 100px;
         overflow: hidden;
         text-overflow: ellipsis;
 
-        &>a {
+        & > a {
             @include COLOR_GRAY;
             text-decoration: none;
         }
 
         &.active,
-        &.active>a {
+        &.active > a {
             @include COLOR_DARK;
             font-weight: bold;
         }
@@ -49,7 +48,7 @@ $ITEM_WIDTH: 100px;
         &::after {
             content: '';
             display: block;
-            width: 30px;
+            width: $ITEM_WIDTH / 2;
             margin: 0 auto;
             height: 2px;
             background: #000;
@@ -63,10 +62,6 @@ $ITEM_WIDTH: 100px;
             &.active-#{$i} {
                 transform: translate3d($i * 100%, 0, 0);
             }
-        }
-
-        @media only screen and (max-width: 430px) {
-            display: none;
         }
     }
 }

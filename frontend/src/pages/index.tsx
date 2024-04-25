@@ -59,13 +59,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
         <ArticleCardGroup className="mt-4 mb-5" gap={5}>
             {posts.map((post) => (
                 <div key={post.url}>
-                    <ArticleCard
-                        key={post.url}
-                        hasShadow={false}
-                        isRounded={false}
-                        onLike={() => handleLike(post)}
-                        {...post}
-                    />
+                    <ArticleCard onLike={() => handleLike(post)} {...post} />
                     {post.series && (
                         <Flex className="shallow-dark mt-3" align="center">
                             <Flex align="center" gap={1}>

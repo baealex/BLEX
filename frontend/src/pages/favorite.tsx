@@ -64,13 +64,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
             <ArticleCardGroup className="mt-4 mb-5" gap={5}>
                 {posts.map((post) => (
                     <div key={post.url}>
-                        <ArticleCard
-                            className="mb-4"
-                            hasShadow={false}
-                            isRounded={false}
-                            onLike={() => handleLike(post)}
-                            {...post}
-                        />
+                        <ArticleCard onLike={() => handleLike(post)} {...post} />
                         <Flex className="mt-3" align="center" justify="end">
                             <Text className="gray-dark" fontSize={3}>
                                 {post.likedDate}에 추가됨

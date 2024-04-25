@@ -22,7 +22,7 @@ export interface ArticleCardListProps {
 
 export function ArticleCardList(props: ArticleCardListProps) {
     return (
-        <article>
+        <div>
             <Text fontSize={2} className="mb-3">
                 {props.createdDate} · <span className="shallow-dark">{props.readTime}분 분량</span>
             </Text>
@@ -58,6 +58,6 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     />
                 </div>
             </div>
-        </article>
+        </div>
     );
 }

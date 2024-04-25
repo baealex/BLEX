@@ -28,10 +28,6 @@ export interface ArticleCardProps {
     authorImage?: string;
     createdDate?: string;
     readTime?: number;
-    isAd?: boolean;
-    className?: string;
-    hasShadow?: boolean;
-    isRounded?: boolean;
     highlight?: string;
     countComments?: number;
     countLikes?: number;
@@ -60,7 +56,7 @@ export function ArticleCard(props: ArticleCardProps) {
     }, [props.description, props.highlight]);
 
     return (
-        <article className={cn(props.className)}>
+        <div>
             <Flex className="mb-3" align="center" justify="between">
                 <Flex align="center" gap={1}>
                     {props.author && (
@@ -160,6 +156,6 @@ export function ArticleCard(props: ArticleCardProps) {
                     </Flex>
                 </>
             </div>
-        </article>
+        </div>
     );
 }

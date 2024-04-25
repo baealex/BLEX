@@ -11,15 +11,15 @@ interface Props {
 export function DualWidgetLayout(props: Props) {
     return (
         <div className={cx('layout')}>
-            <div className={cx('left-widget')}>
+            <aside className={cx('left-widget')}>
                 {props.leftWidget}
-            </div>
+            </aside>
             <div className={cx('content')}>
                 {props.content}
             </div>
-            <div className={cx('right-widget')}>
+            <aside className={cx('right-widget')}>
                 {props.rightWidget}
-            </div>
+            </aside>
         </div>
     );
 }

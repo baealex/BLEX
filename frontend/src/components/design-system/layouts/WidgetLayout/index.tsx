@@ -12,11 +12,11 @@ export const WidgetLayout: React.FC<WidgetLayoutProps> = ({ children, widget }) 
                 {children}
             </div>
             {widget && (
-                <div className={styles.widgetContainer}>
+                <aside className={styles.widgetContainer}>
                     <div className={styles.widget}>
                         {widget}
                     </div>
-                </div>
+                </aside>
             )}
         </div>
     );
