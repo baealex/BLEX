@@ -153,16 +153,18 @@ const SeriesSetting: PageComponent<Props> = (props) => {
                     </Button>
                 </div>
             </form>
-            <VerticalSortable items={series.map((item) => item.url)} onDragEnd={handleDragEnd}>
-                {series.map((item) => (
-                    <SeriesItem
-                        key={item.url}
-                        username={props.username}
-                        {...item}
-                        onClickDelete={() => handleDelete(item.url)}
-                    />
-                ))}
-            </VerticalSortable>
+            <div>
+                <VerticalSortable items={series.map((item) => item.url)} onDragEnd={handleDragEnd}>
+                    {series.map((item) => (
+                        <SeriesItem
+                            key={item.url}
+                            username={props.username}
+                            {...item}
+                            onClickDelete={() => handleDelete(item.url)}
+                        />
+                    ))}
+                </VerticalSortable>
+            </div>
         </>
     );
 };

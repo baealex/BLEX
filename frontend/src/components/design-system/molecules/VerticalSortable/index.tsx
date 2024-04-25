@@ -1,6 +1,6 @@
 import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { restrictToFirstScrollableAncestor, restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 interface VerticalSortableProps {
     items: string[];
@@ -25,6 +25,7 @@ export function VerticalSortable({
             sensors={sensors}
             modifiers={[
                 restrictToVerticalAxis,
+                restrictToParentElement,
                 restrictToFirstScrollableAncestor
             ]}
             collisionDetection={closestCenter}
