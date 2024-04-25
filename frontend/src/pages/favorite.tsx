@@ -73,7 +73,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
                         />
                         <Flex align="center" justify="end">
                             <Text className="mt-3 gray-dark" fontSize={3}>
-                                {post.likedDate}
+                                {post.likedDate}에 추가됨
                             </Text>
                         </Flex>
                     </div>
