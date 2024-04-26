@@ -12,12 +12,22 @@ from board.modules.time import convert_to_localtime
 def user_series(request, username, url=None):
     if not url:
         if request.method == 'GET':
-            series = Series.objects.filter(
-                owner__username=username,
-                hide=False
-            ).annotate(
+            series = Series.objects.annotate(
                 owner_username=F('owner__username'),
-            ).order_by('order', '-id').distinct()
+                total_posts=Count(
+                    Case(
+                        When(
+                            posts__created_date__lte=timezone.now(),
+                            posts__config__hide=False,
+                            then=1
+                        )
+                    )
+                )
+            ).filter(
+                owner__username=username,
+                total_posts__gte=1,
+                hide=False,
+            ).order_by('order', '-id')
 
             series = Paginator(
                 objects=series,
@@ -29,6 +39,7 @@ def user_series(request, username, url=None):
                     'url': item.url,
                     'name': item.name,
                     'image': item.thumbnail(),
+                    'total_posts': item.total_posts,
                     'created_date': convert_to_localtime(item.created_date).strftime('%Y년 %m월 %d일'),
                     'owner': item.owner_username,
                 }, series)),
