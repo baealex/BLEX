@@ -431,12 +431,32 @@ def user_posts(request, username, url=None):
             ).annotate(
                 author_username=F('author__username'),
                 author_image=F('author__profile__avatar'),
-            )
+            ).order_by('-created_date')
             all_count = posts.count()
+
             tag = request.GET.get('tag', '')
             if tag:
                 posts = posts.filter(tags__value=tag)
-            posts = posts.order_by('-created_date')
+            
+            search = request.GET.get('search', '')
+            if search:
+                posts = posts.filter(title__icontains=search)
+
+            valid_orders = [
+                'title',
+                'created_date',
+                'updated_date',
+            ]
+            order = request.GET.get('order', '')
+            if order:
+                is_valid = False
+                for valid_order in valid_orders:
+                    if order == valid_order or order == '-' + valid_order:
+                        is_valid = True
+                if not is_valid:
+                    raise Http404
+
+                posts = posts.order_by(order)
 
             posts = Paginator(
                 objects=posts,
