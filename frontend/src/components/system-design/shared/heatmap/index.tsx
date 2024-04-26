@@ -37,7 +37,7 @@ export function Heatmap(props: HeatmapProps) {
     }, [data, props.isNightMode]);
 
     return (
-        <Card isRounded hasShadow className={`${cn('heatmap')} mt-3 pt-2`}>
+        <Card isRounded hasShadow className={`${cn('heatmap')} py-3`}>
             <div id="heatmap" />
         </Card>
     );

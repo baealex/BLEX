@@ -86,7 +86,7 @@ const SeriesProfile: PageComponent<Props> = (props) => {
 
 SeriesProfile.pageLayout = (page, props) => (
     <ProfileLayout
-        active="series"
+        active="Series"
         profile={props.profile}
         social={props.social}>
         {props.series.length <= 0 ? (

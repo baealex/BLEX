@@ -1,62 +1,42 @@
-@import 'mixin';;
+@import 'mixin';
 
-.user {
-    margin: 0 auto;
+.layout {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: $MARGIN_SIZE_5;
+
+    @media (max-width: $BREAKPOINT_DESKTOP) {
+        gap: $MARGIN_SIZE_7;
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.avatar {
+    width: 100%;
     text-align: center;
 
-    .avatar {
+    @media (max-width: $BREAKPOINT_DESKTOP) {
+        text-align: left;
+    }
+
+    img {
+        border: 1px solid #ccc;
         width: 250px;
         height: 250px;
         background: #fff;
         border-radius: 100%;
         margin: 16px 0;
         object-fit: cover;
+
+        @media (max-width: $BREAKPOINT_DESKTOP) {
+            width: 100px;
+            height: 100px;
+            margin: 4px 0;
+        }
     
-        body.dark & {
+        :global(body.dark) & {
             background: #000;
-            border: 1px solid #333;
-        }
-    }
-
-    .name {
-        font-weight: bold;
-        font-size: 24px;
-
-        &::before {
-            content: "";
-            color: rgb(88,43,116);
-        }
-
-        &::after {
-            content: "";
-            color: rgb(28,121,96);
-        }
-    }
-
-    .username {
-        @include COLOR_ASHGRAY;
-        font-size: 16px;
-        margin: 4px 0 8px;
-    }
-
-    .bio, .homepage, .divider {
-        font-size: 16px;
-        margin-top: 32px;
-        margin-bottom: 24px;
-    }
-
-    .divider {
-        margin-left: 4px;
-        margin-right: 4px;
-    }
-
-    .homepage {
-        font-weight: bold;
-        white-space: nowrap;
-
-        & > a {
-            @include COLOR_DARK;
-            text-decoration: none;
+            border-color: #494949;
         }
     }
 }

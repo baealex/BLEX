@@ -54,7 +54,6 @@ export function SubscribeButton(props: Props) {
         <Button
             ref={ref}
             isRounded
-            space="spare"
             color={hasSubscribe ? 'secondary' : 'default'}
             onClick={handleClickSubscribe}>
             {hasSubscribe ? '구독중' : '구독하기'}

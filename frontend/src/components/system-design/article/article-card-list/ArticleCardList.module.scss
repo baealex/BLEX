@@ -4,10 +4,6 @@
     word-break: keep-all;
     gap: 24px;
 
-    :global(body.dark) & {
-        border-bottom: 1px solid #333;
-    }
-
     .image {
         order: 1;
         width: 180px;

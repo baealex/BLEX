@@ -6,7 +6,8 @@ import type { GetServerSideProps } from 'next';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Container, Text } from '~/components/design-system';
+import { Text } from '~/components/design-system';
+
 import {
     FeaturedArticles,
     ProfileLayout,
@@ -16,11 +17,13 @@ import {
     Heatmap,
     SEO
 } from '@system-design/shared';
+import { ArticleContent } from '~/components/system-design/article-detail-page';
 import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';
 
 import { configStore } from '~/stores/config';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 type Props = API.GetUserProfileResponseData;
 
@@ -35,6 +38,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         const { data } = await API.getUserProfile(author, [
             'profile',
             'social',
+            'about',
             'heatmap',
             'most',
             'recent'
@@ -49,6 +53,8 @@ const Overview: PageComponent<Props> = (props) => {
     const [isNightMode, setIsNightMode] = useState(configStore.state.theme === 'dark');
 
     useEffect(() => {
+        lazyLoadResource();
+
         const updateKey = configStore.subscribe((state) => {
             setIsNightMode(state.theme === 'dark');
         });
@@ -64,27 +70,40 @@ const Overview: PageComponent<Props> = (props) => {
                 description={props.profile.bio}
             />
 
-            <Container size="sm">
-                <Text className="mt-5" fontWeight={700} fontSize={8}>
-                    인기 컨텐츠
-                </Text>
-                <FeaturedArticles articles={props.most || []} />
-                <Text className="mt-5" fontWeight={700} fontSize={8}>
-                    최근 활동
-                </Text>
+            {props.about && (
+                <div className="mb-7">
+                    <ArticleContent renderedContent={props.about} />
+                </div>
+            )}
+
+            {props.most!.length > 0 && (
+                <div className="mb-7">
+                    <Text fontWeight={700} fontSize={6}>
+                        인기 컨텐츠
+                    </Text>
+                    <div className="mt-3">
+                        <FeaturedArticles articles={props.most!} />
+                    </div>
+                </div>
+            )}
+
+            <Text fontWeight={700} fontSize={6}>
+                최근 활동
+            </Text>
+            <div className="mt-3">
                 <Heatmap
                     isNightMode={isNightMode}
                     data={props.heatmap}
                 />
-                <RecentActivity items={props.recent || []} />
-            </Container>
+            </div>
+            <RecentActivity items={props.recent || []} />
         </>
     );
 };
 
 Overview.pageLayout = (page, props) => (
     <ProfileLayout
-        active="overview"
+        active="Overview"
         profile={props.profile}
         social={props.social}>
         {page}

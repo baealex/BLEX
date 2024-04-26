@@ -177,9 +177,19 @@ export interface GetUserPostsResponseData {
     lastPage: number;
 }
 
-export function getUserPosts(author: string, page: number, tag = '') {
+interface GetUserPostsOptions {
+    tag?: string;
+    order?: string;
+    search?: string;
+}
+
+export function getUserPosts(author: string, page: number, options?: GetUserPostsOptions) {
     return request<GetUserPostsResponseData>({
-        url: `/v1/users/${encodeURIComponent(author)}/posts?tag=${encodeURIComponent(tag)}&page=${page}`,
+        url: `/v1/users/${encodeURIComponent(author)}/posts`,
+        params: {
+            page,
+            ...options
+        },
         method: 'GET'
     });
 }

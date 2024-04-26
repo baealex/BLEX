@@ -5,13 +5,12 @@ const cn = classNames.bind(styles);
 import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
-import { Button, Container, Flex } from '@design-system';
+import { Button, Container, Flex, PageNavigationLayout, Text } from '@design-system';
 import {
     Footer,
     Social,
     SocialProps
 } from '@system-design/shared';
-import { ProfileNavigation } from '@system-design/profile';
 import { SubscribeButton } from '@system-design/shared';
 
 import { authStore } from '~/stores/auth';
@@ -26,6 +25,7 @@ export interface ProfileLayoutProps {
     };
     social?: SocialProps['social'];
     active: string;
+    widget?: JSX.Element;
     children?: JSX.Element;
 }
 
@@ -37,52 +37,62 @@ export function ProfileLayout(props: ProfileLayoutProps) {
     return (
         <>
             <Container>
-                <div className={`${cn('user')}`}>
-                    <img className={cn('avatar')} src={props.profile.image} />
-                    <div className={cn('name')}>{props.profile.name}</div>
-                    <div className={cn('username')}>@{props.profile.username}</div>
-                    {(props.profile.homepage || props.profile.bio) && (
-                        <Flex justify="center" align="center">
-                            {props.profile.homepage && (
-                                <div className={cn('homepage')}>
-                                    <a href={`${props.profile.homepage}`}>
-                                        {props.profile.homepage.replace(/(^\w+:|^)\/\//, '').split('/')?.[0]}
-                                    </a>
-                                </div>
-                            )}
-                            {(props.profile.homepage && props.profile.bio) && (
-                                <div className={cn('divider')}>·</div>
-                            )}
+                <div className={cn('layout')}>
+                    <div>
+                        <div className={cn('avatar')}>
+                            <img src={props.profile.image} />
+                        </div>
+                        <Flex direction="column">
+                            <Text fontSize={6} fontWeight={600}>{props.profile.name}</Text>
+                            <Text fontSize={3} className="shallow-dark">@{props.profile.username}</Text>
+                            <div className="mt-2">
+                                {username === props.profile.username ? (
+                                    <Button
+                                        isRounded
+                                        onClick={() => router.push('/setting/profile')}>
+                                        프로필 편집
+                                    </Button>
+                                ) : (
+                                    <SubscribeButton author={props.profile.username} />
+                                )}
+                            </div>
+                            {props.widget}
                             {props.profile.bio && (
-                                <div className={cn('bio')}>
+                                <Text fontSize={3} className="shallow-dark mt-3">
                                     {props.profile.bio}
-                                </div>
+                                </Text>
                             )}
                         </Flex>
-                    )}
-                    {props.social && (
-                        <Social
-                            username={props.profile.username}
-                            social={props.social}
-                        />
-                    )}
-                    {username === props.profile.username ? (
-                        <Button
-                            isRounded
-                            space="spare"
-                            onClick={() => router.push('/setting/profile')}>
-                            프로필 편집
-                        </Button>
-                    ) : (
-                        <SubscribeButton author={props.profile.username} />
-                    )}
+                        <div className="mt-3">
+                            <Social
+                                username={props.profile.username}
+                                homepage={props.profile.homepage}
+                                social={props.social}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <PageNavigationLayout
+                            navigationActive={props.active}
+                            navigationItems={[
+                                {
+                                    name: 'Overview',
+                                    link: `/@${props.profile.username}`
+                                },
+                                {
+                                    name: 'Posts',
+                                    link: `/@${props.profile.username}/posts`
+                                },
+                                {
+                                    name: 'Series',
+                                    link: `/@${props.profile.username}/series`
+                                }
+                            ]}>
+                            {props.children}
+                        </PageNavigationLayout>
+                    </div>
                 </div>
             </Container>
-            <ProfileNavigation
-                active={props.active}
-                username={props.profile.username}
-            />
-            {props.children}
             <Footer />
         </>
     );

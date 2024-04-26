@@ -51,7 +51,7 @@ export function ArticleCardList(props: ArticleCardListProps) {
                     <BadgeGroup
                         className="mt-3"
                         items={props.tags.map(item => (
-                            <Link href={`/@${props.author}/posts/${item}#profile`}>
+                            <Link href={`/@${props.author}/posts?tag=${item}`}>
                                 {item}
                             </Link>
                         ))}
