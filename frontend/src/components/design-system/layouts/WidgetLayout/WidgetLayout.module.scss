@@ -10,8 +10,15 @@
     }
 
     .widgetContainer {
-        order: 1;
         flex: 0 0 300px;
+        
+        &.widgetPositionRight {
+            order: 1;
+        }
+
+        &.widgetPositionLeft {
+            order: -1;
+        }
     }
 
     .widget {
@@ -29,8 +36,15 @@
 
     @media (max-width: $BREAKPOINT-TABLET) {
         .widgetContainer {
-            order: -1;
             flex: 0 0 100%;
+
+            &.widgetPositionRight {
+                order: -1;
+            }
+    
+            &.widgetPositionLeft {
+                order: -1;
+            }
         }
 
         .widget {

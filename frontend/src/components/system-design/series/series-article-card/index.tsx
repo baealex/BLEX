@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card, LazyLoadedImage } from '@design-system';
+import { Card, Flex, LazyLoadedImage, Text } from '@design-system';
 
 import { getPostImage } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';
@@ -22,29 +22,40 @@ export interface SeriesArticleCardProps {
 
 export function SeriesArticleCard(props: SeriesArticleCardProps) {
     return (
-        <Card hasBackground hasShadow backgroundType="background" className={cn('box')}>
-            <Link href={`/@${props.author}/${props.url}`}>
-                <div className={cn('title')}>
-                    {('000' + props.number).slice(-3)}. {props.title}
-                </div>
-                <div className={cn('date')}>
-                    {props.createdDate}
-                </div>
-                <div className={cn('description')}>
-                    {unescape(props.description)}
-                </div>
+        <Card hasShadow hasBackground backgroundType="background" className="py-4">
+            <Flex className={cn('box')} direction="column" gap={3}>
+                <Text className="px-4" fontWeight={600}>
+                    <Link className={cn('title', 'deep-dark')} href={`/@${props.author}/${props.url}`}>
+                        {('000' + props.number).slice(-3)}. {props.title}
+                    </Link>
+                </Text>
                 {props.image && (
-                    <LazyLoadedImage
-                        className={cn('thumbnail')}
-                        alt={props.title}
-                        src={getPostImage(props.image, { minify: true })}
-                        previewImage={getPostImage(props.image, { preview: true })}
-                    />
+                    <Link className="w-100" href={`/@${props.author}/${props.url}`}>
+                        <LazyLoadedImage
+                            className={cn('thumbnail')}
+                            alt={props.title}
+                            src={getPostImage(props.image, { minify: true })}
+                            previewImage={getPostImage(props.image, { preview: true })}
+                        />
+                    </Link>
                 )}
-                <span className="shallow-dark">
-                    더보기
-                </span>
-            </Link>
+                <Text className="px-4" fontSize={3}>
+                    <Link className={cn('description', 'deep-dark')} href={`/@${props.author}/${props.url}`}>
+                        {unescape(props.description)}
+                    </Link>
+                </Text>
+                <Flex className="px-4" align="center" gap={1}>
+                    <Text fontSize={2} className="shallow-dark">
+                        {props.createdDate}
+                    </Text>
+                    <Text fontSize={2} className="shallow-dark">
+                        ·
+                    </Text>
+                    <Text fontSize={2} className="shallow-dark">
+                        {props.readTime}분 분량
+                    </Text>
+                </Flex>
+            </Flex>
         </Card>
     );
 }

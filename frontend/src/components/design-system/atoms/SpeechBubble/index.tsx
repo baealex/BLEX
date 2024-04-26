@@ -2,21 +2,17 @@ import classNames from 'classnames/bind';
 import styles from './SpeechBubble.module.scss';
 const cn = classNames.bind(styles);
 
-import Link from 'next/link';
+import React from 'react';
 
 interface SpeechBubbleProps {
-    src: string;
-    alt: string;
-    href: string;
+    image: React.ReactNode;
     className?: string;
     children: React.ReactNode;
 }
 
 export function SpeechBubble({
-    alt,
-    src,
-    href,
     className,
+    image,
     children
 }: SpeechBubbleProps) {
     return (
@@ -25,9 +21,7 @@ export function SpeechBubble({
                 {children}
             </blockquote>
             <div className={cn('user')}>
-                <Link href={href}>
-                    <img alt={alt} src={src}/>
-                </Link>
+                {image}
             </div>
         </div>
     );

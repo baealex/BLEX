@@ -58,9 +58,11 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                         </Link>
                     </Flex>
                     <SpeechBubble
-                        href={`/@${series.owner}`}
-                        alt={series.owner}
-                        src={getUserImage(series.ownerImage)}>
+                        image={(
+                            <Link href={`/@${series.owner}`}>
+                                <img className="rounded-full" src={getUserImage(series.ownerImage)} />
+                            </Link>
+                        )}>
                         {series.description ? series.description : '이 시리즈에 대한 설명이 없습니다.'}
                     </SpeechBubble>
                     <ul>

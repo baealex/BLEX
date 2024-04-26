@@ -35,7 +35,15 @@ export function TrendingPostsWidget() {
                             </Flex>
                             <Link href={`/@${post.author}`} className="shallow-dark">
                                 <Flex gap={2} align="center">
-                                    <img width={30} height={30} style={{ borderRadius: '50%' }} src={post.authorImage} />
+                                    <img
+                                        width={30}
+                                        height={30}
+                                        style={{
+                                            borderRadius: '50%',
+                                            objectFit: 'cover'
+                                        }}
+                                        src={post.authorImage}
+                                    />
                                     <Text fontSize={3}>@{post.author}</Text>
                                 </Flex>
                             </Link>

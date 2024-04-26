@@ -11,11 +11,12 @@ import {
     Card,
     Container,
     Flex,
+    Grid,
     Loading,
     Modal,
     Text
 } from '@design-system';
-import { SEO } from '@system-design/shared';
+import { Footer, SEO } from '@system-design/shared';
 import { SeriesArticleCard } from '@system-design/series';
 
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -183,8 +184,12 @@ export default function Series(props: Props) {
             <div className="series-header">
                 <Flex align="center" justify="center" style={{ minHeight: '280px' }}>
                     <Container size="sm">
-                        <Text tag="h1" fontSize={6} fontWeight={600} className="mt-5 mb-2">“{props.series.name}” 시리즈</Text>
-                        <Text>{props.series.description}</Text>
+                        <Text tag="h1" fontSize={6} fontWeight={600} className="mt-5 mb-2">
+                            “{props.series.name}” 시리즈
+                        </Text>
+                        <Text>
+                            {props.series.description}
+                        </Text>
                     </Container>
                 </Flex>
                 {props.series.owner == username && (
@@ -202,7 +207,7 @@ export default function Series(props: Props) {
                 </Link>
             </div>
 
-            <Container size="xs-sm">
+            <Container>
                 <Flex justify="end" className="mb-4">
                     {props.order === 'latest' ? (
                         <Button
@@ -220,7 +225,13 @@ export default function Series(props: Props) {
                         </Button>
                     )}
                 </Flex>
-                <div className="pb-4">
+                <Grid
+                    gap={4}
+                    column={{
+                        desktop: 3,
+                        tablet: 2,
+                        mobile: 1
+                    }}>
                     {posts.map((post) => (
                         <SeriesArticleCard
                             key={post.url}
@@ -228,13 +239,14 @@ export default function Series(props: Props) {
                             {...post}
                         />
                     ))}
-                </div>
+                </Grid>
                 {isLoading && (
                     <Flex justify="center" className="pb-4">
                         <Loading position="inline" />
                     </Flex>
                 )}
             </Container>
+            <Footer />
 
             <style jsx>{`
                 :global(main.content) {
@@ -249,7 +261,7 @@ export default function Series(props: Props) {
                     margin: -100px 0 0;
                     background: #000;
                     position: relative;
-                    padding: 64px 0;
+                    padding: 80px 0 64px;
                     text-align: center;
                     color: #eee;
 

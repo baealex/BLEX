@@ -101,12 +101,13 @@ export default function TagDetail(props: Props) {
                 {props.headPost && (
                     <div className="mt-3 mb-5">
                         <SpeechBubble
-                            href={`/@${props.headPost.author}`}
-                            alt={props.headPost.author}
-                            src={getUserImage(props.headPost.authorImage)}>
-                            {props.headPost.description}
-                            <Link className="ml-1 shallow-dark" href={`/@${props.headPost.author}/${props.headPost.url}`}>
-                                더보기
+                            image={(
+                                <Link href={`/@${props.headPost.author}`}>
+                                    <img className="rounded-full" src={getUserImage(props.headPost.authorImage)} />
+                                </Link>
+                            )}>
+                            <Link className="deep-dark" href={`/@${props.headPost.author}/${props.headPost.url}`}>
+                                {props.headPost.description}
                             </Link>
                         </SpeechBubble>
                     </div>

@@ -1,5 +1,5 @@
 import classNames from 'classnames/bind';
-import styles from './ArticleList.module.scss';
+import styles from './RelatedArticles.module.scss';
 const cn = classNames.bind(styles);
 
 import Link from 'next/link';
@@ -52,13 +52,13 @@ export function RelatedArticles(props: RelatedProps) {
                             </Link>
                         </Text>
                         <Text className="my-2" fontSize={2}>
-                            {item.createdDate} · <span className="shallow-dark">{item.readTime} min read</span>
+                            {item.createdDate} · <span className="shallow-dark">{item.readTime}분 분량</span>
                         </Text>
-                        <div className={styles.description}>
+                        <Text className={styles.description}>
                             <Link href={`/@${item.author}/${item.url}`}>
                                 {unescape(item.description)}
                             </Link>
-                        </div>
+                        </Text>
                     </div>
                 </div>
             ))}

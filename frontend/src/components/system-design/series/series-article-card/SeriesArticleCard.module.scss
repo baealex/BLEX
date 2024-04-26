@@ -1,42 +1,27 @@
 @import 'mixin';
 
 .box {
-    padding: 16px;
-    border-radius: 16px;
+    .thumbnail {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
 
-    a {
-        @include COLOR_DARK;
-        text-decoration: none;
+    .title,
+    .description {
+        min-height: 48px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .title {
-        font-size: 1rem;
-        font-weight: 600;
-        line-height: 1.5;
-        margin-bottom: 8px;
-    }
-
-    .date {
-        @include COLOR_ASHGRAY;
-        font-size: 12px;
-        margin-bottom: 16px;
+        letter-spacing: -0.009em;
     }
 
     .description {
-        font-size: 1rem;
-        line-height: 1.5;
-        margin-bottom: 16px;
-        word-break: keep-all;
-        overflow-wrap: anywhere;
+        min-height: 63px;
+        -webkit-line-clamp: 3;
     }
-
-    .thumbnail {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 16px 16px 0 0;
-        margin-bottom: 16px;
-    }
-
-    margin-bottom: 24px;
 }
