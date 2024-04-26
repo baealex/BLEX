@@ -6,18 +6,18 @@ import type { GetServerSideProps } from 'next';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Text } from '~/components/design-system';
+import { Grid, Text } from '~/components/design-system';
 
-import {
-    FeaturedArticles,
-    ProfileLayout,
-    RecentActivity
-} from '@system-design/profile';
 import {
     Heatmap,
     SEO
 } from '@system-design/shared';
+import {
+    ProfileLayout,
+    RecentActivity
+} from '@system-design/profile';
 import { ArticleContent } from '~/components/system-design/article-detail-page';
+import { CapsuleArticleCard } from '~/components/system-design/article';
 import type { PageComponent } from '~/components';
 
 import * as API from '~/modules/api';
@@ -82,7 +82,17 @@ const Overview: PageComponent<Props> = (props) => {
                         인기 컨텐츠
                     </Text>
                     <div className="mt-3">
-                        <FeaturedArticles articles={props.most!} />
+                        <Grid
+                            gap={4}
+                            column={{
+                                desktop: 3,
+                                tablet: 2,
+                                mobile: 1
+                            }}>
+                            {props.most?.map((post, idx) => (
+                                <CapsuleArticleCard key={idx} {...post} />
+                            ))}
+                        </Grid>
                     </div>
                 </div>
             )}

@@ -1,3 +1,6 @@
+import classNames from 'classnames';
+import styles from './LazyLoadedImage.module.scss';
+
 import { useEffect, useRef } from 'react';
 
 interface LazyLoadedImageProps {
@@ -31,7 +34,7 @@ export function LazyLoadedImage({
     return (
         <img
             ref={ref}
-            className={className}
+            className={classNames(styles.image, className)}
             alt={alt}
             src={previewImage}
             data-src={src}

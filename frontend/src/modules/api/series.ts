@@ -7,6 +7,7 @@ export interface GetUserSeriesResponseData {
         image: string;
         createdDate: string;
         owner: string;
+        totalPosts: number;
     }[];
     lastPage: number;
 }

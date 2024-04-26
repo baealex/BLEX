@@ -54,7 +54,7 @@ interface Props extends API.GetUserProfileResponseData, API.GetUserSeriesRespons
 
 const SeriesProfile: PageComponent<Props> = (props) => {
     const { data: series } = useInfinityScroll({
-        key: [props.author, 'sereis'],
+        key: [props.author, 'series'],
         callback: async (nextPage) => {
             const { data } = await API.getUserSeries(props.author, nextPage);
             return data.body.series;
@@ -71,15 +71,6 @@ const SeriesProfile: PageComponent<Props> = (props) => {
                 description={`${props.profile.name}님이 작성한 시리즈에요.`}
             />
             <UserSeries series={series} />
-            <style jsx>{`
-                :global(footer) {
-                    margin-top: 0 !important;
-
-                    :global(div) {
-                        border-top: none !important;
-                    }
-                }
-            `}</style>
         </>
     );
 };
