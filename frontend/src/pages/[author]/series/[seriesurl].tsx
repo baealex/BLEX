@@ -203,11 +203,16 @@ export default function Series(props: Props) {
                 </Flex>
             </div>
 
-            <div className="user-image-wrapper">
-                <Link href={`/@${props.series.owner}`}>
-                    <img src={getUserImage(props.series.ownerImage)} alt={props.series.name} />
-                </Link>
-            </div>
+            <Container>
+                <Flex className="w-100 my-7" direction="column" align="center" gap={2}>
+                    <Link href={`/@${props.series.owner}`}>
+                        <img className="user-image" src={getUserImage(props.series.ownerImage)} alt={props.series.name} />
+                    </Link>
+                    <Link className="shallow-dark" href={`/@${props.series.owner}`}>
+                        <Text fontSize={3}>Created by <span className="underline">@{props.series.owner}</span></Text>
+                    </Link>
+                </Flex>
+            </Container>
 
             <Container>
                 <Flex justify="end" className="mb-4" gap={1}>
@@ -252,6 +257,13 @@ export default function Series(props: Props) {
                         <Loading position="inline" />
                     </Flex>
                 )}
+                <Container>
+                    <Flex className="w-100 mt-7" direction="column" align="center" gap={3}>
+                        <Link className="deep-dark" href={`/@${props.series.owner}/series`}>
+                            <Button>이 에디터의 다른 시리즈 <i className="fas fa-angle-right ml-1" /></Button>
+                        </Link>
+                    </Flex>
+                </Container>
             </Container>
             <Footer />
 
@@ -286,25 +298,16 @@ export default function Series(props: Props) {
                     border-color: #000 transparent transparent transparent;
                 }
 
-                .user-image-wrapper {
-                    width: 200px;
-                    height: 200px;
-                    border-radius: 100%;
-                    overflow: hidden;
-                    margin: 60px auto;
-
-                    img {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-
-                        &:hover {
-                            transform: scale(1.5);
-                        }
-
-                        transition: transform 0.2s ease-in-out;
-                    }
+                .user-image {
+                    width: 240px;
+                    height: 240px;
+                    border-radius: 50%;
+                    object-fit: cover;
                 }
+
+                .underline {
+                    text-decoration: underline;
+                }                
             `}</style>
         </>
     );
