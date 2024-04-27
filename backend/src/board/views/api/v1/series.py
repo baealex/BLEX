@@ -9,6 +9,24 @@ from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
 
 
+def posts_can_add_series(request):
+    if request.method == 'GET':
+        if not request.user:
+            raise Http404
+
+        posts = Post.objects.filter(
+            author=request.user,
+            series=None,
+            config__hide=False,
+            created_date__lte=timezone.now()
+        ).order_by('-created_date')
+        return StatusDone(list(map(lambda post: {
+            'id': post.id,
+            'title': post.title,
+        }, posts)))
+    
+    raise Http404
+
 def user_series(request, username, url=None):
     if not url:
         if request.method == 'GET':
@@ -91,6 +109,13 @@ def user_series(request, username, url=None):
             )
             series.create_unique_url()
             series.save()
+
+            if body.get('post_ids', ''):
+                post_ids = body.get('post_ids').split(',')
+                for post_id in post_ids:
+                    post = Post.objects.get(id=post_id)
+                    post.series = series
+                    post.save()
 
             return StatusDone({
                 'url': series.url

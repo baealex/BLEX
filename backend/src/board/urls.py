@@ -61,6 +61,7 @@ urlpatterns = [
     path('v1/users/@<username>/series', api_v1.user_series),
     path('v1/users/@<username>/series/<url>', api_v1.user_series),
     path('v1/users/@<username>/check-redirect', api_v1.check_redirect),
+    path('v1/series/valid-posts', api_v1.posts_can_add_series),
     path('v1/report/error', api_v1.error_report),
     path('v1/report/article/<url>', api_v1.article_report),
     path('v1/invitation/owners', api_v1.invitation_owners),

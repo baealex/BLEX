@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 import { arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -80,23 +81,9 @@ function SeriesItem(props: {
 }
 
 const SeriesSetting: PageComponent<Props> = (props) => {
-    const [newSeries, setNewSeries] = useState('');
-    const [series, setSeries] = useState(props.series);
+    const router = useRouter();
 
-    const handleCreate = async () => {
-        if (!newSeries) {
-            snackBar(message('BEFORE_REQ_ERR', '시리즈의 이름을 입력해주세요.'));
-            return;
-        }
-        const { data } = await API.postUserSeries('@' + props.username, newSeries);
-        snackBar(message('AFTER_REQ_DONE', '시리즈가 생성되었습니다.'));
-        setSeries((prevSeries) => [{
-            url: data.body.url,
-            title: newSeries,
-            totalPosts: 0
-        }].concat(prevSeries));
-        setNewSeries('');
-    };
+    const [series, setSeries] = useState(props.series);
 
     const handleDelete = async (url: string) => {
         if (confirm(message('CONFIRM', '정말 이 시리즈를 삭제할까요?'))) {
@@ -131,29 +118,14 @@ const SeriesSetting: PageComponent<Props> = (props) => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        handleCreate();
-    };
-
     return (
         <>
-            <form onSubmit={handleSubmit} className="input-group mb-3">
-                <input
-                    type="text"
-                    placeholder="시리즈 이름"
-                    className="form-control"
-                    maxLength={50}
-                    onChange={(e) => setNewSeries(e.target.value)}
-                    value={newSeries}
-                />
-                <div className="input-group-prepend">
-                    <Button type="submit">
-                        추가
-                    </Button>
-                </div>
-            </form>
-            <div>
+            <Flex justify="end">
+                <Button onClick={() => router.push(`/@${props.username}/series/create`)}>
+                    새 시리즈 생성
+                </Button>
+            </Flex>
+            <div className="mt-3">
                 <VerticalSortable items={series.map((item) => item.url)} onDragEnd={handleDragEnd}>
                     {series.map((item) => (
                         <SeriesItem

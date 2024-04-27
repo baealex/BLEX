@@ -7,11 +7,14 @@ import { useStore } from 'badland-react';
 import { authorRenameCheck } from '~/modules/middleware/author';
 
 import {
+    BaseInput,
     Button,
     Card,
     Container,
     Flex,
+    FormControl,
     Grid,
+    Label,
     Loading,
     Modal,
     Text
@@ -133,34 +136,40 @@ export default function Series(props: Props) {
             onClose={() => setIsOpenSeriesUpdateModal(false)}
             submitText="시리즈를 수정합니다"
             onSubmit={handleSeriesUpdate}>
-            <div className="input-group mb-3 mr-sm-2 mt-3">
-                <div className="input-group-prepend">
-                    <div className="input-group-text">시리즈명</div>
-                </div>
-                <input
-                    {...register('title')}
-                    type="text"
-                    placeholder="시리즈의 이름"
-                    className="form-control"
-                    maxLength={50}
-                    required
-                    defaultValue={props.series.name}
-                />
-            </div>
-            <textarea
-                {...register('description')}
-                cols={40}
-                rows={5}
-                placeholder="설명을 작성하세요."
-                className="form-control"
-                defaultValue={props.series.description}
-            />
+            <Flex direction="column" gap={3}>
+                <FormControl className="w-100" required>
+                    <Label>
+                        시리즈 이름
+                    </Label>
+                    <BaseInput
+                        {...register('title')}
+                        tag="input"
+                        type="text"
+                        placeholder="이 시리즈의 이름을 입력해주세요"
+                        defaultValue={props.series.name}
+                        maxLength={50}
+                    />
+                </FormControl>
+                <FormControl className="w-100">
+                    <Label>
+                        시리즈 설명
+                    </Label>
+                    <BaseInput
+                        {...register('description')}
+                        tag="textarea"
+                        type="text"
+                        placeholder="이 시리즈에는 어떤 내용을 다루고 있나요?"
+                        defaultValue={props.series.description}
+                        maxLength={200}
+                    />
+                </FormControl>
+            </Flex>
             {posts.map((post, idx) => (
-                <Card key={post.url} hasShadow isRounded className="p-3 mt-3">
+                <Card key={post.url} className="p-3 mt-3">
                     <Flex justify="between">
-                        <span className="deep-dark">
+                        <Text fontSize={3}>
                             {idx + 1}. {post.title}
-                        </span>
+                        </Text>
                         <a onClick={() => handleRemovePosts(post.url)}>
                             <i className="fas fa-times"></i>
                         </a>
@@ -192,13 +201,6 @@ export default function Series(props: Props) {
                         </Text>
                     </Container>
                 </Flex>
-                {props.series.owner == username && (
-                    <div className="corner">
-                        <Button onClick={() => setIsOpenSeriesUpdateModal(true)}>
-                            시리즈 수정
-                        </Button>
-                    </div>
-                )}
             </div>
 
             <div className="user-image-wrapper">
@@ -208,7 +210,12 @@ export default function Series(props: Props) {
             </div>
 
             <Container>
-                <Flex justify="end" className="mb-4">
+                <Flex justify="end" className="mb-4" gap={1}>
+                    {props.series.owner == username && (
+                        <Button onClick={() => setIsOpenSeriesUpdateModal(true)}>
+                            시리즈 수정
+                        </Button>
+                    )}
                     {props.order === 'latest' ? (
                         <Button
                             onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}?order=past`, '', {
@@ -261,15 +268,9 @@ export default function Series(props: Props) {
                     margin: -100px 0 0;
                     background: #000;
                     position: relative;
-                    padding: 80px 0 64px;
+                    padding: 64px 0 40px;
                     text-align: center;
                     color: #eee;
-
-                    .corner {
-                        position: absolute;
-                        bottom: 16px;
-                        right: 16px;
-                    }
                 }
 
                 .series-header::after {

@@ -20,16 +20,32 @@ export async function getUserSeries(author: string, page: number) {
     });
 }
 
+export type GetPostsCanAddSeries = {
+    id: number;
+    title: string;
+}[];
+
+export async function getPostsCanAddSeries() {
+    return await request<GetPostsCanAddSeries>({
+        url: '/v1/series/valid-posts',
+        method: 'GET'
+    });
+}
+
 export interface PostUserSeriesResponseData {
     url: string;
 }
 
-export async function postUserSeries(author: string, title: string) {
+export async function postUserSeries(author: string, data: {
+    title: string;
+    description: string;
+    post_ids: string;
+}) {
     return await request<PostUserSeriesResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/series`,
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        data: serializeObject({ title })
+        data: serializeObject({ ...data })
     });
 }
 

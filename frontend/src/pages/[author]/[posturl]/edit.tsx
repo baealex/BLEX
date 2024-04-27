@@ -73,7 +73,7 @@ export default function Edit(props: Props) {
                 is_advertise: JSON.stringify(isAdvertise)
             });
             if (data.status === 'DONE') {
-                Router.push('/[author]/[posturl]', `/${props.username}/${props.posturl}`);
+                Router.replace('/[author]/[posturl]', `/${props.username}/${props.posturl}`);
             }
         } catch (e) {
             snackBar('😥 글 수정중 오류가 발생했습니다.');
