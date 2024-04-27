@@ -3,10 +3,11 @@ import {
     useState
 } from 'react';
 import type { GetServerSideProps } from 'next';
+import { useValue } from 'badland-react';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Grid, Text } from '~/components/design-system';
+import { Button, Card, Flex, Grid, Text } from '~/components/design-system';
 
 import {
     Heatmap,
@@ -24,11 +25,16 @@ import * as API from '~/modules/api';
 
 import { configStore } from '~/stores/config';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
+import { useRouter } from 'next/router';
 
-type Props = API.GetUserProfileResponseData;
+import { authStore } from '~/stores/auth';
+
+interface Props extends API.GetUserProfileResponseData {
+    preview: '' | 'about';
+}
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { author = '' } = context.query as Record<string, string>;
+    const { author = '', preview = '' } = context.query as Record<string, string>;
 
     if (!author.startsWith('@')) {
         return { notFound: true };
@@ -43,13 +49,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             'most',
             'recent'
         ]);
-        return { props: { ...data.body } };
+        return {
+            props: {
+                ...data.body,
+                preview
+            }
+        };
     } catch (error) {
         return await authorRenameCheck(error, { author });
     }
 };
 
 const Overview: PageComponent<Props> = (props) => {
+    const router = useRouter();
+
+    const [username] = useValue(authStore, 'username');
     const [isNightMode, setIsNightMode] = useState(configStore.state.theme === 'dark');
 
     useEffect(() => {
@@ -76,6 +90,15 @@ const Overview: PageComponent<Props> = (props) => {
                 </div>
             )}
 
+            {!props.about && props.preview === 'about' && username === props.profile.username && (
+                <Card className="mb-7 p-4">
+                    <Flex direction="column" gap={3}>
+                        여기에 소개 문구가 추가됩니다.
+                        <Button onClick={() => router.push(`@${props.profile.username}/about/edit`)}>소개를 작성해 볼까요?</Button>
+                    </Flex>
+                </Card>
+            )}
+
             {props.most!.length > 0 && (
                 <div className="mb-7">
                     <Text fontWeight={700} fontSize={6}>
@@ -95,7 +118,8 @@ const Overview: PageComponent<Props> = (props) => {
                         </Grid>
                     </div>
                 </div>
-            )}
+            )
+            }
 
             <Text fontWeight={700} fontSize={6}>
                 최근 활동

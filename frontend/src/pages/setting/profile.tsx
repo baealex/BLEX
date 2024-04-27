@@ -265,7 +265,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                         사용자 상세 소개
                     </Text>
                     <Flex gap={1}>
-                        <Button onClick={() => router.push(`/@${username}/about`)}>
+                        <Button onClick={() => router.push(`/@${username}?preview=about`)}>
                             페이지 확인
                         </Button>
                         <Button onClick={() => router.push(`/@${username}/about/edit`)}>
@@ -275,7 +275,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                 </Flex>
                 <div className="mb-2">
                     <Alert type="warning">
-                        프로필 소개 페이지에 표시됩니다.
+                        프로필 메인 페이지 상단에 표시됩니다.
                     </Alert>
                 </div>
             </Card>
