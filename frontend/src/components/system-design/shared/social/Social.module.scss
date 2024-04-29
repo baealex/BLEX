@@ -18,6 +18,8 @@
 
     & > li {
         margin-top: 8px;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
     }
     
     & > li:not(:last-child) {
