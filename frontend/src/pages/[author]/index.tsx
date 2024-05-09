@@ -114,9 +114,9 @@ function SortablePosts(props: {
 const Overview: PageComponent<Props> = (props) => {
     const router = useRouter();
 
-    const [isOpenPostsPinModal, setIsOpenPostsPinModal] = useState(false);
     const [username] = useValue(authStore, 'username');
     const [isNightMode, setIsNightMode] = useState(configStore.state.theme === 'dark');
+    const [isOpenPostsPinModal, setIsOpenPostsPinModal] = useState(false);
 
     useEffect(() => {
         lazyLoadResource();
@@ -135,17 +135,18 @@ const Overview: PageComponent<Props> = (props) => {
 
     const [pinnablePostSearch, setPinnablePostSearch] = useState('');
     const [pinnablePostPage, setPinnablePostPage] = useState(1);
-    const [pinnablePostLastPage, setPinnablePostLastPage] = useState(1);
 
-    const debouncedPinnablePostSearch = useDebounceValue(pinnablePostSearch, 300);
+    const debouncedValues = useDebounceValue([
+        pinnablePostPage,
+        pinnablePostSearch
+    ] as const, 200);
 
-    const { data: pinnablePosts } = useFetch(['pinnable-posts', pinnablePostPage, debouncedPinnablePostSearch], async () => {
+    const { data: pinnablePostsData } = useFetch(['pinnable-posts', ...debouncedValues], async () => {
         const { data } = await API.getPinnablePosts({
-            page: pinnablePostPage,
-            search: debouncedPinnablePostSearch
+            page: debouncedValues[0],
+            search: debouncedValues[1]
         });
-        setPinnablePostLastPage(data.body.lastPage);
-        return data.body.posts;
+        return data.body;
     }, { enable: username === props.profile.username });
 
     const handleSelectPost = (post: API.GetPinnablePostsResponseData['posts'][number]) => {
@@ -256,7 +257,7 @@ const Overview: PageComponent<Props> = (props) => {
                     onSubmit={handleSubmitPinnedPost}
                     title="포스트 고정"
                     submitText="저장하기">
-                    {pinnedPosts && pinnablePosts && (
+                    {pinnedPosts && pinnablePostsData?.posts && (
                         <Flex direction="column" gap={3}>
                             <Text fontSize={3} fontWeight={600}>고정된 포스트</Text>
                             <Card className="p-3">
@@ -278,10 +279,13 @@ const Overview: PageComponent<Props> = (props) => {
                                         tag="input"
                                         value={pinnablePostSearch}
                                         placeholder="검색어를 입력하세요."
-                                        onChange={(e) => setPinnablePostSearch(e.target.value)}
+                                        onChange={(e) => {
+                                            setPinnablePostPage(1);
+                                            setPinnablePostSearch(e.target.value);
+                                        }}
                                     />
                                 </div>
-                                {pinnablePosts.map((post) => (
+                                {pinnablePostsData.posts.map((post) => (
                                     <Flex key={post.url} className="w-100" align="center" justify="between">
                                         <Checkbox
                                             label={post.title}
@@ -301,11 +305,15 @@ const Overview: PageComponent<Props> = (props) => {
                                     </Flex>
                                 ))}
                                 <Flex className="my-3" align="center" justify="center" gap={2}>
-                                    <Button disabled={pinnablePostPage <= 1} onClick={() => setPinnablePostPage(prev => prev - 1)}>
+                                    <Button
+                                        disabled={pinnablePostPage <= 1}
+                                        onClick={() => setPinnablePostPage(prev => prev - 1)}>
                                         이전
                                     </Button>
-                                    {pinnablePostPage} of {pinnablePostLastPage}
-                                    <Button disabled={pinnablePostPage >= pinnablePostLastPage} onClick={() => setPinnablePostPage(prev => prev + 1)}>
+                                    {pinnablePostPage} of {pinnablePostsData.lastPage}
+                                    <Button
+                                        disabled={pinnablePostPage >= pinnablePostsData.lastPage}
+                                        onClick={() => setPinnablePostPage(prev => prev + 1)}>
                                         다음
                                     </Button>
                                 </Flex>

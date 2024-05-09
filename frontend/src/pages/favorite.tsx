@@ -59,7 +59,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
 
     return (
         <>
-            <SEO title={`Favorite | ${CONFIG.BLOG_TITLE}`} />
+            <SEO title={`관심 포스트 | ${CONFIG.BLOG_TITLE}`} />
 
             <ArticleCardGroup hasDivider className="mt-4 mb-5" gap={5}>
                 {posts.map((post) => (
