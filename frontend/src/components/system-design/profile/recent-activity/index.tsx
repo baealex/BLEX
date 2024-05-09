@@ -15,8 +15,8 @@ export function RecentActivity({ items }: RecentActivityProps) {
     return items.length > 0 && (
         <ul className={`${cn('activity')}`}>
             {items.map((item, idx) => (
-                <li>
-                    <ActivityItem key={idx} {...item} />
+                <li key={idx}>
+                    <ActivityItem {...item} />
                 </li>
             ))}
         </ul>
