@@ -17,8 +17,8 @@ export function lazyIntersection(element: HTMLElement | null, callback: () => vo
     }
 }
 
-export function lazyLoadResource() {
-    const images = Array.from(document.querySelectorAll('img.lazy')) as HTMLImageElement[];
+export function lazyLoadResource(root?: HTMLElement) {
+    const images = Array.from((root || document).querySelectorAll('img.lazy')) as HTMLImageElement[];
 
     if ('IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {
