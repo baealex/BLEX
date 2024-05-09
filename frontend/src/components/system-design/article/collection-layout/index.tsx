@@ -2,6 +2,8 @@ import { useValue } from 'badland-react';
 
 import { Container, PageNavigationLayout, WidgetLayout } from '@design-system';
 
+import { Footer } from '../../shared';
+
 import { authStore } from '~/stores/auth';
 
 const NAVIGATION_ITEMS = [
@@ -39,14 +41,17 @@ export function CollectionLayout(props: CollectionLayoutProps) {
         : NAVIGATION_ITEMS;
 
     return (
-        <Container>
-            <PageNavigationLayout
-                navigationItems={props.itemExpended?.(navItems) ?? navItems}
-                navigationActive={props.active}>
-                <WidgetLayout widget={props.widget}>
-                    {props.children}
-                </WidgetLayout>
-            </PageNavigationLayout>
-        </Container>
+        <>
+            <Container>
+                <PageNavigationLayout
+                    navigationItems={props.itemExpended?.(navItems) ?? navItems}
+                    navigationActive={props.active}>
+                    <WidgetLayout widget={props.widget}>
+                        {props.children}
+                    </WidgetLayout>
+                </PageNavigationLayout>
+            </Container>
+            <Footer />
+        </>
     );
 }
