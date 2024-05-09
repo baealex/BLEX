@@ -121,7 +121,7 @@ export class AuthGetModal extends React.Component<Props, State> {
                             onClick={() => oauth('github')}>
                             <i className="fab fa-github"></i> GitHub 계정으로 로그인
                         </button>
-                        <SplitLine />
+                        <SplitLine hasText />
                         <form onSubmit={this.handleSubmitLogin.bind(this)}>
                             <input
                                 className="login-form"

@@ -133,6 +133,47 @@ export function getFavoritePosts(page: number, cookie?: string) {
     });
 }
 
+export interface GetPinnablePostRequestParams {
+    search?: string;
+    page?: number;
+}
+
+export interface GetPinnablePostsResponseData {
+    posts: {
+        url: string;
+        title: string;
+        countLikes: number;
+    }[];
+    lastPage: number;
+}
+
+export function getPinnablePosts(params: GetPinnablePostRequestParams) {
+    return request<GetPinnablePostsResponseData>({
+        url: '/v1/posts/pinnable',
+        method: 'GET',
+        params
+    });
+}
+
+export function getPinnedPosts() {
+    return request<GetPinnablePostsResponseData['posts']>({
+        url: '/v1/posts/pinned',
+        method: 'GET'
+    });
+}
+
+export interface CreatePinnedPostsRequestData {
+    posts: string;
+}
+
+export function createPinnedPosts(data: CreatePinnedPostsRequestData) {
+    return request<unknown>({
+        url: '/v1/posts/pinned',
+        method: 'POST',
+        data: serializeObject(data)
+    });
+}
+
 interface CreatePostRequestData {
     token: string;
     title: string;

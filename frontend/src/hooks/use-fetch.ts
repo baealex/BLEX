@@ -9,6 +9,7 @@ const cache = new Map();
 interface UseFetchOptions {
     observeRef?: React.RefObject<HTMLElement>;
     disableRefetch?: boolean;
+    enable?: boolean;
 }
 
 export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, options: UseFetchOptions = {}) {
@@ -24,6 +25,10 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
 
     useEffect(() => {
         const run = () => {
+            if (options.enable === false) {
+                return;
+            }
+
             if (!cache.has(key)) {
                 setIsLoading(true);
             } else {
@@ -51,7 +56,7 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
         }
 
         run();
-    }, [key, options.observeRef]);
+    }, [key, options.observeRef, options.enable]);
 
     return {
         data,

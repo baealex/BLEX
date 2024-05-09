@@ -3,11 +3,16 @@ import {
     useState
 } from 'react';
 import type { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
+
+import { arrayMove, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { DragEndEvent } from '@dnd-kit/core';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Button, Card, Flex, Grid, Text } from '~/components/design-system';
+import { BaseInput, Button, Card, Checkbox, Flex, Grid, Label, Modal, Text, VerticalSortable } from '~/components/design-system';
 
 import {
     Heatmap,
@@ -21,13 +26,15 @@ import { ArticleContent } from '~/components/system-design/article-detail-page';
 import { CapsuleArticleCard } from '~/components/system-design/article';
 import type { PageComponent } from '~/components';
 
-import * as API from '~/modules/api';
+import { useDebounceValue } from '~/hooks/use-debounce-value';
+import { useFetch } from '~/hooks/use-fetch';
 
-import { configStore } from '~/stores/config';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
-import { useRouter } from 'next/router';
 
 import { authStore } from '~/stores/auth';
+import { configStore } from '~/stores/config';
+
+import * as API from '~/modules/api';
 
 interface Props extends API.GetUserProfileResponseData {
     preview: '' | 'about';
@@ -60,9 +67,54 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 };
 
+function SortablePosts(props: {
+    url: string;
+    title: string;
+    countLikes: number;
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+        id: props.url
+    });
+
+    return (
+        <div
+            ref={setNodeRef}
+            {...attributes}
+            className="w-100"
+            style={{
+                transform: CSS.Translate.toString(transform),
+                transition
+            }}>
+            <Flex className="w-100" align="center" gap={2}>
+                <div
+                    {...listeners}
+                    className="px-2"
+                    style={{
+                        cursor: 'grab',
+                        touchAction: 'none'
+                    }}>
+                    <Text fontSize={3}>
+                        <i className="fas fa-bars" />
+                    </Text>
+                </div>
+                <Flex style={{ flex: 1 }} align="center" justify="between">
+                    <Text fontSize={3}>{props.title}</Text>
+                    <Text className="gray-dark" fontSize={2}>
+                        <Flex align="center" gap={1}>
+                            <i className="fas fa-heart"></i>
+                            {props.countLikes}
+                        </Flex>
+                    </Text>
+                </Flex>
+            </Flex>
+        </div>
+    );
+}
+
 const Overview: PageComponent<Props> = (props) => {
     const router = useRouter();
 
+    const [isOpenPostsPinModal, setIsOpenPostsPinModal] = useState(false);
     const [username] = useValue(authStore, 'username');
     const [isNightMode, setIsNightMode] = useState(configStore.state.theme === 'dark');
 
@@ -75,6 +127,65 @@ const Overview: PageComponent<Props> = (props) => {
 
         return () => configStore.unsubscribe(updateKey);
     }, []);
+
+    const { data: pinnedPosts, mutate: setPinnedPosts } = useFetch('pinned-posts', async () => {
+        const { data } = await API.getPinnedPosts();
+        return data.body?.length ? data.body : [];
+    }, { enable: username === props.profile.username });
+
+    const [pinnablePostSearch, setPinnablePostSearch] = useState('');
+    const [pinnablePostPage, setPinnablePostPage] = useState(1);
+    const [pinnablePostLastPage, setPinnablePostLastPage] = useState(1);
+
+    const debouncedPinnablePostSearch = useDebounceValue(pinnablePostSearch, 300);
+
+    const { data: pinnablePosts } = useFetch(['pinnable-posts', pinnablePostPage, debouncedPinnablePostSearch], async () => {
+        const { data } = await API.getPinnablePosts({
+            page: pinnablePostPage,
+            search: debouncedPinnablePostSearch
+        });
+        setPinnablePostLastPage(data.body.lastPage);
+        return data.body.posts;
+    }, { enable: username === props.profile.username });
+
+    const handleSelectPost = (post: API.GetPinnablePostsResponseData['posts'][number]) => {
+        setPinnedPosts((prev) => {
+            if (prev.some(p => p.url === post.url)) {
+                return prev.filter(p => p.url !== post.url);
+            } else {
+                return [...prev, {
+                    ...post,
+                    order: prev.length + 1
+                }];
+            }
+        });
+    };
+
+    const checkedPinnablePost = (url: string) => {
+        return pinnedPosts?.some(post => post.url === url);
+    };
+
+    const handleSocialDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over) {
+            if (active.id === over.id) return;
+
+            setPinnedPosts((prev) => {
+                const oldIndex = prev.findIndex((item) => item.url === active.id);
+                const newIndex = prev.findIndex((item) => item.url === over.id);
+                const next = arrayMove(prev, oldIndex, newIndex);
+                return next;
+            });
+        }
+    };
+
+    const handleSubmitPinnedPost = async () => {
+        const { data } = await API.createPinnedPosts({ posts: pinnedPosts?.map(post => post.url).join(',') || '' });
+        if (data.status === 'DONE') {
+            router.reload();
+        }
+    };
 
     return (
         <>
@@ -101,9 +212,16 @@ const Overview: PageComponent<Props> = (props) => {
 
             {props.most!.length > 0 && (
                 <div className="mb-7">
-                    <Text fontWeight={700} fontSize={6}>
-                        인기 컨텐츠
-                    </Text>
+                    <Flex align="center" justify="between">
+                        <Text fontWeight={700} fontSize={6}>
+                            대표 포스트
+                        </Text>
+                        {username === props.profile.username && (
+                            <Button onClick={() => setIsOpenPostsPinModal(true)}>
+                                포스트 고정
+                            </Button>
+                        )}
+                    </Flex>
                     <div className="mt-3">
                         <Grid
                             gap={4}
@@ -118,8 +236,7 @@ const Overview: PageComponent<Props> = (props) => {
                         </Grid>
                     </div>
                 </div>
-            )
-            }
+            )}
 
             <Text fontWeight={700} fontSize={6}>
                 최근 활동
@@ -131,6 +248,72 @@ const Overview: PageComponent<Props> = (props) => {
                 />
             </div>
             <RecentActivity items={props.recent || []} />
+
+            {username === props.profile.username && (
+                <Modal
+                    isOpen={isOpenPostsPinModal}
+                    onClose={() => setIsOpenPostsPinModal(false)}
+                    onSubmit={handleSubmitPinnedPost}
+                    title="포스트 고정"
+                    submitText="저장하기">
+                    {pinnedPosts && pinnablePosts && (
+                        <Flex direction="column" gap={3}>
+                            <Text fontSize={3} fontWeight={600}>고정된 포스트</Text>
+                            <Card className="p-3">
+                                <Flex direction="column" gap={3}>
+                                    <VerticalSortable
+                                        items={pinnedPosts.map(post => post.url)}
+                                        onDragEnd={handleSocialDragEnd}>
+                                        {pinnedPosts.map((post) => (
+                                            <SortablePosts key={post.url} {...post} />
+                                        ))}
+                                    </VerticalSortable>
+                                </Flex>
+                            </Card>
+                            <Text fontSize={3} fontWeight={600}>고정 가능한 포스트</Text>
+                            <Card className="p-3">
+                                <div className="mb-3">
+                                    <Label>포스트 필터</Label>
+                                    <BaseInput
+                                        tag="input"
+                                        value={pinnablePostSearch}
+                                        placeholder="검색어를 입력하세요."
+                                        onChange={(e) => setPinnablePostSearch(e.target.value)}
+                                    />
+                                </div>
+                                {pinnablePosts.map((post) => (
+                                    <Flex key={post.url} className="w-100" align="center" justify="between">
+                                        <Checkbox
+                                            label={post.title}
+                                            disabled={
+                                                !checkedPinnablePost(post.url) &&
+                                            pinnedPosts.length > 5
+                                            }
+                                            checked={checkedPinnablePost(post.url)}
+                                            onChange={() => handleSelectPost(post)}
+                                        />
+                                        <Text className="gray-dark" fontSize={2}>
+                                            <Flex align="center" gap={1}>
+                                                <i className="fas fa-heart"></i>
+                                                {post.countLikes}
+                                            </Flex>
+                                        </Text>
+                                    </Flex>
+                                ))}
+                                <Flex className="my-3" align="center" justify="center" gap={2}>
+                                    <Button disabled={pinnablePostPage <= 1} onClick={() => setPinnablePostPage(prev => prev - 1)}>
+                                        이전
+                                    </Button>
+                                    {pinnablePostPage} of {pinnablePostLastPage}
+                                    <Button disabled={pinnablePostPage >= pinnablePostLastPage} onClick={() => setPinnablePostPage(prev => prev + 1)}>
+                                        다음
+                                    </Button>
+                                </Flex>
+                            </Card>
+                        </Flex>
+                    )}
+                </Modal >
+            )}
         </>
     );
 };

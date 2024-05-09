@@ -116,7 +116,7 @@ export function UserArticles(props: PostsProps) {
                             icon={<i className="fas fa-tag" />}
                             value={router.query.tag as string || ''}
                             onChange={handleChangeTagFilter}>
-                            <option value="">태그 (전체)</option>
+                            <option value="">전체 포스트 ({props.allCount})</option>
                             {props.tags?.map((tag, idx) => (
                                 <option key={idx} value={tag.name}>{tag.name} ({tag.count})</option>
                             ))}
@@ -136,7 +136,7 @@ export function UserArticles(props: PostsProps) {
             <div className="mt-5">
                 <ArticleCardGroup hasDivider gap={5}>
                     {props.posts.map((item, idx) => (
-                        <ArticleCardList key={idx} {...item}/>
+                        <ArticleCardList key={idx} {...item} />
                     ))}
                     {props.children}
                 </ArticleCardGroup>

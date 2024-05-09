@@ -26,7 +26,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
 const InvitationSetting: PageComponent<Props> = () => {
     const { data } = useFetch(['invitation', 'requests'], async () => {
         const { data } = await API.getInvitationRequests();
-        return data.body;
+        return data.body?.length ? data.body : [];
     });
 
     return (
