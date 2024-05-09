@@ -25,9 +25,7 @@ import {
 } from '@system-design/shared';
 
 import * as API from '~/modules/api';
-import { codeMirrorAll } from '~/modules/library/codemirror';
 import { getPostImage } from '~/modules/utility/image';
-import { lazyLoadResource } from '~/modules/optimize/lazy';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
@@ -107,8 +105,6 @@ function PostDetail(props: Props) {
         }
 
         moveToHash();
-        codeMirrorAll();
-        lazyLoadResource();
     }, [props.post.author, props.post.url]);
 
 

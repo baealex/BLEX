@@ -5,6 +5,9 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 
 import { Card, Dropdown, Flex, Text } from '@design-system';
+import { useEffect, useRef } from 'react';
+import { codeMirrorAll } from '~/modules/library/codemirror';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 export interface CommentCardProps {
     id: number;
@@ -23,6 +26,15 @@ export interface CommentCardProps {
 }
 
 export function CommentCard(props: CommentCardProps) {
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (ref.current) {
+            codeMirrorAll(ref.current);
+            lazyLoadResource(ref.current);
+        }
+    }, [ref, props.renderedContent]);
+
     return (
         <Card
             isRounded
@@ -73,6 +85,7 @@ export function CommentCard(props: CommentCardProps) {
                 )}
             </Flex>
             <div
+                ref={ref}
                 className={`${cn('content')} mt-4`}
                 dangerouslySetInnerHTML={{ __html: props.renderedContent }}
             />

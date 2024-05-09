@@ -2,8 +2,11 @@ import classNames from 'classnames/bind';
 import styles from './ArticleContent.module.scss';
 const cn = classNames.bind(styles);
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Router from 'next/router';
+
+import { codeMirrorAll } from '~/modules/library/codemirror';
+import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 export interface ArticleContentProps {
     renderedContent: string;
@@ -12,6 +15,8 @@ export interface ArticleContentProps {
 export function ArticleContent({
     renderedContent
 }: ArticleContentProps) {
+    const ref = useRef<HTMLDivElement>(null);
+
     const handleClickContent = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target instanceof HTMLAnchorElement) {
             const { href } = e.target as HTMLAnchorElement;
@@ -29,8 +34,16 @@ export function ArticleContent({
         }
     };
 
+    useEffect(() => {
+        if (ref.current) {
+            codeMirrorAll(ref.current);
+            lazyLoadResource(ref.current);
+        }
+    }, [ref, renderedContent]);
+
     return (
         <div
+            ref={ref}
             className={cn('article')}
             onClick={handleClickContent}
             dangerouslySetInnerHTML={{ __html: renderedContent }}
