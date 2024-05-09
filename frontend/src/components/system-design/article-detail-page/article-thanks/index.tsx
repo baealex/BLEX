@@ -44,7 +44,7 @@ export function ArticleThanks({
     }, [author, url]);
 
     return (
-        <div className="text-center my-5">
+        <div className="text-center my-7">
             <Text className="mb-3" fontWeight={600}>
                 이 글이 도움이 되었나요?
             </Text>

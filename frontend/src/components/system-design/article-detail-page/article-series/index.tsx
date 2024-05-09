@@ -41,7 +41,7 @@ export function ArticleSeries(props: ArticleSeriesProps) {
     return (
         <div ref={ref}>
             {series && activeSeries !== undefined && seriesLength !== undefined && (
-                <div className={cn('series', 'my-5')}>
+                <div className={cn('series', 'py-5')}>
                     <Flex
                         className="mb-3"
                         justify="between"
