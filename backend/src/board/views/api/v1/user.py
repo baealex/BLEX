@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    User, UsernameChangeLog, Post, Profile, Series,
+    User, UsernameChangeLog, Post, PinnedPost, Profile, Series,
     Comment, Follow, Tag)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -101,7 +101,31 @@ def users(request, username):
                         'count': tag.count,
                     }, tags))
 
+                elif include == 'pinned':
+                    pass
+
                 elif include == 'most':
+                    pinned_posts = PinnedPost.objects.select_related(
+                        'post'
+                    ).filter(
+                        user=user
+                    ).annotate(
+                        author_username=F('user__username'),
+                        author_image=F('user__profile__avatar'),
+                    ).order_by('order')
+
+                    if pinned_posts.exists():
+                        data[include] = list(map(lambda pinned_post: {
+                            'url': pinned_post.post.url,
+                            'title': pinned_post.post.title,
+                            'image': str(pinned_post.post.image),
+                            'read_time': pinned_post.post.read_time,
+                            'created_date': convert_to_localtime(pinned_post.post.created_date).strftime('%Y년 %m월 %d일'),
+                            'author_image': pinned_post.author_image,
+                            'author': pinned_post.author_username,
+                        }, pinned_posts))
+                        continue
+                    
                     posts = Post.objects.filter(
                         author=user,
                         config__hide=False,

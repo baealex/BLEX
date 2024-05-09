@@ -43,7 +43,7 @@ class PostAdmin(admin.ModelAdmin):
     series_link.short_description = 'series'
 
     def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['author', 'series', 'tags']
+        kwargs['exclude'] = ['series', 'tags']
         return super().get_form(request, obj, **kwargs)
 
 

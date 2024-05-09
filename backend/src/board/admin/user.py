@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from board.models import (
     UserConfigMeta, UserLinkMeta, Config, Follow, UsernameChangeLog,
-    EmailChange,
+    EmailChange, Profile
 )
 from board.constants.config_meta import CONFIG_TYPES
 
@@ -96,4 +96,20 @@ class FollowAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['following', 'follower']
+        return super().get_form(request, obj, **kwargs)
+
+
+@admin.register(Profile)
+class FollowAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user']
+    list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')
+
+    def to_link(self, obj):
+        return AdminLinkService.create_user_link(obj.user)
+    to_link.short_description = 'user'
+
+    def get_form(self, request, obj=None, **kwargs):
         return super().get_form(request, obj, **kwargs)

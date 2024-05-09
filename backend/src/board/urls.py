@@ -48,6 +48,8 @@ urlpatterns = [
     path('v1/posts/newest', api_v1.newest_post_list),
     path('v1/posts/liked', api_v1.liked_post_list),
     path('v1/posts/feature', api_v1.feature_post_list),
+    path('v1/posts/pinned', api_v1.pinned_post_list),
+    path('v1/posts/pinnable', api_v1.pinnable_post_list),
     path('v1/posts/<url>/comments', api_v1.post_comment_list),
     path('v1/posts/<url>/analytics', api_v1.post_analytics),
     path('v1/temp-posts', api_v1.temp_posts_list),

@@ -410,7 +410,6 @@ class PostConfig(models.Model):
     post = models.OneToOneField('board.Post', related_name='config', on_delete=models.CASCADE)
     hide = models.BooleanField(default=False)
     notice = models.BooleanField(default=False)
-    pinned = models.BooleanField(default=False)
     advertise = models.BooleanField(default=False)
     block_comment = models.BooleanField(default=False)
 
@@ -430,6 +429,16 @@ class PostAnalytics(models.Model):
     post = models.ForeignKey('board.Post', related_name='analytics', on_delete=models.CASCADE)
     devices = models.ManyToManyField('board.Device', blank=True)
     created_date = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.post)
+
+
+class PinnedPost(models.Model):
+    post = models.ForeignKey('board.Post', related_name='pinned', on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    order = models.IntegerField(default=0) 
+    created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return str(self.post)

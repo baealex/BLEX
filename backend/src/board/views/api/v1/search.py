@@ -15,8 +15,7 @@ from board.modules.time import convert_to_localtime
 
 def search(request):
     if request.method == 'GET':
-        query = request.GET.get('q', '')[:20].lower()
-        page = int(request.GET.get('page', 1))
+        query = request.GET.get('q', '')[:20]
         username = request.GET.get('username', '')
 
         if len(query) < 0:

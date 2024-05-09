@@ -2,7 +2,7 @@ import datetime
 
 from django.conf import settings
 from django.db.models import (
-    F, Case, Exists, When, Subquery,
+    Q, F, Case, Exists, When, Subquery,
     Value, OuterRef, Count)
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
@@ -13,8 +13,8 @@ from django.utils.text import slugify
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     Comment, Referer, PostAnalytics, Series,
-    TempPosts, Post, PostContent, PostConfig, Invitation,
-    PostLikes, PostThanks, PostNoThanks, calc_read_time)
+    TempPosts, Post, PostContent, PostConfig, PinnedPost,
+    Invitation, PostLikes, PostThanks, PostNoThanks, calc_read_time)
 from board.modules.analytics import create_device, get_network_addr, view_count
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
@@ -310,6 +310,90 @@ def feature_post_list(request):
         })
 
     raise Http404
+
+
+def pinned_post_list(request):
+    if not request.user:
+        raise Http404
+
+    if request.method == 'GET':
+        pinned_posts = PinnedPost.objects.select_related(
+            'post'
+        ).annotate(
+            count_likes=Count('post__likes', distinct=True)
+        ).order_by('order')
+
+        return StatusDone(list(map(lambda pinned_post: {
+            'url': pinned_post.post.url,
+            'title': pinned_post.post.title,
+            'count_likes': pinned_post.count_likes,
+        }, pinned_posts)))
+    
+    if request.method == 'POST':
+        post_urls = request.POST.get('posts', '').split(',')[:6]
+
+        pinned_posts = PinnedPost.objects.select_related('post').filter(user=request.user)
+        exists_urls = []
+
+        for pinned_post in pinned_posts:
+            exists_urls.append(pinned_post.post.url)
+
+            if not pinned_post.post.url in post_urls:
+                pinned_post.delete()
+
+            if pinned_post.post.url in post_urls:
+                pinned_post.order=post_urls.index(pinned_post.post.url)
+                pinned_post.save()
+
+        for index, post_url in enumerate(post_urls):
+            if post_url and not post_url in exists_urls:
+                PinnedPost.objects.create(
+                    user=request.user,
+                    post=Post.objects.get(url=post_url),
+                    order=index,
+                )
+
+        return StatusDone()
+
+    raise Http404
+
+
+def pinnable_post_list(request):
+    if not request.user:
+        raise Http404
+
+    if request.method == 'GET':
+        posts = Post.objects.select_related(
+            'config'
+        ).annotate(
+            count_likes=Count('likes', distinct=True),
+        ).filter(
+            author=request.user,
+            config__hide=False,
+            created_date__lte=timezone.now(),
+        ).order_by('-count_likes', '-created_date')
+
+        search = request.GET.get('search', '')
+        if search:
+            posts = posts.filter(
+                Q(title__icontains=search) |
+                Q(url__icontains=search)
+            )
+
+        posts = Paginator(
+            objects=posts,
+            offset=12,
+            page=request.GET.get('page', 1)
+        )
+
+        return StatusDone({
+            'posts': list(map(lambda post: {
+                'url': post.url,
+                'title': post.title,
+                'count_likes': post.count_likes,
+            }, posts)),
+            'last_page': posts.paginator.num_pages
+        })
 
 
 def post_comment_list(request, url):
