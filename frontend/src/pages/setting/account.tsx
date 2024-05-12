@@ -8,9 +8,9 @@ import {
     Card,
     Flex,
     Text
-} from '@design-system';
+} from '~/components/design-system';
 import type { PageComponent } from '~/components';
-import { SettingLayout } from '@system-design/setting';
+import { SettingLayout } from '~/components/system-design/setting';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

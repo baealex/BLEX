@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 
-import { ArticleCard, ArticleCardGroup, CollectionLayout } from '@system-design/article';
+import { ArticleCard, ArticleCardGroup, CollectionLayout } from '~/components/system-design/article';
 import type { PageComponent } from '~/components';
 
 import { Badge, Flex, Loading, Text } from '~/components/design-system';

@@ -7,9 +7,9 @@ import { arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { DragEndEvent } from '@dnd-kit/core';
 
-import { Button, Card, Flex, VerticalSortable } from '@design-system';
+import { Button, Card, Flex, VerticalSortable } from '~/components/design-system';
 import type { PageComponent } from '~/components';
-import { SettingLayout } from '@system-design/setting';
+import { SettingLayout } from '~/components/system-design/setting';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

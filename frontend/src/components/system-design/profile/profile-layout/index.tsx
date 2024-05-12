@@ -2,16 +2,17 @@ import classNames from 'classnames/bind';
 import styles from './Layout.module.scss';
 const cn = classNames.bind(styles);
 
+import React from 'react';
 import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
-import { Button, Container, Flex, PageNavigationLayout, Text } from '@design-system';
+import { Button, Container, Flex, PageNavigationLayout, Text } from '~/components/design-system';
 import {
     Footer,
     Social,
-    SocialProps
-} from '@system-design/shared';
-import { SubscribeButton } from '@system-design/shared';
+    type SocialProps
+} from '~/components/system-design/shared';
+import { SubscribeButton } from '~/components/system-design/shared';
 
 import { authStore } from '~/stores/auth';
 
@@ -25,8 +26,7 @@ export interface ProfileLayoutProps {
     };
     social?: SocialProps['social'];
     active: string;
-    widget?: JSX.Element;
-    children?: JSX.Element;
+    children?: React.ReactNode;
 }
 
 export function ProfileLayout(props: ProfileLayoutProps) {
@@ -56,7 +56,6 @@ export function ProfileLayout(props: ProfileLayoutProps) {
                                     <SubscribeButton author={props.profile.username} />
                                 )}
                             </div>
-                            {props.widget}
                             {props.profile.bio && (
                                 <Text fontSize={3} className="shallow-dark mt-3">
                                     {props.profile.bio}

@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from 'badland-react';
 
-import { Alert, Container, Flex, Loading } from '@design-system';
+import { Alert, Container, Flex, Loading } from '~/components/design-system';
 import { CommentCard } from './comment-card';
 import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';

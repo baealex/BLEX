@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card, Dropdown, Flex, Text } from '@design-system';
+import { Card, Dropdown, Flex, Text } from '~/components/design-system';
 import { useEffect, useRef } from 'react';
 import { codeMirrorAll } from '~/modules/library/codemirror';
 import { lazyLoadResource } from '~/modules/optimize/lazy';

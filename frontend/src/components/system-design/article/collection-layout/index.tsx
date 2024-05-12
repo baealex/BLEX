@@ -1,6 +1,6 @@
 import { useValue } from 'badland-react';
 
-import { Container, PageNavigationLayout, WidgetLayout } from '@design-system';
+import { Container, PageNavigationLayout, SingleWidgetLayout } from '~/components/design-system';
 
 import { Footer } from '../../shared';
 
@@ -46,9 +46,9 @@ export function CollectionLayout(props: CollectionLayoutProps) {
                 <PageNavigationLayout
                     navigationItems={props.itemExpended?.(navItems) ?? navItems}
                     navigationActive={props.active}>
-                    <WidgetLayout widget={props.widget}>
+                    <SingleWidgetLayout widget={props.widget}>
                         {props.children}
-                    </WidgetLayout>
+                    </SingleWidgetLayout>
                 </PageNavigationLayout>
             </Container>
             <Footer />

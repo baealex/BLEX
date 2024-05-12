@@ -6,9 +6,9 @@ import {
     DayNight,
     SEO,
     TopNavigation
-} from '@system-design/shared';
+} from '~/components/system-design/shared';
 import type { PageComponent, PageLayout } from '~/components';
-import { Loading } from '@design-system';
+import { Loading } from '~/components/design-system';
 
 import { CONFIG } from '~/modules/settings';
 import { minify } from '~/modules/utility/string';

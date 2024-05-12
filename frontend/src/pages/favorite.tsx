@@ -1,10 +1,10 @@
 import type { GetServerSideProps } from 'next';
 
-import { ArticleCard, ArticleCardGroup, CollectionLayout } from '@system-design/article';
+import { ArticleCard, ArticleCardGroup, CollectionLayout } from '~/components/system-design/article';
 import type { PageComponent } from '~/components';
 
 import { Flex, Loading, Text } from '~/components/design-system';
-import { SEO } from '@system-design/shared';
+import { SEO } from '~/components/system-design/shared';
 
 import { ServiceInfoWidget, TrendingPostsWidget } from '~/components/system-design/widgets';
 

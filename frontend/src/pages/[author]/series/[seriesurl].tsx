@@ -18,9 +18,9 @@ import {
     Loading,
     Modal,
     Text
-} from '@design-system';
-import { Footer, SEO } from '@system-design/shared';
-import { SeriesArticleCard } from '@system-design/series';
+} from '~/components/design-system';
+import { Footer, SEO } from '~/components/system-design/shared';
+import { SeriesArticleCard } from '~/components/system-design/series';
 
 import { snackBar } from '~/modules/ui/snack-bar';
 

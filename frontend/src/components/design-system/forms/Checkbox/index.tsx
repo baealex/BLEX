@@ -2,7 +2,7 @@ import styles from './Checkbox.module.scss';
 
 import { forwardRef } from 'react';
 
-import { Flex } from '@design-system';
+import { Flex } from '~/components/design-system';
 
 export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;

@@ -1,62 +1,50 @@
 {
-  "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": [
-        "./*"
-      ],
-      "@design-system": [
-        "./components/design-system"
-      ],
-      "@design-system/*": [
-        "./components/design-system/*"
-      ],
-      "@system-design": [
-        "./components/system-design"
-      ],
-      "@system-design/*": [
-        "./components/system-design/*"
-      ]
+    "compilerOptions": {
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "paths": {
+            "~/*": [
+                "./*"
+            ],
+        },
+        "jsx": "preserve",
+        "lib": [
+            "dom",
+            "es2017"
+        ],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noEmit": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "preserveConstEnums": true,
+        "removeComments": false,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": true,
+        "target": "esnext",
+        "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "incremental": true,
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ]
     },
-    "jsx": "preserve",
-    "lib": [
-      "dom",
-      "es2017"
+    "files": [
+        "next-env.d.ts"
     ],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "preserveConstEnums": true,
-    "removeComments": false,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "esnext",
-    "forceConsistentCasingInFileNames": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "pages/tags",
+        ".next/types/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
     ]
-  },
-  "files": [
-    "next-env.d.ts"
-  ],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "pages/tags",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
 }

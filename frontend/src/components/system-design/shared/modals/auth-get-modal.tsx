@@ -6,7 +6,7 @@ import {
     Button,
     Modal,
     SplitLine
-} from '@design-system';
+} from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { CONFIG } from '~/modules/settings';

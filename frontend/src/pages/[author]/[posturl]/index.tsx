@@ -17,12 +17,12 @@ import {
     ArticleSeries,
     ArticleThanks,
     RelatedArticles
-} from '@system-design/article-detail-page';
-import { BadgeGroup, Button, Card, Container, DualWidgetLayout, Flex, Text } from '@design-system';
+} from '~/components/system-design/article-detail-page';
+import { BadgeGroup, Button, Card, Container, DualWidgetLayout, Flex, Text } from '~/components/design-system';
 import {
     Footer,
     SEO
-} from '@system-design/shared';
+} from '~/components/system-design/shared';
 
 import * as API from '~/modules/api';
 import { getPostImage } from '~/modules/utility/image';

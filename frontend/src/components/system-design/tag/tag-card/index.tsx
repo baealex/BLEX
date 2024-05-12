@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { ImageCard, LazyLoadedImage, Text } from '@design-system';
+import { ImageCard, LazyLoadedImage, Text } from '~/components/design-system';
 
 import { getPostImage } from '~/modules/utility/image';
 

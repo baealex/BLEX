@@ -9,7 +9,7 @@ import {
     Flex,
     LazyLoadedImage,
     Text
-} from '@design-system';
+} from '~/components/design-system';
 
 import {
     getPostImage,

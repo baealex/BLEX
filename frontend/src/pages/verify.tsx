@@ -1,10 +1,9 @@
-import type { GetServerSideProps } from 'next';
+import { type GetServerSideProps } from 'next';
 import React from 'react';
 import Router from 'next/router';
+import dynamic from 'next/dynamic';
 
-import HCaptcha from '@hcaptcha/react-hcaptcha';
-
-import { Footer } from '@system-design/shared';
+import { Footer } from '~/components/system-design/shared';
 
 import * as API from '~/modules/api';
 import { CONFIG } from '~/modules/settings';
@@ -12,6 +11,10 @@ import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
+
+const HCaptcha = dynamic(() => import('@hcaptcha/react-hcaptcha'), {
+    ssr: false
+});
 
 interface Props {
     token: string;

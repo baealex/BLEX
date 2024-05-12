@@ -3,13 +3,13 @@ import React from 'react';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Container, Flex, Text } from '@design-system';
+import { Container, Flex, Text } from '~/components/design-system';
 import {
     ProfileLayout,
     UserSeries
-} from '@system-design/profile';
+} from '~/components/system-design/profile';
 import type { PageComponent } from '~/components';
-import { SEO } from '@system-design/shared';
+import { SEO } from '~/components/system-design/shared';
 
 import * as API from '~/modules/api';
 

@@ -1,4 +1,4 @@
-import { Badge, Flex } from '@design-system';
+import { Badge, Flex } from '~/components/design-system';
 
 export interface BadgeGroupProps {
     className?: string;

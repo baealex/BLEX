@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import { useEffect, useMemo } from 'react';
 import { Chart } from 'frappe-charts';
 
-import { Card } from '@design-system';
+import { Card } from '~/components/design-system';
 
 export interface HeatmapProps {
     isNightMode: boolean;

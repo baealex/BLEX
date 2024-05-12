@@ -2,8 +2,8 @@ import type { GetServerSideProps } from 'next';
 import Router from 'next/router';
 import { useState } from 'react';
 
-import { Button, Flex } from '@design-system';
-import { EditorLayout } from '@system-design/article-editor-page';
+import { Button, Flex } from '~/components/design-system';
+import { EditorLayout } from '~/components/system-design/article-editor-page';
 
 import * as API from '~/modules/api';
 import { snackBar } from '~/modules/ui/snack-bar';

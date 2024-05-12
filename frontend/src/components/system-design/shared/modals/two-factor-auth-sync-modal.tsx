@@ -1,7 +1,7 @@
 import React from 'react';
 import Router from 'next/router';
 
-import { Modal } from '@design-system';
+import { Modal } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { snackBar } from '~/modules/ui/snack-bar';

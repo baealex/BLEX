@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import { Alert, Button, Card, Flex } from '@design-system';
+import { Alert, Button, Card, Flex } from '~/components/design-system';
 import type { PageComponent } from '~/components';
-import { SettingLayout } from '@system-design/setting';
+import { SettingLayout } from '~/components/system-design/setting';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

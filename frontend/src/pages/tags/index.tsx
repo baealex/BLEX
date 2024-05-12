@@ -1,10 +1,10 @@
 import type { GetServerSideProps } from 'next';
 
 import { Flex, Grid, Loading } from '~/components/design-system';
-import { CollectionLayout } from '@system-design/article';
+import { CollectionLayout } from '~/components/system-design/article';
 import type { PageComponent } from '~/components';
-import { SEO } from '@system-design/shared';
-import { TagCard } from '@system-design/tag';
+import { SEO } from '~/components/system-design/shared';
+import { TagCard } from '~/components/system-design/tag';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 

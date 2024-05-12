@@ -4,7 +4,7 @@ const cn = classNames.bind(styles);
 
 import Link from 'next/link';
 
-import { Card, Flex, LazyLoadedImage, Text } from '@design-system';
+import { Card, Flex, LazyLoadedImage, Text } from '~/components/design-system';
 
 import { getPostImage } from '~/modules/utility/image';
 import { unescape } from '~/modules/utility/string';

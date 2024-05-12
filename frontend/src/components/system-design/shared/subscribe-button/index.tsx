@@ -1,6 +1,6 @@
 import { useStore } from 'badland-react';
 
-import { Button } from '@design-system';
+import { Button } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

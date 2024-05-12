@@ -19,7 +19,7 @@ import {
     TwoFactorAuthGetModal,
     TwoFactorAuthSyncModal
 } from '../modals';
-import { Dropdown, Flex } from '@design-system';
+import { Dropdown, Flex } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { getUserImage } from '~/modules/utility/image';

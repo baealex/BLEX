@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Modal } from '@design-system';
+import { Modal } from '~/components/design-system';
 
 interface Props {
     isOpen: boolean;
@@ -9,8 +9,8 @@ interface Props {
 }
 
 export function YoutubeModal(props: Props) {
-    const [ text, setText ] = useState('');
-    const [ id, setId ] = useState('');
+    const [text, setText] = useState('');
+    const [id, setId] = useState('');
 
     return (
         <Modal

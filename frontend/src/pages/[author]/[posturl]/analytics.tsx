@@ -9,7 +9,7 @@ import {
     Container,
     Flex,
     Text
-} from '@design-system';
+} from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { useFetch } from '~/hooks/use-fetch';

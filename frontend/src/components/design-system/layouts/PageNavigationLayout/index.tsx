@@ -1,5 +1,7 @@
-import { PageNavigation } from '~/components/design-system';
-import type { PageNavigationProps } from '~/components/design-system';
+import {
+    PageNavigation,
+    type PageNavigationProps
+} from '~/components/design-system';
 
 import styles from './PageNavigationLayout.module.scss';
 

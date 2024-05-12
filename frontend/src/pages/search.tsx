@@ -3,9 +3,9 @@ import type { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-import { Alert, Container, Flex, Loading, Text } from '@design-system';
-import { ArticleCard, ArticleCardGroup } from '@system-design/article';
-import { Footer, Pagination, SearchBox } from '@system-design/shared';
+import { Alert, Container, Flex, Loading, Text } from '~/components/design-system';
+import { ArticleCard, ArticleCardGroup } from '~/components/system-design/article';
+import { Footer, Pagination, SearchBox } from '~/components/system-design/shared';
 
 import { useFetch } from '~/hooks/use-fetch';
 

@@ -6,7 +6,7 @@ import { Button, Card, Flex, Label, Progress, Text, Toggle } from '~/components/
 import {
     EditorLayout,
     TempArticleModal
-} from '@system-design/article-editor-page';
+} from '~/components/system-design/article-editor-page';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

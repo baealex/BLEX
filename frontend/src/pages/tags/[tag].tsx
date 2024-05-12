@@ -7,10 +7,10 @@ import {
     Flex,
     Loading,
     SpeechBubble
-} from '@design-system';
+} from '~/components/design-system';
 
-import { ArticleCard, ArticleCardGroup } from '@system-design/article';
-import { Footer, SEO } from '@system-design/shared';
+import { ArticleCard, ArticleCardGroup } from '~/components/system-design/article';
+import { Footer, SEO } from '~/components/system-design/shared';
 
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 

@@ -4,8 +4,8 @@ const cn = classNames.bind(styles);
 
 import { useEffect, useState } from 'react';
 
-import { Button, Card } from '@design-system';
-import { EditorContent } from '@system-design/article-editor-page';
+import { Button, Card } from '~/components/design-system';
+import { EditorContent } from '~/components/system-design/article-editor-page';
 
 import { snackBar } from '~/modules/ui/snack-bar';
 
@@ -62,7 +62,7 @@ export function CommentForm(props: CommentFormProps) {
                             { isOpen }
                         )}`}>
                         <div className={cn('submit', { isOpen })}>
-                            <i className="fas fa-pencil-alt"/> 댓글 작성
+                            <i className="fas fa-pencil-alt" /> 댓글 작성
                         </div>
                     </Card>
                 </div>

@@ -3,8 +3,8 @@ import styles from './ArticleAuthor.module.scss';
 
 import Link from 'next/link';
 
-import { Flex } from '@design-system';
-import { SubscribeButton } from '@system-design/shared';
+import { Flex } from '~/components/design-system';
+import { SubscribeButton } from '~/components/system-design/shared';
 
 export interface ArticleAuthorProps {
     profile: {

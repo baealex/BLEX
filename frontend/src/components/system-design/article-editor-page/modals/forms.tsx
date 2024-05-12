@@ -2,7 +2,7 @@ import {
     Card,
     Flex,
     Modal
-} from '@design-system';
+} from '~/components/design-system';
 
 import * as API from '~/modules/api';
 

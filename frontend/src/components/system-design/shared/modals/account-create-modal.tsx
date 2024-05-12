@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Modal } from '@design-system';
+import { Modal } from '~/components/design-system';
 
 import { oauth } from '~/modules/utility/oauth';
 
@@ -17,12 +17,12 @@ export function AccountCreateModal(props: Props) {
             <button
                 className="login-button google"
                 onClick={() => oauth('google')}>
-                <i className="fab fa-google"/> Google 계정으로 시작
+                <i className="fab fa-google" /> Google 계정으로 시작
             </button>
             <button
                 className="login-button github"
                 onClick={() => oauth('github')}>
-                <i className="fab fa-github"/> GitHub 계정으로 시작
+                <i className="fab fa-github" /> GitHub 계정으로 시작
             </button>
             <div className="login-hint">
                 <button

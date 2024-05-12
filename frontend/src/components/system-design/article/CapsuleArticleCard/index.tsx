@@ -2,7 +2,7 @@ import styles from './CapsuleArticleCard.module.scss';
 
 import Link from 'next/link';
 
-import { CapsuleCard, Flex, LazyLoadedImage, Text } from '@design-system';
+import { CapsuleCard, Flex, LazyLoadedImage, Text } from '~/components/design-system';
 
 import { getDefaultPostCoverImage, getPostImage } from '~/modules/utility/image';
 

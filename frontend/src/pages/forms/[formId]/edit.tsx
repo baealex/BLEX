@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { Button, Container, Text } from '@design-system';
-import { EditorContent, EditorTitle } from '@system-design/article-editor-page';
+import { Button, Container, Text } from '~/components/design-system';
+import { EditorContent, EditorTitle } from '~/components/system-design/article-editor-page';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

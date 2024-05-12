@@ -5,7 +5,7 @@ const cn = classNames.bind(styles);
 import Link from 'next/link';
 import { useRef } from 'react';
 
-import { LazyLoadedImage, Text } from '@design-system';
+import { LazyLoadedImage, Text } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { getPostImage } from '~/modules/utility/image';

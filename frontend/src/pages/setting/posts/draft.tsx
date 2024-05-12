@@ -6,10 +6,10 @@ import { useRouter } from 'next/router';
 import {
     Card,
     Flex
-} from '@design-system';
+} from '~/components/design-system';
 import type { PageComponent } from '~/components';
-import { Pagination } from '@system-design/shared';
-import { SettingLayout } from '@system-design/setting';
+import { Pagination } from '~/components/system-design/shared';
+import { SettingLayout } from '~/components/system-design/setting';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

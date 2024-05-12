@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useStore } from 'badland-react';
 
-import { Button, Card, Flex, Text } from '@design-system';
+import { Button, Card, Flex, Text } from '~/components/design-system';
 import type { PageComponent } from '~/components';
-import { SettingLayout } from '@system-design/setting';
+import { SettingLayout } from '~/components/system-design/setting';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

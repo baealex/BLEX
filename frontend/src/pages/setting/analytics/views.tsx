@@ -3,9 +3,9 @@ import Link from 'next/link';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
-import { Alert, Button, Card, DateInput, Flex, Loading, Text } from '@design-system';
+import { Alert, Button, Card, DateInput, Flex, Loading, Text } from '~/components/design-system';
 import type { PageComponent } from '~/components';
-import { SettingLayout } from '@system-design/setting';
+import { SettingLayout } from '~/components/system-design/setting';
 
 import * as API from '~/modules/api';
 

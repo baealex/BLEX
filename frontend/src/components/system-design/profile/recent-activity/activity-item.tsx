@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { Flex, Text } from '@design-system';
+import { Flex, Text } from '~/components/design-system';
 
 export interface ActivityItemProps {
     url: string;

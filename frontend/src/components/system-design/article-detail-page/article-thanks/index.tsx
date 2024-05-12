@@ -3,7 +3,7 @@ import {
     useMemo, useState
 } from 'react';
 
-import { Button, Flex, Text } from '@design-system';
+import { Button, Flex, Text } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { debounceEvent } from '~/modules/optimize/event';

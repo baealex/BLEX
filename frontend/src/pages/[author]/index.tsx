@@ -17,11 +17,11 @@ import { BaseInput, Button, Card, Checkbox, Flex, Grid, Label, Modal, Text, Vert
 import {
     Heatmap,
     SEO
-} from '@system-design/shared';
+} from '~/components/system-design/shared';
 import {
     ProfileLayout,
     RecentActivity
-} from '@system-design/profile';
+} from '~/components/system-design/profile';
 import { ArticleContent } from '~/components/system-design/article-detail-page';
 import { CapsuleArticleCard } from '~/components/system-design/article';
 import type { PageComponent } from '~/components';
@@ -291,7 +291,7 @@ const Overview: PageComponent<Props> = (props) => {
                                             label={post.title}
                                             disabled={
                                                 !checkedPinnablePost(post.url) &&
-                                            pinnedPosts.length > 5
+                                                pinnedPosts.length > 5
                                             }
                                             checked={checkedPinnablePost(post.url)}
                                             onChange={() => handleSelectPost(post)}

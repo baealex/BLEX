@@ -3,11 +3,11 @@ import React from 'react';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { Alert, Flex, Loading } from '@design-system';
+import { Alert, Flex, Loading } from '~/components/design-system';
 
-import { ProfileLayout, UserArticles } from '@system-design/profile';
+import { ProfileLayout, UserArticles } from '~/components/system-design/profile';
 import type { PageComponent } from '~/components';
-import { SEO } from '@system-design/shared';
+import { SEO } from '~/components/system-design/shared';
 
 import * as API from '~/modules/api';
 import { useInfinityScroll } from '~/hooks/use-infinity-scroll';

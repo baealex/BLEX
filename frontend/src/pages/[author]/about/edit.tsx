@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 
-import { Button, Carousel, Container, Text } from '@design-system';
-import { EditorContent } from '@system-design/article-editor-page';
+import { Button, Carousel, Container, Text } from '~/components/design-system';
+import { EditorContent } from '~/components/system-design/article-editor-page';
 
 import * as API from '~/modules/api';
 import { message } from '~/modules/utility/message';

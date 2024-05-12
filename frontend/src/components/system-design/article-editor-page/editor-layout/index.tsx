@@ -18,7 +18,7 @@ import {
     Label,
     Loading,
     Modal
-} from '@design-system';
+} from '~/components/design-system';
 
 import {
     EditorContent,

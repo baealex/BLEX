@@ -2,7 +2,7 @@ import type { GetServerSideProps } from 'next';
 import Router from 'next/router';
 import { useEffect } from 'react';
 
-import { Loading } from '@design-system';
+import { Loading } from '~/components/design-system';
 
 import * as API from '~/modules/api';
 import { getCookie } from '~/modules/utility/cookie';

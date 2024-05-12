@@ -3,7 +3,7 @@ import styles from './Modal.module.scss';
 import React, { useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
-import { Button } from '@design-system';
+import { Button } from '~/components/design-system';
 
 interface Props {
     isOpen: boolean;
@@ -19,7 +19,7 @@ interface Props {
 export function Modal({
     isOpen,
     title,
-    size='small',
+    size = 'small',
     footer,
     children,
     submitText,

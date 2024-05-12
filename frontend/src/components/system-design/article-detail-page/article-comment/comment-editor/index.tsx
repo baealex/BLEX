@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import { Button } from '@design-system';
-import { EditorContent } from '@system-design/article-editor-page';
+import { Button } from '~/components/design-system';
+import { EditorContent } from '~/components/system-design/article-editor-page';
 
 import { snackBar } from '~/modules/ui/snack-bar';
 
