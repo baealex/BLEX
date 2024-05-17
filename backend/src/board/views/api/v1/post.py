@@ -319,6 +319,8 @@ def pinned_post_list(request):
     if request.method == 'GET':
         pinned_posts = PinnedPost.objects.select_related(
             'post'
+        ).filter(
+            post__author=request.user
         ).annotate(
             count_likes=Count('post__likes', distinct=True)
         ).order_by('order')
