@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db.models import Count
 
 from board.models import (
-    EditHistory, EditRequest, Post, PostAnalytics, PostConfig,
+    EditHistory, EditRequest, Post, PinnedPost, PostAnalytics, PostConfig,
     PostContent, PostLikes, PostNoThanks, PostThanks, TempPosts,
 )
 
@@ -11,6 +11,7 @@ from .service import AdminDisplayService, AdminLinkService
 
 admin.site.register(EditHistory)
 admin.site.register(EditRequest)
+admin.site.register(PinnedPost)
 
 
 @admin.register(Post)
