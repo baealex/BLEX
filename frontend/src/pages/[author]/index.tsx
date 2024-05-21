@@ -6,13 +6,12 @@ import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
-import { arrayMove, useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { DragEndEvent } from '@dnd-kit/core';
+import { type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { BaseInput, Button, Card, Checkbox, Flex, Grid, Label, Modal, Text, VerticalSortable } from '~/components/design-system';
+import { BaseInput, Button, Card, Checkbox, Flex, Grid, Label, Modal, SortableItem, Text, VerticalSortable } from '~/components/design-system';
 
 import {
     Heatmap,
@@ -66,50 +65,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         return await authorRenameCheck(error, { author });
     }
 };
-
-function SortablePosts(props: {
-    url: string;
-    title: string;
-    countLikes: number;
-}) {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-        id: props.url
-    });
-
-    return (
-        <div
-            ref={setNodeRef}
-            {...attributes}
-            className="w-100"
-            style={{
-                transform: CSS.Translate.toString(transform),
-                transition
-            }}>
-            <Flex className="w-100" align="center" gap={2}>
-                <div
-                    {...listeners}
-                    className="px-2"
-                    style={{
-                        cursor: 'grab',
-                        touchAction: 'none'
-                    }}>
-                    <Text fontSize={3}>
-                        <i className="fas fa-bars" />
-                    </Text>
-                </div>
-                <Flex style={{ flex: 1 }} align="center" justify="between">
-                    <Text fontSize={3}>{props.title}</Text>
-                    <Text className="gray-dark" fontSize={2}>
-                        <Flex align="center" gap={1}>
-                            <i className="fas fa-heart"></i>
-                            {props.countLikes}
-                        </Flex>
-                    </Text>
-                </Flex>
-            </Flex>
-        </div>
-    );
-}
 
 const Overview: PageComponent<Props> = (props) => {
     const router = useRouter();
@@ -266,7 +221,35 @@ const Overview: PageComponent<Props> = (props) => {
                                         items={pinnedPosts.map(post => post.url)}
                                         onDragEnd={handleSocialDragEnd}>
                                         {pinnedPosts.map((post) => (
-                                            <SortablePosts key={post.url} {...post} />
+                                            <SortableItem
+                                                key={post.url}
+                                                id={post.url}
+                                                className="w-100"
+                                                render={({ listeners }) => (
+                                                    <Flex className="w-100" align="center" gap={2}>
+                                                        <div
+                                                            {...listeners}
+                                                            className="px-2"
+                                                            style={{
+                                                                cursor: 'grab',
+                                                                touchAction: 'none'
+                                                            }}>
+                                                            <Text fontSize={3}>
+                                                                <i className="fas fa-bars" />
+                                                            </Text>
+                                                        </div>
+                                                        <Flex style={{ flex: 1 }} align="center" justify="between">
+                                                            <Text fontSize={3}>{post.title}</Text>
+                                                            <Text className="gray-dark" fontSize={2}>
+                                                                <Flex align="center" gap={1}>
+                                                                    <i className="fas fa-heart"></i>
+                                                                    {post.countLikes}
+                                                                </Flex>
+                                                            </Text>
+                                                        </Flex>
+                                                    </Flex>
+                                                )}
+                                            />
                                         ))}
                                     </VerticalSortable>
                                 </Flex>

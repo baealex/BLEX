@@ -3,11 +3,10 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { arrayMove, useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { DragEndEvent } from '@dnd-kit/core';
+import { type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 
-import { Button, Card, Flex, VerticalSortable } from '~/components/design-system';
+import { Button, Card, Flex, SortableItem, VerticalSortable } from '~/components/design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';
 
@@ -32,53 +31,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
     }
     return { props: data.body };
 };
-
-function SeriesItem(props: {
-    username: string;
-    url: string;
-    title: string;
-    totalPosts: number;
-    onClickDelete: () => void;
-}) {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-        id: props.url
-    });
-
-    return (
-        <div
-            ref={setNodeRef}
-            {...attributes}
-            style={{
-                transform: CSS.Translate.toString(transform),
-                transition
-            }}
-            className="mb-3">
-            <Flex>
-                <Flex align="center" justify="center">
-                    <div
-                        {...listeners}
-                        className="p-3"
-                        style={{
-                            cursor: 'grab',
-                            touchAction: 'none'
-                        }}>
-                        <i className="fas fa-bars" />
-                    </div>
-                </Flex>
-                <Card hasBackground isRounded className="p-3">
-                    <Flex justify="between">
-                        <Link className="deep-dark" href={`/@${props.username}/series/${props.url}`}>
-                            {props.title} <span className="vs">{props.totalPosts}</span>
-                        </Link>
-                        <a onClick={props.onClickDelete}>
-                            <i className="fas fa-times" />
-                        </a>
-                    </Flex>
-                </Card>
-            </Flex>
-        </div>
-    );
-}
 
 const SeriesSetting: PageComponent<Props> = (props) => {
     const router = useRouter();
@@ -128,11 +80,34 @@ const SeriesSetting: PageComponent<Props> = (props) => {
             <div className="mt-3">
                 <VerticalSortable items={series.map((item) => item.url)} onDragEnd={handleDragEnd}>
                     {series.map((item) => (
-                        <SeriesItem
+                        <SortableItem
                             key={item.url}
-                            username={props.username}
-                            {...item}
-                            onClickDelete={() => handleDelete(item.url)}
+                            id={item.url}
+                            render={({ listeners }) => (
+                                <Flex className="mb-3">
+                                    <Flex align="center" justify="center">
+                                        <div
+                                            {...listeners}
+                                            className="p-3"
+                                            style={{
+                                                cursor: 'grab',
+                                                touchAction: 'none'
+                                            }}>
+                                            <i className="fas fa-bars" />
+                                        </div>
+                                    </Flex>
+                                    <Card hasBackground isRounded className="p-3">
+                                        <Flex justify="between">
+                                            <Link className="deep-dark" href={`/@${props.username}/series/${item.url}`}>
+                                                {item.title} <span className="vs">{item.totalPosts}</span>
+                                            </Link>
+                                            <a onClick={() => handleDelete(item.url)}>
+                                                <i className="fas fa-times" />
+                                            </a>
+                                        </Flex>
+                                    </Card>
+                                </Flex>
+                            )}
                         />
                     ))}
                 </VerticalSortable>

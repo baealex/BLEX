@@ -10,5 +10,5 @@ export const getIconClassName = (name: string) => {
     ) {
         return `fab fa-${name}`;
     }
-    return 'fab fa-edge';
+    return 'fa fa-link';
 };

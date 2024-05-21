@@ -3,9 +3,8 @@ import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
-import { arrayMove, useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { DragEndEvent } from '@dnd-kit/core';
+import { type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 
 import {
     Alert,
@@ -13,6 +12,7 @@ import {
     Card,
     Flex,
     ImageInput,
+    SortableItem,
     Text,
     VerticalSortable
 } from '~/components/design-system';
@@ -44,82 +44,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
     }
     return { props: data.body };
 };
-
-function SocialItem(props: {
-    id: number;
-    name: string;
-    value: string;
-    onChangeName: (name: string) => void;
-    onChangeValue: (value: string) => void;
-    onClickDelete: () => void;
-}) {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-        id: props.id.toString()
-    });
-
-    return (
-        <div
-            ref={setNodeRef}
-            {...attributes}
-            style={{
-                transform: CSS.Translate.toString(transform),
-                transition
-            }}>
-            <Flex align="center" gap={2} className="mb-2">
-                <Flex justify="between" align="center">
-                    <div
-                        {...listeners}
-                        className="px-2"
-                        style={{
-                            cursor: 'grab',
-                            touchAction: 'none'
-                        }}>
-                        <i className="fas fa-bars"></i>
-                    </div>
-                </Flex>
-                <Flex justify="between" align="center">
-                    <div style={{ width: '16px' }}>
-                        <i className={getIconClassName(props.name)} />
-                    </div>
-                </Flex>
-                <div>
-                    <select
-                        className="form-select"
-                        defaultValue={props.name}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            props.onChangeName(value);
-                        }}>
-                        <option disabled value="">아이콘</option>
-                        <option value="github">깃허브</option>
-                        <option value="twitter">트위터</option>
-                        <option value="facebook">페이스북</option>
-                        <option value="telegram">텔레그램</option>
-                        <option value="instagram">인스타그램</option>
-                        <option value="linkedin">링크드인</option>
-                        <option value="youtube">유튜브</option>
-                        <option value="other">기타</option>
-                    </select>
-                </div>
-                <div style={{ flex: 1 }}>
-                    <input
-                        type="url"
-                        placeholder="주소"
-                        className="form-control"
-                        defaultValue={props.value}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            props.onChangeValue(value);
-                        }}
-                    />
-                </div>
-                <Button color="default" onClick={() => props.onClickDelete()}>
-                    <i className="fas fa-times" />
-                </Button>
-            </Flex>
-        </div>
-    );
-}
 
 interface ProfileForm {
     bio: string;
@@ -319,35 +243,72 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                 <VerticalSortable
                     items={socials.map((social) => social.id.toString())}
                     onDragEnd={handleSocialDragEnd}>
-                    {socials.map((social) => (
-                        <SocialItem
+                    {socials.map((social, index) => (
+                        <SortableItem
                             key={social.id}
-                            id={social.id}
-                            name={social.name}
-                            value={social.value}
-                            onClickDelete={() => handleSocialRemove(social.id)}
-                            onChangeName={(name) => {
-                                setSocials(socials.map((item) => {
-                                    if (item.id === social.id) {
-                                        return {
-                                            ...item,
-                                            name
-                                        };
-                                    }
-                                    return item;
-                                }));
-                            }}
-                            onChangeValue={(value) => {
-                                setSocials(socials.map((item) => {
-                                    if (item.id === social.id) {
-                                        return {
-                                            ...item,
-                                            value
-                                        };
-                                    }
-                                    return item;
-                                }));
-                            }}
+                            id={social.id.toString()}
+                            render={({ listeners }) => (
+                                <Flex align="center" gap={2} className="mb-2">
+                                    <Flex justify="between" align="center">
+                                        <div
+                                            {...listeners}
+                                            className="px-2"
+                                            style={{
+                                                cursor: 'grab',
+                                                touchAction: 'none'
+                                            }}>
+                                            <i className="fas fa-bars"></i>
+                                        </div>
+                                    </Flex>
+                                    <Flex justify="between" align="center">
+                                        <div style={{ width: '16px' }}>
+                                            <i className={getIconClassName(social.name)} />
+                                        </div>
+                                    </Flex>
+                                    <div>
+                                        <select
+                                            className="form-select"
+                                            defaultValue={social.name}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setSocials(prev => {
+                                                    const newSocials = [...prev];
+                                                    newSocials[index].name = value;
+                                                    return newSocials;
+                                                });
+                                            }}>
+                                            <option disabled value="">아이콘</option>
+                                            <option value="github">깃허브</option>
+                                            <option value="twitter">트위터</option>
+                                            <option value="facebook">페이스북</option>
+                                            <option value="telegram">텔레그램</option>
+                                            <option value="instagram">인스타그램</option>
+                                            <option value="linkedin">링크드인</option>
+                                            <option value="youtube">유튜브</option>
+                                            <option value="other">기타</option>
+                                        </select>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <input
+                                            type="url"
+                                            placeholder="주소"
+                                            className="form-control"
+                                            defaultValue={social.value}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setSocials(prev => {
+                                                    const newSocials = [...prev];
+                                                    newSocials[index].value = value;
+                                                    return newSocials;
+                                                });
+                                            }}
+                                        />
+                                    </div>
+                                    <Button color="default" onClick={() => handleSocialRemove(social.id)}>
+                                        <i className="fas fa-times" />
+                                    </Button>
+                                </Flex>
+                            )}
                         />
                     ))}
                 </VerticalSortable>
