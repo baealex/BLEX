@@ -27,7 +27,7 @@ export default function SeriesCreate() {
         }
 
         const { data } = await API.getPostsCanAddSeries();
-        return data.body;
+        return data.body?.length ? data.body : [];
     });
 
     const handleCreate = async () => {
