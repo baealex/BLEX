@@ -12,9 +12,7 @@ export interface ArticleContentProps {
     renderedContent: string;
 }
 
-export function ArticleContent({
-    renderedContent
-}: ArticleContentProps) {
+export function ArticleContent({ renderedContent }: ArticleContentProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     const handleClickContent = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -46,7 +44,9 @@ export function ArticleContent({
             ref={ref}
             className={cn('article')}
             onClick={handleClickContent}
-            dangerouslySetInnerHTML={{ __html: renderedContent }}
+            dangerouslySetInnerHTML={{
+                __html: renderedContent
+            }}
         />
     );
 }

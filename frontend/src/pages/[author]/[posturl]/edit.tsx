@@ -21,7 +21,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
     };
 
     if (!author.startsWith('@') || !posturl) {
-        return { notFound: true };
+        return {
+            notFound: true
+        };
     }
 
     const { cookie } = req.headers;
@@ -40,7 +42,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
             }
         };
     } catch (error) {
-        return { notFound: true };
+        return {
+            notFound: true
+        };
     }
 };
 

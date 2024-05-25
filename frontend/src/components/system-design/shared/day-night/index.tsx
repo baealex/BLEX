@@ -39,7 +39,9 @@ export function DayNight() {
     return (
         <aside role="button" aria-label="theme-switch" className={cn('box')} onClick={() => setIsNight(prev => !prev)}>
             <div
-                className={cn('ball', { isNight })}
+                className={cn('ball', {
+                    isNight
+                })}
             />
             <div className={cn('icon-cover')}>
                 <div className={cn('icon', 'day')}>

@@ -31,7 +31,9 @@ export function ArticleSeries(props: ArticleSeriesProps) {
             return body;
         }
         return null;
-    }, { observeRef: ref });
+    }, {
+        observeRef: ref
+    });
 
     const seriesLength = series?.posts.length;
     const activeSeries = series?.posts.findIndex(

@@ -38,7 +38,9 @@ export class AuthGetModal extends React.Component<Props, State> {
             password: '',
             isLoading: false
         };
-        this.updateKey = authStore.subscribe((state) => this.setState({ username: state.username }));
+        this.updateKey = authStore.subscribe((state) => this.setState({
+            username: state.username
+        }));
     }
 
     componentWillUnmount() {
@@ -65,7 +67,9 @@ export class AuthGetModal extends React.Component<Props, State> {
             snackBar('😅 비밀번호를 입력해주세요!');
             return;
         }
-        this.setState({ isLoading: true });
+        this.setState({
+            isLoading: true
+        });
 
         const { data } = await API.postLogin(this.state.username, this.state.password);
 

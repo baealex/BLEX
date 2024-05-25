@@ -1,4 +1,5 @@
-import React, { useCallback, useRef } from 'react';
+import type React from 'react';
+import { useCallback, useRef } from 'react';
 
 type FormElement =
     HTMLInputElement |
@@ -23,7 +24,7 @@ export function useForm<T>() {
                 e.preventDefault();
             }
 
-            const data = forms.current.reduce((acc, ref) => {
+            const data = forms.current.reduce<T>((acc, ref) => {
                 if (ref.current) {
                     return {
                         ...acc,
@@ -33,7 +34,7 @@ export function useForm<T>() {
                     };
                 }
                 return acc;
-            }, {} as T);
+            }, new Object() as T);
 
             return callback(data);
         };

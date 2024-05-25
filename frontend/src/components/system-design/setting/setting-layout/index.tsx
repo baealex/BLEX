@@ -2,7 +2,8 @@ import classNames from 'classnames/bind';
 import styles from './SettingLayout.module.scss';
 const cn = classNames.bind(styles);
 
-import { NAVIGATION_ITEMS, SettingNavigation } from '../setting-navigation';
+import type { NAVIGATION_ITEMS } from '../setting-navigation';
+import { SettingNavigation } from '../setting-navigation';
 
 export interface SettingLayoutProps {
     active: typeof NAVIGATION_ITEMS[number]['subItems'][number]['name'];

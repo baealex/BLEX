@@ -19,7 +19,9 @@ import { loadingStore } from '~/stores/loading';
 type Props = API.GetSettingSeriesResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
-    const { data } = await API.getSettingSeries({ 'Cookie': req.headers.cookie || '' });
+    const { data } = await API.getSettingSeries({
+        'Cookie': req.headers.cookie || ''
+    });
 
     if (data.status === 'ERROR') {
         return {
@@ -29,7 +31,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
             }
         };
     }
-    return { props: data.body };
+    return {
+        props: data.body
+    };
 };
 
 const SeriesSetting: PageComponent<Props> = (props) => {

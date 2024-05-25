@@ -55,7 +55,8 @@ export function Pagination(props: Props) {
                 };
             }
             return acc;
-        }, {});
+        }, {
+        });
 
         return {
             as: {
@@ -114,7 +115,9 @@ export function Pagination(props: Props) {
                     {pageRange.map((item, idx) => (
                         <div
                             key={idx}
-                            className={cn('item', { active: page == item })}>
+                            className={cn('item', {
+                                active: page == item
+                            })}>
                             <Link className={cn('link')} {...gotoPage(item)}>
                                 {item}
                             </Link>

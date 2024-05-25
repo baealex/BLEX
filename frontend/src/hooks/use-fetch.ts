@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import {
-    lazyIntersection
-} from '~/modules/optimize/lazy';
+import { lazyIntersection } from '~/modules/optimize/lazy';
 
 const cache = new Map();
 
@@ -12,7 +11,7 @@ interface UseFetchOptions {
     enable?: boolean;
 }
 
-export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, options: UseFetchOptions = {}) {
+export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, options?: UseFetchOptions) {
     if (typeof key !== 'string') key = key.join('/');
 
     const [data, setData] = useState<T>();
@@ -25,7 +24,7 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
 
     useEffect(() => {
         const run = () => {
-            if (options.enable === false) {
+            if (options?.enable === false) {
                 return;
             }
 
@@ -33,7 +32,7 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
                 setIsLoading(true);
             } else {
                 setData(cache.get(key));
-                if (options.disableRefetch) {
+                if (options?.disableRefetch) {
                     return;
                 }
             }
@@ -48,7 +47,7 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
             });
         };
 
-        if (options.observeRef) {
+        if (options?.observeRef) {
             const observer = lazyIntersection(options.observeRef.current, async () => {
                 await run();
             });
@@ -56,7 +55,7 @@ export function useFetch<T>(key: string | unknown[], fetch: () => Promise<T>, op
         }
 
         run();
-    }, [key, options.observeRef, options.enable]);
+    }, [key, options?.observeRef, options?.enable]);
 
     return {
         data,

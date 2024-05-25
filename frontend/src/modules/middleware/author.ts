@@ -35,5 +35,7 @@ export async function authorRenameCheck(error: unknown, options: {
         }
     }
 
-    return { notFound: true };
+    return {
+        notFound: true
+    };
 }

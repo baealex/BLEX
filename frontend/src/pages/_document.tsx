@@ -1,5 +1,5 @@
+import type { DocumentContext } from 'next/document';
 import Document, {
-    DocumentContext,
     Head,
     Html,
     Main,
@@ -11,7 +11,9 @@ import { CONFIG } from '~/modules/settings';
 class MyDocument extends Document {
     static async getInitialProps(ctx: DocumentContext) {
         const initialProps = await Document.getInitialProps(ctx);
-        return { ...initialProps };
+        return {
+            ...initialProps
+        };
     }
 
     render() {

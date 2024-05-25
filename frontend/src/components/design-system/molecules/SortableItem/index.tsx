@@ -25,7 +25,9 @@ export function SortableItem({ id, className, render }: SortableItemProps) {
                 transform: CSS.Translate.toString(transform),
                 transition
             }}>
-            {render({ listeners })}
+            {render({
+                listeners
+            })}
         </div>
     );
 }

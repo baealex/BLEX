@@ -42,7 +42,9 @@ export function ArticleComment(props: ArticleCommentProps) {
                 textMarkdown: ''
             }));
         }
-    }, { observeRef: ref });
+    }, {
+        observeRef: ref
+    });
 
     const handleSubmit = useCallback(async (content: string) => {
         if (isSubmitting) {

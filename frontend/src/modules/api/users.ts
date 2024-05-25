@@ -73,7 +73,9 @@ export async function putUserFollow(author: string) {
     return await request<PutUserFollowResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
-        data: serializeObject({ follow: author })
+        data: serializeObject({
+            follow: author
+        })
     });
 }
 
@@ -85,7 +87,9 @@ export async function updateUserAbout(author: string, data: UpdateUserAboutReque
     return await request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}`,
         method: 'PUT',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
         data: serializeObject({
             about: true,
             about_md: data.aboutMd

@@ -16,66 +16,8 @@
         "ecmaVersion": 2017,
         "sourceType": "module"
     },
-    "plugins": [
-        "@typescript-eslint",
-        "react"
-    ],
     "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
-    ],
-    "rules": {
-        "@typescript-eslint/consistent-type-definitions": [ "error", "interface" ],
-        "@typescript-eslint/default-param-last": [ "error" ],
-        "@typescript-eslint/indent": [ "error", 4 ],
-        "@typescript-eslint/semi": [ "error" ],
-        "@typescript-eslint/member-delimiter-style": [
-            "error",
-            {
-                "multiline": {
-                    "delimiter": "semi",
-                    "requireLast": true
-                },
-                "singleline": {
-                    "delimiter": "semi",
-                    "requireLast": false
-                }
-            }
-        ],
-        "comma-dangle": [ "error", "never" ],
-        "default-param-last": "off",
-        "indent": "off",
-        "keyword-spacing": [ "error", {
-            "before": true,
-            "after": true
-        }],
-        "no-trailing-spaces": "error",
-        "object-curly-spacing": [ "error", "always" ],
-        "object-property-newline": "error",
-        "quotes": [ "error", "single" ],
-        "semi": "off",
-        "sort-imports": [ "error", {
-            "ignoreCase": false,
-            "ignoreDeclarationSort": false,
-            "ignoreMemberSort": false,
-            "memberSyntaxSortOrder": ["all", "multiple", "single", "none"],
-            "allowSeparatedGroups": true
-        }],
-        "react/jsx-closing-bracket-location": [ "error", {
-            "selfClosing": "tag-aligned",
-            "nonEmpty": "after-props"
-        }],
-        "react/jsx-first-prop-new-line": [ "error", "multiline" ],
-        "react/jsx-indent": [ "error", 4 ],
-        "react/jsx-max-props-per-line": [
-            "error",
-            {
-                "maximum": {
-                    "single": 4,
-                    "multi": 1
-                }
-            }
-        ],
-        "jsx-quotes": [ "error", "prefer-double" ]
-    }
+        "./node_modules/@baejino/eslint",
+        "./node_modules/@baejino/eslint-react"
+    ]
 }

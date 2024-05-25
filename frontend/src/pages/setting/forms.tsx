@@ -14,7 +14,9 @@ import { snackBar } from '~/modules/ui/snack-bar';
 type Props = API.GetUserFormsResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
-    const { data } = await API.getUserForms({ 'Cookie': req.headers.cookie || '' });
+    const { data } = await API.getUserForms({
+        'Cookie': req.headers.cookie || ''
+    });
 
     if (data.status === 'ERROR') {
         return {
@@ -24,7 +26,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
             }
         };
     }
-    return { props: data.body };
+    return {
+        props: data.body
+    };
 };
 
 const FormsSetting: PageComponent<Props> = (props) => {

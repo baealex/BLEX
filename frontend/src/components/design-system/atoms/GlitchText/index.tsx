@@ -12,7 +12,7 @@ export interface GlitchTextProps {
 }
 
 export function GlitchText(props: GlitchTextProps) {
-    const [ text, setText ] = useState('PAGE');
+    const [text, setText] = useState('PAGE');
 
     useEffect(() => {
         const letters = props.letters;

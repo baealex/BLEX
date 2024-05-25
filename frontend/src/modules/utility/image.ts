@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 import { getHash } from '~/modules/utility/hash';
 import { message } from '~/modules/utility/message';

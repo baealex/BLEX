@@ -135,7 +135,9 @@ export function SettingNavigation({ active }: SettingNavigationProps) {
                                         'px-3',
                                         'py-2',
                                         'mb-1',
-                                        { active: active == subItem.name }
+                                        {
+                                            active: active == subItem.name
+                                        }
                                     )}>
                                     {subItem.title}
                                 </div>

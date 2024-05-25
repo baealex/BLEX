@@ -7,9 +7,15 @@ export async function postComments(url: string, content: string) {
     return await request<PostCommentsResponseData>({
         url: '/v1/comments',
         method: 'POST',
-        params: { url },
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        data: serializeObject({ comment_md: content })
+        params: {
+            url
+        },
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            comment_md: content
+        })
     });
 }
 
@@ -21,8 +27,12 @@ export async function putCommentLike(pk: number) {
     return await request<PutCommentLikeResponseData>({
         url: `/v1/comments/${pk}`,
         method: 'PUT',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        data: serializeObject({ like: pk })
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: serializeObject({
+            like: pk
+        })
     });
 }
 
@@ -41,7 +51,9 @@ export async function putComment(pk: number, content: string) {
     return await request<unknown>({
         url: `/v1/comments/${pk}`,
         method: 'PUT',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
         data: serializeObject({
             comment: 'comment',
             comment_md: content

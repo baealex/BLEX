@@ -52,7 +52,9 @@ export function TopNavigation() {
                     ...data.body
                 });
             } else {
-                setAuth({ isConfirmed: true });
+                setAuth({
+                    isConfirmed: true
+                });
             }
         });
     }, []);
@@ -125,7 +127,10 @@ export function TopNavigation() {
                 isOpen={modal.isOpenHelpModal}
                 onClose={() => modalStore.close('isOpenHelpModal')}
             />
-            <header className={cn('top-nav', { isRollup })}>
+            <header
+                className={cn('top-nav', {
+                    isRollup
+                })}>
                 <div className={cn('container', 'h-100')}>
                     <Flex justify="between" align="center" className="h-100">
                         <div className={cn('logo')}>

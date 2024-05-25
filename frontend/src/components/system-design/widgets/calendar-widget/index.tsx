@@ -82,7 +82,6 @@ export function CalendarWidget() {
                 <Text fontSize={3}>{weekday}요일</Text>
             </Flex>
 
-
             <Flex direction="column" gap={2}>
                 <Flex justify="between" align="center" className="w-100">
                     <Text fontSize={3}>오늘</Text>

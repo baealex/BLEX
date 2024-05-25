@@ -49,7 +49,9 @@ export function CommentForm(props: CommentFormProps) {
                 <div
                     className={cn(
                         'form',
-                        { isOpen }
+                        {
+                            isOpen
+                        }
                     )}
                     onClick={() => setIsOpen(true)}>
                     <Card
@@ -59,9 +61,14 @@ export function CommentForm(props: CommentFormProps) {
                         backgroundType="background"
                         className={`p-3 mb-3 ${cn(
                             'card',
-                            { isOpen }
+                            {
+                                isOpen
+                            }
                         )}`}>
-                        <div className={cn('submit', { isOpen })}>
+                        <div
+                            className={cn('submit', {
+                                isOpen
+                            })}>
                             <i className="fas fa-pencil-alt" /> 댓글 작성
                         </div>
                     </Card>

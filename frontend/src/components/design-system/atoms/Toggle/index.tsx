@@ -2,7 +2,6 @@ import classNames from 'classnames/bind';
 import styles from './Toggle.module.scss';
 const cn = classNames.bind(styles);
 
-
 import { useRef } from 'react';
 
 export interface ToggleProps {

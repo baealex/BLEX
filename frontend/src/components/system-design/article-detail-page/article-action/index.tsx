@@ -33,9 +33,7 @@ export function ArticleAction(props: ArticleActionProps) {
     }, [props]);
 
     const onClickLike = async () => {
-        const {
-            author, url
-        } = props;
+        const { author, url } = props;
         const { data } = await API.putAnUserPosts('@' + author, url, 'like');
         if (data.status === 'DONE') {
             if (typeof data.body.countLikes === 'number') {

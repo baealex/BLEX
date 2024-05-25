@@ -24,9 +24,15 @@ export function Badge({
             onClick={onClick}
             className={cn(
                 'badge',
-                { ir: isRounded },
-                { hs: hasHash },
-                { clickable: !!onClick },
+                {
+                    ir: isRounded
+                },
+                {
+                    hs: hasHash
+                },
+                {
+                    clickable: !!onClick
+                },
                 size !== 'medium' && 'size-' + size,
                 className
             )}>

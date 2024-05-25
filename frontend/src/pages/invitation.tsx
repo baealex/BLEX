@@ -104,7 +104,12 @@ const Invitation = () => {
                 }}
                 submitText="요청 보내기"
                 onSubmit={handleSubmit}>
-                <Flex style={{ width: '100%' }} direction="column" gap={3}>
+                <Flex
+                    style={{
+                        width: '100%'
+                    }}
+                    direction="column"
+                    gap={3}>
                     <BaseInput
                         disabled
                         tag="input"

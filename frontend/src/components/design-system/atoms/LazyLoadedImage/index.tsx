@@ -25,7 +25,9 @@ export function LazyLoadedImage({
                     observer.disconnect();
                     ref.current!.src = src;
                 }
-            }, { threshold: 0.1 });
+            }, {
+                threshold: 0.1
+            });
 
             observer.observe(ref.current);
         }

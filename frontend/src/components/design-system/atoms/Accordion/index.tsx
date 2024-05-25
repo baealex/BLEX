@@ -40,7 +40,10 @@ export function Accordion({
                 {children}
             </div>
             <button onClick={() => setIsOpen(!isOpen)}>
-                <i className={cn('fas fa-chevron-up', { isOpen })}></i>
+                <i
+                    className={cn('fas fa-chevron-up', {
+                        isOpen
+                    })}></i>
             </button>
         </div>
     );

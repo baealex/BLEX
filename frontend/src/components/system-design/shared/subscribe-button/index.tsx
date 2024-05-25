@@ -26,7 +26,9 @@ export function SubscribeButton(props: Props) {
             const { data } = await API.getUserProfile('@' + props.author, ['subscribe']);
             return data.body.subscribe.hasSubscribe;
         }
-    }, { observeRef: ref });
+    }, {
+        observeRef: ref
+    });
 
     const handleClickSubscribe = async () => {
         if (!isLogin) {

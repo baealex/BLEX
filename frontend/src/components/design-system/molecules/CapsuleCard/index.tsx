@@ -6,7 +6,8 @@ import React from 'react';
 
 import type { Gap } from '~/types/style';
 
-import { Card, CardProps } from '~/components/design-system';
+import type { CardProps } from '~/components/design-system';
+import { Card } from '~/components/design-system';
 
 interface CapsuleCardProps extends CardProps {
     image: React.ReactNode;

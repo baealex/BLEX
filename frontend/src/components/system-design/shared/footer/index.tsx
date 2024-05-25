@@ -15,7 +15,9 @@ export function Footer({
 }: FooterProps) {
     return (
         <footer
-            className={cn('footer', { isDark }, className)}>
+            className={cn('footer', {
+                isDark
+            }, className)}>
             {children && (
                 <div className={cn('content')}>
                     {children}

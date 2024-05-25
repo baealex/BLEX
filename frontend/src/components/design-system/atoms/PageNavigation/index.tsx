@@ -25,7 +25,9 @@ export function PageNavigation(props: PageNavigationProps) {
             {props.items.map((item, idx) => (
                 <li
                     key={idx}
-                    className={cn({ active: item.name === props.active })}>
+                    className={cn({
+                        active: item.name === props.active
+                    })}>
                     {props.disableLink ? (
                         item.name
                     ) : (

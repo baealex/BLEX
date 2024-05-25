@@ -25,10 +25,14 @@ export function CapsuleArticleCard(props: CapsuleArticleCardProps) {
                     <LazyLoadedImage
                         alt={props.title}
                         src={props.image
-                            ? getPostImage(props.image, { minify: true })
+                            ? getPostImage(props.image, {
+                                minify: true
+                            })
                             : getDefaultPostCoverImage(props.title)}
                         previewImage={props.image
-                            ? getPostImage(props.image, { preview: true })
+                            ? getPostImage(props.image, {
+                                preview: true
+                            })
                             : getDefaultPostCoverImage(props.title)}
                     />
                 </Link>

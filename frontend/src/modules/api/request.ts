@@ -1,7 +1,8 @@
-import axios, {
+import type {
     AxiosRequestConfig,
     RawAxiosRequestHeaders
 } from 'axios';
+import axios from 'axios';
 
 import { CONFIG } from '~/modules/settings';
 import { message } from '~/modules/utility/message';

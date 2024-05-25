@@ -36,14 +36,18 @@ export function EditorTitle(props: EditorTitleProps) {
     return (
         <div
             className={styles.layout}
-            style={{ backgroundImage: preview ? `url(${preview})` : undefined }}
+            style={{
+                backgroundImage: preview ? `url(${preview})` : undefined
+            }}
             onDragOver={(e) => e.preventDefault()}>
             {!props.disabledImage && (
                 <input
                     ref={ref}
                     type="file"
                     accept="image/*"
-                    style={{ display: 'none' }}
+                    style={{
+                        display: 'none'
+                    }}
                     onChange={handleChangeImage}
                 />
             )}

@@ -2,10 +2,8 @@ import classNames from 'classnames/bind';
 import styles from './ImageInput.module.scss';
 const cn = classNames.bind(styles);
 
-import {
-    ChangeEvent,
-    useRef
-} from 'react';
+import type { ChangeEvent } from 'react';
+import { useRef } from 'react';
 
 export interface ImageInputProps {
     url: string;
@@ -38,7 +36,9 @@ export function ImageInput(props: ImageInputProps) {
             <input
                 ref={input}
                 type="file"
-                style={{ display: 'none' }}
+                style={{
+                    display: 'none'
+                }}
                 accept="image/*"
                 onChange={(e) => onChangeImage(e)}
             />

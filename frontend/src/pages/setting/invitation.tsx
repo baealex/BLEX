@@ -10,7 +10,9 @@ import { useFetch } from '~/hooks/use-fetch';
 type Props = API.GetSettingNotifyResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
-    const { data } = await API.getSettingNotify({ 'Cookie': req.headers.cookie || '' });
+    const { data } = await API.getSettingNotify({
+        'Cookie': req.headers.cookie || ''
+    });
 
     if (data.status === 'ERROR') {
         return {
@@ -20,7 +22,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
             }
         };
     }
-    return { props: data.body };
+    return {
+        props: data.body
+    };
 };
 
 const InvitationSetting: PageComponent<Props> = () => {

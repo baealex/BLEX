@@ -15,7 +15,9 @@ import { useForm } from '~/hooks/use-form';
 type Props = API.GetSettingIntegrationOpenAIResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
-    const { data } = await API.getSettingIntegrationOpenAI({ 'Cookie': req.headers.cookie || '' });
+    const { data } = await API.getSettingIntegrationOpenAI({
+        'Cookie': req.headers.cookie || ''
+    });
 
     if (data.status === 'ERROR') {
         return {
@@ -25,7 +27,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
             }
         };
     }
-    return { props: data.body };
+    return {
+        props: data.body
+    };
 };
 
 type Form = API.PostSettingIntegrationTelegramResponseData;
@@ -63,7 +67,10 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
     return (
         <>
             <Card className="p-3" isRounded hasBackground>
-                <div style={{ lineHeight: '1.75' }}>
+                <div
+                    style={{
+                        lineHeight: '1.75'
+                    }}>
                     <div>
                         <b>Open AI와 연동하면 어떤 효과가 있나요?</b>
                     </div>

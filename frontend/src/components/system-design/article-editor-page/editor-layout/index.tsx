@@ -20,10 +20,8 @@ import {
     Modal
 } from '~/components/design-system';
 
-import {
-    EditorContent,
-    EditorContentProps
-} from '../editor-content';
+import type { EditorContentProps } from '../editor-content';
+import { EditorContent } from '../editor-content';
 import { EditorTitle } from '../editor-title';
 
 import * as API from '~/modules/api';

@@ -25,7 +25,7 @@ export function Dropdown(props: DropdownProps) {
     const box = useRef<HTMLDivElement>(null);
     const toggle = useRef<HTMLButtonElement>(null);
 
-    const [ isOpen, setIsOpen ] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -61,7 +61,9 @@ export function Dropdown(props: DropdownProps) {
                                 <li
                                     key={idx}
                                     onClick={menu.onClick}
-                                    className={cn({ disable: menu.disable })}>
+                                    className={cn({
+                                        disable: menu.disable
+                                    })}>
                                     <span>
                                         {menu.name}
                                     </span>

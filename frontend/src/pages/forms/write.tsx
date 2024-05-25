@@ -20,10 +20,16 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     });
 
     if (data.status !== 'DONE') {
-        return { notFound: true };
+        return {
+            notFound: true
+        };
     }
 
-    return { props: { username: data.body.username } };
+    return {
+        props: {
+            username: data.body.username
+        }
+    };
 };
 
 export default function UserFormEdit() {

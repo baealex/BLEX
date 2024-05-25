@@ -47,7 +47,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
     };
 
     if (!author.startsWith('@') || !posturl) {
-        return { notFound: true };
+        return {
+            notFound: true
+        };
     }
 
     const { cookie } = req.headers;
@@ -106,7 +108,6 @@ function PostDetail(props: Props) {
 
         moveToHash();
     }, [props.post.author, props.post.url]);
-
 
     useEffect(() => {
         if (typeof window !== 'undefined') {

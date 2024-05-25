@@ -25,7 +25,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
     };
 
     if (!author.startsWith('@') || !posturl) {
-        return { notFound: true };
+        return {
+            notFound: true
+        };
     }
 
     return {

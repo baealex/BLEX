@@ -30,8 +30,12 @@ export function UserSeries(props: SeriesProps) {
                         bgHash={item.name}
                         image={(
                             <LazyLoadedImage
-                                previewImage={getPostImage(item.image, { preview: true })}
-                                src={getPostImage(item.image, { minify: true })}
+                                previewImage={getPostImage(item.image, {
+                                    preview: true
+                                })}
+                                src={getPostImage(item.image, {
+                                    minify: true
+                                })}
                                 alt={item.name}
                             />
                         )}>

@@ -98,7 +98,6 @@ export function SearchBox(props: SearchBoxProps) {
         };
     }, [value, props.query]);
 
-
     return (
         <form ref={form} onSubmit={handleSubmit}>
             <div className={cn('input-group')}>
@@ -116,7 +115,11 @@ export function SearchBox(props: SearchBoxProps) {
                         }
                     }}
                 />
-                <button className={cn({ active })} onClick={handleClick}>
+                <button
+                    className={cn({
+                        active
+                    })}
+                    onClick={handleClick}>
                     {props.button}
                 </button>
             </div>
@@ -139,7 +142,10 @@ export function SearchBox(props: SearchBoxProps) {
                 )}
                 {props.history && props.history.length > 0 && (
                     <>
-                        <div className={cn('recent', { hasSuggestion: suggestions && suggestions.length > 0 })}>
+                        <div
+                            className={cn('recent', {
+                                hasSuggestion: suggestions && suggestions.length > 0
+                            })}>
                             <span>
                                 최근 검색어
                             </span>

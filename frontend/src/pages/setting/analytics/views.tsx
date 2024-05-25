@@ -32,9 +32,13 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
     });
 
     const { data: postViews, isLoading: isLoadingPostsView } = useFetch(['settings/analytics/posts-views', visibleDate], async () => {
-        const { data } = await API.getSettingAnalyticsPostsView({ date: visibleDate });
+        const { data } = await API.getSettingAnalyticsPostsView({
+            date: visibleDate
+        });
         return data.body;
-    }, { disableRefetch: true });
+    }, {
+        disableRefetch: true
+    });
 
     if (isLoading) {
         return <Loading />;
@@ -69,8 +73,12 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                                 ]
                             }}
                             colors={['#A076F1']}
-                            lineOptions={{ hideDots: 1 }}
-                            axisOptions={{ xIsSeries: 1 }}
+                            lineOptions={{
+                                hideDots: 1
+                            }}
+                            axisOptions={{
+                                xIsSeries: 1
+                            }}
                         />
                     </Card>
                 </>
@@ -94,7 +102,9 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                                 onChange={setDate}
                                 minDate={new Date(new Date().setDate(new Date().getDate() - 30))}
                                 maxDate={new Date()}
-                                style={{ width: '100px' }}
+                                style={{
+                                    width: '100px'
+                                }}
                             />
                             <Text fontSize={6} fontWeight={600}>
                                 의 인기글
@@ -127,7 +137,11 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                                 </Link>
                                 <div className="ns">
                                     {item.todayCount}명 읽음
-                                    <span className="ml-1" style={{ color: item.increaseCount > 0 ? '#ff6700' : '#008fff' }}>
+                                    <span
+                                        className="ml-1"
+                                        style={{
+                                            color: item.increaseCount > 0 ? '#ff6700' : '#008fff'
+                                        }}>
                                         ({`${item.increaseCount > 0 ? '↑' : '↓'}${Math.abs(item.increaseCount)}`})
                                     </span>
                                 </div>

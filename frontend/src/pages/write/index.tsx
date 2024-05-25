@@ -31,10 +31,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
     configStore.serverSideInject(cookies);
 
     const { cookie } = req.headers;
-    const { data: loginData } = await API.getLogin({ 'Cookie': cookie || '' });
+    const { data: loginData } = await API.getLogin({
+        'Cookie': cookie || ''
+    });
 
     if (loginData.status !== 'DONE') {
-        return { notFound: true };
+        return {
+            notFound: true
+        };
     }
 
     if (!loginData.body.hasEditorRole) {
@@ -51,7 +55,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
     if (token) {
         const { data: tempPost } = await API.getAnTempPosts(
             String(token),
-            { 'Cookie': cookie || '' }
+            {
+                'Cookie': cookie || ''
+            }
         );
         if (tempPost.status === 'DONE') {
             return {
