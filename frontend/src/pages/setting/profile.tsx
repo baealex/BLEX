@@ -259,8 +259,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                                         </div>
                                     </Flex>
                                     <Flex justify="between" align="center">
-                                        <div
-                                            style={{ width: '16px' }}>
+                                        <div style={{ width: '16px' }}>
                                             <i className={getIconClassName(social.name)} />
                                         </div>
                                     </Flex>
@@ -287,8 +286,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                                             <option value="other">기타</option>
                                         </select>
                                     </div>
-                                    <div
-                                        style={{ flex: 1 }}>
+                                    <div style={{ flex: 1 }}>
                                         <input
                                             type="url"
                                             placeholder="주소"

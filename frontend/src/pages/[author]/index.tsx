@@ -12,7 +12,17 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { authorRenameCheck } from '~/modules/middleware/author';
 
 import {
-    BaseInput, Button, Card, Checkbox, Flex, Grid, Label, Modal, SortableItem, Text, VerticalSortable
+    BaseInput,
+    Button,
+    Card,
+    Checkbox,
+    Flex,
+    Grid,
+    Label,
+    Modal,
+    SortableItem,
+    Text,
+    VerticalSortable
 } from '~/components/design-system';
 
 import {
@@ -240,10 +250,7 @@ const Overview: PageComponent<Props> = (props) => {
                                                                 <i className="fas fa-bars" />
                                                             </Text>
                                                         </div>
-                                                        <Flex
-                                                            style={{ flex: 1 }}
-                                                            align="center"
-                                                            justify="between">
+                                                        <Flex style={{ flex: 1 }} align="center" justify="between">
                                                             <Text fontSize={3}>{post.title}</Text>
                                                             <Text className="gray-dark" fontSize={2}>
                                                                 <Flex align="center" gap={1}>

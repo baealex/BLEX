@@ -7,7 +7,11 @@ import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
 import {
-    Button, Container, Flex, PageNavigationLayout, Text
+    Button,
+    Container,
+    Flex,
+    PageNavigationLayout,
+    Text
 } from '~/components/design-system';
 import {
     Footer,

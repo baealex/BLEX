@@ -4,7 +4,13 @@ import Link from 'next/link';
 import ReactFrappeChart from 'react-frappe-charts';
 
 import {
-    Alert, Button, Card, DateInput, Flex, Loading, Text
+    Alert,
+    Button,
+    Card,
+    DateInput,
+    Flex,
+    Loading,
+    Text
 } from '~/components/design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';

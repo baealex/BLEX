@@ -105,9 +105,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
             <div className="mt-3">
                 {props.notify.map((item) => (
                     <Card key={item.id} hasBackground isRounded className="p-3 mb-3">
-                        <a
-                            style={{ opacity: item.isRead ? 0.4 : 1 }}
-                            onClick={() => handleClickNotify(item)}>
+                        <a style={{ opacity: item.isRead ? 0.4 : 1 }} onClick={() => handleClickNotify(item)}>
                             {item.content}
                             <div className={'ns'}>
                                 {item.createdDate}

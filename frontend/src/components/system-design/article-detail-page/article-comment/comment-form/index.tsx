@@ -36,7 +36,6 @@ export function CommentForm(props: CommentFormProps) {
 
     return (
         <>
-
             {isOpen ? (
                 <div className="mb-3">
                     <EditorContent value={props.content} onChange={(value) => props.onChange(value)} />
@@ -46,23 +45,14 @@ export function CommentForm(props: CommentFormProps) {
                     </Button>
                 </div>
             ) : (
-                <div
-                    className={cn(
-                        'form',
-                        { isOpen }
-                    )}
-                    onClick={() => setIsOpen(true)}>
+                <div className={cn('form', { isOpen })} onClick={() => setIsOpen(true)}>
                     <Card
                         isRounded
                         hasShadow
                         hasBackground
                         backgroundType="background"
-                        className={`p-3 mb-3 ${cn(
-                            'card',
-                            { isOpen }
-                        )}`}>
-                        <div
-                            className={cn('submit', { isOpen })}>
+                        className={`p-3 mb-3 ${cn('card', { isOpen })}`}>
+                        <div className={cn('submit', { isOpen })}>
                             <i className="fas fa-pencil-alt" /> 댓글 작성
                         </div>
                     </Card>

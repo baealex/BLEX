@@ -191,10 +191,7 @@ export default function Series(props: Props) {
             )}
 
             <div className="series-header">
-                <Flex
-                    align="center"
-                    justify="center"
-                    style={{ minHeight: '280px' }}>
+                <Flex align="center" justify="center" style={{ minHeight: '280px' }}>
                     <Container size="sm">
                         <Text tag="h1" fontSize={6} fontWeight={600} className="mt-5 mb-2">
                             “{props.series.name}” 시리즈

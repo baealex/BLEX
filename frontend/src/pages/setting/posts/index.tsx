@@ -32,7 +32,11 @@ interface Props extends API.GetSettingPostsResponseData {
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
     const {
-        page = 1, order = '', tag = '', series = '', search = ''
+        page = 1,
+        order = '',
+        tag = '',
+        series = '',
+        search = ''
     } = query;
 
     const { data } = await API.getSettingPosts(
@@ -361,8 +365,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         </div>
                         <FormControl className="mt-2">
                             <Flex justify="between" align="center" gap={2}>
-                                <div
-                                    style={{ flex: '1' }}>
+                                <div style={{ flex: '1' }}>
                                     <BaseInput
                                         tag="input"
                                         icon={<i className="fas fa-tag" />}
@@ -380,8 +383,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         </FormControl>
                         <FormControl className="mt-2">
                             <Flex justify="between" align="center" gap={2}>
-                                <div
-                                    style={{ flex: '1' }}>
+                                <div style={{ flex: '1' }}>
                                     <BaseInput
                                         tag="select"
                                         icon={<i className="fas fa-book" />}

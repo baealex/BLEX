@@ -15,9 +15,7 @@ export function ImageCard(props: ImageCardProps) {
     const colorHash = useMemo(() => createColorHash(props.bgHash), [props.bgHash]);
 
     return (
-        <div
-            className={cn('card')}
-            style={{ backgroundColor: colorHash }}>
+        <div className={cn('card')} style={{ backgroundColor: colorHash }}>
             <div className={cn('card-image')}>
                 {props.image}
             </div>

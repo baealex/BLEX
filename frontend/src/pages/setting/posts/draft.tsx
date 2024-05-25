@@ -65,9 +65,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
             {props.posts.map((post, idx) => (
                 <Card key={idx} isRounded hasBackground className="mb-4">
                     <Flex justify="between" direction="column" gap={1} className="p-3">
-                        <Flex
-                            justify="between"
-                            style={{ width: '100%' }}>
+                        <Flex style={{ width: '100%' }} justify="between">
                             <span>
                                 <Link className="deep-dark" href={`/write?token=${post.token}`}>
                                     {post.title}

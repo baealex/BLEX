@@ -2,7 +2,11 @@ import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
 import {
-    Accordion, Button, Card, Flex, Text
+    Accordion,
+    Button,
+    Card,
+    Flex,
+    Text
 } from '~/components/design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';
@@ -65,8 +69,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
     return (
         <>
             <Card className="p-3" isRounded hasBackground>
-                <div
-                    style={{ lineHeight: '1.75' }}>
+                <div style={{ lineHeight: '1.75' }}>
                     <div>
                         <b>Open AI와 연동하면 어떤 효과가 있나요?</b>
                     </div>

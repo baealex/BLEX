@@ -34,7 +34,7 @@ export function useForm<T>() {
                     };
                 }
                 return acc;
-            }, new Object() as T);
+            }, {} as T);
 
             return callback(data);
         };

@@ -128,8 +128,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         <FormControl className="mt-2">
                             <Label>예약일</Label>
                             <Flex align="center" gap={2}>
-                                <div
-                                    style={{ flex: '1' }}>
+                                <div style={{ flex: '1' }}>
                                     <DateInput
                                         showTime
                                         minDate={new Date()}

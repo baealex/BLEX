@@ -63,8 +63,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
     return (
         <>
             <Card className="p-3" isRounded hasBackground>
-                <div
-                    style={{ lineHeight: '1.75' }}>
+                <div style={{ lineHeight: '1.75' }}>
                     <>
                         <div>
                             <b>텔레그램과 연동하면 어떤 효과가 있나요?</b>

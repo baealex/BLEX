@@ -19,7 +19,13 @@ import {
     RelatedArticles
 } from '~/components/system-design/article-detail-page';
 import {
-    BadgeGroup, Button, Card, Container, DualWidgetLayout, Flex, Text
+    BadgeGroup,
+    Button,
+    Card,
+    Container,
+    DualWidgetLayout,
+    Flex,
+    Text
 } from '~/components/design-system';
 import {
     Footer,

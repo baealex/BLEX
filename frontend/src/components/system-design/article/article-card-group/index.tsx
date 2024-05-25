@@ -18,8 +18,7 @@ export function ArticleCardGroup({
     gap = 3
 }: ArticleCardGroupProps) {
     return (
-        <div
-            className={cx('group', `g-${gap}`, className, { 'hr': hasDivider })}>
+        <div className={cx('group', `g-${gap}`, className, { 'hr': hasDivider })}>
             {children}
         </div>
     );

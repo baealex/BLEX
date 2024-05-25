@@ -7,7 +7,11 @@ import { type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 
 import {
-    Button, Card, Flex, SortableItem, VerticalSortable
+    Button,
+    Card,
+    Flex,
+    SortableItem,
+    VerticalSortable
 } from '~/components/design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';
