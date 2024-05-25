@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Alert.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import React from 'react';
 
@@ -15,7 +15,7 @@ export function Alert(props: AlertProps) {
     return (
         <div
             onClick={props.onClick}
-            className={cn(
+            className={cx(
                 'alert',
                 props.type,
                 { canClick: props.onClick }

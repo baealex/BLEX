@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ArticleCard.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -63,7 +63,7 @@ export function ArticleCard(props: ArticleCardProps) {
                         <Link className="deep-dark" href={`/@${props.author}`}>
                             <Flex align="center" gap={1}>
                                 <img
-                                    className={cn('author-image')}
+                                    className={cx('author-image')}
                                     alt={props.author}
                                     src={getUserImage(props.authorImage || '')}
                                 />
@@ -86,9 +86,9 @@ export function ArticleCard(props: ArticleCardProps) {
                         {props.readTime}분 분량
                     </Text>
                 </Flex>
-                <Flex align="center" gap={3} className={cn('actions')}>
+                <Flex align="center" gap={3} className={cx('actions')}>
                     {typeof props.countComments === 'number' && (
-                        <button className={cn('action')} onClick={() => router.push(url + '#comments')}>
+                        <button className={cx('action')} onClick={() => router.push(url + '#comments')}>
                             <Flex align="center" gap={1}>
                                 <i className="far fa-comment" />
                                 <Text>{props.countComments}</Text>
@@ -96,7 +96,7 @@ export function ArticleCard(props: ArticleCardProps) {
                         </button>
                     )}
                     {typeof props.countLikes === 'number' && (
-                        <button className={cn('action', 'like', { active: props.hasLiked })} onClick={props.onLike}>
+                        <button className={cx('action', 'like', { active: props.hasLiked })} onClick={props.onLike}>
                             <Flex align="center" gap={1}>
                                 {props.hasLiked
                                     ? <i className="fas fa-heart" />
@@ -106,47 +106,47 @@ export function ArticleCard(props: ArticleCardProps) {
                     )}
                 </Flex>
             </Flex>
-            <div className={cn('posts')}>
+            <div className={cx('posts')}>
                 <>
                     {props.image && (
-                        <Link href={url} className={cn('image')}>
+                        <Link href={url} className={cx('image')}>
                             <LazyLoadedImage
-                                className={cn('image')}
+                                className={cx('image')}
                                 alt={props.title}
                                 src={getPostImage(props.image, { minify: true })}
                                 previewImage={getPostImage(props.image, { preview: true })}
                             />
                         </Link>
                     )}
-                    <Flex className={cn('content')} direction="column">
+                    <Flex className={cx('content')} direction="column">
                         <div className="w-100">
                             <div className="py-2">
                                 {props.number && (
-                                    <div className={cn('number')}>
+                                    <div className={cx('number')}>
                                         {`${('0' + props.number).slice(-2)}.`}
                                     </div>
                                 )}
                                 <Link href={url}>
                                     {title && props.highlight ? (
                                         <h3
-                                            className={cn('title', 'deep-dark', 'mb-2')}
+                                            className={cx('title', 'deep-dark', 'mb-2')}
                                             dangerouslySetInnerHTML={{ __html: title }}
                                         />
                                     ) : (
                                         <Text
                                             tag="h3"
                                             fontWeight={600}
-                                            className={cn('deep-dark', 'mb-2')}>
+                                            className={cx('deep-dark', 'mb-2')}>
                                             {props.title}
                                         </Text>
                                     )}
                                     {description && props.highlight ? (
                                         <p
-                                            className={cn('description', 'shallow-dark')}
+                                            className={cx('description', 'shallow-dark')}
                                             dangerouslySetInnerHTML={{ __html: description }}
                                         />
                                     ) : (
-                                        <Text className={cn('description', 'shallow-dark')}>
+                                        <Text className={cx('description', 'shallow-dark')}>
                                             {unescape(description || '')}
                                         </Text>
                                     )}

@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Social.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import { getIconClassName } from '~/modules/utility/icon-class';
 
@@ -19,7 +19,7 @@ const replaceProtocol = (text: string) => {
 
 export function Social(props: SocialProps) {
     return (
-        <ul className={cn('social')}>
+        <ul className={cx('social')}>
             <li key={'rss'}>
                 <a href={`/rss/@${props.username}`} data-name="rss">
                     <i className="fas fa-rss-square" /> {`rss/@${props.username}`}

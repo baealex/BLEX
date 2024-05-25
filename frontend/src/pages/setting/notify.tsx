@@ -2,7 +2,14 @@ import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { useStore } from 'badland-react';
 
-import { Alert, Button, Card, Flex, Modal, Toggle } from '~/components/design-system';
+import {
+    Alert,
+    Button,
+    Card,
+    Flex,
+    Modal,
+    Toggle
+} from '~/components/design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';
 

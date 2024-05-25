@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './TopNavigation.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import React, {
     useEffect,
@@ -125,16 +125,16 @@ export function TopNavigation() {
                 isOpen={modal.isOpenHelpModal}
                 onClose={() => modalStore.close('isOpenHelpModal')}
             />
-            <header className={cn('top-nav', { isRollup })}>
-                <div className={cn('container', 'h-100')}>
+            <header className={cx('top-nav', { isRollup })}>
+                <div className={cx('container', 'h-100')}>
                     <Flex justify="between" align="center" className="h-100">
-                        <div className={cn('logo')}>
+                        <div className={cx('logo')}>
                             <Link href="/" onClick={() => clearMemoryStore()}>
                                 <img alt="logo" src={'/logob.svg'} />
                             </Link>
                         </div>
                         <nav>
-                            <ul className={cn('items')}>
+                            <ul className={cx('items')}>
                                 <li>
                                     <button aria-label="search" onClick={() => router.push('/search')}>
                                         <i className="fas fa-search" />
@@ -144,7 +144,7 @@ export function TopNavigation() {
                                     <>
                                         <li
                                             ref={notifyToggle}
-                                            className={cn('notify')}>
+                                            className={cx('notify')}>
                                             <button aria-label="notify" onClick={() => router.push('/setting/notify')}>
                                                 <i className="far fa-bell" />
                                             </button>
@@ -155,7 +155,7 @@ export function TopNavigation() {
                                             )}
                                         </li>
                                         {path.endsWith('/write') || path.endsWith('/edit') ? (
-                                            <li className={cn('get-start')}>
+                                            <li className={cx('get-start')}>
                                                 <button aria-label="submit" onClick={() => modalStore.open('isOpenArticlePublishModal')}>
                                                     {path.lastIndexOf('/write') > -1
                                                         ? '포스트 발행'
@@ -163,13 +163,13 @@ export function TopNavigation() {
                                                 </button>
                                             </li>
                                         ) : (
-                                            <li className={cn('get-start', 'outline')}>
+                                            <li className={cx('get-start', 'outline')}>
                                                 <button aria-label="write" onClick={() => router.push('/write')}>
                                                     새 포스트
                                                 </button>
                                             </li>
                                         )}
-                                        <li className={cn('profile')}>
+                                        <li className={cx('profile')}>
                                             <Dropdown
                                                 position="left"
                                                 button={
@@ -212,7 +212,7 @@ export function TopNavigation() {
                                         </li>
                                     </>
                                 ) : (
-                                    <li className={cn('get-start')}>
+                                    <li className={cx('get-start')}>
                                         <button aria-label="get-start" onClick={() => modalStore.open('isOpenAuthGetModal')}>
                                             블로그 시작
                                         </button>

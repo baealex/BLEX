@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Text.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import React from 'react';
 
@@ -22,7 +22,7 @@ export function Text(props: TextProps) {
     return React.createElement(
         tag,
         {
-            className: cn(
+            className: cx(
                 'text',
                 `fs-${fontSize}`,
                 `fw-${fontWeight}`,

@@ -31,7 +31,13 @@ interface Props extends API.GetSettingPostsResponseData {
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
-    const { page = 1, order = '', tag = '', series = '', search = '' } = query;
+    const {
+        page = 1,
+        order = '',
+        tag = '',
+        series = '',
+        search = ''
+    } = query;
 
     const { data } = await API.getSettingPosts(
         {

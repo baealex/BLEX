@@ -223,16 +223,12 @@ export default function Series(props: Props) {
                     )}
                     {props.order === 'latest' ? (
                         <Button
-                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}?order=past`, '', {
-                                scroll: false
-                            })}>
+                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}?order=past`, '', { scroll: false })}>
                             최신부터 <i className="fas fa-sort-amount-down"></i>
                         </Button>
                     ) : (
                         <Button
-                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}`, '', {
-                                scroll: false
-                            })}>
+                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}`, '', { scroll: false })}>
                             과거부터 <i className="fas fa-sort-amount-up"></i>
                         </Button>
                     )}

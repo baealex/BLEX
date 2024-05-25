@@ -163,9 +163,7 @@ export default function EditorContent(props: EditorContentProps) {
                     previewRender: blexer,
                     previewClass: [articleStyles.article, styles.preview],
                     spellChecker: false,
-                    renderingConfig: {
-                        codeSyntaxHighlighting: true
-                    }
+                    renderingConfig: { codeSyntaxHighlighting: true }
                 });
 
                 easyMDE.codemirror.on('change', () => {
@@ -190,14 +188,10 @@ export default function EditorContent(props: EditorContentProps) {
 
                 easyMDE.codemirror.setOption('extraKeys', {
                     F11: () => {
-                        return {
-                            toString: () => 'CodeMirror.PASS'
-                        };
+                        return { toString: () => 'CodeMirror.PASS' };
                     },
                     Esc: () => {
-                        return {
-                            toString: () => 'CodeMirror.PASS'
-                        };
+                        return { toString: () => 'CodeMirror.PASS' };
                     }
                 });
 

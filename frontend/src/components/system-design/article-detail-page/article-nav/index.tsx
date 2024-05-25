@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ArticleNav.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import { useCallback, useEffect, useState } from 'react';
 
@@ -60,14 +60,14 @@ export function ArticleNav(props: Props) {
     }, [props.renderedContent]);
 
     return (
-        <aside className={cn('article-nav', 'none-drag')}>
+        <aside className={cx('article-nav', 'none-drag')}>
             <ul>
                 {headerNav.map((item, idx) => (
-                    <li key={idx} className={cn(`title-${item[0]}`)}>
+                    <li key={idx} className={cx(`title-${item[0]}`)}>
                         <a
                             href={`#${item[1]}`}
                             onClick={handleClickArticleNav}
-                            className={cn({ 'nav-now': headerNow == item[1] })}>
+                            className={cx({ 'nav-now': headerNow == item[1] })}>
                             {item[2]}
                         </a>
                     </li>

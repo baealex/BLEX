@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useStore } from 'badland-react';
 
-import { BaseInput, Button, Card, Container, Flex, Modal, Text } from '~/components/design-system';
+import {
+    BaseInput, Button, Card, Container, Flex, Modal, Text
+} from '~/components/design-system';
 
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';

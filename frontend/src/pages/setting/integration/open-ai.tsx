@@ -1,7 +1,13 @@
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { Accordion, Button, Card, Flex, Text } from '~/components/design-system';
+import {
+    Accordion,
+    Button,
+    Card,
+    Flex,
+    Text
+} from '~/components/design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';
 

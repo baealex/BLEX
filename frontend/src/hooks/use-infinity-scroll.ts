@@ -29,9 +29,7 @@ export const useInfinityScroll = <T>({
     const [page, setPage] = useState(memoryStore.page);
     const [data, setData] = useState<T[]>(memoryStore.data);
 
-    const isBottomApproach = useDetectBottomApproach({
-        enabled: memoryStore.page < lastPage && !isLoading
-    });
+    const isBottomApproach = useDetectBottomApproach({ enabled: memoryStore.page < lastPage && !isLoading });
 
     useEffect(() => {
         if (!isBottomApproach || isLoading) return;

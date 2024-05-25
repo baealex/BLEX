@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ArticleAction.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import {
     useEffect,
@@ -33,9 +33,7 @@ export function ArticleAction(props: ArticleActionProps) {
     }, [props]);
 
     const onClickLike = async () => {
-        const {
-            author, url
-        } = props;
+        const { author, url } = props;
         const { data } = await API.putAnUserPosts('@' + author, url, 'like');
         if (data.status === 'DONE') {
             if (typeof data.body.countLikes === 'number') {
@@ -71,13 +69,13 @@ export function ArticleAction(props: ArticleActionProps) {
     };
 
     return (
-        <div className={cn('actions')}>
+        <div className={cx('actions')}>
             <Card
                 hasShadow
                 isRounded
                 hasBackground
                 backgroundType="background"
-                className={cn('box')}>
+                className={cx('box')}>
                 <Flex className="c-pointer shallow-dark" align="center" gap={2} onClick={onClickLike}>
                     <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`} />
                     <Text fontSize={3}>{state.countLikes}</Text>

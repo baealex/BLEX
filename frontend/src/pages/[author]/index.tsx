@@ -11,7 +11,19 @@ import { arrayMove } from '@dnd-kit/sortable';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { BaseInput, Button, Card, Checkbox, Flex, Grid, Label, Modal, SortableItem, Text, VerticalSortable } from '~/components/design-system';
+import {
+    BaseInput,
+    Button,
+    Card,
+    Checkbox,
+    Flex,
+    Grid,
+    Label,
+    Modal,
+    SortableItem,
+    Text,
+    VerticalSortable
+} from '~/components/design-system';
 
 import {
     Heatmap,

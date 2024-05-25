@@ -21,11 +21,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
     try {
         const { data } = await API.getFavoritePosts(1, context.req.headers.cookie);
 
-        return {
-            props: {
-                ...data.body
-            }
-        };
+        return { props: { ...data.body } };
     } catch (error) {
         return { notFound: true };
     }

@@ -2,7 +2,15 @@ import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { Button, Card, Flex, Label, Progress, Text, Toggle } from '~/components/design-system';
+import {
+    Button,
+    Card,
+    Flex,
+    Label,
+    Progress,
+    Text,
+    Toggle
+} from '~/components/design-system';
 import {
     EditorLayout,
     TempArticleModal
@@ -230,9 +238,7 @@ export default function Write(props: Props) {
 
     return (
         <EditorLayout
-            image={{
-                onChange: setImage
-            }}
+            image={{ onChange: setImage }}
             title={{
                 value: title,
                 onChange: setTitle

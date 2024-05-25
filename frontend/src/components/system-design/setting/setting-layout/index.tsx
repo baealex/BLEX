@@ -1,8 +1,9 @@
 import classNames from 'classnames/bind';
 import styles from './SettingLayout.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
-import { NAVIGATION_ITEMS, SettingNavigation } from '../setting-navigation';
+import type { NAVIGATION_ITEMS } from '../setting-navigation';
+import { SettingNavigation } from '../setting-navigation';
 
 export interface SettingLayoutProps {
     active: typeof NAVIGATION_ITEMS[number]['subItems'][number]['name'];
@@ -17,18 +18,18 @@ export function SettingLayout({
 }: SettingLayoutProps) {
     return (
         <>
-            <div className={cn('f')}>
-                <div className={cn('f-1')}>
+            <div className={cx('f')}>
+                <div className={cx('f-1')}>
                     <div>
-                        <div className={cn('c')}>
+                        <div className={cx('c')}>
                             <SettingNavigation active={active} />
                             {sideChildren}
                         </div>
                     </div>
                 </div>
-                <div className={cn('f-2')}>
+                <div className={cx('f-2')}>
                     <div>
-                        <div className={cn('c')}>
+                        <div className={cx('c')}>
                             {children}
                         </div>
                     </div>

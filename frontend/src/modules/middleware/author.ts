@@ -15,9 +15,7 @@ export async function authorRenameCheck(error: unknown, options: {
     if (error instanceof AxiosError) {
         if (error.response?.status === 404) {
             try {
-                const { data } = await API.checkRedirect({
-                    username: options.author as string
-                });
+                const { data } = await API.checkRedirect({ username: options.author as string });
 
                 if (data.body.newUsername) {
                     const encodedUsername = encodeURI(data.body.newUsername);

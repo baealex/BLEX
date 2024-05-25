@@ -12,9 +12,13 @@ interface SortableItemProps {
 }
 
 export function SortableItem({ id, className, render }: SortableItemProps) {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-        id
-    });
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition
+    } = useSortable({ id });
 
     return (
         <div

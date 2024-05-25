@@ -4,7 +4,13 @@ import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';
 
 import * as API from '~/modules/api';
-import { BaseInput, Button, Card, Flex, Text } from '~/components/design-system';
+import {
+    BaseInput,
+    Button,
+    Card,
+    Flex,
+    Text
+} from '~/components/design-system';
 import { useFetch } from '~/hooks/use-fetch';
 
 type Props = API.GetSettingNotifyResponseData;

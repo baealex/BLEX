@@ -5,7 +5,17 @@ import { useValue } from 'badland-react';
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
-import { BaseInput, Button, Card, Checkbox, Container, Flex, FormControl, Label, Loading } from '~/components/design-system';
+import {
+    BaseInput,
+    Button,
+    Card,
+    Checkbox,
+    Container,
+    Flex,
+    FormControl,
+    Label,
+    Loading
+} from '~/components/design-system';
 import { useFetch } from '~/hooks/use-fetch';
 
 import { authStore } from '~/stores/auth';

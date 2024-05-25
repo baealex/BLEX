@@ -1,9 +1,7 @@
-import { GetServerSideProps } from 'next';
+import type { GetServerSideProps } from 'next';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const {
-        author = ''
-    } = context.query as Record<string, string>;
+    const { author = '' } = context.query as Record<string, string>;
 
     if (!author.startsWith('@')) {
         return { notFound: true };

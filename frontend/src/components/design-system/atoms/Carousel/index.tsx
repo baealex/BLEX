@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Carousel.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import {
     useEffect,
@@ -14,7 +14,7 @@ export interface CarouselProps {
 }
 
 export function Carousel({ items, time=6000 }: CarouselProps) {
-    const [ focus, setFocus ] = useState(0);
+    const [focus, setFocus] = useState(0);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -28,7 +28,7 @@ export function Carousel({ items, time=6000 }: CarouselProps) {
     }, [time]);
 
     return (
-        <div className={cn('carousel')}>
+        <div className={cx('carousel')}>
             {items.map((item, idx) => (
                 <Item key={idx} item={item} focus={focus}/>
             ))}
@@ -48,7 +48,7 @@ function Item({
     return (
         <>
             {typeof item === 'string' ? (
-                <span dangerouslySetInnerHTML={{ __html: blexer(item) }}/>
+                <span dangerouslySetInnerHTML={{ __html: blexer(item) }} />
             ) : (
                 <span>{item}</span>
             )}

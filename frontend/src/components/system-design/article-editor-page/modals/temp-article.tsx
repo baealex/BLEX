@@ -4,7 +4,7 @@ import {
     Modal
 } from '~/components/design-system';
 
-import * as API from '~/modules/api';
+import type * as API from '~/modules/api';
 
 interface Props {
     isOpen: boolean;

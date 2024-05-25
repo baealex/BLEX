@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ArticleCover.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -30,18 +30,18 @@ export function ArticleCover(props: {
 
     if (!props.image) {
         return (
-            <header className={cn('no-cover')}>
+            <header className={cx('no-cover')}>
                 <Container size="sm">
                     <Flex direction="column" justify="end" className="h-100">
                         {props.series && (
                             <span
-                                className={cn('series')}
+                                className={cx('series')}
                                 onClick={handleClickSeries}
                                 data-label={`‘${props.series.name}’ 시리즈`}
                             />
                         )}
                         <h1>{props.title}</h1>
-                        <div className={cn('post-info')}>
+                        <div className={cx('post-info')}>
                             <Link href={`/@${props.author}`}>@{props.author}</Link>
                             ·
                             <time dateTime={props.createdDate}>
@@ -55,25 +55,25 @@ export function ArticleCover(props: {
     }
 
     return (
-        <header className={cn('full-cover')}>
-            <div className={cn('image-cover')}>
+        <header className={cx('full-cover')}>
+            <div className={cx('image-cover')}>
                 <LazyLoadedImage
                     previewImage={getPostImage(props.image, { minify: true })}
                     src={getPostImage(props.image)}
                     alt={props.title}
                 />
             </div>
-            <div className={cn('inner')}>
-                <div className={cn('container')}>
+            <div className={cx('inner')}>
+                <div className={cx('container')}>
                     {props.series && (
                         <span
-                            className={cn('series')}
+                            className={cx('series')}
                             onClick={handleClickSeries}
                             data-label={`‘${props.series.name}’ 시리즈`}
                         />
                     )}
                     <h1>{props.title}</h1>
-                    <div className={cn('post-info')}>
+                    <div className={cx('post-info')}>
                         <Link href={`/@${props.author}`}>@{props.author}</Link>
                         ·
                         <time dateTime={props.createdDate}>
@@ -83,7 +83,7 @@ export function ArticleCover(props: {
                 </div>
             </div>
             {props.isAd && (
-                <div className={cn('ad')}>
+                <div className={cx('ad')}>
                     유료 광고 포함
                 </div>
             )}

@@ -19,11 +19,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
     try {
         const { data } = await API.getNewestPosts(1, context.req.headers.cookie);
 
-        return {
-            props: {
-                ...data.body
-            }
-        };
+        return { props: { ...data.body } };
     } catch (error) {
         return { notFound: true };
     }

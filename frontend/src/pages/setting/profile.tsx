@@ -131,9 +131,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
             if (item?.prepare === false) {
                 if (!confirm(message('CONFIRM', '정말 이 링크를 삭제할까요?'))) return prevState;
 
-                API.putSetting('social', {
-                    delete: `${item.id}`
-                }).then(({ data }) => {
+                API.putSetting('social', { delete: `${item.id}` }).then(({ data }) => {
                     if (data.status === 'DONE') {
                         snackBar(message('AFTER_REQ_DONE', '소셜 정보가 업데이트 되었습니다.'));
                     }

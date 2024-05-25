@@ -23,8 +23,6 @@ export async function postReportArticle(data: PostReportArticleRequestData) {
     return await request<unknown>({
         url: `/v1/report/article/${data.url}`,
         method: 'POST',
-        data: serializeObject({
-            content: data.content
-        })
+        data: serializeObject({ content: data.content })
     });
 }

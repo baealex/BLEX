@@ -109,7 +109,6 @@ export interface GetPostsResponseData {
     lastPage: number;
 }
 
-
 export function getNewestPosts(page: number, cookie?: string) {
     return request<GetPostsResponseData>({
         url: `/v1/posts/newest?page=${page}`,

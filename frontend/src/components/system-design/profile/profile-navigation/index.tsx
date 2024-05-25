@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Navigation.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 
@@ -29,13 +29,13 @@ export interface ProfileNavigationProps {
 
 export function ProfileNavigation(props: ProfileNavigationProps) {
     return (
-        <div id="profile" className={`${cn('navigation')} back-image mt-5`}>
-            <div className={cn('mask')}>
+        <div id="profile" className={`${cx('navigation')} back-image mt-5`}>
+            <div className={cx('mask')}>
                 <ul>
                     {TAB_ITEMS.map((item, idx) => (
                         <li
                             key={idx}
-                            className={cn(
+                            className={cx(
                                 { active: props.active === item.active }
                             )}>
                             <Link

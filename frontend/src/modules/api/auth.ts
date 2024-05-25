@@ -1,7 +1,5 @@
-import request, {
-    Headers,
-    serializeObject
-} from './request';
+import type { Headers } from './request';
+import request, { serializeObject } from './request';
 
 export interface GetLoginResponseData {
     username: string;

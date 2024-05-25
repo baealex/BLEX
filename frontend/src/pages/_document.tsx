@@ -1,5 +1,5 @@
+import type { DocumentContext } from 'next/document';
 import Document, {
-    DocumentContext,
     Head,
     Html,
     Main,

@@ -18,7 +18,15 @@ import {
     ArticleThanks,
     RelatedArticles
 } from '~/components/system-design/article-detail-page';
-import { BadgeGroup, Button, Card, Container, DualWidgetLayout, Flex, Text } from '~/components/design-system';
+import {
+    BadgeGroup,
+    Button,
+    Card,
+    Container,
+    DualWidgetLayout,
+    Flex,
+    Text
+} from '~/components/design-system';
 import {
     Footer,
     SEO
@@ -106,7 +114,6 @@ function PostDetail(props: Props) {
 
         moveToHash();
     }, [props.post.author, props.post.url]);
-
 
     useEffect(() => {
         if (typeof window !== 'undefined') {

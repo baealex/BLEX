@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './SearchBox.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import * as API from '~/modules/api';
 
@@ -98,10 +98,9 @@ export function SearchBox(props: SearchBoxProps) {
         };
     }, [value, props.query]);
 
-
     return (
         <form ref={form} onSubmit={handleSubmit}>
-            <div className={cn('input-group')}>
+            <div className={cx('input-group')}>
                 <input
                     type="search"
                     value={value}
@@ -116,21 +115,21 @@ export function SearchBox(props: SearchBoxProps) {
                         }
                     }}
                 />
-                <button className={cn({ active })} onClick={handleClick}>
+                <button className={cx({ active })} onClick={handleClick}>
                     {props.button}
                 </button>
             </div>
-            <div className={cn('histories')}>
+            <div className={cx('histories')}>
                 {suggestions && suggestions.length > 0 && (
                     <>
-                        <div className={cn('suggestion')}>
+                        <div className={cx('suggestion')}>
                             <span>
                                 추천 검색어
                             </span>
                         </div>
-                        <Flex wrap="wrap" gap={2} className={cn('suggestions')}>
+                        <Flex wrap="wrap" gap={2} className={cx('suggestions')}>
                             {suggestions.map(item => (
-                                <Badge key={item} className={cn('history')} onClick={() => handleClickHistory(item)}>
+                                <Badge key={item} className={cx('history')} onClick={() => handleClickHistory(item)}>
                                     {item}
                                 </Badge>
                             ))}
@@ -139,13 +138,13 @@ export function SearchBox(props: SearchBoxProps) {
                 )}
                 {props.history && props.history.length > 0 && (
                     <>
-                        <div className={cn('recent', { hasSuggestion: suggestions && suggestions.length > 0 })}>
+                        <div className={cx('recent', { hasSuggestion: suggestions && suggestions.length > 0 })}>
                             <span>
                                 최근 검색어
                             </span>
                         </div>
                         {props.history.map(item => (
-                            <div key={item.pk} className={cn('history')}>
+                            <div key={item.pk} className={cx('history')}>
                                 <span onClick={() => handleClickHistory(item.value)}>
                                     {item.value} <small className="shallow-dark">{item.createdDate}</small>
                                 </span>

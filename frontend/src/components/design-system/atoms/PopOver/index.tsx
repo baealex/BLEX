@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './PopOver.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -55,9 +55,7 @@ export function PopOver({
         <div>
             <div
                 ref={popOverRef}
-                className={cn('popover', position, {
-                    hover
-                })}>
+                className={cx('popover', position, { hover })}>
                 {props.text}
             </div>
             <span

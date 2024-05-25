@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Comment.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from 'badland-react';
@@ -125,9 +125,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const handleClickUserTag = useCallback(async (tagUsername: string) => {
         if (!username) {
-            snackBar('😅 로그인이 필요합니다.', {
-                onClick: () => modalStore.open('isOpenAuthGetModal')
-            });
+            snackBar('😅 로그인이 필요합니다.', { onClick: () => modalStore.open('isOpenAuthGetModal') });
             return;
         }
 
@@ -175,7 +173,7 @@ export function ArticleComment(props: ArticleCommentProps) {
     }, [comments]);
 
     return (
-        <div ref={ref} id="comments" className={`comments ${cn('background')} py-5`}>
+        <div ref={ref} id="comments" className={`comments ${cx('background')} py-5`}>
             <Container size="sm">
                 {comments?.length > 0 ? comments.map((comment) => (
                     comment.isEdit ? (

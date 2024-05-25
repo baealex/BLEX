@@ -1,7 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Toggle.module.scss';
-const cn = classNames.bind(styles);
-
+const cx = classNames.bind(styles);
 
 import { useRef } from 'react';
 
@@ -16,15 +15,15 @@ export function Toggle(props: ToggleProps) {
 
     return (
         <>
-            <label className={cn('toggle')}>
+            <label className={cx('toggle')}>
                 <input
                     type="checkbox"
                     ref={checkbox}
                     defaultChecked={props.defaultChecked}
                     onChange={(e) => props.onClick(e.target.checked)}
                 />
-                <span className={cn('switch')} />
-                <span className={cn('label')}>{props.label}</span>
+                <span className={cx('switch')} />
+                <span className={cx('label')}>{props.label}</span>
             </label>
         </>
     );

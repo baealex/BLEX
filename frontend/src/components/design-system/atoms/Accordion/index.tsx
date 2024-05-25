@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Accordion.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import {
     useEffect,
@@ -30,7 +30,7 @@ export function Accordion({
 
     return (
         <div
-            className={cn('Accordion')}
+            className={cx('Accordion')}
             style={{
                 height: isOpen
                     ? `${maxHeight}px`
@@ -40,7 +40,7 @@ export function Accordion({
                 {children}
             </div>
             <button onClick={() => setIsOpen(!isOpen)}>
-                <i className={cn('fas fa-chevron-up', { isOpen })}></i>
+                <i className={cx('fas fa-chevron-up', { isOpen })} />
             </button>
         </div>
     );

@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './SpeechBubble.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import React from 'react';
 
@@ -16,11 +16,11 @@ export function SpeechBubble({
     children
 }: SpeechBubbleProps) {
     return (
-        <div className={cn('box', className)}>
+        <div className={cx('box', className)}>
             <blockquote>
                 {children}
             </blockquote>
-            <div className={cn('user')}>
+            <div className={cx('user')}>
                 {image}
             </div>
         </div>

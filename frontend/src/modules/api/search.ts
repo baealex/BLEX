@@ -58,9 +58,7 @@ export interface GetSearchSuggestionResponseData {
 export async function getSearchSuggestion(query: string) {
     return await request<GetSearchSuggestionResponseData>({
         url: '/v1/search/suggest',
-        params: {
-            q: query
-        },
+        params: { q: query },
         method: 'GET'
     });
 }

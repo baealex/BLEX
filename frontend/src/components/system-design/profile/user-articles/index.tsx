@@ -1,10 +1,10 @@
 import { BaseInput, Flex } from '~/components/design-system';
 import { useRef } from 'react';
 
-import { ArticleCardGroup, ArticleCardList, ArticleCardListProps } from '../../article';
+import type { ArticleCardListProps } from '../../article';
+import { ArticleCardGroup, ArticleCardList } from '../../article';
 
 import { useRouter } from 'next/router';
-
 
 const POSTS_ORDER = [
     {

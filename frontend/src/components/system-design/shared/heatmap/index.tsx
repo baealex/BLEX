@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Heatmap.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import { useEffect, useMemo } from 'react';
 import { Chart } from 'frappe-charts';
@@ -37,7 +37,7 @@ export function Heatmap(props: HeatmapProps) {
     }, [data, props.isNightMode]);
 
     return (
-        <Card isRounded hasShadow className={`${cn('heatmap')} py-3`}>
+        <Card isRounded hasShadow className={`${cx('heatmap')} py-3`}>
             <div id="heatmap" />
         </Card>
     );

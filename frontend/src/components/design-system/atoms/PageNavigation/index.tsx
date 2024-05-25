@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './PageNavigation.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -20,12 +20,12 @@ export function PageNavigation(props: PageNavigationProps) {
     const active = useMemo(() => props.items.findIndex((item) => item.name === props.active), [props.active, props.items]);
 
     return (
-        <ul className={cn('nav')}>
-            <span className={cn('line', 'active-' + active)}/>
+        <ul className={cx('nav')}>
+            <span className={cx('line', 'active-' + active)}/>
             {props.items.map((item, idx) => (
                 <li
                     key={idx}
-                    className={cn({ active: item.name === props.active })}>
+                    className={cx({ active: item.name === props.active })}>
                     {props.disableLink ? (
                         item.name
                     ) : (

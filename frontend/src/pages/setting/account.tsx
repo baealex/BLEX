@@ -58,9 +58,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
     } = useForm<AccountForm>();
 
     useDidMount(() => {
-        reset({
-            name: props.name
-        });
+        reset({ name: props.name });
     });
 
     const handleAccountSubmit = handleSubmit(async (form) => {

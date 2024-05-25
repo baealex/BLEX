@@ -30,9 +30,7 @@ export function SubscribeButton(props: Props) {
 
     const handleClickSubscribe = async () => {
         if (!isLogin) {
-            snackBar(message('BEFORE_REQ_ERR', '로그인이 필요합니다.'), {
-                onClick: () => modalStore.open('isOpenAuthGetModal')
-            });
+            snackBar(message('BEFORE_REQ_ERR', '로그인이 필요합니다.'), { onClick: () => modalStore.open('isOpenAuthGetModal') });
             return;
         }
         if (username === props.author) {

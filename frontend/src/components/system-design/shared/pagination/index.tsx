@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Pagination.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 import React from 'react';
@@ -80,70 +80,70 @@ export function Pagination(props: Props) {
 
     return (
         <>
-            <nav className={cn('nav')}>
-                <div className={cn('action', 'prev')}>
+            <nav className={cx('nav')}>
+                <div className={cx('action', 'prev')}>
                     {page != 1 ? (
                         <>
-                            <div className={cn('item')}>
-                                <Link className={cn('link')} {...gotoPage(page - 1)}>
+                            <div className={cx('item')}>
+                                <Link className={cx('link')} {...gotoPage(page - 1)}>
                                     <i role="button" aria-label="prev-page" className="fas fa-arrow-left"></i>
                                 </Link>
                             </div>
-                            <div className={cn('item')}>
-                                <Link className={cn('link')} {...gotoPage(1)}>
+                            <div className={cx('item')}>
+                                <Link className={cx('link')} {...gotoPage(1)}>
                                     <i role="button" aria-label="first-page" className="fa fa-angle-double-left"></i>
                                 </Link>
                             </div>
                         </>
                     ) : (
                         <>
-                            <div className={cn('item', 'disabled')}>
-                                <a className={cn('link')}>
+                            <div className={cx('item', 'disabled')}>
+                                <a className={cx('link')}>
                                     <i role="button" aria-label="prev-page" className="fas fa-arrow-left"></i>
                                 </a>
                             </div>
-                            <div className={cn('item', 'disabled')}>
-                                <a className={cn('link')}>
+                            <div className={cx('item', 'disabled')}>
+                                <a className={cx('link')}>
                                     <i role="button" aria-label="first-page" className="fa fa-angle-double-left"></i>
                                 </a>
                             </div>
                         </>
                     )}
                 </div>
-                <div className={cn('pages')}>
+                <div className={cx('pages')}>
                     {pageRange.map((item, idx) => (
                         <div
                             key={idx}
-                            className={cn('item', { active: page == item })}>
-                            <Link className={cn('link')} {...gotoPage(item)}>
+                            className={cx('item', { active: page == item })}>
+                            <Link className={cx('link')} {...gotoPage(item)}>
                                 {item}
                             </Link>
                         </div>
                     ))}
                 </div>
-                <div className={cn('action', 'next')}>
+                <div className={cx('action', 'next')}>
                     {page != last ? (
                         <>
-                            <div className={cn('item')}>
-                                <Link className={cn('link')} {...gotoPage(last)}>
+                            <div className={cx('item')}>
+                                <Link className={cx('link')} {...gotoPage(last)}>
                                     <i role="button" aria-label="last-page" className="fa fa-angle-double-right"></i>
                                 </Link>
                             </div>
-                            <div className={cn('item')}>
-                                <Link className={cn('link')} {...gotoPage(page + 1)}>
+                            <div className={cx('item')}>
+                                <Link className={cx('link')} {...gotoPage(page + 1)}>
                                     <i role="button" aria-label="next-page" className="fas fa-arrow-right"></i>
                                 </Link>
                             </div>
                         </>
                     ) : (
                         <>
-                            <div className={cn('item', 'disabled')}>
-                                <a className={cn('link')}>
+                            <div className={cx('item', 'disabled')}>
+                                <a className={cx('link')}>
                                     <i role="button" aria-label="last-page" className="fa fa-angle-double-right"></i>
                                 </a>
                             </div>
-                            <div className={cn('item', 'disabled')}>
-                                <a className={cn('link')}>
+                            <div className={cx('item', 'disabled')}>
+                                <a className={cx('link')}>
                                     <i role="button" aria-label="next-page" className="fas fa-arrow-right"></i>
                                 </a>
                             </div>

@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './CommentCard.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 
@@ -42,12 +42,12 @@ export function CommentCard(props: CommentCardProps) {
             shadowLevel="sub"
             hasBackground
             backgroundType="background"
-            className={`${cn('card')} mb-3`}>
+            className={`${cx('card')} mb-3`}>
             <Flex justify="between">
                 <Flex align="center">
                     <Link href={`/@${props.author}`}>
                         <div
-                            className={`${cn('thumbnail')} back-image thumb`}
+                            className={`${cx('thumbnail')} back-image thumb`}
                             style={{ backgroundImage: `url(${props.authorImage})` }}
                         />
                     </Link>
@@ -86,11 +86,11 @@ export function CommentCard(props: CommentCardProps) {
             </Flex>
             <div
                 ref={ref}
-                className={`${cn('content')} mt-4`}
+                className={`${cx('content')} mt-4`}
                 dangerouslySetInnerHTML={{ __html: props.renderedContent }}
             />
             <div className="my-2">
-                <ul className={`${cn('action')} none-list ns`}>
+                <ul className={`${cx('action')} none-list ns`}>
                     {props.onClickLike && (
                         <li onClick={() => props.onClickLike?.(props.id)}>
                             {props.isLiked ? (

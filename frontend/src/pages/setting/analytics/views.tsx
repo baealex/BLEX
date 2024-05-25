@@ -3,7 +3,15 @@ import Link from 'next/link';
 
 import ReactFrappeChart from 'react-frappe-charts';
 
-import { Alert, Button, Card, DateInput, Flex, Loading, Text } from '~/components/design-system';
+import {
+    Alert,
+    Button,
+    Card,
+    DateInput,
+    Flex,
+    Loading,
+    Text
+} from '~/components/design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';
 
@@ -127,7 +135,9 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                                 </Link>
                                 <div className="ns">
                                     {item.todayCount}명 읽음
-                                    <span className="ml-1" style={{ color: item.increaseCount > 0 ? '#ff6700' : '#008fff' }}>
+                                    <span
+                                        className="ml-1"
+                                        style={{ color: item.increaseCount > 0 ? '#ff6700' : '#008fff' }}>
                                         ({`${item.increaseCount > 0 ? '↑' : '↓'}${Math.abs(item.increaseCount)}`})
                                     </span>
                                 </div>

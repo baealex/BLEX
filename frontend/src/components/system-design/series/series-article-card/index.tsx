@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './SeriesArticleCard.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 
@@ -23,16 +23,16 @@ export interface SeriesArticleCardProps {
 export function SeriesArticleCard(props: SeriesArticleCardProps) {
     return (
         <Card hasShadow hasBackground backgroundType="background" className="py-4">
-            <Flex className={cn('box')} direction="column" gap={3}>
+            <Flex className={cx('box')} direction="column" gap={3}>
                 <Text className="px-4" fontWeight={600}>
-                    <Link className={cn('title', 'deep-dark')} href={`/@${props.author}/${props.url}`}>
+                    <Link className={cx('title', 'deep-dark')} href={`/@${props.author}/${props.url}`}>
                         {('000' + props.number).slice(-3)}. {props.title}
                     </Link>
                 </Text>
                 {props.image && (
                     <Link className="w-100" href={`/@${props.author}/${props.url}`}>
                         <LazyLoadedImage
-                            className={cn('thumbnail')}
+                            className={cx('thumbnail')}
                             alt={props.title}
                             src={getPostImage(props.image, { minify: true })}
                             previewImage={getPostImage(props.image, { preview: true })}
@@ -40,7 +40,7 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
                     </Link>
                 )}
                 <Text className="px-4" fontSize={3}>
-                    <Link className={cn('description', 'deep-dark')} href={`/@${props.author}/${props.url}`}>
+                    <Link className={cx('description', 'deep-dark')} href={`/@${props.author}/${props.url}`}>
                         {unescape(props.description)}
                     </Link>
                 </Text>

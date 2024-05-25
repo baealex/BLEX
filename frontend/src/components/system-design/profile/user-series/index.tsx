@@ -1,6 +1,12 @@
 import Link from 'next/link';
 
-import { Flex, Grid, ImageCard, LazyLoadedImage, Text } from '~/components/design-system';
+import {
+    Flex,
+    Grid,
+    ImageCard,
+    LazyLoadedImage,
+    Text
+} from '~/components/design-system';
 
 import { getPostImage } from '~/modules/utility/image';
 

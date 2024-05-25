@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Dropdown.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import {
     useEffect,
@@ -25,7 +25,7 @@ export function Dropdown(props: DropdownProps) {
     const box = useRef<HTMLDivElement>(null);
     const toggle = useRef<HTMLButtonElement>(null);
 
-    const [ isOpen, setIsOpen ] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -50,18 +50,18 @@ export function Dropdown(props: DropdownProps) {
             role="button"
             aria-label="dropdown"
             onClick={() => setIsOpen((prevIsOpen) => !prevIsOpen)}>
-            <button ref={toggle} aria-label="toggle" className={cn('button')}>
+            <button ref={toggle} aria-label="toggle" className={cx('button')}>
                 {props.button}
             </button>
-            <div className={cn('box')} ref={box}>
+            <div className={cx('box')} ref={box}>
                 {isOpen && (
-                    <div className={cn('menu', position)}>
+                    <div className={cx('menu', position)}>
                         <ul>
                             {props.menus.map((menu, idx) => (
                                 <li
                                     key={idx}
                                     onClick={menu.onClick}
-                                    className={cn({ disable: menu.disable })}>
+                                    className={cx({ disable: menu.disable })}>
                                     <span>
                                         {menu.name}
                                     </span>

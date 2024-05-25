@@ -23,7 +23,11 @@ export function TrendingPostsWidget() {
                         Trending
                     </Text>
                 </Flex>
-                <Flex className="w-100" style={{ minHeight: '391px' }} direction="column" gap={4}>
+                <Flex
+                    className="w-100"
+                    style={{ minHeight: '391px' }}
+                    direction="column"
+                    gap={4}>
                     {trendyPosts?.map((post) => (
                         <Flex key={post.url} direction="column" gap={2}>
                             <Flex justify="between">
