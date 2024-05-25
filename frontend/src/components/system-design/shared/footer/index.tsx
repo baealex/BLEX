@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Footer.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 export interface FooterProps {
     isDark?: boolean;
@@ -15,14 +15,14 @@ export function Footer({
 }: FooterProps) {
     return (
         <footer
-            className={cn('footer', { isDark }, className)}>
+            className={cx('footer', { isDark }, className)}>
             {children && (
-                <div className={cn('content')}>
+                <div className={cx('content')}>
                     {children}
                 </div>
             )}
-            <div className={cn('items')}>
-                <div className={cn('item')}>
+            <div className={cx('items')}>
+                <div className={cx('item')}>
                     <a
                         href="https://about.blex.me"
                         target="_blank"
@@ -30,7 +30,7 @@ export function Footer({
                         <i className="fas fa-info-circle" /> 서비스 소개
                     </a>
                 </div>
-                <div className={cn('item')}>
+                <div className={cx('item')}>
                     <a
                         href="https://github.com/baealex/BLEX"
                         target="_blank"
@@ -38,7 +38,7 @@ export function Footer({
                         <i className="fab fa-github" /> 오픈소스
                     </a>
                 </div>
-                <div className={cn('item')}>
+                <div className={cx('item')}>
                     <a
                         href="https://discord.gg/cs2XcEwSr9"
                         target="_blank"

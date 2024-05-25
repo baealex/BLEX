@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ImageInput.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import type { ChangeEvent } from 'react';
 import { useRef } from 'react';
@@ -32,7 +32,7 @@ export function ImageInput(props: ImageInputProps) {
     return (
         <div
             onClick={onClickButton}
-            className={cn('image')}>
+            className={cx('image')}>
             <input
                 ref={input}
                 type="file"
@@ -41,7 +41,7 @@ export function ImageInput(props: ImageInputProps) {
                 onChange={(e) => onChangeImage(e)}
             />
             <img src={props.url}/>
-            <div className={cn('cover')}>
+            <div className={cx('cover')}>
                 {props.label}
             </div>
         </div>

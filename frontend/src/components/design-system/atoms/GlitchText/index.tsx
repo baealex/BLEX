@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './GlitchText.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import {
     useEffect,
@@ -32,7 +32,7 @@ export function GlitchText(props: GlitchTextProps) {
     }, []);
 
     return (
-        <div className={(cn('header'))} data-text={text}>
+        <div className={cx('header')} data-text={text}>
             {text}
         </div>
     );

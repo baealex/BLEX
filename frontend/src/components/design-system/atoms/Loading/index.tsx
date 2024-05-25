@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Loading.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 export interface LoadingProps {
     position?: 'center' | 'full' | 'inline';
@@ -8,8 +8,8 @@ export interface LoadingProps {
 
 export function Loading({ position = 'center' }: LoadingProps) {
     return (
-        <div className={cn(position)}>
-            <div className={cn('spinner')}/>
+        <div className={cx(position)}>
+            <div className={cx('spinner')}/>
         </div>
     );
 }

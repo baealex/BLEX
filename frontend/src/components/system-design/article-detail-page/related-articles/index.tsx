@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './RelatedArticles.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 import { useRef } from 'react';
@@ -35,9 +35,9 @@ export function RelatedArticles(props: RelatedProps) {
     return (
         <div ref={ref} className="pt-1 reverse-color">
             {posts && posts.map((item) => (
-                <div key={item.url} className={cn('list')}>
+                <div key={item.url} className={cx('list')}>
                     {item.image && (
-                        <Link className={cn('image')} href={`/@${item.author}/${item.url}`}>
+                        <Link className={cx('image')} href={`/@${item.author}/${item.url}`}>
                             <LazyLoadedImage
                                 alt={item.title}
                                 src={getPostImage(item.image, { minify: true })}
@@ -45,7 +45,7 @@ export function RelatedArticles(props: RelatedProps) {
                             />
                         </Link>
                     )}
-                    <div className={cn('content')}>
+                    <div className={cx('content')}>
                         <Text tag="h3" fontSize={5} fontWeight={700}>
                             <Link className="deep-dark" href={`/@${item.author}/${item.url}`}>
                                 {item.title}

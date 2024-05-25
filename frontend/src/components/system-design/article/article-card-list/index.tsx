@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ArticleCardList.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 
@@ -26,24 +26,24 @@ export function ArticleCardList(props: ArticleCardListProps) {
             <Text fontSize={2} className="mb-3">
                 {props.createdDate} · <span className="shallow-dark">{props.readTime}분 분량</span>
             </Text>
-            <div className={cn('list')}>
+            <div className={cx('list')}>
                 {props.image && (
-                    <Link className={cn('image')} href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
+                    <Link className={cx('image')} href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                         <LazyLoadedImage
-                            className={cn('image')}
+                            className={cx('image')}
                             alt={props.title}
                             previewImage={getPostImage(props.image, { preview: true })}
                             src={getPostImage(props.image, { minify: true })}
                         />
                     </Link>
                 )}
-                <div className={cn('content')}>
+                <div className={cx('content')}>
                     <Text tag="h3" fontWeight={700} fontSize={5}>
                         <Link className="deep-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                             {props.title}
                         </Link>
                     </Text>
-                    <Text className={cn('description', 'mt-2')} fontSize={4}>
+                    <Text className={cx('description', 'mt-2')} fontSize={4}>
                         <Link className="shallow-dark" href="/[author]/[posturl]" as={`/@${props.author}/${props.url}`}>
                             {unescape(props.description)}
                         </Link>

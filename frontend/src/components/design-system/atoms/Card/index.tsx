@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import styles from './Card.module.scss';
 
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 export interface CardProps {
     isRounded?: boolean;
@@ -24,7 +24,7 @@ export function Card({
 }: CardProps) {
     return (
         <div
-            className={cn(
+            className={cx(
                 'card',
                 { ir: isRounded },
                 { hs: hasShadow },

@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './SettingNavigation.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import Link from 'next/link';
 
@@ -120,18 +120,18 @@ export const NAVIGATION_ITEMS = [
 export function SettingNavigation({ active }: SettingNavigationProps) {
     return (
         <div
-            className={cn('box', 'py-2')}>
+            className={cx('box', 'py-2')}>
             {NAVIGATION_ITEMS.map(item => (
-                <div key={item.title} className={cn('section')}>
-                    <div className={cn('title', 'px-3', 'py-2')}>
+                <div key={item.title} className={cx('section')}>
+                    <div className={cx('title', 'px-3', 'py-2')}>
                         <i className={item.icon} /> {item.title}
                     </div>
-                    <div className={cn('sub-item')}>
+                    <div className={cx('sub-item')}>
                         {item.subItems?.map(subItem => (
                             <Link key={subItem.url} href={subItem.url} scroll={false}>
                                 <div
                                     key={subItem.url}
-                                    className={cn(
+                                    className={cx(
                                         'px-3',
                                         'py-2',
                                         'mb-1',

@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Button.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import { forwardRef, useCallback, useRef } from 'react';
 
@@ -38,7 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
         onClick?.(e);
 
         const ripple = document.createElement('span');
-        ripple.classList.add(cn('ripple'));
+        ripple.classList.add(cx('ripple'));
         button.current?.appendChild(ripple);
 
         setTimeout(() => {
@@ -58,12 +58,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
         <button
             ref={ref || button}
             type={type}
-            className={cn(
+            className={cx(
                 'button',
                 { isRounded },
-                space != 'default' && `s-${space}`,
-                color != 'default' && `c-${color}`,
-                display != 'inline-block' && `d-${display}`,
+                space !== 'default' && `s-${space}`,
+                color !== 'default' && `c-${color}`,
+                display !== 'inline-block' && `d-${display}`,
                 className
             )}
             disabled={disabled || isLoading}

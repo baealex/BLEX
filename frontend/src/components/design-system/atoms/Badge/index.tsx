@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Badge.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 interface BadgeProps {
     isRounded?: boolean;
@@ -22,7 +22,7 @@ export function Badge({
     return (
         <div
             onClick={onClick}
-            className={cn(
+            className={cx(
                 'badge',
                 { ir: isRounded },
                 { hs: hasHash },

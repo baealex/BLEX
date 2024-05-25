@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ImagePreload.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 interface ImagePreloadProps {
     links: string[];
@@ -8,7 +8,7 @@ interface ImagePreloadProps {
 
 export function ImagePreload({ links }: ImagePreloadProps) {
     return (
-        <div className={cn('preload')}>
+        <div className={cx('preload')}>
             {links.map((link, idx) => (
                 <img key={idx} src={link} />
             ))}

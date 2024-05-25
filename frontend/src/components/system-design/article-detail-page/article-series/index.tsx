@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ArticleSeries.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import React, { useRef } from 'react';
 import Link from 'next/link';
@@ -39,7 +39,7 @@ export function ArticleSeries(props: ArticleSeriesProps) {
     return (
         <div ref={ref}>
             {series && activeSeries !== undefined && seriesLength !== undefined && (
-                <div className={cn('series', 'py-5')}>
+                <div className={cx('series', 'py-5')}>
                     <Flex
                         className="mb-3"
                         justify="between"
@@ -67,11 +67,11 @@ export function ArticleSeries(props: ArticleSeriesProps) {
                         {series.posts.length > 1 && series.posts.map((post, idx) => (
                             activeSeries >= idx - 2 && activeSeries <= idx + 2 && (
                                 <li key={idx}>
-                                    <div className={cn('count')}>
+                                    <div className={cx('count')}>
                                         {idx + 1}/{seriesLength}
                                     </div>
                                     <Link
-                                        className={cn(
+                                        className={cx(
                                             'title-3-spacing',
                                             idx == activeSeries
                                                 ? 'deep-dark'

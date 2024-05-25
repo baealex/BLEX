@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './ArticleContent.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import React, { useEffect, useRef } from 'react';
 import Router from 'next/router';
@@ -42,7 +42,7 @@ export function ArticleContent({ renderedContent }: ArticleContentProps) {
     return (
         <div
             ref={ref}
-            className={cn('article')}
+            className={cx('article')}
             onClick={handleClickContent}
             dangerouslySetInnerHTML={{ __html: renderedContent }}
         />

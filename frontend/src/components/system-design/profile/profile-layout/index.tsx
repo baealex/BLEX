@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Layout.module.scss';
-const cn = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 import React from 'react';
 import { useRouter } from 'next/router';
@@ -43,9 +43,9 @@ export function ProfileLayout(props: ProfileLayoutProps) {
     return (
         <>
             <Container>
-                <div className={cn('layout')}>
+                <div className={cx('layout')}>
                     <div>
-                        <div className={cn('avatar')}>
+                        <div className={cx('avatar')}>
                             <img src={props.profile.image} />
                         </div>
                         <Flex direction="column">
