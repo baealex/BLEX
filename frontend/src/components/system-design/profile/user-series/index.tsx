@@ -1,6 +1,8 @@
 import Link from 'next/link';
 
-import { Flex, Grid, ImageCard, LazyLoadedImage, Text } from '~/components/design-system';
+import {
+    Flex, Grid, ImageCard, LazyLoadedImage, Text
+} from '~/components/design-system';
 
 import { getPostImage } from '~/modules/utility/image';
 
@@ -30,12 +32,8 @@ export function UserSeries(props: SeriesProps) {
                         bgHash={item.name}
                         image={(
                             <LazyLoadedImage
-                                previewImage={getPostImage(item.image, {
-                                    preview: true
-                                })}
-                                src={getPostImage(item.image, {
-                                    minify: true
-                                })}
+                                previewImage={getPostImage(item.image, { preview: true })}
+                                src={getPostImage(item.image, { minify: true })}
                                 alt={item.name}
                             />
                         )}>

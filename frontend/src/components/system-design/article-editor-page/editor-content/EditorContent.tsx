@@ -163,9 +163,7 @@ export default function EditorContent(props: EditorContentProps) {
                     previewRender: blexer,
                     previewClass: [articleStyles.article, styles.preview],
                     spellChecker: false,
-                    renderingConfig: {
-                        codeSyntaxHighlighting: true
-                    }
+                    renderingConfig: { codeSyntaxHighlighting: true }
                 });
 
                 easyMDE.codemirror.on('change', () => {
@@ -190,14 +188,10 @@ export default function EditorContent(props: EditorContentProps) {
 
                 easyMDE.codemirror.setOption('extraKeys', {
                     F11: () => {
-                        return {
-                            toString: () => 'CodeMirror.PASS'
-                        };
+                        return { toString: () => 'CodeMirror.PASS' };
                     },
                     Esc: () => {
-                        return {
-                            toString: () => 'CodeMirror.PASS'
-                        };
+                        return { toString: () => 'CodeMirror.PASS' };
                     }
                 });
 
@@ -291,9 +285,7 @@ export default function EditorContent(props: EditorContentProps) {
                 ref={imageInput}
                 type="file"
                 accept="image/*"
-                style={{
-                    display: 'none'
-                }}
+                style={{ display: 'none' }}
                 onChange={(e) => {
                     if (e.target.files) {
                         handleUploadImage(e.target.files[0]);
@@ -306,9 +298,7 @@ export default function EditorContent(props: EditorContentProps) {
                 onDrop={(e) => handleDropImage(e)}>
                 <textarea
                     ref={textarea}
-                    style={{
-                        display: 'none'
-                    }}
+                    style={{ display: 'none' }}
                     placeholder="마크다운으로 작성할 수 있어요."
                 />
             </div>

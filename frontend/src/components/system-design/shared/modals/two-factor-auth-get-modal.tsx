@@ -29,17 +29,13 @@ export class TwoFactorAuthGetModal extends React.Component<Props, State> {
 
     componentDidUpdate(prevProps: Props) {
         if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-            this.setState({
-                timer: 60 * 5
-            });
+            this.setState({ timer: 60 * 5 });
             const timerEvent = setInterval(() => {
                 if (this.state.timer <= 0) {
                     clearInterval(timerEvent);
                     return;
                 }
-                this.setState({
-                    timer: this.state.timer - 1
-                });
+                this.setState({ timer: this.state.timer - 1 });
             }, 1000);
         }
     }

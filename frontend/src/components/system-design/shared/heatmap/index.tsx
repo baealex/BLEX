@@ -15,10 +15,7 @@ export interface HeatmapProps {
 }
 
 export function Heatmap(props: HeatmapProps) {
-    const {
-        data = {
-        }
-    } = props;
+    const { data = {} } = props;
 
     const totalActivity = useMemo(() => {
         return Object.values(data).reduce((acc, cur) => acc + cur, 0);

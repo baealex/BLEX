@@ -13,9 +13,7 @@ export async function getTags(page: number) {
     return await request<GetTagsResponseData>({
         url: '/v1/tags',
         method: 'GET',
-        params: {
-            page
-        }
+        params: { page }
     });
 }
 
@@ -46,11 +44,7 @@ export async function getTag(tag: string, page: number, cookie?: string) {
     return await request<GetTagResponseData>({
         url: `/v1/tags/${encodeURIComponent(tag)}`,
         method: 'GET',
-        params: {
-            page
-        },
-        headers: {
-            cookie
-        }
+        params: { page },
+        headers: { cookie }
     });
 }

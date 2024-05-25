@@ -42,9 +42,7 @@ export function ArticleComment(props: ArticleCommentProps) {
                 textMarkdown: ''
             }));
         }
-    }, {
-        observeRef: ref
-    });
+    }, { observeRef: ref });
 
     const handleSubmit = useCallback(async (content: string) => {
         if (isSubmitting) {
@@ -127,9 +125,7 @@ export function ArticleComment(props: ArticleCommentProps) {
 
     const handleClickUserTag = useCallback(async (tagUsername: string) => {
         if (!username) {
-            snackBar('😅 로그인이 필요합니다.', {
-                onClick: () => modalStore.open('isOpenAuthGetModal')
-            });
+            snackBar('😅 로그인이 필요합니다.', { onClick: () => modalStore.open('isOpenAuthGetModal') });
             return;
         }
 

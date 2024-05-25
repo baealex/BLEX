@@ -35,7 +35,7 @@
     },
     "devDependencies": {
         "@babel/runtime": "^7.24.4",
-        "@baejino/eslint": "^0.0.2",
+        "@baejino/eslint": "^0.0.3",
         "@baejino/eslint-react": "^0.0.3",
         "@next/bundle-analyzer": "^14.2.2",
         "@styled-jsx/plugin-sass": "^4.1.0",

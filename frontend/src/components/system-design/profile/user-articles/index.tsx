@@ -58,9 +58,7 @@ export function UserArticles(props: PostsProps) {
                 ...router.query,
                 order: e.target.value
             }
-        }, router.asPath, {
-            scroll: false
-        });
+        }, router.asPath, { scroll: false });
     };
 
     const handleChangeTagFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -70,9 +68,7 @@ export function UserArticles(props: PostsProps) {
                 ...router.query,
                 tag: e.target.value
             }
-        }, router.asPath, {
-            scroll: false
-        });
+        }, router.asPath, { scroll: false });
     };
 
     const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,9 +83,7 @@ export function UserArticles(props: PostsProps) {
                     ...router.query,
                     search: e.target.value
                 }
-            }, router.asPath, {
-                scroll: false
-            });
+            }, router.asPath, { scroll: false });
         }, 300);
     };
 

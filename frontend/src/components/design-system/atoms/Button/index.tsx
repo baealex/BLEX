@@ -60,9 +60,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
             type={type}
             className={cn(
                 'button',
-                {
-                    isRounded
-                },
+                { isRounded },
                 space != 'default' && `s-${space}`,
                 color != 'default' && `c-${color}`,
                 display != 'inline-block' && `d-${display}`,

@@ -30,9 +30,7 @@ export function RelatedArticles(props: RelatedProps) {
     ], async () => {
         const { data } = await API.getFeaturePosts('@' + props.author, props.url);
         return data.body.posts;
-    }, {
-        observeRef: ref
-    });
+    }, { observeRef: ref });
 
     return (
         <div ref={ref} className="pt-1 reverse-color">
@@ -42,12 +40,8 @@ export function RelatedArticles(props: RelatedProps) {
                         <Link className={cn('image')} href={`/@${item.author}/${item.url}`}>
                             <LazyLoadedImage
                                 alt={item.title}
-                                src={getPostImage(item.image, {
-                                    minify: true
-                                })}
-                                previewImage={getPostImage(item.image, {
-                                    preview: true
-                                })}
+                                src={getPostImage(item.image, { minify: true })}
+                                previewImage={getPostImage(item.image, { preview: true })}
                             />
                         </Link>
                     )}

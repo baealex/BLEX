@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-import { Button, Card, Flex, Label, Progress, Text, Toggle } from '~/components/design-system';
+import {
+    Button, Card, Flex, Label, Progress, Text, Toggle
+} from '~/components/design-system';
 import {
     EditorLayout,
     TempArticleModal
@@ -31,14 +33,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
     configStore.serverSideInject(cookies);
 
     const { cookie } = req.headers;
-    const { data: loginData } = await API.getLogin({
-        'Cookie': cookie || ''
-    });
+    const { data: loginData } = await API.getLogin({ 'Cookie': cookie || '' });
 
     if (loginData.status !== 'DONE') {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     if (!loginData.body.hasEditorRole) {
@@ -55,9 +53,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
     if (token) {
         const { data: tempPost } = await API.getAnTempPosts(
             String(token),
-            {
-                'Cookie': cookie || ''
-            }
+            { 'Cookie': cookie || '' }
         );
         if (tempPost.status === 'DONE') {
             return {
@@ -236,9 +232,7 @@ export default function Write(props: Props) {
 
     return (
         <EditorLayout
-            image={{
-                onChange: setImage
-            }}
+            image={{ onChange: setImage }}
             title={{
                 value: title,
                 onChange: setTitle

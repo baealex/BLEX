@@ -7,9 +7,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     } = context.query as Record<string, string>;
 
     if (!author.startsWith('@')) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     return {
@@ -17,8 +15,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             destination: encodeURI(`/${author}/posts?tag=${tag}`),
             permanent: true
         },
-        props: {
-        }
+        props: {}
     };
 };
 

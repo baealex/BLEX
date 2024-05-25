@@ -31,7 +31,9 @@ interface Props extends API.GetSettingPostsResponseData {
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query }) => {
-    const { page = 1, order = '', tag = '', series = '', search = '' } = query;
+    const {
+        page = 1, order = '', tag = '', series = '', search = ''
+    } = query;
 
     const { data } = await API.getSettingPosts(
         {
@@ -41,9 +43,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
             order: String(order),
             page: Number(page)
         },
-        {
-            'Cookie': req.headers.cookie || ''
-        }
+        { 'Cookie': req.headers.cookie || '' }
     );
     if (data.status === 'ERROR') {
         return {
@@ -166,9 +166,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                 page: 1,
                 order: e.target.value
             }
-        }, '', {
-            scroll: false
-        });
+        }, '', { scroll: false });
     };
 
     const handleChangeTagFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -179,9 +177,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                 page: 1,
                 tag: e.target.value
             }
-        }, '', {
-            scroll: false
-        });
+        }, '', { scroll: false });
     };
 
     const handleChangeSeriesFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -192,9 +188,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                 page: 1,
                 series: e.target.value
             }
-        }, '', {
-            scroll: false
-        });
+        }, '', { scroll: false });
     };
 
     const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -210,9 +204,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                     page: 1,
                     search: e.target.value
                 }
-            }, '', {
-                scroll: false
-            });
+            }, '', { scroll: false });
         }, 300);
     };
 
@@ -220,9 +212,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
         if (confirm(message('CONFIRM', '정말 이 포스트를 삭제할까요?'))) {
             const { data } = await API.deleteAnUserPosts('@' + props.username, url);
             if (data.status === 'DONE') {
-                router.replace(router.asPath, '', {
-                    scroll: false
-                });
+                router.replace(router.asPath, '', { scroll: false });
                 snackBar(message('AFTER_REQ_DONE', '포스트가 삭제되었습니다.'));
             }
         }
@@ -246,9 +236,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
 
     const handleTagSubmit = async (url: string) => {
         const thisPost = posts.find(post => post.url == url);
-        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', {
-            tag: thisPost?.tag
-        });
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'tag', { tag: thisPost?.tag });
         if (data.status === 'DONE' && data.body.tag) {
             handleTagChange(url, data.body.tag, false);
             snackBar(message('AFTER_REQ_DONE', '태그가 수정되었습니다.'));
@@ -265,9 +253,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
 
     const handleSeriesSubmit = async (url: string) => {
         const thisPost = posts.find(post => post.url == url);
-        const { data } = await API.putAnUserPosts('@' + props.username, url, 'series', {
-            series: thisPost?.series
-        });
+        const { data } = await API.putAnUserPosts('@' + props.username, url, 'series', { series: thisPost?.series });
         if (data.status === 'DONE') {
             handleSeriesChange(url, data.body.series || '', false);
             snackBar(message('AFTER_REQ_DONE', '시리즈가 수정되었습니다.'));
@@ -376,9 +362,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         <FormControl className="mt-2">
                             <Flex justify="between" align="center" gap={2}>
                                 <div
-                                    style={{
-                                        flex: '1'
-                                    }}>
+                                    style={{ flex: '1' }}>
                                     <BaseInput
                                         tag="input"
                                         icon={<i className="fas fa-tag" />}
@@ -397,9 +381,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                         <FormControl className="mt-2">
                             <Flex justify="between" align="center" gap={2}>
                                 <div
-                                    style={{
-                                        flex: '1'
-                                    }}>
+                                    style={{ flex: '1' }}>
                                     <BaseInput
                                         tag="select"
                                         icon={<i className="fas fa-book" />}

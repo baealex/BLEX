@@ -15,9 +15,7 @@ import { authStore } from '~/stores/auth';
 type Props = API.GetSettingIntegrationTelegramResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
-    const { data } = await API.getSettingIntegrationTelegram({
-        'Cookie': req.headers.cookie || ''
-    });
+    const { data } = await API.getSettingIntegrationTelegram({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {
         return {
@@ -27,9 +25,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
             }
         };
     }
-    return {
-        props: data.body
-    };
+    return { props: data.body };
 };
 
 const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
@@ -68,9 +64,7 @@ const SettingIntegrationTelegram: PageComponent<Props> = (props: Props) => {
         <>
             <Card className="p-3" isRounded hasBackground>
                 <div
-                    style={{
-                        lineHeight: '1.75'
-                    }}>
+                    style={{ lineHeight: '1.75' }}>
                     <>
                         <div>
                             <b>텔레그램과 연동하면 어떤 효과가 있나요?</b>

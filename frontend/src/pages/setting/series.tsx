@@ -6,7 +6,9 @@ import { useRouter } from 'next/router';
 import { type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 
-import { Button, Card, Flex, SortableItem, VerticalSortable } from '~/components/design-system';
+import {
+    Button, Card, Flex, SortableItem, VerticalSortable
+} from '~/components/design-system';
 import type { PageComponent } from '~/components';
 import { SettingLayout } from '~/components/system-design/setting';
 
@@ -19,9 +21,7 @@ import { loadingStore } from '~/stores/loading';
 type Props = API.GetSettingSeriesResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
-    const { data } = await API.getSettingSeries({
-        'Cookie': req.headers.cookie || ''
-    });
+    const { data } = await API.getSettingSeries({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {
         return {
@@ -31,9 +31,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
             }
         };
     }
-    return {
-        props: data.body
-    };
+    return { props: data.body };
 };
 
 const SeriesSetting: PageComponent<Props> = (props) => {

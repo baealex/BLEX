@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useStore } from 'badland-react';
 
-import { BaseInput, Button, Card, Container, Flex, Modal, Text } from '~/components/design-system';
+import {
+    BaseInput, Button, Card, Container, Flex, Modal, Text
+} from '~/components/design-system';
 
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -105,9 +107,7 @@ const Invitation = () => {
                 submitText="요청 보내기"
                 onSubmit={handleSubmit}>
                 <Flex
-                    style={{
-                        width: '100%'
-                    }}
+                    style={{ width: '100%' }}
                     direction="column"
                     gap={3}>
                     <BaseInput

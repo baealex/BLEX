@@ -34,12 +34,8 @@ export function SeriesArticleCard(props: SeriesArticleCardProps) {
                         <LazyLoadedImage
                             className={cn('thumbnail')}
                             alt={props.title}
-                            src={getPostImage(props.image, {
-                                minify: true
-                            })}
-                            previewImage={getPostImage(props.image, {
-                                preview: true
-                            })}
+                            src={getPostImage(props.image, { minify: true })}
+                            previewImage={getPostImage(props.image, { preview: true })}
                         />
                     </Link>
                 )}

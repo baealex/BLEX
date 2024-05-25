@@ -7,9 +7,7 @@ export interface LoadingStoreState {
 class LoadingStore extends Store<LoadingStoreState> {
     constructor() {
         super();
-        this.state = {
-            isLoading: false
-        };
+        this.state = { isLoading: false };
     }
 
     start() {

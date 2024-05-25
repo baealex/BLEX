@@ -16,9 +16,7 @@ export async function getUserSeries(author: string, page: number) {
     return await request<GetUserSeriesResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/series`,
         method: 'GET',
-        params: {
-            page
-        }
+        params: { page }
     });
 }
 
@@ -46,12 +44,8 @@ export async function postUserSeries(author: string, data: {
     return await request<PostUserSeriesResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/series`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            ...data
-        })
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject({ ...data })
     });
 }
 
@@ -67,12 +61,8 @@ export async function putUserSeriesOrder(author: string, items: (string | number
     return await request<PutUserSeriesOrderResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/series?kind=order`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: serializeObject({
-            series: items.map(item => `${item[0]}=${item[1]}`).join(',')
-        })
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: serializeObject({ series: items.map(item => `${item[0]}=${item[1]}`).join(',') })
     });
 }
 
@@ -117,9 +107,7 @@ export async function putUserSeries(author: string, url: string, data: object) {
     return await request<putUserSeriesResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/series/${encodeURIComponent(url)}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject(data)
     });
 }

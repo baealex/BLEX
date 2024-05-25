@@ -11,7 +11,9 @@ import { arrayMove } from '@dnd-kit/sortable';
 
 import { authorRenameCheck } from '~/modules/middleware/author';
 
-import { BaseInput, Button, Card, Checkbox, Flex, Grid, Label, Modal, SortableItem, Text, VerticalSortable } from '~/components/design-system';
+import {
+    BaseInput, Button, Card, Checkbox, Flex, Grid, Label, Modal, SortableItem, Text, VerticalSortable
+} from '~/components/design-system';
 
 import {
     Heatmap,
@@ -43,9 +45,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const { author = '', preview = '' } = context.query as Record<string, string>;
 
     if (!author.startsWith('@')) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     try {
@@ -64,9 +64,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             }
         };
     } catch (error) {
-        return await authorRenameCheck(error, {
-            author
-        });
+        return await authorRenameCheck(error, { author });
     }
 };
 
@@ -90,9 +88,7 @@ const Overview: PageComponent<Props> = (props) => {
     const { data: pinnedPosts, mutate: setPinnedPosts } = useFetch('pinned-posts', async () => {
         const { data } = await API.getPinnedPosts();
         return data.body?.length ? data.body : [];
-    }, {
-        enable: username === props.profile.username
-    });
+    }, { enable: username === props.profile.username });
 
     const [pinnablePostSearch, setPinnablePostSearch] = useState('');
     const [pinnablePostPage, setPinnablePostPage] = useState(1);
@@ -108,9 +104,7 @@ const Overview: PageComponent<Props> = (props) => {
             search: debouncedValues[1]
         });
         return data.body;
-    }, {
-        enable: username === props.profile.username
-    });
+    }, { enable: username === props.profile.username });
 
     const handleSelectPost = (post: API.GetPinnablePostsResponseData['posts'][number]) => {
         setPinnedPosts((prev) => {
@@ -145,9 +139,7 @@ const Overview: PageComponent<Props> = (props) => {
     };
 
     const handleSubmitPinnedPost = async () => {
-        const { data } = await API.createPinnedPosts({
-            posts: pinnedPosts?.map(post => post.url).join(',') || ''
-        });
+        const { data } = await API.createPinnedPosts({ posts: pinnedPosts?.map(post => post.url).join(',') || '' });
         if (data.status === 'DONE') {
             router.reload();
         }
@@ -249,9 +241,7 @@ const Overview: PageComponent<Props> = (props) => {
                                                             </Text>
                                                         </div>
                                                         <Flex
-                                                            style={{
-                                                                flex: 1
-                                                            }}
+                                                            style={{ flex: 1 }}
                                                             align="center"
                                                             justify="between">
                                                             <Text fontSize={3}>{post.title}</Text>

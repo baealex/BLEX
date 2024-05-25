@@ -20,9 +20,7 @@ interface State {
 export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {
-            token: ''
-        };
+        this.state = { token: '' };
     }
 
     async onCreateTwoFactorAuth() {
@@ -33,9 +31,7 @@ export class TwoFactorAuthSyncModal extends React.Component<Props, State> {
                 return;
             }
             if (data.errorCode === API.ERROR.NEED_TELEGRAM) {
-                snackBar('😥 텔레그램 연동이 필요합니다.', {
-                    onClick: () => Router.push('/setting/integration/telegram')
-                });
+                snackBar('😥 텔레그램 연동이 필요합니다.', { onClick: () => Router.push('/setting/integration/telegram') });
                 return;
             }
             if (data.errorCode === API.ERROR.ALREADY_EXISTS) {

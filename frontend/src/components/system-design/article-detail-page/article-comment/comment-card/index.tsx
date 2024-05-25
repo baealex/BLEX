@@ -48,9 +48,7 @@ export function CommentCard(props: CommentCardProps) {
                     <Link href={`/@${props.author}`}>
                         <div
                             className={`${cn('thumbnail')} back-image thumb`}
-                            style={{
-                                backgroundImage: `url(${props.authorImage})`
-                            }}
+                            style={{ backgroundImage: `url(${props.authorImage})` }}
                         />
                     </Link>
                     <div>
@@ -89,9 +87,7 @@ export function CommentCard(props: CommentCardProps) {
             <div
                 ref={ref}
                 className={`${cn('content')} mt-4`}
-                dangerouslySetInnerHTML={{
-                    __html: props.renderedContent
-                }}
+                dangerouslySetInnerHTML={{ __html: props.renderedContent }}
             />
             <div className="my-2">
                 <ul className={`${cn('action')} none-list ns`}>

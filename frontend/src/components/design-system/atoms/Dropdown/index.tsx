@@ -61,9 +61,7 @@ export function Dropdown(props: DropdownProps) {
                                 <li
                                     key={idx}
                                     onClick={menu.onClick}
-                                    className={cn({
-                                        disable: menu.disable
-                                    })}>
+                                    className={cn({ disable: menu.disable })}>
                                     <span>
                                         {menu.name}
                                     </span>

@@ -18,9 +18,7 @@ export function Alert(props: AlertProps) {
             className={cn(
                 'alert',
                 props.type,
-                {
-                    canClick: props.onClick
-                }
+                { canClick: props.onClick }
             ) + `${props.className ? ` ${props.className}` : ''}`}>
             {props.children}
         </div>

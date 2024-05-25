@@ -42,9 +42,7 @@ export function ProgressTimer(props: ProgressTimerProps) {
         <div className={cx('progress', props.className)}>
             <div
                 ref={ref}
-                className={cx('progress-timer', {
-                    isReversed: props.isReversed
-                })}
+                className={cx('progress-timer', { isReversed: props.isReversed })}
                 role="progressbar"
                 style={{
                     animationDuration: `${props.time}s`,

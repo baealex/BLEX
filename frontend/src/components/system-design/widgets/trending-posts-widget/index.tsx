@@ -25,9 +25,7 @@ export function TrendingPostsWidget() {
                 </Flex>
                 <Flex
                     className="w-100"
-                    style={{
-                        minHeight: '391px'
-                    }}
+                    style={{ minHeight: '391px' }}
                     direction="column"
                     gap={4}>
                     {trendyPosts?.map((post) => (

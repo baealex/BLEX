@@ -25,9 +25,7 @@ const INIT_STATE = {
 class AuthStore extends Store<AuthStoreState> {
     constructor() {
         super();
-        this.state = {
-            ...INIT_STATE
-        };
+        this.state = { ...INIT_STATE };
     }
 
     logout() {
@@ -35,9 +33,7 @@ class AuthStore extends Store<AuthStoreState> {
             location.href = '/';
             return;
         }
-        this.state = {
-            ...INIT_STATE
-        };
+        this.state = { ...INIT_STATE };
     }
 }
 

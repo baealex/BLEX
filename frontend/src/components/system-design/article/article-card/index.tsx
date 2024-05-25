@@ -97,9 +97,7 @@ export function ArticleCard(props: ArticleCardProps) {
                     )}
                     {typeof props.countLikes === 'number' && (
                         <button
-                            className={cn('action', 'like', {
-                                active: props.hasLiked
-                            })}
+                            className={cn('action', 'like', { active: props.hasLiked })}
                             onClick={props.onLike}>
                             <Flex align="center" gap={1}>
                                 {props.hasLiked
@@ -117,12 +115,8 @@ export function ArticleCard(props: ArticleCardProps) {
                             <LazyLoadedImage
                                 className={cn('image')}
                                 alt={props.title}
-                                src={getPostImage(props.image, {
-                                    minify: true
-                                })}
-                                previewImage={getPostImage(props.image, {
-                                    preview: true
-                                })}
+                                src={getPostImage(props.image, { minify: true })}
+                                previewImage={getPostImage(props.image, { preview: true })}
                             />
                         </Link>
                     )}
@@ -138,9 +132,7 @@ export function ArticleCard(props: ArticleCardProps) {
                                     {title && props.highlight ? (
                                         <h3
                                             className={cn('title', 'deep-dark', 'mb-2')}
-                                            dangerouslySetInnerHTML={{
-                                                __html: title
-                                            }}
+                                            dangerouslySetInnerHTML={{ __html: title }}
                                         />
                                     ) : (
                                         <Text
@@ -153,9 +145,7 @@ export function ArticleCard(props: ArticleCardProps) {
                                     {description && props.highlight ? (
                                         <p
                                             className={cn('description', 'shallow-dark')}
-                                            dangerouslySetInnerHTML={{
-                                                __html: description
-                                            }}
+                                            dangerouslySetInnerHTML={{ __html: description }}
                                         />
                                     ) : (
                                         <Text className={cn('description', 'shallow-dark')}>

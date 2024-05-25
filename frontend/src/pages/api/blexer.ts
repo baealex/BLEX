@@ -11,9 +11,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         const { token, text } = req.body;
 
         if (token === CONFIG.API_KEY) {
-            res.status(200).json({
-                text: blexer(text)
-            });
+            res.status(200).json({ text: blexer(text) });
         }
     }
     res.status(404).end();

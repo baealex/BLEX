@@ -25,9 +25,7 @@ import { useForm } from '~/hooks/use-form';
 type Props = API.GetSettingAccountResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
-    const { data } = await API.getSettingAccount({
-        'Cookie': req.headers.cookie || ''
-    });
+    const { data } = await API.getSettingAccount({ 'Cookie': req.headers.cookie || '' });
 
     if (data.errorCode === API.ERROR.NEED_LOGIN) {
         return {
@@ -38,9 +36,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
         };
     }
 
-    return {
-        props: data.body
-    };
+    return { props: data.body };
 };
 
 interface AccountForm {
@@ -62,9 +58,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
     } = useForm<AccountForm>();
 
     useDidMount(() => {
-        reset({
-            name: props.name
-        });
+        reset({ name: props.name });
     });
 
     const handleAccountSubmit = handleSubmit(async (form) => {
@@ -131,9 +125,7 @@ const AccountSetting: PageComponent<Props> = (props) => {
     });
 
     const handleChangeUsername = async () => {
-        const { data } = await API.patchSign({
-            username
-        });
+        const { data } = await API.patchSign({ username });
         if (data.status === 'ERROR') {
             snackBar(message('AFTER_REQ_ERR', data.errorMessage));
             setUsername(props.username);

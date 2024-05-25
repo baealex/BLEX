@@ -15,21 +15,13 @@ import { useState } from 'react';
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     const { cookie } = req.headers;
 
-    const { data } = await API.getLogin({
-        'Cookie': cookie || ''
-    });
+    const { data } = await API.getLogin({ 'Cookie': cookie || '' });
 
     if (data.status !== 'DONE') {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
-    return {
-        props: {
-            username: data.body.username
-        }
-    };
+    return { props: { username: data.body.username } };
 };
 
 export default function UserFormEdit() {

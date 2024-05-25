@@ -20,9 +20,7 @@ interface State {
 export class AccountDeleteModal extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = {
-            token: ''
-        };
+        this.state = { token: '' };
     }
 
     async handleAccountDelete() {

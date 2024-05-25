@@ -21,9 +21,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 
     if (!author.startsWith('@')) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     try {

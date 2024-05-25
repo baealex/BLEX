@@ -290,9 +290,7 @@ export async function putSetting(item: string, data: object) {
     return await request<unknown>({
         url: `/v1/setting/${item}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject(data)
     });
 }
@@ -353,9 +351,7 @@ export async function postSettingIntegrationOpenAI(data: PostSettingIntegrationT
     return await request<unknown>({
         url: '/v1/setting/integration-openai',
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject(data)
     });
 }

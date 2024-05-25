@@ -17,9 +17,7 @@ export function ImageCard(props: ImageCardProps) {
     return (
         <div
             className={cn('card')}
-            style={{
-                backgroundColor: colorHash
-            }}>
+            style={{ backgroundColor: colorHash }}>
             <div className={cn('card-image')}>
                 {props.image}
             </div>

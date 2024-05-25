@@ -22,16 +22,12 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material-darker.css';
 
 class Main extends App<AppProps> {
-    state = {
-        isLoading: loadingStore.state.isLoading
-    };
+    state = { isLoading: loadingStore.state.isLoading };
 
     constructor(props: AppProps) {
         super(props);
         loadingStore.subscribe((state) => {
-            this.setState({
-                isLoading: state.isLoading
-            });
+            this.setState({ isLoading: state.isLoading });
         });
     }
 

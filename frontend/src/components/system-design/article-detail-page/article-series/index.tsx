@@ -25,15 +25,11 @@ export function ArticleSeries(props: ArticleSeriesProps) {
 
     const { data: series } = useFetch(['series', props.author, props.series?.url], async () => {
         if (props.series) {
-            const { data: { body } } = await API.getAnUserSeries('@' + props.author, props.series.url, {
-                kind: 'continue'
-            });
+            const { data: { body } } = await API.getAnUserSeries('@' + props.author, props.series.url, { kind: 'continue' });
             return body;
         }
         return null;
-    }, {
-        observeRef: ref
-    });
+    }, { observeRef: ref });
 
     const seriesLength = series?.posts.length;
     const activeSeries = series?.posts.findIndex(

@@ -52,9 +52,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 
     if (!author.startsWith('@')) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     try {
@@ -196,9 +194,7 @@ export default function Series(props: Props) {
                 <Flex
                     align="center"
                     justify="center"
-                    style={{
-                        minHeight: '280px'
-                    }}>
+                    style={{ minHeight: '280px' }}>
                     <Container size="sm">
                         <Text tag="h1" fontSize={6} fontWeight={600} className="mt-5 mb-2">
                             “{props.series.name}” 시리즈
@@ -230,16 +226,12 @@ export default function Series(props: Props) {
                     )}
                     {props.order === 'latest' ? (
                         <Button
-                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}?order=past`, '', {
-                                scroll: false
-                            })}>
+                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}?order=past`, '', { scroll: false })}>
                             최신부터 <i className="fas fa-sort-amount-down"></i>
                         </Button>
                     ) : (
                         <Button
-                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}`, '', {
-                                scroll: false
-                            })}>
+                            onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}`, '', { scroll: false })}>
                             과거부터 <i className="fas fa-sort-amount-up"></i>
                         </Button>
                     )}

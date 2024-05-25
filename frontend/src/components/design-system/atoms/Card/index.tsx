@@ -26,16 +26,10 @@ export function Card({
         <div
             className={cn(
                 'card',
-                {
-                    ir: isRounded
-                },
-                {
-                    hs: hasShadow
-                },
+                { ir: isRounded },
+                { hs: hasShadow },
                 (hasShadow && shadowLevel) && 'sl-' + shadowLevel,
-                {
-                    fb: hasBackground
-                },
+                { fb: hasBackground },
                 (hasBackground && backgroundType) && 'fb-' + backgroundType,
                 className
             )}>

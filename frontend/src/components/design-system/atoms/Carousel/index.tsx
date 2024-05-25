@@ -49,9 +49,7 @@ function Item({
         <>
             {typeof item === 'string' ? (
                 <span
-                    dangerouslySetInnerHTML={{
-                        __html: blexer(item)
-                    }}
+                    dangerouslySetInnerHTML={{ __html: blexer(item) }}
                 />
             ) : (
                 <span>{item}</span>

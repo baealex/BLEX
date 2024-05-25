@@ -6,7 +6,9 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useValue } from 'badland-react';
 
-import { Button, Container, Flex, PageNavigationLayout, Text } from '~/components/design-system';
+import {
+    Button, Container, Flex, PageNavigationLayout, Text
+} from '~/components/design-system';
 import {
     Footer,
     Social,

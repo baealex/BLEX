@@ -55,9 +55,7 @@ export function PopOver({
         <div>
             <div
                 ref={popOverRef}
-                className={cn('popover', position, {
-                    hover
-                })}>
+                className={cn('popover', position, { hover })}>
                 {props.text}
             </div>
             <span

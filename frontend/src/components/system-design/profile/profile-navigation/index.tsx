@@ -36,9 +36,7 @@ export function ProfileNavigation(props: ProfileNavigationProps) {
                         <li
                             key={idx}
                             className={cn(
-                                {
-                                    active: props.active === item.active
-                                }
+                                { active: props.active === item.active }
                             )}>
                             <Link
                                 href={`/@${props.username}${item.location}`}

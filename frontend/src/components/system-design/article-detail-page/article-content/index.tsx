@@ -44,9 +44,7 @@ export function ArticleContent({ renderedContent }: ArticleContentProps) {
             ref={ref}
             className={cn('article')}
             onClick={handleClickContent}
-            dangerouslySetInnerHTML={{
-                __html: renderedContent
-            }}
+            dangerouslySetInnerHTML={{ __html: renderedContent }}
         />
     );
 }

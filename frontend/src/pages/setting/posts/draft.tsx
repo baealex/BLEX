@@ -23,12 +23,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, query
     const { page = 1 } = query;
 
     const { data } = await API.getSettingDraftPosts(
-        {
-            page: Number(page)
-        },
-        {
-            'Cookie': req.headers.cookie || ''
-        }
+        { page: Number(page) },
+        { 'Cookie': req.headers.cookie || '' }
     );
     if (data.status === 'ERROR') {
         return {
@@ -53,9 +49,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
         if (confirm(message('CONFIRM', '정말 이 임시 포스트를 삭제할까요?'))) {
             const { data } = await API.deleteTempPosts(token);
             if (data.status === 'DONE') {
-                router.replace(router.asPath, '', {
-                    scroll: false
-                });
+                router.replace(router.asPath, '', { scroll: false });
                 snackBar(message('AFTER_REQ_DONE', '임시 포스트가 삭제되었습니다.'));
             }
         }
@@ -73,9 +67,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                     <Flex justify="between" direction="column" gap={1} className="p-3">
                         <Flex
                             justify="between"
-                            style={{
-                                width: '100%'
-                            }}>
+                            style={{ width: '100%' }}>
                             <span>
                                 <Link className="deep-dark" href={`/write?token=${post.token}`}>
                                     {post.title}

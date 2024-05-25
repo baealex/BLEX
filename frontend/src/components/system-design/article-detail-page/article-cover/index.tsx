@@ -58,9 +58,7 @@ export function ArticleCover(props: {
         <header className={cn('full-cover')}>
             <div className={cn('image-cover')}>
                 <LazyLoadedImage
-                    previewImage={getPostImage(props.image, {
-                        minify: true
-                    })}
+                    previewImage={getPostImage(props.image, { minify: true })}
                     src={getPostImage(props.image)}
                     alt={props.title}
                 />

@@ -33,9 +33,7 @@ export function postTempPosts(data: PostTempPostsRequestData) {
     return request<PostTempPostsResponseData>({
         url: '/v1/temp-posts',
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject(data)
     });
 }
@@ -60,9 +58,7 @@ export function putTempPosts(token: string, data: PostTempPostsRequestData) {
     return request<unknown>({
         url: `/v1/temp-posts/${token}`,
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: serializeObject(data)
     });
 }
@@ -71,9 +67,7 @@ export function deleteTempPosts(token: string) {
     return request<unknown>({
         url: `/v1/temp-posts/${token}`,
         method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
 }
 
@@ -119,9 +113,7 @@ export function getNewestPosts(page: number, cookie?: string) {
     return request<GetPostsResponseData>({
         url: `/v1/posts/newest?page=${page}`,
         method: 'GET',
-        headers: {
-            cookie
-        }
+        headers: { cookie }
     });
 }
 
@@ -136,9 +128,7 @@ export function getFavoritePosts(page: number, cookie?: string) {
     return request<GetFavoritePostsResponseData>({
         url: `/v1/posts/liked?page=${page}`,
         method: 'GET',
-        headers: {
-            cookie
-        }
+        headers: { cookie }
     });
 }
 
@@ -205,9 +195,7 @@ export function createPost(data: CreatePostRequestData) {
     return request<CreatePostResponseData>({
         url: '/v1/posts',
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: objectToForm(data)
     });
 }
@@ -272,9 +260,7 @@ export function getAnUserPostsView(username: string, url: string, cookie?: strin
     return request<GetAnUserPostsViewResponseData>({
         url: `/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=view`,
         method: 'GET',
-        headers: cookie ? {
-            cookie
-        } : undefined
+        headers: cookie ? { cookie } : undefined
     });
 }
 
@@ -293,9 +279,7 @@ export function getAnUserPostsEdit(username: string, url: string, cookie?: strin
     return request<GetAnUserPostsEditResponseData>({
         url: `/v1/users/${encodeURIComponent(username)}/posts/${encodeURIComponent(url)}?mode=edit`,
         method: 'GET',
-        headers: cookie ? {
-            cookie
-        } : undefined
+        headers: cookie ? { cookie } : undefined
     });
 }
 
@@ -303,9 +287,7 @@ export function postAnUserPosts(author: string, url: string, data: object) {
     return request<unknown>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}`,
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: objectToForm(data)
     });
 }
@@ -317,8 +299,7 @@ export interface PutAnUserPostsResponseData {
     tag?: string;
 }
 
-export function putAnUserPosts(author: string, url: string, item: string, data = {
-}) {
+export function putAnUserPosts(author: string, url: string, item: string, data = {}) {
     return request<PutAnUserPostsResponseData>({
         url: `/v1/users/${encodeURIComponent(author)}/posts/${encodeURIComponent(url)}?${item}=${item}`,
         method: 'PUT',
@@ -370,9 +351,7 @@ export interface GetFeatureTagPostsResponseData {
 
 export function getFeatureTagPosts(tag: string, exclude: string) {
     return request<GetFeatureTagPostsResponseData>({
-        url: `/v1/posts/feature/${tag}?${serializeObject({
-            exclude
-        })}`,
+        url: `/v1/posts/feature/${tag}?${serializeObject({ exclude })}`,
         method: 'GET'
     });
 }
@@ -429,9 +408,7 @@ export function postPostAnalytics(url: string, data: object, cookie?: string) {
     return request<PostPostAnalyticsData>({
         url: `/v1/posts/${encodeURIComponent(url)}/analytics`,
         method: 'POST',
-        headers: cookie ? {
-            cookie
-        } : undefined,
+        headers: cookie ? { cookie } : undefined,
         data: serializeObject(data)
     });
 }

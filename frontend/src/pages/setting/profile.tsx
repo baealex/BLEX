@@ -32,9 +32,7 @@ import { useForm } from '~/hooks/use-form';
 type Props = API.GetSettingProfileResponseData;
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => {
-    const { data } = await API.getSettingProfile({
-        'Cookie': req.headers.cookie || ''
-    });
+    const { data } = await API.getSettingProfile({ 'Cookie': req.headers.cookie || '' });
 
     if (data.status === 'ERROR') {
         return {
@@ -44,9 +42,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req }) => 
             }
         };
     }
-    return {
-        props: data.body
-    };
+    return { props: data.body };
 };
 
 interface ProfileForm {
@@ -70,9 +66,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
         handleSubmit: handleSubmitWrapper
     } = useForm<ProfileForm>();
 
-    useEffect(() => reset({
-        ...props
-    }), []);
+    useEffect(() => reset({ ...props }), []);
 
     const handleSubmit = handleSubmitWrapper(async (formData: ProfileForm) => {
         const { data } = await API.putSetting('profile', formData);
@@ -137,9 +131,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
             if (item?.prepare === false) {
                 if (!confirm(message('CONFIRM', '정말 이 링크를 삭제할까요?'))) return prevState;
 
-                API.putSetting('social', {
-                    delete: `${item.id}`
-                }).then(({ data }) => {
+                API.putSetting('social', { delete: `${item.id}` }).then(({ data }) => {
                     if (data.status === 'DONE') {
                         snackBar(message('AFTER_REQ_DONE', '소셜 정보가 업데이트 되었습니다.'));
                     }
@@ -180,16 +172,12 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                     url={avatar}
                     label="이미지 변경"
                     onChange={async (file) => {
-                        loadingStore.set({
-                            isLoading: true
-                        });
+                        loadingStore.set({ isLoading: true });
                         const formData = new FormData();
                         formData.append('avatar', file);
                         const { data } = await API.postSettingAvatar(formData);
                         setAvatar(data.body.url);
-                        loadingStore.set({
-                            isLoading: false
-                        });
+                        loadingStore.set({ isLoading: false });
                     }}
                 />
             </Card>
@@ -272,9 +260,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                                     </Flex>
                                     <Flex justify="between" align="center">
                                         <div
-                                            style={{
-                                                width: '16px'
-                                            }}>
+                                            style={{ width: '16px' }}>
                                             <i className={getIconClassName(social.name)} />
                                         </div>
                                     </Flex>
@@ -302,9 +288,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                                         </select>
                                     </div>
                                     <div
-                                        style={{
-                                            flex: 1
-                                        }}>
+                                        style={{ flex: 1 }}>
                                         <input
                                             type="url"
                                             placeholder="주소"

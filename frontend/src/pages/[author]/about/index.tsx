@@ -4,14 +4,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const { author = '' } = context.query as Record<string, string>;
 
     if (!author.startsWith('@')) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 
     return {
-        props: {
-        },
+        props: {},
         redirect: {
             destination: `/${author}`,
             permanent: true

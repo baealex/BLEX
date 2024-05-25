@@ -116,9 +116,7 @@ export function SearchBox(props: SearchBoxProps) {
                     }}
                 />
                 <button
-                    className={cn({
-                        active
-                    })}
+                    className={cn({ active })}
                     onClick={handleClick}>
                     {props.button}
                 </button>
@@ -143,9 +141,7 @@ export function SearchBox(props: SearchBoxProps) {
                 {props.history && props.history.length > 0 && (
                     <>
                         <div
-                            className={cn('recent', {
-                                hasSuggestion: suggestions && suggestions.length > 0
-                            })}>
+                            className={cn('recent', { hasSuggestion: suggestions && suggestions.length > 0 })}>
                             <span>
                                 최근 검색어
                             </span>

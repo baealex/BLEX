@@ -43,9 +43,7 @@ export function ArticleNav(props: Props) {
                         setHeaderNow(entry.target.id);
                     }
                 });
-            }, {
-                rootMargin: '0px 0px -90%'
-            });
+            }, { rootMargin: '0px 0px -90%' });
 
             headersTags.forEach(header => {
                 const idNumber = Math.ceil(Number(header.tagName.toUpperCase().replace('H', '')) / 2);
@@ -69,9 +67,7 @@ export function ArticleNav(props: Props) {
                         <a
                             href={`#${item[1]}`}
                             onClick={handleClickArticleNav}
-                            className={cn({
-                                'nav-now': headerNow == item[1]
-                            })}>
+                            className={cn({ 'nav-now': headerNow == item[1] })}>
                             {item[2]}
                         </a>
                     </li>

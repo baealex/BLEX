@@ -19,9 +19,7 @@ export function TagCard(props: TagCardProps) {
                     <LazyLoadedImage
                         alt={props.name}
                         src={getPostImage(props.image)}
-                        previewImage={getPostImage(props.image, {
-                            preview: true
-                        })}
+                        previewImage={getPostImage(props.image, { preview: true })}
                     />
                 )}>
                 <Text fontSize={5} fontWeight={600}>

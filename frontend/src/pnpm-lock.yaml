@@ -71,8 +71,8 @@ devDependencies:
     specifier: ^7.24.4
     version: 7.24.4
   '@baejino/eslint':
-    specifier: ^0.0.2
-    version: 0.0.2(eslint@8.57.0)(typescript@5.4.5)
+    specifier: ^0.0.3
+    version: 0.0.3(eslint@8.57.0)(typescript@5.4.5)
   '@baejino/eslint-react':
     specifier: ^0.0.3
     version: 0.0.3(eslint@8.57.0)
@@ -460,8 +460,8 @@ packages:
       eslint-plugin-react-refresh: 0.4.7(eslint@8.57.0)
     dev: true
 
-  /@baejino/eslint@0.0.2(eslint@8.57.0)(typescript@5.4.5):
-    resolution: {integrity: sha512-8qNZM46Pyl/SIyBLVn8TmwTTsuAnfX6cRLd0zomR9QJG4t6UzEnb9VuDfiKWDLUdE9Dijg+9GvOSkpk7AcccYg==}
+  /@baejino/eslint@0.0.3(eslint@8.57.0)(typescript@5.4.5):
+    resolution: {integrity: sha512-sKyp2+s0rdSBwDnNvRph5PgdeLz2fsjojycwWg0pBlhPjGkraHopr44MQ61MfGSa0VckBv9BfKn57qJAX+UIrg==}
     peerDependencies:
       eslint: ^8
     dependencies:

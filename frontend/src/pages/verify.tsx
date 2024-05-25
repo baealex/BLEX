@@ -12,9 +12,7 @@ import { snackBar } from '~/modules/ui/snack-bar';
 
 import { authStore } from '~/stores/auth';
 
-const HCaptcha = dynamic(() => import('@hcaptcha/react-hcaptcha'), {
-    ssr: false
-});
+const HCaptcha = dynamic(() => import('@hcaptcha/react-hcaptcha'), { ssr: false });
 
 interface Props {
     token: string;
@@ -35,9 +33,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             }
         };
     } catch (error) {
-        return {
-            notFound: true
-        };
+        return { notFound: true };
     }
 };
 
