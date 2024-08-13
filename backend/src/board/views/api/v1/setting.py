@@ -343,9 +343,11 @@ def setting(request, parameter):
             ).exclude(
                 Q(title__contains='검색') |
                 Q(title__contains='Bing') |
+                Q(title__contains='Info') |
                 Q(title__contains='Google') |
                 Q(title__contains='Search') |
                 Q(title__contains='DuckDuckGo') |
+                Q(location__contains='link.php') |
                 Q(location__contains='link.naver.com')
             ).order_by('-created_date').distinct()[:12]
 

@@ -263,21 +263,6 @@ export async function getSettingAnalyticsReferer(headers?: Headers) {
     });
 }
 
-export interface GetSettingAnalyticsSearchResponseData {
-    platformTotal: {
-        네이버: number;
-        덕덕고: number;
-        다음: number;
-        구글: number;
-        줌: number;
-    };
-    topSearches: {
-        keyword: string;
-        platform: string;
-        count: number;
-    }[];
-}
-
 export async function putSetting(item: string, data: object) {
     return await request<unknown>({
         url: `/v1/setting/${item}`,
