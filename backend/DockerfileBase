@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-ARG PYTHON_VERSION=3.12.2
+ARG PYTHON_VERSION=3.12.5
 
 RUN apk update && apk add --no-cache \
     build-base \
