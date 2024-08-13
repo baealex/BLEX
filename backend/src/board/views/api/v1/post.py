@@ -681,6 +681,11 @@ def user_posts(request, username, url=None):
                 request.POST.get('is_advertise', ''))
             post_config.save()
 
+            if post_config.hide:
+                pinned_post = PinnedPost.objects.filter(post=post)
+                if pinned_post.exists():
+                    pinned_post.delete()
+
             if post.is_published():
                 post.updated_date = timezone.now()
 
@@ -770,6 +775,10 @@ def user_posts(request, username, url=None):
             if request.GET.get('hide', ''):
                 if not request.user == post.author:
                     raise Http404
+
+                pinned_post = PinnedPost.objects.filter(post=post)
+                if pinned_post.exists():
+                    pinned_post.delete()
 
                 post.config.hide = not post.config.hide
                 post.config.save()
