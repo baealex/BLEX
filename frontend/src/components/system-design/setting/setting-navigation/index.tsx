@@ -88,11 +88,6 @@ export const NAVIGATION_ITEMS = [
                 url: '/setting/analytics/views'
             },
             {
-                title: '검색어',
-                name: 'analytics/search',
-                url: '/setting/analytics/search'
-            },
-            {
                 title: '외부 링크',
                 name: 'analytics/referer',
                 url: '/setting/analytics/referer'

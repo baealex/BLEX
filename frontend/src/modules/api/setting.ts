@@ -278,14 +278,6 @@ export interface GetSettingAnalyticsSearchResponseData {
     }[];
 }
 
-export async function getSettingAnalyticsSearch(headers?: Headers) {
-    return await request<GetSettingAnalyticsSearchResponseData>({
-        url: '/v1/setting/analytics-search',
-        method: 'GET',
-        headers
-    });
-}
-
 export async function putSetting(item: string, data: object) {
     return await request<unknown>({
         url: `/v1/setting/${item}`,
