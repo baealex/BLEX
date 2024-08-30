@@ -39,6 +39,8 @@
         "@baejino/eslint-react": "^0.0.4",
         "@next/bundle-analyzer": "^14.2.7",
         "@styled-jsx/plugin-sass": "^4.1.0",
+        "@testing-library/jest-dom": "^6.4.2",
+        "@testing-library/react": "^15.0.2",
         "@types/codemirror": "^5.60.15",
         "@types/hcaptcha__react-hcaptcha": "^0.1.8",
         "@types/jest": "^29.5.12",
@@ -49,7 +51,9 @@
         "@types/react-dom": "^18.3.0",
         "eslint": "^8.57.0",
         "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
         "sass": "^1.77.8",
+        "ts-node": "^10.9.2",
         "typescript": "^5.5.4"
     }
 }
