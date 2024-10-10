@@ -69,7 +69,7 @@ export function CommentCard(props: CommentCardProps) {
                 {props.isOwner && (
                     <Dropdown
                         button={
-                            <i className="fas fa-ellipsis-v"></i>
+                            <i className="fas fa-ellipsis-v" />
                         }
                         menus={[
                             {

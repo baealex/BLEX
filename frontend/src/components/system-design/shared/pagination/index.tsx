@@ -86,12 +86,12 @@ export function Pagination(props: Props) {
                         <>
                             <div className={cx('item')}>
                                 <Link className={cx('link')} {...gotoPage(page - 1)}>
-                                    <i role="button" aria-label="prev-page" className="fas fa-arrow-left"></i>
+                                    <i role="button" aria-label="prev-page" className="fas fa-arrow-left" />
                                 </Link>
                             </div>
                             <div className={cx('item')}>
                                 <Link className={cx('link')} {...gotoPage(1)}>
-                                    <i role="button" aria-label="first-page" className="fa fa-angle-double-left"></i>
+                                    <i role="button" aria-label="first-page" className="fa fa-angle-double-left" />
                                 </Link>
                             </div>
                         </>
@@ -99,12 +99,12 @@ export function Pagination(props: Props) {
                         <>
                             <div className={cx('item', 'disabled')}>
                                 <a className={cx('link')}>
-                                    <i role="button" aria-label="prev-page" className="fas fa-arrow-left"></i>
+                                    <i role="button" aria-label="prev-page" className="fas fa-arrow-left" />
                                 </a>
                             </div>
                             <div className={cx('item', 'disabled')}>
                                 <a className={cx('link')}>
-                                    <i role="button" aria-label="first-page" className="fa fa-angle-double-left"></i>
+                                    <i role="button" aria-label="first-page" className="fa fa-angle-double-left" />
                                 </a>
                             </div>
                         </>
@@ -126,12 +126,12 @@ export function Pagination(props: Props) {
                         <>
                             <div className={cx('item')}>
                                 <Link className={cx('link')} {...gotoPage(last)}>
-                                    <i role="button" aria-label="last-page" className="fa fa-angle-double-right"></i>
+                                    <i role="button" aria-label="last-page" className="fa fa-angle-double-right" />
                                 </Link>
                             </div>
                             <div className={cx('item')}>
                                 <Link className={cx('link')} {...gotoPage(page + 1)}>
-                                    <i role="button" aria-label="next-page" className="fas fa-arrow-right"></i>
+                                    <i role="button" aria-label="next-page" className="fas fa-arrow-right" />
                                 </Link>
                             </div>
                         </>
@@ -139,12 +139,12 @@ export function Pagination(props: Props) {
                         <>
                             <div className={cx('item', 'disabled')}>
                                 <a className={cx('link')}>
-                                    <i role="button" aria-label="last-page" className="fa fa-angle-double-right"></i>
+                                    <i role="button" aria-label="last-page" className="fa fa-angle-double-right" />
                                 </a>
                             </div>
                             <div className={cx('item', 'disabled')}>
                                 <a className={cx('link')}>
-                                    <i role="button" aria-label="next-page" className="fas fa-arrow-right"></i>
+                                    <i role="button" aria-label="next-page" className="fas fa-arrow-right" />
                                 </a>
                             </div>
                         </>

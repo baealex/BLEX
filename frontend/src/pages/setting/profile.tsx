@@ -255,7 +255,7 @@ const ProfileSetting: PageComponent<Props> = (props) => {
                                                 cursor: 'grab',
                                                 touchAction: 'none'
                                             }}>
-                                            <i className="fas fa-bars"></i>
+                                            <i className="fas fa-bars" />
                                         </div>
                                     </Flex>
                                     <Flex justify="between" align="center">

@@ -72,7 +72,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                                 </Link>
                             </span>
                             <a onClick={() => onDelete(post.token)}>
-                                <i className="fas fa-times"></i>
+                                <i className="fas fa-times" />
                             </a>
                         </Flex>
                         <time className="post-date shallow-dark">

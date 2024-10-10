@@ -8,9 +8,7 @@ export interface HelpModalProps {
 export function HelpModal({ isOpen, onClose }: HelpModalProps) {
     return (
         <Modal title="도움말" isOpen={isOpen} onClose={onClose}>
-            <p>
-
-            </p>
+            <p />
         </Modal>
     );
 }

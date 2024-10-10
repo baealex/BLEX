@@ -111,7 +111,7 @@ const PostsSetting: PageComponent<Props> = (props) => {
                             </span>
                             <Dropdown
                                 button={
-                                    <i className="fas fa-ellipsis-v"></i>
+                                    <i className="fas fa-ellipsis-v" />
                                 }
                                 menus={[
                                     {

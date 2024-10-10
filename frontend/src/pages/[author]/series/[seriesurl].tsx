@@ -171,7 +171,7 @@ export default function Series(props: Props) {
                             {idx + 1}. {post.title}
                         </Text>
                         <a onClick={() => handleRemovePosts(post.url)}>
-                            <i className="fas fa-times"></i>
+                            <i className="fas fa-times" />
                         </a>
                     </Flex>
                 </Card>
@@ -224,12 +224,12 @@ export default function Series(props: Props) {
                     {props.order === 'latest' ? (
                         <Button
                             onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}?order=past`, '', { scroll: false })}>
-                            최신부터 <i className="fas fa-sort-amount-down"></i>
+                            최신부터 <i className="fas fa-sort-amount-down" />
                         </Button>
                     ) : (
                         <Button
                             onClick={() => router.replace(`/@${props.series.owner}/series/${props.series.url}`, '', { scroll: false })}>
-                            과거부터 <i className="fas fa-sort-amount-up"></i>
+                            과거부터 <i className="fas fa-sort-amount-up" />
                         </Button>
                     )}
                 </Flex>

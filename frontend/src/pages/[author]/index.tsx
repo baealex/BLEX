@@ -254,7 +254,7 @@ const Overview: PageComponent<Props> = (props) => {
                                                             <Text fontSize={3}>{post.title}</Text>
                                                             <Text className="gray-dark" fontSize={2}>
                                                                 <Flex align="center" gap={1}>
-                                                                    <i className="fas fa-heart"></i>
+                                                                    <i className="fas fa-heart" />
                                                                     {post.countLikes}
                                                                 </Flex>
                                                             </Text>
@@ -293,7 +293,7 @@ const Overview: PageComponent<Props> = (props) => {
                                         />
                                         <Text className="gray-dark" fontSize={2}>
                                             <Flex align="center" gap={1}>
-                                                <i className="fas fa-heart"></i>
+                                                <i className="fas fa-heart" />
                                                 {post.countLikes}
                                             </Flex>
                                         </Text>
