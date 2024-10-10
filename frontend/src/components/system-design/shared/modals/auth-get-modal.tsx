@@ -114,12 +114,12 @@ export class AuthGetModal extends React.Component<Props, State> {
                         <button
                             className="login-button google"
                             onClick={() => oauth('google')}>
-                            <i className="fab fa-google"></i> Google 계정으로 로그인
+                            <i className="fab fa-google" /> Google 계정으로 로그인
                         </button>
                         <button
                             className="login-button github"
                             onClick={() => oauth('github')}>
-                            <i className="fab fa-github"></i> GitHub 계정으로 로그인
+                            <i className="fab fa-github" /> GitHub 계정으로 로그인
                         </button>
                         <SplitLine hasText />
                         <form onSubmit={this.handleSubmitLogin.bind(this)}>

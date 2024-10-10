@@ -28,7 +28,7 @@ export function TempArticleModal(props: Props) {
                             {item.title} <span className="vs">{item.createdDate}</span>
                         </span>
                         <a onClick={() => props.onDelete(item.token)}>
-                            <i className="fas fa-times"></i>
+                            <i className="fas fa-times" />
                         </a>
                     </Flex>
                 </Card>

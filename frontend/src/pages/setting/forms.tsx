@@ -58,7 +58,7 @@ const FormsSetting: PageComponent<Props> = (props) => {
                                 {item.title}
                             </Link>
                             <a onClick={() => onDelete(item.id)}>
-                                <i className="fas fa-times"></i>
+                                <i className="fas fa-times" />
                             </a>
                         </Flex>
                     </Card>

@@ -81,7 +81,7 @@ export function Modal({
                         {title}
                     </div>
                     <button className={styles.close} onClick={onClose}>
-                        <i className="fas fa-times"></i>
+                        <i className="fas fa-times" />
                     </button>
                 </div>
                 <div className={styles.content}>

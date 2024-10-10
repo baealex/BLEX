@@ -18,7 +18,8 @@ export function ProgressBar({
                 style={{ transform: `translateX(-${value / max * 100}%)` }}
                 aria-valuenow={value}
                 aria-valuemin={0}
-                aria-valuemax={max}></div>
+                aria-valuemax={max}
+            />
         </div>
     );
 }
