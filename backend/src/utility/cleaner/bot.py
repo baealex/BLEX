@@ -13,7 +13,7 @@ from board.models import *
 from board.modules.analytics import NONE_HUMANS, get_bot_name
 
 if __name__ == '__main__':
-    humans = History.objects.exclude(category__contains='bot')
+    humans = Device.objects.exclude(category__contains='bot')
 
     for human in humans:
         for none_human in NONE_HUMANS:
@@ -23,7 +23,7 @@ if __name__ == '__main__':
                 human.save()
                 time.sleep(0.1)
     
-    bots = History.objects.filter(category__contains='bot')
+    bots = Device.objects.filter(category__contains='bot')
 
     for bot in bots:
         prev_category = bot.category

@@ -10,10 +10,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
 from board.models import *
-from board.modules.analytics import UNVAILD_REFERERS
+from board.modules.analytics import INVALID_REFERERS
 
 if __name__ == '__main__':
-    for item in UNVAILD_REFERERS:
+    for item in INVALID_REFERERS:
         rfs = RefererFrom.objects.filter(location__contains=item)
 
         for rf in rfs:
