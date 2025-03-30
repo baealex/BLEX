@@ -59,7 +59,7 @@ def post_list(request):
             post.meta_description = request.POST.get('description', '')
         else:
             post.meta_description = create_post_description(
-                post_content_html=text_html, write_type='general')
+                post_content_html=text_html)
 
         reserved_date = request.POST.get('reserved_date', '')
         if reserved_date:

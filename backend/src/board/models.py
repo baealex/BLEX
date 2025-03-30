@@ -180,11 +180,6 @@ class Config(models.Model):
             return True
         return False
 
-    def has_openai_key(self):
-        if hasattr(self.user, 'openaiconnection'):
-            return True
-        return False
-
     def __str__(self):
         return self.user.username
 
@@ -665,32 +660,6 @@ class TelegramSync(models.Model):
     def save(self, *args, **kwargs):
         self.tid = encrypt_value(self.tid).decode()
         super().save(*args, **kwargs)
-
-
-class OpenAIConnection(models.Model):
-    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
-    api_key = models.CharField(max_length=200, blank=True) # encrypted
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def get_decrypted_api_key(self):
-        return decrypt_value(self.api_key)
-
-    def __str__(self):
-        return self.user.username
-
-    def save(self, *args, **kwargs):
-        self.api_key = encrypt_value(self.api_key).decode()
-        super().save(*args, **kwargs)
-
-
-class OpenAIUsageHistory(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    query = models.TextField()
-    response = models.TextField()
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.user.username
 
 
 class TempPosts(models.Model):

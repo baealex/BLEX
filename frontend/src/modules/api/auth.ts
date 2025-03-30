@@ -9,7 +9,6 @@ export interface GetLoginResponseData {
     notifyCount: number;
     isFirstLogin: boolean;
     hasConnectedTelegram: boolean;
-    hasConnectedOpenai: boolean;
     hasConnected2fa: boolean;
     hasEditorRole: boolean;
 }

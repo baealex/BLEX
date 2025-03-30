@@ -99,11 +99,6 @@ export const NAVIGATION_ITEMS = [
         icon: 'fas fa-link',
         subItems: [
             {
-                title: '오픈 AI',
-                name: 'integration/open-ai',
-                url: '/setting/integration/open-ai'
-            },
-            {
                 title: '텔레그램',
                 name: 'integration/telegram',
                 url: '/setting/integration/telegram'

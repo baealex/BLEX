@@ -161,9 +161,6 @@ GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET')
 
 HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
 
-# Extension (Open AI)
-
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 LOGGING = {
     'version': 1,

@@ -26,7 +26,6 @@ export const ERROR = {
     ALREADY_DISCONNECTED: 'error:AU',
     ALREADY_VERIFICATION: 'error:AV',
     NEED_TELEGRAM: 'error:NT',
-    NEED_OPENAI: 'error:NO',
     EMAIL_NOT_MATCH: 'error:EN',
     USERNAME_NOT_MATCH: 'error:UN'
 };
