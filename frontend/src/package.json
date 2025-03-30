@@ -34,7 +34,7 @@
         "remarkable-katex": "^1.2.1"
     },
     "devDependencies": {
-        "@babel/runtime": "^7.26.0",
+        "@babel/runtime": "^7.26.10",
         "@baejino/eslint-config": "^0.0.1",
         "@baejino/eslint-config-react": "^0.0.1",
         "@next/bundle-analyzer": "^14.2.23",
