@@ -35,7 +35,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install
-      run: npx pnpm i
+      run: npx pnpm i --no-frozen-lockfile
       working-directory: frontend/src
     
     - name: Lint
