@@ -14,7 +14,7 @@ from django.utils import timezone
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     TwoFactorAuth, Config, Profile, Post, Invitation,
-    UserLinkMeta, UsernameChangeLog, TelegramSync, OpenAIConnection)
+    UserLinkMeta, UsernameChangeLog, TelegramSync)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules import oauth
@@ -56,11 +56,6 @@ def login_response(user: User, is_first_login=False):
                 tid__regex=r'^.+'
             )
         ),
-        has_connected_openai=Exists(
-            OpenAIConnection.objects.filter(
-                user_id=OuterRef('id')
-            )
-        ),
         has_connected_2fa=Exists(
             TwoFactorAuth.objects.filter(
                 user_id=OuterRef('id')
@@ -81,7 +76,6 @@ def login_response(user: User, is_first_login=False):
         'notify_count': _user.notify_count,
         'is_first_login': is_first_login,
         'has_connected_telegram': _user.has_connected_telegram,
-        'has_connected_openai': _user.has_connected_openai,
         'has_connected_2fa': _user.has_connected_2fa,
         'has_editor_role': _user.has_editor_role,
     })

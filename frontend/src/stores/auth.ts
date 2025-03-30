@@ -17,7 +17,6 @@ const INIT_STATE = {
     notifyCount: 0,
     isFirstLogin: false,
     hasConnectedTelegram: false,
-    hasConnectedOpenai: false,
     hasConnected2fa: false,
     hasEditorRole: false
 };
