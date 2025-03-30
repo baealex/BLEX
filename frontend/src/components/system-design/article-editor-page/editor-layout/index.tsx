@@ -63,7 +63,6 @@ interface Props {
 
 export function EditorLayout(props: Props) {
     const [isSubmit, setIsSubmit] = useState(false);
-    const [isDescriptionGenerating, setIsDescriptionGenerating] = useState(false);
     const [reservedDateErrorMessage, setReservedDateErrorMessage] = useState<string | null>(null);
 
     const [isOpenArticlePublishModal] = useValue(modalStore, 'isOpenArticlePublishModal');
@@ -183,22 +182,16 @@ export function EditorLayout(props: Props) {
                 )}
                 <FormControl className="mb-3">
                     <Label>설명 (옵션)</Label>
-                    {isDescriptionGenerating ? (
-                        <Flex justify="center" className="m-5">
-                            <Loading position="inline" />
-                        </Flex>
-                    ) : (
-                        <>
-                            <BaseInput
-                                tag="textarea"
-                                name="series"
-                                value={props.description.value}
-                                maxLength={250}
-                                onChange={(e) => props.description.onChange(e.target.value)}
-                                placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 미작성시 글 요약이 서론 내용을 기반으로 생성됩니다 (최대 250자)"
-                            />
-                        </>
-                    )}
+                    <>
+                        <BaseInput
+                            tag="textarea"
+                            name="series"
+                            value={props.description.value}
+                            maxLength={250}
+                            onChange={(e) => props.description.onChange(e.target.value)}
+                            placeholder="포스트 목록이나 문서의 메타 태그에 표기됩니다. 미작성시 글 요약이 서론 내용을 기반으로 생성됩니다 (최대 250자)"
+                        />
+                    </>
                 </FormControl>
                 <FormControl className="mb-3">
                     <Label>시리즈 (옵션)</Label>
