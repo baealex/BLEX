@@ -3,7 +3,7 @@ asgiref==3.8.1
 certifi==2024.12.14
 cffi==1.17.1
 charset-normalizer==3.4.1
-cryptography==44.0.0
+cryptography==44.0.1
 Django==5.1.7
 django-cors-headers==4.6.0
 graphene==3.4.3
