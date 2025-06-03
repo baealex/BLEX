@@ -1,5 +1,7 @@
 import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
+import { handyMediaQuery } from '@baejino/handy';
+import { theme } from '@baejino/style';
 
 import { CollectionLayout } from '~/components/system-design/article';
 import type { PageComponent } from '~/components';
@@ -18,7 +20,8 @@ import { useInfinityScroll } from '~/hooks/use-infinity-scroll';
 import { useLikePost } from '~/hooks/use-like-post';
 
 import * as API from '~/modules/api';
-import { getPostImage, getUserImage } from '~/modules/utility/image';
+import { getDefaultPostCoverImage, getPostImage, getUserImage } from '~/modules/utility/image';
+import { useEffect, useState } from 'react';
 
 type Props = API.GetPostsResponseData;
 
@@ -33,6 +36,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
 };
 
 const TrendyArticles: PageComponent<Props> = (props: Props) => {
+    const [gridSize, setGridSize] = useState(3);
+
     const { data: posts, mutate: setPosts, isLoading } = useInfinityScroll({
         key: ['article'],
         callback: async (nextPage) => {
@@ -61,6 +66,29 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
     const featuredPost = posts.length > 0 ? posts[0] : null;
     const remainingPosts = posts.length > 0 ? posts.slice(1) : [];
 
+    useEffect(() => {
+        const unsubscribeTablet = handyMediaQuery.listenResponsiveChange(theme.BREAKPOINT_TABLET, (isTablet) => {
+            if (isTablet) {
+                setGridSize(1);
+            } else {
+                setGridSize(2);
+            }
+        });
+
+        const unsubscribeDesktop = handyMediaQuery.listenResponsiveChange(theme.BREAKPOINT_DESKTOP, (isDesktop) => {
+            if (isDesktop) {
+                setGridSize(2);
+            } else {
+                setGridSize(3);
+            }
+        });
+
+        return () => {
+            unsubscribeTablet();
+            unsubscribeDesktop();
+        };
+    }, []);
+
     return (
         <>
             {featuredPost && (
@@ -83,8 +111,12 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
                         }}>
                         <LazyLoadedImage
                             alt={featuredPost.title}
-                            src={getPostImage(featuredPost.image || '', { minify: false })}
-                            previewImage={getPostImage(featuredPost.image || '', { preview: true })}
+                            src={featuredPost.image
+                                ? getPostImage(featuredPost.image, { minify: false })
+                                : getDefaultPostCoverImage(featuredPost.title)}
+                            previewImage={featuredPost.image
+                                ? getPostImage(featuredPost.image, { preview: true })
+                                : getDefaultPostCoverImage(featuredPost.title)}
                             style={{
                                 width: '100%',
                                 height: '100%',
@@ -199,7 +231,7 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
                 Latest Articles
             </Text>
 
-            <Masonry>
+            <Masonry gridSize={gridSize} itemMaxHeight={389}>
                 {remainingPosts.map((post) => (
                     <Card
                         key={post.url}
@@ -220,8 +252,8 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
                                 <Link href={`/@${post.author}/${post.url}`}>
                                     <LazyLoadedImage
                                         alt={post.title}
-                                        src={getPostImage(post.image || '', { minify: true })}
-                                        previewImage={getPostImage(post.image || '', { preview: true })}
+                                        src={getPostImage(post.image, { minify: true })}
+                                        previewImage={getPostImage(post.image, { preview: true })}
                                         style={{
                                             width: '100%',
                                             height: '100%',
