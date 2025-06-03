@@ -2,7 +2,12 @@ import classNames from 'classnames/bind';
 import styles from './ArticleNav.module.scss';
 const cx = classNames.bind(styles);
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { useStore } from 'badland-react';
+import { configStore } from '~/stores/config';
+
+import { Text } from '~/components/design-system';
 
 interface Props {
     renderedContent: string;
@@ -11,8 +16,57 @@ interface Props {
 export function ArticleNav(props: Props) {
     const [headerNav, setHeaderNav] = useState<string[][]>([]);
     const [headerNow, setHeaderNow] = useState<string>('');
+    const [{ theme }] = useStore(configStore);
+    const isDarkMode = theme === 'dark';
 
-    const handleClickArticleNav = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    useEffect(() => {
+        if ('IntersectionObserver' in window) {
+            const headers = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+            if (headers) {
+                const headerNavArray: string[][] = [];
+
+                headers.forEach((header) => {
+                    const level = header.tagName.replace('H', '');
+                    const id = header.id;
+                    const text = header.textContent || '';
+
+                    if (id) {
+                        headerNavArray.push([level, id, text]);
+                    }
+                });
+
+                setHeaderNav(headerNavArray);
+
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                setHeaderNow(entry.target.id);
+                            }
+                        });
+                    },
+                    { rootMargin: '-10% 0px -90% 0px' }
+                );
+
+                headers.forEach((header) => {
+                    observer.observe(header);
+                });
+
+                return () => observer.disconnect();
+            }
+        }
+    }, [props.renderedContent]);
+
+    const headings = headerNav.map((item) => ({
+        id: item[1],
+        text: item[2],
+        level: Number(item[0])
+    }));
+
+    const activeId = headerNow;
+
+    const handleClickHeading = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
         const hash = e.currentTarget.hash.replace('#', '');
@@ -28,51 +82,35 @@ export function ArticleNav(props: Props) {
             });
             history.pushState(null, '', e.currentTarget.hash);
         }
-    }, []);
+    };
 
-    useEffect(() => {
-        if ('IntersectionObserver' in window) {
-            const headersTags = document.querySelectorAll(
-                'h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]'
-            );
-            const headerNav: string[][] = [];
-
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        setHeaderNow(entry.target.id);
-                    }
-                });
-            }, { rootMargin: '0px 0px -90%' });
-
-            headersTags.forEach(header => {
-                const idNumber = Math.ceil(Number(header.tagName.toUpperCase().replace('H', '')) / 2);
-                headerNav.push([
-                    idNumber.toString(), header.id, header.textContent ? header.textContent : ''
-                ]);
-                observer.observe(header);
-            });
-
-            setHeaderNav(headerNav);
-
-            return () => observer.disconnect();
-        }
-    }, [props.renderedContent]);
+    if (headings.length === 0) {
+        return null;
+    }
 
     return (
-        <aside className={cx('article-nav', 'none-drag')}>
-            <ul>
-                {headerNav.map((item, idx) => (
-                    <li key={idx} className={cx(`title-${item[0]}`)}>
-                        <a
-                            href={`#${item[1]}`}
-                            onClick={handleClickArticleNav}
-                            className={cx({ 'nav-now': headerNow == item[1] })}>
-                            {item[2]}
-                        </a>
-                    </li>
-                ))}
-            </ul>
-        </aside>
+        <div className={cx('article-nav')}>
+            <div className={cx('article-nav-inner', { 'dark-mode': isDarkMode })}>
+                <div className={cx('article-nav-title')}>
+                    <Text fontSize={4} fontWeight={600}>목차</Text>
+                </div>
+                <div className={cx('article-nav-content')}>
+                    <ul>
+                        {headings.map((heading, index) => (
+                            <li
+                                key={index}
+                                style={{ paddingLeft: `${(heading.level - 1) * 10}px` }}>
+                                <a
+                                    href={`#${heading.id}`}
+                                    onClick={handleClickHeading}
+                                    className={cx({ active: heading.id === activeId })}>
+                                    {heading.text}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </div>
     );
 }

@@ -37,12 +37,11 @@ export function CommentCard(props: CommentCardProps) {
 
     return (
         <Card
+            hasBackground
             isRounded
             hasShadow
             shadowLevel="sub"
-            hasBackground
-            backgroundType="background"
-            className={`${cx('card')} mb-3`}>
+            className={`${cx('card')}`}>
             <Flex justify="between">
                 <Flex align="center">
                     <Link href={`/@${props.author}`}>

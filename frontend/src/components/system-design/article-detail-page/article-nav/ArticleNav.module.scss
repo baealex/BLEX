@@ -1,22 +1,56 @@
 @import 'var';
 
 .article-nav {
-    position: sticky;
-    top: 120px;
     margin: 15px 0;
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+
+        &:hover {
+            transform: none;
+        }
+    }
+}
+
+.article-nav-inner {
+    padding: 20px;
+    background-color: rgb(238, 238, 250);
+    border-radius: 8px;
+
+    &.dark-mode {
+        background-color: #333;
+        color: #fff;
+    }
+}
+
+.article-nav-title {
+    margin-bottom: 15px;
+    font-weight: bold;
+    border-bottom: 1px solid #acacac;
+    padding-bottom: 10px;
+
+    .dark-mode & {
+        border-bottom: 1px solid #555;
+    }
+}
+
+.article-nav-content {
     ul {
         list-style: none;
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
         border-left: 2px solid #eee;
 
-        :global(body.dark) & {
-            border-left: 2px solid #777;
+        .dark-mode & {
+            border-left: 2px solid #555;
         }
     }
 
@@ -27,54 +61,55 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-    }
-
-    @media (max-width: $BREAKPOINT_DESKTOP-LARGE) {
-        display: block;
-        max-height: initial;
-
-        ul {
-            gap: 2px;
-        }
-
-        li {
-            margin-bottom: 6px;
-        }
-    }
-
-    .title-1 {
-        margin-left: 16px;
-    }
-
-    .title-2 {
-        margin-left: 32px;
-    }
-
-    .title-3 {
-        margin-left: 48px;
+        padding-left: 10px;
     }
 
     a {
         transition: all 0.3s;
-        color: rgba(0, 0, 0, 0.3);
+        color: rgba(0, 0, 0, 0.6);
         display: block;
         font-size: 14px;
+        padding: 3px 0;
 
-        :global(body.dark) & {
-            color: #777;
+        .dark-mode & {
+            color: rgba(255, 255, 255, 0.6);
         }
 
         &:hover {
-            color: #777;
+            color: #0066ff;
             text-decoration: none;
+
+            .dark-mode & {
+                color: #66a3ff;
+            }
+        }
+
+        &.active {
+            color: #0066ff;
+            font-weight: 500;
+
+            .dark-mode & {
+                color: #66a3ff;
+            }
         }
     }
+}
 
-    a.nav-now {
-        color: #000;
+@media (max-width: $BREAKPOINT_DESKTOP-LARGE) {
+    .article-nav {
+        display: block;
+        max-height: initial;
+        position: relative;
+        top: 0;
+    }
 
-        :global(body.dark) & {
-            color: #fff;
+    .article-nav-content {
+        ul {
+            gap: 4px;
+        }
+
+        li {
+            margin-bottom: 4px;
         }
     }
 }

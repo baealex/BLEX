@@ -13,7 +13,6 @@ import {
     ArticleContent,
     ArticleCover,
     ArticleNav,
-    ArticleReport,
     ArticleSeries,
     ArticleThanks,
     RelatedArticles
@@ -23,8 +22,8 @@ import {
     Button,
     Card,
     Container,
-    DualWidgetLayout,
     Flex,
+    SingleWidgetLayout,
     Text
 } from '~/components/design-system';
 import {
@@ -40,6 +39,7 @@ import { authStore } from '~/stores/auth';
 import { configStore } from '~/stores/config';
 
 import { CONFIG } from '~/modules/settings';
+import { GrowthArrow, Pencil, TrashCan } from '@baejino/icon';
 
 interface Props {
     profile: API.GetUserProfileResponseData;
@@ -166,55 +166,76 @@ function PostDetail(props: Props) {
                     createdDate={props.post.createdDate}
                 />
                 <Container size="lg">
-                    <DualWidgetLayout
-                        leftWidget={<ArticleAction {...props.post} />}
-                        content={
+                    <SingleWidgetLayout
+                        widgetPosition="Left"
+                        widget={(
                             <>
-                                {props.post.author == username && (
-                                    <Card isRounded className="p-3 mb-4">
-                                        <Flex justify="between" align="center">
-                                            <Text fontSize={5} fontWeight={600}>
-                                                포스트 관리
-                                            </Text>
-                                            <Flex gap={2}>
-                                                <Button onClick={handleClickAnalytics}>분석</Button>
-                                                <Button onClick={handleClickEdit}>수정</Button>
-                                                <Button onClick={handleClickDelete}>삭제</Button>
-                                            </Flex>
-                                        </Flex>
-                                    </Card>
-                                )}
-                                <ArticleContent renderedContent={props.post.renderedContent} />
-                                <BadgeGroup
-                                    items={props.post.tags.map(item => (
-                                        <Link href={`/@${props.post.author}/posts/${item}`}>
-                                            {item}
-                                        </Link>
-                                    ))}
-                                />
-                                <ArticleThanks
-                                    author={props.post.author}
-                                    url={props.post.url}
-                                />
-                                <ArticleSeries
-                                    author={props.post.author}
-                                    url={props.post.url}
-                                    series={props.post.series}
-                                />
-                                <ArticleReport url={props.post.url} />
+                                <ArticleAction {...props.post} />
+                                <ArticleNav renderedContent={props.post.renderedContent} />
                             </>
-                        }
-                        rightWidget={<ArticleNav renderedContent={props.post.renderedContent} />}
-                    />
+                        )}>
+                        {props.post.author == username && (
+                            <Flex className="my-3" justify="between" align="center">
+                                <Flex gap={2} align="center">
+                                    <Button onClick={handleClickEdit}>
+                                        <Flex align="center" gap={2}>
+                                            <Pencil width={20} height={20} />
+                                            수정
+                                        </Flex>
+                                    </Button>
+                                    <Button onClick={handleClickAnalytics}>
+                                        <Flex align="center" gap={2}>
+                                            <GrowthArrow width={20} height={20} />
+                                            분석
+                                        </Flex>
+                                    </Button>
+                                </Flex>
+                                <Button onClick={handleClickDelete}>
+                                    <Flex align="center" gap={2}>
+                                        <TrashCan width={20} height={20} />
+                                        삭제
+                                    </Flex>
+                                </Button>
+                            </Flex>
+                        )}
+                        <ArticleContent
+                            className="article"
+                            renderedContent={props.post.renderedContent}
+                        />
+                        <Card
+                            isRounded
+                            hasShadow
+                            className="p-4 mt-4">
+                            <Text fontSize={4} fontWeight={600} className="mb-3">
+                                태그
+                            </Text>
+                            <BadgeGroup
+                                items={props.post.tags.map(item => (
+                                    <Link href={`/@${props.post.author}/posts/${item}`}>
+                                        {item}
+                                    </Link>
+                                ))}
+                            />
+                        </Card>
+                        <ArticleThanks
+                            author={props.post.author}
+                            url={props.post.url}
+                        />
+                        <ArticleSeries
+                            author={props.post.author}
+                            url={props.post.url}
+                            series={props.post.series}
+                        />
+                        <ArticleComment
+                            author={props.post.author}
+                            url={props.post.url}
+                            countComments={props.post.countComments}
+                        />
+                    </SingleWidgetLayout>
                 </Container>
             </article>
-            <ArticleComment
-                author={props.post.author}
-                url={props.post.url}
-                countComments={props.post.countComments}
-            />
             <Footer isDark>
-                <Container size="sm">
+                <Container size="md">
                     <ArticleAuthor {...props.profile} />
                     <RelatedArticles
                         author={props.post.author}
@@ -224,6 +245,27 @@ function PostDetail(props: Props) {
                     />
                 </Container>
             </Footer>
+            <style jsx global>{`
+                .post-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                }
+                
+                @media (prefers-reduced-motion: reduce) {
+                    .post-card, .featured-post, img {
+                        transition: none !important;
+                    }
+                }
+                
+                /* Dark mode adjustments */
+                body.dark .card {
+                    background-color: #222;
+                }
+                
+                body.dark .card:hover {
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                }
+            `}</style>
         </>
     );
 }

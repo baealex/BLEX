@@ -1,10 +1,7 @@
-import classNames from 'classnames/bind';
-import styles from './CommentForm.module.scss';
-const cx = classNames.bind(styles);
-
+import { Pencil } from '@baejino/icon';
 import { useEffect, useState } from 'react';
 
-import { Button, Card } from '~/components/design-system';
+import { Button, Card, Flex } from '~/components/design-system';
 import { EditorContent } from '~/components/system-design/article-editor-page';
 
 import { snackBar } from '~/modules/ui/snack-bar';
@@ -37,26 +34,28 @@ export function CommentForm(props: CommentFormProps) {
     return (
         <>
             {isOpen ? (
-                <div className="mb-3">
+                <div className="mb-3" style={{ width: '100%' }}>
                     <EditorContent value={props.content} onChange={(value) => props.onChange(value)} />
-                    <Button display="block" type="button" onClick={handleSubmit}>
-                        <i className="fas fa-pencil-alt mr-2" />
-                        댓글 작성
+                    <Button display="block" space="spare" type="button" onClick={handleSubmit}>
+                        <Flex align="center" gap={2}>
+                            <Pencil width={20} height={20} />
+                            댓글 작성
+                        </Flex>
                     </Button>
                 </div>
             ) : (
-                <div className={cx('form', { isOpen })} onClick={() => setIsOpen(true)}>
-                    <Card
-                        isRounded
-                        hasShadow
-                        hasBackground
-                        backgroundType="background"
-                        className={`p-3 mb-3 ${cx('card', { isOpen })}`}>
-                        <div className={cx('submit', { isOpen })}>
-                            <i className="fas fa-pencil-alt" /> 댓글 작성
-                        </div>
-                    </Card>
-                </div>
+                <Card
+                    isRounded
+                    hasShadow
+                    hasBackground
+                    className={'p-3 mb-3'}>
+                    <div className="submit c-pointer" onClick={() => setIsOpen(true)}>
+                        <Flex align="center" gap={2}>
+                            <Pencil width={20} height={20} />
+                            댓글 작성
+                        </Flex>
+                    </div>
+                </Card>
             )}
         </>
     );

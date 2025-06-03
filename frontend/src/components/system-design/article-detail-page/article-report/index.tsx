@@ -4,12 +4,13 @@ const cx = classNames.bind(styles);
 
 import { useEffect, useState } from 'react';
 
-import { Checkbox, Modal } from '~/components/design-system';
+import { Checkbox, Flex, Modal, Text } from '~/components/design-system';
 
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
 import { postReportArticle } from '~/modules/api';
+import { Warning } from '@baejino/icon';
 
 interface Props {
     url: string;
@@ -52,11 +53,11 @@ export function ArticleReport(props: Props) {
     }, [isReportModalOpen]);
 
     return (
-        <div className={cx('article-report')}>
-            <div className={cx('button')} onClick={() => setIsReportModalOpen(true)}>
-                <i className="fas fa-flag" />
-                <span>신고하기</span>
-            </div>
+        <>
+            <Flex className="c-pointer shallow-dark" align="center" gap={2} onClick={() => setIsReportModalOpen(true)}>
+                <Warning width={20} height={20} />
+                <Text fontSize={3}>신고</Text>
+            </Flex>
             <Modal
                 title="포스트 신고"
                 isOpen={isReportModalOpen}
@@ -84,6 +85,6 @@ export function ArticleReport(props: Props) {
                     </div>
                 )}
             </Modal>
-        </div>
+        </>
     );
 }
