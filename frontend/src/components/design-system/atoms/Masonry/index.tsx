@@ -1,3 +1,4 @@
+import { handyDom } from '@baejino/handy';
 import {
     useEffect,
     useRef,
@@ -9,26 +10,22 @@ import { optimizeEvent } from '~/modules/optimize/event';
 
 interface MasonryProps {
     children: React.ReactNode[];
-    columnGap?: number;
+    gridSize: number;
     rowGap?: number;
-    initialHeight?: number;
+    columnGap?: number;
+    itemMaxHeight?: number;
 }
 
 export const Masonry = memo(function Masonry({
     children,
     rowGap = 16,
     columnGap = 16,
-    initialHeight
+    gridSize,
+    itemMaxHeight = 0
 }: MasonryProps) {
     const ref = useRef<HTMLDivElement>(null);
     const resizeObserverRef = useRef<ResizeObserver | null>(null);
     const itemRefs = useRef<Map<number, HTMLElement>>(new Map());
-
-    const getGridSize = useCallback((containerWidth: number): number => {
-        if (containerWidth > 1024) return 3;
-        if (containerWidth > 768) return 2;
-        return 1;
-    }, []);
 
     const itemElements = useMemo(() => {
         return children.map((item, index) => (
@@ -40,11 +37,15 @@ export const Masonry = memo(function Masonry({
                     } else {
                         itemRefs.current.delete(index);
                     }
+                }}
+                style={{
+                    position: 'absolute',
+                    width: `calc(100% / ${gridSize} - ${columnGap * (gridSize - 1) / gridSize}px)`
                 }}>
                 {item}
             </div>
         ));
-    }, [children]);
+    }, [children, gridSize]);
 
     const buildMasonryLayout = useCallback(() => {
         const container = ref.current;
@@ -52,7 +53,6 @@ export const Masonry = memo(function Masonry({
 
         try {
             const containerWidth = container.offsetWidth;
-            const gridSize = getGridSize(containerWidth);
             const itemElements = Array.from(itemRefs.current.values());
 
             const grid = new Array(gridSize).fill(0);
@@ -66,53 +66,25 @@ export const Masonry = memo(function Masonry({
                 const itemHeight = item.offsetHeight;
                 grid[minHeightColumn] += itemHeight + rowGap;
 
-                Object.assign(item.style, {
-                    width: `calc(100% / ${gridSize} - ${columnGap * (gridSize - 1) / gridSize}px)`,
-                    display: 'block',
-                    position: 'absolute',
-                    transform: `translate3d(${x}px, ${y}px, 0)`
+                handyDom.setStyles(item, {
+                    top: `${y}px`,
+                    left: `${x}px`
                 });
             });
 
-            const maxHeight = Math.max(...grid) - rowGap;
-            container.style.height = `${maxHeight}px`;
+            handyDom.setStyles(container, { minHeight: `${Math.max(...grid) - rowGap}px` });
         } catch (error) {
             if (ref.current) {
-                ref.current.style.height = 'auto';
+                handyDom.setStyles(ref.current, { minHeight: 'auto' });
             }
         }
-    }, [columnGap, rowGap, getGridSize]);
+    }, [columnGap, rowGap, gridSize, itemElements]);
 
     useEffect(() => {
         const container = ref.current;
         if (!container) return;
-        const setupLayout = () => {
-            setTimeout(buildMasonryLayout, 100);
-            const images = container.querySelectorAll('img');
-            let loadedImages = 0;
 
-            const imageLoadHandler = () => {
-                loadedImages++;
-                if (loadedImages === images.length) {
-                    buildMasonryLayout();
-                }
-            };
-
-            images.forEach(img => {
-                if (img.complete) {
-                    imageLoadHandler();
-                } else {
-                    img.addEventListener('load', imageLoadHandler);
-                    img.addEventListener('error', imageLoadHandler);
-                }
-            });
-
-            if (images.length === 0) {
-                buildMasonryLayout();
-            }
-        };
-
-        setupLayout();
+        buildMasonryLayout();
 
         const debouncedBuild = optimizeEvent(buildMasonryLayout);
         resizeObserverRef.current = new ResizeObserver((entries) => {
@@ -129,14 +101,6 @@ export const Masonry = memo(function Masonry({
                 resizeObserverRef.current.disconnect();
             }
             window.removeEventListener('resize', debouncedBuild);
-
-            if (container) {
-                const images = container.querySelectorAll('img');
-                images.forEach(img => {
-                    img.removeEventListener('load', buildMasonryLayout);
-                    img.removeEventListener('error', buildMasonryLayout);
-                });
-            }
         };
     }, [buildMasonryLayout]);
 
@@ -144,8 +108,8 @@ export const Masonry = memo(function Masonry({
         <div
             ref={ref}
             style={{
-                height: initialHeight || 390 * children.length,
-                position: 'relative'
+                position: 'relative',
+                minHeight: children.length / gridSize * itemMaxHeight
             }}>
             {itemElements}
         </div>
