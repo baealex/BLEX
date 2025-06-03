@@ -1,24 +1,28 @@
 @import 'var';
 
 .layout {
-    display: flex;
+    display: grid;
     gap: $MARGIN_SIZE_4;
-    flex-wrap: wrap;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "content";
+
+
+    &.widgetPositionRight {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        grid-template-areas: "content widget";
+    }
+
+    &.widgetPositionLeft {
+        grid-template-columns: 300px minmax(0, 1fr);
+        grid-template-areas: "widget content";
+    }
 
     .content {
-        flex: 1;
+        grid-area: content;
     }
 
     .widgetContainer {
-        flex: 0 0 300px;
-        
-        &.widgetPositionRight {
-            order: 1;
-        }
-
-        &.widgetPositionLeft {
-            order: -1;
-        }
+        grid-area: widget;
     }
 
     .widget {
@@ -35,16 +39,13 @@
     }
 
     @media (max-width: $BREAKPOINT-TABLET) {
-        .widgetContainer {
-            flex: 0 0 100%;
 
-            &.widgetPositionRight {
-                order: -1;
-            }
-    
-            &.widgetPositionLeft {
-                order: -1;
-            }
+        &.widgetPositionRight,
+        &.widgetPositionLeft {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas:
+                "widget"
+                "content"
         }
 
         .widget {

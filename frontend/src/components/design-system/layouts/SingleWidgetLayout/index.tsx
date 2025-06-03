@@ -14,12 +14,16 @@ export const SingleWidgetLayout = ({
     widgetPosition = 'Right'
 }: SingleWidgetLayoutProps) => {
     return (
-        <div className={styles.layout}>
+        <div
+            className={cx(styles.layout, {
+                [styles.widgetPositionLeft]: widget && widgetPosition === 'Left',
+                [styles.widgetPositionRight]: widget && widgetPosition === 'Right'
+            })}>
             <div className={styles.content}>
                 {children}
             </div>
             {widget && (
-                <aside className={cx('widgetContainer', `widgetPosition${widgetPosition}`)}>
+                <aside className={cx('widgetContainer')}>
                     <div className={styles.widget}>
                         {widget}
                     </div>
