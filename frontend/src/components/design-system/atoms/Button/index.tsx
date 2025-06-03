@@ -6,6 +6,8 @@ import { forwardRef, useCallback, useRef } from 'react';
 
 export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
+    style?: React.CSSProperties;
+    variant?: 'default' | 'primary' | 'secondary' | 'point' | 'transparent';
     className?: string;
     disabled?: boolean;
     isLoading?: boolean;
@@ -27,7 +29,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     disabled = false,
     isLoading = false,
     onClick,
-    children
+    children,
+    style,
+    variant
 }, ref) => {
     const button = useRef<HTMLButtonElement>(null);
 
@@ -58,12 +62,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
         <button
             ref={ref || button}
             type={type}
+            style={style}
             className={cx(
                 'button',
                 { isRounded },
                 space !== 'default' && `s-${space}`,
                 color !== 'default' && `c-${color}`,
                 display !== 'inline-block' && `d-${display}`,
+                variant !== 'default' && `v-${variant}`,
                 className
             )}
             disabled={disabled || isLoading}

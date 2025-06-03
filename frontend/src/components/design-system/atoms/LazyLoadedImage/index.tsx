@@ -8,13 +8,15 @@ interface LazyLoadedImageProps {
     previewImage: string;
     src: string;
     alt: string;
+    style?: React.CSSProperties;
 }
 
 export function LazyLoadedImage({
     className,
     src,
     alt,
-    previewImage
+    previewImage,
+    style
 }: LazyLoadedImageProps) {
     const ref = useRef<HTMLImageElement>(null);
 
@@ -38,6 +40,7 @@ export function LazyLoadedImage({
             alt={alt}
             src={previewImage}
             data-src={src}
+            style={style}
         />
     );
 }

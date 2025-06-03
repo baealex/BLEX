@@ -1,5 +1,6 @@
+@forward '@baejino/style/scss/reset';
+
 @import 'mixin';
-@import 'reset';
 @import 'common';
 
 @import 'fontawesome.override';
