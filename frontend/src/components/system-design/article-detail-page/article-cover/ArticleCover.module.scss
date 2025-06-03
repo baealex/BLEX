@@ -15,7 +15,7 @@
     transition: transform 0.3s ease;
     background: linear-gradient(135deg, #4568dc, #b06ab3);
 
-    @media (max-width: $BREAKPOINT_TABLET) {
+    @media (max-width: $BREAKPOINT_DESKTOP_LARGE) {
         border-radius: 0px;
     }
 

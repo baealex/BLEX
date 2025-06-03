@@ -10,7 +10,7 @@ import { optimizeEvent } from '~/modules/optimize/event';
 
 interface MasonryProps {
     children: React.ReactNode[];
-    gridSize: number;
+    gridSize: Record<number, number>;
     rowGap?: number;
     columnGap?: number;
     itemMaxHeight?: number;
@@ -27,6 +27,16 @@ export const Masonry = memo(function Masonry({
     const resizeObserverRef = useRef<ResizeObserver | null>(null);
     const itemRefs = useRef<Map<number, HTMLElement>>(new Map());
 
+    const getGridSize = (containerWidth: number) => {
+        const keys = Object.keys(gridSize).map(Number).sort((a, b) => b - a);
+        for (const key of keys) {
+            if (containerWidth >= key) {
+                return gridSize[key];
+            }
+        }
+        return gridSize[keys[keys.length - 1]];
+    };
+
     const itemElements = useMemo(() => {
         return children.map((item, index) => (
             <div
@@ -40,12 +50,12 @@ export const Masonry = memo(function Masonry({
                 }}
                 style={{
                     position: 'absolute',
-                    width: `calc(100% / ${gridSize} - ${columnGap * (gridSize - 1) / gridSize}px)`
+                    width: '0'
                 }}>
                 {item}
             </div>
         ));
-    }, [children, gridSize]);
+    }, [children, columnGap]);
 
     const buildMasonryLayout = useCallback(() => {
         const container = ref.current;
@@ -53,6 +63,7 @@ export const Masonry = memo(function Masonry({
 
         try {
             const containerWidth = container.offsetWidth;
+            const gridSize = getGridSize(containerWidth);
             const itemElements = Array.from(itemRefs.current.values());
 
             const grid = new Array(gridSize).fill(0);
@@ -67,6 +78,7 @@ export const Masonry = memo(function Masonry({
                 grid[minHeightColumn] += itemHeight + rowGap;
 
                 handyDom.setStyles(item, {
+                    width: `calc(100% / ${gridSize} - ${columnGap * (gridSize - 1) / gridSize}px)`,
                     top: `${y}px`,
                     left: `${x}px`
                 });
@@ -78,7 +90,7 @@ export const Masonry = memo(function Masonry({
                 handyDom.setStyles(ref.current, { minHeight: 'auto' });
             }
         }
-    }, [columnGap, rowGap, gridSize, itemElements]);
+    }, [columnGap, rowGap, itemElements]);
 
     useEffect(() => {
         const container = ref.current;
@@ -109,7 +121,7 @@ export const Masonry = memo(function Masonry({
             ref={ref}
             style={{
                 position: 'relative',
-                minHeight: children.length / gridSize * itemMaxHeight
+                minHeight: children.length / getGridSize(ref.current?.offsetWidth || 0) * itemMaxHeight
             }}>
             {itemElements}
         </div>
