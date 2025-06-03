@@ -9,6 +9,7 @@ interface BadgeProps {
     className?: string;
     onClick?: () => void;
     children: React.ReactNode;
+    style?: React.CSSProperties;
 }
 
 export function Badge({
@@ -17,11 +18,13 @@ export function Badge({
     size = 'medium',
     className,
     onClick,
-    children
+    children,
+    style
 }: BadgeProps) {
     return (
         <div
             onClick={onClick}
+            style={style}
             className={cx(
                 'badge',
                 { ir: isRounded },

@@ -4,6 +4,7 @@ import styles from './Card.module.scss';
 const cx = classNames.bind(styles);
 
 export interface CardProps {
+    style?: React.CSSProperties;
     isRounded?: boolean;
     hasShadow?: boolean;
     shadowLevel?: 'main' | 'sub';
@@ -20,6 +21,7 @@ export function Card({
     hasBackground = false,
     backgroundType = 'card',
     className = '',
+    style,
     children
 }: CardProps) {
     return (
@@ -32,7 +34,8 @@ export function Card({
                 { fb: hasBackground },
                 (hasBackground && backgroundType) && 'fb-' + backgroundType,
                 className
-            )}>
+            )}
+            style={style}>
             {children}
         </div>
     );

@@ -8,8 +8,10 @@ services:
     env_file: ./frontend/.env
     restart: always
     volumes:
-      - ./frontend/src/:/app/
-      - /app/node_modules/
+      - ./frontend/src/:/app/src/
+      - ./frontend/src/package.json:/app/package.json
+      - ./frontend/src/package-lock.json:/app/package-lock.json
+      - frontend_node_modules:/app/node_modules
     ports:
       - 3000:3000
   
@@ -32,3 +34,6 @@ services:
       - ./nginx/development.conf:/etc/nginx/conf.d/default.conf
     ports:
       - 8080:8080
+
+volumes:
+  frontend_node_modules:

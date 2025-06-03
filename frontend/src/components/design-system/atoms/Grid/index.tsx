@@ -13,6 +13,7 @@ interface Responsive {
 }
 
 export interface GridProps {
+    className?: string;
     gap?: Gap;
     rowGap?: Gap;
     columnGap?: Gap;
@@ -27,7 +28,8 @@ export function Grid({
     columnGap = 0,
     column,
     row,
-    children
+    children,
+    className
 }: GridProps) {
     return (
         <div
@@ -41,7 +43,8 @@ export function Grid({
                 column?.desktop && `gtc-p-${column.desktop}`,
                 row?.mobile && `gtr-m-${row.mobile}`,
                 row?.tablet && `gtr-t-${row.tablet}`,
-                row?.desktop && `gtr-p-${row.desktop}`
+                row?.desktop && `gtr-p-${row.desktop}`,
+                className
             )}>
             {children}
         </div>

@@ -7,6 +7,7 @@ import React from 'react';
 export interface TextProps {
     children: React.ReactNode;
     className?: string;
+    style?: React.CSSProperties;
     fontSize?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
     fontWeight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
     tag?: 'p' | 'span' | 'div' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -27,7 +28,8 @@ export function Text(props: TextProps) {
                 `fs-${fontSize}`,
                 `fw-${fontWeight}`,
                 props.className
-            )
+            ),
+            style: props.style
         },
         props.children
     );
