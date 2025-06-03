@@ -1,6 +1,7 @@
-import classNames from 'classnames/bind';
+import classNamesBind from 'classnames/bind';
+import classNames from 'classnames';
 import styles from './ArticleContent.module.scss';
-const cx = classNames.bind(styles);
+const cx = classNamesBind.bind(styles);
 
 import React, { useEffect, useRef } from 'react';
 import Router from 'next/router';
@@ -9,10 +10,11 @@ import { codeMirrorAll } from '~/modules/library/codemirror';
 import { lazyLoadResource } from '~/modules/optimize/lazy';
 
 export interface ArticleContentProps {
+    className?: string;
     renderedContent: string;
 }
 
-export function ArticleContent({ renderedContent }: ArticleContentProps) {
+export function ArticleContent({ className, renderedContent }: ArticleContentProps) {
     const ref = useRef<HTMLDivElement>(null);
 
     const handleClickContent = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -42,7 +44,7 @@ export function ArticleContent({ renderedContent }: ArticleContentProps) {
     return (
         <div
             ref={ref}
-            className={cx('article')}
+            className={classNames(className, cx('article'))}
             onClick={handleClickContent}
             dangerouslySetInnerHTML={{ __html: renderedContent }}
         />

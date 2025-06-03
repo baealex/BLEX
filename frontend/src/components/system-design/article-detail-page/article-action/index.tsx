@@ -2,18 +2,18 @@ import classNames from 'classnames/bind';
 import styles from './ArticleAction.module.scss';
 const cx = classNames.bind(styles);
 
-import {
-    useEffect,
-    useState
-} from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { Card, Flex, Text } from '~/components/design-system';
+import { Flex, Text } from '~/components/design-system';
 
-import * as API from '~/modules/api';
+import { modalStore } from '~/stores/modal';
+
 import { message } from '~/modules/utility/message';
 import { snackBar } from '~/modules/ui/snack-bar';
 
-import { modalStore } from '~/stores/modal';
+import * as API from '~/modules/api';
+import { Comment, Heart } from '@baejino/icon';
+import { ArticleReport } from '../article-report';
 
 export type ArticleActionProps = API.GetAnUserPostsViewResponseData;
 
@@ -51,40 +51,32 @@ export function ArticleAction(props: ArticleActionProps) {
             }
         }
         if (data.status === 'ERROR') {
-            if (data.errorCode === API.ERROR.NEED_LOGIN) {
-                snackBar('😅 로그인이 필요합니다.', {
-                    onClick: () => {
-                        modalStore.open('isOpenAuthGetModal');
-                    }
-                });
-            }
+            modalStore.open('isOpenAuthGetModal');
         }
     };
 
     const onClickGoComment = () => {
         window.scrollTo({
-            top: window.pageYOffset + document.querySelector('.comments')!.getBoundingClientRect().top - 15,
+            top: window.pageYOffset + document.querySelector('.article')!.getBoundingClientRect().bottom,
             behavior: 'smooth'
         });
     };
 
     return (
         <div className={cx('actions')}>
-            <Card
-                hasShadow
-                isRounded
-                hasBackground
-                backgroundType="background"
-                className={cx('box')}>
-                <Flex className="c-pointer shallow-dark" align="center" gap={2} onClick={onClickLike}>
-                    <i className={`${state.isLiked ? 'fas' : 'far'} fa-heart`} />
-                    <Text fontSize={3}>{state.countLikes}</Text>
-                </Flex>
-                <Flex className="c-pointer shallow-dark" align="center" gap={2} onClick={onClickGoComment}>
-                    <i className="far fa-comment" />
-                    <Text fontSize={3}>{state.countComments}</Text>
-                </Flex>
-            </Card>
+            <Flex className="c-pointer shallow-dark" align="center" gap={2} onClick={onClickLike}>
+                <Heart
+                    className={state.isLiked ? cx('heart-beat') : ''}
+                    width={20}
+                    height={20}
+                />
+                <Text fontSize={3}>{state.countLikes}</Text>
+            </Flex>
+            <Flex className="c-pointer shallow-dark" align="center" gap={2} onClick={onClickGoComment}>
+                <Comment width={20} height={20} />
+                <Text fontSize={3}>{state.countComments}</Text>
+            </Flex>
+            <ArticleReport url={props.url} />
         </div>
     );
 }

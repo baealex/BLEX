@@ -1,11 +1,7 @@
-import classNames from 'classnames/bind';
-import styles from './Comment.module.scss';
-const cx = classNames.bind(styles);
-
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from 'badland-react';
 
-import { Alert, Container, Flex, Loading } from '~/components/design-system';
+import { Alert, Flex, Loading } from '~/components/design-system';
 import { CommentCard } from './comment-card';
 import { CommentEditor } from './comment-editor';
 import { CommentForm } from './comment-form';
@@ -173,8 +169,8 @@ export function ArticleComment(props: ArticleCommentProps) {
     }, [comments]);
 
     return (
-        <div ref={ref} id="comments" className={`comments ${cx('background')} py-5`}>
-            <Container size="sm">
+        <div ref={ref} className="my-5">
+            <Flex direction="column" gap={4}>
                 {comments?.length > 0 ? comments.map((comment) => (
                     comment.isEdit ? (
                         <CommentEditor
@@ -221,13 +217,15 @@ export function ArticleComment(props: ArticleCommentProps) {
                         onSubmit={handleSubmit}
                     />
                 ) : (
-                    <Alert
-                        type="warning"
-                        onClick={() => modalStore.open('isOpenAuthGetModal')}>
-                        댓글을 작성하려면 로그인이 필요합니다.
-                    </Alert>
+                    <div style={{ width: '100%' }}>
+                        <Alert
+                            type="warning"
+                            onClick={() => modalStore.open('isOpenAuthGetModal')}>
+                            댓글을 작성하려면 로그인이 필요합니다.
+                        </Alert>
+                    </div>
                 )}
-            </Container>
+            </Flex>
         </div>
     );
 }
