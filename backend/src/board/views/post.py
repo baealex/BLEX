@@ -7,7 +7,7 @@ from django.http import Http404
 from board.models import Post, Series, PostLikes, Profile, Follow, Comment
 
 
-def post_detail(request, username, url):
+def post_detail(request, username, post_url):
     """
     View for the post detail page.
     """
@@ -19,7 +19,7 @@ def post_detail(request, username, url):
             'config', 'series', 'author', 'author__profile'
         ).filter(
             author=author,
-            url=url,
+            url=post_url,
         ).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),

@@ -32,10 +32,10 @@ urlpatterns = [
     path('@<username>', author_posts, name='user_profile'),
     path('@<username>/series', author_series, name='user_series'),
     path('@<username>/about', author_about, name='user_about'),
-    path('@<username>/<url>', post_detail, name='post_detail'),
-    path('@<username>/series/<url>', series_detail, name='series_detail'),
+    path('@<username>/<post_url>', post_detail, name='post_detail'),
+    path('@<username>/series/<series_url>', series_detail, name='series_detail'),
     path('write', post_editor, name='post_write'),
-    path('@<username>/<url>/edit', post_editor, name='post_edit'),
+    path('@<username>/<post_url>/edit', post_editor, name='post_edit'),
 
     # RSS and Etc
     path('rss', SitePostsFeed()),

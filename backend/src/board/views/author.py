@@ -54,7 +54,7 @@ def author_posts(request, username):
     if request.user.is_authenticated and request.user != author:
         is_following = Follow.objects.filter(
             follower_id=request.user.id,
-            following=author
+            following=author.profile
         ).exists()
     
     context = {
@@ -105,7 +105,7 @@ def author_series(request, username):
     if request.user.is_authenticated and request.user != author:
         is_following = Follow.objects.filter(
             follower_id=request.user.id,
-            following=author
+            following=author.profile
         ).exists()
     
     context = {
@@ -145,7 +145,7 @@ def author_about(request, username):
     if request.user.is_authenticated and request.user != author:
         is_following = Follow.objects.filter(
             follower_id=request.user.id,
-            following=author
+            following=author.profile
         ).exists()
     
     context = {

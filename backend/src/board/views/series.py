@@ -48,10 +48,10 @@ def series_detail(request, username, series_url):
     series.completion_percentage = 100 if series.post_count == 0 else int((series.completed_count / series.post_count) * 100)
     
     # Format dates and calculate read time for posts
-    for post in posts:
-        post.created_date = post.created_date.strftime('%Y-%m-%d')
-        word_count = len(post.content.split())
-        post.read_time = max(1, round(word_count / 200))
+    # for post in posts:
+    #     post.created_date = post.created_date.strftime('%Y-%m-%d')
+    #     word_count = len(post.content)
+    #     post.read_time = max(1, round(word_count / 200))
     
     # Format series date
     series.updated_date = series.updated_date.strftime('%Y-%m-%d')

@@ -8,11 +8,13 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [react()],
         build: {
-            outDir: '../static/assets/island',
+            outDir: '../static/assets/client',
             emptyOutDir: true,
             rollupOptions: {
                 input: {
-                    hydrate: resolve(__dirname, 'src/hydrate.tsx'),
+                    island: resolve(__dirname, 'src/island.tsx'),
+                    mainStyles: resolve(__dirname, 'styles/main.scss'),
+                    authorStyles: resolve(__dirname, 'styles/author.scss'),
                 },
                 output: {
                     entryFileNames: '[name].bundle.js',

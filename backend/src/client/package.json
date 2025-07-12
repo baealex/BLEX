@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@baejino/handy": "^0.2.3",
+        "@baejino/style": "^0.2.2",
         "axios": "^1.10.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"
