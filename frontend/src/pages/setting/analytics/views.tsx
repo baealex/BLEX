@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
-import ReactFrappeChart from 'react-frappe-charts';
+import Chart from '~/components/system-design/chart';
 
 import {
     Alert,
@@ -64,7 +64,7 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                                 기간 : 30일 이내
                             </div>
                         </Flex>
-                        <ReactFrappeChart
+                        <Chart
                             type="axis-mixed"
                             data={{
                                 labels: views.dates,

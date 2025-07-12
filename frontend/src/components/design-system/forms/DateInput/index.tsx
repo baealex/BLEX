@@ -3,7 +3,9 @@ import styles from './DateInput.module.scss';
 const cx = classNames.bind(styles);
 
 import React from 'react';
-import { default as ReactDatePicker } from 'react-datepicker';
+import dynamic from 'next/dynamic';
+
+const ReactDatePicker = dynamic(() => import('react-datepicker'), { ssr: false });
 
 import 'react-datepicker/dist/react-datepicker.css';
 

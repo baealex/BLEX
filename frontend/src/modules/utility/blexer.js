@@ -1,6 +1,5 @@
 import { Remarkable } from 'remarkable';
 import { linkify } from 'remarkable/linkify';
-import rkatex from 'remarkable-katex';
 
 function slugify(text) {
     return text
@@ -59,7 +58,6 @@ export default function blexer(md) {
         .use(headerHash)
         .use(lazyImage)
         .use(linkify)
-        .use(rkatex)
         .render(md);
 
     // Custom Markdown
