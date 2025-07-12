@@ -1,0 +1,171 @@
+.searchBoxContainer {
+  position: relative;
+  width: 100%;
+}
+
+.searchForm {
+  display: flex;
+  width: 100%;
+}
+
+.inputContainer {
+  position: relative;
+  flex: 1;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  
+  &:focus {
+    border-color: #4568dc;
+  }
+}
+
+.clearButton {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  
+  &:hover {
+    color: #666;
+  }
+}
+
+.searchButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  background-color: #4568dc;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #3a57c4;
+  }
+}
+
+.historyContainer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  margin-top: -1px;
+}
+
+.historyHeader {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #666;
+  border-bottom: 1px solid #eee;
+}
+
+.historyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.historyKeyword {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  
+  i {
+    color: #999;
+    font-size: 14px;
+  }
+}
+
+.historyRemove {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 12px;
+  
+  &:hover {
+    color: #dc4545;
+  }
+}
+
+/* 다크 모드 지원 */
+:global(body:not(.light)) {
+  .searchInput {
+    background-color: #222;
+    border-color: #444;
+    color: #eee;
+    
+    &:focus {
+      border-color: #5679ed;
+    }
+  }
+  
+  .clearButton {
+    color: #777;
+    
+    &:hover {
+      color: #aaa;
+    }
+  }
+  
+  .historyContainer {
+    background-color: #222;
+    border-color: #444;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .historyHeader {
+    color: #aaa;
+    border-bottom-color: #444;
+  }
+  
+  .historyItem {
+    &:hover {
+      background-color: #333;
+    }
+  }
+  
+  .historyKeyword {
+    color: #ddd;
+  }
+}

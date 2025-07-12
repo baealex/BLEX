@@ -1,0 +1,353 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load react_tags %}
+
+{% block title %}{{ series.name }} - {{ author.username }} | BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Series detail styles */
+    .series-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 0;
+    }
+    
+    /* Series header */
+    .series-header {
+        margin-bottom: 40px;
+    }
+    
+    .series-title {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+    
+    .series-description {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 24px;
+        line-height: 1.6;
+    }
+    
+    .series-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .series-author {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .series-author-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .series-author-name {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .series-date {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .series-progress-container {
+        margin-bottom: 32px;
+    }
+    
+    .series-progress-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    
+    .series-progress-text {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .series-progress-bar {
+        height: 8px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .series-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border-radius: 4px;
+    }
+    
+    /* Posts list */
+    .series-posts {
+        margin-top: 32px;
+    }
+    
+    .series-posts-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+    
+    .post-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .post-item {
+        margin-bottom: 24px;
+        border-radius: 12px;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .post-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .post-link {
+        display: flex;
+        padding: 20px;
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .post-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        background-color: #f0f0f0;
+        border-radius: 50%;
+        font-size: 18px;
+        font-weight: 600;
+        margin-right: 16px;
+        color: #555;
+    }
+    
+    .post-content {
+        flex: 1;
+    }
+    
+    .post-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    .post-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .post-date {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .post-read-time {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .post-likes {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .post-comments {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 0;
+    }
+    
+    .empty-state-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    
+    .empty-state-message {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 24px;
+    }
+    
+    /* Loading state */
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 0;
+    }
+    
+    .loading-spinner {
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 3px solid #4568dc;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Dark mode adjustments */
+    body.dark .series-description {
+        color: #bbb;
+    }
+    
+    body.dark .series-author-name {
+        color: #e0e0e0;
+    }
+    
+    body.dark .series-date {
+        color: #aaa;
+    }
+    
+    body.dark .series-progress-text {
+        color: #aaa;
+    }
+    
+    body.dark .series-progress-bar {
+        background-color: #333;
+    }
+    
+    body.dark .post-item {
+        background-color: #222;
+    }
+    
+    body.dark .post-number {
+        background-color: #333;
+        color: #ddd;
+    }
+    
+    body.dark .post-meta {
+        color: #aaa;
+    }
+    
+    body.dark .empty-state-message {
+        color: #bbb;
+    }
+    
+    body.dark .loading-spinner {
+        border-color: rgba(255, 255, 255, 0.1);
+        border-top-color: #4568dc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="series-container">
+    <div class="series-header">
+        <h1 class="series-title">{{ series.name }}</h1>
+        
+        <div class="series-meta">
+            <div class="series-author">
+                <a href="/@{{ author.username }}">
+                    <img class="series-author-image" src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ author.username }}">
+                </a>
+                <a href="/@{{ author.username }}" class="series-author-name">
+                    {{ author.username }}
+                </a>
+            </div>
+            <div class="series-date">마지막 업데이트: {{ series.updated_date }}</div>
+        </div>
+        
+        {% if series.description %}
+        <p class="series-description">{{ series.description }}</p>
+        {% endif %}
+        
+        {% if series.post_count > 0 %}
+        <div class="series-progress-container">
+            <div class="series-progress-info">
+                <span class="series-progress-text">{{ series.completed_count }} / {{ series.post_count }} 포스트 완료</span>
+                <span class="series-progress-text">{{ series.completion_percentage }}% 완료</span>
+            </div>
+            <div class="series-progress-bar">
+                <div class="series-progress-fill" style="width: {{ series.completion_percentage }}%"></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if is_loading %}
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+    </div>
+    {% elif not posts %}
+    <div class="empty-state">
+        <h2 class="empty-state-title">아직 포스트가 없습니다</h2>
+        <p class="empty-state-message">이 시리즈에는 아직 포스트가 없습니다.</p>
+    </div>
+    {% else %}
+    <div class="series-posts">
+        <h2 class="series-posts-title">포스트 목록</h2>
+        <ul class="post-list">
+            {% for post in posts %}
+            <li class="post-item">
+                <a href="/@{{ author.username }}/{{ post.url }}" class="post-link">
+                    <div class="post-number">{{ forloop.counter }}</div>
+                    <div class="post-content">
+                        <h3 class="post-title">{{ post.title }}</h3>
+                        <div class="post-meta">
+                            <div class="post-date">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>{{ post.created_date }}</span>
+                            </div>
+                            <div class="post-read-time">
+                                <i class="far fa-clock"></i>
+                                <span>{{ post.read_time }}분 분량</span>
+                            </div>
+                            <div class="post-likes">
+                                <i class="far fa-heart"></i>
+                                <span>{{ post.count_likes }}</span>
+                            </div>
+                            <div class="post-comments">
+                                <i class="far fa-comment"></i>
+                                <span>{{ post.count_comments }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

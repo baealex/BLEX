@@ -71,7 +71,7 @@ ROOT_URLCONF = 'main.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ 'oops' ],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -130,12 +130,8 @@ API_KEY = os.environ.get('API_KEY')
 API_URL = os.environ.get('API_URL')
 SITE_URL = os.environ.get('SITE_URL')
 
-STATIC_URL = os.environ.get('STATIC_URL') + '/assets/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
-
-MEDIA_URL = os.environ.get('STATIC_URL') + '/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
-
+STATIC_URL = os.environ.get('STATIC_URL') + '/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Extension (Telegram)
 
@@ -173,17 +169,22 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'INFO',
             'propagate': True,
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.template': {
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
         'board': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'INFO',
             'propagate': True,
         },
     },

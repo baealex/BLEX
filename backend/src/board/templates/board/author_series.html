@@ -1,0 +1,408 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load react_tags %}
+
+{% block title %}{{ author.username }}'s Series - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Author profile styles */
+    .author-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 0;
+    }
+    
+    .author-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .author-name {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .author-bio {
+        font-size: 18px;
+        color: #666;
+        max-width: 600px;
+        margin: 0 auto 20px;
+    }
+    
+    .author-stats {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .author-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #4568dc;
+    }
+    
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .author-links {
+        display: flex;
+        gap: 16px;
+        margin-top: 16px;
+    }
+    
+    .author-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        transition: all 0.2s ease;
+    }
+    
+    .author-link:hover {
+        background-color: #4568dc;
+        color: white;
+    }
+    
+    /* Tabs navigation */
+    .tabs-container {
+        margin-bottom: 32px;
+    }
+    
+    .tabs-nav {
+        display: flex;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 24px;
+    }
+    
+    .tab-item {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #666;
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s ease;
+    }
+    
+    .tab-item.active {
+        color: #4568dc;
+        font-weight: 600;
+    }
+    
+    .tab-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border-radius: 3px 3px 0 0;
+    }
+    
+    .tab-item:hover {
+        color: #4568dc;
+    }
+    
+    /* Series grid */
+    .series-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 24px;
+    }
+    
+    @media (min-width: 768px) {
+        .series-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .series-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    /* Series card styles */
+    .series-card {
+        border-radius: 16px;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .series-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .series-card-content {
+        padding: 24px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .series-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+    
+    .series-description {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 16px;
+        flex-grow: 1;
+    }
+    
+    .series-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: auto;
+    }
+    
+    .series-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #888;
+        font-size: 14px;
+    }
+    
+    .series-progress {
+        margin-top: 16px;
+        background-color: #f0f0f0;
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    
+    .series-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border-radius: 3px;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 0;
+    }
+    
+    .empty-state-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    
+    .empty-state-message {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 24px;
+    }
+    
+    /* Loading state */
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 0;
+    }
+    
+    .loading-spinner {
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 3px solid #4568dc;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Dark mode adjustments */
+    body.dark .author-bio {
+        color: #bbb;
+    }
+    
+    body.dark .stat-label {
+        color: #aaa;
+    }
+    
+    body.dark .author-link {
+        background-color: #333;
+        color: #ddd;
+    }
+    
+    body.dark .tabs-nav {
+        border-bottom-color: #333;
+    }
+    
+    body.dark .tab-item {
+        color: #bbb;
+    }
+    
+    body.dark .series-card {
+        background-color: #222;
+    }
+    
+    body.dark .series-description {
+        color: #bbb;
+    }
+    
+    body.dark .series-meta-item {
+        color: #999;
+    }
+    
+    body.dark .series-progress {
+        background-color: #333;
+    }
+    
+    body.dark .empty-state-message {
+        color: #bbb;
+    }
+    
+    body.dark .loading-spinner {
+        border-color: rgba(255, 255, 255, 0.1);
+        border-top-color: #4568dc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="author-header">
+    <img class="author-avatar" src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ author.username }}">
+    <h1 class="author-name">{{ author.username }}</h1>
+    {% if author.profile.bio %}
+    <p class="author-bio">{{ author.profile.bio }}</p>
+    {% endif %}
+    
+    <div class="author-stats">
+        <div class="author-stat">
+            <span class="stat-value">{{ post_count }}</span>
+            <span class="stat-label">Posts</span>
+        </div>
+        <div class="author-stat">
+            <span class="stat-value">{{ series_count }}</span>
+            <span class="stat-label">Series</span>
+        </div>
+        <div class="author-stat">
+            <span class="stat-value">{{ follower_count }}</span>
+            <span class="stat-label">Followers</span>
+        </div>
+    </div>
+    
+    {% if user.is_authenticated and user.id != author.id %}
+    <div>
+        {% react_component 'FollowButton' authorId=author.username isFollowing=is_following %}
+    </div>
+    {% endif %}
+    
+    {% if author.profile.github or author.profile.twitter or author.profile.facebook or author.profile.instagram or author.profile.linkedin %}
+    <div class="author-links">
+        {% if author.profile.github %}
+        <a href="{{ author.profile.github }}" target="_blank" class="author-link" title="GitHub">
+            <i class="fab fa-github"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.twitter %}
+        <a href="{{ author.profile.twitter }}" target="_blank" class="author-link" title="Twitter">
+            <i class="fab fa-twitter"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.facebook %}
+        <a href="{{ author.profile.facebook }}" target="_blank" class="author-link" title="Facebook">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.instagram %}
+        <a href="{{ author.profile.instagram }}" target="_blank" class="author-link" title="Instagram">
+            <i class="fab fa-instagram"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.linkedin %}
+        <a href="{{ author.profile.linkedin }}" target="_blank" class="author-link" title="LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="tabs-container">
+    <div class="tabs-nav">
+        <a href="/@{{ author.username }}" class="tab-item">Posts</a>
+        <a href="/@{{ author.username }}/series" class="tab-item active">Series</a>
+        <a href="/@{{ author.username }}/about" class="tab-item">About</a>
+    </div>
+    
+    {% if is_loading %}
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+    </div>
+    {% elif not series_list %}
+    <div class="empty-state">
+        <h2 class="empty-state-title">No series yet</h2>
+        <p class="empty-state-message">{{ author.username }} hasn't created any series yet.</p>
+    </div>
+    {% else %}
+    <div class="series-grid">
+        {% for series in series_list %}
+        <a href="/@{{ author.username }}/series/{{ series.url }}" class="series-card">
+            <div class="series-card-content">
+                <h3 class="series-title">{{ series.name }}</h3>
+                <p class="series-description">{{ series.description }}</p>
+                <div class="series-meta">
+                    <div class="series-meta-item">
+                        <i class="far fa-file-alt"></i>
+                        <span>{{ series.post_count }} posts</span>
+                    </div>
+                    <div class="series-meta-item">
+                        <i class="far fa-clock"></i>
+                        <span>{{ series.updated_date }}</span>
+                    </div>
+                </div>
+                {% if series.post_count > 0 and series.completed_count > 0 %}
+                <div class="series-progress">
+                    <div class="series-progress-bar" style="width: {{ series.completion_percentage }}%"></div>
+                </div>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

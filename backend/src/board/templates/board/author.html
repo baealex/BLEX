@@ -1,0 +1,500 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load react_tags %}
+
+{% block title %}{{ author.username }} - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Author profile styles */
+    .author-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 0;
+    }
+
+    .author-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .author-name {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .author-bio {
+        font-size: 18px;
+        color: #666;
+        max-width: 600px;
+        margin: 0 auto 20px;
+    }
+
+    .author-stats {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .author-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #4568dc;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .author-links {
+        display: flex;
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .author-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        transition: all 0.2s ease;
+    }
+
+    .author-link:hover {
+        background-color: #4568dc;
+        color: white;
+    }
+
+    /* Tabs navigation */
+    .tabs-container {
+        margin-bottom: 32px;
+    }
+
+    .tabs-nav {
+        display: flex;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 24px;
+    }
+
+    .tab-item {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #666;
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s ease;
+    }
+
+    .tab-item.active {
+        color: #4568dc;
+        font-weight: 600;
+    }
+
+    .tab-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border-radius: 3px 3px 0 0;
+    }
+
+    .tab-item:hover {
+        color: #4568dc;
+    }
+
+    /* Posts grid */
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+        .posts-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .posts-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Post card styles */
+    .post-card {
+        border-radius: 16px;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-image-container {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .post-card:hover .post-image {
+        transform: scale(1.05);
+    }
+
+    .post-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .post-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+
+    .post-description {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 16px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .post-meta {
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 12px;
+    }
+
+    .post-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+
+    .series-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background-color: #f0f0f0;
+        color: #555;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .post-stats {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #999;
+        font-size: 14px;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 0;
+    }
+
+    .empty-state-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .empty-state-message {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 24px;
+    }
+
+    /* Loading state */
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 0;
+    }
+
+    .loading-spinner {
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 3px solid #4568dc;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+    }
+
+    .load-more-button {
+        padding: 10px 24px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        color: white;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .load-more-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Dark mode adjustments */
+    body.dark .author-bio {
+        color: #bbb;
+    }
+
+    body.dark .stat-label {
+        color: #aaa;
+    }
+
+    body.dark .author-link {
+        background-color: #333;
+        color: #ddd;
+    }
+
+    body.dark .tabs-nav {
+        border-bottom-color: #333;
+    }
+
+    body.dark .tab-item {
+        color: #bbb;
+    }
+
+    body.dark .post-card {
+        background-color: #222;
+    }
+
+    body.dark .post-description {
+        color: #bbb;
+    }
+
+    body.dark .post-meta {
+        color: #999;
+    }
+
+    body.dark .series-badge {
+        background-color: #333;
+        color: #ddd;
+    }
+
+    body.dark .empty-state-message {
+        color: #bbb;
+    }
+
+    body.dark .loading-spinner {
+        border-color: rgba(255, 255, 255, 0.1);
+        border-top-color: #4568dc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="author-header">
+    <img class="author-avatar" src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ author.username }}">
+    <h1 class="author-name">{{ author.username }}</h1>
+    {% if author.profile.bio %}
+    <p class="author-bio">{{ author.profile.bio }}</p>
+    {% endif %}
+    
+    <div class="author-stats">
+        <div class="author-stat">
+            <span class="stat-value">{{ post_count }}</span>
+            <span class="stat-label">Posts</span>
+        </div>
+        <div class="author-stat">
+            <span class="stat-value">{{ series_count }}</span>
+            <span class="stat-label">Series</span>
+        </div>
+        <div class="author-stat">
+            <span class="stat-value">{{ follower_count }}</span>
+            <span class="stat-label">Followers</span>
+        </div>
+    </div>
+    
+    {% if user.is_authenticated and user.id != author.id %}
+    <div>
+        {% react_component 'FollowButton' authorId=author.username isFollowing=is_following %}
+    </div>
+    {% endif %}
+    
+    {% if author.profile.github or author.profile.twitter or author.profile.facebook or author.profile.instagram or author.profile.linkedin %}
+    <div class="author-links">
+        {% if author.profile.github %}
+        <a href="{{ author.profile.github }}" target="_blank" class="author-link" title="GitHub">
+            <i class="fab fa-github"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.twitter %}
+        <a href="{{ author.profile.twitter }}" target="_blank" class="author-link" title="Twitter">
+            <i class="fab fa-twitter"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.facebook %}
+        <a href="{{ author.profile.facebook }}" target="_blank" class="author-link" title="Facebook">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.instagram %}
+        <a href="{{ author.profile.instagram }}" target="_blank" class="author-link" title="Instagram">
+            <i class="fab fa-instagram"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.linkedin %}
+        <a href="{{ author.profile.linkedin }}" target="_blank" class="author-link" title="LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+
+<div class="tabs-container">
+    <div class="tabs-nav">
+        <a href="/@{{ author.username }}" class="tab-item active">Posts</a>
+        <a href="/@{{ author.username }}/series" class="tab-item">Series</a>
+        <a href="/@{{ author.username }}/about" class="tab-item">About</a>
+    </div>
+
+    {% if is_loading %}
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+    </div>
+    {% elif not posts %}
+    <div class="empty-state">
+        <h2 class="empty-state-title">No posts yet</h2>
+        <p class="empty-state-message">{{ author.username }} hasn't published any posts yet.</p>
+    </div>
+    {% else %}
+    <div class="posts-grid">
+        {% for post in posts %}
+        <div class="post-card">
+            {% if post.image %}
+            <div class="post-image-container">
+                <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }}">
+            </div>
+            {% endif %}
+            <div class="post-content">
+                <h3 class="post-title">
+                    <a href="/@{{ author.username }}/{{ post.url }}">{{ post.title }}</a>
+                </h3>
+                <p class="post-description">{{ post.meta_description }}</p>
+                <div class="post-meta">
+                    {{ post.created_date }} · {{ post.read_time }}분 분량
+                </div>
+                <div class="post-footer">
+                    {% if post.series %}
+                    <a href="/@{{ author.username }}/series/{{ post.series.url }}">
+                        <span class="series-badge">{{ post.series.name }}</span>
+                    </a>
+                    {% else %}
+                    <div></div>
+                    {% endif %}
+                    <div class="post-stats">
+                        <div class="stat-item">
+                            <i class="far fa-comment"></i>
+                            <span>{{ post.count_comments }}</span>
+                        </div>
+                        <div class="stat-item">
+                            {% react_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if has_next_page %}
+    <div class="pagination">
+        <a href="?page={{ next_page }}" class="load-more-button">Load More</a>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Handle tab navigation
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabItems = document.querySelectorAll('.tab-item');
+
+        tabItems.forEach(tab => {
+            tab.addEventListener('click', function (e) {
+                // Tab navigation is handled by href links
+            });
+        });
+    });
+</script>
+{% endblock %}

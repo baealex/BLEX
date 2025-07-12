@@ -1,0 +1,643 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load react_tags %}
+
+{% block title %}{{ post.title }} - {{ post.author_username }} | BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Post detail styles */
+    .post-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 0;
+    }
+
+    /* Post header */
+    .post-header {
+        margin-bottom: 32px;
+    }
+
+    .post-title {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .post-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .post-author {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .post-author-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .post-author-name {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .post-date {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .post-read-time {
+        color: #666;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Post cover image */
+    .post-cover-container {
+        margin-bottom: 32px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-cover-image {
+        width: 100%;
+        max-height: 500px;
+        object-fit: cover;
+    }
+
+    /* Post content */
+    .post-content {
+        font-size: 18px;
+        line-height: 1.7;
+        color: #333;
+    }
+
+    .post-content h1,
+    .post-content h2,
+    .post-content h3,
+    .post-content h4,
+    .post-content h5,
+    .post-content h6 {
+        margin-top: 1.5em;
+        margin-bottom: 0.75em;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .post-content h1 {
+        font-size: 2em;
+    }
+
+    .post-content h2 {
+        font-size: 1.75em;
+    }
+
+    .post-content h3 {
+        font-size: 1.5em;
+    }
+
+    .post-content h4 {
+        font-size: 1.25em;
+    }
+
+    .post-content p {
+        margin-bottom: 1.5em;
+    }
+
+    .post-content a {
+        color: #4568dc;
+        text-decoration: none;
+    }
+
+    .post-content a:hover {
+        text-decoration: underline;
+    }
+
+    .post-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 1.5em 0;
+    }
+
+    .post-content blockquote {
+        border-left: 4px solid #4568dc;
+        padding-left: 1em;
+        margin-left: 0;
+        margin-right: 0;
+        font-style: italic;
+        color: #555;
+    }
+
+    .post-content pre {
+        background-color: #f5f5f5;
+        padding: 1em;
+        border-radius: 5px;
+        overflow-x: auto;
+        margin-bottom: 1.5em;
+    }
+
+    .post-content code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        background-color: #f5f5f5;
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+
+    .post-content pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+
+    .post-content ul,
+    .post-content ol {
+        margin-bottom: 1.5em;
+        padding-left: 1.5em;
+    }
+
+    .post-content li {
+        margin-bottom: 0.5em;
+    }
+
+    .post-content hr {
+        border: 0;
+        border-top: 1px solid #e0e0e0;
+        margin: 2em 0;
+    }
+
+    .post-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5em;
+    }
+
+    .post-content th,
+    .post-content td {
+        border: 1px solid #e0e0e0;
+        padding: 0.5em;
+    }
+
+    .post-content th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+    }
+
+    /* Post tags */
+    .post-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 32px;
+        margin-bottom: 32px;
+    }
+
+    .post-tag {
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #f0f0f0;
+        color: #555;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .post-tag:hover {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+
+    /* Post actions */
+    .post-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .post-action-group {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .post-like-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        color: #666;
+        padding: 8px 16px;
+        border-radius: 20px;
+        transition: all 0.2s ease;
+    }
+
+    .post-like-button:hover {
+        background-color: #f0f0f0;
+    }
+
+    .post-like-button.liked {
+        color: #ff6b6b;
+    }
+
+    .post-share-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        color: #666;
+        padding: 8px 16px;
+        border-radius: 20px;
+        transition: all 0.2s ease;
+    }
+
+    .post-share-button:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Series info */
+    .series-info {
+        margin-top: 40px;
+        margin-bottom: 40px;
+        padding: 24px;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+    }
+
+    .series-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .series-title {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .series-progress {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .series-posts {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .series-post-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .series-post-item:last-child {
+        border-bottom: none;
+    }
+
+    .series-post-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #333;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .series-post-link:hover {
+        color: #4568dc;
+    }
+
+    .series-post-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background-color: #e0e0e0;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .series-post-link.active {
+        color: #4568dc;
+        font-weight: 600;
+    }
+
+    .series-post-link.active .series-post-number {
+        background-color: #4568dc;
+        color: white;
+    }
+
+    /* Comments section */
+    .comments-section {
+        margin-top: 60px;
+    }
+
+    .comments-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+
+    /* Related posts */
+    .related-posts {
+        margin-top: 60px;
+    }
+
+    .related-posts-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+
+    .related-posts-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+        .related-posts-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .related-posts-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Dark mode adjustments */
+    body.dark .post-title {
+        color: #f0f0f0;
+    }
+
+    body.dark .post-author-name {
+        color: #e0e0e0;
+    }
+
+    body.dark .post-date,
+    body.dark .post-read-time {
+        color: #aaa;
+    }
+
+    body.dark .post-content {
+        color: #e0e0e0;
+    }
+
+    body.dark .post-content blockquote {
+        color: #bbb;
+    }
+
+    body.dark .post-content pre,
+    body.dark .post-content code {
+        background-color: #2a2a2a;
+    }
+
+    body.dark .post-content th,
+    body.dark .post-content td {
+        border-color: #444;
+    }
+
+    body.dark .post-content th {
+        background-color: #2a2a2a;
+    }
+
+    body.dark .post-content hr {
+        border-top-color: #444;
+    }
+
+    body.dark .post-tag {
+        background-color: #333;
+        color: #ddd;
+    }
+
+    body.dark .post-tag:hover {
+        background-color: #444;
+        color: #fff;
+    }
+
+    body.dark .post-actions {
+        border-top-color: #444;
+    }
+
+    body.dark .post-like-button,
+    body.dark .post-share-button {
+        color: #bbb;
+    }
+
+    body.dark .post-like-button:hover,
+    body.dark .post-share-button:hover {
+        background-color: #333;
+    }
+
+    body.dark .series-info {
+        background-color: #222;
+    }
+
+    body.dark .series-progress {
+        color: #aaa;
+    }
+
+    body.dark .series-post-item {
+        border-bottom-color: #444;
+    }
+
+    body.dark .series-post-link {
+        color: #ddd;
+    }
+
+    body.dark .series-post-number {
+        background-color: #444;
+        color: #ddd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="post-container">
+    <article class="post-article">
+        <header class="post-header">
+            <h1 class="post-title">{{ post.title }}</h1>
+            <div class="post-meta">
+                <div class="post-author">
+                    <a href="/@{{ post.author_username }}">
+                        <img class="post-author-image"
+                            src="{% if post.author_image %}{% static post.author_image.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}"
+                            alt="{{ post.author_username }}">
+                    </a>
+                    <a href="/@{{ post.author_username }}" class="post-author-name">
+                        {{ post.author_username }}
+                    </a>
+                </div>
+                <div class="post-date">{{ post.created_date }}</div>
+                <div class="post-read-time">
+                    <i class="far fa-clock"></i>
+                    <span>{{ post.read_time }}분 분량</span>
+                </div>
+            </div>
+
+            {% if post.image %}
+            <div class="post-cover-container">
+                <img class="post-cover-image" src="{% static post.image.url %}" alt="{{ post.title }}">
+            </div>
+            {% endif %}
+        </header>
+
+        <div class="post-content">
+            {{ post.content|safe }}
+        </div>
+
+        {% if post.tags %}
+        <div class="post-tags">
+            {% for tag in post.tags.all %}
+            <a href="/tags/{{ tag }}" class="post-tag">{{ tag }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="post-actions">
+            <div class="post-action-group">
+                <island-component name="LikeButton" props="{
+                    postId: '{{ post.url }}',
+                    likesCount: {{ post.count_likes }},
+                    hasLiked: {{ post.has_liked }},
+                    size: 'large'
+                }"></island-component>
+                <button class="post-share-button" id="shareButton">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Share</span>
+                </button>
+            </div>
+
+            {% if user.is_authenticated and user.username == post.author_username %}
+            <div class="post-action-group">
+                <a href="/@{{ post.author_username }}/{{ post.url }}/edit" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i>
+                    <span>Edit</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </article>
+
+    {% if post.series %}
+    <div class="series-info">
+        <div class="series-header">
+            <h3 class="series-title">
+                <a href="/@{{ post.author_username }}/series/{{ post.series.url }}">{{ post.series.name }}</a>
+            </h3>
+            <div class="series-progress">
+                {{ post.series_index }} / {{ post.series_total }} 포스트
+            </div>
+        </div>
+        <ul class="series-posts">
+            {% for series_post in post.series_posts %}
+            <li class="series-post-item">
+                <a href="/@{{ post.author_username }}/{{ series_post.url }}"
+                    class="series-post-link {% if series_post.url == post.url %}active{% endif %}">
+                    <span class="series-post-number">{{ forloop.counter }}</span>
+                    <span>{{ series_post.title }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="comments-section">
+        <h3 class="comments-title">댓글 {{ post.count_comments }}개</h3>
+        {% react_component 'Comments' postId=post.url %}
+    </div>
+
+    {% if related_posts %}
+    <div class="related-posts">
+        <h3 class="related-posts-title">관련 포스트</h3>
+        <div class="related-posts-grid">
+            {% for related_post in related_posts %}
+            <div class="post-card">
+                {% if related_post.image %}
+                <div class="post-image-container">
+                    <img class="post-image" src="{{ related_post.image.url }}" alt="{{ related_post.title }}">
+                </div>
+                {% endif %}
+                <div class="post-content">
+                    <h3 class="post-title">
+                        <a href="/@{{ related_post.author_username }}/{{ related_post.url }}">{{ related_post.title
+                            }}</a>
+                    </h3>
+                    <p class="post-description">{{ related_post.meta_description }}</p>
+                    <div class="post-meta">
+                        {{ related_post.created_date }} · {{ related_post.read_time }}분 분량
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Share functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        const shareButton = document.getElementById('shareButton');
+        if (shareButton) {
+            shareButton.addEventListener('click', function () {
+                if (navigator.share) {
+                    navigator.share({
+                        title: '{{ post.title }}',
+                        text: '{{ post.meta_description }}',
+                        url: window.location.href
+                    })
+                        .catch(error => console.log('Error sharing:', error));
+                } else {
+                    // Fallback for browsers that don't support the Web Share API
+                    const tempInput = document.createElement('input');
+                    tempInput.value = window.location.href;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+
+                    // Show a temporary message
+                    const shareText = shareButton.querySelector('span');
+                    const originalText = shareText.textContent;
+                    shareText.textContent = 'Copied!';
+                    setTimeout(() => {
+                        shareText.textContent = originalText;
+                    }, 2000);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,606 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load react_tags %}
+
+{% block title %}{% if is_edit %}Edit Post{% else %}Write Post{% endif %} - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Editor container */
+    .editor-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 0;
+    }
+    
+    /* Editor header */
+    .editor-header {
+        margin-bottom: 24px;
+    }
+    
+    .editor-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+    
+    /* Form elements */
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #4568dc;
+        box-shadow: 0 0 0 3px rgba(69, 104, 220, 0.2);
+        outline: none;
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    /* Image upload */
+    .image-upload {
+        margin-bottom: 24px;
+    }
+    
+    .image-preview {
+        margin-top: 16px;
+        border-radius: 8px;
+        overflow: hidden;
+        max-width: 100%;
+        max-height: 300px;
+    }
+    
+    .image-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+    }
+    
+    .image-upload-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .image-upload-button:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .image-upload-input {
+        display: none;
+    }
+    
+    /* Tag input */
+    .tag-input-container {
+        margin-bottom: 24px;
+    }
+    
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    
+    .tag-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background-color: #f0f0f0;
+        border-radius: 16px;
+        font-size: 14px;
+    }
+    
+    .tag-remove {
+        cursor: pointer;
+        color: #666;
+        transition: color 0.2s ease;
+    }
+    
+    .tag-remove:hover {
+        color: #ff6b6b;
+    }
+    
+    /* Series selector */
+    .series-selector {
+        margin-bottom: 24px;
+    }
+    
+    .series-dropdown {
+        position: relative;
+    }
+    
+    .series-dropdown-toggle {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .series-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-top: 4px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .series-dropdown-item {
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .series-dropdown-item:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .series-dropdown-item.active {
+        background-color: #f0f0f0;
+        font-weight: 500;
+    }
+    
+    /* Config options */
+    .config-options {
+        margin-top: 32px;
+        margin-bottom: 24px;
+    }
+    
+    .config-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+    
+    .config-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .config-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .config-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .config-label {
+        font-size: 16px;
+        cursor: pointer;
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    
+    .btn-primary {
+        background-color: #4568dc;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #3a57c4;
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+    
+    .btn-outline:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .btn-danger {
+        background-color: #ff6b6b;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #ff5252;
+    }
+    
+    /* Dark mode adjustments */
+    body.dark .form-control {
+        background-color: #222;
+        border-color: #444;
+        color: #e0e0e0;
+    }
+    
+    body.dark .form-control:focus {
+        border-color: #4568dc;
+    }
+    
+    body.dark .image-upload-button {
+        background-color: #333;
+        border-color: #444;
+        color: #e0e0e0;
+    }
+    
+    body.dark .image-upload-button:hover {
+        background-color: #444;
+    }
+    
+    body.dark .tag-item {
+        background-color: #333;
+        color: #e0e0e0;
+    }
+    
+    body.dark .series-dropdown-toggle {
+        background-color: #222;
+        border-color: #444;
+        color: #e0e0e0;
+    }
+    
+    body.dark .series-dropdown-menu {
+        background-color: #222;
+        border-color: #444;
+    }
+    
+    body.dark .series-dropdown-item:hover {
+        background-color: #333;
+    }
+    
+    body.dark .series-dropdown-item.active {
+        background-color: #333;
+    }
+    
+    body.dark .btn-outline {
+        border-color: #444;
+        color: #bbb;
+    }
+    
+    body.dark .btn-outline:hover {
+        background-color: #333;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="editor-container">
+    <header class="editor-header">
+        <h1 class="editor-title">{% if is_edit %}Edit Post{% else %}Write Post{% endif %}</h1>
+    </header>
+    
+    <form id="postForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ post.title }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="url" class="form-label">URL</label>
+            <input type="text" id="url" name="url" class="form-control" value="{{ post.url }}" placeholder="post-url" required>
+        </div>
+        
+        <div class="image-upload">
+            <label class="form-label">Cover Image</label>
+            <label class="image-upload-button">
+                <i class="fas fa-upload"></i>
+                <span>Upload Image</span>
+                <input type="file" id="image" name="image" class="image-upload-input" accept="image/*">
+            </label>
+            
+            {% if post.image %}
+            <div class="image-preview">
+                <img src="{{ post.image.url }}" alt="Cover Image">
+            </div>
+            {% else %}
+            <div class="image-preview" style="display: none;">
+                <img id="imagePreview" src="" alt="Cover Image">
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="meta_description" class="form-label">Meta Description</label>
+            <textarea id="meta_description" name="meta_description" class="form-control" maxlength="150">{{ post.meta_description }}</textarea>
+            <small>Maximum 150 characters</small>
+        </div>
+        
+        <div class="tag-input-container">
+            <label for="tagInput" class="form-label">Tags</label>
+            <input type="text" id="tagInput" class="form-control" placeholder="Add tags and press Enter">
+            <input type="hidden" id="tags" name="tags" value="{{ post.tags|join:',' }}">
+            
+            <div class="tag-list" id="tagList">
+                {% for tag in post.tags %}
+                <div class="tag-item" data-tag="{{ tag }}">
+                    <span>{{ tag }}</span>
+                    <span class="tag-remove">&times;</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="series-selector">
+            <label for="series" class="form-label">Series</label>
+            <div class="series-dropdown">
+                <button type="button" class="series-dropdown-toggle" id="seriesToggle">
+                    <span id="selectedSeries">{% if post.series %}{{ post.series.name }}{% else %}Select Series{% endif %}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="series-dropdown-menu" id="seriesMenu" style="display: none;">
+                    <div class="series-dropdown-item" data-id="">None</div>
+                    {% for series in series_list %}
+                    <div class="series-dropdown-item {% if post.series and post.series.id == series.id %}active{% endif %}" data-id="{{ series.id }}">
+                        {{ series.name }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="series" name="series" value="{{ post.series.id|default:'' }}">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="content" class="form-label">Content</label>
+            {% react_component 'MarkdownEditor' initialValue=post.content %}
+            <input type="hidden" id="content" name="content" value="{{ post.content }}">
+        </div>
+        
+        <div class="config-options">
+            <h3 class="config-title">Post Settings</h3>
+            <div class="config-group">
+                <div class="config-item">
+                    <input type="checkbox" id="hide" name="hide" class="config-checkbox" {% if post.config.hide %}checked{% endif %}>
+                    <label for="hide" class="config-label">Hide from public</label>
+                </div>
+                <div class="config-item">
+                    <input type="checkbox" id="notice" name="notice" class="config-checkbox" {% if post.config.notice %}checked{% endif %}>
+                    <label for="notice" class="config-label">Pin as notice</label>
+                </div>
+                <div class="config-item">
+                    <input type="checkbox" id="advertise" name="advertise" class="config-checkbox" {% if post.config.advertise %}checked{% endif %}>
+                    <label for="advertise" class="config-label">Show advertisements</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <div>
+                <button type="button" id="saveButton" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if is_edit %}Update{% else %}Publish{% endif %}
+                </button>
+                <button type="button" id="draftButton" class="btn btn-outline">
+                    <i class="fas fa-save"></i>
+                    Save as Draft
+                </button>
+            </div>
+            
+            {% if is_edit %}
+            <button type="button" id="deleteButton" class="btn btn-danger">
+                <i class="fas fa-trash"></i>
+                Delete
+            </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image preview
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewContainer = document.querySelector('.image-preview');
+        
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        // Tag input
+        const tagInput = document.getElementById('tagInput');
+        const tagList = document.getElementById('tagList');
+        const tagsInput = document.getElementById('tags');
+        
+        function updateTagsInput() {
+            const tags = Array.from(tagList.querySelectorAll('.tag-item')).map(tag => tag.dataset.tag);
+            tagsInput.value = tags.join(',');
+        }
+        
+        function addTag(tag) {
+            if (!tag) return;
+            
+            // Check if tag already exists
+            const existingTags = Array.from(tagList.querySelectorAll('.tag-item')).map(tag => tag.dataset.tag);
+            if (existingTags.includes(tag)) return;
+            
+            const tagItem = document.createElement('div');
+            tagItem.className = 'tag-item';
+            tagItem.dataset.tag = tag;
+            tagItem.innerHTML = `
+                <span>${tag}</span>
+                <span class="tag-remove">&times;</span>
+            `;
+            
+            tagItem.querySelector('.tag-remove').addEventListener('click', function() {
+                tagItem.remove();
+                updateTagsInput();
+            });
+            
+            tagList.appendChild(tagItem);
+            updateTagsInput();
+        }
+        
+        tagInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const tag = this.value.trim();
+                if (tag) {
+                    addTag(tag);
+                    this.value = '';
+                }
+            }
+        });
+        
+        // Remove tags
+        tagList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('tag-remove')) {
+                e.target.parentElement.remove();
+                updateTagsInput();
+            }
+        });
+        
+        // Series dropdown
+        const seriesToggle = document.getElementById('seriesToggle');
+        const seriesMenu = document.getElementById('seriesMenu');
+        const selectedSeries = document.getElementById('selectedSeries');
+        const seriesInput = document.getElementById('series');
+        
+        seriesToggle.addEventListener('click', function() {
+            seriesMenu.style.display = seriesMenu.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!seriesToggle.contains(e.target) && !seriesMenu.contains(e.target)) {
+                seriesMenu.style.display = 'none';
+            }
+        });
+        
+        const seriesItems = document.querySelectorAll('.series-dropdown-item');
+        seriesItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const seriesId = this.dataset.id;
+                const seriesName = this.textContent.trim();
+                
+                selectedSeries.textContent = seriesId ? seriesName : 'Select Series';
+                seriesInput.value = seriesId;
+                
+                seriesItems.forEach(item => item.classList.remove('active'));
+                if (seriesId) {
+                    this.classList.add('active');
+                }
+                
+                seriesMenu.style.display = 'none';
+            });
+        });
+        
+        // Form submission
+        const postForm = document.getElementById('postForm');
+        const saveButton = document.getElementById('saveButton');
+        const draftButton = document.getElementById('draftButton');
+        const deleteButton = document.getElementById('deleteButton');
+        const contentInput = document.getElementById('content');
+        
+        saveButton.addEventListener('click', function() {
+            // Get content from markdown editor
+            const editorContent = window.markdownEditor ? window.markdownEditor.getValue() : '';
+            contentInput.value = editorContent;
+            
+            // Add draft status
+            const draftInput = document.createElement('input');
+            draftInput.type = 'hidden';
+            draftInput.name = 'draft';
+            draftInput.value = 'false';
+            postForm.appendChild(draftInput);
+            
+            postForm.submit();
+        });
+        
+        draftButton.addEventListener('click', function() {
+            // Get content from markdown editor
+            const editorContent = window.markdownEditor ? window.markdownEditor.getValue() : '';
+            contentInput.value = editorContent;
+            
+            // Add draft status
+            const draftInput = document.createElement('input');
+            draftInput.type = 'hidden';
+            draftInput.name = 'draft';
+            draftInput.value = 'true';
+            postForm.appendChild(draftInput);
+            
+            postForm.submit();
+        });
+        
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this post?')) {
+                    const deleteInput = document.createElement('input');
+                    deleteInput.type = 'hidden';
+                    deleteInput.name = 'delete';
+                    deleteInput.value = 'true';
+                    postForm.appendChild(deleteInput);
+                    
+                    postForm.submit();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

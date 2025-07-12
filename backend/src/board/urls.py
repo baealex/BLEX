@@ -6,19 +6,33 @@ from django.views.generic import TemplateView
 from board.sitemaps import sitemaps, sitemap_section
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
-
+from board.views import main
+from board.views.post_actions import like_post
+from board.views.search import search_view
+from board.views.author import author_posts, author_series, author_about
+from board.views.post import post_detail, post_editor
+from board.views.series import series_detail
 
 def empty():
     pass
 
 
 urlpatterns = [
+    # Main page (Django template version)
+    path('', main.index, name='index'),
+    path('search', search_view, name='search'),
+    path('like/<str:url>', like_post, name='like_post'),
+
     # Sitemap Generator
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('<section>/sitemap.xml', sitemap, {'sitemaps': sitemap_section}, name='sitemap_section'),
-    path('@<username>', empty, name='user_profile'),
-    path('@<username>/<url>', empty, name='post_detail'),
-    path('@<username>/series/<url>', empty, name='series_list'),
+    path('@<username>', author_posts, name='user_profile'),
+    path('@<username>/series', author_series, name='user_series'),
+    path('@<username>/about', author_about, name='user_about'),
+    path('@<username>/<url>', post_detail, name='post_detail'),
+    path('@<username>/series/<url>', series_detail, name='series_detail'),
+    path('write', post_editor, name='post_write'),
+    path('@<username>/<url>/edit', post_editor, name='post_edit'),
 
     # RSS and Etc
     path('rss', SitePostsFeed()),

@@ -1,0 +1,58 @@
+.likeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #666;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  &.liked {
+    color: #e74c3c;
+    
+    .icon {
+      color: #e74c3c;
+    }
+  }
+  
+  &.loading {
+    opacity: 0.7;
+    cursor: wait;
+  }
+  
+  .icon {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover .icon {
+    transform: scale(1.2);
+  }
+  
+  .count {
+    font-weight: 500;
+  }
+}
+
+// 다크 모드 지원
+:global(body:not(.light)) {
+  .likeButton {
+    color: #aaa;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    &.liked {
+      color: #e74c3c;
+    }
+  }
+}

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BLEX{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(90deg, #4568dc, #b06ab3);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        .header.scrolled {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            font-size: 16px;
+            font-weight: 500;
+            color: #555;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: #4568dc;
+        }
+
+        .nav-link.active {
+            color: #4568dc;
+            font-weight: 600;
+        }
+
+        .main-content {
+            padding: 40px 0;
+        }
+
+        .footer {
+            background-color: #f2f2f2;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .footer-section {
+            margin-bottom: 20px;
+        }
+
+        .footer-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .footer-link {
+            color: #666;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: #4568dc;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        /* Dark mode */
+        body.dark {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        body.dark .header {
+            background-color: #1e1e1e;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark .header.scrolled {
+            background-color: rgba(30, 30, 30, 0.8);
+        }
+
+        body.dark .nav-link {
+            color: #bbb;
+        }
+
+        body.dark .footer {
+            background-color: #1e1e1e;
+        }
+
+        body.dark .footer-link {
+            color: #aaa;
+        }
+
+        body.dark .copyright {
+            border-top-color: #333;
+            color: #888;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body:not(.light) {
+                background-color: #121212;
+                color: #e0e0e0;
+            }
+
+            body:not(.light) .header {
+                background-color: #1e1e1e;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            body:not(.light) .header.scrolled {
+                background-color: rgba(30, 30, 30, 0.8);
+            }
+
+            body:not(.light) .nav-link {
+                color: #bbb;
+            }
+
+            body:not(.light) .footer {
+                background-color: #1e1e1e;
+            }
+
+            body:not(.light) .footer-link {
+                color: #aaa;
+            }
+
+            body:not(.light) .copyright {
+                border-top-color: #333;
+                color: #888;
+            }
+        }
+
+        /* Additional styles for specific blocks */
+    </style>
+    <link rel="stylesheet" href="{% static 'assets/island/hydrate.css' %}">
+    {% block extra_styles %}{% endblock %}
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header-content">
+            <a href="/" class="logo">BLEX</a>
+            <nav class="nav-links">
+                <a href="/" class="nav-link {% block home_active %}{% endblock %}">Home</a>
+                <a href="/search" class="nav-link {% block search_active %}{% endblock %}">Search</a>
+                <a href="/favorite" class="nav-link {% block favorite_active %}{% endblock %}">Favorite</a>
+                {% if user.is_authenticated %}
+                <a href="/write" class="nav-link">Write</a>
+                <a href="/@{{ user.username }}" class="nav-link">Profile</a>
+                {% else %}
+                <a href="/login" class="nav-link">Login</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-section">
+                <h3 class="footer-title">BLEX</h3>
+                <div class="footer-links">
+                    <a href="/about" class="footer-link">About</a>
+                    <a href="/privacy" class="footer-link">Privacy Policy</a>
+                    <a href="/terms" class="footer-link">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Community</h3>
+                <div class="footer-links">
+                    <a href="/tags" class="footer-link">Tags</a>
+                    <a href="/authors" class="footer-link">Authors</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title">Connect</h3>
+                <div class="footer-links">
+                    <a href="https://github.com/baealex/BLEX" target="_blank" class="footer-link">GitHub</a>
+                </div>
+            </div>
+        </div>
+        <div class="container copyright">
+            &copy; {% now "Y" %} BLEX. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Add scrolled class to header when scrolling
+        window.addEventListener('scroll', function () {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 10) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Dark mode toggle functionality can be added here
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+
+    <!-- React 컴포넌트 하이드레이션 -->
+    <script src="{% static 'assets/island/hydrate.bundle.js' %}"></script>
+</body>
+
+</html>
