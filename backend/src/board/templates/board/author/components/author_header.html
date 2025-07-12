@@ -1,0 +1,61 @@
+{% load static %}
+{% load island %}
+
+<div class="author-header">
+    <img class="author-avatar" src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ author.username }}">
+    <h1 class="author-name">{{ author.username }}</h1>
+    {% if author.profile.bio %}
+    <p class="author-bio">{{ author.profile.bio }}</p>
+    {% endif %}
+    
+    <div class="author-stats">
+        <div class="author-stat">
+            <span class="stat-value">{{ post_count }}</span>
+            <span class="stat-label">Posts</span>
+        </div>
+        <div class="author-stat">
+            <span class="stat-value">{{ series_count }}</span>
+            <span class="stat-label">Series</span>
+        </div>
+        <div class="author-stat">
+            <span class="stat-value">{{ follower_count }}</span>
+            <span class="stat-label">Followers</span>
+        </div>
+    </div>
+    
+    {% if user.is_authenticated and user.id != author.id %}
+    <div>
+        {% island_component 'FollowButton' authorId=author.username isFollowing=is_following %}
+    </div>
+    {% endif %}
+    
+    {% if author.profile.github or author.profile.twitter or author.profile.facebook or author.profile.instagram or author.profile.linkedin %}
+    <div class="author-links">
+        {% if author.profile.github %}
+        <a href="{{ author.profile.github }}" target="_blank" class="author-link" title="GitHub">
+            <i class="fab fa-github"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.twitter %}
+        <a href="{{ author.profile.twitter }}" target="_blank" class="author-link" title="Twitter">
+            <i class="fab fa-twitter"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.facebook %}
+        <a href="{{ author.profile.facebook }}" target="_blank" class="author-link" title="Facebook">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.instagram %}
+        <a href="{{ author.profile.instagram }}" target="_blank" class="author-link" title="Instagram">
+            <i class="fab fa-instagram"></i>
+        </a>
+        {% endif %}
+        {% if author.profile.linkedin %}
+        <a href="{{ author.profile.linkedin }}" target="_blank" class="author-link" title="LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,267 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Two-Factor Authentication - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .security-container {
+        max-width: 420px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        text-align: center;
+    }
+
+    .security-header {
+        margin-bottom: 30px;
+    }
+
+    .security-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+
+    .security-header p {
+        color: #666;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .verification-code {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 30px 0;
+    }
+
+    .verification-code input {
+        width: 50px;
+        height: 60px;
+        font-size: 24px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        transition: border-color 0.2s ease;
+    }
+
+    .verification-code input:focus {
+        border-color: #4568dc;
+        outline: none;
+    }
+
+    .btn {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        margin-top: 10px;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        border: 1px solid #ddd;
+        color: #666;
+        margin-top: 15px;
+    }
+
+    .btn-secondary:hover {
+        background: #f5f5f5;
+        opacity: 1;
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 14px;
+        margin-top: 15px;
+        display: none;
+    }
+
+    .error-message.show {
+        display: block;
+    }
+
+    .security-footer {
+        margin-top: 25px;
+        text-align: center;
+        font-size: 15px;
+        color: #666;
+    }
+
+    /* White theme only - dark mode removed */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="security-container">
+    <div class="security-header">
+        <h1>Two-Factor Authentication</h1>
+        <p>A verification code has been sent to your connected Telegram account. Please enter the 6-digit code below to complete your login.</p>
+    </div>
+
+    <form id="security-form" method="post">
+        {% csrf_token %}
+        <div class="verification-code">
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off" required>
+        </div>
+        <input type="hidden" id="verification-code" name="code">
+        <div class="error-message" id="verification-error"></div>
+        <button type="submit" class="btn">Verify</button>
+        <button type="button" class="btn btn-secondary" id="resend-code">Resend Code</button>
+    </form>
+
+    <div class="security-footer">
+        Having trouble? <a href="/logout">Cancel and log out</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const securityForm = document.getElementById('security-form');
+        const verificationInputs = document.querySelectorAll('.verification-code input');
+        const verificationCode = document.getElementById('verification-code');
+        const verificationError = document.getElementById('verification-error');
+        const resendCodeBtn = document.getElementById('resend-code');
+        
+        // Auto-focus and move to next input
+        verificationInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if (this.value.length === 1) {
+                    if (index < verificationInputs.length - 1) {
+                        verificationInputs[index + 1].focus();
+                    }
+                }
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                // Handle backspace
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    verificationInputs[index - 1].focus();
+                }
+            });
+        });
+        
+        securityForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect all digits
+            let code = '';
+            let isValid = true;
+            
+            verificationInputs.forEach(input => {
+                if (!input.value || !/^[0-9]$/.test(input.value)) {
+                    isValid = false;
+                }
+                code += input.value;
+            });
+            
+            if (!isValid) {
+                verificationError.textContent = 'Please enter a valid 6-digit code';
+                verificationError.classList.add('show');
+                return;
+            }
+            
+            verificationCode.value = code;
+            
+            // Send verification request
+            fetch('/v1/auth/security', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new URLSearchParams({
+                    'code': code
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'DONE') {
+                    // Redirect to home page on successful verification
+                    window.location.href = '/';
+                } else {
+                    // Show error message
+                    verificationError.textContent = 'Invalid verification code';
+                    verificationError.classList.add('show');
+                    
+                    // Clear inputs
+                    verificationInputs.forEach(input => {
+                        input.value = '';
+                    });
+                    verificationInputs[0].focus();
+                }
+            })
+            .catch(error => {
+                verificationError.textContent = 'An error occurred. Please try again.';
+                verificationError.classList.add('show');
+                console.error('Error:', error);
+            });
+        });
+        
+        resendCodeBtn.addEventListener('click', function() {
+            // Send request to resend code
+            fetch('/v1/auth/security/send', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'DONE') {
+                    // Show success message
+                    verificationError.textContent = 'A new code has been sent';
+                    verificationError.style.color = '#27ae60';
+                    verificationError.classList.add('show');
+                    
+                    // Clear inputs
+                    verificationInputs.forEach(input => {
+                        input.value = '';
+                    });
+                    verificationInputs[0].focus();
+                    
+                    // Reset color after 3 seconds
+                    setTimeout(() => {
+                        verificationError.style.color = '';
+                        verificationError.classList.remove('show');
+                    }, 3000);
+                } else {
+                    // Show error message
+                    verificationError.textContent = 'Failed to send new code';
+                    verificationError.classList.add('show');
+                }
+            })
+            .catch(error => {
+                verificationError.textContent = 'An error occurred. Please try again.';
+                verificationError.classList.add('show');
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+{% endblock %}

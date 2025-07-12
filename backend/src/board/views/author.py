@@ -66,7 +66,7 @@ def author_posts(request, username):
         'is_following': is_following,
     }
     
-    return render(request, 'board/author.html', context)
+    return render(request, 'board/author/author.html', context)
 
 
 def author_series(request, username):
@@ -118,7 +118,7 @@ def author_series(request, username):
         'is_loading': False,
     }
     
-    return render(request, 'board/author_series.html', context)
+    return render(request, 'board/author/author_series.html', context)
 
 
 def author_about(request, username):
@@ -158,4 +158,4 @@ def author_about(request, username):
         'is_loading': False,
     }
     
-    return render(request, 'board/author_about.html', context)
+    return render(request, 'board/author/author_about.html', context)

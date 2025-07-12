@@ -1,0 +1,242 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Login - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .login-container {
+        max-width: 420px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .login-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+
+    .login-header p {
+        color: #666;
+        font-size: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #444;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        transition: border-color 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #4568dc;
+        outline: none;
+    }
+
+    .btn {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        margin-top: 10px;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    .login-footer {
+        margin-top: 25px;
+        text-align: center;
+        font-size: 15px;
+        color: #666;
+    }
+
+    .login-footer a {
+        color: #4568dc;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .error-message.show {
+        display: block;
+    }
+
+    .separator {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 25px 0;
+        color: #999;
+    }
+
+    .separator::before,
+    .separator::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .separator::before {
+        margin-right: 10px;
+    }
+
+    .separator::after {
+        margin-left: 10px;
+    }
+
+    /* White theme only - dark mode removed */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        <h1>Welcome Back</h1>
+        <p>Sign in to continue to BLEX</p>
+    </div>
+
+    <form id="login-form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+            <div class="error-message" id="username-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            <div class="error-message" id="password-error"></div>
+        </div>
+        <div class="error-message" id="login-error"></div>
+        <button type="submit" class="btn">Sign In</button>
+    </form>
+
+    <div class="separator">or</div>
+
+    <div id="hydrate-social-login"></div>
+
+    <div class="login-footer">
+        Don't have an account? <a href="/sign">Sign up</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
+            
+            // Simple validation
+            let hasError = false;
+            if (!username) {
+                const usernameError = document.getElementById('username-error');
+                usernameError.textContent = 'Username is required';
+                usernameError.classList.add('show');
+                hasError = true;
+            }
+            
+            if (!password) {
+                const passwordError = document.getElementById('password-error');
+                passwordError.textContent = 'Password is required';
+                passwordError.classList.add('show');
+                hasError = true;
+            }
+            
+            if (hasError) return;
+            
+            // Send login request
+            fetch('/v1/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new URLSearchParams({
+                    'username': username,
+                    'password': password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'DONE') {
+                    if (data.body.security) {
+                        // Handle 2FA if needed
+                        window.location.href = '/security';
+                    } else {
+                        // Redirect to home page on successful login
+                        window.location.href = '/';
+                    }
+                } else {
+                    // Show error message
+                    loginError.textContent = 'Invalid username or password';
+                    loginError.classList.add('show');
+                }
+            })
+            .catch(error => {
+                loginError.textContent = 'An error occurred. Please try again.';
+                loginError.classList.add('show');
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+{% endblock %}

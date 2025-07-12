@@ -1,0 +1,92 @@
+/* Author profile styles */
+.author-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 40px 0;
+}
+
+.author-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 4px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.author-name {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.author-bio {
+    font-size: 18px;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto 20px;
+}
+
+.author-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.author-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #4568dc;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.author-links {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.author-link {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    transition: all 0.2s ease;
+}
+
+.author-link:hover {
+    background-color: #4568dc;
+    color: white;
+}
+
+/* Dark mode adjustments */
+body.dark .author-bio {
+    color: #bbb;
+}
+
+body.dark .stat-label {
+    color: #aaa;
+}
+
+body.dark .author-link {
+    background-color: #333;
+    color: #ddd;
+}

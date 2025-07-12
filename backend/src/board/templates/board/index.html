@@ -1,5 +1,5 @@
 {% extends 'board/base.html' %}
-{% load react_tags %}
+{% load island %}
 {% load static %}
 
 {% block title %}BLEX - Latest Articles{% endblock %}
@@ -316,37 +316,7 @@
         }
     }
 
-    /* Dark mode adjustments */
-    body.dark .post-card {
-        background-color: #2a2a2a;
-    }
-
-    body.dark .post-title {
-        color: #e0e0e0;
-    }
-
-    body.dark .post-description {
-        color: #bbb;
-    }
-
-    body.dark .post-meta {
-        color: #999;
-    }
-
-    body.dark .series-badge {
-        background-color: #3a3a3a;
-        color: #ccc;
-    }
-
-    body.dark .stat-item,
-    body.dark .stat-button {
-        color: #888;
-    }
-
-    body.dark .loading-spinner {
-        border-color: rgba(255, 255, 255, 0.1);
-        border-top-color: #4568dc;
-    }
+    /* White theme only - dark mode removed */
 
     @media (prefers-reduced-motion: reduce) {
 
@@ -366,7 +336,7 @@
 <div class="featured-post">
     <div class="featured-post-image-container">
         <img class="featured-post-image"
-            src="{% if featured_post.image %}{% static featured_post.image.url %}{% else %}{% static 'default_cover.jpg' %}{% endif %}"
+            src="{% if featured_post.image %}{% static featured_post.image.url %}{% else %}{% static 'assets/images/default-cover-1.jpg' %}{% endif %}"
             alt="{{ featured_post.title }}">
         <div class="featured-post-content">
             <span class="featured-badge">Featured</span>
@@ -381,8 +351,7 @@
             </p>
             <div class="featured-author-container">
                 <a href="/@{{ featured_post.author_username }}">
-                    <img class="featured-author-image" src="{% static featured_post.author_image %}"
-                        alt="{{ featured_post.author_username }}">
+                    <img class="featured-author-image" src="{% static featured_post.author_image %}" alt="{{ featured_post.author_username }}">
                 </a>
                 <div class="featured-author-info">
                     <a href="/@{{ featured_post.author_username }}" class="featured-author-name">
@@ -393,8 +362,7 @@
                     </div>
                 </div>
                 <div class="featured-post-meta-item">
-                    <island-component name="LikeButton"
-                        props="{ postId: '{{ featured_post.url }}', likesCount: {{ featured_post.count_likes }}, hasLiked: {{ featured_post.has_liked }} }"></island-component>
+                    {% island_component 'LikeButton' postId=featured_post.url likesCount=featured_post.count_likes hasLiked=featured_post.has_liked %}
                 </div>
             </div>
         </div>
@@ -417,8 +385,7 @@
         <div class="post-content">
             <div class="post-author-container">
                 <a href="/@{{ post.author_username }}">
-                    <img class="post-author-image" src="{% static post.author_image %}"
-                        alt="{{ post.author_username }}">
+                    <img class="post-author-image" src="{% static post.author_image %}" alt="{{ post.author_username }}">
                 </a>
                 <span class="post-meta">
                     <a href="/@{{ post.author_username }}">{{ post.author_username }}</a>
@@ -439,8 +406,7 @@
                 <div></div>
                 {% endif %}
                 <div class="post-meta-item">
-                    <island-component name="LikeButton"
-                        props="{ postId: '{{ post.url }}', likesCount: {{ post.count_likes }}, hasLiked: {{ post.has_liked }} }"></island-component>
+                    {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
                 </div>
                 <div class="post-stats">
                     <div class="stat-item">
@@ -466,52 +432,4 @@
     <p>Be the first to create content!</p>
 </div>
 {% endif %}
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-    // Handle like button clicks with AJAX
-    document.addEventListener('DOMContentLoaded', function () {
-        const likeForms = document.querySelectorAll('.like-form');
-
-        likeForms.forEach(form => {
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const url = this.action;
-                const csrfToken = this.querySelector('input[name="csrfmiddlewaretoken"]').value;
-                const likeButton = this.querySelector('button');
-                const likeCountElement = likeButton.parentNode.nextElementSibling;
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'same-origin'
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'done') {
-                            // Toggle like button appearance
-                            if (likeButton.classList.contains('liked')) {
-                                likeButton.classList.remove('liked');
-                                likeButton.innerHTML = '<i class="far fa-heart"></i>';
-                            } else {
-                                likeButton.classList.add('liked');
-                                likeButton.innerHTML = '<i class="fas fa-heart"></i>';
-                            }
-
-                            // Update like count
-                            likeCountElement.textContent = data.count_likes;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            });
-        });
-    });
-</script>
 {% endblock %}

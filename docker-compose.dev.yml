@@ -1,20 +1,6 @@
 version: "2.1"
 
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: ./DockerfileDev
-    env_file: ./frontend/.env
-    restart: always
-    volumes:
-      - ./frontend/src/:/app/src/
-      - ./frontend/src/package.json:/app/package.json
-      - ./frontend/src/package-lock.json:/app/package-lock.json
-      - frontend_node_modules:/app/node_modules
-    ports:
-      - 3000:3000
-  
   backend:
     build:
       context: ./backend
@@ -25,7 +11,7 @@ services:
       - ./backend/src/:/app/
     ports:
       - 9000:9000
-  
+
   static:
     image: nginx:latest
     restart: always

@@ -126,10 +126,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-API_KEY = os.environ.get('API_KEY')
-API_URL = os.environ.get('API_URL')
 SITE_URL = os.environ.get('SITE_URL')
-
 STATIC_URL = os.environ.get('STATIC_URL') + '/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 

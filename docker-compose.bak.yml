@@ -1,13 +1,6 @@
 version: "2.1"
 
 services:
-  frontend:
-    image: baealex/blex-frontend
-    env_file: ./frontend/.env
-    restart: always
-    ports:
-      - 20011:3000
-  
   backend:
     image: baealex/blex-backend
     env_file: ./backend/.env

@@ -1,6 +1,6 @@
 {% extends 'board/base.html' %}
 {% load static %}
-{% load react_tags %}
+{% load island %}
 
 {% block title %}{% if query %}'{{ query }}' 검색 결과{% else %}검색어를 입력하세요.{% endif %}{% endblock %}
 
@@ -129,8 +129,7 @@
 {% block content %}
 <div class="search-container">
     <div class="search-box-container">
-        <island-component name="SearchBox"
-            props="{ query: '{{ query }}', username: '{{ username }}' }"></island-component>
+        {% island_component 'SearchBox' query=query username=username %}
     </div>
 
     {% if is_loading %}
@@ -194,7 +193,7 @@
                                 <span>{{ result.count_comments }}</span>
                             </div>
                             <div class="post-meta-item">
-                                {% react_component 'LikeButton' postId=result.url likesCount=result.count_likes
+                                {% island_component 'LikeButton' postId=result.url likesCount=result.count_likes
                                 hasLiked=result.has_liked %}
                             </div>
                         </div>

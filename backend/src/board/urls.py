@@ -12,6 +12,7 @@ from board.views.search import search_view
 from board.views.author import author_posts, author_series, author_about
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail
+from board.views.auth import login_view, security_view
 
 def empty():
     pass
@@ -22,6 +23,8 @@ urlpatterns = [
     path('', main.index, name='index'),
     path('search', search_view, name='search'),
     path('like/<str:url>', like_post, name='like_post'),
+    path('login', login_view, name='login'),
+    path('security', security_view, name='security'),
 
     # Sitemap Generator
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),

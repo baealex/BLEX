@@ -1,0 +1,147 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+
+{% block title %}{{ author.username }}'s Series - BLEX{% endblock %}
+
+{% block extra_styles %}
+{% include 'board/author/components/author_styles.html' %}
+<style>
+    /* Series grid */
+    .series-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+        .series-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .series-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Series card */
+    .series-card {
+        border-radius: 16px;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .series-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .series-card-content {
+        padding: 24px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .series-card-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+
+    .series-card-description {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 16px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .series-card-meta {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .series-card-count {
+        font-size: 14px;
+        color: #888;
+    }
+
+    .series-card-date {
+        font-size: 14px;
+        color: #888;
+    }
+
+    .series-progress {
+        margin-top: 16px;
+        background-color: #f0f0f0;
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .series-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border-radius: 3px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'board/author/components/author_header.html' %}
+
+<div class="tabs-container">
+    {% with active_tab='series' %}
+        {% include 'board/author/components/tabs_nav.html' %}
+    {% endwith %}
+    
+    {% if is_loading %}
+        {% include 'board/author/components/loading_state.html' %}
+    {% elif not series_list %}
+        {% with empty_title='No series yet' empty_message=author.username|add:" hasn't created any series yet." %}
+            {% include 'board/author/components/empty_state.html' %}
+        {% endwith %}
+    {% else %}
+    <div class="series-grid">
+        {% for series in series_list %}
+        <a href="/@{{ author.username }}/series/{{ series.url }}" class="series-card">
+            <div class="series-card-content">
+                <h2 class="series-card-title">{{ series.name }}</h2>
+                <p class="series-card-description">{{ series.description }}</p>
+                <div class="series-card-meta">
+                    <div class="series-card-count">
+                        <i class="far fa-file-alt"></i>
+                        <span>{{ series.post_count }} posts</span>
+                    </div>
+                    <div class="series-card-date">
+                        <i class="far fa-clock"></i>
+                        <span>{{ series.updated_date }}</span>
+                    </div>
+                </div>
+                {% if series.post_count > 0 and series.completed_count > 0 %}
+                <div class="series-progress">
+                    <div class="series-progress-bar" style="width: {{ series.completion_percentage }}%"></div>
+                </div>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

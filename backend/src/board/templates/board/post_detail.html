@@ -1,6 +1,6 @@
 {% extends 'board/base.html' %}
 {% load static %}
-{% load react_tags %}
+{% load island %}
 
 {% block title %}{{ post.title }} - {{ post.author_username }} | BLEX{% endblock %}
 
@@ -393,90 +393,7 @@
         }
     }
 
-    /* Dark mode adjustments */
-    body.dark .post-title {
-        color: #f0f0f0;
-    }
-
-    body.dark .post-author-name {
-        color: #e0e0e0;
-    }
-
-    body.dark .post-date,
-    body.dark .post-read-time {
-        color: #aaa;
-    }
-
-    body.dark .post-content {
-        color: #e0e0e0;
-    }
-
-    body.dark .post-content blockquote {
-        color: #bbb;
-    }
-
-    body.dark .post-content pre,
-    body.dark .post-content code {
-        background-color: #2a2a2a;
-    }
-
-    body.dark .post-content th,
-    body.dark .post-content td {
-        border-color: #444;
-    }
-
-    body.dark .post-content th {
-        background-color: #2a2a2a;
-    }
-
-    body.dark .post-content hr {
-        border-top-color: #444;
-    }
-
-    body.dark .post-tag {
-        background-color: #333;
-        color: #ddd;
-    }
-
-    body.dark .post-tag:hover {
-        background-color: #444;
-        color: #fff;
-    }
-
-    body.dark .post-actions {
-        border-top-color: #444;
-    }
-
-    body.dark .post-like-button,
-    body.dark .post-share-button {
-        color: #bbb;
-    }
-
-    body.dark .post-like-button:hover,
-    body.dark .post-share-button:hover {
-        background-color: #333;
-    }
-
-    body.dark .series-info {
-        background-color: #222;
-    }
-
-    body.dark .series-progress {
-        color: #aaa;
-    }
-
-    body.dark .series-post-item {
-        border-bottom-color: #444;
-    }
-
-    body.dark .series-post-link {
-        color: #ddd;
-    }
-
-    body.dark .series-post-number {
-        background-color: #444;
-        color: #ddd;
-    }
+    /* White theme only - dark mode removed */
 </style>
 {% endblock %}
 
@@ -524,12 +441,7 @@
 
         <div class="post-actions">
             <div class="post-action-group">
-                <island-component name="LikeButton" props="{
-                    postId: '{{ post.url }}',
-                    likesCount: {{ post.count_likes }},
-                    hasLiked: {{ post.has_liked }},
-                    size: 'large'
-                }"></island-component>
+                {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked size='large' %}
                 <button class="post-share-button" id="shareButton">
                     <i class="fas fa-share-alt"></i>
                     <span>Share</span>
@@ -573,7 +485,7 @@
 
     <div class="comments-section">
         <h3 class="comments-title">댓글 {{ post.count_comments }}개</h3>
-        {% react_component 'Comments' postId=post.url %}
+        {% island_component 'Comments' author=post.author_username postUrl=post.url %}
     </div>
 
     {% if related_posts %}
@@ -589,8 +501,7 @@
                 {% endif %}
                 <div class="post-content">
                     <h3 class="post-title">
-                        <a href="/@{{ related_post.author_username }}/{{ related_post.url }}">{{ related_post.title
-                            }}</a>
+                        <a href="/@{{ related_post.author_username }}/{{ related_post.url }}">{{ related_post.title}}</a>
                     </h3>
                     <p class="post-description">{{ related_post.meta_description }}</p>
                     <div class="post-meta">
