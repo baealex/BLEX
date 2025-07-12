@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from 'next';
 import React from 'react';
 
-import ReactFrappeChart from 'react-frappe-charts';
+import Chart from '~/components/system-design/chart';
 
 import {
     Alert,
@@ -58,7 +58,7 @@ function PostsAnalytics(props: Props) {
                     </div>
                 </Flex>
 
-                <ReactFrappeChart
+                <Chart
                     type="axis-mixed"
                     data={{
                         labels: data.dates,
@@ -89,7 +89,7 @@ function PostsAnalytics(props: Props) {
                         </div>
                     </Flex>
 
-                    <ReactFrappeChart
+                    <Chart
                         type="pie"
                         colors={['#5cd65c', '#ff0000']}
                         data={{
