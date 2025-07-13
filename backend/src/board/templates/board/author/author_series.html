@@ -110,38 +110,50 @@
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
     
-    {% if is_loading %}
-        {% include 'board/author/components/loading_state.html' %}
-    {% elif not series_list %}
-        {% with empty_title='No series yet' empty_message=author.username|add:" hasn't created any series yet." %}
-            {% include 'board/author/components/empty_state.html' %}
-        {% endwith %}
-    {% else %}
-    <div class="series-grid">
-        {% for series in series_list %}
-        <a href="/@{{ author.username }}/series/{{ series.url }}" class="series-card">
-            <div class="series-card-content">
-                <h2 class="series-card-title">{{ series.name }}</h2>
-                <p class="series-card-description">{{ series.description }}</p>
-                <div class="series-card-meta">
-                    <div class="series-card-count">
-                        <i class="far fa-file-alt"></i>
-                        <span>{{ series.post_count }} posts</span>
-                    </div>
-                    <div class="series-card-date">
-                        <i class="far fa-clock"></i>
-                        <span>{{ series.updated_date }}</span>
-                    </div>
-                </div>
-                {% if series.post_count > 0 and series.completed_count > 0 %}
-                <div class="series-progress">
-                    <div class="series-progress-bar" style="width: {{ series.completion_percentage }}%"></div>
-                </div>
+    {% include 'board/author/components/series_search_filter.html' %}
+    
+    <div class="content-with-sidebar">
+        <div class="main-content">
+            {% if is_loading %}
+                {% include 'board/author/components/loading_state.html' %}
+            {% elif not series_list %}
+                {% if request.GET.q %}
+                    {% with empty_title='No matching series' empty_message='No series match your search criteria.' %}
+                        {% include 'board/author/components/empty_state.html' %}
+                    {% endwith %}
+                {% else %}
+                    {% with empty_title='No series yet' empty_message=author.username|add:" hasn't created any series yet." %}
+                        {% include 'board/author/components/empty_state.html' %}
+                    {% endwith %}
                 {% endif %}
-            </div>
-        </a>
-        {% endfor %}
+            {% else %}
+                <div class="series-grid">
+                    {% for series in series_list %}
+                    <a href="/@{{ author.username }}/series/{{ series.url }}" class="series-card">
+                        <div class="series-card-content">
+                            <h2 class="series-card-title">{{ series.name }}</h2>
+                            <p class="series-card-description">{{ series.description }}</p>
+                            <div class="series-card-meta">
+                                <div class="series-card-count">
+                                    <i class="far fa-file-alt"></i>
+                                    <span>{{ series.post_count }} posts</span>
+                                </div>
+                                <div class="series-card-date">
+                                    <i class="far fa-clock"></i>
+                                    <span>{{ series.updated_date }}</span>
+                                </div>
+                            </div>
+                            {% if series.post_count > 0 and series.completed_count > 0 %}
+                            <div class="series-progress">
+                                <div class="series-progress-bar" style="width: {{ series.completion_percentage }}%"></div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}

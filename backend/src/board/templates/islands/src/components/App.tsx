@@ -27,7 +27,7 @@ const App = ({ __name, ...props }: AppProps) => {
     const Component = LazyComponents[__name];
 
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense>
             {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
             <Component {...props} />
         </Suspense>

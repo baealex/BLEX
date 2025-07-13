@@ -1,6 +1,7 @@
 @forward "@baejino/style/css/reset.css";
 @forward "@baejino/style/css/utils/index.css";
 @forward "@baejino/ui/css/main.css";
+@forward "./forwarded.scss";
 
 @font-face {
     font-family: 'Spoqa Han Sans Neo';

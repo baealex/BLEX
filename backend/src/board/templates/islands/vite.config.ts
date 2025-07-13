@@ -18,7 +18,8 @@ export default defineConfig(({ mode }) => {
                 input: {
                     island: resolve(__dirname, 'src/island.tsx'),
                     mainStyles: resolve(__dirname, 'styles/main.scss'),
-                    authorStyles: resolve(__dirname, 'styles/author.scss')
+                    authorStyles: resolve(__dirname, 'styles/author.scss'),
+                    settingStyles: resolve(__dirname, 'styles/setting.scss')
                 },
                 output: {
                     entryFileNames: '[name].[hash].bundle.js',

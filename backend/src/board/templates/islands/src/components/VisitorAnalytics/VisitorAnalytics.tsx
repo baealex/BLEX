@@ -49,6 +49,8 @@ const VisitorAnalytics = () => {
         }
     });
 
+    const monthTotal = useMemo(() => views?.body.views.reduce((acc, cur) => acc + cur.count, 0), [views]);
+
     if (isLoading) {
         return (
             <div className="loading-container">
@@ -92,8 +94,8 @@ const VisitorAnalytics = () => {
                             <span className="stats-value">{views.body.total.toLocaleString()}</span>
                         </div>
                         <div className="stats-item">
-                            <span className="stats-label">기간</span>
-                            <span className="stats-value">30일 이내</span>
+                            <span className="stats-label">월간 조회수</span>
+                            <span className="stats-value">{monthTotal?.toLocaleString()}</span>
                         </div>
                     </div>
                     <div className="chart-container">
@@ -165,8 +167,8 @@ const VisitorAnalytics = () => {
                                     </div>
                                     <div className="post-stats">
                                         <span className="view-count">{item.todayCount}명 읽음</span>
-                                        <span className={`change-count ${item.increaseCount > 0 ? 'increase' : 'decrease'}`}>
-                                            ({`${item.increaseCount > 0 ? '↑' : '↓'}${Math.abs(item.increaseCount)}`})
+                                        <span className={`change-count ${item.increaseCount > 0 ? 'increase' : item.increaseCount < 0 ? 'decrease' : 'no-change'}`}>
+                                            ({`${item.increaseCount > 0 ? '↑' : item.increaseCount < 0 ? '↓' : ''}${Math.abs(item.increaseCount)}`})
                                         </span>
                                     </div>
                                 </div>
@@ -330,6 +332,10 @@ const VisitorAnalytics = () => {
 
                 .increase {
                     color: #ff6700;
+                }
+
+                .no-change {
+                    color: #4e4e4e;
                 }
 
                 .decrease {

@@ -4,6 +4,16 @@ from urllib.parse import urlencode
 register = template.Library()
 
 @register.filter
+def range_filter(start, end):
+    """
+    Generate a range of numbers from start to end (inclusive).
+    Usage: {% for i in start|range:end %}
+    """
+    start = int(start)
+    end = int(end)
+    return range(start, end + 1)
+
+@register.filter
 def get_page_range(total_pages, current_page):
     """
     Generate a range of page numbers to display in pagination.

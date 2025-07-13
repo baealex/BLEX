@@ -18,6 +18,9 @@ def get_manifest():
     Load the Vite manifest file and cache it.
     """
     global _manifest_cache
+
+    if settings.DEBUG:
+        _manifest_cache = None
     
     if _manifest_cache is None:
         # Try multiple possible locations for the manifest file

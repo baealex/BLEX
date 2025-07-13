@@ -7,166 +7,9 @@
 {% block extra_styles %}
 {% include 'board/author/components/author_styles.html' %}
 <style>
-    /* Posts grid */
+    /* Posts grid specific styles */
     .posts-grid {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 32px;
         margin-top: 24px;
-    }
-
-    @media (min-width: 768px) {
-        .posts-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .posts-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    /* Post card styles */
-    .post-card {
-        background-color: #fff;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .post-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    }
-
-    .post-image-container {
-        height: 180px;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .post-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .post-card:hover .post-image {
-        transform: scale(1.05);
-    }
-
-    .post-content {
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
-
-    .post-title {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 12px;
-        line-height: 1.4;
-    }
-
-    .post-title a {
-        color: #222;
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-
-    .post-title a:hover {
-        color: #0066cc;
-    }
-
-    .post-description {
-        font-size: 16px;
-        color: #555;
-        margin-bottom: 16px;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 1.6;
-        flex-grow: 1;
-        max-height: 80px;
-    }
-
-    .post-meta {
-        font-size: 14px;
-        color: #777;
-        margin-bottom: 16px;
-        display: flex;
-        align-items: center;
-    }
-
-    .post-meta i {
-        margin-right: 6px;
-        font-size: 14px;
-    }
-
-    .post-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: auto;
-    }
-
-    .series-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        background-color: #f0f7ff;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 500;
-        color: #0066cc;
-        transition: all 0.2s ease;
-        border: 1px solid rgba(0, 102, 204, 0.2);
-    }
-
-    .series-badge-name {
-        max-width: 140px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .series-badge:hover {
-        background-color: #e0f0ff;
-        transform: translateY(-2px);
-    }
-
-    .series-badge i {
-        margin-right: 5px;
-        font-size: 12px;
-    }
-
-    .post-stats {
-        display: flex;
-        gap: 16px;
-    }
-
-    .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: #666;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .stat-item i {
-        font-size: 16px;
     }
 </style>
 {% endblock %}
@@ -178,74 +21,33 @@
     {% with active_tab='posts' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
-
-    {% if is_loading %}
-        {% include 'board/author/components/loading_state.html' %}
-    {% elif not posts %}
-        {% with empty_title='No posts yet' empty_message=author.username|add:" hasn't published any posts yet." %}
-            {% include 'board/author/components/empty_state.html' %}
-        {% endwith %}
-    {% else %}
-        <div class="posts-grid">
-            {% for post in posts %}
-                <div class="post-card">
-                    {% if post.image %}
-                        <div class="post-image-container">
-                            <img class="post-image" src="{% static post.image.url %}" alt="{{ post.title }}">
-                        </div>
-                    {% endif %}
-                    <div class="post-content">
-                        <h3 class="post-title">
-                            <a href="/@{{ author.username }}/{{ post.url }}">{{ post.title }}</a>
-                        </h3>
-                        <p class="post-description">{{ post.meta_description }}</p>
-                        <div class="post-meta">
-                            <i class="far fa-calendar-alt"></i> {{ post.created_date }} 
-                            <span style="margin: 0 8px;">•</span> 
-                            <i class="far fa-clock"></i> {{ post.read_time }}분 분량
-                        </div>
-                        <div class="post-footer">
-                            {% if post.series %}
-                                <a href="/@{{ author.username }}/series/{{ post.series.url }}">
-                                    <span class="series-badge">
-                                        <i class="fas fa-layer-group"></i>
-                                        <span class="series-badge-name">{{ post.series.name }}</span>
-                                    </span>
-                                </a>
-                            {% else %}
-                                <div></div>
-                            {% endif %}
-                            <div class="post-stats">
-                                <div class="stat-item">
-                                    <i class="far fa-comment"></i>
-                                    <span>{{ post.count_comments }}</span>
-                                </div>
-                                <div class="stat-item">
-                                    {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    
+    {% include 'board/author/components/search_filter.html' %}
+    
+    <div class="content-with-sidebar">
+        <div class="main-content">
+            {% if is_loading %}
+                {% include 'board/author/components/loading_state.html' %}
+            {% elif not posts %}
+                {% if request.GET.q or request.GET.tag %}
+                    {% with empty_title='No matching posts' empty_message='No posts match your search criteria.' %}
+                        {% include 'board/author/components/empty_state.html' %}
+                    {% endwith %}
+                {% else %}
+                    {% with empty_title='No posts yet' empty_message=author.username|add:" hasn't published any posts yet." %}
+                        {% include 'board/author/components/empty_state.html' %}
+                    {% endwith %}
+                {% endif %}
+            {% else %}
+                <div class="posts-grid">
+                    {% for post in posts %}
+                        {% include 'components/post_card.html' with post=post show_author=False %}
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            {% endif %}
+            
+            {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
         </div>
-    {% endif %}
-
-    {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
+    </div>
 </div>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-    // Handle tab navigation
-    document.addEventListener('DOMContentLoaded', function () {
-        const tabItems = document.querySelectorAll('.tab-item');
-
-        tabItems.forEach(tab => {
-            tab.addEventListener('click', function (e) {
-                // Tab navigation is handled by href links
-            });
-        });
-    });
-</script>
 {% endblock %}

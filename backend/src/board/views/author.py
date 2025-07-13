@@ -1,10 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
-from django.db.models import Count, Exists, OuterRef, Q
+from django.db.models import Count, Exists, OuterRef, Q, F, Case, When, Value, IntegerField
 from django.utils import timezone
 from board.modules.paginator import Paginator
 
-from board.models import Post, Series, PostLikes, Profile, Follow
+from board.models import Post, Series, PostLikes, Follow, Tag
 
 
 def author_posts(request, username):
@@ -13,14 +13,35 @@ def author_posts(request, username):
     """
     author = get_object_or_404(User, username=username)
     
-    # Get author's posts
+    # Get search query and filters
+    search_query = request.GET.get('q', '')
+    sort_option = request.GET.get('sort', 'recent')
+    tag_filter = request.GET.get('tag', '')
+    
+    # Base query for author's posts
     posts = Post.objects.select_related(
         'config', 'series', 'author', 'author__profile'
     ).filter(
         author=author,
         created_date__lte=timezone.now(),
         config__hide=False,
-    ).annotate(
+    )
+    
+    # Apply search query if provided
+    if search_query:
+        posts = posts.filter(
+            Q(title__icontains=search_query) | 
+            Q(content__icontains=search_query)
+        )
+    
+    # Apply tag filter if provided
+    if tag_filter:
+        posts = posts.filter(tags__value=tag_filter)
+    
+    # Annotate with additional fields
+    posts = posts.annotate(
+        author_username=F('author__username'),
+        author_image=F('author__profile__avatar'),
         count_likes=Count('likes', distinct=True),
         count_comments=Count('comments', distinct=True),
         has_liked=Exists(
@@ -29,7 +50,15 @@ def author_posts(request, username):
                 user__id=request.user.id if request.user.id else -1
             )
         ),
-    ).order_by('-created_date')
+    )
+    
+    # Apply sorting
+    if sort_option == 'popular':
+        posts = posts.order_by('-count_likes', '-created_date')
+    elif sort_option == 'comments':
+        posts = posts.order_by('-count_comments', '-created_date')
+    else:  # default to 'recent'
+        posts = posts.order_by('-created_date')
     
     # Get author's series
     series = Series.objects.filter(
@@ -45,8 +74,20 @@ def author_posts(request, username):
         ),
     ).order_by('-updated_date')
     
+    # Get author's tags with post counts
+    author_tags = Tag.objects.filter(
+        posts__author=author,
+        posts__config__hide=False
+    ).annotate(
+        count=Count('posts', distinct=True)
+    ).order_by('-count', 'value')
+    
     # Count posts, series, and followers
-    post_count = posts.count()
+    post_count = Post.objects.filter(
+        author=author,
+        created_date__lte=timezone.now(),
+        config__hide=False
+    ).count()
     series_count = series.count()
     follower_count = Follow.objects.filter(following=author.profile).count()
     
@@ -74,6 +115,10 @@ def author_posts(request, username):
         'is_following': is_following,
         'page_number': page,
         'page_count': paginated_posts.paginator.num_pages,
+        'author_tags': author_tags,
+        'search_query': search_query,
+        'sort_option': sort_option,
+        'tag_filter': tag_filter,
     }
     
     return render(request, 'board/author/author.html', context)
@@ -85,12 +130,30 @@ def author_series(request, username):
     """
     author = get_object_or_404(User, username=username)
     
-    # Get author's series
-    series_list = Series.objects.filter(
-        owner=author
-    ).annotate(
-        post_count=Count('posts'),
-    ).order_by('-updated_date')
+    # Get search query and filters
+    search_query = request.GET.get('q', '')
+    sort_option = request.GET.get('sort', 'updated')
+    
+    # Base query for author's series
+    series_list = Series.objects.filter(owner=author)
+    
+    # Apply search query if provided
+    if search_query:
+        series_list = series_list.filter(
+            Q(name__icontains=search_query) | 
+            Q(description__icontains=search_query)
+        )
+    
+    # Annotate with post count
+    series_list = series_list.annotate(post_count=Count('posts'))
+    
+    # Apply sorting
+    if sort_option == 'created':
+        series_list = series_list.order_by('-created_date')
+    elif sort_option == 'posts':
+        series_list = series_list.order_by('-post_count', '-updated_date')
+    else:  # default to 'updated'
+        series_list = series_list.order_by('-updated_date')
     
     # Process series data
     for series in series_list:
@@ -101,13 +164,21 @@ def author_series(request, username):
         # Format date
         series.updated_date = series.updated_date.strftime('%Y-%m-%d')
     
+    # Get author's tags with post counts
+    author_tags = Tag.objects.filter(
+        posts__author=author,
+        posts__config__hide=False
+    ).annotate(
+        count=Count('posts', distinct=True)
+    ).order_by('-count', 'value')
+    
     # Count posts, series, and followers
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
         config__hide=False
     ).count()
-    series_count = series_list.count()
+    series_count = Series.objects.filter(owner=author).count()
     follower_count = Follow.objects.filter(following=author.profile).count()
     
     # Check if the current user is following the author
@@ -126,6 +197,9 @@ def author_series(request, username):
         'follower_count': follower_count,
         'is_following': is_following,
         'is_loading': False,
+        'author_tags': author_tags,
+        'search_query': search_query,
+        'sort_option': sort_option,
     }
     
     return render(request, 'board/author/author_series.html', context)

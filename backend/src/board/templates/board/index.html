@@ -8,6 +8,57 @@
 
 {% block extra_styles %}
 <style>
+    .hero {
+        background: linear-gradient(135deg, #4568dc, #b06ab3);
+        color: white;
+        padding: 100px 0 80px;
+        margin-bottom: 70px;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(69, 104, 220, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .hero::after {
+        content: '';
+        position: absolute;
+        bottom: -80px;
+        left: -80px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .hero-content {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+    }
+    
+    .hero-logo {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 25px;
+        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+    }
+
     /* Latest articles section */
     .section-title {
         font-size: 28px;
@@ -18,232 +69,23 @@
         background-clip: text;
         -webkit-text-fill-color: transparent;
     }
-
-    /* Masonry grid */
-    .masonry-grid {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 24px;
-    }
-
-    @media (min-width: 768px) {
-        .masonry-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .masonry-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    /* Post card styles */
-    .post-card {
-        border-radius: 16px;
-        background-color: #fff;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .post-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-
-    .post-image-container {
-        position: relative;
-        height: 200px;
-        overflow: hidden;
-    }
-
-    .post-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .post-card:hover .post-image {
-        transform: scale(1.05);
-    }
-
-    .post-content {
-        padding: 20px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .post-author-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
-    }
-
-    .post-author-image {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-    }
-
-    .post-meta {
-        font-size: 14px;
-        color: #777;
-    }
-
-    .post-meta-separator {
-        margin: 0 5px;
-    }
-
-    .post-title {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: #333;
-    }
-
-    .post-description {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 16px;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-        text-overflow: ellipsis;
-        max-height: 60px;
-        -webkit-box-orient: vertical;
-        flex-grow: 1;
-    }
-
-    .post-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: auto;
-    }
-
-    .series-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        background-color: #f0f7ff;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 500;
-        color: #0066cc;
-        transition: all 0.2s ease;
-        border: 1px solid rgba(0, 102, 204, 0.2);
-    }
-
-    .series-badge-name {
-        max-width: 140px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .series-badge:hover {
-        background-color: #e0f0ff;
-        transform: translateY(-2px);
-    }
-
-    .series-badge i {
-        margin-right: 5px;
-        font-size: 12px;
-    }
-
-    .post-stats {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        color: #999;
-        font-size: 14px;
-    }
-
-    .stat-button {
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        color: #999;
-        display: flex;
-        align-items: center;
-    }
-
-    .stat-button.liked {
-        color: #ff6b6b;
-    }
 </style>
 {% endblock %}
 
 {% block content %}
 {% if posts %}
-    <h2 class="section-title">Latest Articles</h2>
+    <div class="hero">
+        <div class="hero-content">
+            <img src="{% static 'logow.svg' %}" alt="BLEX Logo" class="hero-logo">
+            <p>창작자를 위한 블로그 플랫폼</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">최신 포스트</h2>
 
     <div class="masonry-grid">
         {% for post in posts %}
-            <div class="post-card">
-                {% if post.image %}
-                    <div class="post-image-container">
-                        <a href="/@{{ post.author_username }}/{{ post.url }}">
-                            <img class="post-image" src="{% static post.image.url %}" alt="{{ post.title }}">
-                        </a>
-                    </div>
-                {% endif %}
-                <div class="post-content">
-                    <div class="post-author-container">
-                        <a href="/@{{ post.author_username }}">
-                            <img class="post-author-image" src="{% static post.author_image %}" alt="{{ post.author_username }}">
-                        </a>
-                        <span class="post-meta">
-                            <a href="/@{{ post.author_username }}">{{ post.author_username }}</a>
-                            <span class="post-meta-separator">·</span>
-                            {{ post.created_date }}
-                        </span>
-                    </div>
-                    <h3 class="post-title">
-                        <a href="/@{{ post.author_username }}/{{ post.url }}">{{ post.title }}</a>
-                    </h3>
-                    <p class="post-description">{{ post.meta_description }}</p>
-                    <div class="post-footer">
-                        {% if post.series %}
-                            <a href="/@{{ post.author_username }}/series/{{ post.series.url }}">
-                                <span class="series-badge">
-                                    <i class="fas fa-layer-group"></i>
-                                    <span class="series-badge-name">{{ post.series.name }}</span>
-                                </span>
-                            </a>
-                        {% else %}
-                            <div></div>
-                        {% endif %}
-
-                        <div class="flex gap-1">
-                            <div class="post-stats">
-                                <div class="stat-item">
-                                    <i class="far fa-comment"></i>
-                                    <span>{{ post.count_comments }}</span>
-                                </div>
-                                <div class="post-meta-item">
-                                    {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include 'components/post_card.html' with post=post show_author=true %}
         {% endfor %}
     </div>
 

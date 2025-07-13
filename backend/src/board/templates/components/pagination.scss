@@ -1,0 +1,115 @@
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.pagination-container.button .load-more-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    background-color: #0066cc;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.pagination-container.button .load-more-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 102, 204, 0.4);
+    background-color: #0055b3;
+}
+
+/* Numbered style pagination */
+.pagination-nav {
+    width: 100%;
+    margin: 30px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pagination-pages,
+.pagination-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pagination-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    color: #000;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.pagination-active .pagination-link {
+    cursor: default;
+    color: #fff;
+    background: #0066cc;
+    box-shadow: 0 2px 6px rgba(0, 102, 204, 0.3);
+    font-weight: 700;
+    transform: scale(1.05);
+}
+
+.pagination-disabled .pagination-link {
+    cursor: default;
+    color: #ccc;
+    background: transparent;
+}
+
+@media (max-width: 768px) {
+    .pagination-nav {
+        display: grid;
+        grid-template-areas:
+            "page page page page page"
+            "prev prev span next next";
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .pagination-pages {
+        grid-area: page;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .pagination-action.prev {
+        grid-area: prev;
+    }
+
+    .pagination-action.next {
+        grid-area: next;
+    }
+
+    .pagination-action {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pagination-link {
+        width: 40px;
+        height: 40px;
+    }
+}
