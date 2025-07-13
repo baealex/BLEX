@@ -134,6 +134,13 @@
         border: 1px solid rgba(0, 102, 204, 0.2);
     }
 
+    .series-badge-name {
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .series-badge:hover {
         background-color: #e0f0ff;
         transform: translateY(-2px);
@@ -160,32 +167,6 @@
 
     .stat-item i {
         font-size: 16px;
-    }
-
-    /* Pagination */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 48px;
-        margin-bottom: 24px;
-    }
-
-    .load-more-button {
-        padding: 14px 28px;
-        background-color: #0066cc;
-        border-radius: 8px;
-        font-weight: 600;
-        color: #fff;
-        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-    }
-
-    .load-more-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0, 102, 204, 0.4);
-        background-color: #0055b3;
     }
 </style>
 {% endblock %}
@@ -226,7 +207,10 @@
                         <div class="post-footer">
                             {% if post.series %}
                                 <a href="/@{{ author.username }}/series/{{ post.series.url }}">
-                                    <span class="series-badge"><i class="fas fa-layer-group"></i>{{ post.series.name }}</span>
+                                    <span class="series-badge">
+                                        <i class="fas fa-layer-group"></i>
+                                        <span class="series-badge-name">{{ post.series.name }}</span>
+                                    </span>
                                 </a>
                             {% else %}
                                 <div></div>
@@ -247,11 +231,7 @@
         </div>
     {% endif %}
 
-    {% if has_next_page %}
-        <div class="pagination">
-            <a href="?page={{ next_page }}" class="load-more-button"><i class="fas fa-sync-alt" style="margin-right: 8px;"></i>더 불러오기</a>
-        </div>
-    {% endif %}
+    {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
 </div>
 {% endblock %}
 

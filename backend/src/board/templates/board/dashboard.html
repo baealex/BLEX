@@ -1,6 +1,7 @@
 {% extends 'board/base.html' %}
 {% load static %}
 {% load island %}
+{% load humanize %}
 
 {% block title %}대시보드 | BLEX{% endblock %}
 
@@ -86,20 +87,6 @@
         font-size: 28px;
         font-weight: 700;
         margin-bottom: 4px;
-    }
-
-    .stat-change {
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-    }
-
-    .stat-change.positive {
-        color: #28a745;
-    }
-
-    .stat-change.negative {
-        color: #dc3545;
     }
 
     .dashboard-section {
@@ -260,14 +247,6 @@
         font-size: 14px;
         color: #777;
     }
-
-    .analytics-container {
-        background-color: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        padding: 24px;
-        margin-bottom: 32px;
-    }
 </style>
 {% endblock %}
 
@@ -284,11 +263,7 @@
                 <i class="fas fa-file-alt"></i>
             </div>
             <div class="stat-title">총 포스트</div>
-            <div class="stat-value">{{ stats.total_posts }}</div>
-            <div class="stat-change positive">
-                <i class="fas fa-arrow-up"></i>
-                <span>{{ stats.new_posts_percent }}% 증가</span>
-            </div>
+            <div class="stat-value">{{ stats.total_posts | intcomma }}</div>
         </div>
 
         <div class="stat-card">
@@ -296,11 +271,7 @@
                 <i class="fas fa-eye"></i>
             </div>
             <div class="stat-title">총 조회수</div>
-            <div class="stat-value">{{ stats.total_views }}</div>
-            <div class="stat-change positive">
-                <i class="fas fa-arrow-up"></i>
-                <span>{{ stats.views_increase_percent }}% 증가</span>
-            </div>
+            <div class="stat-value">{{ stats.total_views | intcomma }}</div>
         </div>
 
         <div class="stat-card">
@@ -308,11 +279,7 @@
                 <i class="fas fa-heart"></i>
             </div>
             <div class="stat-title">총 좋아요</div>
-            <div class="stat-value">{{ stats.total_likes }}</div>
-            <div class="stat-change positive">
-                <i class="fas fa-arrow-up"></i>
-                <span>{{ stats.likes_increase_percent }}% 증가</span>
-            </div>
+            <div class="stat-value">{{ stats.total_likes | intcomma }}</div>
         </div>
 
         <div class="stat-card">
@@ -320,11 +287,7 @@
                 <i class="fas fa-comment"></i>
             </div>
             <div class="stat-title">총 댓글</div>
-            <div class="stat-value">{{ stats.total_comments }}</div>
-            <div class="stat-change positive">
-                <i class="fas fa-arrow-up"></i>
-                <span>{{ stats.comments_increase_percent }}% 증가</span>
-            </div>
+            <div class="stat-value">{{ stats.total_comments | intcomma }}</div>
         </div>
     </div>
 
@@ -347,7 +310,7 @@
                 {% if post.image %}
                 <div class="post-image-container">
                     <a href="/@{{ user.username }}/{{ post.url }}">
-                        <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }}">
+                        <img class="post-image" src="{% static post.image.url %}" alt="{{ post.title }}">
                     </a>
                 </div>
                 {% endif %}

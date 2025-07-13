@@ -12,7 +12,6 @@ customElements.define('island-component', class extends HTMLElement {
         const props = this.getAttribute('props') ? JSON.parse(decodeURIComponent(this.getAttribute('props') || '')) : {};
 
         if (!name) {
-            console.error('Component name attribute is missing');
             return;
         }
 

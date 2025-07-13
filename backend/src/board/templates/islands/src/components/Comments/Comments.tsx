@@ -1,4 +1,5 @@
-import { http, Response } from '~/modules/http.module';
+import type { Response } from '~/modules/http.module';
+import { http } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
 import { getStaticPath } from '~/modules/env.module';
 
@@ -22,11 +23,17 @@ const Comments = (props: CommentsProps) => {
 
     const { data, isError, isLoading } = useFetch({
         queryKey: [postUrl, 'comments'],
-        queryFn: () => http<Response<{ comments: Comment[] }>>(`v1/posts/${postUrl}/comments`, {
-            method: 'GET',
-        }),
-        enable: !!postUrl,
+        queryFn: () => http<Response<{ comments: Comment[] }>>(`v1/posts/${postUrl}/comments`, { method: 'GET' }),
+        enable: !!postUrl
     });
+
+    const handleLike = (commentId: number) => {
+        console.log(`Like comment ${commentId}`);
+    };
+
+    const handleWrite = () => {
+        console.log('Write comment');
+    };
 
     if (isError) {
         return <p>Error loading comments</p>;
@@ -42,13 +49,15 @@ const Comments = (props: CommentsProps) => {
                 {data?.data.body.comments.map((comment) => (
                     <li key={comment.id} className="comment-item">
                         <div className="comment-header">
-                            <img
-                                src={getStaticPath(comment.authorImage)}
-                                alt={comment.author}
-                                className="author-image"
-                            />
+                            <a href={`/@${comment.author}`}>
+                                <img
+                                    src={getStaticPath(comment.authorImage)}
+                                    alt={comment.author}
+                                    className="author-image"
+                                />
+                            </a>
                             <div className="author-info">
-                                <span className="author-name">{comment.author}</span>
+                                <a className="author-name" href={`/@${comment.author}`}>{comment.author}</a>
                                 <span className="comment-date">{comment.createdDate}</span>
                             </div>
                         </div>
@@ -59,13 +68,17 @@ const Comments = (props: CommentsProps) => {
                                 dangerouslySetInnerHTML={{ __html: comment.renderedContent }}
                             />
                             <div className="comment-actions">
-                                <button className="like-button">Like</button>
+                                <button className="like-button" onClick={() => handleLike(comment.id)}>Like</button>
                                 <span className="like-count">{comment.countLikes}</span>
                             </div>
                         </div>
                     </li>
                 ))}
             </ul>
+
+            <textarea className="comment-input" placeholder="Write your comment..." />
+
+            <button className="write-button" onClick={handleWrite}>Write Comment</button>
 
             <style jsx>{`
                 .comments-list {
@@ -140,6 +153,24 @@ const Comments = (props: CommentsProps) => {
                 .like-count {
                     font-size: 12px;
                     color: #6c757d;
+                }
+
+                .comment-input {
+                    width: 100%;
+                    padding: 10px;
+                    margin-top: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                }
+
+                .write-button {
+                    margin-top: 10px;
+                    padding: 10px;
+                    background-color: #007bff;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
                 }
             `}</style>
         </>

@@ -2,7 +2,7 @@ from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.template import Context, Template
-from board.models import Post, Tag, PostConfig, Series
+from board.models import Post, PostConfig
 from board.templatetags.pagination_tags import get_pagination_url, get_pagination_base_url
 
 User = get_user_model()

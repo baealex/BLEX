@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
+import type { DragEndEvent } from '@dnd-kit/core';
 import {
     DndContext,
     closestCenter,
     KeyboardSensor,
     PointerSensor,
     useSensor,
-    useSensors,
-    DragEndEvent
+    useSensors
 } from '@dnd-kit/core';
 import {
     arrayMove,
@@ -64,26 +64,25 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
     const style = {
         transform: CSS.Transform.toString(transform),
-        transition,
+        transition
     };
 
     return (
         <div ref={setNodeRef} style={style} className="social-item">
             <div className="social-item-content">
                 <div className="drag-handle" {...attributes} {...listeners}>
-                    <i className="fas fa-bars"></i>
+                    <i className="fas fa-bars" />
                 </div>
 
                 <div className="social-icon">
-                    <i className={getIconClassName(social.name)}></i>
+                    <i className={getIconClassName(social.name)} />
                 </div>
 
                 <div className="social-select">
                     <select
                         className="form-select"
                         defaultValue={social.name}
-                        onChange={(e) => onChange(index, 'name', e.target.value)}
-                    >
+                        onChange={(e) => onChange(index, 'name', e.target.value)}>
                         <option disabled value="">아이콘</option>
                         <option value="github">깃허브</option>
                         <option value="twitter">트위터</option>
@@ -109,9 +108,8 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                 <button
                     type="button"
                     className="btn btn-icon"
-                    onClick={() => onRemove(social.id)}
-                >
-                    <i className="fas fa-times"></i>
+                    onClick={() => onRemove(social.id)}>
+                    <i className="fas fa-times" />
                 </button>
             </div>
         </div>
@@ -129,9 +127,7 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial }) => {
 
     const sensors = useSensors(
         useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -178,24 +174,16 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial }) => {
         }
 
         try {
-            const { data } = await http(`v1/setting/social/${id}`, {
-                method: 'DELETE'
-            });
+            const { data } = await http(`v1/setting/social/${id}`, { method: 'DELETE' });
 
             if (data.status === 'DONE') {
                 setSocials(socials.filter(social => social.id !== id));
-                notification('소셜 링크가 삭제되었습니다.', {
-                    type: 'success'
-                });
+                notification('소셜 링크가 삭제되었습니다.', { type: 'success' });
             } else {
-                notification(data.message || '소셜 링크 삭제에 실패했습니다.', {
-                    type: 'error'
-                });
+                notification(data.message || '소셜 링크 삭제에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
-            notification('소셜 링크 삭제에 실패했습니다.', {
-                type: 'error'
-            });
+            notification('소셜 링크 삭제에 실패했습니다.', { type: 'error' });
         }
     };
 
@@ -205,33 +193,25 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial }) => {
 
         try {
             if (socials.some((social) => !social.name)) {
-                notification('소셜 아이콘을 모두 선택해주세요.', {
-                    type: 'error'
-                });
+                notification('소셜 아이콘을 모두 선택해주세요.', { type: 'error' });
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => !social.value)) {
-                notification('소셜 주소를 모두 입력해주세요.', {
-                    type: 'error'
-                });
+                notification('소셜 주소를 모두 입력해주세요.', { type: 'error' });
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => !social.value.startsWith('https://'))) {
-                notification('소셜 주소는 https:// 로 시작해야 합니다.', {
-                    type: 'error'
-                });
+                notification('소셜 주소는 https:// 로 시작해야 합니다.', { type: 'error' });
                 setIsLoading(false);
                 return;
             }
 
             if (socials.some((social) => social.value.includes(',') || social.value.includes('&'))) {
-                notification('소셜 주소에는 , 와 & 를 포함할 수 없습니다.', {
-                    type: 'error'
-                });
+                notification('소셜 주소에는 , 와 & 를 포함할 수 없습니다.', { type: 'error' });
                 setIsLoading(false);
                 return;
             }
@@ -248,22 +228,16 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial }) => {
             });
 
             if (data.status === 'DONE') {
-                notification('소셜 정보가 업데이트 되었습니다.', {
-                    type: 'success'
-                });
+                notification('소셜 정보가 업데이트 되었습니다.', { type: 'success' });
                 setSocials((data.body as SocialLink[]).map((social) => ({
                     ...social,
                     prepare: false
                 })));
             } else {
-                notification('소셜 정보 업데이트에 실패했습니다.', {
-                    type: 'error'
-                });
+                notification('소셜 정보 업데이트에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
-            notification('소셜 정보 업데이트에 실패했습니다.', {
-                type: 'error'
-            });
+            notification('소셜 정보 업데이트에 실패했습니다.', { type: 'error' });
         } finally {
             setIsLoading(false);
         }
@@ -276,12 +250,10 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial }) => {
                     <DndContext
                         sensors={sensors}
                         collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                    >
+                        onDragEnd={handleDragEnd}>
                         <SortableContext
                             items={socials.map(social => social.id)}
-                            strategy={verticalListSortingStrategy}
-                        >
+                            strategy={verticalListSortingStrategy}>
                             {socials.map((social, index) => (
                                 <SocialLinkItem
                                     key={social.id}
@@ -299,15 +271,13 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial }) => {
                     <button
                         type="button"
                         className="btn btn-secondary"
-                        onClick={handleSocialAdd}
-                    >
-                        <i className="fas fa-plus"></i> 링크 추가
+                        onClick={handleSocialAdd}>
+                        <i className="fas fa-plus" /> 링크 추가
                     </button>
                     <button
                         type="submit"
                         className="btn btn-primary"
-                        disabled={isLoading}
-                    >
+                        disabled={isLoading}>
                         {isLoading ? '저장 중...' : '저장'}
                     </button>
                 </div>

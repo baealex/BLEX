@@ -130,13 +130,33 @@
     }
 
     .series-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        background-color: #f0f0f0;
-        color: #555;
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        background-color: #f0f7ff;
         border-radius: 20px;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 500;
+        color: #0066cc;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(0, 102, 204, 0.2);
+    }
+
+    .series-badge-name {
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .series-badge:hover {
+        background-color: #e0f0ff;
+        transform: translateY(-2px);
+    }
+
+    .series-badge i {
+        margin-right: 5px;
+        font-size: 12px;
     }
 
     .post-stats {
@@ -174,7 +194,7 @@
     <h2 class="section-title">Latest Articles</h2>
 
     <div class="masonry-grid">
-        {% for post in posts|slice:"1:" %}
+        {% for post in posts %}
             <div class="post-card">
                 {% if post.image %}
                     <div class="post-image-container">
@@ -201,20 +221,23 @@
                     <div class="post-footer">
                         {% if post.series %}
                             <a href="/@{{ post.author_username }}/series/{{ post.series.url }}">
-                                <span class="series-badge">{{ post.series.name }}</span>
+                                <span class="series-badge">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span class="series-badge-name">{{ post.series.name }}</span>
+                                </span>
                             </a>
                         {% else %}
                             <div></div>
                         {% endif %}
 
                         <div class="flex gap-1">
-                            <div class="post-meta-item">
-                                {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
-                            </div>
                             <div class="post-stats">
                                 <div class="stat-item">
                                     <i class="far fa-comment"></i>
                                     <span>{{ post.count_comments }}</span>
+                                </div>
+                                <div class="post-meta-item">
+                                    {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
                                 </div>
                             </div>
                         </div>

@@ -145,8 +145,7 @@ const AnalyticsSetting: PageComponent<unknown> = () => {
                         </Card>
                     ))}
                 </>
-            )
-            }
+            )}
         </>
     );
 };

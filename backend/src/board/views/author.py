@@ -1,7 +1,8 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
-from django.db.models import Count, F, Exists, OuterRef, Q
+from django.db.models import Count, Exists, OuterRef, Q
 from django.utils import timezone
+from board.modules.paginator import Paginator
 
 from board.models import Post, Series, PostLikes, Profile, Follow
 
@@ -57,13 +58,22 @@ def author_posts(request, username):
             following=author.profile
         ).exists()
     
+    page = int(request.GET.get('page', 1))
+    paginated_posts = Paginator(
+        objects=posts,
+        offset=24,
+        page=page
+    )
+    
     context = {
         'author': author,
-        'posts': posts,
+        'posts': paginated_posts,
         'post_count': post_count,
         'series_count': series_count,
         'follower_count': follower_count,
         'is_following': is_following,
+        'page_number': page,
+        'page_count': paginated_posts.paginator.num_pages,
     }
     
     return render(request, 'board/author/author.html', context)

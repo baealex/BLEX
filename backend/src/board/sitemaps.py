@@ -1,7 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-from board.models import Post, Series, Tag
+from board.models import Post, Series
 
 
 class SiteSitemap(Sitemap):

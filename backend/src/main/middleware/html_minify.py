@@ -43,6 +43,18 @@ class HTMLMinifyMiddleware(MiddlewareMixin):
             # 스크립트를 플레이스홀더로 대체
             content = script_pattern.sub(save_scripts, content)
             
+            # 1-1. pre 태그 보호 - pre 태그와 내용을 임시 저장
+            pre_blocks = {}
+            pre_pattern = re.compile(r'<pre[^>]*>.*?</pre>', re.DOTALL)
+            
+            def save_pre_blocks(match):
+                placeholder = f'PRE_PLACEHOLDER_{len(pre_blocks)}'
+                pre_blocks[placeholder] = match.group(0)
+                return placeholder
+            
+            # pre 태그를 플레이스홀더로 대체
+            content = pre_pattern.sub(save_pre_blocks, content)
+            
             # 2. 스타일 태그 처리 - 내부 공백만 최적화
             style_blocks = {}
             style_pattern = re.compile(r'<style[^>]*>(.*?)</style>', re.DOTALL)
@@ -66,12 +78,15 @@ class HTMLMinifyMiddleware(MiddlewareMixin):
             for pattern, replacement in self.patterns:
                 content = pattern.sub(replacement, content)
             
-            # 4. 스타일과 스크립트 복원
+            # 4. 스타일, 스크립트, pre 태그 복원
             for placeholder, style in style_blocks.items():
                 content = content.replace(placeholder, style)
                 
             for placeholder, script in script_blocks.items():
                 content = content.replace(placeholder, script)
+                
+            for placeholder, pre_block in pre_blocks.items():
+                content = content.replace(placeholder, pre_block)
             
             # 5. 인라인 스타일 속성 압축
             def compress_inline_style(match):
