@@ -67,6 +67,11 @@
             -webkit-text-fill-color: transparent;
         }
 
+        .logo-img {
+            width: 32px;
+            height: 32px;
+        }
+
         .nav-links {
             display: flex;
             gap: 20px;
@@ -86,6 +91,55 @@
         .nav-link.active {
             color: #4568dc;
             font-weight: 600;
+        }
+        
+        /* User dropdown menu styles */
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-dropdown-toggle {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .user-dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            padding: 8px 0;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .user-dropdown-menu.show {
+            display: block;
+        }
+        
+        .user-dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: #555;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .user-dropdown-item:hover {
+            background-color: #f5f5f5;
+            color: #4568dc;
+        }
+        
+        .user-dropdown-divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 8px 0;
         }
 
         .footer {
@@ -146,16 +200,37 @@
 <body>
     <header class="header">
         <div class="container header-content">
-            <a href="/" class="logo">BLEX</a>
+            <a href="/" class="logo">
+                <img class="logo-img" src="{% static 'logob.svg' %}" alt="BLEX">
+            </a>
             <nav class="nav-links">
-                <a href="/" class="nav-link {% block home_active %}{% endblock %}">Home</a>
-                <a href="/search" class="nav-link {% block search_active %}{% endblock %}">Search</a>
-                <a href="/favorite" class="nav-link {% block favorite_active %}{% endblock %}">Favorite</a>
+                <a href="/search" class="nav-link {% block search_active %}{% endblock %}">검색</a>
                 {% if user.is_authenticated %}
-                <a href="/write" class="nav-link">Write</a>
-                <a href="/@{{ user.username }}" class="nav-link">Profile</a>
+                <a href="/write" class="nav-link">글 작성</a>
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle nav-link">
+                        <span>{{ user.username }}</span>
+                        <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="/@{{ user.username }}" class="user-dropdown-item">
+                            <i class="fas fa-user-circle"></i> 프로필
+                        </a>
+                        <a href="/dashboard" class="user-dropdown-item">
+                            <i class="fas fa-chart-line"></i> 대시보드
+                        </a>
+                        <div class="user-dropdown-divider"></div>
+                        <a href="/settings/account" class="user-dropdown-item">
+                            <i class="fas fa-cog"></i> 설정
+                        </a>
+                        <div class="user-dropdown-divider"></div>
+                        <a href="/logout" class="user-dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> 로그아웃
+                        </a>
+                    </div>
+                </div>
                 {% else %}
-                <a href="/login" class="nav-link">Login</a>
+                <a href="/login" class="nav-link">로그인</a>
                 {% endif %}
             </nav>
         </div>
@@ -201,6 +276,29 @@
                 header.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
+            }
+        });
+        
+        // User dropdown toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownToggle = document.querySelector('.user-dropdown-toggle');
+            const dropdownMenu = document.querySelector('.user-dropdown-menu');
+            
+            if (dropdownToggle && dropdownMenu) {
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function() {
+                    dropdownMenu.classList.remove('show');
+                });
+                
+                // Prevent closing when clicking inside dropdown menu
+                dropdownMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
             }
         });
     </script>

@@ -54,7 +54,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId, likesCount, hasLiked })
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 8px 16px;
+                    padding: 4px 12px;
                     border: none;
                     border-radius: 20px;
                     background-color: #f8f9fa;

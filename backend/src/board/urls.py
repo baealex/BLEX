@@ -26,6 +26,7 @@ def empty():
 urlpatterns = [
     # Main page (Django template version)
     path('', main.index, name='index'),
+    path('dashboard', main.dashboard, name='dashboard'),
     path('search', search_view, name='search'),
     path('like/<str:url>', like_post, name='like_post'),
     path('login', login_view, name='login'),

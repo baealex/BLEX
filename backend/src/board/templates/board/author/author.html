@@ -102,9 +102,8 @@
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
-
 <div class="tabs-container">
-        {% with active_tab='posts' %}
+    {% with active_tab='posts' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
 
@@ -115,50 +114,50 @@
             {% include 'board/author/components/empty_state.html' %}
         {% endwith %}
     {% else %}
-    <div class="posts-grid">
-        {% for post in posts %}
-        <div class="post-card">
-            {% if post.image %}
-            <div class="post-image-container">
-                <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }}">
-            </div>
-            {% endif %}
-            <div class="post-content">
-                <h3 class="post-title">
-                    <a href="/@{{ author.username }}/{{ post.url }}">{{ post.title }}</a>
-                </h3>
-                <p class="post-description">{{ post.meta_description }}</p>
-                <div class="post-meta">
-                    {{ post.created_date }} · {{ post.read_time }}분 분량
-                </div>
-                <div class="post-footer">
-                    {% if post.series %}
-                    <a href="/@{{ author.username }}/series/{{ post.series.url }}">
-                        <span class="series-badge">{{ post.series.name }}</span>
-                    </a>
-                    {% else %}
-                    <div></div>
-                    {% endif %}
-                    <div class="post-stats">
-                        <div class="stat-item">
-                            <i class="far fa-comment"></i>
-                            <span>{{ post.count_comments }}</span>
+        <div class="posts-grid">
+            {% for post in posts %}
+                <div class="post-card">
+                    {% if post.image %}
+                        <div class="post-image-container">
+                            <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }}">
                         </div>
-                        <div class="stat-item">
-                            {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
+                    {% endif %}
+                    <div class="post-content">
+                        <h3 class="post-title">
+                            <a href="/@{{ author.username }}/{{ post.url }}">{{ post.title }}</a>
+                        </h3>
+                        <p class="post-description">{{ post.meta_description }}</p>
+                        <div class="post-meta">
+                            {{ post.created_date }} · {{ post.read_time }}분 분량
+                        </div>
+                        <div class="post-footer">
+                            {% if post.series %}
+                                <a href="/@{{ author.username }}/series/{{ post.series.url }}">
+                                    <span class="series-badge">{{ post.series.name }}</span>
+                                </a>
+                            {% else %}
+                                <div></div>
+                            {% endif %}
+                            <div class="post-stats">
+                                <div class="stat-item">
+                                    <i class="far fa-comment"></i>
+                                    <span>{{ post.count_comments }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
+    {% endif %}
 
     {% if has_next_page %}
-    <div class="pagination">
-        <a href="?page={{ next_page }}" class="load-more-button">Load More</a>
-    </div>
-    {% endif %}
+        <div class="pagination">
+            <a href="?page={{ next_page }}" class="load-more-button">Load More</a>
+        </div>
     {% endif %}
 </div>
 {% endblock %}
