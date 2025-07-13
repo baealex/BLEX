@@ -33,7 +33,7 @@ def index(request):
     ).order_by('-created_date')
 
     # Paginate the results
-    page = request.GET.get('page', 1)
+    page = int(request.GET.get('page', 1))
     paginated_posts = Paginator(
         objects=posts,
         offset=24,
