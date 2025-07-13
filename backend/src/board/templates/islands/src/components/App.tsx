@@ -9,6 +9,17 @@ const LazyComponents = {
     LikeButton: lazy(() => import('./LikeButton')),
     SearchBox: lazy(() => import('./SearchBox')),
     Comments: lazy(() => import('./Comments')),
+    SocialLinks: lazy(() => import('./SocialLinks')),
+    ProfileForm: lazy(() => import('./ProfileForm')),
+    AccountInfo: lazy(() => import('./AccountInfo')),
+    PasswordChange: lazy(() => import('./PasswordChange')),
+    AccountDeletion: lazy(() => import('./AccountDeletion')),
+    SeriesManagement: lazy(() => import('./SeriesManagement')),
+    PostsManagement: lazy(() => import('./PostsManagement')),
+    NotifySettings: lazy(() => import('./NotifySettings')),
+    VisitorAnalytics: lazy(() => import('./VisitorAnalytics')),
+    IntegrationSettings: lazy(() => import('./IntegrationSettings')),
+    InvitationManagement: lazy(() => import('./InvitationManagement')),
 }
 
 const App = ({ __name, ...props }: AppProps) => {

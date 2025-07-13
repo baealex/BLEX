@@ -1,0 +1,17 @@
+{% extends 'board/setting_base.html' %}
+{% load static %}
+{% load island %}
+
+{% block setting_title %}프로필 설정{% endblock %}
+
+{% block setting_content %}
+<div class="setting-card">
+    <h2 class="setting-card-title">기본 정보</h2>
+    {% island_component 'ProfileForm' avatar=avatar bio=bio homepage=homepage %}
+</div>
+
+<div class="setting-card">
+    <h2 class="setting-card-title">소셜 링크</h2>
+    {% island_component 'SocialLinks' social=social %}
+</div>
+{% endblock %}

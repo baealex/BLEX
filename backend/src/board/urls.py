@@ -14,6 +14,10 @@ from board.views.post import post_detail, post_editor
 from board.views.series import series_detail
 from board.views.auth import login_view, security_view
 from board.views.tag import tag_list_view, tag_detail_view
+from board.views.settings import (
+    setting_profile, setting_account, setting_notify, setting_series,
+    setting_posts, setting_analytics, setting_integration, setting_invitation
+)
 
 def empty():
     pass
@@ -29,22 +33,28 @@ urlpatterns = [
     # Sitemap Generator
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('<section>/sitemap.xml', sitemap, {'sitemaps': sitemap_section}, name='sitemap_section'),
-    
+
+    # Posts write    
+    path('write', post_editor, name='post_write'),
+
     # Tags
     path('tags', tag_list_view, name='tag_list'),
     path('tag/<str:name>', tag_detail_view, name='tag_detail'),
-    path('<username:username>', author_posts, name='user_profile'),
-    path('<username:username>/series', author_series, name='user_series'),
-    path('<username:username>/about', author_about, name='user_about'),
-    path('<username:username>/<post_url>', post_detail, name='post_detail'),
-    path('<username:username>/series/<series_url>', series_detail, name='series_detail'),
-    path('write', post_editor, name='post_write'),
-    path('<username:username>/<post_url>/edit', post_editor, name='post_edit'),
 
     # RSS and Etc
     path('rss', SitePostsFeed()),
     path('rss/<username:username>', UserPostsFeed(), name='user_rss_feed'),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
+    
+    # Settings Pages
+    path('settings/profile', setting_profile, name='setting_profile'),
+    path('settings/account', setting_account, name='setting_account'),
+    path('settings/notify', setting_notify, name='setting_notify'),
+    path('settings/series', setting_series, name='setting_series'),
+    path('settings/posts', setting_posts, name='setting_posts'),
+    path('settings/analytics', setting_analytics, name='setting_analytics'),
+    path('settings/integration', setting_integration, name='setting_integration'),
+    path('settings/invitation', setting_invitation, name='setting_invitation'),
 
     # GraphQL
     # path('graphql', GraphQLView.as_view(graphiql=True)),
@@ -93,5 +103,13 @@ urlpatterns = [
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),
     path('v1/telegram/<parameter>', api_v1.telegram),
-    # ------------------------------------------------------------ API V1 End
+    
+    # Author
+    path('<username:username>/series', author_series, name='user_series'),
+    path('<username:username>/about', author_about, name='user_about'),
+    path('<username:username>/<post_url>', post_detail, name='post_detail'),
+    path('<username:username>/series/<series_url>', series_detail, name='series_detail'),
+    path('<username:username>/<post_url>/edit', post_editor, name='post_edit'),
+    path('<username:username>', author_posts, name='user_profile'),
+
 ]
