@@ -119,7 +119,7 @@
                 <div class="post-card">
                     {% if post.image %}
                         <div class="post-image-container">
-                            <img class="post-image" src="{{ post.image.url }}" alt="{{ post.title }}">
+                            <img class="post-image" src="{% static post.image.url %}" alt="{{ post.title }}">
                         </div>
                     {% endif %}
                     <div class="post-content">
