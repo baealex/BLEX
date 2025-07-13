@@ -67,15 +67,12 @@
     /* Post cover image */
     .post-cover-container {
         margin-bottom: 32px;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     .post-cover-image {
         width: 100%;
-        max-height: 500px;
-        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     /* Post content */
@@ -405,9 +402,7 @@
             <div class="post-meta">
                 <div class="post-author">
                     <a href="/@{{ post.author_username }}">
-                        <img class="post-author-image"
-                            src="{% if post.author_image %}{% static post.author_image.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}"
-                            alt="{{ post.author_username }}">
+                        <img class="post-author-image" src="{% if post.author_image %}{% static post.author_image %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ post.author_username }}">
                     </a>
                     <a href="/@{{ post.author_username }}" class="post-author-name">
                         {{ post.author_username }}
@@ -428,13 +423,13 @@
         </header>
 
         <div class="post-content">
-            {{ post.content|safe }}
+            {{ post.content.text_html|safe }}
         </div>
 
         {% if post.tags %}
         <div class="post-tags">
             {% for tag in post.tags.all %}
-            <a href="/tags/{{ tag }}" class="post-tag">{{ tag }}</a>
+                <a href="{% url 'tag_detail' tag %}" class="post-tag">{{ tag }}</a>
             {% endfor %}
         </div>
         {% endif %}
@@ -450,7 +445,7 @@
 
             {% if user.is_authenticated and user.username == post.author_username %}
             <div class="post-action-group">
-                <a href="/@{{ post.author_username }}/{{ post.url }}/edit" class="btn btn-outline-primary">
+                <a href="{% url 'post_edit' post.author_username post.url %}" class="btn btn-outline-primary">
                     <i class="fas fa-edit"></i>
                     <span>Edit</span>
                 </a>
@@ -463,7 +458,7 @@
     <div class="series-info">
         <div class="series-header">
             <h3 class="series-title">
-                <a href="/@{{ post.author_username }}/series/{{ post.series.url }}">{{ post.series.name }}</a>
+                <a href="{% url 'series_detail' post.author_username post.series.url %}">{{ post.series.name }}</a>
             </h3>
             <div class="series-progress">
                 {{ post.series_index }} / {{ post.series_total }} 포스트
@@ -472,7 +467,7 @@
         <ul class="series-posts">
             {% for series_post in post.series_posts %}
             <li class="series-post-item">
-                <a href="/@{{ post.author_username }}/{{ series_post.url }}"
+                <a href="{% url 'post_detail' post.author_username series_post.url %}"
                     class="series-post-link {% if series_post.url == post.url %}active{% endif %}">
                     <span class="series-post-number">{{ forloop.counter }}</span>
                     <span>{{ series_post.title }}</span>
@@ -485,7 +480,7 @@
 
     <div class="comments-section">
         <h3 class="comments-title">댓글 {{ post.count_comments }}개</h3>
-        {% island_component 'Comments' author=post.author_username postUrl=post.url %}
+        {% island_component 'Comments' postUrl=post.url %}
     </div>
 
     {% if related_posts %}
@@ -501,7 +496,7 @@
                 {% endif %}
                 <div class="post-content">
                     <h3 class="post-title">
-                        <a href="/@{{ related_post.author_username }}/{{ related_post.url }}">{{ related_post.title}}</a>
+                        <a href="{% url 'post_detail' related_post.author_username related_post.url %}">{{ related_post.title}}</a>
                     </h3>
                     <p class="post-description">{{ related_post.meta_description }}</p>
                     <div class="post-meta">

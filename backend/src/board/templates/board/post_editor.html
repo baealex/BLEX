@@ -370,7 +370,7 @@
             <input type="hidden" id="tags" name="tags" value="{{ post.tags|join:',' }}">
             
             <div class="tag-list" id="tagList">
-                {% for tag in post.tags %}
+                {% for tag in post.tags.all %}
                 <div class="tag-item" data-tag="{{ tag }}">
                     <span>{{ tag }}</span>
                     <span class="tag-remove">&times;</span>
@@ -400,8 +400,8 @@
         
         <div class="form-group">
             <label for="content" class="form-label">Content</label>
-            {% island_component 'MarkdownEditor' initialValue=post.content %}
-            <input type="hidden" id="content" name="content" value="{{ post.content }}">
+            {% island_component 'MarkdownEditor' initialValue=post.content.text_md %}
+            <input type="hidden" id="content" name="content" value="{{ post.content.text_md }}">
         </div>
         
         <div class="config-options">

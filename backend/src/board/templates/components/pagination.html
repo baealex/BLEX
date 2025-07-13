@@ -1,0 +1,140 @@
+{% comment %}
+Pagination component
+Parameters:
+- has_next_page: Boolean indicating if there are more pages
+- next_page: The next page number
+- current_page: The current page number (optional)
+- total_pages: Total number of pages (optional)
+- base_url: Base URL for pagination links (optional, defaults to "?page=")
+- style: Style variant ('button' or 'numbered', defaults to 'button')
+{% endcomment %}
+
+{% if style == 'numbered' and current_page and total_pages %}
+<div class="pagination-container numbered">
+    <div class="pagination-wrapper">
+        {% if current_page > 1 %}
+            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'-1' }}" class="pagination-item prev">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        {% else %}
+            <span class="pagination-item disabled">
+                <i class="fas fa-chevron-left"></i>
+            </span>
+        {% endif %}
+
+        {% if current_page > 3 %}
+            <a href="{{ base_url|default:'?page=' }}1" class="pagination-item">1</a>
+            {% if current_page > 4 %}
+                <span class="pagination-ellipsis">...</span>
+            {% endif %}
+        {% endif %}
+        
+        {# Show at most 5 page numbers around current page #}
+        {% if current_page > 2 %}
+            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'-2' }}" class="pagination-item">{{ current_page|add:'-2' }}</a>
+        {% endif %}
+        
+        {% if current_page > 1 %}
+            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'-1' }}" class="pagination-item">{{ current_page|add:'-1' }}</a>
+        {% endif %}
+        
+        <span class="pagination-item active">{{ current_page }}</span>
+        
+        {% if current_page < total_pages %}
+            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'1' }}" class="pagination-item">{{ current_page|add:'1' }}</a>
+        {% endif %}
+        
+        {% if current_page|add:'1' < total_pages %}
+            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'2' }}" class="pagination-item">{{ current_page|add:'2' }}</a>
+        {% endif %}
+
+        {% if current_page|add:'2' < total_pages %}
+            {% if current_page|add:'3' < total_pages %}
+                <span class="pagination-ellipsis">...</span>
+            {% endif %}
+            <a href="{{ base_url|default:'?page=' }}{{ total_pages }}" class="pagination-item">{{ total_pages }}</a>
+        {% endif %}
+
+        {% if current_page < total_pages %}
+            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'1' }}" class="pagination-item next">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        {% else %}
+            <span class="pagination-item disabled">
+                <i class="fas fa-chevron-right"></i>
+            </span>
+        {% endif %}
+    </div>
+</div>
+{% elif has_next_page %}
+<div class="pagination-container button">
+    <a href="{{ base_url|default:'?page=' }}{{ next_page }}" class="load-more-button">
+        Load More
+    </a>
+</div>
+{% endif %}
+
+<style>
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin: 40px 0;
+    }
+    
+    .pagination-container.button .load-more-button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #f8f9fa;
+        color: #495057;
+        border-radius: 30px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: 1px solid #dee2e6;
+    }
+    
+    .pagination-container.button .load-more-button:hover {
+        background-color: #e9ecef;
+        color: #212529;
+    }
+    
+    .pagination-container.numbered .pagination-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .pagination-container.numbered .pagination-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        text-decoration: none;
+        color: #495057;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+    
+    .pagination-container.numbered .pagination-item:hover:not(.active):not(.disabled) {
+        background-color: #e9ecef;
+    }
+    
+    .pagination-container.numbered .pagination-item.active {
+        background-color: #4568dc;
+        color: white;
+        font-weight: 500;
+    }
+    
+    .pagination-container.numbered .pagination-item.disabled {
+        color: #adb5bd;
+        cursor: not-allowed;
+    }
+    
+    .pagination-container.numbered .pagination-ellipsis {
+        color: #6c757d;
+        font-size: 14px;
+        padding: 0 4px;
+    }
+</style>

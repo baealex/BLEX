@@ -8,8 +8,8 @@
     <meta name="referrer" content="origin" />
     <title>{% block title %}BLEX{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'assets/client/main.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/client/island.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/modules/main.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/modules/island.css' %}">
     <link rel="icon" href="{% static 'favicon.ico' %}" />
     <link rel="apple-touch-icon" sizes="57x57" href="{% static 'logo57.png' %}" />
     <link rel="apple-touch-icon" sizes="72x72" href="{% static 'logo72.png' %}" />
@@ -30,12 +30,6 @@
     <style>
         :root {
             --primary-gradient: linear-gradient(90deg, #4568dc, #b06ab3);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
         }
 
         a {
@@ -92,10 +86,6 @@
         .nav-link.active {
             color: #4568dc;
             font-weight: 600;
-        }
-
-        .main-content {
-            padding: 40px 0;
         }
 
         .footer {
@@ -171,7 +161,7 @@
         </div>
     </header>
 
-    <main class="main-content container">
+    <main class="container pt-4 px-2">
         {% block content %}{% endblock %}
     </main>
 
@@ -205,7 +195,6 @@
     </footer>
 
     <script>
-        // Add scrolled class to header when scrolling
         window.addEventListener('scroll', function () {
             const header = document.querySelector('.header');
             if (window.scrollY > 10) {
@@ -214,13 +203,11 @@
                 header.classList.remove('scrolled');
             }
         });
-
-        // Dark mode toggle functionality can be added here
     </script>
 
     {% block extra_scripts %}{% endblock %}
 
-    <script src="{% static 'assets/client/island.bundle.js' %}"></script>
+    <script type="module" src="{% static 'assets/modules/island.bundle.js' %}"></script>
 </body>
 
 </html>

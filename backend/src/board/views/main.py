@@ -45,8 +45,8 @@ def index(request):
     
     context = {
         'posts': paginated_posts,
-        'has_next_page': int(page) < paginated_posts.paginator.num_pages,
-        'next_page': int(page) + 1,
+        'page_number': page,
+        'page_count': paginated_posts.paginator.num_pages,
     }
     
     return render(request, 'board/index.html', context)

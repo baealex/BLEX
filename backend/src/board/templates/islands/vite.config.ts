@@ -6,10 +6,19 @@ export default defineConfig(({ mode }) => {
     const isDevelopment = mode === 'development';
 
     return {
-        plugins: [react()],
+        plugins: [react({
+            babel: {
+                plugins: ['styled-jsx/babel']
+            }
+        })],
         build: {
-            outDir: '../static/assets/client',
+            outDir: '../../../static/assets/modules',
             emptyOutDir: true,
+            // Enable module splitting for better code chunking
+            modulePreload: {
+                polyfill: true,
+            },
+            // Configure code splitting
             rollupOptions: {
                 input: {
                     island: resolve(__dirname, 'src/island.tsx'),
@@ -18,8 +27,16 @@ export default defineConfig(({ mode }) => {
                 },
                 output: {
                     entryFileNames: '[name].bundle.js',
-                    chunkFileNames: '[name].[hash].js',
+                    chunkFileNames: 'chunks/[name].[hash].js',
                     assetFileNames: '[name].[ext]',
+                    // Ensure chunks are properly loaded
+                    manualChunks: (id) => {
+                        // Group component chunks by their directory
+                        if (id.includes('/components/')) {
+                            const component = id.split('/components/')[1].split('/')[0];
+                            return `component-${component}`;
+                        }
+                    },
                 },
             },
         },

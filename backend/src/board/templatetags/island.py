@@ -16,7 +16,6 @@ def island_component(component_name, **props):
     {% load island %}
     {% island_component 'LikeButton' post_id=post.id likes_count=post.count_likes has_liked=post.has_liked %}
     """
-    logger.error(f"island_component called with: {component_name}, {props}")
     
     for key, value in props.items():
         if hasattr(value, 'isoformat'):
@@ -24,6 +23,5 @@ def island_component(component_name, **props):
     
     props_json = json.dumps(props)
     html_output = f'<island-component name="{component_name}" props="{urllib.parse.quote(props_json)}"></island-component>'
-    logger.error(f"island_component output: {html_output}")
     
     return mark_safe(html_output)

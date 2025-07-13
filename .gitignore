@@ -2,7 +2,7 @@
 /node_modules
 /backend/src/static/images/
 /backend/src/static/assets/admin/
-/backend/src/static/assets/client/
+/backend/src/static/assets/modules/
 /backend/src/static/assets/graphene_django/
 /frontend/**.env
 /backend/**.env

@@ -1,0 +1,391 @@
+{% extends 'board/base.html' %}
+{% load island %}
+{% load static %}
+
+{% block title %}BLEX - #{{ tag }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Tag header section */
+    .tag-header {
+        margin-bottom: 32px;
+        text-align: center;
+    }
+
+    .tag-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .tag-count {
+        font-size: 16px;
+        color: #777;
+        margin-bottom: 16px;
+    }
+
+    /* Featured post section */
+    .featured-post {
+        margin-bottom: 32px;
+        border-radius: 16px;
+        background-color: #fff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .featured-post:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .featured-post-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+        .featured-post-container {
+            flex-direction: row;
+            min-height: 300px;
+        }
+    }
+
+    .featured-post-image-container {
+        flex: 1;
+        min-height: 250px;
+        overflow: hidden;
+    }
+
+    .featured-post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .featured-post:hover .featured-post-image {
+        transform: scale(1.05);
+    }
+
+    .featured-post-content {
+        flex: 1;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .featured-post-author-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .featured-post-author-image {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+
+    .featured-post-meta {
+        font-size: 14px;
+        color: #777;
+    }
+
+    .featured-post-meta-separator {
+        margin: 0 5px;
+    }
+
+    .featured-post-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: #333;
+    }
+
+    .featured-post-description {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 24px;
+        flex-grow: 1;
+    }
+
+    /* Post grid section */
+    .section-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+
+    .masonry-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+        .masonry-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .masonry-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Post card styles */
+    .post-card {
+        border-radius: 16px;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-image-container {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .post-card:hover .post-image {
+        transform: scale(1.05);
+    }
+
+    .post-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .post-author-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .post-author-image {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+    }
+
+    .post-meta {
+        font-size: 14px;
+        color: #777;
+    }
+
+    .post-meta-separator {
+        margin: 0 5px;
+    }
+
+    .post-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #333;
+    }
+
+    .post-description {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 16px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        text-overflow: ellipsis;
+        max-height: 60px;
+        -webkit-box-orient: vertical;
+        flex-grow: 1;
+    }
+
+    .post-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+
+    .series-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background-color: #f0f0f0;
+        color: #555;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .post-stats {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #999;
+        font-size: 14px;
+    }
+
+    .stat-button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        color: #999;
+        display: flex;
+        align-items: center;
+    }
+
+    .stat-button.liked {
+        color: #ff6b6b;
+    }
+
+    .no-posts {
+        text-align: center;
+        padding: 40px 0;
+    }
+
+    .no-posts h3 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 16px;
+    }
+
+    .no-posts p {
+        font-size: 16px;
+        color: #777;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .post-card,
+        .featured-post,
+        .post-image,
+        .featured-post-image {
+            transition: none !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tag-header">
+    <h1 class="tag-title">#{{ tag }}</h1>
+    <div class="tag-count">{{ posts|length }} post{% if posts|length != 1 %}s{% endif %}</div>
+</div>
+
+{% if head_post %}
+<div class="featured-post">
+    <div class="featured-post-container">
+        {% if head_post.image %}
+        <div class="featured-post-image-container">
+            <a href="/@{{ head_post.author }}/{{ head_post.url }}">
+                <img class="featured-post-image" src="{% static head_post.image %}" alt="{{ head_post.title }}">
+            </a>
+        </div>
+        {% endif %}
+        <div class="featured-post-content">
+            <div class="featured-post-author-container">
+                <a href="/@{{ head_post.author }}">
+                    <img class="featured-post-author-image" src="{% static head_post.author_image %}" alt="{{ head_post.author }}">
+                </a>
+                <span class="featured-post-meta">
+                    <a href="/@{{ head_post.author }}">{{ head_post.author }}</a>
+                </span>
+            </div>
+            <h2 class="featured-post-title">
+                <a href="/@{{ head_post.author }}/{{ head_post.url }}">{{ head_post.title }}</a>
+            </h2>
+            <p class="featured-post-description">{{ head_post.description }}</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if posts %}
+    {% if not head_post %}
+        <h2 class="section-title">Posts with #{{ tag }}</h2>
+    {% else %}
+        <h2 class="section-title">More posts with #{{ tag }}</h2>
+    {% endif %}
+
+    <div class="masonry-grid">
+        {% for post in posts %}
+            <div class="post-card">
+                {% if post.image %}
+                    <div class="post-image-container">
+                        <a href="/@{{ post.author }}/{{ post.url }}">
+                            <img class="post-image" src="{% static post.image %}" alt="{{ post.title }}">
+                        </a>
+                    </div>
+                {% endif %}
+                <div class="post-content">
+                    <div class="post-author-container">
+                        <a href="/@{{ post.author }}">
+                            <img class="post-author-image" src="{% static post.author_image %}" alt="{{ post.author }}">
+                        </a>
+                        <span class="post-meta">
+                            <a href="/@{{ post.author }}">{{ post.author }}</a>
+                            <span class="post-meta-separator">·</span>
+                            {{ post.created_date }}
+                        </span>
+                    </div>
+                    <h3 class="post-title">
+                        <a href="/@{{ post.author }}/{{ post.url }}">{{ post.title }}</a>
+                    </h3>
+                    <p class="post-description">{{ post.description }}</p>
+                    <div class="post-footer">
+                        <div></div>
+                        <div class="flex gap-1">
+                            <div class="post-meta-item">
+                                {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
+                            </div>
+                            <div class="post-stats">
+                                <div class="stat-item">
+                                    <i class="far fa-comment"></i>
+                                    <span>{{ post.count_comments }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% include 'components/pagination.html' with style='numbered' current_page=page_number total_pages=page_count %}
+{% else %}
+    <div class="no-posts">
+        <h3>No posts found</h3>
+        <p>There are no posts with this tag yet.</p>
+    </div>
+{% endif %}
+{% endblock %}

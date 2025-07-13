@@ -1,13 +1,6 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
-
-import { LikeButton, SearchBox, Comments } from './components';
-
-const Components: Record<string, React.ComponentType<any>> = {
-    LikeButton,
-    SearchBox,
-    Comments,
-};
+import App from './components/App';
+import ErrorBoundary from './components/ErrorBoundary';
 
 customElements.define('island-component', class extends HTMLElement {
     constructor() {
@@ -23,12 +16,11 @@ customElements.define('island-component', class extends HTMLElement {
             return;
         }
 
-        const Component = Components[name];
-        if (Component) {
-            const root = createRoot(this);
-            root.render(<Component {...props} />);
-        } else {
-            console.error(`Unknown React component: ${name}`);
-        }
+        const root = createRoot(this);
+        root.render(
+            <ErrorBoundary fallback={<div>Error</div>}>
+                <App __name={name} {...props} />
+            </ErrorBoundary>
+        );
     }
 });

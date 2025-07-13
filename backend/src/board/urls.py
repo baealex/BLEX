@@ -13,6 +13,7 @@ from board.views.author import author_posts, author_series, author_about
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail
 from board.views.auth import login_view, security_view
+from board.views.tag import tag_list_view, tag_detail_view
 
 def empty():
     pass
@@ -25,21 +26,24 @@ urlpatterns = [
     path('like/<str:url>', like_post, name='like_post'),
     path('login', login_view, name='login'),
     path('security', security_view, name='security'),
-
     # Sitemap Generator
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('<section>/sitemap.xml', sitemap, {'sitemaps': sitemap_section}, name='sitemap_section'),
-    path('@<username>', author_posts, name='user_profile'),
-    path('@<username>/series', author_series, name='user_series'),
-    path('@<username>/about', author_about, name='user_about'),
-    path('@<username>/<post_url>', post_detail, name='post_detail'),
-    path('@<username>/series/<series_url>', series_detail, name='series_detail'),
+    
+    # Tags
+    path('tags', tag_list_view, name='tag_list'),
+    path('tag/<str:name>', tag_detail_view, name='tag_detail'),
+    path('<username:username>', author_posts, name='user_profile'),
+    path('<username:username>/series', author_series, name='user_series'),
+    path('<username:username>/about', author_about, name='user_about'),
+    path('<username:username>/<post_url>', post_detail, name='post_detail'),
+    path('<username:username>/series/<series_url>', series_detail, name='series_detail'),
     path('write', post_editor, name='post_write'),
-    path('@<username>/<post_url>/edit', post_editor, name='post_edit'),
+    path('<username:username>/<post_url>/edit', post_editor, name='post_edit'),
 
     # RSS and Etc
     path('rss', SitePostsFeed()),
-    path('rss/@<username>', UserPostsFeed(), name='user_rss_feed'),
+    path('rss/<username:username>', UserPostsFeed(), name='user_rss_feed'),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
 
     # GraphQL
@@ -74,12 +78,12 @@ urlpatterns = [
     path('v1/comments', api_v1.comment_list),
     path('v1/comments/user', api_v1.user_comment),
     path('v1/comments/<int:id>', api_v1.comment_detail),
-    path('v1/users/@<username>', api_v1.users),
-    path('v1/users/@<username>/posts', api_v1.user_posts),
-    path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
-    path('v1/users/@<username>/series', api_v1.user_series),
-    path('v1/users/@<username>/series/<url>', api_v1.user_series),
-    path('v1/users/@<username>/check-redirect', api_v1.check_redirect),
+    path('v1/users/<username:username>', api_v1.users),
+    path('v1/users/<username:username>/posts', api_v1.user_posts),
+    path('v1/users/<username:username>/posts/<url>', api_v1.user_posts),
+    path('v1/users/<username:username>/series', api_v1.user_series),
+    path('v1/users/<username:username>/series/<url>', api_v1.user_series),
+    path('v1/users/<username:username>/check-redirect', api_v1.check_redirect),
     path('v1/series/valid-posts', api_v1.posts_can_add_series),
     path('v1/report/error', api_v1.error_report),
     path('v1/report/article/<url>', api_v1.article_report),

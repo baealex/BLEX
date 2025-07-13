@@ -40,8 +40,8 @@ def post_detail(request, username, post_url):
         raise Http404("Post does not exist")
     
     # Calculate read time (approximately 200 words per minute)
-    # word_count = len(post.content.split())
-    # post.read_time = max(1, round(word_count / 200))
+    word_count = len(post.content.text_html.strip().split())
+    post.read_time = max(1, round(word_count / 200))
     
     # Format date
     post.created_date = post.created_date.strftime('%Y-%m-%d')
