@@ -1,0 +1,343 @@
+{% extends 'board/base.html' %}
+{% load static %}
+
+{% block title %}About - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, #4568dc, #b06ab3);
+        color: white;
+        padding: 100px 0 80px;
+        margin-bottom: 70px;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(69, 104, 220, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .about-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -80px;
+        left: -80px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-logo {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 25px;
+        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        height: 100%;
+        transition: all 0.4s ease;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        border-bottom: 4px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .feature-card:hover::after {
+        transform: scaleX(1);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 25px;
+        background: linear-gradient(135deg, #4568dc, #b06ab3);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+    
+    .feature-card h3 {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .feature-card p {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .section-title {
+        position: relative;
+        margin-bottom: 50px;
+        padding-bottom: 15px;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border-radius: 2px;
+    }
+    
+    .contact-link {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 20px;
+        margin-bottom: 15px;
+        color: #4568dc;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 10px 15px;
+        border-radius: 8px;
+        background-color: rgba(69, 104, 220, 0.05);
+    }
+    
+    .contact-link:hover {
+        color: #b06ab3;
+        transform: translateY(-3px);
+        background-color: rgba(69, 104, 220, 0.1);
+        box-shadow: 0 5px 15px rgba(69, 104, 220, 0.15);
+    }
+    
+    .contact-icon {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .mission-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+        border-left: 6px solid #4568dc;
+    }
+    
+    .mission-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(69, 104, 220, 0.03), rgba(176, 106, 179, 0.03));
+        z-index: 0;
+    }
+    
+    .mission-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .quote-mark {
+        font-size: 5rem;
+        height: 70px;
+        line-height: 1;
+        color: #4568dc;
+        opacity: 0.15;
+        font-family: Georgia, serif;
+        margin-bottom: 10px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(69, 104, 220, 0.3);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(69, 104, 220, 0.4);
+    }
+    
+    .btn-outline-primary {
+        background: transparent;
+        border: 2px solid #4568dc;
+        color: #4568dc;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        color: white;
+        border-color: transparent;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(69, 104, 220, 0.3);
+    }
+    
+    .contact-section {
+        background-color: #f9f9f9;
+        border-radius: 16px;
+        padding: 50px 30px;
+        margin-top: 70px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-hero text-center">
+    <div class="container py-5 hero-content">
+        <img src="{% static 'logob.svg' %}" alt="BLEX Logo" class="hero-logo">
+        <h1 class="display-4 fw-bold mb-4">About BLEX</h1>
+        <p class="lead mb-0" style="max-width: 700px; margin: 0 auto; font-size: 1.3rem;">개발자와 창작자를 위한 최고의 블로그 플랫폼</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="mission-card">
+                <div class="mission-content">
+                    <div class="quote-mark">"</div>
+                    <h2 class="h2 mb-4">우리의 미션</h2>
+                    <p class="lead" style="font-size: 1.2rem; line-height: 1.8;">BLEX는 개발자, 디자이너, 그리고 모든 창작자들이 자신의 지식과 경험을 쉽게 공유할 수 있는 플랫폼을 제공합니다. 우리는 기술적 지식의 공유와 커뮤니티 형성을 통해 더 나은 개발 생태계를 만들어 나가고자 합니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-5 mt-5 pt-4">
+        <div class="text-center mb-5">
+            <h2 class="section-title pb-3">주요 기능</h2>
+            <p class="lead text-muted" style="max-width: 700px; margin: 0 auto;">BLEX가 제공하는 특별한 기능들을 살펴보세요</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h3>마크다운 에디터</h3>
+                    <p>마크다운 문법으로 쉽고 빠르게 글을 작성하고 서식을 적용할 수 있습니다.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>코드 하이라이팅</h3>
+                    <p>다양한 프로그래밍 언어에 대한 구문 강조 기능으로 코드를 더 읽기 쉽게 표시합니다.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>태그 시스템</h3>
+                    <p>태그를 사용하여 콘텐츠를 분류하고 독자들이 관심 있는 주제를 쉽게 찾을 수 있습니다.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>반응형 디자인</h3>
+                    <p>모든 기기에서 최적화된 경험을 제공하는 반응형 디자인으로 어디서나 편리하게 이용할 수 있습니다.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>방문자 통계</h3>
+                    <p>블로그 방문자 통계와 분석 도구를 통해 콘텐츠의 성과를 측정하고 개선할 수 있습니다.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                    <h3>소셜 공유</h3>
+                    <p>SEO 최적화 및 소셜 미디어 공유 기능으로 더 많은 독자에게 콘텐츠를 알릴 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="contact-section">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title pb-3">연락처</h2>
+                <div class="mb-5">
+                    <a href="mailto:contact@blex.me" class="contact-link">
+                        <i class="fas fa-envelope contact-icon"></i> contact@blex.me
+                    </a>
+                    <a href="https://github.com/baealex/BLEX" target="_blank" class="contact-link">
+                        <i class="fab fa-github contact-icon"></i> github.com/baealex/BLEX
+                    </a>
+                </div>
+                <div class="mt-5">
+                    <a href="/" class="btn btn-primary me-3">홈으로 돌아가기</a>
+                    <a href="/login" class="btn btn-outline-primary">시작하기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

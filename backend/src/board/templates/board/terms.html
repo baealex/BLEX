@@ -1,0 +1,259 @@
+{% extends 'board/base.html' %}
+{% load static %}
+
+{% block title %}서비스 이용약관 - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .terms-header {
+        background: linear-gradient(135deg, #4568dc, #b06ab3);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(69, 104, 220, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .terms-header::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .terms-header::after {
+        content: '';
+        position: absolute;
+        bottom: -80px;
+        left: -80px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .header-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .terms-content {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    
+    .terms-card {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .card-body {
+        padding: 40px !important;
+    }
+    
+    .card-title {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 25px;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .card-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border-radius: 2px;
+    }
+    
+    .text-muted {
+        color: #777 !important;
+    }
+    
+    .terms-section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .terms-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .h4 {
+        color: #4568dc;
+        font-weight: 600;
+        margin-top: 40px;
+        margin-bottom: 20px;
+    }
+    
+    ol {
+        padding-left: 20px;
+    }
+    
+    ol li {
+        margin-bottom: 15px;
+        line-height: 1.6;
+        color: #555;
+    }
+    
+    ol li ul {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    
+    ol li ul li {
+        margin-bottom: 8px;
+    }
+    
+    .updated-date {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: rgba(0,0,0,0.1);
+        border-radius: 30px;
+        font-size: 14px;
+        margin-top: 10px;
+        color: white;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(69, 104, 220, 0.3);
+        margin-top: 20px;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(69, 104, 220, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="terms-header text-center">
+        <div class="container header-content">
+            <h1 class="display-5 fw-bold mb-3">서비스 이용약관</h1>
+            <p class="lead mb-2">BLEX 서비스 이용에 관한 중요한 정보입니다</p>
+            <span class="updated-date">최종 업데이트: 2023년 12월 1일</span>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="terms-card card">
+                <div class="card-body">
+                    <div class="terms-section">
+                        <p class="lead">본 이용약관은 BLEX('https://blex.me')에서 제공하는 서비스의 이용 조건과 절차, 회원과 BLEX의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제1조 (목적)</h2>
+                        <p>본 약관은 BLEX가 제공하는 모든 서비스(이하 "서비스")의 이용 조건 및 절차에 관한 사항과 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제2조 (용어의 정의)</h2>
+                        <ol>
+                            <li>"서비스"라 함은 회원이 이용할 수 있는 BLEX의 제반 서비스를 의미합니다.</li>
+                            <li>"회원"이라 함은 BLEX에 개인정보를 제공하여 회원등록을 한 자로서, BLEX의 정보를 지속적으로 제공받으며 BLEX가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 말합니다.</li>
+                            <li>"아이디(ID)"라 함은 회원의 식별과 서비스 이용을 위하여 회원이 설정하고 BLEX가 승인하는 문자와 숫자의 조합을 의미합니다.</li>
+                            <li>"비밀번호"라 함은 회원이 부여 받은 아이디와 일치된 회원임을 확인하고 회원의 개인정보를 보호하기 위해 회원 자신이 설정한 문자와 숫자의 조합을 의미합니다.</li>
+                            <li>"콘텐츠"라 함은 회원이 서비스 내에 게시한 모든 글, 사진, 동영상, 첨부파일 등을 의미합니다.</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제3조 (약관의 효력 및 변경)</h2>
+                        <ol>
+                            <li>본 약관은 서비스를 이용하고자 하는 모든 회원에 대하여 그 효력을 발생합니다.</li>
+                            <li>BLEX는 필요한 경우 약관을 변경할 수 있으며, 변경된 약관은 서비스 내 공지사항을 통해 공지함으로써 효력이 발생합니다.</li>
+                            <li>회원은 변경된 약관에 동의하지 않을 경우 회원 탈퇴를 요청할 수 있으며, 변경된 약관의 효력 발생일 이후에도 서비스를 계속 이용할 경우 약관의 변경사항에 동의한 것으로 간주됩니다.</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제4조 (서비스 이용)</h2>
+                        <ol>
+                            <li>서비스 이용은 BLEX의 업무상 또는 기술상 특별한 지장이 없는 한 연중무휴, 1일 24시간을 원칙으로 합니다.</li>
+                            <li>BLEX는 시스템 정기점검, 증설 및 교체를 위해 서비스를 일시 중단할 수 있으며, 예정된 작업으로 인한 서비스 일시 중단은 서비스 내 공지사항을 통해 사전에 공지합니다.</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제5조 (회원의 의무)</h2>
+                        <ol>
+                            <li>회원은 관계법령, 본 약관의 규정, 이용안내 및 주의사항 등 BLEX가 통지하는 사항을 준수하여야 하며, 기타 BLEX의 업무에 방해되는 행위를 하여서는 안 됩니다.</li>
+                            <li>회원은 서비스 이용과 관련하여 다음 각 호의 행위를 하여서는 안 됩니다.
+                                <ul>
+                                    <li>다른 회원의 아이디를 부정 사용하는 행위</li>
+                                    <li>저작권, 상표권, 특허권 등 지적재산권을 침해하는 행위</li>
+                                    <li>타인의 명예를 손상시키거나 불이익을 주는 행위</li>
+                                    <li>BLEX의 운영진, 직원 또는 관계자를 사칭하는 행위</li>
+                                    <li>서비스의 정상적인 운영을 방해하는 행위</li>
+                                    <li>범죄와 결부된다고 객관적으로 판단되는 행위</li>
+                                    <li>기타 관계법령에 위배되는 행위</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제6조 (저작권의 귀속 및 이용제한)</h2>
+                        <ol>
+                            <li>회원이 서비스 내에 게시한 콘텐츠의 저작권은 해당 게시물의 저작자에게 귀속됩니다.</li>
+                            <li>회원이 서비스 내에 게시하는 콘텐츠는 검색결과 내지 서비스 및 관련 프로모션 등에 노출될 수 있으며, 해당 노출을 위해 필요한 범위 내에서는 일부 수정, 복제, 편집되어 게시될 수 있습니다.</li>
+                            <li>BLEX는 서비스 내에 게시된 콘텐츠가 타인의 저작권을 침해하는 경우 그 침해를 알게 된 때에 해당 게시물을 삭제할 수 있습니다.</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제7조 (서비스 이용제한)</h2>
+                        <p>BLEX는 회원이 본 약관의 의무를 위반하거나 서비스의 정상적인 운영을 방해한 경우, 서비스 이용을 경고, 일시정지, 영구정지 등으로 제한할 수 있습니다.</p>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제8조 (면책조항)</h2>
+                        <ol>
+                            <li>BLEX는 천재지변, 전쟁, 기간통신사업자의 서비스 중지 등 불가항력적인 사유로 인한 서비스 중단에 대해 책임을 지지 않습니다.</li>
+                            <li>BLEX는 회원의 귀책사유로 인한 서비스 이용의 장애에 대해 책임을 지지 않습니다.</li>
+                            <li>BLEX는 회원이 서비스를 이용하여 기대하는 수익을 상실한 것에 대하여 책임을 지지 않으며, 서비스를 통하여 얻은 자료로 인한 손해에 대하여 책임을 지지 않습니다.</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="terms-section">
+                        <h2 class="h4">제9조 (준거법 및 재판관할)</h2>
+                        <p>본 약관은 대한민국 법률에 따라 규율되고 해석되며, 서비스 이용과 관련하여 BLEX와 회원 간에 발생한 분쟁에 대해서는 민사소송법상의 관할법원에 제소합니다.</p>
+                    </div>
+                    
+                    <div class="text-center mt-5">
+                        <p class="text-muted mb-4">본 약관은 2023년 12월 1일부터 시행됩니다.</p>
+                        <a href="/" class="btn btn-primary">홈으로 돌아가기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

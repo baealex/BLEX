@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react';
 
 interface AppProps {
-    __name: string;
+    __name: keyof typeof LazyComponents;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
 }
 
@@ -19,18 +20,18 @@ const LazyComponents = {
     NotifySettings: lazy(() => import('./NotifySettings')),
     VisitorAnalytics: lazy(() => import('./VisitorAnalytics')),
     IntegrationSettings: lazy(() => import('./IntegrationSettings')),
-    InvitationManagement: lazy(() => import('./InvitationManagement')),
-}
+    InvitationManagement: lazy(() => import('./InvitationManagement'))
+};
 
 const App = ({ __name, ...props }: AppProps) => {
-    const Component = LazyComponents[__name as keyof typeof LazyComponents];
+    const Component = LazyComponents[__name];
 
     return (
-        <Suspense fallback={<></>}>
-            <Component {...props as any} />
+        <Suspense fallback={<div>Loading...</div>}>
+            {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
+            <Component {...props} />
         </Suspense>
     );
 };
 
 export default App;
-

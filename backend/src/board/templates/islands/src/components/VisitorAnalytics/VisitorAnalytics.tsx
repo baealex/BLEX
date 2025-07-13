@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { http } from '~/modules/http.module';
-import { notification } from '@baejino/ui';
+import Chart from '../Chart/Chart';
 
 interface AnalyticsData {
     totalVisitors: number;
@@ -47,259 +47,173 @@ const VisitorAnalytics: React.FC = () => {
         setError(null);
 
         try {
-            const { data } = await http<{ status: string; body: AnalyticsData }>(`v1/analytics?range=${dateRange}`, {
-                method: 'GET'
-            });
-
+            const { data } = await http<{ status: string; body: AnalyticsData }>(`v1/analytics?range=${dateRange}`, { method: 'GET' });
             if (data.status === 'DONE') {
                 setAnalyticsData(data.body);
             } else {
                 setError('데이터를 불러오는데 실패했습니다.');
-                notification('방문자 통계를 불러오는데 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
             setError('데이터를 불러오는데 실패했습니다.');
-            notification('방문자 통계를 불러오는데 실패했습니다.', { type: 'error' });
         } finally {
             setIsLoading(false);
         }
     };
 
-    const renderChart = () => {
-        if (!analyticsData || !analyticsData.dailyStats.length) return null;
-
-        const maxValue = Math.max(...analyticsData.dailyStats.map(stat => Math.max(stat.visitors, stat.pageViews)));
-        const chartHeight = 200;
-
+    if (isLoading) {
         return (
-            <div className="analytics-chart">
-                <div className="chart-container">
-                    <div className="chart-y-axis">
-                        {[...Array(5)].map((_, i) => {
-                            const value = Math.round(maxValue * (4 - i) / 4);
-                            return (
-                                <div key={i} className="y-axis-label">
-                                    {value}
-                                </div>
-                            );
-                        })}
-                    </div>
-                    <div className="chart-content">
-                        {analyticsData.dailyStats.map((stat, index) => {
-                            const visitorHeight = (stat.visitors / maxValue) * chartHeight;
-                            const pageViewHeight = (stat.pageViews / maxValue) * chartHeight;
-
-                            return (
-                                <div key={index} className="chart-bar-group">
-                                    <div className="chart-bar-container">
-                                        <div
-                                            className="chart-bar visitors"
-                                            style={{ height: `${visitorHeight}px` }}
-                                            title={`방문자: ${stat.visitors}`}
-                                        ></div>
-                                        <div
-                                            className="chart-bar pageviews"
-                                            style={{ height: `${pageViewHeight}px` }}
-                                            title={`페이지뷰: ${stat.pageViews}`}
-                                        ></div>
-                                    </div>
-                                    <div className="chart-x-label">
-                                        {stat.date.split('-').slice(1).join('/')}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-                <div className="chart-legend">
-                    <div className="legend-item">
-                        <div className="legend-color visitors"></div>
-                        <div className="legend-label">방문자</div>
-                    </div>
-                    <div className="legend-item">
-                        <div className="legend-color pageviews"></div>
-                        <div className="legend-label">페이지뷰</div>
-                    </div>
-                </div>
+            <div className="loading-container">
+                <p>데이터를 불러오는 중...</p>
             </div>
         );
-    };
+    }
 
-    const renderTopPosts = () => {
-        if (!analyticsData || !analyticsData.topPosts.length) return null;
-
+    if (error) {
         return (
-            <div className="analytics-card">
-                <h3 className="card-title">인기 포스트</h3>
-                <div className="top-posts">
-                    {analyticsData.topPosts.map((post, index) => (
-                        <div key={index} className="top-post-item">
-                            <div className="post-rank">{index + 1}</div>
-                            <div className="post-info">
-                                <a href={`/${post.url}`} className="post-title" target="_blank" rel="noopener noreferrer">
-                                    {post.title}
-                                </a>
-                            </div>
-                            <div className="post-views">
-                                <i className="fas fa-eye"></i> {post.views}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            <div className="error-container">
+                <p>{error}</p>
+                <button className="retry-button" onClick={fetchAnalyticsData}>다시 시도</button>
             </div>
         );
-    };
+    }
 
-    const renderTopReferrers = () => {
-        if (!analyticsData || !analyticsData.topReferrers.length) return null;
-
+    if (!analyticsData) {
         return (
-            <div className="analytics-card">
-                <h3 className="card-title">유입 경로</h3>
-                <div className="top-referrers">
-                    {analyticsData.topReferrers.map((referrer, index) => (
-                        <div key={index} className="referrer-item">
-                            <div className="referrer-domain">{referrer.domain || '직접 접속'}</div>
-                            <div className="referrer-count">{referrer.count}</div>
-                        </div>
-                    ))}
-                </div>
+            <div className="empty-container">
+                <p>데이터가 없습니다.</p>
             </div>
         );
-    };
+    }
 
-    const renderDeviceStats = () => {
-        if (!analyticsData || !analyticsData.deviceStats.length) return null;
-
-        return (
-            <div className="analytics-card">
-                <h3 className="card-title">기기 통계</h3>
-                <div className="device-stats">
-                    {analyticsData.deviceStats.map((stat, index) => (
-                        <div key={index} className="stat-item">
-                            <div className="stat-label">{stat.device}</div>
-                            <div className="stat-bar-container">
-                                <div
-                                    className="stat-bar"
-                                    style={{ width: `${stat.percentage}%` }}
-                                ></div>
-                                <div className="stat-percentage">{stat.percentage}%</div>
-                            </div>
-                            <div className="stat-count">{stat.count}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    const renderBrowserStats = () => {
-        if (!analyticsData || !analyticsData.browserStats.length) return null;
-
-        return (
-            <div className="analytics-card">
-                <h3 className="card-title">브라우저 통계</h3>
-                <div className="browser-stats">
-                    {analyticsData.browserStats.map((stat, index) => (
-                        <div key={index} className="stat-item">
-                            <div className="stat-label">{stat.browser}</div>
-                            <div className="stat-bar-container">
-                                <div
-                                    className="stat-bar"
-                                    style={{ width: `${stat.percentage}%` }}
-                                ></div>
-                                <div className="stat-percentage">{stat.percentage}%</div>
-                            </div>
-                            <div className="stat-count">{stat.count}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
+    // 차트 데이터 준비
+    const chartData = {
+        labels: analyticsData.dailyStats.map(stat => stat.date.split('-').slice(1).join('/')),
+        datasets: [
+            {
+                name: '방문자',
+                values: analyticsData.dailyStats.map(stat => stat.visitors),
+                color: '#4568dc'
+            },
+            {
+                name: '페이지뷰',
+                values: analyticsData.dailyStats.map(stat => stat.pageViews),
+                color: '#b06ab3'
+            }
+        ]
     };
 
     return (
-        <div className="visitor-analytics">
-            <div className="analytics-header">
-                <h3 className="analytics-title">방문자 통계</h3>
-                <div className="date-range-selector">
-                    <button
-                        className={`btn ${dateRange === '7days' ? 'btn-primary' : 'btn-secondary'}`}
-                        onClick={() => setDateRange('7days')}
-                    >
-                        7일
-                    </button>
-                    <button
-                        className={`btn ${dateRange === '30days' ? 'btn-primary' : 'btn-secondary'}`}
-                        onClick={() => setDateRange('30days')}
-                    >
-                        30일
-                    </button>
-                    <button
-                        className={`btn ${dateRange === '90days' ? 'btn-primary' : 'btn-secondary'}`}
-                        onClick={() => setDateRange('90days')}
-                    >
-                        90일
-                    </button>
-                </div>
-            </div>
-
-            {isLoading ? (
-                <div className="loading-state">
-                    <p>데이터를 불러오는 중...</p>
-                </div>
-            ) : error ? (
-                <div className="error-state">
-                    <p>{error}</p>
-                    <button
-                        className="btn btn-primary"
-                        onClick={fetchAnalyticsData}
-                    >
-                        다시 시도
-                    </button>
-                </div>
-            ) : analyticsData ? (
-                <>
-                    <div className="analytics-summary">
-                        <div className="summary-card">
+        <>
+            <div className="visitor-analytics">
+                <div className="analytics-header">
+                    <div className="summary">
+                        <div className="summary-item">
                             <div className="summary-value">{analyticsData.totalVisitors}</div>
                             <div className="summary-label">총 방문자</div>
                         </div>
-                        <div className="summary-card">
+                        <div className="summary-item">
                             <div className="summary-value">{analyticsData.totalPageViews}</div>
                             <div className="summary-label">총 페이지뷰</div>
                         </div>
                     </div>
-
-                    {renderChart()}
-
-                    <div className="analytics-grid">
-                        <div className="grid-column">
-                            {renderTopPosts()}
-                        </div>
-                        <div className="grid-column">
-                            {renderTopReferrers()}
-                        </div>
+                    <div className="date-selector">
+                        <button className={`date-button ${dateRange === '7days' ? 'active' : ''}`} onClick={() => setDateRange('7days')}>7일</button>
+                        <button className={`date-button ${dateRange === '30days' ? 'active' : ''}`} onClick={() => setDateRange('30days')}>30일</button>
+                        <button className={`date-button ${dateRange === '90days' ? 'active' : ''}`} onClick={() => setDateRange('90days')}>90일</button>
                     </div>
-
-                    <div className="analytics-grid">
-                        <div className="grid-column">
-                            {renderDeviceStats()}
-                        </div>
-                        <div className="grid-column">
-                            {renderBrowserStats()}
-                        </div>
-                    </div>
-                </>
-            ) : (
-                <div className="empty-state">
-                    <p>데이터가 없습니다.</p>
                 </div>
-            )}
 
+                <div className="chart-container">
+                    <Chart
+                        type="line"
+                        data={chartData}
+                        height={300}
+                        colors={['#4568dc', '#b06ab3']}
+                        axisOptions={{ xIsSeries: 1 }}
+                        lineOptions={{ hideDots: 0 }}
+                        discreteDomains={1}
+                    />
+                </div>
+
+                <div className="stats-grid">
+                    <div className="stats-card">
+                        <h3 className="card-title">인기 포스트</h3>
+                        <div className="top-posts">
+                            {analyticsData.topPosts.map((post, index) => (
+                                <div key={index} className="post-item">
+                                    <div className="post-rank">{index + 1}</div>
+                                    <div className="post-info">
+                                        <a href={`/${post.url}`} className="post-title">
+                                            {post.title}
+                                        </a>
+                                    </div>
+                                    <div className="post-views">
+                                        <i className="fas fa-eye" /> {post.views}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="stats-card">
+                        <h3 className="card-title">유입 경로</h3>
+                        <div className="referrers">
+                            {analyticsData.topReferrers.map((referrer, index) => (
+                                <div key={index} className="referrer-item">
+                                    <div className="referrer-domain">{referrer.domain || '직접 접속'}</div>
+                                    <div className="referrer-count">{referrer.count}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="stats-card">
+                        <h3 className="card-title">기기 통계</h3>
+                        <div className="device-stats">
+                            {analyticsData.deviceStats.map((stat, index) => (
+                                <div key={index} className="stat-item">
+                                    <div className="stat-label">{stat.device}</div>
+                                    <div className="stat-bar-container">
+                                        <div
+                                            className="stat-bar"
+                                            style={{ width: `${stat.percentage}%` }}
+                                        />
+                                        <div className="stat-percentage">{stat.percentage}%</div>
+                                    </div>
+                                    <div className="stat-count">{stat.count}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="stats-card">
+                        <h3 className="card-title">브라우저 통계</h3>
+                        <div className="browser-stats">
+                            {analyticsData.browserStats.map((stat, index) => (
+                                <div key={index} className="stat-item">
+                                    <div className="stat-label">{stat.browser}</div>
+                                    <div className="stat-bar-container">
+                                        <div
+                                            className="stat-bar"
+                                            style={{ width: `${stat.percentage}%` }}
+                                        />
+                                        <div className="stat-percentage">{stat.percentage}%</div>
+                                    </div>
+                                    <div className="stat-count">{stat.count}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
             <style jsx>{`
+                /* VisitorAnalytics 스타일 */
                 .visitor-analytics {
-                    position: relative;
+                    background-color: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                    padding: 20px;
+                    margin-bottom: 30px;
                 }
 
                 .analytics-header {
@@ -307,218 +221,124 @@ const VisitorAnalytics: React.FC = () => {
                     justify-content: space-between;
                     align-items: center;
                     margin-bottom: 20px;
+                    flex-wrap: wrap;
+                    gap: 15px;
                 }
 
-                .analytics-title {
-                    margin: 0;
-                    font-size: 18px;
-                }
-
-                .date-range-selector {
+                .summary {
                     display: flex;
-                    gap: 8px;
+                    gap: 20px;
                 }
 
-                .loading-state,
-                .error-state,
-                .empty-state {
-                    padding: 40px 0;
-                    text-align: center;
-                    color: #6c757d;
-                }
-
-                .analytics-summary {
-                    display: flex;
-                    gap: 16px;
-                    margin-bottom: 24px;
-                }
-
-                .summary-card {
-                    flex: 1;
-                    background-color: #f8f9fa;
-                    border-radius: 8px;
-                    padding: 16px;
+                .summary-item {
                     text-align: center;
                 }
 
                 .summary-value {
                     font-size: 24px;
-                    font-weight: 600;
-                    margin-bottom: 4px;
+                    font-weight: 700;
+                    color: #333;
                 }
 
                 .summary-label {
                     font-size: 14px;
-                    color: #6c757d;
+                    color: #666;
                 }
 
-                .analytics-chart {
-                    margin-bottom: 24px;
-                    background-color: #f8f9fa;
-                    border-radius: 8px;
-                    padding: 16px;
+                .date-selector {
+                    display: flex;
+                    gap: 10px;
+                }
+
+                .date-button {
+                    padding: 6px 12px;
+                    border: 1px solid #ddd;
+                    background-color: #f9f9f9;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: all 0.2s ease;
+                }
+
+                .date-button:hover {
+                    background-color: #eee;
+                }
+
+                .date-button.active {
+                    background-color: #4568dc;
+                    color: white;
+                    border-color: #4568dc;
                 }
 
                 .chart-container {
-                    display: flex;
-                    height: 240px;
-                }
-
-                .chart-y-axis {
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    padding-right: 8px;
-                    width: 40px;
-                }
-
-                .y-axis-label {
-                    font-size: 12px;
-                    color: #6c757d;
-                    height: 20px;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .chart-content {
-                    flex: 1;
-                    display: flex;
-                    align-items: flex-end;
-                    gap: 8px;
-                    height: 200px;
-                    border-bottom: 1px solid #ced4da;
-                    padding-bottom: 20px;
-                }
-
-                .chart-bar-group {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                }
-
-                .chart-bar-container {
-                    display: flex;
-                    gap: 4px;
-                    height: 100%;
-                    width: 100%;
-                    align-items: flex-end;
-                }
-
-                .chart-bar {
-                    flex: 1;
-                    border-radius: 2px 2px 0 0;
-                    transition: height 0.3s ease;
-                }
-
-                .chart-bar.visitors {
-                    background-color: #4568dc;
-                }
-
-                .chart-bar.pageviews {
-                    background-color: #b06ab3;
-                }
-
-                .chart-x-label {
-                    font-size: 12px;
-                    color: #6c757d;
-                    margin-top: 4px;
-                }
-
-                .chart-legend {
-                    display: flex;
-                    justify-content: center;
-                    gap: 16px;
-                    margin-top: 8px;
-                }
-
-                .legend-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                }
-
-                .legend-color {
-                    width: 16px;
-                    height: 16px;
-                    border-radius: 2px;
-                }
-
-                .legend-color.visitors {
-                    background-color: #4568dc;
-                }
-
-                .legend-color.pageviews {
-                    background-color: #b06ab3;
-                }
-
-                .legend-label {
-                    font-size: 14px;
-                    color: #6c757d;
-                }
-
-                .analytics-grid {
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 16px;
-                    margin-bottom: 24px;
-                }
-
-                @media (min-width: 768px) {
-                    .analytics-grid {
-                        grid-template-columns: 1fr 1fr;
-                    }
-                }
-
-                .analytics-card {
-                    background-color: #f8f9fa;
+                    margin-bottom: 30px;
+                    border: 1px solid #eee;
                     border-radius: 8px;
-                    padding: 16px;
+                    padding: 15px;
+                    background-color: #fcfcfc;
+                }
+
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 20px;
+                }
+
+                .stats-card {
+                    background-color: #fff;
+                    border-radius: 8px;
+                    border: 1px solid #eee;
+                    padding: 15px;
                 }
 
                 .card-title {
-                    margin: 0 0 16px 0;
                     font-size: 16px;
                     font-weight: 600;
+                    margin-bottom: 15px;
+                    color: #333;
+                    border-bottom: 1px solid #eee;
+                    padding-bottom: 10px;
                 }
 
-                .top-posts,
-                .top-referrers {
+                /* 인기 포스트 스타일 */
+                .top-posts {
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
+                    gap: 10px;
                 }
 
-                .top-post-item {
+                .post-item {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
+                    padding: 8px 0;
+                    border-bottom: 1px solid #f5f5f5;
+                }
+
+                .post-item:last-child {
+                    border-bottom: none;
                 }
 
                 .post-rank {
+                    font-weight: 700;
+                    color: #4568dc;
                     width: 24px;
-                    height: 24px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: #e9ecef;
-                    border-radius: 50%;
-                    font-size: 14px;
-                    font-weight: 600;
+                    text-align: center;
                 }
 
                 .post-info {
                     flex: 1;
+                    margin: 0 10px;
+                    overflow: hidden;
                 }
 
                 .post-title {
                     color: #333;
-                    text-decoration: none;
                     font-size: 14px;
-                    display: block;
+                    text-decoration: none;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    display: block;
                 }
 
                 .post-title:hover {
@@ -526,16 +346,23 @@ const VisitorAnalytics: React.FC = () => {
                 }
 
                 .post-views {
-                    font-size: 14px;
-                    color: #6c757d;
+                    font-size: 12px;
+                    color: #888;
+                    white-space: nowrap;
+                }
+
+                /* 유입 경로 스타일 */
+                .referrers {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
                 }
 
                 .referrer-item {
                     display: flex;
                     justify-content: space-between;
-                    align-items: center;
                     padding: 8px 0;
-                    border-bottom: 1px solid #e0e0e0;
+                    border-bottom: 1px solid #f5f5f5;
                 }
 
                 .referrer-item:last-child {
@@ -544,13 +371,20 @@ const VisitorAnalytics: React.FC = () => {
 
                 .referrer-domain {
                     font-size: 14px;
+                    color: #333;
+                    max-width: 70%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
 
                 .referrer-count {
                     font-size: 14px;
-                    font-weight: 600;
+                    color: #666;
+                    font-weight: 500;
                 }
 
+                /* 기기 및 브라우저 통계 스타일 */
                 .device-stats,
                 .browser-stats {
                     display: flex;
@@ -561,46 +395,82 @@ const VisitorAnalytics: React.FC = () => {
                 .stat-item {
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
+                    gap: 5px;
                 }
 
                 .stat-label {
                     font-size: 14px;
+                    color: #333;
+                    display: flex;
+                    justify-content: space-between;
                 }
 
                 .stat-bar-container {
-                    position: relative;
-                    height: 24px;
-                    background-color: #e9ecef;
+                    height: 8px;
+                    background-color: #f0f0f0;
                     border-radius: 4px;
+                    position: relative;
                     overflow: hidden;
+                    margin: 5px 0;
                 }
 
                 .stat-bar {
                     height: 100%;
                     background: linear-gradient(to right, #4568dc, #b06ab3);
                     border-radius: 4px;
-                }
+                }   
 
                 .stat-percentage {
-                    position: absolute;
-                    top: 0;
-                    right: 8px;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
                     font-size: 12px;
-                    font-weight: 600;
-                    color: #fff;
+                    color: #666;
+                    text-align: right;
                 }
 
                 .stat-count {
                     font-size: 12px;
-                    color: #6c757d;
-                    text-align: right;
+                    color: #888;
+                }
+
+                /* 로딩, 에러, 빈 상태 스타일 */
+                .loading-container,
+                .error-container,
+                .empty-container {
+                    padding: 40px;
+                    text-align: center;
+                    color: #666;
+                    background-color: #f9f9f9;
+                    border-radius: 8px;
+                    border: 1px dashed #ddd;
+                }
+
+                .retry-button {
+                    margin-top: 15px;
+                    padding: 8px 16px;
+                    background-color: #4568dc;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 14px;
+                }
+
+                .retry-button:hover {
+                    background-color: #3a57c4;
+                }
+
+                /* 반응형 스타일 */
+                @media (max-width: 768px) {
+                    .analytics-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                    }
+                
+                    .stats-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
             `}</style>
-        </div>
+        </>
     );
 };
 

@@ -14,6 +14,7 @@ from board.views.post import post_detail, post_editor
 from board.views.series import series_detail
 from board.views.auth import login_view, security_view
 from board.views.tag import tag_list_view, tag_detail_view
+from board.views.static_pages import about_view, privacy_view, terms_view
 from board.views.settings import (
     setting_profile, setting_account, setting_notify, setting_series,
     setting_posts, setting_analytics, setting_integration, setting_invitation
@@ -31,6 +32,10 @@ urlpatterns = [
     path('like/<str:url>', like_post, name='like_post'),
     path('login', login_view, name='login'),
     path('security', security_view, name='security'),
+    # Static pages
+    path('about', about_view, name='about'),
+    path('privacy', privacy_view, name='privacy'),
+    path('terms', terms_view, name='terms'),
     # Sitemap Generator
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('<section>/sitemap.xml', sitemap, {'sitemaps': sitemap_section}, name='sitemap_section'),

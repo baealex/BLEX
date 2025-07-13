@@ -1,5 +1,6 @@
 @forward "@baejino/style/css/reset.css";
 @forward "@baejino/style/css/utils/index.css";
+@forward "@baejino/ui/css/main.css";
 
 @font-face {
     font-family: 'Spoqa Han Sans Neo';
@@ -17,6 +18,14 @@
         url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff2') format('woff2'),
         url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff') format('woff'),
         url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.ttf') format('truetype');
+}
+
+.notification__item {
+    background-color: #fff;
+    color: #000;
+    border-right: none;
+    border-bottom: none;
+    border-top: none;
 }
 
 body {
