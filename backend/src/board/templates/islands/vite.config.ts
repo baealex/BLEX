@@ -6,29 +6,24 @@ export default defineConfig(({ mode }) => {
     const isDevelopment = mode === 'development';
 
     return {
-        plugins: [react({
-            babel: {
-                plugins: ['styled-jsx/babel']
-            }
-        })],
+        plugins: [react({ babel: { plugins: ['styled-jsx/babel'] } })],
         build: {
-            outDir: '../../../static/assets/modules',
+            outDir: '../../../static/islands',
             emptyOutDir: true,
+            manifest: true, // Generate manifest.json file
             // Enable module splitting for better code chunking
-            modulePreload: {
-                polyfill: true,
-            },
+            modulePreload: { polyfill: true },
             // Configure code splitting
             rollupOptions: {
                 input: {
                     island: resolve(__dirname, 'src/island.tsx'),
                     mainStyles: resolve(__dirname, 'styles/main.scss'),
-                    authorStyles: resolve(__dirname, 'styles/author.scss'),
+                    authorStyles: resolve(__dirname, 'styles/author.scss')
                 },
                 output: {
-                    entryFileNames: '[name].bundle.js',
+                    entryFileNames: '[name].[hash].bundle.js',
                     chunkFileNames: 'chunks/[name].[hash].js',
-                    assetFileNames: '[name].[ext]',
+                    assetFileNames: 'css/[name].[hash].[ext]',
                     // Ensure chunks are properly loaded
                     manualChunks: (id) => {
                         // Group component chunks by their directory
@@ -36,22 +31,18 @@ export default defineConfig(({ mode }) => {
                             const component = id.split('/components/')[1].split('/')[0];
                             return `component-${component}`;
                         }
-                    },
-                },
-            },
+                    }
+                }
+            }
         },
-        resolve: {
-            alias: {
-                '~': resolve(__dirname, 'src'),
-            },
-        },
+        resolve: { alias: { '~': resolve(__dirname, 'src') } },
         css: {
             modules: {
                 localsConvention: 'camelCase',
                 generateScopedName: isDevelopment
                     ? '[name]__[local]--[hash:base64:5]'
-                    : '[hash:base64:8]',
-            },
-        },
+                    : '[hash:base64:8]'
+            }
+        }
     };
 });

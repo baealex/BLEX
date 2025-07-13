@@ -43,17 +43,3 @@
     color: #666;
     margin-bottom: 24px;
 }
-
-/* Dark mode adjustments */
-body.dark .loading-spinner {
-    border-color: rgba(255, 255, 255, 0.1);
-    border-top-color: #4568dc;
-}
-
-body.dark .empty-state-title {
-    color: #eee;
-}
-
-body.dark .empty-state-message {
-    color: #bbb;
-}

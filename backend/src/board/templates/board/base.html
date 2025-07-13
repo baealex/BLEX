@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load static %}
+{% load static island %}
 <html lang="ko">
 
 <head>
@@ -8,7 +8,7 @@
     <meta name="referrer" content="origin" />
     <title>{% block title %}BLEX{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'assets/modules/main.css' %}">
+    <link rel="stylesheet" href="{% island_css 'main' %}">
     <link rel="icon" href="{% static 'favicon.ico' %}" />
     <link rel="apple-touch-icon" sizes="57x57" href="{% static 'logo57.png' %}" />
     <link rel="apple-touch-icon" sizes="72x72" href="{% static 'logo72.png' %}" />
@@ -352,7 +352,7 @@
 
     {% block extra_scripts %}{% endblock %}
 
-    <script type="module" src="{% static 'assets/modules/island.bundle.js' %}"></script>
+    <script type="module" src="{% island_entry 'island' %}"></script>
 </body>
 
 </html>

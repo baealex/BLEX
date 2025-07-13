@@ -2,8 +2,8 @@
 /node_modules
 /backend/src/static/images/
 /backend/src/static/admin/
+/backend/src/static/islands/
 /backend/src/static/graphene_django/
-/backend/src/static/assets/modules/
 /frontend/**.env
 /backend/**.env
 
