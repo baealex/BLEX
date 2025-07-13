@@ -224,7 +224,7 @@
         {% endfor %}
     </div>
 
-    {% include 'components/pagination.html' with style='numbered' current_page=page_number total_pages=page_count %}
+    {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
 {% else %}
     <div class="no-posts">
         <h2>No posts found</h2>

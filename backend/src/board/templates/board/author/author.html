@@ -11,7 +11,8 @@
     .posts-grid {
         display: grid;
         grid-template-columns: repeat(1, 1fr);
-        gap: 24px;
+        gap: 32px;
+        margin-top: 24px;
     }
 
     @media (min-width: 768px) {
@@ -29,16 +30,65 @@
     /* Post card styles */
     .post-card {
         background-color: #fff;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .post-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .post-image-container {
+        height: 180px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .post-card:hover .post-image {
+        transform: scale(1.05);
+    }
+
+    .post-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .post-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+
+    .post-title a {
+        color: #222;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .post-title a:hover {
+        color: #0066cc;
     }
 
     .post-description {
         font-size: 16px;
-        color: #666;
+        color: #555;
         margin-bottom: 16px;
         display: -webkit-box;
         -webkit-line-clamp: 3;
@@ -46,55 +96,96 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.6;
+        flex-grow: 1;
+        max-height: 80px;
+    }
+
+    .post-meta {
+        font-size: 14px;
+        color: #777;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+    }
+
+    .post-meta i {
+        margin-right: 6px;
+        font-size: 14px;
+    }
+
+    .post-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
     }
 
     .series-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        background-color: #f0f0f0;
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        background-color: #f0f7ff;
         border-radius: 20px;
-        font-size: 12px;
-        color: #666;
-        transition: background-color 0.2s ease;
+        font-size: 13px;
+        font-weight: 500;
+        color: #0066cc;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(0, 102, 204, 0.2);
     }
 
     .series-badge:hover {
-        background-color: #e0e0e0;
+        background-color: #e0f0ff;
+        transform: translateY(-2px);
+    }
+
+    .series-badge i {
+        margin-right: 5px;
+        font-size: 12px;
     }
 
     .post-stats {
         display: flex;
-        gap: 12px;
+        gap: 16px;
     }
 
     .stat-item {
         display: flex;
         align-items: center;
-        gap: 4px;
-        color: #888;
+        gap: 6px;
+        color: #666;
         font-size: 14px;
+        font-weight: 500;
+    }
+
+    .stat-item i {
+        font-size: 16px;
     }
 
     /* Pagination */
     .pagination {
         display: flex;
         justify-content: center;
-        margin-top: 40px;
+        margin-top: 48px;
+        margin-bottom: 24px;
     }
 
     .load-more-button {
-        padding: 12px 24px;
-        background-color: #f5f5f5;
+        padding: 14px 28px;
+        background-color: #0066cc;
         border-radius: 8px;
-        font-weight: 500;
-        color: #333;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        font-weight: 600;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
     }
 
     .load-more-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 102, 204, 0.4);
+        background-color: #0055b3;
     }
 </style>
 {% endblock %}
@@ -128,12 +219,14 @@
                         </h3>
                         <p class="post-description">{{ post.meta_description }}</p>
                         <div class="post-meta">
-                            {{ post.created_date }} · {{ post.read_time }}분 분량
+                            <i class="far fa-calendar-alt"></i> {{ post.created_date }} 
+                            <span style="margin: 0 8px;">•</span> 
+                            <i class="far fa-clock"></i> {{ post.read_time }}분 분량
                         </div>
                         <div class="post-footer">
                             {% if post.series %}
                                 <a href="/@{{ author.username }}/series/{{ post.series.url }}">
-                                    <span class="series-badge">{{ post.series.name }}</span>
+                                    <span class="series-badge"><i class="fas fa-layer-group"></i>{{ post.series.name }}</span>
                                 </a>
                             {% else %}
                                 <div></div>
@@ -156,7 +249,7 @@
 
     {% if has_next_page %}
         <div class="pagination">
-            <a href="?page={{ next_page }}" class="load-more-button">Load More</a>
+            <a href="?page={{ next_page }}" class="load-more-button"><i class="fas fa-sync-alt" style="margin-right: 8px;"></i>더 불러오기</a>
         </div>
     {% endif %}
 </div>

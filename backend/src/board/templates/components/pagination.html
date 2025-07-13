@@ -1,80 +1,120 @@
 {% comment %}
 Pagination component
 Parameters:
-- has_next_page: Boolean indicating if there are more pages
-- next_page: The next page number
-- current_page: The current page number (optional)
-- total_pages: Total number of pages (optional)
+- page: Current page number
+- last: Last page number
 - base_url: Base URL for pagination links (optional, defaults to "?page=")
-- style: Style variant ('button' or 'numbered', defaults to 'button')
+- hash: Optional hash fragment for URLs (optional)
+- style: Style variant ('button' or 'numbered', defaults to 'numbered')
+- request: The request object (optional, used to preserve query parameters)
 {% endcomment %}
 
-{% if style == 'numbered' and current_page and total_pages %}
-<div class="pagination-container numbered">
-    <div class="pagination-wrapper">
-        {% if current_page > 1 %}
-            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'-1' }}" class="pagination-item prev">
-                <i class="fas fa-chevron-left"></i>
-            </a>
-        {% else %}
-            <span class="pagination-item disabled">
-                <i class="fas fa-chevron-left"></i>
-            </span>
-        {% endif %}
+{% load pagination_tags %}
 
-        {% if current_page > 3 %}
-            <a href="{{ base_url|default:'?page=' }}1" class="pagination-item">1</a>
-            {% if current_page > 4 %}
-                <span class="pagination-ellipsis">...</span>
-            {% endif %}
-        {% endif %}
-        
-        {# Show at most 5 page numbers around current page #}
-        {% if current_page > 2 %}
-            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'-2' }}" class="pagination-item">{{ current_page|add:'-2' }}</a>
-        {% endif %}
-        
-        {% if current_page > 1 %}
-            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'-1' }}" class="pagination-item">{{ current_page|add:'-1' }}</a>
-        {% endif %}
-        
-        <span class="pagination-item active">{{ current_page }}</span>
-        
-        {% if current_page < total_pages %}
-            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'1' }}" class="pagination-item">{{ current_page|add:'1' }}</a>
-        {% endif %}
-        
-        {% if current_page|add:'1' < total_pages %}
-            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'2' }}" class="pagination-item">{{ current_page|add:'2' }}</a>
-        {% endif %}
-
-        {% if current_page|add:'2' < total_pages %}
-            {% if current_page|add:'3' < total_pages %}
-                <span class="pagination-ellipsis">...</span>
-            {% endif %}
-            <a href="{{ base_url|default:'?page=' }}{{ total_pages }}" class="pagination-item">{{ total_pages }}</a>
-        {% endif %}
-
-        {% if current_page < total_pages %}
-            <a href="{{ base_url|default:'?page=' }}{{ current_page|add:'1' }}" class="pagination-item next">
-                <i class="fas fa-chevron-right"></i>
-            </a>
-        {% else %}
-            <span class="pagination-item disabled">
-                <i class="fas fa-chevron-right"></i>
-            </span>
-        {% endif %}
-    </div>
-</div>
-{% elif has_next_page %}
+{% if style == 'button' and page < last %}
 <div class="pagination-container button">
-    <a href="{{ base_url|default:'?page=' }}{{ next_page }}" class="load-more-button">
-        Load More
+    {% get_pagination_url page|add:'1' as next_page_url %}
+    <a href="{{ next_page_url }}{% if hash %}#{{ hash }}{% endif %}" class="load-more-button">
+        <i class="fas fa-sync-alt" style="margin-right: 8px;"></i>더 불러오기
     </a>
 </div>
+{% elif style != 'button' %}
+<nav class="pagination-nav" aria-label="Page navigation">
+    <div class="pagination-action prev">
+    {% if page > 1 %}
+        <div class="pagination-item">
+            {% get_pagination_url 1 as first_page_url %}
+            <a class="pagination-link" href="{{ first_page_url }}{% if hash %}#{{ hash }}{% endif %}" aria-label="First page">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+        </div>
+        <div class="pagination-item">
+            {% get_pagination_url page|add:'-1' as prev_page_url %}
+            <a class="pagination-link" href="{{ prev_page_url }}{% if hash %}#{{ hash }}{% endif %}" aria-label="Previous page">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        </div>
+    {% else %}
+        <div class="pagination-item pagination-disabled">
+            <span class="pagination-link">
+                <i class="fas fa-angle-double-left"></i>
+            </span>
+        </div>
+        <div class="pagination-item pagination-disabled">
+            <span class="pagination-link">
+                <i class="fas fa-angle-left"></i>
+            </span>
+        </div>
+    {% endif %}
+</div>
+    <div class="pagination-pages">
+        {% for num in '1234567890'|make_list %}
+            {% if forloop.counter <= last %}
+                {% if page == forloop.counter %}
+                    <div class="pagination-item pagination-active">
+                        <span class="pagination-link">{{ forloop.counter }}</span>
+                    </div>
+                {% elif page == 1 and forloop.counter < page|add:'5' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url forloop.counter as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ forloop.counter }}</a>
+                    </div>
+                {% elif page == 2 and forloop.counter < page|add:'4' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url forloop.counter as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ forloop.counter }}</a>
+                    </div>
+                {% elif forloop.counter > page|add:'-3' and forloop.counter < page|add:'3' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url forloop.counter as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ forloop.counter }}</a>
+                    </div>
+                {% elif page == last|add:'-1' and forloop.counter > page|add:'-4' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url forloop.counter as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ forloop.counter }}</a>
+                    </div>
+                {% elif page == last and forloop.counter > page|add:'-5' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url forloop.counter as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ forloop.counter }}</a>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div class="pagination-action next">
+        {% if page < last %}
+            <div class="pagination-item">
+                {% get_pagination_url page|add:'1' as next_page_url %}
+                <a class="pagination-link" href="{{ next_page_url }}{% if hash %}#{{ hash }}{% endif %}" aria-label="Next page">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </div>
+            <div class="pagination-item">
+                {% get_pagination_url last as last_page_url %}
+                <a class="pagination-link" href="{{ last_page_url }}{% if hash %}#{{ hash }}{% endif %}" aria-label="Last page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </div>
+        {% else %}
+            <div class="pagination-item pagination-disabled">
+                <span class="pagination-link">
+                    <i class="fas fa-angle-right"></i>
+                </span>
+            </div>
+            <div class="pagination-item pagination-disabled">
+                <span class="pagination-link">
+                    <i class="fas fa-angle-double-right"></i>
+                </span>
+            </div>
+        {% endif %}
+    </div>
+</nav>
 {% endif %}
 
 <style>
+    /* Button style pagination */
     .pagination-container {
         display: flex;
         justify-content: center;
@@ -82,59 +122,125 @@ Parameters:
     }
     
     .pagination-container.button .load-more-button {
-        display: inline-block;
-        padding: 12px 24px;
-        background-color: #f8f9fa;
-        color: #495057;
-        border-radius: 30px;
-        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 28px;
+        background-color: #0066cc;
+        color: #fff;
+        border-radius: 8px;
+        font-weight: 600;
         text-decoration: none;
-        transition: all 0.2s ease;
-        border: 1px solid #dee2e6;
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        transition: all 0.3s ease;
+        border: none;
     }
     
     .pagination-container.button .load-more-button:hover {
-        background-color: #e9ecef;
-        color: #212529;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 102, 204, 0.4);
+        background-color: #0055b3;
     }
     
-    .pagination-container.numbered .pagination-wrapper {
+    /* Numbered style pagination */
+    .pagination-nav {
+        width: 100%;
+        margin: 30px 0 0;
         display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .pagination-container.numbered .pagination-item {
-        display: flex;
-        align-items: center;
         justify-content: center;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .pagination-pages,
+    .pagination-action {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pagination-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pagination-link {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1.5;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 35px;
+        height: 35px;
+        color: #000;
+        border-radius: 5px;
         text-decoration: none;
-        color: #495057;
-        font-size: 14px;
-        transition: all 0.2s ease;
     }
-    
-    .pagination-container.numbered .pagination-item:hover:not(.active):not(.disabled) {
-        background-color: #e9ecef;
+
+    .pagination-active .pagination-link {
+        cursor: default;
+        color: #fff;
+        background: #0066cc;
+        box-shadow: 0 2px 6px rgba(0, 102, 204, 0.3);
+        font-weight: 700;
+        transform: scale(1.05);
     }
-    
-    .pagination-container.numbered .pagination-item.active {
-        background-color: #4568dc;
-        color: white;
-        font-weight: 500;
+
+    .pagination-disabled .pagination-link {
+        cursor: default;
+        color: #ccc;
+        background: transparent;
     }
-    
-    .pagination-container.numbered .pagination-item.disabled {
-        color: #adb5bd;
-        cursor: not-allowed;
+
+    @media (max-width: 768px) {
+        .pagination-nav {
+            display: grid;
+            grid-template-areas:
+                "page page page page page"
+                "prev prev span next next";
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .pagination-pages {
+            grid-area: page;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .pagination-action.prev {
+            grid-area: prev;
+        }
+
+        .pagination-action.next {
+            grid-area: next;
+        }
+
+        .pagination-action {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .pagination-link {
+            width: 40px;
+            height: 40px;
+        }
     }
-    
-    .pagination-container.numbered .pagination-ellipsis {
-        color: #6c757d;
-        font-size: 14px;
-        padding: 0 4px;
+
+    body.dark .pagination-link {
+        color: #eee;
+    }
+
+    body.dark .pagination-active .pagination-link {
+        color: #555;
+        background: #eee;
+    }
+
+    body.dark .pagination-disabled .pagination-link {
+        color: #555;
     }
 </style>
