@@ -6,6 +6,8 @@ export default defineConfig(({ mode }) => {
     const isDevelopment = mode === 'development';
 
     return {
+        // 개발 모드와 프로덕션 모드에 따라 base URL 설정
+        base: isDevelopment ? 'http://localhost:8080/' : '/static/islands/',
         plugins: [react({ babel: { plugins: ['styled-jsx/babel'] } })],
         build: {
             outDir: '../../../static/islands',
@@ -19,12 +21,12 @@ export default defineConfig(({ mode }) => {
                     island: resolve(__dirname, 'src/island.tsx'),
                     mainStyles: resolve(__dirname, 'styles/main.scss'),
                     authorStyles: resolve(__dirname, 'styles/author.scss'),
-                    settingStyles: resolve(__dirname, 'styles/setting.scss')
+                    settingStyles: resolve(__dirname, 'styles/setting.scss'),
+                    editorStyles: resolve(__dirname, 'styles/editor.scss')
                 },
                 output: {
                     entryFileNames: '[name].[hash].bundle.js',
                     chunkFileNames: 'chunks/[name].[hash].js',
-                    assetFileNames: 'css/[name].[hash].[ext]',
                     // Ensure chunks are properly loaded
                     manualChunks: (id) => {
                         // Group component chunks by their directory

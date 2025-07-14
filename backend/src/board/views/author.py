@@ -36,7 +36,7 @@ def author_posts(request, username):
     
     # Apply tag filter if provided
     if tag_filter:
-        posts = posts.filter(tags__value=tag_filter)
+        posts = posts.filter(tags__name=tag_filter)
     
     # Annotate with additional fields
     posts = posts.annotate(
@@ -76,11 +76,11 @@ def author_posts(request, username):
     
     # Get author's tags with post counts
     author_tags = Tag.objects.filter(
-        posts__author=author,
-        posts__config__hide=False
+        posttag__post__author=author,
+        posttag__post__config__hide=False
     ).annotate(
-        count=Count('posts', distinct=True)
-    ).order_by('-count', 'value')
+        count=Count('posttag__post', distinct=True)
+    ).order_by('-count', 'name')
     
     # Count posts, series, and followers
     post_count = Post.objects.filter(
@@ -166,11 +166,11 @@ def author_series(request, username):
     
     # Get author's tags with post counts
     author_tags = Tag.objects.filter(
-        posts__author=author,
-        posts__config__hide=False
+        posttag__post__author=author,
+        posttag__post__config__hide=False
     ).annotate(
-        count=Count('posts', distinct=True)
-    ).order_by('-count', 'value')
+        count=Count('posttag__post', distinct=True)
+    ).order_by('-count', 'name')
     
     # Count posts, series, and followers
     post_count = Post.objects.filter(

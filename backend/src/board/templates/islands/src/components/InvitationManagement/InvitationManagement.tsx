@@ -27,9 +27,7 @@ const InvitationManagement: React.FC = () => {
         setIsLoading(true);
 
         try {
-            const { data } = await http<{ status: string; body: Invitation[] }>('v1/setting/invitations', {
-                method: 'GET'
-            });
+            const { data } = await http<{ status: string; body: Invitation[] }>('v1/setting/invitations', { method: 'GET' });
 
             if (data.status === 'DONE') {
                 setInvitations(data.body);
@@ -47,9 +45,7 @@ const InvitationManagement: React.FC = () => {
         setIsGenerating(true);
 
         try {
-            const { data } = await http<{ status: string; body: Invitation }>('v1/setting/invitations', {
-                method: 'POST'
-            });
+            const { data } = await http<{ status: string; body: Invitation }>('v1/setting/invitations', { method: 'POST' });
 
             if (data.status === 'DONE') {
                 setInvitations(prev => [data.body, ...prev]);
@@ -70,9 +66,7 @@ const InvitationManagement: React.FC = () => {
         }
 
         try {
-            const { data } = await http(`v1/setting/invitations/${id}`, {
-                method: 'DELETE'
-            });
+            const { data } = await http(`v1/setting/invitations/${id}`, { method: 'DELETE' });
 
             if (data.status === 'DONE') {
                 setInvitations(prev => prev.filter(invitation => invitation.id !== id));
@@ -112,8 +106,7 @@ const InvitationManagement: React.FC = () => {
                 <button
                     className="btn btn-primary"
                     onClick={generateInvitation}
-                    disabled={isGenerating}
-                >
+                    disabled={isGenerating}>
                     {isGenerating ? '생성 중...' : '새 초대 코드 생성'}
                 </button>
             </div>
@@ -138,16 +131,14 @@ const InvitationManagement: React.FC = () => {
                     {invitations.map(invitation => (
                         <div
                             key={invitation.id}
-                            className={`invitation-item ${invitation.used || isExpired(invitation.expires) ? 'disabled' : ''}`}
-                        >
+                            className={`invitation-item ${invitation.used || isExpired(invitation.expires) ? 'disabled' : ''}`}>
                             <div className="invitation-code">
                                 <span className="code">{invitation.code}</span>
                                 <button
                                     className="btn-copy"
                                     onClick={() => copyToClipboard(invitation.code)}
-                                    disabled={invitation.used || isExpired(invitation.expires)}
-                                >
-                                    <i className="far fa-copy"></i>
+                                    disabled={invitation.used || isExpired(invitation.expires)}>
+                                    <i className="far fa-copy" />
                                 </button>
                             </div>
                             <div className="invitation-details">
@@ -182,9 +173,8 @@ const InvitationManagement: React.FC = () => {
                             <div className="invitation-actions">
                                 <button
                                     className="btn btn-icon btn-danger"
-                                    onClick={() => deleteInvitation(invitation.id)}
-                                >
-                                    <i className="fas fa-trash"></i>
+                                    onClick={() => deleteInvitation(invitation.id)}>
+                                    <i className="fas fa-trash" />
                                 </button>
                             </div>
                         </div>

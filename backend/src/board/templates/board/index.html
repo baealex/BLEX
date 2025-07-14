@@ -60,14 +60,46 @@
     }
 
     /* Latest articles section */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
     .section-title {
         font-size: 28px;
         font-weight: 700;
-        margin-bottom: 24px;
+        margin: 0;
         background: linear-gradient(90deg, #4568dc, #b06ab3);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
+    }
+    
+    .filter-options {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .filter-option {
+        font-size: 14px;
+        color: #666;
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 20px;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-option:hover {
+        background-color: rgba(69, 104, 220, 0.1);
+        color: #4568dc;
+    }
+    
+    .filter-option.active {
+        background-color: rgba(69, 104, 220, 0.15);
+        color: #4568dc;
+        font-weight: 500;
     }
 </style>
 {% endblock %}
@@ -81,7 +113,14 @@
         </div>
     </div>
 
-    <h2 class="section-title">최신 포스트</h2>
+    <div class="section-header">
+        <h2 class="section-title">포스트</h2>
+        <div class="filter-options">
+            <a href="?sort=latest" class="filter-option {% if not request.GET.sort or request.GET.sort == 'latest' %}active{% endif %}">최신순</a>
+            <a href="?sort=popular" class="filter-option {% if request.GET.sort == 'popular' %}active{% endif %}">인기순</a>
+            <a href="?sort=comments" class="filter-option {% if request.GET.sort == 'comments' %}active{% endif %}">댓글순</a>
+        </div>
+    </div>
 
     <div class="masonry-grid">
         {% for post in posts %}

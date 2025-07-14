@@ -25,6 +25,38 @@ interface PostView {
     }[];
 }
 
+const Loading = () => {
+    return (
+        <div className="loading-container">
+            <div className="loading-spinner" />
+            <div>데이터를 불러오는 중...</div>
+            <style jsx>{`
+                .loading-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2rem;
+                    color: #666;
+                }
+                .loading-spinner {
+                    border: 3px solid rgba(0, 0, 0, 0.1);
+                    border-radius: 50%;
+                    border-top: 3px solid #A076F1;
+                    width: 30px;
+                    height: 30px;
+                    animation: spin 1s linear infinite;
+                    margin-bottom: 1rem;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
+        </div>
+    );
+};
+
 const VisitorAnalytics = () => {
     const [date, setDate] = useState(new Date());
     const visibleDate = useMemo(() => handyDate.format(date, 'YYYY-MM-DD'), [date]);
@@ -51,37 +83,7 @@ const VisitorAnalytics = () => {
 
     const monthTotal = useMemo(() => views?.body.views.reduce((acc, cur) => acc + cur.count, 0), [views]);
 
-    if (isLoading) {
-        return (
-            <div className="loading-container">
-                <div className="loading-spinner" />
-                <div>데이터를 불러오는 중...</div>
-                <style jsx>{`
-                    .loading-container {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        padding: 2rem;
-                        color: #666;
-                    }
-                    .loading-spinner {
-                        border: 3px solid rgba(0, 0, 0, 0.1);
-                        border-radius: 50%;
-                        border-top: 3px solid #A076F1;
-                        width: 30px;
-                        height: 30px;
-                        animation: spin 1s linear infinite;
-                        margin-bottom: 1rem;
-                    }
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `}</style>
-            </div>
-        );
-    }
+    if (isLoading) return <Loading />;
 
     return (
         <div className="analytics-container">
@@ -120,9 +122,8 @@ const VisitorAnalytics = () => {
             )}
 
             {isLoadingPostsView && (
-                <div className="loading-container mt-4">
-                    <div className="loading-spinner" />
-                    <div>인기글 데이터를 불러오는 중...</div>
+                <div className="popular-posts-card">
+                    <Loading />
                 </div>
             )}
 
@@ -305,6 +306,30 @@ const VisitorAnalytics = () => {
                 .post-item:hover {
                     transform: translateY(-2px);
                     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+                }
+
+                .loading-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2rem;
+                    color: #666;
+                }
+
+                .loading-spinner {
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    border: 3px solid #f3f3f3;
+                    border-top: 3px solid #3498db;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                }
+
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
                 }
 
                 .post-title {

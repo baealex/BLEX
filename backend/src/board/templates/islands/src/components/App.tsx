@@ -8,8 +8,8 @@ interface AppProps {
 
 const LazyComponents = {
     LikeButton: lazy(() => import('./LikeButton')),
-    SearchBox: lazy(() => import('./SearchBox')),
     Comments: lazy(() => import('./Comments')),
+    MarkdownEditor: lazy(() => import('./MarkdownEditor')),
     SocialLinks: lazy(() => import('./SocialLinks')),
     ProfileForm: lazy(() => import('./ProfileForm')),
     AccountInfo: lazy(() => import('./AccountInfo')),

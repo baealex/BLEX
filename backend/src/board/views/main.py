@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.utils import timezone
-from django.db.models import F, Count, Exists, OuterRef, Sum
+from django.db.models import F, Count, Exists, OuterRef, Sum, Q
 from django.contrib.auth.decorators import login_required
 
 from board.models import Post, PostLikes, Comment, PostAnalytics
@@ -30,7 +30,20 @@ def index(request):
                 user__id=request.user.id if request.user.id else -1
             )
         ),
-    ).order_by('-created_date')
+    )
+    
+    # 정렬 방식 적용
+    sort_type = request.GET.get('sort', 'latest')
+    
+    if sort_type == 'popular':
+        # 인기순 (좋아요 수 기준)
+        posts = posts.order_by('-count_likes', '-created_date')
+    elif sort_type == 'comments':
+        # 댓글순
+        posts = posts.order_by('-count_comments', '-created_date')
+    else:
+        # 최신순 (기본값)
+        posts = posts.order_by('-created_date')
 
     # Paginate the results
     page = int(request.GET.get('page', 1))
@@ -67,13 +80,6 @@ def dashboard(request):
         count_likes=Count('likes', distinct=True),
         count_comments=Count('comments', distinct=True),
     )
-    
-    # Get recent posts (last 4)
-    recent_posts = user_posts.order_by('-created_date')[:4]
-    
-    # Format dates for recent posts
-    for post in recent_posts:
-        post.created_date = post.time_since()
     
     # Calculate statistics
     total_posts = user_posts.count()
@@ -116,15 +122,7 @@ def dashboard(request):
             'date': like.time_since() if hasattr(like, 'time_since') else timezone.now().strftime('%Y-%m-%d'),
         })
     
-    for post in recent_posts[:3]:
-        recent_activities.append({
-            'type': 'post',
-            'title': post.title,
-            'date': post.created_date,
-        })
-    
     context = {
-        'recent_posts': recent_posts,
         'stats': stats,
         'recent_activities': recent_activities[:5],
     }
