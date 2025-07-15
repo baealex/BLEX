@@ -43,10 +43,7 @@ def post_list(request):
         if not text_md:
             return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
 
-        text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
-            'text': text_md,
-            'token': settings.API_KEY,
-        }))
+        text_html = markdown.parse_to_html(text_md)
         read_time = calc_read_time(text_html)
 
         post = Post()
@@ -641,10 +638,7 @@ def user_posts(request, username, url=None):
             if not text_md:
                 return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
 
-            text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
-                'text': text_md,
-                'token': settings.API_KEY,
-            }))
+            text_html = markdown.parse_to_html(text_md)
             read_time = calc_read_time(text_html)
 
             post.title = title

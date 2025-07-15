@@ -18,41 +18,35 @@ export function useFetch<T>(options: UseFetchOptions<T>) {
 
     const key = queryKey.join('/');
 
-    const mutate = useCallback((next: T | ((prev: T) => T)) => {
-        setData(prev => next instanceof Function ? next(prev as T) : next);
-    }, []);
+    const refetch = useCallback(() => {
+        if (enable === false) {
+            return;
+        }
 
-    useEffect(() => {
-        const run = () => {
-            if (enable === false) {
+        if (!cache.has(key)) {
+            setIsLoading(true);
+        } else {
+            setData(cache.get(key));
+            if (disableRefetch) {
                 return;
             }
+        }
 
-            if (!cache.has(key)) {
-                setIsLoading(true);
-            } else {
-                setData(cache.get(key));
-                if (disableRefetch) {
-                    return;
-                }
-            }
-
-            return queryFn().then(data => {
-                cache.set(key, data);
-                setData(data);
-            }).catch(() => {
-                setIsError(true);
-            }).finally(() => {
-                setIsLoading(false);
-            });
-        };
-
-        run();
+        return queryFn().then(data => {
+            cache.set(key, data);
+            setData(data);
+        }).catch(() => {
+            setIsError(true);
+        }).finally(() => {
+            setIsLoading(false);
+        });
     }, [key, enable]);
+
+    useEffect(() => { refetch(); }, [refetch]);
 
     return {
         data,
-        mutate,
+        refetch,
         isError,
         isLoading
     };

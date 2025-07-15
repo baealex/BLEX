@@ -1,3 +1,4 @@
+import json
 import re
 
 from django.conf import settings
@@ -17,15 +18,18 @@ from modules import markdown
 def comment_list(request):
     if request.method == 'POST':
         if not request.user.is_active:
-            return StatusError(ErrorCode.AUTHENTICATION)
+            return StatusError(ErrorCode.AUTHENTICATION, 'Login required')
+            
+        try:
+            data = json.loads(request.body)
+            post_url = request.GET.get('url') or data.get('url')
+            text_md = data.get('text_md', '')
+        except json.JSONDecodeError:
+            return StatusError(ErrorCode.INVALID_REQUEST, 'Invalid JSON data')
 
-        post = get_object_or_404(Post, url=request.GET.get('url'))
+        post = get_object_or_404(Post, url=post_url)
 
-        text_md = request.POST.get('comment_md', '')
-        text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
-            'text': text_md,
-            'token': settings.API_KEY,
-        }))
+        text_html = markdown.parse_to_html(text_md)
 
         comment = Comment(
             post=post,
@@ -104,13 +108,20 @@ def comment_detail(request, id):
 
     if request.method == 'GET':
         return StatusDone({
-            'text_md': comment.text_md,
+            'textMd': comment.text_md,
         })
 
     if request.method == 'PUT':
-        body = QueryDict(request.body)
+        # Handle both JSON and form data
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return StatusError(ErrorCode.INVALID_REQUEST, 'Invalid JSON data')
+        else:
+            data = QueryDict(request.body)
 
-        if body.get('like'):
+        if data.get('like'):
             if not request.user.is_active:
                 return StatusError(ErrorCode.NEED_LOGIN)
 
@@ -123,7 +134,7 @@ def comment_detail(request, id):
             if comment.has_liked:
                 comment.likes.remove(request.user)
                 return StatusDone({
-                    'count_likes': comment.count_likes - 1,
+                    'countLikes': comment.count_likes - 1,
                 })
             else:
                 comment.likes.add(request.user)
@@ -137,18 +148,15 @@ def comment_detail(request, id):
                         url=comment.post.get_absolute_url(),
                         content=send_notify_content)
                 return StatusDone({
-                    'count_likes': comment.count_likes + 1,
+                    'countLikes': comment.count_likes + 1,
                 })
 
-        if body.get('comment'):
+        if data.get('comment'):
             if not request.user == comment.author:
                 return StatusError(ErrorCode.AUTHENTICATION)
 
-            text_md = body.get('comment_md')
-            text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
-                'text': text_md,
-                'token': settings.API_KEY,
-            }))
+            text_md = data.get('comment_md')
+            text_html = markdown.parse_to_html(text_md)
 
             comment.text_md = text_md
             comment.text_html = text_html
@@ -173,6 +181,16 @@ def comment_detail(request, id):
 
 def user_comment(request):
     if request.method == 'GET':
+        # Get page parameter from either query string or JSON body
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+                page = data.get('page', 1)
+            except json.JSONDecodeError:
+                page = request.GET.get('page', 1)
+        else:
+            page = request.GET.get('page', 1)
+            
         comments = Comment.objects.filter(
             author=request.user,
         ).annotate(
@@ -184,7 +202,7 @@ def user_comment(request):
         comments = Paginator(
             objects=comments,
             offset=10,
-            page=request.GET.get('page', 1)
+            page=page
         )
         return StatusDone({
             'comments': list(map(lambda comment: {
@@ -194,9 +212,9 @@ def user_comment(request):
                     'url': comment.post_url,
                 },
                 'content': comment.text_html,
-                'created_date': comment.time_since(),
+                'createdDate': comment.time_since(),
             }, comments)),
-            'last_page': comments.paginator.num_pages,
+            'lastPage': comments.paginator.num_pages,
         })
 
     raise Http404

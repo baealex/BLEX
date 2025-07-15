@@ -46,22 +46,51 @@ def post_detail(request, username, post_url):
     # Format date
     post.created_date = post.created_date.strftime('%Y-%m-%d')
     
+    # Initialize series attributes to avoid AttributeError
+    post.series_total = 0
+    post.visible_series_posts = []
+    post.prev_post = None
+    post.next_post = None
+    
     # Get series posts if the post is part of a series
     if post.series:
-        series_posts = Post.objects.filter(
+        series_posts = list(Post.objects.filter(
             series=post.series,
             config__hide=False,
-        ).order_by('created_date')
+        ).order_by('created_date'))
         
-        post.series_posts = series_posts
-        post.series_total = series_posts.count()
+        post.series_total = len(series_posts)
         
-        # Find the index of the current post in the series
-        post.series_index = 1
+        # Add series_index to each post in the series
         for i, series_post in enumerate(series_posts):
+            series_post.series_index = i + 1
             if series_post.id == post.id:
                 post.series_index = i + 1
-                break
+        
+        # Prepare visible series posts for the template (max 5 posts)
+        visible_posts = []
+        current_idx = post.series_index - 1  # Convert to 0-based index
+        
+        # Determine which posts to show based on current position
+        if post.series_total <= 5:
+            # If 5 or fewer posts, show all
+            visible_posts = series_posts
+        elif post.series_index <= 3:
+            # If near the beginning, show first 5
+            visible_posts = series_posts[:5]
+        elif post.series_index >= post.series_total - 2:
+            # If near the end, show last 5
+            visible_posts = series_posts[-5:]
+        else:
+            # Show 2 before and 2 after current post
+            start = max(0, current_idx - 2)
+            end = min(post.series_total, current_idx + 3)
+            visible_posts = series_posts[start:end]
+        
+        # Get previous and next posts if they exist
+        post.prev_post = series_posts[current_idx - 1] if current_idx > 0 else None
+        post.next_post = series_posts[current_idx + 1] if current_idx < post.series_total - 1 else None
+        post.visible_series_posts = visible_posts
     
     # Get related posts (posts with similar tags)
     related_posts = []

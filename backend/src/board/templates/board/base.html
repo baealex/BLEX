@@ -265,6 +265,15 @@
         </div>
     </footer>
 
+    {% if user.is_authenticated %}
+    <script>
+        window.authKey = Symbol()
+        window[window.authKey] = {
+            username: "{{ user.username }}",
+        };
+    </script>
+    {% endif %}
+
     <script>
         window.addEventListener('scroll', function () {
             const header = document.querySelector('.header');

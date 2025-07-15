@@ -14,7 +14,7 @@ from board.models import (
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since, time_stamp
-from modules.markdown import parse_to_html, ParseData
+from modules.markdown import parse_to_html
 
 
 def users(request, username):
@@ -248,10 +248,7 @@ def users(request, username):
                 return StatusError(ErrorCode.AUTHENTICATION)
 
             about_md = put.get('about_md')
-            about_html = parse_to_html(settings.API_URL, ParseData.from_dict({
-                'text': about_md,
-                'token': settings.API_KEY,
-            }))
+            about_html = parse_to_html(about_md)
             if hasattr(user, 'profile'):
                 user.profile.about_md = about_md
                 user.profile.about_html = about_html

@@ -281,6 +281,7 @@
         padding: 24px;
         background-color: #f9f9f9;
         border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .series-header {
@@ -288,6 +289,8 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .series-title {
@@ -295,9 +298,22 @@
         font-weight: 700;
     }
 
+    .series-title a {
+        color: #333;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .series-title a:hover {
+        color: #4568dc;
+    }
+
     .series-progress {
         font-size: 14px;
         color: #666;
+        background-color: #eee;
+        padding: 4px 10px;
+        border-radius: 20px;
     }
 
     .series-posts {
@@ -322,27 +338,65 @@
         color: #333;
         font-weight: 500;
         transition: color 0.2s ease;
+        text-decoration: none;
     }
 
     .series-post-link:hover {
         color: #4568dc;
     }
-
+    
+    .series-post-link.active {
+        color: #4568dc;
+        font-weight: 700;
+    }
+    
     .series-post-number {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
+        min-width: 24px;
         height: 24px;
-        background-color: #e0e0e0;
+        background-color: #eee;
         border-radius: 50%;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
     }
-
-    .series-post-link.active {
-        color: #4568dc;
-        font-weight: 600;
+    
+    .series-post-link.active .series-post-number {
+        background-color: #4568dc;
+        color: white;
+    }
+    
+    .series-navigation {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    .series-nav-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background-color: #f0f0f0;
+        border-radius: 6px;
+        color: #555;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .series-nav-button:hover {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+    
+    .series-nav-button.disabled {
+        opacity: 0.5;
+        pointer-events: none;
     }
 
     .series-post-link.active .series-post-number {
@@ -465,16 +519,44 @@
             </div>
         </div>
         <ul class="series-posts">
-            {% for series_post in post.series_posts %}
-            <li class="series-post-item">
-                <a href="{% url 'post_detail' post.author_username series_post.url %}"
-                    class="series-post-link {% if series_post.url == post.url %}active{% endif %}">
-                    <span class="series-post-number">{{ forloop.counter }}</span>
-                    <span>{{ series_post.title }}</span>
-                </a>
-            </li>
+            {% for series_post in post.visible_series_posts %}
+                <li class="series-post-item">
+                    <a href="{% url 'post_detail' post.author_username series_post.url %}"
+                        class="series-post-link {% if series_post.url == post.url %}active{% endif %}">
+                        <span class="series-post-number">{{ series_post.series_index }}</span>
+                        <span>{{ series_post.title }}</span>
+                    </a>
+                </li>
             {% endfor %}
         </ul>
+        
+        {% if post.series_total > 1 %}
+        <div class="series-navigation">
+            {% if post.prev_post %}
+                <a href="{% url 'post_detail' post.author_username post.prev_post.url %}" class="series-nav-button">
+                    <i class="fas fa-chevron-left"></i> 이전 포스트
+                </a>
+            {% else %}
+                <span class="series-nav-button disabled">
+                    <i class="fas fa-chevron-left"></i> 이전 포스트
+                </span>
+            {% endif %}
+            
+            <a href="{% url 'series_detail' post.author_username post.series.url %}" class="series-nav-button">
+                <i class="fas fa-th-list"></i> 전체 시리즈
+            </a>
+            
+            {% if post.next_post %}
+                <a href="{% url 'post_detail' post.author_username post.next_post.url %}" class="series-nav-button">
+                    다음 포스트 <i class="fas fa-chevron-right"></i>
+                </a>
+            {% else %}
+                <span class="series-nav-button disabled">
+                    다음 포스트 <i class="fas fa-chevron-right"></i>
+                </span>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 

@@ -11,12 +11,15 @@ graphene-django==3.2.2
 graphql-core==3.2.5
 graphql-relay==3.2.0
 idna==3.10
+Markdown==3.8.2
 pillow==11.1.0
 promise==2.3
 pycparser==2.22
 pyhumps==3.8.0
+pymdown-extensions==10.16
 python-dateutil==2.9.0.post0
 pytz==2024.2
+PyYAML==6.0.2
 requests==2.32.3
 six==1.17.0
 sqlparse==0.5.3
