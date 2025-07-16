@@ -5,6 +5,7 @@
 {% block title %}{% if is_edit %}Edit Post{% else %}Write Post{% endif %} - BLEX{% endblock %}
 
 {% block extra_styles %}
+<link rel="stylesheet" href="{% island_css 'post' %}">
 <link rel="stylesheet" href="{% island_css 'editor' %}">
 <style>
     body {
@@ -571,8 +572,7 @@
             <div class="editor-main">
                 <div class="form-group">
                     <label for="content" class="form-label">Content</label>
-                    {% island_component 'MarkdownEditor' content=post.content.text_md editable=true %}
-                    <input type="hidden" id="content" name="content" value="{{ post.content.text_md }}">
+                    {% island_component 'MarkdownEditor' content=post.content.text_md name='text_md' %}
                 </div>
             </div>
             

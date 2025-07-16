@@ -64,6 +64,14 @@
                             <span>초대</span>
                         </a>
                     </li>
+                    {% if request.user.is_staff %}
+                    <li class="setting-nav-item">
+                        <a href="{% url 'admin:index' %}" class="setting-nav-link {% if active == 'staff' %}active{% endif %}">
+                            <span class="setting-nav-icon"><i class="fas fa-user-shield"></i></span>
+                            <span>관리자</span>
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>

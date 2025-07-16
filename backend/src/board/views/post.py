@@ -3,8 +3,11 @@ from django.contrib.auth.models import User
 from django.db.models import Count, F, Exists, OuterRef
 from django.utils import timezone
 from django.http import Http404
+from django.utils.text import slugify
+from django.contrib import messages
 
-from board.models import Post, Series, PostLikes, Profile, Follow, Comment
+from board.models import Post, Series, PostLikes, PostConfig, PostContent
+from modules import markdown
 
 
 def post_detail(request, username, post_url):
@@ -146,7 +149,7 @@ def post_editor(request, username=None, post_url=None):
         
         # Get the post
         try:
-            post = Post.objects.select_related('config', 'series').get(
+            post = Post.objects.select_related('config', 'series', 'content').get(
                 author=author,
                 url=post_url,
             )
@@ -158,9 +161,114 @@ def post_editor(request, username=None, post_url=None):
     
     # Handle form submission
     if request.method == 'POST':
-        # Process form data
-        # This would be implemented based on the form structure
-        pass
+        # Check if delete action is requested
+        if is_edit and request.POST.get('delete') == 'true':
+            post.delete()
+            messages.success(request, 'Post has been deleted successfully.')
+            return redirect('user_profile', username=request.user.username)
+        
+        # Get form data
+        title = request.POST.get('title')
+        url = request.POST.get('url')
+        text_md = request.POST.get('text_md')
+        text_html = markdown.parse_to_html(text_md)
+        meta_description = request.POST.get('meta_description', '')
+        tags_str = request.POST.get('tags', '')
+        series_id = request.POST.get('series', '')
+        
+        # Process tags
+        tags = []
+        if tags_str:
+            tags = [tag.strip() for tag in tags_str.split(',') if tag.strip()]
+        
+        # Process config options
+        hide = request.POST.get('hide') == 'on'
+        notice = request.POST.get('notice') == 'on'
+        advertise = request.POST.get('advertise') == 'on'
+        is_draft = request.POST.get('is_draft') == 'true'
+        
+        # Process series
+        series = None
+        if series_id:
+            try:
+                series = Series.objects.get(id=series_id, owner=request.user)
+            except Series.DoesNotExist:
+                pass
+        
+        # Create or update post
+        if is_edit:
+            # Update existing post
+            post.title = title
+            post.url = url
+            post.meta_description = meta_description
+            post.series = series
+            post.updated_date = timezone.now()
+            
+            # Handle image upload
+            if 'image' in request.FILES:
+                post.image = request.FILES['image']
+            elif request.POST.get('remove_image') == 'true':
+                post.image = None
+            
+            post.save()
+            
+            # Update post content
+            post.content.text_md = text_md
+            post.content.text_html = text_html
+            post.content.save()
+            
+            # Update post config
+            post.config.hide = hide
+            post.config.notice = notice
+            post.config.advertise = advertise
+            post.config.save()
+            
+            # Process tags
+            if tags:
+                post.set_tags(','.join(tags))
+            
+            messages.success(request, 'Post has been updated successfully.')
+        else:
+            # Create the post first
+            post = Post.objects.create(
+                title=title,
+                url=url or slugify(title),
+                meta_description=meta_description,
+                author=request.user,
+                series=series
+            )
+            
+            # Handle image upload
+            if 'image' in request.FILES:
+                post.image = request.FILES['image']
+                post.save()
+            
+            # Now create the related models
+            PostConfig.objects.create(
+                post=post,
+                hide=hide,
+                notice=notice,
+                advertise=advertise
+            )
+            
+            PostContent.objects.create(
+                post=post,
+                text_md=text_md,
+                text_html=text_html
+            )
+            
+            # Process tags
+            if tags:
+                post.set_tags(','.join(tags))
+            
+            messages.success(request, 'Post has been created successfully.')
+        
+        # If it's a draft, redirect to the editor page again
+        if is_draft:
+            return redirect('post_editor', username=request.user.username, post_url=post.url)
+        
+        # Redirect to the post detail page
+        return redirect('post_detail', username=request.user.username, post_url=post.url)
     
     context = {
         'is_edit': is_edit,

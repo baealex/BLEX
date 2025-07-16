@@ -2,11 +2,8 @@ import re
 import markdown
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
-from markdown.inlinepatterns import InlineProcessor
 from markdown.preprocessors import Preprocessor
 from markdown.extensions.toc import slugify_unicode
-from xml.etree import ElementTree as etree
-import html
 
 class HeaderHashTreeprocessor(Treeprocessor):
     def __init__(self, md):
