@@ -8,12 +8,7 @@ interface ProfileFormProps {
     homepage: string;
 }
 
-interface ProfileFormData {
-    bio: string;
-    homepage: string;
-}
-
-const ProfileForm: React.FC<ProfileFormProps> = ({ avatar: initialAvatar, bio: initialBio, homepage: initialHomepage }) => {
+const ProfileForm = ({ avatar: initialAvatar, bio: initialBio, homepage: initialHomepage }: ProfileFormProps) => {
     const [avatar, setAvatar] = useState(initialAvatar);
     const [bio, setBio] = useState(initialBio);
     const [homepage, setHomepage] = useState(initialHomepage);
@@ -34,18 +29,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ avatar: initialAvatar, bio: i
             });
 
             if (data.status === 'DONE') {
-                notification('프로필이 업데이트 되었습니다.', {
-                    type: 'success'
-                });
+                notification('프로필이 업데이트 되었습니다.', { type: 'success' });
             } else {
-                notification('프로필 업데이트에 실패했습니다.', {
-                    type: 'error'
-                });
+                notification('프로필 업데이트에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
-            notification('프로필 업데이트에 실패했습니다.', {
-                type: 'error'
-            });
+            notification('프로필 업데이트에 실패했습니다.', { type: 'error' });
         } finally {
             setIsLoading(false);
         }
@@ -66,18 +55,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ avatar: initialAvatar, bio: i
 
             if (data.status === 'DONE') {
                 setAvatar(data.body.avatar);
-                notification('프로필 이미지가 업데이트 되었습니다.', {
-                    type: 'success'
-                });
+                notification('프로필 이미지가 업데이트 되었습니다.', { type: 'success' });
             } else {
-                notification('프로필 이미지 업데이트에 실패했습니다.', {
-                    type: 'error'
-                });
+                notification('프로필 이미지 업데이트에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
-            notification('프로필 이미지 업데이트에 실패했습니다.', {
-                type: 'error'
-            });
+            notification('프로필 이미지 업데이트에 실패했습니다.', { type: 'error' });
         }
     };
 
@@ -94,7 +77,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ avatar: initialAvatar, bio: i
                         />
                         <div className="avatar-upload">
                             <label htmlFor="avatar-input" className="avatar-upload-label">
-                                <i className="fas fa-camera"></i>
+                                <i className="fas fa-camera" />
                             </label>
                             <input
                                 id="avatar-input"
@@ -134,10 +117,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ avatar: initialAvatar, bio: i
                 <button
                     type="submit"
                     className="btn btn-primary"
-                    disabled={isLoading}
-                >
-                    {isLoading ? '저장 중...' : '저장'}
-                </button>
+                    disabled={isLoading}>{isLoading ? '저장 중...' : '저장'}</button>
             </form>
 
             <style jsx>{`

@@ -2,7 +2,17 @@ import { useState, useRef, useEffect } from 'react';
 import type { Response } from '~/modules/http.module';
 import { http } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
-import { getStaticPath } from '~/modules/env.module';
+import styles from './Comments.module.scss';
+
+const userResource = (assets?: string) => {
+    console.log(assets);
+    if (!assets) return '/assets/images/ghost.jpg';
+    return assets;
+};
+
+const getStaticPath = (resource: string) => {
+    return ISLAND.STATIC_URL + resource;
+};
 
 interface CommentsProps {
     postUrl: string;
@@ -16,7 +26,7 @@ interface Comment {
     isEdited: boolean;
     createdDate: string;
     countLikes: number;
-    hasLiked: boolean;
+    isLiked: boolean;
 }
 
 interface CommentEditData {
@@ -207,63 +217,63 @@ const Comments = (props: CommentsProps) => {
     };
 
     if (isError) {
-        return <div className="comments-error">Error loading comments. Please try again later.</div>;
+        return <div className={styles.commentsError}>Error loading comments. Please try again later.</div>;
     }
 
     if (isLoading) {
-        return <div className="comments-loading">Loading comments...</div>;
+        return <div className={styles.commentsLoading}>Loading comments...</div>;
     }
 
     return (
         <>
-            {error && <div className="error-message">{error}</div>}
+            {error && <div className={styles.errorMessage}>{error}</div>}
 
-            <div className="comments-container">
-                <h3 className="comments-title">Comments</h3>
+            <div className={styles.commentsContainer}>
+                <h3 className={styles.commentsTitle}>Comments</h3>
 
                 {data?.comments.length === 0 ? (
-                    <div className="no-comments">No comments yet. Be the first to comment!</div>
+                    <div className={styles.noComments}>No comments yet. Be the first to comment!</div>
                 ) : (
-                    <ul className="comments-list">
+                    <ul className={styles.commentsList}>
                         {data?.comments.map((comment) => (
-                            <li key={comment.id} className="comment-item">
-                                <div className="comment-header">
-                                    <a href={`/@${comment.author}`} className="author-link">
+                            <li key={comment.id} className={styles.commentItem}>
+                                <div className={styles.commentHeader}>
+                                    <a href={`/@${comment.author}`} className={styles.authorLink}>
                                         <img
-                                            src={getStaticPath(comment.authorImage)}
+                                            src={getStaticPath(userResource(comment.authorImage))}
                                             alt={comment.author}
-                                            className="author-image"
+                                            className={styles.authorImage}
                                         />
                                     </a>
-                                    <div className="author-info">
-                                        <a className="author-name" href={`/@${comment.author}`}>{comment.author}</a>
-                                        <div className="comment-meta">
-                                            <span className="comment-date">{comment.createdDate}</span>
-                                            {comment.isEdited && <span className="edited-mark">(edited)</span>}
+                                    <div className={styles.authorInfo}>
+                                        <a className={styles.authorName} href={`/@${comment.author}`}>{comment.author}</a>
+                                        <div className={styles.commentMeta}>
+                                            <span className={styles.commentDate}>{comment.createdDate}</span>
+                                            {comment.isEdited && <span className={styles.editedMark}>(edited)</span>}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="comment-body">
+                                <div className={styles.commentBody}>
                                     {editingCommentId === comment.id ? (
-                                        <div className="edit-comment-container">
+                                        <div className={styles.editCommentContainer}>
                                             <textarea
                                                 ref={editTextareaRef}
-                                                className="edit-comment-input"
+                                                className={styles.editCommentInput}
                                                 value={editText}
                                                 onChange={(e) => setEditText(e.target.value)}
                                                 placeholder="Edit your comment..."
                                                 disabled={isSubmitting}
                                             />
-                                            <div className="edit-actions">
+                                            <div className={styles.editActions}>
                                                 <button
-                                                    className="save-button"
+                                                    className={styles.saveButton}
                                                     onClick={() => saveEdit(comment.id)}
                                                     disabled={isSubmitting}>
                                                     {isSubmitting ? 'Saving...' : 'Save'}
                                                 </button>
                                                 <button
-                                                    className="cancel-button"
+                                                    className={styles.cancelButton}
                                                     onClick={cancelEditing}
                                                     disabled={isSubmitting}>
                                                     Cancel
@@ -273,29 +283,28 @@ const Comments = (props: CommentsProps) => {
                                     ) : (
                                         <>
                                             <div
-                                                className="comment-content"
+                                                className={styles.commentContent}
                                                 dangerouslySetInnerHTML={{ __html: comment.renderedContent }}
                                             />
-                                            <div className="comment-actions">
+                                            <div className={styles.commentActions}>
                                                 <button
-                                                    className={`like-button ${comment.hasLiked ? 'liked' : ''}`}
+                                                    className={`${styles.likeButton} flex gap-1 ${comment.isLiked ? styles.liked : ''}`}
                                                     onClick={() => handleLike(comment.id)}>
-                                                    {comment.hasLiked ? 'Liked' : 'Like'}
+                                                    {comment.isLiked ? '♥️' : '🩶'}
+                                                    {comment.countLikes > 0 && (
+                                                        <span className={styles.likeCount}>{comment.countLikes}</span>
+                                                    )}
                                                 </button>
-                                                {comment.countLikes > 0 && (
-                                                    <span className="like-count">{comment.countLikes}</span>
-                                                )}
 
-                                                {/* Show edit/delete buttons if current user is the author */}
                                                 {window.authKey && window[window.authKey].username === comment.author && (
-                                                    <div className="author-actions">
+                                                    <div className={styles.authorActions}>
                                                         <button
-                                                            className="edit-button"
+                                                            className={styles.editButton}
                                                             onClick={() => startEditing(comment.id)}>
                                                             Edit
                                                         </button>
                                                         <button
-                                                            className="delete-button"
+                                                            className={styles.deleteButton}
                                                             onClick={() => deleteComment(comment.id)}>
                                                             Delete
                                                         </button>
@@ -310,11 +319,11 @@ const Comments = (props: CommentsProps) => {
                     </ul>
                 )}
 
-                <div className="write-comment-container">
-                    <h4 className="write-comment-title">Write a comment</h4>
+                <div className={styles.writeCommentContainer}>
+                    <h4 className={styles.writeCommentTitle}>Write a comment</h4>
                     <textarea
                         ref={textareaRef}
-                        className="comment-input"
+                        className={styles.commentInput}
                         placeholder="Write your comment..."
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
@@ -322,326 +331,13 @@ const Comments = (props: CommentsProps) => {
                     />
 
                     <button
-                        className="write-button"
+                        className={styles.writeButton}
                         onClick={handleWrite}
                         disabled={isSubmitting || !commentText.trim()}>
                         {isSubmitting ? 'Posting...' : 'Post Comment'}
                     </button>
                 </div>
             </div>
-
-            <style jsx>{`
-                .comments-container {
-                    margin-top: 30px;
-                    padding: 20px;
-                    border-radius: 8px;
-                    background-color: #fff;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                }
-                
-                .comments-title {
-                    font-size: 1.5rem;
-                    margin-bottom: 20px;
-                    color: #333;
-                    border-bottom: 1px solid #eee;
-                    padding-bottom: 10px;
-                }
-                
-                .no-comments {
-                    color: #6c757d;
-                    font-style: italic;
-                    margin: 20px 0;
-                    text-align: center;
-                }
-                
-                .comments-list {
-                    list-style: none;
-                    padding: 0;
-                    margin: 0;
-                }
-                
-                .comment-item {
-                    margin-bottom: 20px;
-                    padding: 15px;
-                    border-radius: 8px;
-                    background-color: #f8f9fa;
-                    transition: background-color 0.2s ease;
-                }
-                
-                .comment-item:hover {
-                    background-color: #f1f3f5;
-                }
-                
-                .comment-header {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 10px;
-                }
-                
-                .author-link {
-                    display: block;
-                    flex-shrink: 0;
-                }
-                
-                .author-image {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    margin-right: 10px;
-                    object-fit: cover;
-                    border: 2px solid #fff;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                }
-                
-                .author-info {
-                    display: flex;
-                    flex-direction: column;
-                }
-                
-                .author-name {
-                    font-weight: 600;
-                    font-size: 14px;
-                    color: #343a40;
-                    text-decoration: none;
-                }
-                
-                .author-name:hover {
-                    text-decoration: underline;
-                }
-                
-                .comment-meta {
-                    display: flex;
-                    align-items: center;
-                    gap: 5px;
-                }
-                
-                .comment-date {
-                    font-size: 12px;
-                    color: #6c757d;
-                }
-                
-                .edited-mark {
-                    font-size: 11px;
-                    color: #6c757d;
-                    font-style: italic;
-                }
-                
-                .comment-body {
-                    margin-left: 50px;
-                }
-                
-                .comment-content {
-                    margin-bottom: 10px;
-                    font-size: 14px;
-                    line-height: 1.6;
-                    color: #212529;
-                    word-break: break-word;
-                }
-                
-                .comment-content p {
-                    margin-bottom: 0.75rem;
-                }
-                
-                .comment-content p:last-child {
-                    margin-bottom: 0;
-                }
-                
-                .comment-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    margin-top: 10px;
-                    flex-wrap: wrap;
-                }
-                
-                .like-button {
-                    background: none;
-                    border: none;
-                    color: #6c757d;
-                    cursor: pointer;
-                    padding: 5px 10px;
-                    font-size: 12px;
-                    border-radius: 4px;
-                    background-color: #e9ecef;
-                    transition: all 0.2s ease;
-                }
-                
-                .like-button:hover {
-                    background-color: #dee2e6;
-                }
-                
-                .like-button.liked {
-                    background-color: #cfe2ff;
-                    color: #0d6efd;
-                }
-                
-                .like-count {
-                    font-size: 12px;
-                    color: #6c757d;
-                }
-                
-                .author-actions {
-                    display: flex;
-                    gap: 8px;
-                    margin-left: auto;
-                }
-                
-                .edit-button, .delete-button {
-                    background: none;
-                    border: none;
-                    font-size: 12px;
-                    color: #6c757d;
-                    cursor: pointer;
-                    padding: 5px 8px;
-                    border-radius: 4px;
-                }
-                
-                .edit-button:hover {
-                    color: #0d6efd;
-                    background-color: #e9ecef;
-                }
-                
-                .delete-button:hover {
-                    color: #dc3545;
-                    background-color: #e9ecef;
-                }
-                
-                .edit-comment-container {
-                    margin-bottom: 15px;
-                }
-                
-                .edit-comment-input {
-                    width: 100%;
-                    padding: 10px;
-                    border: 1px solid #ced4da;
-                    border-radius: 4px;
-                    font-size: 14px;
-                    min-height: 80px;
-                    resize: vertical;
-                    margin-bottom: 10px;
-                }
-                
-                .edit-actions {
-                    display: flex;
-                    gap: 10px;
-                    justify-content: flex-end;
-                }
-                
-                .save-button, .cancel-button {
-                    padding: 6px 12px;
-                    border-radius: 4px;
-                    font-size: 13px;
-                    cursor: pointer;
-                    border: none;
-                }
-                
-                .save-button {
-                    background-color: #0d6efd;
-                    color: white;
-                }
-                
-                .save-button:hover:not(:disabled) {
-                    background-color: #0b5ed7;
-                }
-                
-                .cancel-button {
-                    background-color: #6c757d;
-                    color: white;
-                }
-                
-                .cancel-button:hover:not(:disabled) {
-                    background-color: #5c636a;
-                }
-                
-                .write-comment-container {
-                    margin-top: 30px;
-                    padding-top: 20px;
-                    border-top: 1px solid #eee;
-                }
-                
-                .write-comment-title {
-                    font-size: 1.1rem;
-                    margin-bottom: 15px;
-                    color: #495057;
-                }
-                
-                .comment-input {
-                    width: 100%;
-                    padding: 12px;
-                    border: 1px solid #ced4da;
-                    border-radius: 4px;
-                    font-size: 14px;
-                    min-height: 100px;
-                    resize: vertical;
-                    transition: border-color 0.2s ease;
-                }
-                
-                .comment-input:focus {
-                    outline: none;
-                    border-color: #86b7fe;
-                    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-                }
-                
-                .write-button {
-                    margin-top: 15px;
-                    padding: 10px 20px;
-                    background-color: #0d6efd;
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-weight: 500;
-                    transition: background-color 0.2s ease;
-                }
-                
-                .write-button:hover:not(:disabled) {
-                    background-color: #0b5ed7;
-                }
-                
-                .write-button:disabled {
-                    background-color: #6c757d;
-                    cursor: not-allowed;
-                    opacity: 0.65;
-                }
-                
-                .error-message {
-                    background-color: #f8d7da;
-                    color: #842029;
-                    padding: 10px 15px;
-                    border-radius: 4px;
-                    margin-bottom: 15px;
-                    font-size: 14px;
-                }
-                
-                .comments-loading, .comments-error {
-                    text-align: center;
-                    padding: 20px;
-                    color: #6c757d;
-                    font-style: italic;
-                }
-                
-                @media (max-width: 576px) {
-                    .comment-body {
-                        margin-left: 0;
-                        margin-top: 10px;
-                    }
-                    
-                    .author-actions {
-                        margin-left: 0;
-                        margin-top: 10px;
-                    }
-                    
-                    .comment-actions {
-                        flex-direction: column;
-                        align-items: flex-start;
-                        gap: 8px;
-                    }
-                    
-                    .like-count {
-                        margin-left: 10px;
-                    }
-                }
-            `}</style>
         </>
     );
 };

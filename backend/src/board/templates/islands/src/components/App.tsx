@@ -19,7 +19,6 @@ const LazyComponents = {
     PostsManagement: lazy(() => import('./PostsManagement')),
     NotifySettings: lazy(() => import('./NotifySettings')),
     VisitorAnalytics: lazy(() => import('./VisitorAnalytics')),
-    IntegrationSettings: lazy(() => import('./IntegrationSettings')),
     InvitationManagement: lazy(() => import('./InvitationManagement'))
 };
 
