@@ -4,6 +4,37 @@
 
 {% block title %}{{ post.title }} - {{ post.author_username }} | BLEX{% endblock %}
 
+{% block meta %}
+<!-- Primary Meta Tags -->
+<meta name="description" content="{{ post.meta_description }}">
+<meta name="keywords" content="{% for tag in post.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+<meta name="author" content="{{ post.author_username }}">
+<!-- Robots and Indexing -->
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:title" content="{{ post.title }}">
+<meta property="og:description" content="{{ post.meta_description }}">
+{% if post.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static post.image.url %}">{% endif %}
+<meta property="article:published_time" content="{{ post.created_at|date:'c' }}">
+<meta property="article:modified_time" content="{{ post.updated_at|date:'c' }}">
+<meta property="article:author" content="{{ request.scheme }}://{{ request.get_host }}/@{{ post.author_username }}">
+{% for tag in post.tags.all %}<meta property="article:tag" content="{{ tag }}">{% endfor %}
+
+<!-- Twitter -->
+<meta property="twitter:card" content="{% if post.image %}summary_large_image{% else %}summary{% endif %}">
+<meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+<meta property="twitter:title" content="{{ post.title }}">
+<meta property="twitter:description" content="{{ post.meta_description }}">
+{% if post.image %}<meta property="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static post.image.url %}">{% endif %}
+
+<!-- Canonical URL -->
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+{% endblock %}
+
 {% block extra_styles %}
 <link rel="stylesheet" href="{% island_css 'post' %}">
 <style>
@@ -311,50 +342,57 @@
 {% endblock %}
 
 {% block content %}
-<div class="post-container">
-    <article class="post-article">
+<div class="post-container" role="main">
+    <article class="post-article" itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
+        <meta itemprop="headline" content="{{ post.title }}">
+        <meta itemprop="description" content="{{ post.meta_description }}">
+        <meta itemprop="datePublished" content="{{ post.created_at|date:'c' }}">
+        <meta itemprop="dateModified" content="{{ post.updated_at|date:'c' }}">
+        {% if post.image %}
+        <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{% static post.image.url %}">
+        {% endif %}
         <header class="post-header">
-            <h1 class="post-title">{{ post.title }}</h1>
-            <div class="post-meta">
-                <div class="post-author">
+            <h1 class="post-title" itemprop="headline">{{ post.title }}</h1>
+            <div class="post-meta" aria-label="게시물 정보">
+                <div class="post-author" itemprop="author" itemscope itemtype="https://schema.org/Person">
                     <a href="/@{{ post.author_username }}">
                         <img class="post-author-image" src="{% if post.author_image %}{% static post.author_image %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ post.author_username }}">
                     </a>
-                    <a href="/@{{ post.author_username }}" class="post-author-name">
+                    <a href="/@{{ post.author_username }}" class="post-author-name" itemprop="name">
                         {{ post.author_username }}
                     </a>
                 </div>
-                <div class="post-date">{{ post.created_date }}</div>
-                <div class="post-read-time">
-                    <i class="far fa-clock"></i>
+                <div class="post-date" itemprop="datePublished" content="{{ post.created_at|date:'c' }}">{{ post.created_date }}</div>
+                <div class="post-read-time" aria-label="읽는 데 걸리는 시간">
+                    <i class="far fa-clock" aria-hidden="true"></i>
                     <span>{{ post.read_time }}분 분량</span>
                 </div>
             </div>
 
             {% if post.image %}
             <div class="post-cover-container">
-                <img class="post-cover-image" src="{% static post.image.url %}" alt="{{ post.title }}">
+                <img class="post-cover-image" src="{% static post.image.url %}" alt="{{ post.title }}" itemprop="image">
             </div>
             {% endif %}
         </header>
 
-        <div class="blog-post-content">
+        <div class="blog-post-content" itemprop="articleBody" lang="{{ LANGUAGE_CODE|default:'ko' }}">
             {{ post.content.text_html|safe }}
         </div>
 
         {% if post.tags %}
-        <div class="post-tags">
+        <div class="post-tags" itemprop="keywords">
             {% for tag in post.tags.all %}
                 <a href="{% url 'tag_detail' tag %}" class="post-tag">{{ tag }}</a>
             {% endfor %}
         </div>
         {% endif %}
 
-        <div class="post-actions">
+        <div class="post-actions" aria-label="게시물 작업">
             <div class="post-action-group">
                 {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked size='large' %}
-                <button class="post-share-button" id="shareButton">
-                    <i class="fas fa-share-alt"></i>
+                <button class="post-share-button" id="shareButton" aria-label="게시물 공유하기">
+                    <i class="fas fa-share-alt" aria-hidden="true"></i>
                     <span>Share</span>
                 </button>
             </div>
@@ -456,6 +494,40 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<!-- Structured Data for Articles (JSON-LD) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ request.build_absolute_uri }}"
+  },
+  "headline": "{{ post.title }}",
+  "description": "{{ post.meta_description }}",
+  "image": {% if post.image %}"{{ request.scheme }}://{{ request.get_host }}{% static post.image.url %}"{% else %}null{% endif %},
+  "author": {
+    "@type": "Person",
+    "name": "{{ post.author_username }}",
+    "url": "{{ request.scheme }}://{{ request.get_host }}/@{{ post.author_username }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "BLEX",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'logo.png' %}"
+    }
+  },
+  "datePublished": "{{ post.created_at|date:'c' }}",
+  "dateModified": "{{ post.updated_at|date:'c' }}",
+  {% if post.tags.all %}"keywords": "{% for tag in post.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}",{% endif %}
+  "articleSection": {% if post.series %}"{{ post.series.name }}"{% else %}"Blog"{% endif %},
+  "wordCount": "{{ post.read_time|default:5|stringformat:'i' }}00"
+}
+</script>
+
+<!-- Share functionality -->
 <script>
     // Share functionality
     document.addEventListener('DOMContentLoaded', function () {
