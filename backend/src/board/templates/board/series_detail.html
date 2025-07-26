@@ -19,7 +19,7 @@
     }
     
     .series-title {
-        font-size: 36px;
+        font-size: 24px;
         font-weight: 700;
         margin-bottom: 16px;
         line-height: 1.2;
@@ -62,35 +62,7 @@
         color: #666;
         font-size: 14px;
     }
-    
-    .series-progress-container {
-        margin-bottom: 32px;
-    }
-    
-    .series-progress-info {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-    }
-    
-    .series-progress-text {
-        font-size: 14px;
-        color: #666;
-    }
-    
-    .series-progress-bar {
-        height: 8px;
-        background-color: #f0f0f0;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    
-    .series-progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #4568dc, #b06ab3);
-        border-radius: 4px;
-    }
-    
+
     /* Posts list */
     .series-posts {
         margin-top: 32px;
@@ -99,7 +71,6 @@
     .series-posts-title {
         font-size: 24px;
         font-weight: 700;
-        margin-bottom: 24px;
     }
     
     .post-list {
@@ -226,47 +197,44 @@
         100% { transform: rotate(360deg); }
     }
     
-    /* Dark mode adjustments */
-    body.dark .series-description {
-        color: #bbb;
+    /* Series controls styles */
+    .series-controls {
+        margin-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
     }
     
-    body.dark .series-author-name {
-        color: #e0e0e0;
+    /* Sorting controls styles */
+    .sort-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
     
-    body.dark .series-date {
-        color: #aaa;
+    .sort-label {
+        font-size: 14px;
+        color: #666;
     }
     
-    body.dark .series-progress-text {
-        color: #aaa;
+    .sort-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        background-color: #f5f5f5;
+        color: #333;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
     }
     
-    body.dark .series-progress-bar {
-        background-color: #333;
-    }
-    
-    body.dark .post-item {
-        background-color: #222;
-    }
-    
-    body.dark .post-number {
-        background-color: #333;
-        color: #ddd;
-    }
-    
-    body.dark .post-meta {
-        color: #aaa;
-    }
-    
-    body.dark .empty-state-message {
-        color: #bbb;
-    }
-    
-    body.dark .loading-spinner {
-        border-color: rgba(255, 255, 255, 0.1);
-        border-top-color: #4568dc;
+    .sort-button:hover {
+        background-color: #e0e0e0;
     }
 </style>
 {% endblock %}
@@ -275,11 +243,12 @@
 <div class="series-container">
     <div class="series-header">
         <h1 class="series-title">{{ series.name }}</h1>
+        <div class="series-description">{{ series.text_html | safe }}</div>
         
         <div class="series-meta">
             <div class="series-author">
                 <a href="/@{{ author.username }}">
-                    <img class="series-author-image" src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ author.username }}">
+                    <img class="series-author-image" src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ author.username }}">
                 </a>
                 <a href="/@{{ author.username }}" class="series-author-name">
                     {{ author.username }}
@@ -290,18 +259,6 @@
         
         {% if series.description %}
         <p class="series-description">{{ series.description }}</p>
-        {% endif %}
-        
-        {% if series.post_count > 0 %}
-        <div class="series-progress-container">
-            <div class="series-progress-info">
-                <span class="series-progress-text">{{ series.completed_count }} / {{ series.post_count }} 포스트 완료</span>
-                <span class="series-progress-text">{{ series.completion_percentage }}% 완료</span>
-            </div>
-            <div class="series-progress-bar">
-                <div class="series-progress-fill" style="width: {{ series.completion_percentage }}%"></div>
-            </div>
-        </div>
         {% endif %}
     </div>
     
@@ -316,12 +273,26 @@
     </div>
     {% else %}
     <div class="series-posts">
-        <h2 class="series-posts-title">포스트 목록</h2>
+        <div class="flex justify-between align-center mb-3">
+            <h2 class="series-posts-title">포스트 목록</h2>
+            <div class="sort-controls">
+                <span class="sort-label">정렬:</span>
+                {% if sort_order == 'desc' %}
+                <a href="?sort=asc" class="sort-button">
+                    <i class="fas fa-sort-amount-up"></i> 오래된순
+                </a>
+                {% else %}
+                <a href="?sort=desc" class="sort-button">
+                    <i class="fas fa-sort-amount-down"></i> 최신순
+                </a>
+                {% endif %}
+            </div>
+        </div>
         <ul class="post-list">
-            {% for post in posts %}
+            {% for post_number, post in posts %}
             <li class="post-item">
                 <a href="/@{{ author.username }}/{{ post.url }}" class="post-link">
-                    <div class="post-number">{{ forloop.counter }}</div>
+                    <div class="post-number">{{ post_number }}</div>
                     <div class="post-content">
                         <h3 class="post-title">{{ post.title }}</h3>
                         <div class="post-meta">
@@ -347,6 +318,12 @@
             </li>
             {% endfor %}
         </ul>
+        
+        <div class="series-controls">
+            {% if total_pages > 1 %}
+            {% include 'components/pagination.html' with page=page last=total_pages request=request style="numbered" %}
+            {% endif %}
+        </div>
     </div>
     {% endif %}
 </div>

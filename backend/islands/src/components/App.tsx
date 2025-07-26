@@ -12,14 +12,11 @@ const LazyComponents = {
     MarkdownEditor: lazy(() => import('./MarkdownEditor')),
     SocialLinks: lazy(() => import('./SocialLinks')),
     ProfileForm: lazy(() => import('./ProfileForm')),
-    AccountInfo: lazy(() => import('./AccountInfo')),
-    PasswordChange: lazy(() => import('./PasswordChange')),
-    AccountDeletion: lazy(() => import('./AccountDeletion')),
     SeriesManagement: lazy(() => import('./SeriesManagement')),
     PostsManagement: lazy(() => import('./PostsManagement')),
     NotifySettings: lazy(() => import('./NotifySettings')),
     VisitorAnalytics: lazy(() => import('./VisitorAnalytics')),
-    InvitationManagement: lazy(() => import('./InvitationManagement'))
+    AccountSettings: lazy(() => import('./AccountSettings'))
 };
 
 const App = ({ __name, ...props }: AppProps) => {

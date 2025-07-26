@@ -9,11 +9,10 @@ Parameters:
 {% load static %}
 {% load island %}
 
-{% with username=author_username|default:post.author_username %}
 <div class="post-card">
     {% if post.image %}
         <div class="post-image-container">
-            <a href="/@{{ username }}/{{ post.url }}">
+            <a href="/@{{ post.author }}/{{ post.url }}">
                 <img class="post-image" src="{% static post.image.url %}" alt="{{ post.title }}">
             </a>
         </div>
@@ -21,11 +20,11 @@ Parameters:
     <div class="post-content">
         {% if show_author != 'false' and show_author != False %}
         <div class="post-author-container">
-            <a href="/@{{ username }}" class="flex items-center">
-                <img class="post-author-image" src="{% static post.author_image %}" alt="{{ username }}">
+            <a href="/@{{ post.author }}" class="flex items-center">
+                <img class="post-author-image" src="{% static post.author_image %}" alt="{{ post.author }}">
             </a>
             <span class="post-meta">
-                <a href="/@{{ username }}">{{ username }}</a>
+                <a href="/@{{ post.author }}">{{ post.author }}</a>
                 <span class="post-meta-separator">·</span>
                 {{ post.created_date }}
             </span>
@@ -33,7 +32,7 @@ Parameters:
         {% endif %}
 
         <h3 class="post-title">
-            <a href="/@{{ username }}/{{ post.url }}">{{ post.title }}</a>
+            <a href="/@{{ post.author }}/{{ post.url }}">{{ post.title }}</a>
         </h3>
 
         {% if show_author == 'false' or show_author == False %}
@@ -48,7 +47,7 @@ Parameters:
         
         <div class="post-footer">
             {% if post.series %}
-                <a href="/@{{ username }}/series/{{ post.series.url }}">
+                <a href="/@{{ post.author }}/series/{{ post.series.url }}">
                     <span class="series-badge">
                         <i class="fas fa-layer-group"></i>
                         <span class="series-badge-name">{{ post.series.name }}</span>
@@ -70,4 +69,3 @@ Parameters:
         </div>
     </div>
 </div>
-{% endwith %}

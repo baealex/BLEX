@@ -1,12 +1,20 @@
 {% extends 'board/base.html' %}
 {% load island %}
 {% load static %}
+{% load search_tags %}
 
-{% block title %}BLEX - Latest Articles{% endblock %}
+{% block title %}
+    {% if query %}
+        {{ query }} 검색 결과
+    {% else %}
+        BLEX - Latest Articles
+    {% endif %}
+{% endblock %}
 
 {% block home_active %}active{% endblock %}
 
 {% block extra_styles %}
+{{ block.super }}
 <style>
     .hero {
         background: linear-gradient(135deg, #4568dc, #b06ab3);
@@ -101,11 +109,176 @@
         color: #4568dc;
         font-weight: 500;
     }
+    
+    /* 검색 결과 스타일 */
+    .search-results {
+        margin-top: 30px;
+    }
+    
+    .search-result-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #6c757d;
+        font-size: 14px;
+        background-color: #f8f9fa;
+        padding: 12px 16px;
+        border-radius: 6px;
+    }
+    
+    .search-result-item {
+        margin-bottom: 24px;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .search-result-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .search-result-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .search-result-title a {
+        color: #212529;
+        text-decoration: none;
+    }
+    
+    .search-result-title a:hover {
+        color: #4568dc;
+    }
+    
+    .search-result-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: #6c757d;
+        flex-wrap: wrap;
+    }
+    
+    .search-result-author {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #f8f9fa;
+        padding: 4px 10px;
+        border-radius: 20px;
+        transition: background-color 0.2s;
+    }
+    
+    .search-result-author:hover {
+        background-color: #e9ecef;
+    }
+    
+    .search-result-author img {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .search-result-description {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #495057;
+        margin-bottom: 10px;
+    }
+    
+    .search-result-positions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+    
+    .search-result-position {
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 16px;
+        background-color: rgba(69, 104, 220, 0.1);
+        color: #4568dc;
+        transition: all 0.2s;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 40px 0;
+    }
+    
+    .no-results h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #495057;
+    }
+    
+    .no-results p {
+        color: #6c757d;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-{% if posts %}
+
+
+{% if query %}
+    {% if results %}
+        <div class="section-header">
+            <div class="search-box">
+                <form method="GET" action="" id="searchForm">
+                    <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q|default:'' }}" class="search-input">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="search-result-info">
+                <div>
+                    <strong>{{ total_size }}</strong>개의 검색 결과
+                </div>
+                <div>
+                    {{ elapsed_time }}초
+                </div>
+            </div>
+        </div>
+        
+        <!-- 게시글 검색 결과 표시 -->
+        {% for result in results %}
+        <div class="search-result-item">
+            <div class="search-result-meta">
+                <a href="/@{{ result.author }}" class="search-result-author">
+                    <img src="{% static result.author_image %}" alt="{{ result.author }}">
+                    <span>{{ result.author }}</span>
+                </a>
+                <span>{{ result.created_date }}</span>
+            </div>
+            <h3 class="search-result-title">
+                <a href="/@{{ result.author }}/{{ result.url }}">{{ result.title }}</a>
+            </h3>
+            <p class="search-result-description">{{ result.description }}</p>
+            <div class="search-result-positions">
+                {% for position in result.positions %}
+                <span class="search-result-position">{{ position }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% include 'components/pagination.html' with style='numbered' page=page last=page_count %}
+    {% else %}
+        <div class="no-results">
+            <h3>검색 결과가 없습니다.</h3>
+            <p>다른 검색어로 다시 시도해보세요.</p>
+        </div>
+    {% endif %}
+{% elif posts %}
     <div class="hero">
         <div class="hero-content">
             <img src="{% static 'logow.svg' %}" alt="BLEX Logo" class="hero-logo">
@@ -114,7 +287,14 @@
     </div>
 
     <div class="section-header">
-        <h2 class="section-title">포스트</h2>
+        <div class="search-box">
+            <form method="GET" action="" id="searchForm">
+                <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q|default:'' }}" class="search-input">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
         <div class="filter-options">
             <a href="?sort=latest" class="filter-option {% if not request.GET.sort or request.GET.sort == 'latest' %}active{% endif %}">최신순</a>
             <a href="?sort=popular" class="filter-option {% if request.GET.sort == 'popular' %}active{% endif %}">인기순</a>

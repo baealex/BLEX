@@ -20,7 +20,7 @@ def author_posts(request, username):
     
     # Base query for author's posts
     posts = Post.objects.select_related(
-        'config', 'series', 'author', 'author__profile'
+        'config', 'series', 'author', 'author__profile', 'content'
     ).filter(
         author=author,
         created_date__lte=timezone.now(),
@@ -31,7 +31,8 @@ def author_posts(request, username):
     if search_query:
         posts = posts.filter(
             Q(title__icontains=search_query) | 
-            Q(content__icontains=search_query)
+            Q(content__text_md__icontains=search_query) | 
+            Q(content__text_html__icontains=search_query)
         )
     
     # Apply tag filter if provided
@@ -133,6 +134,7 @@ def author_series(request, username):
     # Get search query and filters
     search_query = request.GET.get('q', '')
     sort_option = request.GET.get('sort', 'updated')
+    sort_order = request.GET.get('order', 'desc')
     
     # Base query for author's series
     series_list = Series.objects.filter(owner=author)
@@ -141,27 +143,35 @@ def author_series(request, username):
     if search_query:
         series_list = series_list.filter(
             Q(name__icontains=search_query) | 
-            Q(description__icontains=search_query)
+            Q(text_md__icontains=search_query)
         )
     
     # Annotate with post count
     series_list = series_list.annotate(post_count=Count('posts'))
     
     # Apply sorting
+    order_prefix = '-' if sort_order == 'desc' else ''
+    
     if sort_option == 'created':
-        series_list = series_list.order_by('-created_date')
+        series_list = series_list.order_by(f'{order_prefix}created_date')
     elif sort_option == 'posts':
-        series_list = series_list.order_by('-post_count', '-updated_date')
+        if sort_order == 'desc':
+            series_list = series_list.order_by('-post_count', '-updated_date')
+        else:
+            series_list = series_list.order_by('post_count', 'updated_date')
     else:  # default to 'updated'
-        series_list = series_list.order_by('-updated_date')
+        series_list = series_list.order_by(f'{order_prefix}updated_date')
+    
+    # Apply pagination
+    page = int(request.GET.get('page', 1))
+    paginated_series = Paginator(
+        objects=series_list,
+        offset=12,  # Show 12 series per page
+        page=page
+    )
     
     # Process series data
-    for series in series_list:
-        # Count completed posts (could be based on some criteria)
-        series.completed_count = series.post_count
-        # Calculate completion percentage
-        series.completion_percentage = 100 if series.post_count == 0 else int((series.completed_count / series.post_count) * 100)
-        # Format date
+    for series in paginated_series:
         series.updated_date = series.updated_date.strftime('%Y-%m-%d')
     
     # Get author's tags with post counts
@@ -191,7 +201,7 @@ def author_series(request, username):
     
     context = {
         'author': author,
-        'series_list': series_list,
+        'series_list': paginated_series,
         'post_count': post_count,
         'series_count': series_count,
         'follower_count': follower_count,
@@ -200,6 +210,9 @@ def author_series(request, username):
         'author_tags': author_tags,
         'search_query': search_query,
         'sort_option': sort_option,
+        'sort_order': sort_order,
+        'page_number': page,
+        'page_count': paginated_series.paginator.num_pages,
     }
     
     return render(request, 'board/author/author_series.html', context)

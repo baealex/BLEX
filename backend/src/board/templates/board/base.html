@@ -26,170 +26,6 @@
     <meta name="application-name" content="BLEX" />
     <meta name="msapplication-TileImage" content="{% static 'logo144.png' %}" />
     <meta name="msapplication-TileColor" content="#000" />
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(90deg, #4568dc, #b06ab3);
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .header {
-            background-color: #fff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            transition: background-color 0.3s ease;
-        }
-
-        .header.scrolled {
-            background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 70px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-img {
-            width: 32px;
-            height: 32px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-link {
-            font-size: 16px;
-            font-weight: 500;
-            color: #555;
-            transition: color 0.2s ease;
-        }
-
-        .nav-link:hover {
-            color: #4568dc;
-        }
-
-        .nav-link.active {
-            color: #4568dc;
-            font-weight: 600;
-        }
-        
-        /* User dropdown menu styles */
-        .user-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .user-dropdown-toggle {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .user-dropdown-menu {
-            position: absolute;
-            right: 0;
-            top: 100%;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            min-width: 180px;
-            padding: 8px 0;
-            z-index: 1001;
-            display: none;
-        }
-        
-        .user-dropdown-menu.show {
-            display: block;
-        }
-        
-        .user-dropdown-item {
-            display: block;
-            padding: 8px 16px;
-            color: #555;
-            font-size: 14px;
-            transition: background-color 0.2s ease;
-        }
-        
-        .user-dropdown-item:hover {
-            background-color: #f5f5f5;
-            color: #4568dc;
-        }
-        
-        .user-dropdown-divider {
-            height: 1px;
-            background-color: #eee;
-            margin: 8px 0;
-        }
-
-        .footer {
-            background-color: #ffffff;
-            padding: 40px 0;
-            margin-top: 60px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .footer-section {
-            margin-bottom: 20px;
-        }
-
-        .footer-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .footer-links {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .footer-link {
-            color: #666;
-            font-size: 14px;
-            transition: color 0.2s ease;
-        }
-
-        .footer-link:hover {
-            color: #4568dc;
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-            margin-top: 20px;
-            color: #888;
-            font-size: 14px;
-        }
-
-        /* White theme only - dark mode removed */
-
-        /* Additional styles for specific blocks */
-    </style>
     {% block extra_styles %}{% endblock %}
 </head>
 
@@ -200,33 +36,41 @@
                 <img class="logo-img" src="{% static 'logob.svg' %}" alt="BLEX">
             </a>
             <nav class="nav-links">
-                <a href="/search" class="nav-link {% block search_active %}{% endblock %}">검색</a>
+                <a href="/write" class="nav-link btn-primary flex align-center gap-1">
+                    <i class="fas fa-pen"></i>
+                    <span>글 작성</span>
+                </a>
                 {% if user.is_authenticated %}
-                <a href="/write" class="nav-link">글 작성</a>
                 <div class="user-dropdown">
-                    <div class="user-dropdown-toggle nav-link">
+                    <div class="user-dropdown-toggle">
                         <span>{{ user.username }}</span>
                         <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
                     </div>
                     <div class="user-dropdown-menu">
                         <a href="/@{{ user.username }}" class="user-dropdown-item">
-                            <i class="fas fa-user-circle"></i> 프로필
+                            <i class="fas fa-user-circle"></i> 
+                            <span>프로필</span>
                         </a>
-                        <a href="/dashboard" class="user-dropdown-item">
-                            <i class="fas fa-chart-line"></i> 대시보드
-                        </a>
-                        <div class="user-dropdown-divider"></div>
                         <a href="/settings/account" class="user-dropdown-item">
-                            <i class="fas fa-cog"></i> 설정
+                            <i class="fas fa-cog"></i> 
+                            <span>설정</span>
                         </a>
                         <div class="user-dropdown-divider"></div>
                         <a href="/logout" class="user-dropdown-item">
-                            <i class="fas fa-sign-out-alt"></i> 로그아웃
+                            <i class="fas fa-sign-out-alt"></i> 
+                            <span>로그아웃</span>
                         </a>
                     </div>
                 </div>
                 {% else %}
-                <a href="/login" class="nav-link">로그인</a>
+                <a href="/login" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>로그인</span>
+                </a>
+                <a href="/register" class="nav-link btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    <span>회원가입</span>
+                </a>
                 {% endif %}
             </nav>
         </div>
@@ -237,42 +81,23 @@
     </main>
 
     <footer class="footer">
-        <div class="container footer-content">
-            <div class="footer-section">
-                <h3 class="footer-title">BLEX</h3>
-                <div class="footer-links">
-                    <a href="/about" class="footer-link">About</a>
-                    <a href="/privacy" class="footer-link">Privacy Policy</a>
-                    <a href="/terms" class="footer-link">Terms of Service</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3 class="footer-title">Community</h3>
-                <div class="footer-links">
-                    <a href="/tags" class="footer-link">Tags</a>
-                    <a href="/authors" class="footer-link">Authors</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3 class="footer-title">Connect</h3>
-                <div class="footer-links">
-                    <a href="https://github.com/baealex/BLEX" target="_blank" class="footer-link">GitHub</a>
-                </div>
-            </div>
-        </div>
         <div class="container copyright">
-            &copy; {% now "Y" %} BLEX. All rights reserved.
+            <p>&copy; {% now "Y" %} <a href="/">BLEX</a>. All rights reserved.</p>
         </div>
     </footer>
 
-    {% if user.is_authenticated %}
     <script>
-        window.authKey = Symbol()
-        window[window.authKey] = {
-            username: "{{ user.username }}",
+        window.configuration = {
+            host: "",
+            static: "{% static '' %}",
+            {% if user.is_authenticated %}
+            user: {
+                isAuthenticated: "{{ user.is_authenticated }}",
+                username: "{{ user.username }}",
+            }
+            {% endif %}
         };
     </script>
-    {% endif %}
 
     <script>
         window.addEventListener('scroll', function () {

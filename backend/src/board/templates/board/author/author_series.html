@@ -85,20 +85,6 @@
         font-size: 14px;
         color: #888;
     }
-
-    .series-progress {
-        margin-top: 16px;
-        background-color: #f0f0f0;
-        height: 6px;
-        border-radius: 3px;
-        overflow: hidden;
-    }
-
-    .series-progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #4568dc, #b06ab3);
-        border-radius: 3px;
-    }
 </style>
 {% endblock %}
 
@@ -134,24 +120,25 @@
                             <h2 class="series-card-title">{{ series.name }}</h2>
                             <p class="series-card-description">{{ series.description }}</p>
                             <div class="series-card-meta">
-                                <div class="series-card-count">
+                                <div class="series-card-count flex gap-1 align-center">
                                     <i class="far fa-file-alt"></i>
                                     <span>{{ series.post_count }} posts</span>
                                 </div>
-                                <div class="series-card-date">
+                                <div class="series-card-date flex gap-1 align-center">
                                     <i class="far fa-clock"></i>
                                     <span>{{ series.updated_date }}</span>
                                 </div>
                             </div>
-                            {% if series.post_count > 0 and series.completed_count > 0 %}
-                            <div class="series-progress">
-                                <div class="series-progress-bar" style="width: {{ series.completion_percentage }}%"></div>
-                            </div>
-                            {% endif %}
                         </div>
                     </a>
                     {% endfor %}
                 </div>
+                
+                {% if page_count > 1 %}
+                <div class="pagination-wrapper">
+                    {% include 'components/pagination.html' with page=page_number last=page_count %}
+                </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>

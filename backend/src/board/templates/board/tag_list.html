@@ -5,14 +5,8 @@
 
 {% block extra_styles %}
 <style>
-    .section-title {
-        font-size: 28px;
-        font-weight: 700;
-        margin-bottom: 24px;
-        background: linear-gradient(90deg, #4568dc, #b06ab3);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+    body {
+        background-color: #f8f9fa;
     }
 
     .tag-grid {
@@ -55,23 +49,6 @@
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .tag-image-container {
-        position: relative;
-        height: 120px;
-        overflow: hidden;
-    }
-
-    .tag-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .tag-card:hover .tag-image {
-        transform: scale(1.05);
-    }
-
     .tag-content {
         padding: 16px;
         flex-grow: 1;
@@ -84,6 +61,10 @@
         font-weight: 600;
         margin-bottom: 8px;
         color: #333;
+        line-clamp: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .tag-count {
@@ -117,17 +98,20 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="section-title">Tags</h2>
+
+<div class="search-box mb-2">
+    <form method="GET" action="" id="searchForm">
+        <input type="text" name="q" placeholder="Search tags..." value="{{ request.GET.q|default:'' }}" class="search-input">
+        <button type="submit" class="search-button">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+</div>
 
 {% if tags %}
     <div class="tag-grid">
         {% for tag in tags %}
             <a href="/tag/{{ tag.name }}" class="tag-card">
-                {% if tag.image %}
-                    <div class="tag-image-container">
-                        <img class="tag-image" src="{% static tag.image %}" alt="{{ tag.name }}">
-                    </div>
-                {% endif %}
                 <div class="tag-content">
                     <h3 class="tag-name">#{{ tag.name }}</h3>
                     <span class="tag-count">{{ tag.count }} post{% if tag.count != 1 %}s{% endif %}</span>
@@ -136,7 +120,7 @@
         {% endfor %}
     </div>
 
-    {% include 'components/pagination.html' with style='numbered' current_page=page_number total_pages=page_count %}
+    {% include 'components/pagination.html' with style='numbered' page=page last=last_page %}
 {% else %}
     <div class="no-tags">
         <h3>No tags found</h3>

@@ -7,14 +7,6 @@ declare module 'react' {
     }
 }
 
-declare global {
-    const ISLAND: {
-        HOST_URL: string;
-        STATIC_URL: string;
-    };
-    export const ISLAND;
-}
-
 declare module '*.scss' {
     const content: { [className: string]: string };
     export default content;

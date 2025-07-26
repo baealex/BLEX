@@ -1,0 +1,358 @@
+{% extends 'board/base.html' %}
+{% load search_tags %}
+{% load static %}
+
+{% block title %}
+    {% if query %}
+        {{ query }} 사용자 검색 결과
+    {% else %}
+        작가 목록
+    {% endif %}
+{% endblock %}
+
+{% block authors_active %}active{% endblock %}
+
+{% block extra_styles %}
+{{ block.super }}
+<style>
+    .search-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .search-title {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .search-form {
+        display: flex;
+        position: relative;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .input-container {
+        position: relative;
+        flex-grow: 1;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 12px 40px 12px 15px;
+        border: none;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.2s;
+        background-color: #fff;
+    }
+    
+    .search-input:focus {
+        background-color: #fff;
+    }
+    
+    .clear-button {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #adb5bd;
+        cursor: pointer;
+        font-size: 12px;
+        padding: 5px;
+        z-index: 2;
+    }
+    
+    .search-button {
+        background-color: #4568dc;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0 20px;
+        transition: background-color 0.2s;
+    }
+    
+    .search-button:hover {
+        background-color: #3a57c4;
+    }
+    
+    /* 검색 결과 스타일 */
+    .search-result-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        color: #6c757d;
+        font-size: 14px;
+        background-color: #f8f9fa;
+        padding: 12px 16px;
+        border-radius: 6px;
+    }
+    
+    /* 사용자 검색 결과 스타일 */
+    .user-search-results {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .user-search-item {
+        display: flex;
+        gap: 16px;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        transition: transform 0.2s, box-shadow 0.2s;
+        background-color: #fff;
+    }
+    
+    .user-search-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .user-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .user-info {
+        flex-grow: 1;
+    }
+    
+    .user-name {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+    }
+    
+    .user-name a {
+        color: #343a40;
+        text-decoration: none;
+    }
+    
+    .user-name a:hover {
+        color: #4568dc;
+    }
+    
+    .user-fullname {
+        font-size: 14px;
+        color: #6c757d;
+        margin-left: 8px;
+        font-weight: normal;
+    }
+    
+    .user-bio {
+        margin: 8px 0;
+        font-size: 14px;
+        color: #6c757d;
+        line-height: 1.5;
+    }
+    
+    .user-stats {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .user-stat {
+        font-size: 12px;
+        color: #6c757d;
+    }
+    
+    .user-stat i {
+        margin-right: 4px;
+        color: #4568dc;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 40px 0;
+    }
+    
+    .no-results h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: #495057;
+    }
+    
+    .no-results p {
+        color: #6c757d;
+    }
+    
+    /* 페이지 헤더 */
+    .page-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .page-description {
+        font-size: 16px;
+        color: #6c757d;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="page-header">
+        <h1 class="page-title">작가 목록</h1>
+        <p class="page-description">BLEX의 창작자들을 만나보세요</p>
+    </div>
+    
+    <form action="{% url 'authors' %}" method="get" class="search-form" id="searchForm">
+        <div class="input-container">
+            <input 
+                type="text" 
+                name="q" 
+                class="search-input" 
+                placeholder="작가 이름으로 검색" 
+                value="{{ query }}" 
+                autocomplete="off"
+            >
+            {% if query %}
+            <button type="button" id="clearButton" class="clear-button">
+                <i class="fas fa-times"></i>
+            </button>
+            {% endif %}
+        </div>
+        <button type="submit" class="search-button">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+    
+    <div class="search-results">
+        {% if query %}
+            {% if results %}
+                <div class="search-result-info">
+                    <div>
+                        <strong>{{ total_size }}</strong>개의 검색 결과
+                    </div>
+                    <div>
+                        {{ elapsed_time }}초
+                    </div>
+                </div>
+                
+                <!-- 사용자 검색 결과 표시 -->
+                <div class="user-search-results">
+                    {% for result in results %}
+                    <div class="user-search-item">
+                        <div class="user-avatar">
+                            <img src="{% static result.avatar %}" alt="{{ result.username }}">
+                        </div>
+                        <div class="user-info">
+                            <h3 class="user-name">
+                                <a href="/@{{ result.username }}">{{ result.username }}</a>
+                                {% if result.name %}<span class="user-fullname">{{ result.name }}</span>{% endif %}
+                            </h3>
+                            {% if result.bio %}
+                            <p class="user-bio">{{ result.bio }}</p>
+                            {% endif %}
+                            <div class="user-stats">
+                                <span class="user-stat"><i class="fas fa-file-alt"></i> 게시글 {{ result.post_count }}개</span>
+                                <span class="user-stat"><i class="fas fa-users"></i> 팔로워 {{ result.follower_count }}명</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% include 'components/pagination.html' with style='numbered' page=page last=page_count %}
+            {% else %}
+                <div class="no-results">
+                    <h3>검색 결과가 없습니다.</h3>
+                    <p>다른 검색어로 다시 시도해보세요.</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- 인기 작가 또는 최근 활동 작가 목록 표시 -->
+            {% if authors %}
+                <div class="user-search-results">
+                    {% for author in authors %}
+                    <div class="user-search-item">
+                        <div class="user-avatar">
+                            <img src="{% static author.avatar %}" alt="{{ author.username }}">
+                        </div>
+                        <div class="user-info">
+                            <h3 class="user-name">
+                                <a href="/@{{ author.username }}">{{ author.username }}</a>
+                                {% if author.name %}<span class="user-fullname">{{ author.name }}</span>{% endif %}
+                            </h3>
+                            {% if author.bio %}
+                            <p class="user-bio">{{ author.bio }}</p>
+                            {% endif %}
+                            <div class="user-stats">
+                                <span class="user-stat"><i class="fas fa-file-alt"></i> 게시글 {{ author.post_count }}개</span>
+                                <span class="user-stat"><i class="fas fa-users"></i> 팔로워 {{ author.follower_count }}명</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% include 'components/pagination.html' with style='numbered' current_page=page last=page_count %}
+            {% else %}
+                <div class="no-results">
+                    <h3>등록된 작가가 없습니다.</h3>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const clearButton = document.getElementById('clearButton');
+        const searchInput = document.querySelector('.search-input');
+        
+        // 검색어 지우기 버튼
+        if (clearButton) {
+            clearButton.addEventListener('click', function() {
+                searchInput.value = '';
+                this.style.display = 'none';
+                searchInput.focus();
+            });
+        }
+        
+        // 검색어 입력 시 지우기 버튼 표시/숨김
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                if (clearButton) {
+                    clearButton.style.display = this.value ? 'block' : 'none';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -5,18 +5,5 @@
 {% block setting_title %}계정 설정{% endblock %}
 
 {% block setting_content %}
-<div class="setting-card">
-    <h2 class="setting-card-title">계정 정보</h2>
-    {% island_component 'AccountInfo' %}
-</div>
-
-<div class="setting-card">
-    <h2 class="setting-card-title">비밀번호 변경</h2>
-    {% island_component 'PasswordChange' %}
-</div>
-
-<div class="setting-card">
-    <h2 class="setting-card-title">계정 삭제</h2>
-    {% island_component 'AccountDeletion' %}
-</div>
+{% island_component 'AccountSettings' %}
 {% endblock %}

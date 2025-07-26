@@ -3,16 +3,7 @@ import type { Response } from '~/modules/http.module';
 import { http } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
 import styles from './Comments.module.scss';
-
-const userResource = (assets?: string) => {
-    console.log(assets);
-    if (!assets) return '/assets/images/ghost.jpg';
-    return assets;
-};
-
-const getStaticPath = (resource: string) => {
-    return ISLAND.STATIC_URL + resource;
-};
+import { getStaticPath, userResource } from '~/modules/static.module';
 
 interface CommentsProps {
     postUrl: string;
@@ -35,10 +26,13 @@ interface CommentEditData {
 
 declare global {
     interface Window {
-        authKey: symbol;
-        [authKey: symbol]: {
-            username: string;
-            id: number;
+        configuration: {
+            host: string;
+            static: string;
+            user?: {
+                isAuthenticated: boolean;
+                username: string;
+            };
         };
     }
 }
@@ -296,7 +290,7 @@ const Comments = (props: CommentsProps) => {
                                                     )}
                                                 </button>
 
-                                                {window.authKey && window[window.authKey].username === comment.author && (
+                                                {window.configuration.user?.username === comment.author && (
                                                     <div className={styles.authorActions}>
                                                         <button
                                                             className={styles.editButton}

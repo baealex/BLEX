@@ -10,15 +10,8 @@ export default defineConfig(({ mode }) => {
 
         plugins: [react({ babel: { plugins: ['styled-jsx/babel'] } })],
 
-        define: {
-            'ISLAND': {
-                'HOST_URL': process.env.SITE_URL,
-                'STATIC_URL': process.env.STATIC_URL
-            }
-        },
-
         build: {
-            outDir: '../../../static/islands',
+            outDir: '../src/static/islands',
             emptyOutDir: true,
             manifest: true,
             modulePreload: { polyfill: true },
