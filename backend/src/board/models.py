@@ -85,7 +85,7 @@ class Comment(models.Model):
 
     def author_thumbnail(self):
         if not self.author:
-            return settings.STATIC_URL + 'images/ghost.jpg'
+            return None
         return self.author.profile.get_thumbnail()
 
     def get_text_html(self):

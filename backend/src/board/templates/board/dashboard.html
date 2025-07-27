@@ -1,0 +1,271 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+{% load humanize %}
+
+{% block title %}대시보드 | BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 16px;
+    }
+
+    .dashboard-header {
+        margin-bottom: 32px;
+    }
+
+    .dashboard-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        background: linear-gradient(90deg, #4568dc, #b06ab3);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .dashboard-subtitle {
+        font-size: 16px;
+        color: #666;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    @media (min-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    .stat-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #4568dc, #b06ab3);
+        color: white;
+        font-size: 20px;
+    }
+
+    .stat-title {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .dashboard-section {
+        margin-bottom: 40px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .section-action {
+        color: #4568dc;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .section-action:hover {
+        text-decoration: underline;
+    }
+
+    .card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .activity-item {
+        display: flex;
+        gap: 16px;
+        padding: 16px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #4568dc, #b06ab3);
+        color: white;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .activity-content {
+        flex-grow: 1;
+    }
+
+    .activity-title {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .activity-meta {
+        font-size: 14px;
+        color: #777;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">대시보드</h1>
+        <p class="dashboard-subtitle">{{ user.username }}님의 블로그 활동 요약</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-title">총 포스트</div>
+            <div class="stat-value">{{ stats.total_posts | intcomma }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-eye"></i>
+            </div>
+            <div class="stat-title">총 조회수</div>
+            <div class="stat-value">{{ stats.total_views | intcomma }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="stat-title">총 좋아요</div>
+            <div class="stat-value">{{ stats.total_likes | intcomma }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-comment"></i>
+            </div>
+            <div class="stat-title">총 댓글</div>
+            <div class="stat-value">{{ stats.total_comments | intcomma }}</div>
+        </div>
+    </div>
+
+    <div class="analytics-container">
+        <div class="section-header">
+            <h2 class="section-title">방문자 통계</h2>
+            <a href="/settings/analytics" class="section-action">자세히 보기</a>
+        </div>
+        {% island_component 'VisitorAnalytics' %}
+    </div>
+
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h2 class="section-title">최근 활동</h2>
+        </div>
+        <div class="activity-list">
+            {% for activity in recent_activities %}
+            <div class="activity-item">
+                {% if activity.type == 'post' %}
+                <div class="activity-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">새 포스트를 작성했습니다: "{{ activity.title }}"</div>
+                    <div class="activity-meta">{{ activity.date }}</div>
+                </div>
+                {% elif activity.type == 'comment' %}
+                <div class="activity-icon">
+                    <i class="fas fa-comment"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">{{ activity.post_title }}에 댓글을 남겼습니다</div>
+                    <div class="activity-meta">{{ activity.date }}</div>
+                </div>
+                {% elif activity.type == 'like' %}
+                <div class="activity-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">{{ activity.post_title }}에 좋아요를 눌렀습니다</div>
+                    <div class="activity-meta">{{ activity.date }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="card">
+                <div class="card-body" style="text-align: center;">
+                    <p>최근 활동이 없습니다.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

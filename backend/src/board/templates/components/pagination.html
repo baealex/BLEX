@@ -1,0 +1,118 @@
+{% comment %}
+Pagination component
+Parameters:
+- page: Current page number
+- last: Last page number
+- base_url: Base URL for pagination links (optional, defaults to "?page=")
+- hash: Optional hash fragment for URLs (optional)
+- style: Style variant ('button' or 'numbered', defaults to 'numbered')
+- request: The request object (optional, used to preserve query parameters)
+{% endcomment %}
+
+{% load pagination_tags %}
+
+{% if style == 'button' and page < last %}
+<div class="pagination-container button">
+    {% get_pagination_url page|add:'1' as next_page_url %}
+    <a href="{{ next_page_url }}{% if hash %}#{{ hash }}{% endif %}" class="load-more-button">
+        <i class="fas fa-sync-alt" style="margin-right: 8px;"></i>더 불러오기
+    </a>
+</div>
+{% elif style != 'button' %}
+<nav class="pagination-nav" aria-label="Page navigation">
+    <div class="pagination-action prev">
+    {% if page > 1 %}
+        <div class="pagination-item">
+            {% get_pagination_url 1 as first_page_url %}
+            <a class="pagination-link" href="{{ first_page_url }}{% if hash %}#{{ hash }}{% endif %}" aria-label="First page">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+        </div>
+        <div class="pagination-item">
+            {% get_pagination_url page|add:'-1' as prev_page_url %}
+            <a class="pagination-link" href="{{ prev_page_url }}{% if hash %}#{{ hash }}{% endif %}" aria-label="Previous page">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        </div>
+    {% else %}
+        <div class="pagination-item pagination-disabled">
+            <span class="pagination-link">
+                <i class="fas fa-angle-double-left"></i>
+            </span>
+        </div>
+        <div class="pagination-item pagination-disabled">
+            <span class="pagination-link">
+                <i class="fas fa-angle-left"></i>
+            </span>
+        </div>
+    {% endif %}
+</div>
+    <div class="pagination-pages">
+        {% with total_pages=last|default:1 %}
+        {% with start_page=1 end_page=total_pages %}
+        {% for num in start_page|range_filter:end_page %}
+            {% if num <= last %}
+                {% if page == num %}
+                    <div class="pagination-item pagination-active">
+                        <span class="pagination-link">{{ num }}</span>
+                    </div>
+                {% elif page == 1 and num < page|add:'5' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url num as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ num }}</a>
+                    </div>
+                {% elif page == 2 and num < page|add:'4' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url num as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ num }}</a>
+                    </div>
+                {% elif num > page|add:'-3' and num < page|add:'3' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url num as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ num }}</a>
+                    </div>
+                {% elif page == last|add:'-1' and num > page|add:'-4' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url num as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ num }}</a>
+                    </div>
+                {% elif page == last and num > page|add:'-5' %}
+                    <div class="pagination-item">
+                        {% get_pagination_url num as page_url %}
+                        <a class="pagination-link" href="{{ page_url }}{% if hash %}#{{ hash }}{% endif %}">{{ num }}</a>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% endwith %}
+        {% endwith %}
+    </div>
+    <div class="pagination-action next">
+        {% if page < last %}
+            <div class="pagination-item">
+                {% get_pagination_url page|add:'1' as next_page_url %}
+                <a class="pagination-link" href="{{ next_page_url }}{% if hash %}#{{ hash }}{% endif %}" aria-label="Next page">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </div>
+            <div class="pagination-item">
+                {% get_pagination_url last as last_page_url %}
+                <a class="pagination-link" href="{{ last_page_url }}{% if hash %}#{{ hash }}{% endif %}" aria-label="Last page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </div>
+        {% else %}
+            <div class="pagination-item pagination-disabled">
+                <span class="pagination-link">
+                    <i class="fas fa-angle-right"></i>
+                </span>
+            </div>
+            <div class="pagination-item pagination-disabled">
+                <span class="pagination-link">
+                    <i class="fas fa-angle-double-right"></i>
+                </span>
+            </div>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}

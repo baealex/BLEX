@@ -1,0 +1,29 @@
+
+.footer {
+    background: linear-gradient(to right, #f8f9fa, #f1f3f9);
+    padding: 30px 0 30px;
+    margin-top: 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-gradient);
+}
+
+.copyright {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.copyright a {
+    color: var(--primary-color);
+    font-weight: 500;
+}

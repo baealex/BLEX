@@ -1,0 +1,53 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+
+{% block title %}{{ author.username }} - BLEX{% endblock %}
+
+{% block extra_styles %}
+{% include 'board/author/components/author_styles.html' %}
+<style>
+    /* Posts grid specific styles */
+    .posts-grid {
+        margin-top: 24px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'board/author/components/author_header.html' %}
+
+<div class="tabs-container">
+    {% with active_tab='posts' %}
+        {% include 'board/author/components/tabs_nav.html' %}
+    {% endwith %}
+    
+    {% include 'board/author/components/search_filter.html' %}
+    
+    <div class="content-with-sidebar">
+        <div class="main-content">
+            {% if is_loading %}
+                {% include 'board/author/components/loading_state.html' %}
+            {% elif not posts %}
+                {% if request.GET.q or request.GET.tag %}
+                    {% with empty_title='No matching posts' empty_message='No posts match your search criteria.' %}
+                        {% include 'board/author/components/empty_state.html' %}
+                    {% endwith %}
+                {% else %}
+                    {% with empty_title='No posts yet' empty_message=author.username|add:" hasn't published any posts yet." %}
+                        {% include 'board/author/components/empty_state.html' %}
+                    {% endwith %}
+                {% endif %}
+            {% else %}
+                <div class="posts-grid">
+                    {% for post in posts %}
+                        {% include 'components/post_card.html' with post=post show_author=False %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
+        </div>
+    </div>
+</div>
+{% endblock %}

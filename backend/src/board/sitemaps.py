@@ -1,7 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-from board.models import Post, Series, Tag
+from board.models import Post, Series
 
 
 class SiteSitemap(Sitemap):
@@ -27,10 +27,10 @@ class UserSitemap(Sitemap):
 
     def items(self):
         users = Post.objects.filter(config__hide=False).values_list('author__username', flat=True).distinct()
-        return [ reverse('user_profile', args=[user]) for user in users ]
+        return users
 
     def location(self, item):
-        return str(item)
+        return reverse('user_profile', args=[item])
 
 
 class PostsSitemap(Sitemap):

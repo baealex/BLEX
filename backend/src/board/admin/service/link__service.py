@@ -12,11 +12,11 @@ class AdminLinkService:
     
     @staticmethod
     def create_post_content_link(post_content):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:board_postcontent_change', args=(post_content.id,)), '🚀'))
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:board_postcontent_change', args=(post_content.id,)), 'content'))
     
     @staticmethod
     def create_post_config_link(post_config):
-        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:board_postconfig_change', args=(post_config.id,)), '🚀'))
+        return mark_safe('<a href="{}">{}</a>'.format(reverse('admin:board_postconfig_change', args=(post_config.id,)), 'config'))
     
     @staticmethod
     def create_series_link(series):

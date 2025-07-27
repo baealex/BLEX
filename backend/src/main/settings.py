@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sitemaps',
+    'django.contrib.humanize',
     'graphene_django',
     'corsheaders',
     'board',
@@ -41,6 +42,8 @@ SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.gzip.GZipMiddleware',  # Add GZip compression
+    'main.middleware.HTMLMinifyMiddleware',  # Add HTML minification
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -71,7 +74,7 @@ ROOT_URLCONF = 'main.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ 'oops' ],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -126,16 +129,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-API_KEY = os.environ.get('API_KEY')
-API_URL = os.environ.get('API_URL')
 SITE_URL = os.environ.get('SITE_URL')
-
-STATIC_URL = os.environ.get('STATIC_URL') + '/assets/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/assets/')
-
-MEDIA_URL = os.environ.get('STATIC_URL') + '/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static/')
-
+STATIC_URL = os.environ.get('STATIC_URL') + '/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Extension (Telegram)
 
@@ -173,17 +169,22 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'INFO',
             'propagate': True,
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.template': {
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
         'board': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'INFO',
             'propagate': True,
         },
     },

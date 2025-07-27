@@ -1,0 +1,12 @@
+{% extends 'board/setting/setting_base.html' %}
+{% load static %}
+{% load island %}
+
+{% block setting_title %}연동 설정{% endblock %}
+
+{% block setting_content %}
+<div class="setting-card">
+    <h2 class="setting-card-title">서비스 연동</h2>
+    {% island_component 'IntegrationSettings' %}
+</div>
+{% endblock %}

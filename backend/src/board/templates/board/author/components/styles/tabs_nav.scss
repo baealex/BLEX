@@ -1,0 +1,40 @@
+/* Tabs navigation */
+.tabs-container {
+    margin-bottom: 32px;
+}
+
+.tabs-nav {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 24px;
+}
+
+.tab-item {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.tab-item.active {
+    color: #4568dc;
+    font-weight: 600;
+}
+
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4568dc, #b06ab3);
+    border-radius: 3px 3px 0 0;
+}
+
+.tab-item:hover {
+    color: #4568dc;
+}

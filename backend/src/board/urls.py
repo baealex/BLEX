@@ -6,25 +6,72 @@ from django.views.generic import TemplateView
 from board.sitemaps import sitemaps, sitemap_section
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
-
+from board.views import main
+from board.views.post_actions import like_post
+from board.views.search import search_view
+from board.views.author import author_posts, author_series, author_about
+from board.views.post import post_detail, post_editor
+from board.views.series import series_detail
+from board.views.auth import login_view, security_view
+from board.views.tag import tag_list_view, tag_detail_view
+from board.views.static_pages import about_view, privacy_view, terms_view
+from board.views.settings import (
+    setting_profile, setting_account, setting_notify, setting_series,
+    setting_posts, setting_analytics, setting_integration, setting_invitation
+)
+from board.decorators import staff_member_required
 
 def empty():
     pass
 
 
 urlpatterns = [
+    # Main page (Django template version)
+    path('', staff_member_required(main.index), name='index'),
+    path('dashboard', staff_member_required(main.dashboard), name='dashboard'),
+    path('search', staff_member_required(search_view), name='search'),
+    path('like/<str:url>', staff_member_required(like_post), name='like_post'),
+    path('login', staff_member_required(login_view), name='login'),
+    path('security', staff_member_required(security_view), name='security'),
+
+    # Static pages
+    path('about', staff_member_required(about_view), name='about'),
+    path('privacy', staff_member_required(privacy_view), name='privacy'),
+    path('terms', staff_member_required(terms_view), name='terms'),
+
+    # Settings Pages
+    path('settings/profile', staff_member_required(setting_profile), name='setting_profile'),
+    path('settings/account', staff_member_required(setting_account), name='setting_account'),
+    path('settings/notify', staff_member_required(setting_notify), name='setting_notify'),
+    path('settings/series', staff_member_required(setting_series), name='setting_series'),
+    path('settings/posts', staff_member_required(setting_posts), name='setting_posts'),
+    path('settings/analytics', staff_member_required(setting_analytics), name='setting_analytics'),
+    path('settings/integration', staff_member_required(setting_integration), name='setting_integration'),
+    path('settings/invitation', staff_member_required(setting_invitation), name='setting_invitation'),
+
+    # Author
+    path('@<username>/series', staff_member_required(author_series), name='user_series'),
+    path('@<username>/about', staff_member_required(author_about), name='user_about'),
+    path('@<username>/<post_url>', staff_member_required(post_detail), name='post_detail'),
+    path('@<username>/series/<series_url>', staff_member_required(series_detail), name='series_detail'),
+    path('@<username>/<post_url>/edit', staff_member_required(post_editor), name='post_edit'),
+    path('@<username>', staff_member_required(author_posts), name='user_profile'),
+
+    # Posts write
+    path('write', staff_member_required(post_editor), name='post_write'),
+
+    # Tags
+    path('tags', staff_member_required(tag_list_view), name='tag_list'),
+    path('tag/<str:name>', staff_member_required(tag_detail_view), name='tag_detail'),
+
     # Sitemap Generator
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('<section>/sitemap.xml', sitemap, {'sitemaps': sitemap_section}, name='sitemap_section'),
-    path('@<username>', empty, name='user_profile'),
-    path('@<username>/<url>', empty, name='post_detail'),
-    path('@<username>/series/<url>', empty, name='series_list'),
 
     # RSS and Etc
     path('rss', SitePostsFeed()),
     path('rss/@<username>', UserPostsFeed(), name='user_rss_feed'),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
-
     # GraphQL
     # path('graphql', GraphQLView.as_view(graphiql=True)),
 
@@ -72,5 +119,5 @@ urlpatterns = [
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),
     path('v1/telegram/<parameter>', api_v1.telegram),
-    # ------------------------------------------------------------ API V1 End
+
 ]

@@ -1,0 +1,130 @@
+{% extends 'board/base.html' %}
+{% load static %}
+
+{% block title %}BLEX - Tags{% endblock %}
+
+{% block extra_styles %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .tag-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 16px;
+    }
+
+    @media (min-width: 576px) {
+        .tag-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 768px) {
+        .tag-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (min-width: 992px) {
+        .tag-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    .tag-card {
+        border-radius: 12px;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tag-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .tag-content {
+        padding: 16px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tag-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+        line-clamp: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .tag-count {
+        font-size: 14px;
+        color: #777;
+    }
+
+    .no-tags {
+        text-align: center;
+        padding: 40px 0;
+    }
+
+    .no-tags h3 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 16px;
+    }
+
+    .no-tags p {
+        font-size: 16px;
+        color: #777;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tag-card,
+        .tag-image {
+            transition: none !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="search-box mb-2">
+    <form method="GET" action="" id="searchForm">
+        <input type="text" name="q" placeholder="Search tags..." value="{{ request.GET.q|default:'' }}" class="search-input">
+        <button type="submit" class="search-button">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+</div>
+
+{% if tags %}
+    <div class="tag-grid">
+        {% for tag in tags %}
+            <a href="/tag/{{ tag.name }}" class="tag-card">
+                <div class="tag-content">
+                    <h3 class="tag-name">#{{ tag.name }}</h3>
+                    <span class="tag-count">{{ tag.count }} post{% if tag.count != 1 %}s{% endif %}</span>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+
+    {% include 'components/pagination.html' with style='numbered' page=page last=last_page %}
+{% else %}
+    <div class="no-tags">
+        <h3>No tags found</h3>
+        <p>Tags will appear here once posts are created with tags.</p>
+    </div>
+{% endif %}
+{% endblock %}

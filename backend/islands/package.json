@@ -1,0 +1,40 @@
+{
+    "name": "blex-islands",
+    "version": "1.0.0",
+    "description": "React islands for BLEX Django project",
+    "type": "module",
+    "scripts": {
+        "dev": "export $(cat ../../../../.env | xargs); vite build --watch",
+        "build": "tsc && vite build"
+    },
+    "dependencies": {
+        "@baejino/handy": "^0.2.3",
+        "@baejino/style": "^0.2.2",
+        "@baejino/ui": "^0.2.1",
+        "@blocknote/mantine": "^0.33.0",
+        "@blocknote/react": "^0.33.0",
+        "@dnd-kit/core": "^6.3.1",
+        "@dnd-kit/sortable": "^10.0.0",
+        "axios": "^1.10.0",
+        "easymde": "^2.20.0",
+        "frappe-charts": "^1.6.2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "styled-jsx": "^5.1.7"
+    },
+    "devDependencies": {
+        "@baejino/eslint-config": "^0.0.1",
+        "@baejino/eslint-config-react": "^0.0.1",
+        "@types/react": "^18.2.15",
+        "@types/react-dom": "^18.2.7",
+        "@typescript-eslint/eslint-plugin": "^6.0.0",
+        "@typescript-eslint/parser": "^6.0.0",
+        "@vitejs/plugin-react": "^4.0.3",
+        "eslint": "^8.57.1",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.3",
+        "sass": "^1.63.4",
+        "typescript": "^5.0.2",
+        "vite": "^4.4.5"
+    }
+}

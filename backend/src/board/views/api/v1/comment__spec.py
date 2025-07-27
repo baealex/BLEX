@@ -160,7 +160,7 @@ class CommentTestCase(TestCase):
             f'/v1/comments/{last_comment.id}', "like=like")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.last().likes.count(), 1)
-    
+
     def test_notify_user_comment_like_when_user_agree_notify(self):
         viewer = User.objects.get(username='viewer')
         viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
@@ -172,7 +172,7 @@ class CommentTestCase(TestCase):
 
         last_notify = Notify.objects.filter(user=viewer).last()
         self.assertTrue('@author' in last_notify.content)
-    
+
     def test_not_notify_user_comment_like_when_user_disagree_notify(self):
         viewer = User.objects.get(username='viewer')
         Notify.objects.create(

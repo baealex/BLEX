@@ -1,0 +1,185 @@
+.analyticsContainer {
+    max-width: 100%;
+    margin: 0 auto;
+    color: #333;
+}
+
+.analyticsCard, .popularPostsCard {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.statsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.statsItem {
+    display: flex;
+    flex-direction: column;
+}
+
+.statsLabel {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.statsValue {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.chartContainer {
+    margin-top: 1rem;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dateSelector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.dateInputGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dateInput {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.dateLabel {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.dateNavigation {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.navButton {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    color: #333;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.navButton:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.navButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.noPostsMessage {
+    text-align: center;
+    padding: 2rem 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.postsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.postItem {
+    padding: 1rem;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.postItem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.postTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #222;
+}
+
+.postStats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.viewCount {
+    font-weight: 500;
+}
+
+.changeCount {
+    font-weight: 500;
+}
+
+.increase {
+    color: #ff6700;
+}
+
+.noChange {
+    color: #4e4e4e;
+}
+
+.decrease {
+    color: #008fff;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.loadingSpinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 3px solid #A076F1;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

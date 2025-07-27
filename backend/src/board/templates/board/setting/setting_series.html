@@ -1,0 +1,12 @@
+{% extends 'board/setting/setting_base.html' %}
+{% load static %}
+{% load island %}
+
+{% block setting_title %}시리즈 설정{% endblock %}
+
+{% block setting_content %}
+<div class="setting-card">
+    <h2 class="setting-card-title">시리즈 관리</h2>
+    {% island_component 'SeriesManagement' series=series %}
+</div>
+{% endblock %}

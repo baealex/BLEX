@@ -1,0 +1,142 @@
+{% extends 'board/base.html' %}
+{% load static %}
+
+{% block title %}개인정보 처리방침 - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .privacy-header {
+        background: linear-gradient(135deg, #4568dc, #b06ab3);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(69, 104, 220, 0.2);
+    }
+    
+    .privacy-content {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    
+    .privacy-section {
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .privacy-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        color: #4568dc;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    
+    .privacy-list {
+        padding-left: 20px;
+    }
+    
+    .privacy-list li {
+        margin-bottom: 10px;
+        position: relative;
+    }
+    
+    .privacy-list li::before {
+        content: "";
+        position: absolute;
+        left: -20px;
+        top: 10px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4568dc, #b06ab3);
+    }
+    
+    .updated-date {
+        display: inline-block;
+        padding: 5px 15px;
+        background-color: rgba(0,0,0,0.1);
+        border-radius: 20px;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="privacy-header text-center">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-3">개인정보 처리방침</h1>
+            <p class="lead mb-2">BLEX는 사용자의 개인정보를 소중히 여깁니다</p>
+            <span class="updated-date">최종 업데이트: 2023년 12월 1일</span>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="privacy-content">
+                <div class="privacy-section">
+                    <p class="lead">BLEX('https://blex.me')는 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은 처리방침을 두고 있습니다.</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2 class="section-title">1. 수집하는 개인정보 항목</h2>
+                    <p>BLEX는 회원가입, 서비스 제공, 고객 상담 등을 위해 아래와 같은 개인정보를 수집하고 있습니다.</p>
+                    <ul class="privacy-list">
+                        <li><strong>필수항목</strong>: 이메일 주소, 비밀번호, 닉네임</li>
+                        <li><strong>선택항목</strong>: 프로필 이미지, 자기소개, 소셜 미디어 링크</li>
+                        <li><strong>자동수집항목</strong>: IP 주소, 쿠키, 방문 일시, 서비스 이용 기록, 기기정보</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2 class="section-title">2. 개인정보의 수집 및 이용목적</h2>
+                    <ul class="privacy-list">
+                        <li>서비스 제공 및 계정 관리</li>
+                        <li>콘텐츠 제공 및 맞춤 서비스 제공</li>
+                        <li>불법적인 활동 및 서비스 악용 방지</li>
+                        <li>서비스 개선 및 신규 서비스 개발</li>
+                        <li>마케팅 및 광고에의 활용 (별도 동의 시)</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2 class="section-title">3. 개인정보의 보유 및 이용기간</h2>
+                    <p>회원 탈퇴 시 개인정보는 즉시 파기됩니다. 다만, 관련 법령에 의해 보존할 필요가 있는 경우 해당 법령에서 정한 기간 동안 보관됩니다.</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2 class="section-title">4. 개인정보의 파기절차 및 방법</h2>
+                    <p>개인정보 파기 시 재생할 수 없는 방법으로 영구 삭제됩니다. 전자적 파일 형태로 저장된 개인정보는 기술적 방법을 사용하여 삭제합니다.</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2 class="section-title">5. 개인정보 보호책임자</h2>
+                    <p>BLEX는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
+                    <div class="bg-light p-3 rounded mt-3">
+                        <p class="mb-1"><strong>개인정보 보호책임자</strong></p>
+                        <p class="mb-0">이메일: <a href="mailto:privacy@blex.me">privacy@blex.me</a></p>
+                    </div>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2 class="section-title">6. 개인정보 처리방침 변경</h2>
+                    <p>이 개인정보 처리방침은 법령, 정책 또는 보안기술의 변경에 따라 내용의 추가, 삭제 및 수정이 있을 시 웹사이트 공지사항을 통하여 고지할 것입니다.</p>
+                </div>
+                
+                <div class="text-center mt-5">
+                    <p class="text-muted mb-4">본 방침은 2023년 12월 1일부터 시행됩니다.</p>
+                    <a href="/" class="btn btn-primary">홈으로 돌아가기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

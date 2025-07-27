@@ -1,8 +1,9 @@
 /.idea
 /node_modules
 /backend/src/static/images/
-/backend/src/static/assets/admin/
-/backend/src/static/assets/graphene_django/
+/backend/src/static/admin/
+/backend/src/static/islands/
+/backend/src/static/graphene_django/
 /frontend/**.env
 /backend/**.env
 

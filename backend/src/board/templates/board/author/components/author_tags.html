@@ -1,0 +1,21 @@
+<div class="sort-dropdown">
+    <select name="tag" id="tagSelect" onchange="updateQueryParams('tag', this.value)">
+        <option value="" {% if not request.GET.tag %}selected{% endif %}>All Tags</option>
+        {% for tag in author_tags %}
+            <option value="{{ tag.value }}" {% if request.GET.tag == tag.value %}selected{% endif %}>
+                {{ tag.value }} ({{ tag.count }})
+            </option>
+        {% endfor %}
+    </select>
+</div>
+<script>
+    function updateQueryParams(param, value) {
+        const url = new URL(window.location);
+        if (value === '') {
+            url.searchParams.delete(param);
+        } else {
+            url.searchParams.set(param, value);
+        }
+        window.location = url;
+    }
+</script>

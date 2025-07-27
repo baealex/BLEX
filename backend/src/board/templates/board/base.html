@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+{% load static island %}
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="origin" />
+    <title>{% block title %}BLEX{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{% island_css 'main' %}">
+    <link rel="icon" href="{% static 'favicon.ico' %}" />
+    <link rel="apple-touch-icon" sizes="57x57" href="{% static 'logo57.png' %}" />
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'logo72.png' %}" />
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'logo76.png' %}" />
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'logo114.png' %}" />
+    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'logo120.png' %}" />
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'logo144.png' %}" />
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'logo152.png' %}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'logo16.png' %}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'logo32.png' %}" />
+    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'logo96.png' %}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'logo192.png' %}" />
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'logo512.png' %}" />
+    <meta name="theme-color" content="#000" />
+    <meta name="application-name" content="BLEX" />
+    <meta name="msapplication-TileImage" content="{% static 'logo144.png' %}" />
+    <meta name="msapplication-TileColor" content="#000" />
+    {% block extra_styles %}{% endblock %}
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <img class="logo-img" src="{% static 'logob.svg' %}" alt="BLEX">
+            </a>
+            <nav class="nav-links">
+                <a href="/write" class="nav-link btn-primary flex align-center gap-1">
+                    <i class="fas fa-pen"></i>
+                    <span>글 작성</span>
+                </a>
+                {% if user.is_authenticated %}
+                <div class="user-dropdown">
+                    <div class="user-dropdown-toggle">
+                        <span>{{ user.username }}</span>
+                        <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="/@{{ user.username }}" class="user-dropdown-item">
+                            <i class="fas fa-user-circle"></i> 
+                            <span>프로필</span>
+                        </a>
+                        <a href="/settings/account" class="user-dropdown-item">
+                            <i class="fas fa-cog"></i> 
+                            <span>설정</span>
+                        </a>
+                        <div class="user-dropdown-divider"></div>
+                        <a href="/logout" class="user-dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> 
+                            <span>로그아웃</span>
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="/login" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>로그인</span>
+                </a>
+                <a href="/register" class="nav-link btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    <span>회원가입</span>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="container pt-4 px-2">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container copyright">
+            <p>&copy; {% now "Y" %} <a href="/">BLEX</a>. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        window.configuration = {
+            host: "",
+            static: "{% static '' %}",
+            {% if user.is_authenticated %}
+            user: {
+                isAuthenticated: "{{ user.is_authenticated }}",
+                username: "{{ user.username }}",
+            }
+            {% endif %}
+        };
+    </script>
+
+    <script>
+        window.addEventListener('scroll', function () {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 10) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // User dropdown toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownToggle = document.querySelector('.user-dropdown-toggle');
+            const dropdownMenu = document.querySelector('.user-dropdown-menu');
+            
+            if (dropdownToggle && dropdownMenu) {
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function() {
+                    dropdownMenu.classList.remove('show');
+                });
+                
+                // Prevent closing when clicking inside dropdown menu
+                dropdownMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        });
+    </script>
+
+    <script>
+        const lazyImages = Array.from(document.querySelectorAll('img.lazy'));
+        const lazyVideos = Array.from(document.querySelectorAll('video.lazy'));
+
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const image = entry.target;
+                        image.src = image.dataset.src;
+                        image.classList.remove('lazy');
+                        imageObserver.unobserve(image);
+                    }
+                });
+            });
+
+            lazyImages.forEach(image => {
+                imageObserver.observe(image);
+            });
+
+            const videoObserver = new IntersectionObserver((entries, observer) => {
+                // source의 data-src를 src로 변경
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const video = entry.target;
+                        const source = video.querySelector('source');
+                        source.src = source.dataset.src;
+                        video.load();
+                        video.classList.remove('lazy');
+                        videoObserver.unobserve(video);
+                    }
+                });
+            });
+
+            lazyVideos.forEach(video => {
+                videoObserver.observe(video);
+            });
+        } else {
+            lazyImages.forEach(image => {
+                image.src = image.dataset.src;
+                image.classList.remove('lazy');
+            });
+            lazyVideos.forEach(video => {
+                const source = video.querySelector('source');
+                source.src = source.dataset.src;
+                video.load();
+                video.classList.remove('lazy');
+            });
+        }
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+
+    <script type="module" src="{% island_entry 'island' %}"></script>
+</body>
+
+</html>

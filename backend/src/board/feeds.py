@@ -70,7 +70,8 @@ class UserPostsFeed(Feed):
         return f'{item.username} ({item.first_name})'
 
     def link(self, item):
-        return f'/@{item.username}'
+        from django.urls import reverse
+        return reverse('user_profile', args=[item.username])
 
     def description(self, item):
         if hasattr(item, 'profile') and item.profile.bio:

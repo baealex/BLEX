@@ -1,0 +1,887 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+
+{% block title %}{% if is_edit %}Edit Post{% else %}Write Post{% endif %} - BLEX{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% island_css 'post' %}">
+<link rel="stylesheet" href="{% island_css 'editor' %}">
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+    /* Editor container */
+    .editor-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Split view layout */
+    .editor-layout {
+        display: flex;
+        gap: 30px;
+        margin-top: 30px;
+    }
+    
+    .editor-main {
+        flex: 1;
+        min-width: 0; /* 중요: flexbox 내부 요소가 넘치지 않도록 */
+    }
+    
+    .editor-sidebar {
+        width: 320px;
+        flex-shrink: 0;
+    }
+    
+    @media (max-width: 1200px) {
+        .editor-layout {
+            flex-direction: column;
+        }
+        
+        .editor-sidebar {
+            width: 100%;
+        }
+    }
+    
+    /* Editor header */
+    .editor-header {
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #eaeaea;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .editor-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #333;
+        margin: 0;
+    }
+    
+    .editor-actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .editor-actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    /* Form elements */
+    .form-group {
+        margin-bottom: 28px;
+        position: relative;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #444;
+        transition: color 0.2s ease;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fff;
+        transition: all 0.3s ease;
+        color: #333;
+    }
+    
+    .form-control:focus {
+        border-color: #4568dc;
+        box-shadow: 0 0 0 3px rgba(69, 104, 220, 0.15);
+        outline: none;
+    }
+    
+    .form-control:hover:not(:focus) {
+        border-color: #ccc;
+    }
+    
+    .form-group small {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+        color: #777;
+    }
+    
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    /* Image upload */
+    .image-upload {
+        margin-bottom: 28px;
+        position: relative;
+    }
+    
+    .image-preview {
+        margin-top: 16px;
+        border-radius: 12px;
+        overflow: hidden;
+        max-width: 100%;
+        max-height: 300px;
+        border: 2px solid #eaeaea;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .image-preview:hover {
+        border-color: #ccc;
+    }
+    
+    .image-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        display: block;
+        width: 100%;
+    }
+    
+    .image-upload-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        background-color: #f5f5f5;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #444;
+    }
+    
+    .image-upload-button:hover {
+        background-color: #eaeaea;
+        border-color: #ccc;
+    }
+    
+    .image-upload-button i {
+        font-size: 18px;
+        color: #4568dc;
+    }
+    
+    .image-upload-input {
+        display: none;
+    }
+    
+    .image-preview-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    
+    .image-preview:hover .image-preview-actions {
+        opacity: 1;
+    }
+    
+    .image-action-button {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #444;
+    }
+    
+    .image-action-button:hover {
+        background-color: #fff;
+        transform: scale(1.05);
+    }
+    
+    /* Tag input */
+    .tag-input-container {
+        margin-bottom: 28px;
+        position: relative;
+    }
+    
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+        min-height: 40px;
+    }
+    
+    .tag-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: #f0f7ff;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #4568dc;
+        border: 1px solid #d0e0ff;
+        transition: all 0.2s ease;
+    }
+    
+    .tag-item:hover {
+        background-color: #e6f0ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .tag-remove {
+        cursor: pointer;
+        color: #4568dc;
+        transition: all 0.2s ease;
+        font-size: 16px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .tag-remove:hover {
+        color: #ff6b6b;
+        transform: scale(1.2);
+    }
+    
+    .tag-input-hint {
+        display: block;
+        margin-top: 8px;
+        font-size: 13px;
+        color: #777;
+    }
+    
+    /* Series selector */
+    .series-selector {
+        margin-bottom: 28px;
+        position: relative;
+    }
+    
+    .series-dropdown {
+        position: relative;
+    }
+    
+    .series-dropdown-toggle {
+        width: 100%;
+        padding: 14px 18px;
+        font-size: 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fff;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        color: #333;
+    }
+    
+    .series-dropdown-toggle:hover {
+        border-color: #ccc;
+    }
+    
+    .series-dropdown-toggle:focus {
+        border-color: #4568dc;
+        box-shadow: 0 0 0 3px rgba(69, 104, 220, 0.15);
+        outline: none;
+    }
+    
+    .series-dropdown-toggle i {
+        color: #4568dc;
+        transition: transform 0.3s ease;
+    }
+    
+    .series-dropdown.open .series-dropdown-toggle i {
+        transform: rotate(180deg);
+    }
+    
+    .series-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        background-color: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        margin-top: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+    }
+    
+    .series-dropdown.open .series-dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .series-dropdown-item {
+        padding: 12px 18px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #eaeaea;
+        color: #333;
+    }
+    
+    .series-dropdown-item:last-child {
+        border-bottom: none;
+    }
+    
+    .series-dropdown-item:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .series-dropdown-item.active {
+        background-color: #f0f7ff;
+        font-weight: 500;
+        color: #4568dc;
+    }
+    
+    /* Config options */
+    .config-options {
+        margin-top: 40px;
+        margin-bottom: 32px;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid #eaeaea;
+    }
+    
+    .config-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .config-title i {
+        color: #4568dc;
+        font-size: 18px;
+    }
+    
+    .config-group {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .config-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        transition: all 0.2s ease;
+    }
+    
+    .config-item:hover {
+        transform: translateX(5px);
+    }
+    
+    .config-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #4568dc;
+    }
+    
+    .config-label {
+        font-size: 16px;
+        cursor: pointer;
+        color: #444;
+        font-weight: 500;
+    }
+    
+    .config-description {
+        font-size: 13px;
+        color: #777;
+        margin-top: 4px;
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+        padding-top: 24px;
+        border-top: 1px solid #eaeaea;
+    }
+    
+    .action-buttons-group {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+    
+    /* Danger zone */
+    .danger-zone {
+        margin-top: 40px;
+        padding: 24px;
+        border-radius: 12px;
+        background-color: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+    
+    .danger-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #ff6b6b;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .danger-title i {
+        color: #ff6b6b;
+    }
+    
+    .btn-block {
+        width: 100%;
+        display: block;
+    }
+    
+    .btn {
+        padding: 14px 28px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .btn i {
+        font-size: 18px;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-primary {
+        background-color: #4568dc;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #3a57c4;
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        border: 2px solid #e0e0e0;
+        color: #555;
+    }
+    
+    .btn-outline:hover {
+        background-color: #f5f5f5;
+        border-color: #ccc;
+    }
+    
+    .btn-danger {
+        background-color: #ff6b6b;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #ff5252;
+    }
+    
+    .btn-icon {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-icon i {
+        font-size: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="editor-container">
+    <header class="editor-header">
+        <h1 class="editor-title">{% if is_edit %}Edit Post{% else %}Write Post{% endif %}</h1>
+        <div class="editor-actions">
+            <button type="button" id="saveButton" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                {% if is_edit %}Update{% else %}Publish{% endif %}
+            </button>
+            <button type="button" id="draftButton" class="btn btn-outline">
+                <i class="fas fa-save"></i>
+                Save as Draft
+            </button>
+        </div>
+    </header>
+    
+    <form id="postForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ post.title }}" required>
+        </div>
+        
+        <div class="editor-layout">
+            <!-- 왼쪽 에디터 영역 -->
+            <div class="editor-main">
+                <div class="form-group">
+                    <label for="content" class="form-label">Content</label>
+                    {% island_component 'MarkdownEditor' content=post.content.text_md name='text_md' %}
+                </div>
+            </div>
+            
+            <!-- 오른쪽 설정 영역 -->
+            <div class="editor-sidebar">
+                <div class="form-group">
+                    <label for="url" class="form-label">URL</label>
+                    <input type="text" id="url" name="url" class="form-control" value="{{ post.url }}" placeholder="post-url" required>
+                </div>
+                
+                <div class="image-upload">
+                    <label class="form-label">Cover Image</label>
+                    <label class="image-upload-button">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Image</span>
+                        <input type="file" id="image" name="image" class="image-upload-input" accept="image/*">
+                    </label>
+                    
+                    {% if post.image %}
+                    <div class="image-preview">
+                        <img src="{% static post.image.url %}" alt="Cover Image">
+                        <div class="image-preview-actions">
+                            <button type="button" class="image-action-button" id="removeImage">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="image-preview" style="display: none;">
+                        <img id="imagePreview" src="" alt="Cover Image">
+                        <div class="image-preview-actions">
+                            <button type="button" class="image-action-button" id="removeImage">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="meta_description" class="form-label">Meta Description</label>
+                    <textarea id="meta_description" name="meta_description" class="form-control" maxlength="150">{{ post.meta_description }}</textarea>
+                    <small>Maximum 150 characters</small>
+                </div>
+                
+                <div class="tag-input-container">
+                    <label for="tagInput" class="form-label">Tags</label>
+                    <input type="text" id="tagInput" class="form-control" placeholder="Add tags and press Enter">
+                    <input type="hidden" id="tags" name="tags" value="{{ post.tags|join:',' }}">
+                    <small class="tag-input-hint">Press Enter to add a tag</small>
+                    
+                    <div class="tag-list" id="tagList">
+                        {% for tag in post.tags.all %}
+                        <div class="tag-item" data-tag="{{ tag }}">
+                            <span>{{ tag }}</span>
+                            <span class="tag-remove">&times;</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="series-selector">
+                    <label for="series" class="form-label">Series</label>
+                    <div class="series-dropdown">
+                        <button type="button" class="series-dropdown-toggle" id="seriesToggle">
+                            <span id="selectedSeries">{% if post.series %}{{ post.series.name }}{% else %}Select Series{% endif %}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="series-dropdown-menu" id="seriesMenu">
+                            <div class="series-dropdown-item" data-id="">None</div>
+                            {% for series in series_list %}
+                            <div class="series-dropdown-item {% if post.series and post.series.id == series.id %}active{% endif %}" data-id="{{ series.id }}">
+                                {{ series.name }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" id="series" name="series" value="{{ post.series.id|default:'' }}">
+                    </div>
+                </div>
+                
+                <div class="config-options">
+                    <h3 class="config-title"><i class="fas fa-cog"></i> Post Settings</h3>
+                    <div class="config-group">
+                        <div class="config-item">
+                            <input type="checkbox" id="hide" name="hide" class="config-checkbox" {% if post.config.hide %}checked{% endif %}>
+                            <div>
+                                <label for="hide" class="config-label">Hide from public</label>
+                                <p class="config-description">Only you can see this post</p>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <input type="checkbox" id="notice" name="notice" class="config-checkbox" {% if post.config.notice %}checked{% endif %}>
+                            <div>
+                                <label for="notice" class="config-label">Pin as notice</label>
+                                <p class="config-description">Pin this post at the top of your blog</p>
+                            </div>
+                        </div>
+                        <div class="config-item">
+                            <input type="checkbox" id="advertise" name="advertise" class="config-checkbox" {% if post.config.advertise %}checked{% endif %}>
+                            <div>
+                                <label for="advertise" class="config-label">Show advertisements</label>
+                                <p class="config-description">Display ads in this post</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if is_edit %}
+                <div class="danger-zone">
+                    <h3 class="danger-title"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                    <button type="button" id="deleteButton" class="btn btn-danger btn-block">
+                        <i class="fas fa-trash"></i>
+                        Delete this post
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 태그 입력 처리
+        const tagInput = document.getElementById('tagInput');
+        const tagList = document.getElementById('tagList');
+        const tagsHidden = document.getElementById('tags');
+        let tags = tagsHidden.value ? tagsHidden.value.split(',') : [];
+        
+        // 태그 추가 함수
+        function addTag(tag) {
+            tag = tag.trim();
+            if (tag === '' || tags.includes(tag)) return;
+            
+            tags.push(tag);
+            updateTagsInput();
+            
+            const tagItem = document.createElement('div');
+            tagItem.className = 'tag-item';
+            tagItem.dataset.tag = tag;
+            tagItem.innerHTML = `
+                <span>${tag}</span>
+                <span class="tag-remove">&times;</span>
+            `;
+            
+            tagList.appendChild(tagItem);
+            tagInput.value = '';
+            
+            // 태그 삭제 이벤트 추가
+            tagItem.querySelector('.tag-remove').addEventListener('click', function() {
+                removeTag(tag);
+                tagItem.remove();
+            });
+        }
+        
+        // 태그 삭제 함수
+        function removeTag(tag) {
+            tags = tags.filter(t => t !== tag);
+            updateTagsInput();
+        }
+        
+        // 태그 hidden input 업데이트
+        function updateTagsInput() {
+            tagsHidden.value = tags.join(',');
+        }
+        
+        // 태그 입력 이벤트
+        tagInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag(this.value);
+            }
+        });
+        
+        // 기존 태그 삭제 이벤트 추가
+        document.querySelectorAll('.tag-item .tag-remove').forEach(item => {
+            item.addEventListener('click', function() {
+                const tagItem = this.closest('.tag-item');
+                const tag = tagItem.dataset.tag;
+                removeTag(tag);
+                tagItem.remove();
+            });
+        });
+        
+        // 시리즈 선택 드롭다운
+        const seriesToggle = document.getElementById('seriesToggle');
+        const seriesMenu = document.getElementById('seriesMenu');
+        const seriesDropdown = document.querySelector('.series-dropdown');
+        const seriesItems = document.querySelectorAll('.series-dropdown-item');
+        const seriesInput = document.getElementById('series');
+        const selectedSeries = document.getElementById('selectedSeries');
+        
+        // 시리즈 드롭다운 토글
+        seriesToggle.addEventListener('click', function() {
+            seriesDropdown.classList.toggle('open');
+        });
+        
+        // 시리즈 아이템 선택
+        seriesItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const name = this.textContent.trim();
+                
+                seriesInput.value = id;
+                selectedSeries.textContent = name || 'Select Series';
+                
+                // 활성 클래스 업데이트
+                seriesItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                seriesDropdown.classList.remove('open');
+            });
+        });
+        
+        // 드롭다운 외부 클릭 시 닫기
+        document.addEventListener('click', function(e) {
+            if (!seriesDropdown.contains(e.target)) {
+                seriesDropdown.classList.remove('open');
+            }
+        });
+        
+        // 이미지 업로드 프리뷰
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.querySelector('.image-preview');
+        const imagePreviewImg = imagePreview.querySelector('img');
+        const removeImageBtn = document.getElementById('removeImage');
+        
+        // 이미지 업로드 시 프리뷰
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imagePreviewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        // 이미지 제거
+        if (removeImageBtn) {
+            removeImageBtn.addEventListener('click', function() {
+                imagePreviewImg.src = '';
+                imagePreview.style.display = 'none';
+                imageInput.value = '';
+                
+                // 이미지 삭제 플래그 추가
+                const removeImageFlag = document.getElementById('remove_image') || document.createElement('input');
+                removeImageFlag.type = 'hidden';
+                removeImageFlag.id = 'remove_image';
+                removeImageFlag.name = 'remove_image';
+                removeImageFlag.value = 'true';
+                document.getElementById('postForm').appendChild(removeImageFlag);
+            });
+        }
+        
+        // 폼 제출 처리
+        const postForm = document.getElementById('postForm');
+        const saveButton = document.getElementById('saveButton');
+        const draftButton = document.getElementById('draftButton');
+        const deleteButton = document.getElementById('deleteButton');
+        const contentInput = document.getElementById('content');
+        
+        // 게시 버튼
+        saveButton.addEventListener('click', function() {
+            // 마크다운 에디터 내용 가져오기 (이 부분은 MarkdownEditor 컴포넌트와 연동 필요)
+            // contentInput.value = 마크다운 내용;
+            
+            // 폼 제출
+            postForm.submit();
+        });
+        
+        // 임시저장 버튼
+        if (draftButton) {
+            draftButton.addEventListener('click', function() {
+                // 임시저장 플래그 추가
+                const draftFlag = document.getElementById('is_draft') || document.createElement('input');
+                draftFlag.type = 'hidden';
+                draftFlag.id = 'is_draft';
+                draftFlag.name = 'is_draft';
+                draftFlag.value = 'true';
+                postForm.appendChild(draftFlag);
+                
+                // 폼 제출
+                postForm.submit();
+            });
+        }
+        
+        // 삭제 버튼
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this post?')) {
+                    // 삭제 플래그 추가
+                    const deleteFlag = document.getElementById('delete') || document.createElement('input');
+                    deleteFlag.type = 'hidden';
+                    deleteFlag.id = 'delete';
+                    deleteFlag.name = 'delete';
+                    deleteFlag.value = 'true';
+                    postForm.appendChild(deleteFlag);
+                    
+                    // 폼 제출
+                    postForm.submit();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

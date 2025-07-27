@@ -22,10 +22,7 @@ def comment_list(request):
         post = get_object_or_404(Post, url=request.GET.get('url'))
 
         text_md = request.POST.get('comment_md', '')
-        text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
-            'text': text_md,
-            'token': settings.API_KEY,
-        }))
+        text_html = markdown.parse_to_html(text_md)
 
         comment = Comment(
             post=post,
@@ -145,10 +142,7 @@ def comment_detail(request, id):
                 return StatusError(ErrorCode.AUTHENTICATION)
 
             text_md = body.get('comment_md')
-            text_html = markdown.parse_to_html(settings.API_URL, markdown.ParseData.from_dict({
-                'text': text_md,
-                'token': settings.API_KEY,
-            }))
+            text_html = markdown.parse_to_html(text_md)
 
             comment.text_md = text_md
             comment.text_html = text_html
