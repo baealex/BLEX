@@ -4,7 +4,7 @@
     "description": "React islands for BLEX Django project",
     "type": "module",
     "scripts": {
-        "dev": "export $(cat ../../../../.env | xargs); vite build --watch",
+        "dev": "vite build --watch",
         "build": "tsc && vite build"
     },
     "dependencies": {

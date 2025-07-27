@@ -18,11 +18,10 @@ RUN pip install -r requirements.txt --use-pep517
 
 COPY ./src /app
 
-COPY --from=islands-builder /app/src/static/islands/ /app/static/islands/
-
 ENV STATIC_URL=/static/
 ENV CIPHER_KEY=""
 RUN python manage.py collectstatic --noinput
+COPY --from=islands-builder /app/src/static/islands/ /app/static/islands/
 
-ENTRYPOINT ["uwsgi"]
-CMD ["--socket", ":9000", "--module", "main.wsgi", "-b", "32768", "--max-requests", "5000", "--master", "--harakiri", "120", "--vacuum", "--die-on-term", "--no-orphans", "--single-interpreter", "--enable-threads", "--threads", "2"]
+ENTRYPOINT ["gunicorn"]
+CMD ["--bind", "0.0.0.0:8000", "--workers", "4", "main.wsgi:application"]
