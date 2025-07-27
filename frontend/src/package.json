@@ -3,7 +3,7 @@
     "description": "frontend for blex",
     "version": "0.0.2",
     "scripts": {
-        "dev": "export $(cat ../.env | xargs);next dev",
+        "dev": "next dev",
         "build": "next build",
         "analyze": "ANALYZE=true npm run build",
         "start": "NODE_OPTIONS=--max_old_space_size=2048 next start",
