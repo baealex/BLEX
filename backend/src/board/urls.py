@@ -49,7 +49,7 @@ urlpatterns = [
 
     # RSS and Etc
     path('rss', SitePostsFeed()),
-    path('rss/<username:username>', UserPostsFeed(), name='user_rss_feed'),
+    path('rss/@<username>', UserPostsFeed(), name='user_rss_feed'),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     
     # Settings Pages
@@ -94,12 +94,12 @@ urlpatterns = [
     path('v1/comments', api_v1.comment_list),
     path('v1/comments/user', api_v1.user_comment),
     path('v1/comments/<int:id>', api_v1.comment_detail),
-    path('v1/users/<username:username>', api_v1.users),
-    path('v1/users/<username:username>/posts', api_v1.user_posts),
-    path('v1/users/<username:username>/posts/<url>', api_v1.user_posts),
-    path('v1/users/<username:username>/series', api_v1.user_series),
-    path('v1/users/<username:username>/series/<url>', api_v1.user_series),
-    path('v1/users/<username:username>/check-redirect', api_v1.check_redirect),
+    path('v1/users/@<username>', api_v1.users),
+    path('v1/users/@<username>/posts', api_v1.user_posts),
+    path('v1/users/@<username>/posts/<url>', api_v1.user_posts),
+    path('v1/users/@<username>/series', api_v1.user_series),
+    path('v1/users/@<username>/series/<url>', api_v1.user_series),
+    path('v1/users/@<username>/check-redirect', api_v1.check_redirect),
     path('v1/series/valid-posts', api_v1.posts_can_add_series),
     path('v1/report/error', api_v1.error_report),
     path('v1/report/article/<url>', api_v1.article_report),
@@ -111,11 +111,11 @@ urlpatterns = [
     path('v1/telegram/<parameter>', api_v1.telegram),
     
     # Author
-    path('<username:username>/series', author_series, name='user_series'),
-    path('<username:username>/about', author_about, name='user_about'),
-    path('<username:username>/<post_url>', post_detail, name='post_detail'),
-    path('<username:username>/series/<series_url>', series_detail, name='series_detail'),
-    path('<username:username>/<post_url>/edit', post_editor, name='post_edit'),
-    path('<username:username>', author_posts, name='user_profile'),
+    path('@<username>/series', author_series, name='user_series'),
+    path('@<username>/about', author_about, name='user_about'),
+    path('@<username>/<post_url>', post_detail, name='post_detail'),
+    path('@<username>/series/<series_url>', series_detail, name='series_detail'),
+    path('@<username>/<post_url>/edit', post_editor, name='post_edit'),
+    path('@<username>', author_posts, name='user_profile'),
 
 ]

@@ -1,4 +1,3 @@
-import json
 import re
 
 from django.conf import settings
@@ -18,17 +17,11 @@ from modules import markdown
 def comment_list(request):
     if request.method == 'POST':
         if not request.user.is_active:
-            return StatusError(ErrorCode.AUTHENTICATION, 'Login required')
-            
-        try:
-            data = json.loads(request.body)
-            post_url = request.GET.get('url') or data.get('url')
-            text_md = data.get('text_md', '')
-        except json.JSONDecodeError:
-            return StatusError(ErrorCode.INVALID_REQUEST, 'Invalid JSON data')
+            return StatusError(ErrorCode.AUTHENTICATION)
 
-        post = get_object_or_404(Post, url=post_url)
+        post = get_object_or_404(Post, url=request.GET.get('url'))
 
+        text_md = request.POST.get('comment_md', '')
         text_html = markdown.parse_to_html(text_md)
 
         comment = Comment(
@@ -108,20 +101,13 @@ def comment_detail(request, id):
 
     if request.method == 'GET':
         return StatusDone({
-            'textMd': comment.text_md,
+            'text_md': comment.text_md,
         })
 
     if request.method == 'PUT':
-        # Handle both JSON and form data
-        if request.content_type == 'application/json':
-            try:
-                data = json.loads(request.body)
-            except json.JSONDecodeError:
-                return StatusError(ErrorCode.INVALID_REQUEST, 'Invalid JSON data')
-        else:
-            data = QueryDict(request.body)
+        body = QueryDict(request.body)
 
-        if data.get('like'):
+        if body.get('like'):
             if not request.user.is_active:
                 return StatusError(ErrorCode.NEED_LOGIN)
 
@@ -134,7 +120,7 @@ def comment_detail(request, id):
             if comment.has_liked:
                 comment.likes.remove(request.user)
                 return StatusDone({
-                    'countLikes': comment.count_likes - 1,
+                    'count_likes': comment.count_likes - 1,
                 })
             else:
                 comment.likes.add(request.user)
@@ -148,14 +134,14 @@ def comment_detail(request, id):
                         url=comment.post.get_absolute_url(),
                         content=send_notify_content)
                 return StatusDone({
-                    'countLikes': comment.count_likes + 1,
+                    'count_likes': comment.count_likes + 1,
                 })
 
-        if data.get('comment'):
+        if body.get('comment'):
             if not request.user == comment.author:
                 return StatusError(ErrorCode.AUTHENTICATION)
 
-            text_md = data.get('comment_md')
+            text_md = body.get('comment_md')
             text_html = markdown.parse_to_html(text_md)
 
             comment.text_md = text_md
@@ -181,16 +167,6 @@ def comment_detail(request, id):
 
 def user_comment(request):
     if request.method == 'GET':
-        # Get page parameter from either query string or JSON body
-        if request.content_type == 'application/json':
-            try:
-                data = json.loads(request.body)
-                page = data.get('page', 1)
-            except json.JSONDecodeError:
-                page = request.GET.get('page', 1)
-        else:
-            page = request.GET.get('page', 1)
-            
         comments = Comment.objects.filter(
             author=request.user,
         ).annotate(
@@ -202,7 +178,7 @@ def user_comment(request):
         comments = Paginator(
             objects=comments,
             offset=10,
-            page=page
+            page=request.GET.get('page', 1)
         )
         return StatusDone({
             'comments': list(map(lambda comment: {
@@ -212,9 +188,9 @@ def user_comment(request):
                     'url': comment.post_url,
                 },
                 'content': comment.text_html,
-                'createdDate': comment.time_since(),
+                'created_date': comment.time_since(),
             }, comments)),
-            'lastPage': comments.paginator.num_pages,
+            'last_page': comments.paginator.num_pages,
         })
 
     raise Http404
