@@ -10,18 +10,12 @@ import os
 logger = logging.getLogger('board')
 register = template.Library()
 
-# Path to the Vite manifest file
-_manifest_cache = None
-
 def get_manifest():
     """
-    Load the Vite manifest file and cache it.
+    Load the Vite manifest file and cache it. (It's experimental for now)
     """
-    global _manifest_cache
-
-    if settings.DEBUG:
-        _manifest_cache = None
-    
+    _manifest_cache = None
+  
     if _manifest_cache is None:
         # Try multiple possible locations for the manifest file
         possible_paths = [

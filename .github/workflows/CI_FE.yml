@@ -27,7 +27,7 @@ jobs:
     - name: Load .env file
       uses: xom9ikk/dotenv@v2.2.0
       with:
-        path: dev-tools/sample/frontend
+        path: samples/frontend
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3

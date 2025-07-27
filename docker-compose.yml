@@ -8,4 +8,4 @@ services:
     volumes:
       - ./backend/src/:/app/
     ports:
-      - 20002:9000
+      - 20002:8000

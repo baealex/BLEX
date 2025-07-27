@@ -1,28 +1,34 @@
 {
-  "name": "blex",
-  "version": "1.0.0",
-  "description": "BLOG EXPRESS ME",
-  "scripts": {
-    "dev": "ts-node dev-tools/dev.ts",
-    "deploy": "ts-node dev-tools/deploy.ts",
-    "backend::shell": "docker compose -p blex exec backend python manage.py shell",
-    "backend::connect": "docker compose -p blex exec backend /bin/bash",
-    "backend::dev::test": "docker compose -p blex_dev -f docker-compose.dev.yml exec backend python manage.py test -v 2",
-    "backend::dev::shell": "docker compose -p blex_dev -f docker-compose.dev.yml exec backend python manage.py shell",
-    "backend::dev::connect": "docker compose -p blex_dev -f docker-compose.dev.yml exec backend /bin/bash"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/baealex/BLEX.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/baealex/BLEX/issues"
-  },
-  "homepage": "https://github.com/baealex/BLEX#readme",
-  "devDependencies": {
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
-  }
+    "name": "blex",
+    "version": "1.0.0",
+    "description": "BLOG EXPRESS ME",
+    "scripts": {
+        "client:setup": "pnpm install --prefix frontend/src",
+        "client:dev": "export $(cat frontend/.env | xargs); npm run dev --prefix frontend/src",
+        "server:setup": "cd backend && python -m venv mvenv && source mvenv/bin/activate && pip install -r requirements.txt",
+        "server:dev": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py runserver",
+        "server:test": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py test -v 2",
+        "server:static": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py collectstatic --noinput",
+        "static:serve": "serve backend/src/static --listen 8080",
+        "island:setup": "pnpm install --prefix backend/islands",
+        "island:dev": "npm run dev --prefix backend/islands",
+        "island:static": "npm run build --prefix backend/islands",
+        "setup": "npm run server:setup && npm run island:setup && npm run client:setup",
+        "dev": "concurrently \"npm run server:dev\" \"npm run island:dev\" \"npm run client:dev\" \"npm run static:serve\""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/baealex/BLEX.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/baealex/BLEX/issues"
+    },
+    "homepage": "https://github.com/baealex/BLEX#readme",
+    "devDependencies": {
+        "concurrently": "^9.2.0",
+        "pnpm": "^10.13.1",
+        "serve": "^14.2.4"
+    }
 }

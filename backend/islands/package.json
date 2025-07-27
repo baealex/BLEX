@@ -4,15 +4,13 @@
     "description": "React islands for BLEX Django project",
     "type": "module",
     "scripts": {
-        "dev": "export $(cat ../../../../.env | xargs); vite build --watch",
+        "dev": "vite build --watch",
         "build": "tsc && vite build"
     },
     "dependencies": {
         "@baejino/handy": "^0.2.3",
         "@baejino/style": "^0.2.2",
         "@baejino/ui": "^0.2.1",
-        "@blocknote/mantine": "^0.33.0",
-        "@blocknote/react": "^0.33.0",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
         "axios": "^1.10.0",
