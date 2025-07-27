@@ -69,6 +69,26 @@ const SeriesProfile: PageComponent<Props> = (props) => {
                 title={`시리즈 | ${props.profile.username}`}
                 image={props.profile.image}
                 description={`${props.profile.name}님이 작성한 시리즈에요.`}
+                url={`https://blex.me/@${props.profile.username}/series`}
+                type="website"
+                canonicalUrl={`https://blex.me/@${props.profile.username}/series`}
+                twitterCard="summary"
+                twitterCreator={`@${props.profile.username}`}
+                siteName="BLEX"
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    'name': `시리즈 | ${props.profile.username}`,
+                    'description': `${props.profile.name}님이 작성한 시리즈에요.`,
+                    'url': `https://blex.me/@${props.profile.username}/series`,
+                    'author': {
+                        '@type': 'Person',
+                        'name': props.profile.name,
+                        'alternateName': props.profile.username,
+                        'image': props.profile.image,
+                        'url': `https://blex.me/@${props.profile.username}`
+                    }
+                }}
             />
             <UserSeries series={series} />
         </>

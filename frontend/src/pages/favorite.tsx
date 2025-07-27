@@ -55,7 +55,22 @@ const TrendyArticles: PageComponent<Props> = (props: Props) => {
 
     return (
         <>
-            <SEO title={`관심 포스트 | ${CONFIG.BLOG_TITLE}`} />
+            <SEO
+                title={`관심 포스트 | ${CONFIG.BLOG_TITLE}`}
+                description="내가 관심 있는 포스트 모음"
+                url="https://blex.me/favorite"
+                type="website"
+                canonicalUrl="https://blex.me/favorite"
+                twitterCard="summary"
+                siteName="BLEX"
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    'name': `관심 포스트 | ${CONFIG.BLOG_TITLE}`,
+                    'description': '내가 관심 있는 포스트 모음',
+                    'url': 'https://blex.me/favorite'
+                }}
+            />
 
             <ArticleCardGroup hasDivider className="mt-4 mb-5" gap={5}>
                 {posts.map((post) => (

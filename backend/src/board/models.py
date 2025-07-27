@@ -95,7 +95,7 @@ class Comment(models.Model):
 
     def get_thumbnail(self):
         if self.image:
-            return self.image.url
+            return settings.STATIC_URL + self.image.url
         else:
             return settings.STATIC_URL + 'images/default-post.png'
 
@@ -503,7 +503,7 @@ class Profile(models.Model):
 
     def get_thumbnail(self):
         if self.avatar:
-            return self.avatar.url
+            return settings.STATIC_URL + self.avatar.url
         else:
             return settings.STATIC_URL + 'images/default-avatar.jpg'
 

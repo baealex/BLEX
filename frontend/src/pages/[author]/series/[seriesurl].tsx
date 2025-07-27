@@ -184,6 +184,31 @@ export default function Series(props: Props) {
             <SEO
                 title={`시리즈 - ${props.series.name} | ${props.series.owner}`}
                 image={props.series.image}
+                description={props.series.description}
+                url={`https://blex.me/@${props.series.owner}/series/${props.series.url}`}
+                type="website"
+                canonicalUrl={`https://blex.me/@${props.series.owner}/series/${props.series.url}`}
+                twitterCard="summary"
+                twitterCreator={`@${props.series.owner}`}
+                siteName="BLEX"
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    'name': `시리즈 - ${props.series.name} | ${props.series.owner}`,
+                    'description': props.series.description,
+                    'url': `https://blex.me/@${props.series.owner}/series/${props.series.url}`,
+                    'author': {
+                        '@type': 'Person',
+                        'name': props.series.owner,
+                        'image': props.series.ownerImage,
+                        'url': `https://blex.me/@${props.series.owner}`
+                    },
+                    'hasPart': posts.map(post => ({
+                        '@type': 'BlogPosting',
+                        'headline': post.title,
+                        'url': `https://blex.me/@${props.series.owner}/${post.url}`
+                    }))
+                }}
             />
 
             {props.series.owner === username && (

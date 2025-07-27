@@ -152,9 +152,44 @@ function PostDetail(props: Props) {
                 title={`${props.post.title} — ${props.post.author}`}
                 description={props.post.description}
                 author={props.post.author}
-                keywords={props.post.tags.join(',')}
+                keywords={props.post.tags}
                 image={props.post.image && getPostImage(props.post.image)}
-                isArticle={true}
+                imageAlt={`${props.post.title} 이미지`}
+                url={`https://blex.me/@${props.post.author}/${props.post.url}`}
+                type="article"
+                publishedTime={props.post.createdDate}
+                modifiedTime={props.post.updatedDate}
+                canonicalUrl={`https://blex.me/@${props.post.author}/${props.post.url}`}
+                twitterCard="summary_large_image"
+                twitterCreator={`@${props.post.author}`}
+                siteName="BLEX"
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'BlogPosting',
+                    'headline': props.post.title,
+                    'description': props.post.description,
+                    'image': props.post.image && getPostImage(props.post.image),
+                    'datePublished': props.post.createdDate,
+                    'dateModified': props.post.updatedDate,
+                    'author': {
+                        '@type': 'Person',
+                        'name': props.post.author,
+                        'url': `https://blex.me/@${props.post.author}`
+                    },
+                    'publisher': {
+                        '@type': 'Organization',
+                        'name': 'BLEX',
+                        'logo': {
+                            '@type': 'ImageObject',
+                            'url': 'https://blex.me/favicon.ico'
+                        }
+                    },
+                    'mainEntityOfPage': {
+                        '@type': 'WebPage',
+                        '@id': `https://blex.me/@${props.post.author}/${props.post.url}`
+                    },
+                    'keywords': props.post.tags.join(', ')
+                }}
             />
             <article data-clarity-region={CONFIG.MICROSOFT_CLARITY ? 'article' : undefined}>
                 <ArticleCover

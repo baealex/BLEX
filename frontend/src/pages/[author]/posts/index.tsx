@@ -82,6 +82,26 @@ const UserPosts: PageComponent<Props> = (props) => {
                 title={`포스트 | ${props.profile.username}`}
                 image={props.profile.image}
                 description={`${props.profile.name}님이 작성한 포스트에요.`}
+                url={`https://blex.me/@${props.profile.username}/posts`}
+                type="website"
+                canonicalUrl={`https://blex.me/@${props.profile.username}/posts`}
+                twitterCard="summary"
+                twitterCreator={`@${props.profile.username}`}
+                siteName="BLEX"
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    'name': `포스트 | ${props.profile.username}`,
+                    'description': `${props.profile.name}님이 작성한 포스트에요.`,
+                    'url': `https://blex.me/@${props.profile.username}/posts`,
+                    'author': {
+                        '@type': 'Person',
+                        'name': props.profile.name,
+                        'alternateName': props.profile.username,
+                        'image': props.profile.image,
+                        'url': `https://blex.me/@${props.profile.username}`
+                    }
+                }}
             />
             <UserArticles
                 allCount={props.allCount}
