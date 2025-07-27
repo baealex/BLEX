@@ -48,6 +48,18 @@ const Tags: PageComponent<Props> = (props) => {
             <SEO
                 title={`태그 클라우드 | ${CONFIG.BLOG_TITLE}`}
                 description="태그 클라우드 페이지입니다. 다양한 분야의 주제를 만나보세요."
+                url="https://blex.me/tags"
+                type="website"
+                canonicalUrl="https://blex.me/tags"
+                twitterCard="summary"
+                siteName="BLEX"
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    'name': `태그 클라우드 | ${CONFIG.BLOG_TITLE}`,
+                    'description': '태그 클라우드 페이지입니다. 다양한 분야의 주제를 만나보세요.',
+                    'url': 'https://blex.me/tags'
+                }}
             />
             <Grid
                 gap={3}

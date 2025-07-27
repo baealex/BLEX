@@ -6,7 +6,13 @@ import { SEO } from '~/components/system-design/shared';
 export default function NotFound() {
     return (
         <>
-            <SEO title="페이지를 찾을 수 없습니다." />
+            <SEO
+                title="페이지를 찾을 수 없습니다."
+                description="페이지가 삭제되었거나 수정되었습니다."
+                type="website"
+                noIndex={true}
+                noFollow={true}
+            />
 
             <Container size="sm">
                 <Flex direction="column" gap={4} align="center">

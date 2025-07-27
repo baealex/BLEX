@@ -161,6 +161,25 @@ const Overview: PageComponent<Props> = (props) => {
                 title={`${props.profile.username} (${props.profile.name})`}
                 image={props.profile.image}
                 description={props.profile.bio}
+                url={`https://blex.me/@${props.profile.username}`}
+                type="profile"
+                canonicalUrl={`https://blex.me/@${props.profile.username}`}
+                twitterCard="summary"
+                twitterCreator={`@${props.profile.username}`}
+                siteName="BLEX"
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'ProfilePage',
+                    'mainEntity': {
+                        '@type': 'Person',
+                        'name': props.profile.name,
+                        'alternateName': props.profile.username,
+                        'description': props.profile.bio,
+                        'image': props.profile.image,
+                        'url': `https://blex.me/@${props.profile.username}`,
+                        'sameAs': props.profile.homepage ? [props.profile.homepage] : []
+                    }
+                }}
             />
 
             {props.about && (
