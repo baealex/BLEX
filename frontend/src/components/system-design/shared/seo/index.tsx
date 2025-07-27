@@ -58,10 +58,6 @@ export function SEO({
         author && <meta key="author" name="author" content={author} />,
         keywords.length > 0 && <meta key="keywords" name="keywords" content={keywords.join(', ')} />,
 
-        // Viewport and character set
-        <meta key="viewport" name="viewport" content="width=device-width, initial-scale=1.0" />,
-        <meta key="charset" charSet="UTF-8" />,
-
         // Robots
         <meta key="robots" name="robots" content={`${noIndex ? 'noindex' : 'index'}, ${noFollow ? 'nofollow' : 'follow'}`} />,
 
