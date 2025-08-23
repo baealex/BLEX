@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Exists, OuterRef, Q, F, Case, When, Value, IntegerField
 from django.utils import timezone
 from board.modules.paginator import Paginator
@@ -256,3 +257,39 @@ def author_about(request, username):
     }
     
     return render(request, 'board/author/author_about.html', context)
+
+
+@login_required
+def author_about_edit(request, username):
+    """
+    View for the author's about edit page.
+    """
+    author = get_object_or_404(User, username=username)
+    
+    # Check if the current user is the author
+    if request.user != author:
+        return render(request, 'board/error/403.html', status=403)
+    
+    # Get author's profile
+    profile = getattr(author, 'profile', None)
+    about_md = getattr(profile, 'about_md', '') if profile else ''
+    
+    # Count posts, series, and followers
+    post_count = Post.objects.filter(
+        author=author,
+        created_date__lte=timezone.now(),
+        config__hide=False
+    ).count()
+    series_count = Series.objects.filter(owner=author).count()
+    follower_count = Follow.objects.filter(following=author.profile).count()
+    
+    context = {
+        'author': author,
+        'about_md': about_md,
+        'post_count': post_count,
+        'series_count': series_count,
+        'follower_count': follower_count,
+        'is_loading': False,
+    }
+    
+    return render(request, 'board/author/author_about_edit.html', context)

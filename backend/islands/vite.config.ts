@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { collectTemplateStyles } from './plugins/collect-template-styles';
 
 export default defineConfig(({ mode }) => {
     const isDevelopment = mode === 'development';
@@ -8,7 +9,23 @@ export default defineConfig(({ mode }) => {
     return {
         base: './',
 
-        plugins: [react({ babel: { plugins: ['styled-jsx/babel'] } })],
+        plugins: [
+            ...(isDevelopment ? [] : [react()]),
+
+            // 템플릿 디렉토리의 스타일 파일들 자동 수집
+            collectTemplateStyles({
+                templatesDir: '../src/board/templates/board',
+                includePatterns: ['**/styles.scss', '**/components/*.scss']
+            })
+        ],
+
+        server: {
+            port: 5173,
+            host: true,
+            cors: true,
+            origin: 'http://localhost:5173',
+            hmr: true
+        },
 
         build: {
             outDir: '../src/static/islands',
@@ -19,10 +36,7 @@ export default defineConfig(({ mode }) => {
                 input: {
                     island: resolve(__dirname, 'src/island.tsx'),
                     mainStyle: resolve(__dirname, 'styles/main.scss'),
-                    postStyle: resolve(__dirname, 'styles/post.scss'),
-                    authorStyle: resolve(__dirname, 'styles/author.scss'),
-                    settingStyle: resolve(__dirname, 'styles/setting.scss'),
-                    editorStyle: resolve(__dirname, 'styles/editor.scss')
+                    postStyle: resolve(__dirname, 'styles/post.scss')
                 },
                 output: {
                     entryFileNames: '[name].[hash].js',
@@ -32,7 +46,12 @@ export default defineConfig(({ mode }) => {
             }
         },
 
-        resolve: { alias: { '~': resolve(__dirname, 'src') } },
+        resolve: {
+            alias: {
+                '~': resolve(__dirname, 'src'),
+                '@templates': resolve(__dirname, '../src/board/templates')
+            }
+        },
 
         css: {
             modules: {

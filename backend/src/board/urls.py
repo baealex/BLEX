@@ -9,9 +9,9 @@ from board.views.api import v1 as api_v1
 from board.views import main
 from board.views.post_actions import like_post
 from board.views.search import search_view
-from board.views.author import author_posts, author_series, author_about
+from board.views.author import author_posts, author_series, author_about, author_about_edit
 from board.views.post import post_detail, post_editor
-from board.views.series import series_detail
+from board.views.series import series_detail, series_create
 from board.views.auth import login_view, security_view
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import about_view, privacy_view, terms_view
@@ -51,7 +51,9 @@ urlpatterns = [
 
     # Author
     path('@<username>/series', staff_member_required(author_series), name='user_series'),
+    path('@<username>/series/create', staff_member_required(series_create), name='series_create'),
     path('@<username>/about', staff_member_required(author_about), name='user_about'),
+    path('@<username>/about/edit', staff_member_required(author_about_edit), name='user_about_edit'),
     path('@<username>/<post_url>', staff_member_required(post_detail), name='post_detail'),
     path('@<username>/series/<series_url>', staff_member_required(series_detail), name='series_detail'),
     path('@<username>/<post_url>/edit', staff_member_required(post_editor), name='post_edit'),

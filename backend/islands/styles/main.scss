@@ -5,24 +5,6 @@
 @forward "./header.scss";
 @forward "./footer.scss";
 
-@font-face {
-    font-family: 'Spoqa Han Sans Neo';
-    font-weight: 700;
-    src: local('Spoqa Han Sans Bold'),
-        url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff2') format('woff2'),
-        url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff') format('woff'),
-        url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.ttf') format('truetype');
-}
-
-@font-face {
-    font-family: 'Spoqa Han Sans Neo';
-    font-weight: 400;
-    src: local('Spoqa Han Sans Regular'),
-        url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff2') format('woff2'),
-        url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff') format('woff'),
-        url('/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.ttf') format('truetype');
-}
-
 .notification__item {
     background-color: #fff;
     color: #000;

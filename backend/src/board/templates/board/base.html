@@ -186,6 +186,7 @@
 
     {% block extra_scripts %}{% endblock %}
 
+    {% vite_hmr_client %}
     <script type="module" src="{% island_entry 'island' %}"></script>
 </body>
 

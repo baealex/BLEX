@@ -5,171 +5,33 @@ import EasyMDE from 'easymde';
 
 import 'easymde/dist/easymde.min.css';
 
-interface EditorProps {
-    name: string;
-    content?: string;
-    editable?: boolean;
-    onChange?: (value: string) => void;
-    height?: string;
+interface AboutEditorProps {
+    initialValue?: string;
+    username?: string;
     placeholder?: string;
+    successMessage?: string;
+    redirectPath?: string;
 }
 
-interface YoutubeModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onUpload: (id: string) => void;
-}
-
-const YoutubeModal: React.FC<YoutubeModalProps> = ({ isOpen, onClose, onUpload }) => {
-    const [youtubeId, setYoutubeId] = useState('');
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (youtubeId) {
-            onUpload(youtubeId);
-            setYoutubeId('');
-            onClose();
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="modal-overlay">
-            <div className="modal-content">
-                <div className="modal-header">
-                    <h3>YouTube 영상 추가</h3>
-                    <button className="close-button" onClick={onClose}>
-                        &times;
-                    </button>
-                </div>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="youtube-id">YouTube 영상 ID 또는 URL</label>
-                        <input
-                            id="youtube-id"
-                            type="text"
-                            value={youtubeId}
-                            onChange={(e) => {
-                                let id = e.target.value;
-                                // Extract ID from URL if needed
-                                if (id.includes('youtube.com') || id.includes('youtu.be')) {
-                                    const match = id.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-                                    if (match && match[1]) {
-                                        id = match[1];
-                                    }
-                                }
-                                setYoutubeId(id);
-                            }}
-                            placeholder="dQw4w9WgXcQ 또는 https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                            className="form-control"
-                        />
-                    </div>
-                    <div className="form-actions">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>
-                            취소
-                        </button>
-                        <button type="submit" className="btn btn-primary" disabled={!youtubeId}>
-                            추가
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <style jsx>{`
-                .modal-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: rgba(0, 0, 0, 0.5);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 1000;
-                }
-
-                .modal-content {
-                    background-color: white;
-                    border-radius: 8px;
-                    width: 90%;
-                    max-width: 500px;
-                    padding: 20px;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }
-
-                .modal-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 16px;
-                }
-
-                .modal-header h3 {
-                    margin: 0;
-                    font-size: 18px;
-                }
-
-                .close-button {
-                    background: none;
-                    border: none;
-                    font-size: 24px;
-                    cursor: pointer;
-                    color: #6c757d;
-                }
-
-                .form-group {
-                    margin-bottom: 16px;
-                }
-
-                .form-group label {
-                    display: block;
-                    margin-bottom: 8px;
-                    font-weight: 500;
-                }
-
-                .form-control {
-                    width: 100%;
-                    padding: 8px 12px;
-                    border: 1px solid #ced4da;
-                    border-radius: 4px;
-                    font-size: 16px;
-                }
-
-                .form-actions {
-                    display: flex;
-                    justify-content: flex-end;
-                    gap: 8px;
-                }
-            `}</style>
-        </div>
-    );
-};
-
-const MarkdownEditor: React.FC<EditorProps> = ({
-    name,
-    content = '',
-    editable = true,
-    onChange,
-    height = 'auto',
-    placeholder = '마크다운으로 작성할 수 있어요.'
+const AboutEditor: React.FC<AboutEditorProps> = ({
+    initialValue = '',
+    username = '',
+    placeholder = '자신을 소개해보세요...',
+    successMessage = '소개가 업데이트되었습니다.',
+    redirectPath
 }) => {
-    const [value, setValue] = useState(content);
-    const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
-    // Track preview state for potential future enhancements
-    const [, setIsPreview] = useState(false);
+    const [value, setValue] = useState(initialValue);
+    const [isLoading, setIsLoading] = useState(false);
     const editor = useRef<EasyMDE | null>(null);
     const textarea = useRef<HTMLTextAreaElement>(null);
     const imageInput = useRef<HTMLInputElement>(null);
-    const detectPreview = useRef<NodeJS.Timeout | undefined>(undefined);
 
     useEffect(() => {
         if (textarea.current && !editor.current) {
             const easyMDE = new EasyMDE({
                 element: textarea.current,
                 autoDownloadFontAwesome: false,
-                initialValue: content,
+                initialValue: initialValue,
                 placeholder,
                 toolbar: [
                     {
@@ -251,14 +113,6 @@ const MarkdownEditor: React.FC<EditorProps> = ({
                         className: 'fa fa-image',
                         title: '이미지'
                     },
-                    {
-                        name: 'youtube',
-                        action: () => {
-                            setIsYoutubeModalOpen(true);
-                        },
-                        className: 'fab fa-youtube',
-                        title: 'YouTube'
-                    },
                     '|',
                     {
                         name: 'preview',
@@ -280,8 +134,6 @@ const MarkdownEditor: React.FC<EditorProps> = ({
                     }
                 ],
                 previewRender: (markdownText: string) => {
-                    // Simple markdown rendering for preview
-                    // In a real implementation, you would use a proper markdown renderer
                     return markdownText
                         .replace(/^### (.*$)/gim, '<h3>$1</h3>')
                         .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -299,9 +151,6 @@ const MarkdownEditor: React.FC<EditorProps> = ({
             easyMDE.codemirror.on('change', () => {
                 const newValue = easyMDE.value();
                 setValue(newValue);
-                if (onChange) {
-                    onChange(newValue);
-                }
             });
 
             editor.current = easyMDE;
@@ -312,33 +161,8 @@ const MarkdownEditor: React.FC<EditorProps> = ({
                 editor.current.toTextArea();
                 editor.current = null;
             }
-            if (detectPreview.current) {
-                clearTimeout(detectPreview.current);
-            }
         };
-    }, [textarea, content, onChange, placeholder]);
-
-    useEffect(() => {
-        const detect = () => {
-            setIsPreview(editor.current?.isPreviewActive() || false);
-            detectPreview.current = setTimeout(detect, 100);
-        };
-        detectPreview.current = setTimeout(detect, 100);
-
-        return () => {
-            if (detectPreview.current) {
-                clearTimeout(detectPreview.current);
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        if (editor.current) {
-            if (editor.current.value() !== value) {
-                editor.current.value(value);
-            }
-        }
-    }, [value]);
+    }, [textarea, initialValue, placeholder]);
 
     const handleUploadImage = async (image: File) => {
         if (!isImageFile(image)) {
@@ -358,9 +182,7 @@ const MarkdownEditor: React.FC<EditorProps> = ({
 
             if (data.status === 'DONE' && editor.current) {
                 const imageSrc = data.body.url;
-                const imageMd = imageSrc.includes('.mp4')
-                    ? `@gif[${imageSrc}]`
-                    : `![](${imageSrc})`;
+                const imageMd = `![](${imageSrc})`;
                 editor.current.codemirror.replaceSelection(imageMd);
             } else {
                 notification('이미지 업로드에 실패했습니다.', { type: 'error' });
@@ -384,10 +206,36 @@ const MarkdownEditor: React.FC<EditorProps> = ({
         await handleUploadImage(file);
     };
 
-    const handleYoutubeUpload = (id: string) => {
-        if (id && editor.current) {
-            const youtubeMd = `@youtube[${id}]`;
-            editor.current.codemirror.replaceSelection(youtubeMd);
+    const handleSave = async () => {
+        if (!username) {
+            notification('사용자명이 필요합니다.', { type: 'error' });
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const { data } = await http(`v1/users/@${username}`, {
+                method: 'PUT',
+                data: {
+                    about: true,
+                    about_md: value
+                }
+            });
+
+            if (data.status === 'DONE') {
+                notification(successMessage, { type: 'success' });
+                if (redirectPath) {
+                    setTimeout(() => {
+                        window.location.href = redirectPath;
+                    }, 1000);
+                }
+            } else {
+                notification(data.errorMessage || '업데이트에 실패했습니다.', { type: 'error' });
+            }
+        } catch (error) {
+            notification('업데이트에 실패했습니다.', { type: 'error' });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -403,9 +251,10 @@ const MarkdownEditor: React.FC<EditorProps> = ({
 
     return (
         <div
-            className="markdown-editor-container"
+            className="about-editor-container"
             onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDropImage}>
+            onDrop={handleDropImage}
+        >
             <input
                 ref={imageInput}
                 type="file"
@@ -419,65 +268,98 @@ const MarkdownEditor: React.FC<EditorProps> = ({
             />
             <textarea
                 ref={textarea}
-                name={name}
-                defaultValue={content}
-                readOnly={!editable}
+                name="about_md"
+                defaultValue={initialValue}
                 style={{ display: 'none' }}
             />
-            <YoutubeModal
-                isOpen={isYoutubeModalOpen}
-                onClose={() => setIsYoutubeModalOpen(false)}
-                onUpload={handleYoutubeUpload}
-            />
+            
+            <div className="editor-actions">
+                <button
+                    className="save-button"
+                    onClick={handleSave}
+                    disabled={isLoading}
+                >
+                    {isLoading ? '저장 중...' : '작성 완료'}
+                </button>
+            </div>
 
             <style jsx>{`
-                .markdown-editor-container {
+                .about-editor-container {
                     position: relative;
                 }
 
-                .markdown-editor-container :global(.EasyMDEContainer) {
+                .about-editor-container :global(.EasyMDEContainer) {
                     z-index: 1;
+                    margin-bottom: 16px;
                 }
 
-                .markdown-editor-container :global(.CodeMirror) {
-                    height: ${height};
+                .about-editor-container :global(.CodeMirror) {
+                    min-height: 400px;
                     border-radius: 4px;
                     border-color: #ced4da;
                 }
 
-                .markdown-editor-container :global(.CodeMirror-focused) {
+                .about-editor-container :global(.CodeMirror-focused) {
                     border-color: #4568dc;
                     box-shadow: 0 0 0 0.2rem rgba(69, 104, 220, 0.25);
                 }
 
-                .markdown-editor-container :global(.editor-toolbar) {
+                .about-editor-container :global(.editor-toolbar) {
                     border-color: #ced4da;
                     border-top-left-radius: 4px;
                     border-top-right-radius: 4px;
                 }
 
-                .markdown-editor-container :global(.editor-toolbar button) {
+                .about-editor-container :global(.editor-toolbar button) {
                     color: #495057;
                 }
 
-                .markdown-editor-container :global(.editor-toolbar button:hover),
-                .markdown-editor-container :global(.editor-toolbar button.active) {
+                .about-editor-container :global(.editor-toolbar button:hover),
+                .about-editor-container :global(.editor-toolbar button.active) {
                     background: #e9ecef;
                     border-color: #ced4da;
                 }
 
-                .markdown-editor-container :global(.editor-preview) {
+                .about-editor-container :global(.editor-preview) {
                     background: #fff;
                     padding: 10px;
                     overflow: auto;
                 }
 
-                .markdown-editor-container :global(.editor-preview-side) {
+                .about-editor-container :global(.editor-preview-side) {
                     border-color: #ced4da;
+                }
+
+                .editor-actions {
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 16px;
+                }
+
+                .save-button {
+                    padding: 12px 24px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: transform 0.2s ease;
+                }
+
+                .save-button:hover:not(:disabled) {
+                    transform: translateY(-2px);
+                }
+
+                .save-button:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                    transform: none;
                 }
             `}</style>
         </div>
     );
 };
 
-export default MarkdownEditor;
+export default AboutEditor;

@@ -49,6 +49,10 @@ def island_entry(entry_name):
     {% load island %}
     <script type="module" src="{% island_entry 'island' %}"></script>
     """
+    # Check if in development mode
+    if settings.DEBUG:
+        return f"http://localhost:5173/src/{entry_name}.tsx"
+    
     manifest = get_manifest()
     entry_path = f"{entry_name}"
     entry_ext = [".js", ".jsx", ".ts", ".tsx"]
@@ -71,6 +75,10 @@ def island_css(entry_name):
     {% load island %}
     <link rel="stylesheet" href="{% island_css 'main' %}">
     """
+    # Check if in development mode
+    if settings.DEBUG:
+        return f"http://localhost:5173/styles/{entry_name}.scss"
+    
     manifest = get_manifest()
     entry_path = f"{entry_name}"
     entry_ext = [".css", ".scss", ".sass"]
@@ -102,3 +110,12 @@ def island_component(component_name, **props):
     html_output = f'<island-component name="{component_name}" props="{urllib.parse.quote(props_json)}"></island-component>'
     
     return mark_safe(html_output)
+
+@register.simple_tag
+def vite_hmr_client():
+    """
+    DEBUG 모드일 때만 Vite HMR 클라이언트를 로드
+    """
+    if settings.DEBUG:
+        return mark_safe('<script type="module" src="http://localhost:5173/@vite/client"></script>')
+    return ""

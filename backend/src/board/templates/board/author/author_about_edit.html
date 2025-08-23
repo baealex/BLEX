@@ -1,0 +1,121 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+
+{% block title %}Edit About {{ author.username }} - BLEX{% endblock %}
+
+{% block extra_styles %}
+{% include 'board/author/components/author_styles.html' %}
+<style>
+    .about-edit-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 24px 0;
+    }
+
+    .about-edit-header {
+        margin-bottom: 24px;
+    }
+
+    .about-edit-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #222;
+    }
+
+    .about-edit-subtitle {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 24px;
+    }
+
+    .carousel-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        color: white;
+    }
+
+    .carousel-item {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 16px;
+    }
+
+    .carousel-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .editor-container {
+        margin-bottom: 24px;
+    }
+
+    .submit-button {
+        width: 100%;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .submit-button:hover {
+        transform: translateY(-2px);
+    }
+
+    .submit-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'board/author/components/author_header.html' %}
+
+<div class="tabs-container">
+    {% with active_tab='about' %}
+        {% include 'board/author/components/tabs_nav.html' %}
+    {% endwith %}
+
+    <div class="about-edit-container">
+        <div class="about-edit-header">
+            <h1 class="about-edit-title">자신을 소개해 보세요.</h1>
+            <p class="about-edit-subtitle">자신을 소개하는 글을 작성해보세요.</p>
+        </div>
+
+        <div class="carousel-container">
+            <div class="carousel-item">
+                💡 자신을 소개하는 글을 작성해 보세요. 자신의 주요 관심사 등을 작성해 보세요.
+            </div>
+            <div class="carousel-item">
+                🎯 누구에게 자신을 소개하고 싶으신가요? 대상을 선정하면 작성이 쉬워집니다.
+            </div>
+            <div class="carousel-item">
+                ✨ 소개글은 자신의 블로그 프로필 페이지에 노출됩니다. 자신을 표현해 보세요.
+            </div>
+        </div>
+
+        <div class="editor-container">
+            {% island 'AboutEditor' %}
+                <script type="application/json">
+                {
+                    "initialValue": "{{ about_md|escapejs }}",
+                    "username": "{{ author.username }}",
+                    "placeholder": "자신을 소개해보세요...",
+                    "successMessage": "소개가 업데이트되었습니다.",
+                    "redirectPath": "/@{{ author.username }}/about"
+                }
+                </script>
+            {% endisland %}
+        </div>
+    </div>
+</div>
+{% endblock %}

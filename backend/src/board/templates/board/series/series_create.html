@@ -1,0 +1,321 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+
+{% block title %}Create Series - {{ author.username }} - BLEX{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .series-create-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 24px 0;
+    }
+
+    .series-create-header {
+        margin-bottom: 32px;
+        text-align: center;
+    }
+
+    .series-create-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #222;
+    }
+
+    .series-create-subtitle {
+        font-size: 16px;
+        color: #666;
+    }
+
+    .form-section {
+        margin-bottom: 24px;
+    }
+
+    .form-section-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #4568dc;
+        box-shadow: 0 0 0 3px rgba(69, 104, 220, 0.1);
+    }
+
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .posts-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .posts-grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .post-checkbox {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        background: white;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .post-checkbox:hover {
+        border-color: #4568dc;
+        background-color: #f8f9ff;
+    }
+
+    .post-checkbox input[type="checkbox"] {
+        margin-right: 12px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .post-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        flex: 1;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 32px;
+        gap: 16px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .empty-posts {
+        text-align: center;
+        padding: 40px 20px;
+        color: #666;
+    }
+
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 0;
+    }
+
+    .spinner {
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 3px solid #4568dc;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="series-create-container">
+    <div class="series-create-header">
+        <h1 class="series-create-title">새 시리즈 만들기</h1>
+        <p class="series-create-subtitle">연관된 글들을 하나의 시리즈로 묶어보세요.</p>
+    </div>
+
+    <form id="series-create-form" action="/v1/users/@{{ author.username }}/series" method="POST">
+        <div class="form-section">
+            <div class="form-group">
+                <label for="series-name" class="form-label">시리즈 이름 *</label>
+                <input 
+                    type="text" 
+                    id="series-name" 
+                    name="title"
+                    class="form-input" 
+                    placeholder="이 시리즈의 이름을 입력해주세요"
+                    maxlength="200"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="series-description" class="form-label">시리즈 설명</label>
+                <textarea 
+                    id="series-description" 
+                    name="description"
+                    class="form-input form-textarea" 
+                    placeholder="이 시리즈에는 어떤 내용을 다루고 있나요?"
+                    maxlength="500"
+                ></textarea>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">포함할 글 선택</div>
+            <div class="posts-section">
+                {% if is_loading %}
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                    </div>
+                {% elif not available_posts %}
+                    <div class="empty-posts">
+                        시리즈에 추가할 수 있는 글이 없습니다.
+                        <br>
+                        <small>시리즈가 없는 글들만 추가할 수 있습니다.</small>
+                    </div>
+                {% else %}
+                    <div class="posts-grid">
+                        {% for post in available_posts %}
+                        <label class="post-checkbox">
+                            <input 
+                                type="checkbox" 
+                                name="post_ids" 
+                                value="{{ post.id }}"
+                            >
+                            <span class="post-title">{{ post.title }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="/@{{ author.username }}/series" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+                시리즈 만들기
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('series-create-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submit-btn');
+    const originalText = submitBtn.textContent;
+    
+    // Get form data
+    const formData = new FormData(e.target);
+    const title = formData.get('title');
+    const description = formData.get('description') || '';
+    const postIds = formData.getAll('post_ids');
+    
+    if (!title) {
+        alert('시리즈 이름을 입력해주세요.');
+        return;
+    }
+    
+    // Disable submit button
+    submitBtn.disabled = true;
+    submitBtn.textContent = '생성 중...';
+    
+    try {
+        const response = await fetch('/v1/users/@{{ author.username }}/series', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value || ''
+            },
+            body: JSON.stringify({
+                title: title,
+                description: description,
+                post_ids: postIds.join(',')
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'DONE') {
+            alert('시리즈가 생성되었습니다.');
+            window.location.href = `/@{{ author.username }}/series/${data.body.url}`;
+        } else {
+            throw new Error(data.errorMessage || '시리즈 생성에 실패했습니다.');
+        }
+    } catch (error) {
+        alert(error.message || '시리즈 생성에 실패했습니다.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
+});
+</script>
+{% endblock %}

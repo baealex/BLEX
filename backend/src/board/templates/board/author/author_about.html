@@ -141,11 +141,22 @@
     {% if is_loading %}
         {% include 'board/author/components/loading_state.html' %}
     {% elif not about_content %}
-        {% with empty_title='No about information' empty_message=author.username|add:" hasn't added any about information yet." %}
-            {% include 'board/author/components/empty_state.html' %}
-        {% endwith %}
+        <div class="empty-state">
+            <div class="empty-state-title">No about information</div>
+            <div class="empty-state-message">{{ author.username }} hasn't added any about information yet.</div>
+            {% if user == author %}
+                <a href="/@{{ author.username }}/about/edit" class="btn btn-primary">Add about information</a>
+            {% endif %}
+        </div>
     {% else %}
     <div class="about-content">
+        {% if user == author %}
+            <div class="about-edit-actions" style="text-align: right; margin-bottom: 16px;">
+                <a href="/@{{ author.username }}/about/edit" class="btn btn-outline" style="font-size: 14px; padding: 8px 16px;">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            </div>
+        {% endif %}
         <div class="about-section">
             <div class="about-markdown">
                 {{ about_content|safe }}

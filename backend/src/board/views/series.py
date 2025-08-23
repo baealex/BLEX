@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count, F, Exists, OuterRef
 from django.utils import timezone
 from django.http import Http404
@@ -111,3 +112,31 @@ def series_detail(request, username, series_url):
     }
     
     return render(request, 'board/series_detail.html', context)
+
+
+@login_required
+def series_create(request, username):
+    """
+    View for the series create page.
+    """
+    author = get_object_or_404(User, username=username)
+    
+    # Check if the current user is the author
+    if request.user != author:
+        return render(request, 'board/error/403.html', status=403)
+    
+    # Get posts that can be added to a series (posts without a series)
+    available_posts = Post.objects.select_related('config').filter(
+        author=author,
+        series__isnull=True,
+        created_date__lte=timezone.now(),
+        config__hide=False,
+    ).order_by('-created_date')
+    
+    context = {
+        'author': author,
+        'available_posts': available_posts,
+        'is_loading': False,
+    }
+    
+    return render(request, 'board/series/series_create.html', context)

@@ -100,6 +100,14 @@
     
     <div class="content-with-sidebar">
         <div class="main-content">
+            {% if user == author %}
+                <div class="series-actions" style="text-align: right; margin-bottom: 16px;">
+                    <a href="/@{{ author.username }}/series/create" class="btn btn-primary" style="font-size: 14px; padding: 8px 16px;">
+                        <i class="fas fa-plus"></i> 새 시리즈 만들기
+                    </a>
+                </div>
+            {% endif %}
+            
             {% if is_loading %}
                 {% include 'board/author/components/loading_state.html' %}
             {% elif not series_list %}
