@@ -47,9 +47,15 @@
                         </a>
                     </li>
                     <li class="setting-nav-item">
-                        <a href="{% url 'setting_analytics' %}" class="setting-nav-link {% if active == 'analytics' %}active{% endif %}">
+                        <a href="{% url 'setting_analytics_views' %}" class="setting-nav-link {% if active == 'analytics' or active == 'analytics/views' %}active{% endif %}">
                             <span class="setting-nav-icon"><i class="fas fa-chart-bar"></i></span>
                             <span>통계</span>
+                        </a>
+                    </li>
+                    <li class="setting-nav-item">
+                        <a href="{% url 'setting_forms' %}" class="setting-nav-link {% if active == 'forms' %}active{% endif %}">
+                            <span class="setting-nav-icon"><i class="fas fa-file-alt"></i></span>
+                            <span>서식</span>
                         </a>
                     </li>
                     <li class="setting-nav-item">

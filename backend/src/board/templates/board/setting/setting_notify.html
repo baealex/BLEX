@@ -1,12 +1,180 @@
 {% extends 'board/setting/setting_base.html' %}
 {% load static %}
-{% load island %}
 
 {% block setting_title %}알림 설정{% endblock %}
 
 {% block setting_content %}
-<div class="setting-card">
-    <h2 class="setting-card-title">알림 설정</h2>
-    {% island_component 'NotifySettings' settings=settings %}
+{% if not user.profile.has_telegram_connected %}
+<div class="alert alert-info mb-3" onclick="location.href='{% url 'setting_integration' %}'">
+    <i class="fab fa-telegram-plane"></i> 텔레그램을 연동하여 실시간 알림을 받아보세요.
 </div>
+{% endif %}
+
+<div class="d-flex justify-content-end mb-3">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#notifyConfigModal">
+        <i class="fas fa-cog"></i> 알림 설정
+    </button>
+</div>
+
+<div id="notifications-container">
+    {% for notification in notifications %}
+    <div class="card setting-card mb-3">
+        <div class="card-body">
+            <a href="{{ notification.url }}" 
+               style="opacity: {% if notification.is_read %}0.4{% else %}1{% endif %};"
+               onclick="markAsRead({{ notification.id }}, '{{ notification.url }}')">
+                {{ notification.content }}
+                <div class="text-muted small mt-1">
+                    {{ notification.created_date|date:"Y-m-d H:i" }}
+                </div>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        알림이 없습니다.
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Notification Config Modal -->
+<div class="modal fade" id="notifyConfigModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">알림 설정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="notify-config-container">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="notify_posts_like" 
+                                   {% if notify_config.NOTIFY_POSTS_LIKE %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_posts_like">
+                                다른 사용자가 내 글 추천
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="notify_posts_thanks"
+                                   {% if notify_config.NOTIFY_POSTS_THANKS %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_posts_thanks">
+                                방문자가 내 글에 도움됐어요 평가
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="notify_posts_no_thanks"
+                                   {% if notify_config.NOTIFY_POSTS_NO_THANKS %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_posts_no_thanks">
+                                방문자가 내 글에 도움안돼요 평가
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="notify_posts_comment"
+                                   {% if notify_config.NOTIFY_POSTS_COMMENT %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_posts_comment">
+                                다른 사용자가 내 글에 댓글 작성
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="notify_comment_like"
+                                   {% if notify_config.NOTIFY_COMMENT_LIKE %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_comment_like">
+                                다른 사용자가 내 댓글 추천
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="notify_follow"
+                                   {% if notify_config.NOTIFY_FOLLOW %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_follow">
+                                다른 사용자가 나를 팔로우
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="notify_mention"
+                                   {% if notify_config.NOTIFY_MENTION %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_mention">
+                                다른 사용자가 댓글에서 나를 언급
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="saveNotifyConfig()">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function markAsRead(notificationId, url) {
+    fetch('/v1/setting/notify', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ id: notificationId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'DONE') {
+            // Update notification count in navbar if exists
+            const notifyCountElement = document.querySelector('.notify-count');
+            if (notifyCountElement) {
+                const currentCount = parseInt(notifyCountElement.textContent) || 0;
+                const newCount = Math.max(0, currentCount - 1);
+                notifyCountElement.textContent = newCount;
+                if (newCount === 0) {
+                    notifyCountElement.style.display = 'none';
+                }
+            }
+        }
+    });
+    
+    // Navigate to the notification URL
+    if (url) {
+        window.location.href = url;
+    }
+}
+
+function saveNotifyConfig() {
+    const checkboxes = document.querySelectorAll('#notify-config-container input[type="checkbox"]');
+    const config = {};
+    
+    checkboxes.forEach(checkbox => {
+        config[checkbox.id.toUpperCase()] = checkbox.checked;
+    });
+    
+    fetch('/v1/setting/notify-config', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(config)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'DONE') {
+            showMessage('success', '알림 설정이 저장되었습니다.');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('notifyConfigModal'));
+            modal.hide();
+        } else {
+            showMessage('error', '설정 저장에 실패했습니다.');
+        }
+    });
+}
+
+function showMessage(type, message) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
 {% endblock %}

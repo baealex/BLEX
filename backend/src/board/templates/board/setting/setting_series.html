@@ -1,12 +1,158 @@
 {% extends 'board/setting/setting_base.html' %}
 {% load static %}
-{% load island %}
 
 {% block setting_title %}시리즈 설정{% endblock %}
 
 {% block setting_content %}
-<div class="setting-card">
-    <h2 class="setting-card-title">시리즈 관리</h2>
-    {% island_component 'SeriesManagement' series=series %}
+{% csrf_token %}
+<div class="text-right mb-3">
+    <button type="button" class="btn btn-primary" onclick="location.href='/@{{ user.username }}/series/create'">
+        새 시리즈 생성
+    </button>
 </div>
+
+<div id="series-container">
+    {% for series in user_series %}
+    <div class="card setting-card mb-3 series-item" data-series-url="{{ series.url }}">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div class="drag-handle p-3 me-3" style="cursor: grab;">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="/@{{ user.username }}/series/{{ series.url }}" class="text-decoration-none text-dark">
+                            {{ series.name }} <span class="badge bg-secondary">{{ series.total_posts }}</span>
+                        </a>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteSeries('{{ series.url }}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        아직 생성된 시리즈가 없습니다.
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+let seriesData = [
+    {% for series in user_series %}
+    {
+        url: '{{ series.url }}',
+        title: '{{ series.name }}',
+        totalPosts: {{ series.total_posts }},
+        order: {{ forloop.counter0 }}
+    },
+    {% endfor %}
+];
+
+// Simple drag and drop functionality
+let draggedElement = null;
+let draggedIndex = null;
+
+document.querySelectorAll('.drag-handle').forEach((handle, index) => {
+    handle.addEventListener('mousedown', function(e) {
+        draggedElement = this.closest('.series-item');
+        draggedIndex = Array.from(draggedElement.parentNode.children).indexOf(draggedElement);
+        draggedElement.style.opacity = '0.5';
+    });
+});
+
+document.addEventListener('mouseup', function() {
+    if (draggedElement) {
+        draggedElement.style.opacity = '1';
+        draggedElement = null;
+        draggedIndex = null;
+    }
+});
+
+document.addEventListener('mouseover', function(e) {
+    if (draggedElement && e.target.closest('.series-item') && e.target.closest('.series-item') !== draggedElement) {
+        const targetElement = e.target.closest('.series-item');
+        const targetIndex = Array.from(targetElement.parentNode.children).indexOf(targetElement);
+        
+        if (targetIndex !== draggedIndex) {
+            const container = draggedElement.parentNode;
+            
+            if (targetIndex < draggedIndex) {
+                container.insertBefore(draggedElement, targetElement);
+            } else {
+                container.insertBefore(draggedElement, targetElement.nextSibling);
+            }
+            
+            // Update series order
+            updateSeriesOrder();
+        }
+    }
+});
+
+function updateSeriesOrder() {
+    const seriesItems = document.querySelectorAll('.series-item');
+    const newOrder = [];
+    
+    seriesItems.forEach((item, index) => {
+        const seriesUrl = item.dataset.seriesUrl;
+        newOrder.push([seriesUrl, index]);
+    });
+    
+    fetch(`/v1/users/@{{ user.username }}/series/order`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({ order: newOrder })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'DONE') {
+            console.log('Series order updated');
+        }
+    });
+}
+
+function deleteSeries(seriesUrl) {
+    if (confirm('정말 이 시리즈를 삭제할까요?')) {
+        fetch(`/v1/users/@{{ user.username }}/series/${seriesUrl}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'DONE') {
+                document.querySelector(`[data-series-url="${seriesUrl}"]`).remove();
+                showMessage('success', '시리즈가 삭제되었습니다.');
+                
+                // Check if no series left
+                const remainingSeries = document.querySelectorAll('.series-item');
+                if (remainingSeries.length === 0) {
+                    document.getElementById('series-container').innerHTML = `
+                        <div class="alert alert-info">
+                            아직 생성된 시리즈가 없습니다.
+                        </div>
+                    `;
+                }
+            } else {
+                showMessage('error', '시리즈 삭제에 실패했습니다.');
+            }
+        });
+    }
+}
+
+function showMessage(type, message) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
 {% endblock %}

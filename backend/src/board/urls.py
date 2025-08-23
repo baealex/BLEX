@@ -11,13 +11,14 @@ from board.views.post_actions import like_post
 from board.views.search import search_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit
 from board.views.post import post_detail, post_editor
-from board.views.series import series_detail, series_create
+from board.views.series import series_detail, series_create, series_edit
 from board.views.auth import login_view, security_view
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import about_view, privacy_view, terms_view
 from board.views.settings import (
     setting_profile, setting_account, setting_notify, setting_series,
-    setting_posts, setting_analytics, setting_integration, setting_invitation
+    setting_posts, setting_analytics, setting_analytics_views, setting_analytics_referer,
+    setting_integration, setting_invitation, setting_forms
 )
 from board.decorators import staff_member_required
 
@@ -46,8 +47,11 @@ urlpatterns = [
     path('settings/series', staff_member_required(setting_series), name='setting_series'),
     path('settings/posts', staff_member_required(setting_posts), name='setting_posts'),
     path('settings/analytics', staff_member_required(setting_analytics), name='setting_analytics'),
+    path('settings/analytics/views', staff_member_required(setting_analytics_views), name='setting_analytics_views'),
+    path('settings/analytics/referer', staff_member_required(setting_analytics_referer), name='setting_analytics_referer'),
     path('settings/integration', staff_member_required(setting_integration), name='setting_integration'),
     path('settings/invitation', staff_member_required(setting_invitation), name='setting_invitation'),
+    path('settings/forms', staff_member_required(setting_forms), name='setting_forms'),
 
     # Author
     path('@<username>/series', staff_member_required(author_series), name='user_series'),
@@ -56,6 +60,7 @@ urlpatterns = [
     path('@<username>/about/edit', staff_member_required(author_about_edit), name='user_about_edit'),
     path('@<username>/<post_url>', staff_member_required(post_detail), name='post_detail'),
     path('@<username>/series/<series_url>', staff_member_required(series_detail), name='series_detail'),
+    path('@<username>/series/<series_url>/edit', staff_member_required(series_edit), name='series_edit'),
     path('@<username>/<post_url>/edit', staff_member_required(post_editor), name='post_edit'),
     path('@<username>', staff_member_required(author_posts), name='user_profile'),
 

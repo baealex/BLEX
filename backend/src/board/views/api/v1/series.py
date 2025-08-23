@@ -96,7 +96,11 @@ def user_series(request, username, url=None):
                 })
 
         if request.method == 'POST':
-            body = QueryDict(request.body)
+            import json
+            try:
+                body = json.loads(request.body)
+            except:
+                body = QueryDict(request.body)
 
             if not body.get('title', ''):
                 return StatusError(ErrorCode.REQUIRE, '제목을 입력해주세요.')
@@ -111,11 +115,16 @@ def user_series(request, username, url=None):
             series.save()
 
             if body.get('post_ids', ''):
-                post_ids = body.get('post_ids').split(',')
+                if isinstance(body.get('post_ids'), str):
+                    post_ids = body.get('post_ids').split(',')
+                else:
+                    post_ids = body.get('post_ids')
+                    
                 for post_id in post_ids:
-                    post = Post.objects.get(id=post_id)
-                    post.series = series
-                    post.save()
+                    if post_id:  # Empty string check
+                        post = Post.objects.get(id=post_id)
+                        post.series = series
+                        post.save()
 
             return StatusDone({
                 'url': series.url
@@ -196,11 +205,36 @@ def user_series(request, username, url=None):
             return StatusError(ErrorCode.AUTHENTICATION)
 
         if request.method == 'PUT':
-            put = QueryDict(request.body)
+            import json
+            try:
+                put = json.loads(request.body)
+            except:
+                put = QueryDict(request.body)
+                
             series.name = put.get('title')
             series.text_md = put.get('description')
             series.create_unique_url()
             series.save()
+            
+            # Handle post_ids if provided
+            if put.get('post_ids'):
+                # Remove all current posts from series
+                Post.objects.filter(series=series).update(series=None)
+                
+                # Add selected posts to series
+                if isinstance(put.get('post_ids'), str):
+                    post_ids = put.get('post_ids').split(',') if put.get('post_ids') else []
+                else:
+                    post_ids = put.get('post_ids')
+                    
+                for post_id in post_ids:
+                    if post_id:  # Empty string check
+                        try:
+                            post = Post.objects.get(id=post_id, author=request.user)
+                            post.series = series
+                            post.save()
+                        except Post.DoesNotExist:
+                            pass  # Skip invalid post IDs
 
             return StatusDone({
                 'url': series.url

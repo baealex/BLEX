@@ -2,29 +2,29 @@
 {% load static %}
 {% load island %}
 
-{% block title %}Create Series - {{ author.username }} - BLEX{% endblock %}
+{% block title %}Edit Series - {{ series.name }} - BLEX{% endblock %}
 
 {% block extra_styles %}
 <style>
-    .series-create-container {
+    .series-edit-container {
         max-width: 600px;
         margin: 0 auto;
         padding: 24px 0;
     }
 
-    .series-create-header {
+    .series-edit-header {
         margin-bottom: 32px;
         text-align: center;
     }
 
-    .series-create-title {
+    .series-edit-title {
         font-size: 32px;
         font-weight: 700;
         margin-bottom: 8px;
         color: #222;
     }
 
-    .series-create-subtitle {
+    .series-edit-subtitle {
         font-size: 16px;
         color: #666;
     }
@@ -102,6 +102,11 @@
         background-color: #f8f9ff;
     }
 
+    .post-checkbox.selected {
+        border-color: #4568dc;
+        background-color: #f0f7ff;
+    }
+
     .post-checkbox input[type="checkbox"] {
         margin-right: 12px;
         width: 18px;
@@ -144,6 +149,16 @@
 
     .btn-secondary:hover {
         background: #5a6268;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
         color: white;
     }
 
@@ -195,13 +210,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="series-create-container">
-    <div class="series-create-header">
-        <h1 class="series-create-title">새 시리즈 만들기</h1>
-        <p class="series-create-subtitle">연관된 글들을 하나의 시리즈로 묶어보세요.</p>
+<div class="series-edit-container">
+    <div class="series-edit-header">
+        <h1 class="series-edit-title">시리즈 편집</h1>
+        <p class="series-edit-subtitle">{{ series.name }}</p>
     </div>
 
-    <form id="series-create-form" action="/v1/users/@{{ author.username }}/series" method="POST">
+    <form id="series-edit-form" method="POST">
         {% csrf_token %}
         <div class="form-section">
             <div class="form-group">
@@ -213,6 +228,7 @@
                     class="form-input" 
                     placeholder="이 시리즈의 이름을 입력해주세요"
                     maxlength="200"
+                    value="{{ series.name }}"
                     required
                 >
             </div>
@@ -225,7 +241,7 @@
                     class="form-input form-textarea" 
                     placeholder="이 시리즈에는 어떤 내용을 다루고 있나요?"
                     maxlength="500"
-                ></textarea>
+                >{{ series.text_md }}</textarea>
             </div>
         </div>
 
@@ -239,17 +255,16 @@
                 {% elif not available_posts %}
                     <div class="empty-posts">
                         시리즈에 추가할 수 있는 글이 없습니다.
-                        <br>
-                        <small>시리즈가 없는 글들만 추가할 수 있습니다.</small>
                     </div>
                 {% else %}
                     <div class="posts-grid">
                         {% for post in available_posts %}
-                        <label class="post-checkbox">
+                        <label class="post-checkbox {% if post.id in current_post_ids %}selected{% endif %}">
                             <input 
                                 type="checkbox" 
                                 name="post_ids" 
                                 value="{{ post.id }}"
+                                {% if post.id in current_post_ids %}checked{% endif %}
                             >
                             <span class="post-title">{{ post.title }}</span>
                         </label>
@@ -260,16 +275,21 @@
         </div>
 
         <div class="form-actions">
-            <a href="/@{{ author.username }}/series" class="btn btn-secondary">취소</a>
+            <div>
+                <a href="/@{{ author.username }}/series/{{ series.url }}" class="btn btn-secondary">취소</a>
+                <button type="button" class="btn btn-danger" onclick="deleteSeries()" style="margin-left: 8px;">
+                    시리즈 삭제
+                </button>
+            </div>
             <button type="submit" class="btn btn-primary" id="submit-btn">
-                시리즈 만들기
+                시리즈 수정
             </button>
         </div>
     </form>
 </div>
 
 <script>
-document.getElementById('series-create-form').addEventListener('submit', async function(e) {
+document.getElementById('series-edit-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const submitBtn = document.getElementById('submit-btn');
@@ -288,11 +308,11 @@ document.getElementById('series-create-form').addEventListener('submit', async f
     
     // Disable submit button
     submitBtn.disabled = true;
-    submitBtn.textContent = '생성 중...';
+    submitBtn.textContent = '수정 중...';
     
     try {
-        const response = await fetch('/v1/users/@{{ author.username }}/series', {
-            method: 'POST',
+        const response = await fetch('/v1/users/@{{ author.username }}/series/{{ series.url }}', {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
@@ -307,15 +327,53 @@ document.getElementById('series-create-form').addEventListener('submit', async f
         const data = await response.json();
         
         if (data.status === 'DONE') {
-            alert('시리즈가 생성되었습니다.');
+            alert('시리즈가 수정되었습니다.');
             window.location.href = `/@{{ author.username }}/series/${data.body.url}`;
         } else {
-            throw new Error(data.errorMessage || '시리즈 생성에 실패했습니다.');
+            throw new Error(data.errorMessage || '시리즈 수정에 실패했습니다.');
         }
     } catch (error) {
-        alert(error.message || '시리즈 생성에 실패했습니다.');
+        alert(error.message || '시리즈 수정에 실패했습니다.');
         submitBtn.disabled = false;
         submitBtn.textContent = originalText;
+    }
+});
+
+async function deleteSeries() {
+    if (!confirm('정말 이 시리즈를 삭제할까요? 이 작업은 되돌릴 수 없습니다.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/v1/users/@{{ author.username }}/series/{{ series.url }}', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'DONE') {
+            alert('시리즈가 삭제되었습니다.');
+            window.location.href = '/@{{ author.username }}/series';
+        } else {
+            throw new Error(data.errorMessage || '시리즈 삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        alert(error.message || '시리즈 삭제에 실패했습니다.');
+    }
+}
+
+// Add visual feedback for checkboxes
+document.addEventListener('change', function(e) {
+    if (e.target.type === 'checkbox' && e.target.name === 'post_ids') {
+        const label = e.target.closest('.post-checkbox');
+        if (e.target.checked) {
+            label.classList.add('selected');
+        } else {
+            label.classList.remove('selected');
+        }
     }
 });
 </script>

@@ -40,6 +40,33 @@
         margin-bottom: 24px;
     }
     
+    .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #0056b3;
+        color: white;
+    }
+    
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
     .series-author {
         display: flex;
         align-items: center;
@@ -255,6 +282,11 @@
                 </a>
             </div>
             <div class="series-date">마지막 업데이트: {{ series.updated_date }}</div>
+            {% if request.user == author %}
+            <div class="series-actions">
+                <a href="/@{{ author.username }}/series/{{ series.url }}/edit" class="btn btn-primary btn-sm">편집</a>
+            </div>
+            {% endif %}
         </div>
         
         {% if series.description %}

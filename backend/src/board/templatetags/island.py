@@ -75,6 +75,7 @@ def island_css(entry_name):
     {% load island %}
     <link rel="stylesheet" href="{% island_css 'main' %}">
     """
+
     # Check if in development mode
     if settings.DEBUG:
         return f"http://localhost:5173/styles/{entry_name}.scss"
@@ -89,7 +90,6 @@ def island_css(entry_name):
             if entry_path in key and key.endswith(ext):
                 return static(f"islands/{value['file']}")
     
-    # If not found in manifest (e.g., in development), return the default path
     return static(f"islands/{entry_name}")
 
 @register.simple_tag
