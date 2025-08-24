@@ -5,8 +5,8 @@
 {% block setting_title %}통계 설정{% endblock %}
 
 {% block setting_content %}
-<div class="setting-card">
-    <h2 class="setting-card-title">방문자 통계</h2>
-    {% island_component 'VisitorAnalytics' %}
-</div>
+<h2 class="text-xl font-bold mb-4">방문자 통계</h2>
+{% island_component 'VisitorAnalyticsSetting' %}
+<h2 class="text-xl font-bold mb-4">유입 경로 통계</h2>
+{% island_component 'RefererAnalyticsSetting' %}
 {% endblock %}

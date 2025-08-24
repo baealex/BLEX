@@ -4,76 +4,81 @@
 
 {% block title %}{% block setting_title %}설정{% endblock %} | BLEX{% endblock %}
 
-{% block extra_styles %}
-<link rel="stylesheet" href="{% island_css 'setting' %}">
-{% block setting_styles %}{% endblock %}
-{% endblock %}
-
 {% block content %}
-<div class="setting-container">
-    <div class="setting-layout">
-        <div class="setting-sidebar">
-            <nav class="setting-nav">
-                <h2 class="setting-nav-title">설정</h2>
-                <ul class="setting-nav-list">
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_profile' %}" class="setting-nav-link {% if active == 'profile' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-user"></i></span>
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col lg:flex-row lg:space-x-8">
+        <div class="bg-white p-6 rounded-lg shadow-md lg:w-1/4 mb-6 lg:mb-0 self-start">
+            <nav>
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">설정</h2>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'setting_profile' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'profile' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-user"></i></span>
                             <span>프로필</span>
                         </a>
                     </li>
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_account' %}" class="setting-nav-link {% if active == 'account' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-user-cog"></i></span>
+                    <li>
+                        <a href="{% url 'setting_account' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'account' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-user-cog"></i></span>
                             <span>계정</span>
                         </a>
                     </li>
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_notify' %}" class="setting-nav-link {% if active == 'notify' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-bell"></i></span>
+                    <li>
+                        <a href="{% url 'setting_notify' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'notify' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-bell"></i></span>
                             <span>알림</span>
                         </a>
                     </li>
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_series' %}" class="setting-nav-link {% if active == 'series' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-list"></i></span>
+                    <li>
+                        <a href="{% url 'setting_series' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'series' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-list"></i></span>
                             <span>시리즈</span>
                         </a>
                     </li>
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_posts' %}" class="setting-nav-link {% if active == 'posts' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-file-alt"></i></span>
+                    <li>
+                        <a href="{% url 'setting_posts' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'posts' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-file-alt"></i></span>
                             <span>포스트</span>
                         </a>
                     </li>
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_analytics_views' %}" class="setting-nav-link {% if active == 'analytics' or active == 'analytics/views' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-chart-bar"></i></span>
+                    <li>
+                        <a href="{% url 'setting_analytics' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'analytics' or active == 'analytics/views' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-chart-bar"></i></span>
                             <span>통계</span>
                         </a>
                     </li>
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_forms' %}" class="setting-nav-link {% if active == 'forms' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-file-alt"></i></span>
+                    <li>
+                        <a href="{% url 'setting_forms' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'forms' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-file-alt"></i></span>
                             <span>서식</span>
                         </a>
                     </li>
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_integration' %}" class="setting-nav-link {% if active == 'integration' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-plug"></i></span>
+                    <li>
+                        <a href="{% url 'setting_integration' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'integration' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-plug"></i></span>
                             <span>연동</span>
                         </a>
                     </li>
-                    <li class="setting-nav-item">
-                        <a href="{% url 'setting_invitation' %}" class="setting-nav-link {% if active == 'invitation' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-envelope"></i></span>
+                    <li>
+                        <a href="{% url 'setting_invitation' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'invitation' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-envelope"></i></span>
                             <span>초대</span>
                         </a>
                     </li>
                     {% if request.user.is_staff %}
-                    <li class="setting-nav-item">
-                        <a href="{% url 'admin:index' %}" class="setting-nav-link {% if active == 'staff' %}active{% endif %}">
-                            <span class="setting-nav-icon"><i class="fas fa-user-shield"></i></span>
+                    <li>
+                        <a href="{% url 'admin:index' %}" class="flex items-center px-4 py-2 rounded-md transition-colors duration-200
+                            {% if active == 'staff' %}bg-indigo-500 text-white hover:bg-indigo-600{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+                            <span class="w-6 h-6 mr-3 flex items-center justify-center"><i class="fas fa-user-shield"></i></span>
                             <span>관리자</span>
                         </a>
                     </li>
@@ -81,7 +86,7 @@
                 </ul>
             </nav>
         </div>
-        <div class="setting-content">
+        <div class="flex-1">
             {% block setting_content %}{% endblock %}
         </div>
     </div>

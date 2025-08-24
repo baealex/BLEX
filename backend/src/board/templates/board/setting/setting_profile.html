@@ -5,20 +5,12 @@
 {% block setting_title %}프로필 설정{% endblock %}
 
 {% block setting_content %}
-<div class="setting-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="setting-card-title">사용자 상세 소개</div>
-        <div>
-            <a href="/@{{ user.username }}?preview=about" class="btn btn-secondary" style="margin-right: 8px;">페이지 확인</a>
-            <a href="/@{{ user.username }}/about/edit" class="btn btn-primary">소개 작성</a>
-        </div>
-    </div>
-    <div class="alert alert-warning">
-        프로필 메인 페이지 상단에 표시됩니다.
-    </div>
+<div class="mb-8">
+    <h2 class="text-xl font-bold mb-4">프로필</h2>
+    {% island_component 'ProfileSetting' avatar=user_profile.avatar bio=user_profile.bio homepage=user_profile.homepage %}
 </div>
-
-{% island_component 'ProfileForm' avatar=user_profile.avatar bio=user_profile.bio homepage=user_profile.homepage %}
-
-{% island_component 'SocialLinks' social_links=social_links_json %}
+<div>
+    <h2 class="text-xl font-bold mb-4">소셜 링크</h2>
+    {% island_component 'SocialLinksSetting' social_links=social_links_json %}
+</div>
 {% endblock %}

@@ -5,5 +5,5 @@
 {% block setting_title %}계정 설정{% endblock %}
 
 {% block setting_content %}
-{% island_component 'AccountSettings' username=user.username name=user_full_name email=user.email createdDate=user_joined_date has2fa=has_2fa %}
+{% island_component 'AccountSetting' username=user.username name=user_full_name email=user.email createdDate=user_joined_date has2fa=has_2fa %}
 {% endblock %}
