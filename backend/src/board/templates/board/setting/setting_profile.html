@@ -5,12 +5,8 @@
 {% block setting_title %}프로필 설정{% endblock %}
 
 {% block setting_content %}
-<div class="mb-8">
-    <h2 class="text-xl font-bold mb-4">프로필</h2>
-    {% island_component 'ProfileSetting' avatar=user_profile.avatar bio=user_profile.bio homepage=user_profile.homepage %}
-</div>
-<div>
-    <h2 class="text-xl font-bold mb-4">소셜 링크</h2>
-    {% island_component 'SocialLinksSetting' social_links=social_links_json %}
-</div>
+<h2 class="text-xl font-bold mb-4">프로필</h2>
+{% island_component 'ProfileSetting' avatar=user_profile.avatar bio=user_profile.bio homepage=user_profile.homepage %}
+<h2 class="text-xl font-bold mb-4 mt-8">소셜 링크</h2>
+{% island_component 'SocialLinksSetting' social_links=social_links_json %}
 {% endblock %}

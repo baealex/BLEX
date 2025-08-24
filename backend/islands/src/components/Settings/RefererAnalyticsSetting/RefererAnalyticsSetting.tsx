@@ -21,11 +21,25 @@ interface RefererAnalytics {
 
 const Loading = () => {
     return (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <div className="spinner-border" role="status">
-                <span className="visually-hidden">로딩중...</span>
+        <div className="p-6 bg-white shadow-md rounded-lg">
+            <div className="animate-pulse">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6 mb-6">
+                    <div className="h-6 bg-gray-200 rounded w-32 mb-2" />
+                    <div className="h-4 bg-gray-200 rounded w-48" />
+                </div>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
+                                <div className="h-4 bg-gray-200 rounded w-full mb-2" />
+                                <div className="h-3 bg-gray-200 rounded w-24 mb-2" />
+                                <div className="h-3 bg-gray-200 rounded w-48" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
-            <div style={{ marginTop: '1rem' }}>데이터를 불러오는 중...</div>
         </div>
     );
 };
@@ -45,54 +59,72 @@ const RefererAnalytics: React.FC = () => {
     if (isLoading) return <Loading />;
 
     return (
-        <div className="card setting-card">
-            <div className="card-header">
-                <h5 className="card-title mb-0">신규 유입 경로</h5>
+        <div className="p-6 bg-white shadow-md rounded-lg">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6 mb-6">
+                <h2 className="text-xl font-bold text-green-900 mb-2 flex items-center">
+                    <svg className="w-6 h-6 mr-2 text-green-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+                    </svg>
+                    신규 유입 경로
+                </h2>
+                <p className="text-green-700">최근 블로그로 방문자들이 어떤 경로를 통해 유입되었는지 확인해보세요.</p>
             </div>
-            <div className="card-body">
+
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
                 {referers?.referers.length === 0 ? (
-                    <div className="alert alert-info">
-                        신규 유입 경로가 없습니다.
+                    <div className="text-center py-12">
+                        <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">신규 유입 경로가 없습니다</h3>
+                        <p className="text-gray-500">아직 외부 사이트에서의 유입이 감지되지 않았습니다.</p>
                     </div>
                 ) : (
-                    <div className="row">
+                    <div className="space-y-4">
                         {referers?.referers.map((item, index) => (
-                            <div key={index} className="col-12 mb-3">
-                                <div className="card">
-                                    <div className="card-body">
-                                        <div className="mb-2">
+                            <div key={index} className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
                                             <a 
                                                 href={item.url} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
-                                                className="text-decoration-none text-dark"
+                                                className="hover:text-green-600 transition-colors flex items-center"
                                             >
                                                 {item.title || item.url}
+                                                <svg className="w-4 h-4 ml-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                </svg>
                                             </a>
-                                        </div>
+                                        </h3>
                                         {item.description && (
-                                            <div className="text-muted small mb-2">
-                                                <a 
-                                                    href={item.url} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className="text-decoration-none text-muted"
-                                                >
-                                                    {item.description}
-                                                </a>
-                                            </div>
+                                            <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                                                {item.description}
+                                            </p>
                                         )}
-                                        <div className="text-muted small mb-2">
-                                            {item.time}
-                                        </div>
-                                        <div className="mt-2">
-                                            <a 
-                                                href={`/@${item.posts.author}/${item.posts.url}`} 
-                                                className="text-decoration-none text-muted small"
-                                            >
-                                                → {item.posts.title}
-                                            </a>
-                                        </div>
+                                    </div>
+                                    <div className="flex items-center text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-4">
+                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                        </svg>
+                                        {item.time}
+                                    </div>
+                                </div>
+                                
+                                <div className="border-t border-gray-100 pt-3">
+                                    <div className="flex items-center text-sm">
+                                        <span className="text-gray-500 mr-2">연결된 글:</span>
+                                        <a 
+                                            href={`/@${item.posts.author}/${item.posts.url}`} 
+                                            className="font-medium text-green-600 hover:text-green-700 transition-colors flex items-center"
+                                        >
+                                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {item.posts.title}
+                                        </a>
                                     </div>
                                 </div>
                             </div>
