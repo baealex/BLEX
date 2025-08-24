@@ -7,7 +7,18 @@ Parameters:
 - default_label: The label to show when no value is selected.
 {% endcomment %}
 
-<div class="relative" x-data="{ open: false }">
+<div class="relative" x-data="{ 
+    open: false,
+    updateQueryParams(param, value) {
+        const url = new URL(window.location);
+        if (value === '') {
+            url.searchParams.delete(param);
+        } else {
+            url.searchParams.set(param, value);
+        }
+        window.location = url;
+    }
+}">
     <button @click="open = !open" class="flex items-center justify-between w-full sm:w-48 px-4 py-2 bg-white border border-solid border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
         <span class="truncate">
             {% for option in options %}
@@ -30,20 +41,9 @@ Parameters:
         style="display: none;"
     >
         {% for option in options %}
-        <a href="#" @click.prevent="updateQueryParams('{{ param_name }}', '{{ option.value }}')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if current_value|default:'' == option.value|default:'' %}bg-gray-100 font-semibold{% endif %}">
+        <a href="#" @click.prevent="updateQueryParams('{{ param_name }}', '{{ option.value }}'); open = false" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if current_value|default:'' == option.value|default:'' %}bg-gray-100 font-semibold{% endif %}">
             {{ option.label }}
         </a>
         {% endfor %}
     </div>
 </div>
-<script>
-    function updateQueryParams(param, value) {
-        const url = new URL(window.location);
-        if (value === '') {
-            url.searchParams.delete(param);
-        } else {
-            url.searchParams.set(param, value);
-        }
-        window.location = url;
-    }
-</script>

@@ -23,7 +23,7 @@
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">정렬</label>
-                    {% include 'components/dropdown_filter.html' with options=series_sort_options param_name='sort' current_value=request.GET.sort|default:'newest' %}
+                    {% include 'components/dropdown_filter.html' with options=series_sort_options param_name='sort' current_value=request.GET.sort|default:'custom' %}
                 </div>
                 {% if request.user == author %}
                 <div>

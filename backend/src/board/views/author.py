@@ -150,7 +150,7 @@ def author_series(request, username):
     
     # Get search query and filters
     search_query = request.GET.get('q', '')
-    sort_option = request.GET.get('sort', 'newest')
+    sort_option = request.GET.get('sort', 'custom')
     
     # Base query for author's series
     series_list = Series.objects.filter(owner=author)

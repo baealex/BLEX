@@ -4,218 +4,47 @@
 
 {% block title %}BLEX - #{{ tag }}{% endblock %}
 
-{% block extra_styles %}
-<style>
-    /* Tag header section */
-    .tag-header {
-        margin-bottom: 32px;
-        text-align: center;
-    }
-
-    .tag-title {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        background: linear-gradient(90deg, #4568dc, #b06ab3);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .tag-count {
-        font-size: 16px;
-        color: #777;
-        margin-bottom: 16px;
-    }
-
-    /* Featured post section */
-    .featured-post {
-        margin-bottom: 32px;
-        border-radius: 16px;
-        background-color: #fff;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .featured-post:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .featured-post-container {
-        display: flex;
-        flex-direction: column;
-    }
-
-    @media (min-width: 768px) {
-        .featured-post-container {
-            flex-direction: row;
-        }
-    }
-
-    .featured-post-image-container {
-        flex: 1;
-        overflow: hidden;
-    }
-
-    .featured-post-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
-    .featured-post:hover .featured-post-image {
-        transform: scale(1.05);
-    }
-
-    .featured-post-content {
-        flex: 1;
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .featured-post-author-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-
-    .featured-post-author-image {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-    }
-
-    .featured-post-meta {
-        font-size: 14px;
-        color: #777;
-    }
-
-    .featured-post-meta-separator {
-        margin: 0 5px;
-    }
-
-    .featured-post-title {
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 16px;
-        color: #333;
-    }
-
-    .featured-post-description {
-        font-size: 16px;
-        color: #666;
-        flex-grow: 1;
-    }
-
-    /* Post grid section */
-    .section-title {
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 24px;
-    }
-
-    .masonry-grid {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 24px;
-    }
-
-    @media (min-width: 768px) {
-        .masonry-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .masonry-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    .no-posts {
-        text-align: center;
-        padding: 40px 0;
-    }
-
-    .no-posts h3 {
-        font-size: 24px;
-        color: #333;
-        margin-bottom: 16px;
-    }
-
-    .no-posts p {
-        font-size: 16px;
-        color: #777;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .featured-post,
-        .post-image,
-        .featured-post-image {
-            transition: none !important;
-        }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="tag-header">
-    <h1 class="tag-title">#{{ tag }}</h1>
-    <div class="tag-count">{{ posts|length }} post{% if posts|length != 1 %}s{% endif %}</div>
+<div class="my-16">
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900">#{{ tag }}</h1>
+        <p class="mt-2 text-lg text-gray-600">{{ posts|length }} post{% if posts|length != 1 %}s{% endif %}</p>
+    </div>
 </div>
 
 {% if head_post %}
-<div class="featured-post">
-    <div class="featured-post-container">
-        {% if head_post.image %}
-        <div class="featured-post-image-container">
-            <a href="/@{{ head_post.author }}/{{ head_post.url }}">
-                <img class="featured-post-image" src="{% static head_post.image %}" alt="{{ head_post.title }}">
-            </a>
-        </div>
-        {% endif %}
-        <div class="featured-post-content">
-            <div class="featured-post-author-container">
-                <a href="/@{{ head_post.author }}">
-                    <img class="featured-post-author-image" src="{% static head_post.author_image %}" alt="{{ head_post.author }}">
-                </a>
-                <span class="featured-post-meta">
-                    <a href="/@{{ head_post.author }}">{{ head_post.author }}</a>
-                </span>
-            </div>
-            <h2 class="featured-post-title">
-                <a href="/@{{ head_post.author }}/{{ head_post.url }}">{{ head_post.title }}</a>
-            </h2>
-            <p class="featured-post-description">{{ head_post.description }}</p>
-        </div>
-    </div>
+<div class="mb-8 p-6 bg-white border border-gray-200 rounded-2xl border border-solid border-gray-200">
+    <h2 class="text-2xl font-bold text-gray-900 mb-3">
+        <a href="/@{{ head_post.author }}/{{ head_post.url }}" class="hover:text-primary-500">{{ head_post.title }}</a>
+    </h2>
+    <p class="text-gray-600 mb-4">{{ head_post.description }}</p>
+    <a href="/@{{ head_post.author }}/{{ head_post.url }}" class="font-semibold text-primary-500 hover:text-primary-600">Read more &rarr;</a>
 </div>
 {% endif %}
 
 {% if posts %}
-    {% if not head_post %}
-        <h2 class="section-title">Posts with #{{ tag }}</h2>
-    {% else %}
-        <h2 class="section-title">More posts with #{{ tag }}</h2>
-    {% endif %}
-    
-
     <div class="masonry-grid">
         {% for post in posts %}
             {% include 'components/post_card.html' with post=post show_author=true %}
         {% endfor %}
     </div>
 
-    {% include 'components/pagination.html' with style='numbered' page=page last=last_page %}
+    <div class="mt-12">
+        {% include 'components/pagination.html' with style='numbered' page=page last=last_page %}
+    </div>
 {% else %}
-    <div class="no-posts">
-        <h3>No posts found</h3>
-        <p>There are no posts with this tag yet.</p>
+    <div class="text-center py-16">
+        <div class="inline-block bg-blue-100 text-blue-500 p-6 rounded-full mb-6">
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">No posts found for #{{ tag }}</h3>
+        <p class="text-gray-600 mb-8">Be the first to write a post with this tag!</p>
+        <a href="{% url 'post_write' %}" class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+            Write a Post
+        </a>
     </div>
 {% endif %}
 {% endblock %}
+

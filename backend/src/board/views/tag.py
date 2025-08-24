@@ -11,6 +11,13 @@ def tag_list_view(request):
     """
     View function for displaying a list of all tags.
     """
+    # Get search query
+    search_query = request.GET.get('q', '').strip()
+    
+    # Get sort parameter
+    sort = request.GET.get('sort', 'popular')
+    
+    # Build base queryset
     tags = Tag.objects.filter(
         posts__config__hide=False
     ).annotate(
@@ -22,7 +29,21 @@ def tag_list_view(request):
                 ),
             )
         ),
-    ).order_by('-count', 'value')
+    )
+    
+    # Apply search filter
+    if search_query:
+        tags = tags.filter(value__icontains=search_query)
+    
+    # Apply sorting
+    if sort == 'popular':
+        tags = tags.order_by('-count', 'value')
+    elif sort == 'name':
+        tags = tags.order_by('value')
+    elif sort == 'recent':
+        tags = tags.order_by('-id')
+    else:
+        tags = tags.order_by('-count', 'value')
 
     # Pagination
     page = int(request.GET.get('page', 1))
@@ -42,10 +63,18 @@ def tag_list_view(request):
             'image': tag.get_image(),
         })
 
+    # Sort options for dropdown
+    sort_options = [
+        {'value': 'popular', 'label': '인기순'},
+        {'value': 'name', 'label': '이름순'},
+        {'value': 'recent', 'label': '최신순'},
+    ]
+
     context = {
         'tags': tag_list,
         'page': page,
         'last_page': paginated_tags.paginator.num_pages,
+        'sort_options': sort_options,
     }
     
     return render(request, 'board/tag_list.html', context)
