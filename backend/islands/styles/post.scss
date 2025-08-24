@@ -5,26 +5,28 @@
     word-break: keep-all;
     overflow-wrap: anywhere;
 
+    // General margin for all child elements
+    & > * {
+        margin: 0 0 1.5rem;
+    }
+
+    // Dividers
     hr {
         border: none;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    img,
-    video {
-        max-width: 100%;
-    }
-
+    // Headings
     h1,
     h2,
     h3,
     h4,
     h5,
     h6 {
-        padding: 0.5em 0 0.2em 0;
-        letter-spacing: -1px;
         position: relative;
         font-weight: bold;
+        letter-spacing: -1px;
+        padding: 0.5em 0 0.2em 0;
         margin: 0 0 1.5rem;
     }
 
@@ -43,18 +45,21 @@
         font-size: 1.35rem;
     }
 
-    &>* {
-        margin: 0 0 1.5rem;
+    // Links
+    a {
+        text-decoration: none;
+        color: #000;
     }
 
+    // Lists
     ul,
     ol {
         padding-left: 30px;
     }
 
     li.checkbox {
-        list-style: none;
         position: relative;
+        list-style: none;
 
         &::before,
         &::after {
@@ -86,11 +91,7 @@
         }
     }
 
-    a {
-        text-decoration: none;
-        color: #000;
-    }
-
+    // Code blocks
     pre {
         overflow-x: scroll;
         background-color: #eee;
@@ -109,13 +110,14 @@
         padding: 2px;
     }
 
+    // Media elements
     img,
     video {
-        -webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
-        -moz-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+        max-width: 100%;
         box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
     }
 
+    // Quotes
     blockquote {
         font-style: italic;
         padding: 20px;
@@ -128,13 +130,14 @@
         }
     }
 
+    // Tables
     table {
         display: block;
-        border-collapse: collapse;
-        border-spacing: 0;
         width: 100%;
         overflow: auto;
         white-space: nowrap;
+        border-collapse: collapse;
+        border-spacing: 0;
 
         th {
             text-align: left;
@@ -158,6 +161,7 @@
         }
     }
 
+    // Figure layouts
     figure {
         display: grid;
         align-items: center;
@@ -176,8 +180,8 @@
         figcaption {
             font-size: 14px;
             text-align: center;
-            order: 2;
             color: #919191;
+            order: 2;
             grid-column: 1 / -1;
         }
     }
@@ -189,7 +193,6 @@
         video {
             margin: 0 auto;
         }
-
     }
 
     figure.col-2 {
@@ -200,6 +203,7 @@
         grid-template: 1fr / repeat(3, minmax(0, 1fr));
     }
 
+    // Math rendering
     .katex-html[aria-hidden="true"] {
         display: none;
     }

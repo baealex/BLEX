@@ -4,359 +4,147 @@
 
 {% block title %}{{ series.name }} - {{ author.username }} | BLEX{% endblock %}
 
-{% block extra_styles %}
-<style>
-    /* Series detail styles */
-    .series-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 40px 0;
-    }
-    
-    /* Series header */
-    .series-header {
-        margin-bottom: 40px;
-    }
-    
-    .series-title {
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 16px;
-        line-height: 1.2;
-    }
-    
-    .series-description {
-        font-size: 18px;
-        color: #666;
-        margin-bottom: 24px;
-        line-height: 1.6;
-    }
-    
-    .series-meta {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-    
-    .btn {
-        padding: 8px 16px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        border: none;
-        cursor: pointer;
-        display: inline-block;
-    }
-    
-    .btn-primary {
-        background: #007bff;
-        color: white;
-    }
-    
-    .btn-primary:hover {
-        background: #0056b3;
-        color: white;
-    }
-    
-    .btn-sm {
-        padding: 6px 12px;
-        font-size: 12px;
-    }
-    
-    .series-author {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .series-author-image {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    
-    .series-author-name {
-        font-weight: 600;
-        color: #333;
-    }
-    
-    .series-date {
-        color: #666;
-        font-size: 14px;
-    }
-
-    /* Posts list */
-    .series-posts {
-        margin-top: 32px;
-    }
-    
-    .series-posts-title {
-        font-size: 24px;
-        font-weight: 700;
-    }
-    
-    .post-list {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-    }
-    
-    .post-item {
-        margin-bottom: 24px;
-        border-radius: 12px;
-        background-color: #fff;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .post-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-    
-    .post-link {
-        display: flex;
-        padding: 20px;
-        color: inherit;
-        text-decoration: none;
-    }
-    
-    .post-number {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-        height: 40px;
-        background-color: #f0f0f0;
-        border-radius: 50%;
-        font-size: 18px;
-        font-weight: 600;
-        margin-right: 16px;
-        color: #555;
-    }
-    
-    .post-content {
-        flex: 1;
-    }
-    
-    .post-title {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 8px;
-        line-height: 1.4;
-    }
-    
-    .post-meta {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        color: #666;
-        font-size: 14px;
-    }
-    
-    .post-date {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .post-read-time {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .post-likes {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .post-comments {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    /* Empty state */
-    .empty-state {
-        text-align: center;
-        padding: 60px 0;
-    }
-    
-    .empty-state-title {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 12px;
-    }
-    
-    .empty-state-message {
-        font-size: 16px;
-        color: #666;
-        margin-bottom: 24px;
-    }
-    
-    /* Loading state */
-    .loading-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 40px 0;
-    }
-    
-    .loading-spinner {
-        border: 3px solid rgba(0, 0, 0, 0.1);
-        border-radius: 50%;
-        border-top: 3px solid #4568dc;
-        width: 30px;
-        height: 30px;
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Series controls styles */
-    .series-controls {
-        margin-top: 40px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-    
-    /* Sorting controls styles */
-    .sort-controls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .sort-label {
-        font-size: 14px;
-        color: #666;
-    }
-    
-    .sort-button {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        background-color: #f5f5f5;
-        color: #333;
-        font-size: 14px;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .sort-button:hover {
-        background-color: #e0e0e0;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="series-container">
-    <div class="series-header">
-        <h1 class="series-title">{{ series.name }}</h1>
-        <div class="series-description">{{ series.text_html | safe }}</div>
-        
-        <div class="series-meta">
-            <div class="series-author">
-                <a href="/@{{ author.username }}">
-                    <img class="series-author-image" src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" alt="{{ author.username }}">
-                </a>
-                <a href="/@{{ author.username }}" class="series-author-name">
-                    {{ author.username }}
-                </a>
+<!-- 시리즈 헤더 -->
+<div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+    <!-- 시리즈 타이틀과 메타 정보 -->
+    <div class="flex flex-col lg:flex-row lg:items-start gap-6">
+        <!-- 왼쪽: 시리즈 정보 -->
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
+                <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Series</span>
             </div>
-            <div class="series-date">마지막 업데이트: {{ series.updated_date }}</div>
-            {% if request.user == author %}
-            <div class="series-actions">
-                <a href="/@{{ author.username }}/series/{{ series.url }}/edit" class="btn btn-primary btn-sm">편집</a>
+            
+            <h1 class="text-2xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                {{ series.name }}
+            </h1>
+            
+            {% if series.text_html %}
+            <div class="text-lg text-gray-600 mb-6 leading-relaxed">
+                {{ series.text_html | safe }}
             </div>
             {% endif %}
         </div>
         
-        {% if series.description %}
-        <p class="series-description">{{ series.description }}</p>
-        {% endif %}
-    </div>
-    
-    {% if is_loading %}
-    <div class="loading-container">
-        <div class="loading-spinner"></div>
-    </div>
-    {% elif not posts %}
-    <div class="empty-state">
-        <h2 class="empty-state-title">아직 포스트가 없습니다</h2>
-        <p class="empty-state-message">이 시리즈에는 아직 포스트가 없습니다.</p>
-    </div>
-    {% else %}
-    <div class="series-posts">
-        <div class="flex justify-between align-center mb-3">
-            <h2 class="series-posts-title">포스트 목록</h2>
-            <div class="sort-controls">
-                <span class="sort-label">정렬:</span>
-                {% if sort_order == 'desc' %}
-                <a href="?sort=asc" class="sort-button">
-                    <i class="fas fa-sort-amount-up"></i> 오래된순
-                </a>
-                {% else %}
-                <a href="?sort=desc" class="sort-button">
-                    <i class="fas fa-sort-amount-down"></i> 최신순
+        <!-- 오른쪽: 작성자 정보와 액션 -->
+        <div class="lg:w-80 flex-shrink-0">
+            <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                <!-- 작성자 정보 -->
+                <div class="flex items-center gap-4 mb-4">
+                    <a href="/@{{ author.username }}">
+                        <img class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" 
+                             src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
+                             alt="{{ author.username }}">
+                    </a>
+                    <div>
+                        <div class="text-sm text-gray-500 mb-1">작성자</div>
+                        <a href="/@{{ author.username }}" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+                            {{ author.username }}
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 시리즈 통계 -->
+                <div class="space-y-2 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">포스트 수</span>
+                        <span class="font-medium text-gray-900">{{ posts|length }}개</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">마지막 업데이트</span>
+                        <span class="font-medium text-gray-900">{{ series.updated_date }}</span>
+                    </div>
+                </div>
+                
+                <!-- 편집 버튼 -->
+                {% if request.user == author %}
+                <a href="/@{{ author.username }}/series/{{ series.url }}/edit" 
+                   class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-block">
+                    시리즈 편집
                 </a>
                 {% endif %}
             </div>
         </div>
-        <ul class="post-list">
-            {% for post_number, post in posts %}
-            <li class="post-item">
-                <a href="/@{{ author.username }}/{{ post.url }}" class="post-link">
-                    <div class="post-number">{{ post_number }}</div>
-                    <div class="post-content">
-                        <h3 class="post-title">{{ post.title }}</h3>
-                        <div class="post-meta">
-                            <div class="post-date">
-                                <i class="far fa-calendar-alt"></i>
-                                <span>{{ post.created_date }}</span>
-                            </div>
-                            <div class="post-read-time">
-                                <i class="far fa-clock"></i>
-                                <span>{{ post.read_time }}분 분량</span>
-                            </div>
-                            <div class="post-likes">
-                                <i class="far fa-heart"></i>
-                                <span>{{ post.count_likes }}</span>
-                            </div>
-                            <div class="post-comments">
-                                <i class="far fa-comment"></i>
-                                <span>{{ post.count_comments }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-        
-        <div class="series-controls">
-            {% if total_pages > 1 %}
-            {% include 'components/pagination.html' with page=page last=total_pages request=request style="numbered" %}
-            {% endif %}
-        </div>
     </div>
-    {% endif %}
 </div>
+
+{% if is_loading %}
+<div class="flex justify-center items-center py-16">
+    <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+</div>
+
+{% elif not posts %}
+<div class="flex flex-col items-center justify-center min-h-96 text-center">
+    <div class="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
+        <i class="fas fa-file-alt text-2xl text-indigo-500"></i>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">아직 포스트가 없습니다</h2>
+    <p class="text-lg text-gray-600">이 시리즈에는 아직 포스트가 없습니다.</p>
+</div>
+
+{% else %}
+<!-- 정렬 컨트롤 -->
+<div class="flex justify-end mb-6">
+    <div class="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-300">
+        {% if sort_order == 'desc' %}
+        <a href="?sort=asc" class="px-3 py-2 bg-white text-indigo-600 shadow-sm rounded-md text-sm font-medium transition-all">
+            <i class="fas fa-sort-amount-up mr-2"></i>오래된순
+        </a>
+        {% else %}
+        <a href="?sort=desc" class="px-3 py-2 bg-white text-indigo-600 shadow-sm rounded-md text-sm font-medium transition-all">
+            <i class="fas fa-sort-amount-down mr-2"></i>최신순
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 포스트 목록 -->
+<div class="space-y-4">
+    {% for post_number, post in posts %}
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+        <a href="/@{{ author.username }}/{{ post.url }}" class="flex items-start gap-4">
+            <!-- 포스트 번호 -->
+            <div class="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-900 text-lg font-bold">
+                {{ post_number }}
+            </div>
+            
+            <!-- 포스트 내용 -->
+            <div class="flex-1 min-w-0">
+                <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-indigo-600 transition-colors">
+                    {{ post.title }}
+                </h3>
+                
+                <!-- 메타 정보 -->
+                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                    <div class="flex items-center gap-1">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>{{ post.created_date }}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <i class="far fa-clock"></i>
+                        <span>{{ post.read_time }}분</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <i class="far fa-heart"></i>
+                        <span>{{ post.count_likes }}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <i class="far fa-comment"></i>
+                        <span>{{ post.count_comments }}</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 페이지네이션 -->
+{% if total_pages > 1 %}
+<div class="mt-8">
+    {% include 'components/pagination.html' with page=page last=total_pages request=request style="numbered" %}
+</div>
+{% endif %}
+{% endif %}
 {% endblock %}
