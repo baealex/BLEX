@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Series {
     id: number;
@@ -14,6 +19,72 @@ interface Series {
 interface SeriesManagementProps {
     series: Series[];
 }
+
+interface SortableSeriesItemProps {
+    series: Series;
+    onEdit: (series: Series) => void;
+    onDelete: (id: number) => void;
+}
+
+const SortableSeriesItem: React.FC<SortableSeriesItemProps> = ({ series, onEdit, onDelete }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({ id: series.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className="series-item">
+            <div className="series-drag-handle" {...attributes} {...listeners}>
+                <i className="fas fa-bars" />
+            </div>
+            <div className="series-thumbnail">
+                {series.thumbnail ? (
+                    <img src={series.thumbnail} alt={series.name} />
+                ) : (
+                    <div className="thumbnail-placeholder">
+                        <i className="fas fa-book" />
+                    </div>
+                )}
+            </div>
+            <div className="series-info">
+                <h4 className="series-name">{series.name}</h4>
+                <p className="series-description">{series.description || '설명 없음'}</p>
+                <div className="series-meta">
+                    <span className="series-count">
+                        <i className="fas fa-file-alt" /> {series.postCount}개의 포스트
+                    </span>
+                </div>
+            </div>
+            <div className="series-actions">
+                <button
+                    type="button"
+                    className="btn btn-icon"
+                    onClick={() => onEdit(series)}>
+                    <i className="fas fa-edit" />
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-icon btn-danger"
+                    onClick={() => onDelete(series.id)}>
+                    <i className="fas fa-trash" />
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeries }) => {
     const [series, setSeries] = useState<Series[]>(initialSeries);
@@ -79,18 +150,12 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
                     ...prev,
                     thumbnail: data.body.url
                 }));
-                notification('썸네일이 업로드되었습니다.', {
-                    type: 'success'
-                });
+                notification('썸네일이 업로드되었습니다.', { type: 'success' });
             } else {
-                notification('썸네일 업로드에 실패했습니다.', {
-                    type: 'error'
-                });
+                notification('썸네일 업로드에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
-            notification('썸네일 업로드에 실패했습니다.', {
-                type: 'error'
-            });
+            notification('썸네일 업로드에 실패했습니다.', { type: 'error' });
         }
     };
 
@@ -102,17 +167,13 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
             const { name, url, description, thumbnail } = formData;
 
             if (!name.trim()) {
-                notification('시리즈 이름을 입력해주세요.', {
-                    type: 'error'
-                });
+                notification('시리즈 이름을 입력해주세요.', { type: 'error' });
                 setIsLoading(false);
                 return;
             }
 
             if (!url.trim()) {
-                notification('URL을 입력해주세요.', {
-                    type: 'error'
-                });
+                notification('URL을 입력해주세요.', { type: 'error' });
                 setIsLoading(false);
                 return;
             }
@@ -132,17 +193,19 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
                 if (data.status === 'DONE') {
                     setSeries(prev => prev.map(item =>
                         item.id === editingSeries.id
-                            ? { ...item, name, url, description, thumbnail }
+                            ? {
+                                ...item,
+                                name,
+                                url,
+                                description,
+                                thumbnail
+                            }
                             : item
                     ));
-                    notification('시리즈가 업데이트 되었습니다.', {
-                        type: 'success'
-                    });
+                    notification('시리즈가 업데이트 되었습니다.', { type: 'success' });
                     handleCloseModal();
                 } else {
-                    notification(data.message || '시리즈 업데이트에 실패했습니다.', {
-                        type: 'error'
-                    });
+                    notification(data.message || '시리즈 업데이트에 실패했습니다.', { type: 'error' });
                 }
             } else {
                 // Create new series
@@ -158,20 +221,14 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
 
                 if (data.status === 'DONE') {
                     setSeries(prev => [...prev, data.body]);
-                    notification('시리즈가 생성되었습니다.', {
-                        type: 'success'
-                    });
+                    notification('시리즈가 생성되었습니다.', { type: 'success' });
                     handleCloseModal();
                 } else {
-                    notification(data.message || '시리즈 생성에 실패했습니다.', {
-                        type: 'error'
-                    });
+                    notification(data.message || '시리즈 생성에 실패했습니다.', { type: 'error' });
                 }
             }
         } catch (error) {
-            notification('요청 처리에 실패했습니다.', {
-                type: 'error'
-            });
+            notification('요청 처리에 실패했습니다.', { type: 'error' });
         } finally {
             setIsLoading(false);
         }
@@ -183,23 +240,38 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
         }
 
         try {
-            const { data } = await http(`v1/series/${id}`, {
-                method: 'DELETE'
-            });
+            const { data } = await http(`v1/series/${id}`, { method: 'DELETE' });
 
             if (data.status === 'DONE') {
                 setSeries(prev => prev.filter(item => item.id !== id));
-                notification('시리즈가 삭제되었습니다.', {
-                    type: 'success'
-                });
+                notification('시리즈가 삭제되었습니다.', { type: 'success' });
             } else {
-                notification(data.message || '시리즈 삭제에 실패했습니다.', {
-                    type: 'error'
-                });
+                notification(data.message || '시리즈 삭제에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
-            notification('시리즈 삭제에 실패했습니다.', {
-                type: 'error'
+            notification('시리즈 삭제에 실패했습니다.', { type: 'error' });
+        }
+    };
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            setSeries((items) => {
+                const oldIndex = items.findIndex((item) => item.id === active.id);
+                const newIndex = items.findIndex((item) => item.id === over.id);
+
+                const newItems = arrayMove(items, oldIndex, newIndex);
+
+                // Update series order on server
+                http('v1/series/order', {
+                    method: 'PUT',
+                    data: { order: newItems.map((item, idx) => [item.id, idx]) }
+                }).catch(() => {
+                    notification('시리즈 순서 변경에 실패했습니다.', { type: 'error' });
+                });
+
+                return newItems;
             });
         }
     };
@@ -211,9 +283,8 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
                 <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => handleOpenModal()}
-                >
-                    <i className="fas fa-plus"></i> 새 시리즈
+                    onClick={() => handleOpenModal()}>
+                    <i className="fas fa-plus" /> 새 시리즈
                 </button>
             </div>
 
@@ -222,46 +293,24 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
                     <p>아직 생성된 시리즈가 없습니다.</p>
                 </div>
             ) : (
-                <div className="series-list">
-                    {series.map(item => (
-                        <div key={item.id} className="series-item">
-                            <div className="series-thumbnail">
-                                {item.thumbnail ? (
-                                    <img src={item.thumbnail} alt={item.name} />
-                                ) : (
-                                    <div className="thumbnail-placeholder">
-                                        <i className="fas fa-book"></i>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="series-info">
-                                <h4 className="series-name">{item.name}</h4>
-                                <p className="series-description">{item.description || '설명 없음'}</p>
-                                <div className="series-meta">
-                                    <span className="series-count">
-                                        <i className="fas fa-file-alt"></i> {item.postCount}개의 포스트
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="series-actions">
-                                <button
-                                    type="button"
-                                    className="btn btn-icon"
-                                    onClick={() => handleOpenModal(item)}
-                                >
-                                    <i className="fas fa-edit"></i>
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-icon btn-danger"
-                                    onClick={() => handleDelete(item.id)}
-                                >
-                                    <i className="fas fa-trash"></i>
-                                </button>
-                            </div>
+                <DndContext
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}>
+                    <SortableContext
+                        items={series.map(item => item.id)}
+                        strategy={verticalListSortingStrategy}>
+                        <div className="series-list">
+                            {series.map(item => (
+                                <SortableSeriesItem
+                                    key={item.id}
+                                    series={item}
+                                    onEdit={handleOpenModal}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </SortableContext>
+                </DndContext>
             )}
 
             {isModalOpen && (
@@ -272,9 +321,8 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
                             <button
                                 type="button"
                                 className="btn-close"
-                                onClick={handleCloseModal}
-                            >
-                                <i className="fas fa-times"></i>
+                                onClick={handleCloseModal}>
+                                <i className="fas fa-times" />
                             </button>
                         </div>
                         <form onSubmit={handleSubmit}>
@@ -330,12 +378,12 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
                                             />
                                         ) : (
                                             <div className="thumbnail-placeholder">
-                                                <i className="fas fa-image"></i>
+                                                <i className="fas fa-image" />
                                             </div>
                                         )}
                                         <div className="thumbnail-upload">
                                             <label htmlFor="thumbnail-input" className="btn btn-secondary">
-                                                <i className="fas fa-upload"></i> 이미지 업로드
+                                                <i className="fas fa-upload" /> 이미지 업로드
                                             </label>
                                             <input
                                                 id="thumbnail-input"
@@ -352,15 +400,13 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
                                 <button
                                     type="button"
                                     className="btn btn-secondary"
-                                    onClick={handleCloseModal}
-                                >
+                                    onClick={handleCloseModal}>
                                     취소
                                 </button>
                                 <button
                                     type="submit"
                                     className="btn btn-primary"
-                                    disabled={isLoading}
-                                >
+                                    disabled={isLoading}>
                                     {isLoading ? '처리 중...' : (editingSeries ? '수정' : '생성')}
                                 </button>
                             </div>
@@ -404,6 +450,19 @@ const SeriesManagement: React.FC<SeriesManagementProps> = ({ series: initialSeri
                     padding: 16px;
                     background-color: #f8f9fa;
                     border-radius: 8px;
+                }
+
+                .series-drag-handle {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 24px;
+                    cursor: grab;
+                    color: #6c757d;
+                }
+
+                .series-drag-handle:active {
+                    cursor: grabbing;
                 }
 
                 .series-thumbnail {

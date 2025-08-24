@@ -245,3 +245,153 @@ def user_series(request, username, url=None):
             return StatusDone()
 
         raise Http404
+
+
+def series_order(request):
+    """
+    Update series order for the current user.
+    Expects JSON data with 'order' field containing array of [id, order] pairs.
+    """
+    if request.method == 'PUT':
+        if not request.user.is_authenticated:
+            return StatusError(ErrorCode.AUTHENTICATION)
+            
+        import json
+        try:
+            body = json.loads(request.body)
+        except:
+            return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
+        
+        order_data = body.get('order', [])
+        if not order_data:
+            return StatusError(ErrorCode.INVALID_PARAMETER, '순서 정보가 필요합니다.')
+        
+        # Update series order
+        for item in order_data:
+            if len(item) >= 2:
+                series_id, new_order = item[0], item[1]
+                try:
+                    series = Series.objects.get(id=series_id, owner=request.user)
+                    series.order = new_order
+                    series.save()
+                except Series.DoesNotExist:
+                    pass  # Skip invalid series IDs
+        
+        return StatusDone({'message': '시리즈 순서가 변경되었습니다.'})
+    
+    raise Http404
+
+
+def series_create_update(request):
+    """
+    Create new series (POST) for the current user.
+    """
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return StatusError(ErrorCode.AUTHENTICATION)
+            
+        import json
+        try:
+            body = json.loads(request.body)
+        except:
+            return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
+        
+        name = body.get('name', '').strip()
+        url = body.get('url', '').strip()
+        description = body.get('description', '').strip()
+        thumbnail = body.get('thumbnail', '').strip()
+        
+        if not name:
+            return StatusError(ErrorCode.REQUIRE, '시리즈 이름을 입력해주세요.')
+        
+        if not url:
+            return StatusError(ErrorCode.REQUIRE, 'URL을 입력해주세요.')
+        
+        # Check if URL is unique for this user
+        if Series.objects.filter(owner=request.user, url=url).exists():
+            return StatusError(ErrorCode.DUPLICATE, '이미 존재하는 URL입니다.')
+        
+        # Create series
+        series = Series(
+            owner=request.user,
+            name=name,
+            url=url,
+            text_md=description,
+            text_html=description
+        )
+        
+        if thumbnail:
+            # Handle thumbnail upload - for now just store the URL
+            # You might want to validate and process the thumbnail here
+            pass
+            
+        series.save()
+        
+        return StatusDone({
+            'id': series.id,
+            'name': series.name,
+            'url': series.url,
+            'description': series.text_md,
+            'thumbnail': thumbnail,
+            'postCount': 0
+        })
+    
+    raise Http404
+
+
+def series_detail(request, series_id):
+    """
+    Update (PUT) or delete (DELETE) a specific series by ID.
+    """
+    if not request.user.is_authenticated:
+        return StatusError(ErrorCode.AUTHENTICATION)
+        
+    try:
+        series = Series.objects.get(id=series_id, owner=request.user)
+    except Series.DoesNotExist:
+        return StatusError(ErrorCode.NOT_FOUND, '시리즈를 찾을 수 없습니다.')
+    
+    if request.method == 'PUT':
+        import json
+        try:
+            body = json.loads(request.body)
+        except:
+            return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
+        
+        name = body.get('name', '').strip()
+        url = body.get('url', '').strip()
+        description = body.get('description', '').strip()
+        thumbnail = body.get('thumbnail', '').strip()
+        
+        if not name:
+            return StatusError(ErrorCode.REQUIRE, '시리즈 이름을 입력해주세요.')
+        
+        if not url:
+            return StatusError(ErrorCode.REQUIRE, 'URL을 입력해주세요.')
+        
+        # Check if URL is unique for this user (excluding current series)
+        if Series.objects.filter(owner=request.user, url=url).exclude(id=series_id).exists():
+            return StatusError(ErrorCode.DUPLICATE, '이미 존재하는 URL입니다.')
+        
+        # Update series
+        series.name = name
+        series.url = url
+        series.text_md = description
+        series.text_html = description
+        # Handle thumbnail update here if needed
+        series.save()
+        
+        return StatusDone({
+            'id': series.id,
+            'name': series.name,
+            'url': series.url,
+            'description': series.text_md,
+            'thumbnail': thumbnail,
+            'postCount': series.posts.count()
+        })
+    
+    elif request.method == 'DELETE':
+        series.delete()
+        return StatusDone({'message': '시리즈가 삭제되었습니다.'})
+    
+    raise Http404

@@ -13,10 +13,12 @@ const LazyComponents = {
     AboutEditor: lazy(() => import('./AboutEditor')),
     SocialLinks: lazy(() => import('./SocialLinks')),
     ProfileForm: lazy(() => import('./ProfileForm')),
+    FormsManagement: lazy(() => import('./FormsManagement')),
+    InvitationManagement: lazy(() => import('./InvitationManagement')),
+    VisitorAnalytics: lazy(() => import('./VisitorAnalytics')),
     SeriesManagement: lazy(() => import('./SeriesManagement')),
     PostsManagement: lazy(() => import('./PostsManagement')),
     NotifySettings: lazy(() => import('./NotifySettings')),
-    VisitorAnalytics: lazy(() => import('./VisitorAnalytics')),
     AccountSettings: lazy(() => import('./AccountSettings'))
 };
 

@@ -24,10 +24,32 @@ def setting_profile(request):
     
     # Get social links for the user
     from board.models import UserLinkMeta
+    import json
+    
     social_links = UserLinkMeta.objects.filter(user=request.user).order_by('order')
+    
+    # Prepare user profile data
+    user_profile = {
+        'avatar': request.user.profile.avatar.url if hasattr(request.user, 'profile') and request.user.profile.avatar else '/static/assets/images/default-avatar.jpg',
+        'bio': request.user.profile.bio if hasattr(request.user, 'profile') else '',
+        'homepage': request.user.profile.homepage if hasattr(request.user, 'profile') else ''
+    }
+    
+    # Prepare social links data for Island component
+    social_links_json = [
+        {
+            'id': social.id,
+            'name': social.name,
+            'value': social.value,
+            'order': social.order
+        }
+        for social in social_links
+    ]
     
     context = {
         'social_links': social_links,
+        'social_links_json': social_links_json,
+        'user_profile': user_profile,
         'active': 'profile'
     }
     return render(request, 'board/setting/setting_profile.html', context)
@@ -84,8 +106,15 @@ def setting_account(request):
     # Check if user has 2FA enabled (placeholder - implement based on your 2FA system)
     has_2fa = False  # TODO: Implement actual 2FA check
     
+    # Prepare user data for Island component
+    user = request.user
+    user_full_name = f"{user.first_name} {user.last_name}".strip() or user.username
+    user_joined_date = user.date_joined.strftime('%Y년 %m월 %d일')
+    
     context = {
         'has_2fa': has_2fa,
+        'user_full_name': user_full_name,
+        'user_joined_date': user_joined_date,
         'active': 'account'
     }
     return render(request, 'board/setting/setting_account.html', context)
@@ -97,9 +126,16 @@ def setting_notify(request):
     Notification settings page view.
     Renders the notification settings template with user notification preferences.
     """
+    # Get notification settings for user
+    notify_settings = {
+        'email_notifications': True,  # Will be loaded from database
+        'push_notifications': False,
+        'comment_notifications': True,
+        'mention_notifications': True
+    }
+    
     context = {
-        'notifications': [],  # Will be loaded via API
-        'notify_config': {},   # Will be loaded via API
+        'notify_settings': notify_settings,
         'active': 'notify'
     }
     return render(request, 'board/setting/setting_notify.html', context)
@@ -113,6 +149,7 @@ def setting_series(request):
     """
     from board.models import Series
     from django.db.models import Count
+    import json
     
     # Get user's series with post count
     user_series = Series.objects.filter(
@@ -121,8 +158,22 @@ def setting_series(request):
         total_posts=Count('posts')
     ).order_by('order', '-created_date')
     
+    # Prepare data for Island component
+    user_series_json = [
+        {
+            'id': series.id,
+            'name': series.name,
+            'url': series.url,
+            'description': series.text_md or '',
+            'thumbnail': series.thumbnail() or '',
+            'postCount': series.total_posts
+        }
+        for series in user_series
+    ]
+    
     context = {
         'user_series': user_series,
+        'user_series_json': user_series_json,
         'active': 'series'
     }
     return render(request, 'board/setting/setting_series.html', context)

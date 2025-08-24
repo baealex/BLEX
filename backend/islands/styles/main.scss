@@ -1,9 +1,9 @@
 @forward "@baejino/style/css/reset.css";
-@forward "@baejino/style/css/utils/index.css";
 @forward "@baejino/ui/css/main.css";
 @forward "./forwarded.scss";
 @forward "./header.scss";
 @forward "./footer.scss";
+@forward "./tailwind.css";
 
 .notification__item {
     background-color: #fff;

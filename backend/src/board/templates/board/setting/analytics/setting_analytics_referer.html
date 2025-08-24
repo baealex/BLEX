@@ -1,86 +1,9 @@
 {% extends 'board/setting/setting_base.html' %}
 {% load static %}
+{% load island %}
 
 {% block setting_title %}유입 경로 통계{% endblock %}
 
 {% block setting_content %}
-<div class="card setting-card">
-    <div class="card-header">
-        <h5 class="card-title mb-0">신규 유입 경로</h5>
-    </div>
-    <div class="card-body" id="referers-container">
-        <div class="text-center py-3">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">로딩중...</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function loadReferers() {
-    const container = document.getElementById('referers-container');
-    
-    fetch('/v1/setting/analytics/referer')
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'DONE') {
-            const { referers } = data.body;
-            if (referers.length === 0) {
-                container.innerHTML = `
-                    <div class="alert alert-info">
-                        신규 유입 경로가 없습니다.
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="row">
-                        ${referers.map(item => `
-                            <div class="col-12 mb-3">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="mb-2">
-                                            <a href="${item.url}" target="_blank" class="text-decoration-none text-dark">
-                                                ${item.title || item.url}
-                                            </a>
-                                        </div>
-                                        ${item.description ? `
-                                            <div class="text-muted small mb-2">
-                                                <a href="${item.url}" target="_blank" class="text-decoration-none text-muted">
-                                                    ${item.description}
-                                                </a>
-                                            </div>
-                                        ` : ''}
-                                        <div class="text-muted small mb-2">
-                                            ${item.time}
-                                        </div>
-                                        <div class="mt-2">
-                                            <a href="/@${item.posts.author}/${item.posts.url}" class="text-decoration-none text-muted small">
-                                                → ${item.posts.title}
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error loading referers:', error);
-        container.innerHTML = `
-            <div class="alert alert-danger">
-                유입 경로를 불러오는데 실패했습니다.
-            </div>
-        `;
-    });
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    loadReferers();
-});
-</script>
+{% island_component 'RefererAnalytics' %}
 {% endblock %}

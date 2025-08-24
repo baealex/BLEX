@@ -21,20 +21,18 @@
         "styled-jsx": "^5.1.7"
     },
     "devDependencies": {
-        "@baejino/eslint-config": "^0.0.1",
-        "@baejino/eslint-config-react": "^0.0.1",
+        "@baejino/eslint-config": "^0.1.0",
+        "@baejino/eslint-config-react": "^0.1.0",
         "@types/react": "^19.1.11",
         "@types/react-dom": "^19.1.7",
-        "@typescript-eslint/eslint-plugin": "^6.21.0",
-        "@typescript-eslint/parser": "^6.21.0",
         "@vitejs/plugin-react": "^5.0.1",
-        "@vitejs/plugin-react-swc": "^4.0.1",
+        "autoprefixer": "^10.4.21",
         "chokidar": "^4.0.3",
-        "eslint": "^8.57.1",
-        "eslint-plugin-react-hooks": "^5.2.0",
-        "eslint-plugin-react-refresh": "^0.4.20",
+        "eslint": "^9.34.0",
         "glob": "^11.0.3",
+        "postcss": "^8.5.6",
         "sass": "^1.90.0",
+        "tailwindcss": "^3.4.17",
         "typescript": "^5.9.2",
         "vite": "^7.1.3"
     }

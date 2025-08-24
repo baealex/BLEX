@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import { collectTemplateStyles } from './plugins/collect-template-styles';
 
 export default defineConfig(({ mode }) => {
     const isDevelopment = mode === 'development';
@@ -10,13 +9,7 @@ export default defineConfig(({ mode }) => {
         base: './',
 
         plugins: [
-            ...(isDevelopment ? [] : [react()]),
-
-            // 템플릿 디렉토리의 스타일 파일들 자동 수집
-            collectTemplateStyles({
-                templatesDir: '../src/board/templates/board',
-                includePatterns: ['**/styles.scss', '**/components/*.scss']
-            })
+            ...(isDevelopment ? [] : [react()])
         ],
 
         server: {

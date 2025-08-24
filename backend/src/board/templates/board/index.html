@@ -13,306 +13,142 @@
 
 {% block home_active %}active{% endblock %}
 
-{% block extra_styles %}
-{{ block.super }}
-<style>
-    .hero {
-        background: linear-gradient(135deg, #4568dc, #b06ab3);
-        color: white;
-        padding: 100px 0 80px;
-        margin-bottom: 70px;
-        border-radius: 16px;
-        box-shadow: 0 15px 35px rgba(69, 104, 220, 0.25);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .hero::before {
-        content: '';
-        position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .hero::after {
-        content: '';
-        position: absolute;
-        bottom: -80px;
-        left: -80px;
-        width: 300px;
-        height: 300px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-    }
-    
-    .hero-content {
-        text-align: center;
-        position: relative;
-        z-index: 2;
-
-        p {
-            font-size: 1.2rem;
-            line-height: 1.6;
-        }
-    }
-    
-    .hero-logo {
-        width: 100px;
-        height: 100px;
-        margin-bottom: 25px;
-        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
-    }
-
-    /* Latest articles section */
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-    }
-    
-    .section-title {
-        font-size: 28px;
-        font-weight: 700;
-        margin: 0;
-        background: linear-gradient(90deg, #4568dc, #b06ab3);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    
-    .filter-options {
-        display: flex;
-        gap: 16px;
-    }
-    
-    .filter-option {
-        font-size: 14px;
-        color: #666;
-        text-decoration: none;
-        padding: 6px 12px;
-        border-radius: 20px;
-        transition: all 0.2s ease;
-    }
-    
-    .filter-option:hover {
-        background-color: rgba(69, 104, 220, 0.1);
-        color: #4568dc;
-    }
-    
-    .filter-option.active {
-        background-color: rgba(69, 104, 220, 0.15);
-        color: #4568dc;
-        font-weight: 500;
-    }
-    
-    /* 검색 결과 스타일 */
-    .search-results {
-        margin-top: 30px;
-    }
-    
-    .search-result-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #6c757d;
-        font-size: 14px;
-        background-color: #f8f9fa;
-        padding: 12px 16px;
-        border-radius: 6px;
-    }
-    
-    .search-result-item {
-        margin-bottom: 24px;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .search-result-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-    
-    .search-result-title {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-    
-    .search-result-title a {
-        color: #212529;
-        text-decoration: none;
-    }
-    
-    .search-result-title a:hover {
-        color: #4568dc;
-    }
-    
-    .search-result-meta {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 12px;
-        font-size: 13px;
-        color: #6c757d;
-        flex-wrap: wrap;
-    }
-    
-    .search-result-author {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background-color: #f8f9fa;
-        padding: 4px 10px;
-        border-radius: 20px;
-        transition: background-color 0.2s;
-    }
-    
-    .search-result-author:hover {
-        background-color: #e9ecef;
-    }
-    
-    .search-result-author img {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    
-    .search-result-description {
-        font-size: 14px;
-        line-height: 1.6;
-        color: #495057;
-        margin-bottom: 10px;
-    }
-    
-    .search-result-positions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 12px;
-    }
-    
-    .search-result-position {
-        font-size: 12px;
-        padding: 4px 10px;
-        border-radius: 16px;
-        background-color: rgba(69, 104, 220, 0.1);
-        color: #4568dc;
-        transition: all 0.2s;
-    }
-    
-    .no-results {
-        text-align: center;
-        padding: 40px 0;
-    }
-    
-    .no-results h3 {
-        font-size: 20px;
-        margin-bottom: 10px;
-        color: #495057;
-    }
-    
-    .no-results p {
-        color: #6c757d;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
 
 
 {% if query %}
     {% if results %}
-        <div class="section-header">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
             <div class="search-box">
-                <form method="GET" action="" id="searchForm">
-                    <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q|default:'' }}" class="search-input">
-                    <button type="submit" class="search-button">
+                <form method="GET" action="" id="searchForm" class="relative">
+                    <input type="text" name="q" placeholder="Search posts..." 
+                           value="{{ request.GET.q|default:'' }}" 
+                           class="w-full lg:w-80 px-4 py-3 pr-12 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all">
+                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500 transition-colors">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
             </div>
-            <div class="search-result-info">
+            <div class="bg-gray-50 px-4 py-2 rounded-lg text-sm text-gray-600 flex items-center gap-4">
                 <div>
-                    <strong>{{ total_size }}</strong>개의 검색 결과
+                    <strong class="text-gray-900">{{ total_size }}</strong>개의 검색 결과
                 </div>
-                <div>
+                <div class="text-gray-500">
                     {{ elapsed_time }}초
                 </div>
             </div>
         </div>
         
         <!-- 게시글 검색 결과 표시 -->
-        {% for result in results %}
-        <div class="search-result-item">
-            <div class="search-result-meta">
-                <a href="/@{{ result.author }}" class="search-result-author">
-                    <img src="{% static result.author_image %}" alt="{{ result.author }}">
-                    <span>{{ result.author }}</span>
-                </a>
-                <span>{{ result.created_date }}</span>
-            </div>
-            <h3 class="search-result-title">
-                <a href="/@{{ result.author }}/{{ result.url }}">{{ result.title }}</a>
-            </h3>
-            <p class="search-result-description">{{ result.description }}</p>
-            <div class="search-result-positions">
-                {% for position in result.positions %}
-                <span class="search-result-position">{{ position }}</span>
-                {% endfor %}
-            </div>
+        <div class="space-y-6">
+            {% for result in results %}
+            <article class="bg-white rounded-xl border border-gray-100 p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                <div class="flex items-center gap-4 mb-3 text-sm text-gray-500">
+                    <a href="/@{{ result.author }}" class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded-full transition-colors">
+                        <img src="{% static result.author_image %}" alt="{{ result.author }}" class="w-6 h-6 rounded-full object-cover">
+                        <span class="font-medium">{{ result.author }}</span>
+                    </a>
+                    <span>{{ result.created_date }}</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">
+                    <a href="/@{{ result.author }}/{{ result.url }}" class="text-gray-900 hover:text-primary-600 transition-colors">
+                        {{ result.title }}
+                    </a>
+                </h3>
+                <p class="text-gray-600 leading-relaxed mb-4">{{ result.description }}</p>
+                {% if result.positions %}
+                <div class="flex flex-wrap gap-2">
+                    {% for position in result.positions %}
+                    <span class="px-3 py-1 text-xs font-medium bg-primary-50 text-primary-600 rounded-full">
+                        {{ position }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </article>
+            {% endfor %}
         </div>
-        {% endfor %}
         
         {% include 'components/pagination.html' with style='numbered' page=page last=page_count %}
     {% else %}
-        <div class="no-results">
-            <h3>검색 결과가 없습니다.</h3>
-            <p>다른 검색어로 다시 시도해보세요.</p>
+        <div class="text-center py-20">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-search text-2xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">검색 결과가 없습니다</h3>
+            <p class="text-gray-600">다른 검색어로 다시 시도해보세요.</p>
         </div>
     {% endif %}
 {% elif posts %}
-    <div class="hero">
-        <div class="hero-content">
-            <img src="{% static 'logow.svg' %}" alt="BLEX Logo" class="hero-logo">
-            <p>창작자를 위한 블로그 플랫폼</p>
+    <!-- Hero Section -->
+    <div class="relative bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 text-white rounded-2xl overflow-hidden mb-16">
+        <!-- Decorative circles -->
+        <div class="absolute top-0 right-0 w-40 h-40 bg-white bg-opacity-10 rounded-full -translate-y-20 translate-x-20"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-white bg-opacity-5 rounded-full translate-y-32 -translate-x-32"></div>
+        
+        <div class="relative z-10 text-center py-20 px-8">
+            <img src="{% static 'logow.svg' %}" alt="BLEX Logo" class="w-24 h-24 mx-auto mb-6 drop-shadow-lg">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">창작자를 위한 블로그 플랫폼</h1>
+            <p class="text-lg text-white text-opacity-90 max-w-2xl mx-auto leading-relaxed">
+                개발자, 디자이너, 창작자들이 모여 지식과 경험을 공유하는 공간입니다
+            </p>
         </div>
     </div>
 
-    <div class="section-header">
-        <div class="search-box">
-            <form method="GET" action="" id="searchForm">
-                <input type="text" name="q" placeholder="Search posts..." value="{{ request.GET.q|default:'' }}" class="search-input">
-                <button type="submit" class="search-button">
-                    <i class="fas fa-search"></i>
+    <!-- Search and Filters Section -->
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
+        <div class="w-full lg:w-auto">
+            <form method="GET" action="" id="searchForm" class="relative">
+                <input type="text" name="q" placeholder="포스트 검색..." 
+                       value="{{ request.GET.q|default:'' }}" 
+                       class="w-full lg:w-96 px-5 py-4 pr-14 text-lg rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all bg-white shadow-sm">
+                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500 transition-colors">
+                    <i class="fas fa-search text-xl"></i>
                 </button>
             </form>
         </div>
-        <div class="filter-options">
-            <a href="?sort=latest" class="filter-option {% if not request.GET.sort or request.GET.sort == 'latest' %}active{% endif %}">최신순</a>
-            <a href="?sort=popular" class="filter-option {% if request.GET.sort == 'popular' %}active{% endif %}">인기순</a>
-            <a href="?sort=comments" class="filter-option {% if request.GET.sort == 'comments' %}active{% endif %}">댓글순</a>
+        
+        <div class="flex gap-2 bg-gray-50 p-1 rounded-xl">
+            <a href="?sort=latest" 
+               class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if not request.GET.sort or request.GET.sort == 'latest' %}bg-white text-primary-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                최신순
+            </a>
+            <a href="?sort=popular" 
+               class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.GET.sort == 'popular' %}bg-white text-primary-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                인기순
+            </a>
+            <a href="?sort=comments" 
+               class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if request.GET.sort == 'comments' %}bg-white text-primary-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
+                댓글순
+            </a>
         </div>
     </div>
 
+    <!-- Posts Grid -->
     <div class="masonry-grid">
         {% for post in posts %}
             {% include 'components/post_card.html' with post=post show_author=true %}
         {% endfor %}
     </div>
 
-    {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
+    <!-- Pagination -->
+    <div class="mt-12">
+        {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
+    </div>
 {% else %}
-    <div class="no-posts">
-        <h2>No posts found</h2>
-        <p>Be the first to create content!</p>
+    <div class="flex flex-col items-center justify-center min-h-96 text-center">
+        <div class="w-32 h-32 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-full flex items-center justify-center mb-8">
+            <i class="fas fa-pen-nib text-4xl text-primary-500"></i>
+        </div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">아직 포스트가 없어요</h2>
+        <p class="text-lg text-gray-600 mb-8 max-w-md">
+            첫 번째 창작자가 되어 멋진 콘텐츠를 공유해보세요!
+        </p>
+        <a href="/write" class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-xl font-medium transition-colors inline-flex items-center gap-2">
+            <i class="fas fa-edit"></i>
+            글 작성하기
+        </a>
     </div>
 {% endif %}
 {% endblock %}
