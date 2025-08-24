@@ -4,31 +4,38 @@
 
 {% block title %}{{ author.username }} - BLEX{% endblock %}
 
-{% block extra_styles %}
-{% include 'board/author/components/author_styles.html' %}
-<style>
-    /* Posts grid specific styles */
-    .posts-grid {
-        margin-top: 24px;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
-<div class="tabs-container">
+<div class="container mx-auto px-4">
     {% with active_tab='posts' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
     
-    {% include 'board/author/components/search_filter.html' %}
+    <!-- 필터 영역 -->
+    <div class="bg-white border border-solid border-gray-200 rounded-xl p-5 mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+            <div class="w-full sm:w-auto sm:flex-1 sm:max-w-md">
+                <label class="block text-sm font-medium text-gray-700 mb-2">포스트 찾기</label>
+                {% include 'components/search_query_filter.html' with placeholder='검색어를 입력해주세요' %}
+            </div>
+            
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">정렬</label>
+                    {% include 'components/dropdown_filter.html' with options=sort_options param_name='sort' current_value=request.GET.sort|default:'recent' %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">태그</label>
+                    {% include 'components/dropdown_filter.html' with options=tag_options param_name='tag' current_value=request.GET.tag|default:'' %}
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <div class="content-with-sidebar">
-        <div class="main-content">
-            {% if is_loading %}
-                {% include 'board/author/components/loading_state.html' %}
-            {% elif not posts %}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-3">
+            {% if not posts %}
                 {% if request.GET.q or request.GET.tag %}
                     {% with empty_title='No matching posts' empty_message='No posts match your search criteria.' %}
                         {% include 'board/author/components/empty_state.html' %}

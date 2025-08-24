@@ -83,6 +83,11 @@ def author_posts(request, username):
     ).annotate(
         count=Count('posts', distinct=True)
     ).order_by('-count', 'value')
+
+    # Transform author_tags for dropdown_filter
+    tag_options = [{'value': '', 'label': '전체 태그'}] # Default option
+    for tag in author_tags:
+        tag_options.append({'value': tag.value, 'label': f'{tag.value} ({tag.count})'})
     
     # Count posts, series, and followers
     post_count = Post.objects.filter(
@@ -108,6 +113,15 @@ def author_posts(request, username):
         page=page
     )
     
+    sort_options = [
+        {'value': 'recent', 'label': '최신순'},
+        {'value': 'popular', 'label': '인기순'},
+        {'value': 'comments', 'label': '댓글 많은 순'}
+    ]
+
+    for post in paginated_posts:
+        post.created_date = post.time_since()
+
     context = {
         'author': author,
         'posts': paginated_posts,
@@ -121,6 +135,8 @@ def author_posts(request, username):
         'search_query': search_query,
         'sort_option': sort_option,
         'tag_filter': tag_filter,
+        'tag_options': tag_options,
+        'sort_options': sort_options,
     }
     
     return render(request, 'board/author/author.html', context)
@@ -134,8 +150,7 @@ def author_series(request, username):
     
     # Get search query and filters
     search_query = request.GET.get('q', '')
-    sort_option = request.GET.get('sort', 'updated')
-    sort_order = request.GET.get('order', 'desc')
+    sort_option = request.GET.get('sort', 'newest')
     
     # Base query for author's series
     series_list = Series.objects.filter(owner=author)
@@ -150,18 +165,14 @@ def author_series(request, username):
     # Annotate with post count
     series_list = series_list.annotate(post_count=Count('posts'))
     
-    # Apply sorting
-    order_prefix = '-' if sort_order == 'desc' else ''
-    
-    if sort_option == 'created':
-        series_list = series_list.order_by(f'{order_prefix}created_date')
+    if sort_option == 'newest':
+        series_list = series_list.order_by('-created_date')
+    elif sort_option == 'oldest':
+        series_list = series_list.order_by('created_date')
     elif sort_option == 'posts':
-        if sort_order == 'desc':
-            series_list = series_list.order_by('-post_count', '-updated_date')
-        else:
-            series_list = series_list.order_by('post_count', 'updated_date')
-    else:  # default to 'updated'
-        series_list = series_list.order_by(f'{order_prefix}updated_date')
+        series_list = series_list.order_by('-post_count')
+    elif sort_option == 'custom':
+        series_list = series_list.order_by('order')
     
     # Apply pagination
     page = int(request.GET.get('page', 1))
@@ -170,6 +181,13 @@ def author_series(request, username):
         offset=12,  # Show 12 series per page
         page=page
     )
+    
+    series_sort_options = [
+        {'value': 'custom', 'label': '작가 지정 순'},
+        {'value': 'newest', 'label': '최신순'},
+        {'value': 'oldest', 'label': '오래된순'},
+        {'value': 'posts', 'label': '포스트 많은 순'},
+    ]
     
     # Process series data
     for series in paginated_series:
@@ -211,9 +229,9 @@ def author_series(request, username):
         'author_tags': author_tags,
         'search_query': search_query,
         'sort_option': sort_option,
-        'sort_order': sort_order,
         'page_number': page,
         'page_count': paginated_series.paginator.num_pages,
+        'series_sort_options': series_sort_options,
     }
     
     return render(request, 'board/author/author_series.html', context)

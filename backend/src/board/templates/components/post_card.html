@@ -9,63 +9,60 @@ Parameters:
 {% load static %}
 {% load island %}
 
-<div class="post-card">
+<article class="group bg-white rounded-xl flex flex-col overflow-hidden border border-solid border-gray-200">
     {% if post.image %}
-        <div class="post-image-container">
-            <a href="/@{{ post.author }}/{{ post.url }}">
-                <img class="post-image" src="{% static post.image.url %}" alt="{{ post.title }}">
+        <div class="aspect-[16/9] overflow-hidden">
+            <a href="/@{{ post.author }}/{{ post.url }}" class="block h-full">
+                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="{% static post.image %}" alt="{{ post.title }}" loading="lazy">
             </a>
         </div>
     {% endif %}
-    <div class="post-content">
-        {% if show_author != 'false' and show_author != False %}
-        <div class="post-author-container">
-            <a href="/@{{ post.author }}" class="flex items-center">
-                <img class="post-author-image" src="{% static post.author_image %}" alt="{{ post.author }}">
-            </a>
-            <span class="post-meta">
-                <a href="/@{{ post.author }}">{{ post.author }}</a>
-                <span class="post-meta-separator">·</span>
-                {{ post.created_date }}
-            </span>
-        </div>
-        {% endif %}
-
-        <h3 class="post-title">
-            <a href="/@{{ post.author }}/{{ post.url }}">{{ post.title }}</a>
+    <div class="p-5 flex flex-col flex-grow">
+        <h3 class="text-lg font-semibold text-gray-900 leading-snug mb-3 line-clamp-2">
+            <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-primary-600 transition-colors">{{ post.title }}</a>
         </h3>
 
-        {% if show_author == 'false' or show_author == False %}
-        <div class="post-meta mb-2">
-            <i class="far fa-calendar-alt"></i> {{ post.created_date }} 
-            <span style="margin: 0 8px;">•</span> 
-            <i class="far fa-clock"></i> {{ post.read_time }}분 분량
+        <div class="text-sm text-gray-500 mb-3 flex items-center gap-3">
+            <div class="flex items-center gap-1.5">
+                <i class="far fa-calendar-alt text-gray-400"></i> 
+                <time datetime="{{ post.created_date }}">{{ post.created_date }}</time>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <i class="far fa-clock text-gray-400"></i>
+                <span>{{ post.read_time }}분</span>
+            </div>
         </div>
-        {% endif %}
 
-        <p class="post-description">{{ post.meta_description }}</p>
+        <p class="text-sm text-gray-600 leading-relaxed flex-grow mb-4 line-clamp-3">{{ post.meta_description }}</p>
         
-        <div class="post-footer">
-            {% if post.series %}
-                <a href="/@{{ post.author }}/series/{{ post.series.url }}">
-                    <span class="series-badge">
-                        <i class="fas fa-layer-group"></i>
-                        <span class="series-badge-name">{{ post.series.name }}</span>
-                    </span>
+        <footer class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+            {% if show_author != 'false' and show_author != False %}
+            <div class="flex items-center gap-2">
+                <a href="/@{{ post.author }}" class="flex-shrink-0">
+                    <img class="w-5 h-5 rounded-full" src="{% static post.author_image %}" alt="{{ post.author }}" loading="lazy">
+                </a>
+                <div class="flex flex-col min-w-0">
+                    <a href="/@{{ post.author }}" class="font-medium text-gray-900 hover:text-primary-600 transition-colors text-sm truncate">{{ post.author }}</a>
+                </div>
+            </div>
+            {% elif show_author == 'false' or show_author == False and post.series %}
+                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-40 bg-primary-50 text-primary-600 rounded-full text-xs font-medium hover:bg-primary-100 transition-colors truncate">
+                    <i class="fas fa-layer-group mr-1.5"></i>
+                    <span class="truncate">{{ post.series.name }}</span>
                 </a>
             {% else %}
                 <div></div>
             {% endif %}
             
-            <div class="post-stats">
-                <div class="stat-item">
+            <div class="flex items-center gap-4 text-gray-500">
+                <div class="flex items-center gap-1.5 text-sm hover:text-gray-700 transition-colors">
                     <i class="far fa-comment"></i>
                     <span>{{ post.count_comments }}</span>
                 </div>
-                <div class="stat-item">
+                <div class="flex items-center gap-1.5 text-sm">
                     {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
                 </div>
             </div>
-        </div>
+        </footer>
     </div>
-</div>
+</article>

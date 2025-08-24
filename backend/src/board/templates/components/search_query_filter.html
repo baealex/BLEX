@@ -1,0 +1,15 @@
+{% comment %}
+Search Input Component
+Parameters:
+- redirect: The URL to redirect to when the form is submitted.
+- placeholder: The placeholder text for the search input.
+{% endcomment %}
+
+<div class="relative">
+    <form method="GET" action="{{ redirect }}" id="searchForm">
+        <input type="text" name="q" placeholder="{{ placeholder }}" value="{{ request.GET.q|default:'' }}" class="w-full px-4 py-2 pr-10 rounded-lg border border-solid border-gray-200 focus:ring-primary-500 focus:border-primary-500 text-sm">
+        <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-primary-500">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+</div>

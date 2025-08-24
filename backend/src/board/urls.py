@@ -9,6 +9,7 @@ from board.views.api import v1 as api_v1
 from board.views import main
 from board.views.post_actions import like_post
 from board.views.search import search_view
+from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail, series_create, series_edit
@@ -31,6 +32,7 @@ urlpatterns = [
     path('', staff_member_required(main.index), name='index'),
     path('dashboard', staff_member_required(main.dashboard), name='dashboard'),
     path('search', staff_member_required(search_view), name='search'),
+    path('authors', staff_member_required(authors_view), name='authors'),
     path('like/<str:url>', staff_member_required(like_post), name='like_post'),
     path('login', staff_member_required(login_view), name='login'),
     path('security', staff_member_required(security_view), name='security'),

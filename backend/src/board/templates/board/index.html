@@ -4,83 +4,14 @@
 {% load search_tags %}
 
 {% block title %}
-    {% if query %}
-        {{ query }} 검색 결과
-    {% else %}
-        BLEX - Latest Articles
-    {% endif %}
+    BLEX - Latest Articles
 {% endblock %}
 
 {% block home_active %}active{% endblock %}
 
 
 {% block content %}
-
-
-{% if query %}
-    {% if results %}
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
-            <div class="search-box">
-                <form method="GET" action="" id="searchForm" class="relative">
-                    <input type="text" name="q" placeholder="Search posts..." 
-                           value="{{ request.GET.q|default:'' }}" 
-                           class="w-full lg:w-80 px-4 py-3 pr-12 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all">
-                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500 transition-colors">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-            </div>
-            <div class="bg-gray-50 px-4 py-2 rounded-lg text-sm text-gray-600 flex items-center gap-4">
-                <div>
-                    <strong class="text-gray-900">{{ total_size }}</strong>개의 검색 결과
-                </div>
-                <div class="text-gray-500">
-                    {{ elapsed_time }}초
-                </div>
-            </div>
-        </div>
-        
-        <!-- 게시글 검색 결과 표시 -->
-        <div class="space-y-6">
-            {% for result in results %}
-            <article class="bg-white rounded-xl border border-gray-100 p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                <div class="flex items-center gap-4 mb-3 text-sm text-gray-500">
-                    <a href="/@{{ result.author }}" class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 px-3 py-1 rounded-full transition-colors">
-                        <img src="{% static result.author_image %}" alt="{{ result.author }}" class="w-6 h-6 rounded-full object-cover">
-                        <span class="font-medium">{{ result.author }}</span>
-                    </a>
-                    <span>{{ result.created_date }}</span>
-                </div>
-                <h3 class="text-xl font-semibold mb-2">
-                    <a href="/@{{ result.author }}/{{ result.url }}" class="text-gray-900 hover:text-primary-600 transition-colors">
-                        {{ result.title }}
-                    </a>
-                </h3>
-                <p class="text-gray-600 leading-relaxed mb-4">{{ result.description }}</p>
-                {% if result.positions %}
-                <div class="flex flex-wrap gap-2">
-                    {% for position in result.positions %}
-                    <span class="px-3 py-1 text-xs font-medium bg-primary-50 text-primary-600 rounded-full">
-                        {{ position }}
-                    </span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </article>
-            {% endfor %}
-        </div>
-        
-        {% include 'components/pagination.html' with style='numbered' page=page last=page_count %}
-    {% else %}
-        <div class="text-center py-20">
-            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-search text-2xl text-gray-400"></i>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">검색 결과가 없습니다</h3>
-            <p class="text-gray-600">다른 검색어로 다시 시도해보세요.</p>
-        </div>
-    {% endif %}
-{% elif posts %}
+{% if posts %}
     <!-- Hero Section -->
     <div class="relative bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 text-white rounded-2xl overflow-hidden mb-16">
         <!-- Decorative circles -->
@@ -97,19 +28,10 @@
     </div>
 
     <!-- Search and Filters Section -->
-    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-        <div class="w-full lg:w-auto">
-            <form method="GET" action="" id="searchForm" class="relative">
-                <input type="text" name="q" placeholder="포스트 검색..." 
-                       value="{{ request.GET.q|default:'' }}" 
-                       class="w-full lg:w-96 px-5 py-4 pr-14 text-lg rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all bg-white shadow-sm">
-                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500 transition-colors">
-                    <i class="fas fa-search text-xl"></i>
-                </button>
-            </form>
-        </div>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        {% include 'components/search_query_filter.html' with redirect='/search' placeholder='포스트 검색...' %}
         
-        <div class="flex gap-2 bg-gray-50 p-1 rounded-xl">
+        <div class="flex gap-2 bg-gray-100 p-1 rounded-xl">
             <a href="?sort=latest" 
                class="px-4 py-2 rounded-lg text-sm font-medium transition-all {% if not request.GET.sort or request.GET.sort == 'latest' %}bg-white text-primary-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900{% endif %}">
                 최신순

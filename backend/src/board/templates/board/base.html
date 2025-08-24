@@ -26,65 +26,21 @@
     <meta name="application-name" content="BLEX" />
     <meta name="msapplication-TileImage" content="{% static 'logo144.png' %}" />
     <meta name="msapplication-TileColor" content="#000" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
     {% block extra_styles %}{% endblock %}
 </head>
 
-<body>
-    <header class="header">
-        <div class="container header-content">
-            <a href="/" class="logo">
-                <img class="logo-img" src="{% static 'logob.svg' %}" alt="BLEX">
-            </a>
-            <nav class="nav-links">
-                <a href="/write" class="nav-link btn-primary flex align-center gap-1">
-                    <i class="fas fa-pen"></i>
-                    <span>글 작성</span>
-                </a>
-                {% if user.is_authenticated %}
-                <div class="user-dropdown">
-                    <div class="user-dropdown-toggle">
-                        <span>{{ user.username }}</span>
-                        <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
-                    </div>
-                    <div class="user-dropdown-menu">
-                        <a href="/@{{ user.username }}" class="user-dropdown-item">
-                            <i class="fas fa-user-circle"></i> 
-                            <span>프로필</span>
-                        </a>
-                        <a href="/settings/account" class="user-dropdown-item">
-                            <i class="fas fa-cog"></i> 
-                            <span>설정</span>
-                        </a>
-                        <div class="user-dropdown-divider"></div>
-                        <a href="/logout" class="user-dropdown-item">
-                            <i class="fas fa-sign-out-alt"></i> 
-                            <span>로그아웃</span>
-                        </a>
-                    </div>
-                </div>
-                {% else %}
-                <a href="/login" class="nav-link">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>로그인</span>
-                </a>
-                <a href="/register" class="nav-link btn-primary">
-                    <i class="fas fa-user-plus"></i>
-                    <span>회원가입</span>
-                </a>
-                {% endif %}
-            </nav>
-        </div>
-    </header>
+<body class="bg-gray-50">
+    {% include 'components/header.html' %}
 
-    <main class="container pt-4 px-2">
+    <main class="max-w-7xl mx-auto py-8 px-4">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="footer">
-        <div class="container copyright">
-            <p>&copy; {% now "Y" %} <a href="/">BLEX</a>. All rights reserved.</p>
-        </div>
-    </footer>
+    {% include 'components/footer.html' %}
 
     <script>
         window.configuration = {
@@ -97,40 +53,6 @@
             }
             {% endif %}
         };
-    </script>
-
-    <script>
-        window.addEventListener('scroll', function () {
-            const header = document.querySelector('.header');
-            if (window.scrollY > 10) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-        
-        // User dropdown toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropdownToggle = document.querySelector('.user-dropdown-toggle');
-            const dropdownMenu = document.querySelector('.user-dropdown-menu');
-            
-            if (dropdownToggle && dropdownMenu) {
-                dropdownToggle.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
-                });
-                
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function() {
-                    dropdownMenu.classList.remove('show');
-                });
-                
-                // Prevent closing when clicking inside dropdown menu
-                dropdownMenu.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            }
-        });
     </script>
 
     <script>

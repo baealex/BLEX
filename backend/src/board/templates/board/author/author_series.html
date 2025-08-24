@@ -4,113 +4,43 @@
 
 {% block title %}{{ author.username }}'s Series - BLEX{% endblock %}
 
-{% block extra_styles %}
-{% include 'board/author/components/author_styles.html' %}
-<style>
-    /* Series grid */
-    .series-grid {
-        display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 24px;
-    }
-
-    @media (min-width: 768px) {
-        .series-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .series-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    /* Series card */
-    .series-card {
-        border-radius: 16px;
-        background-color: #fff;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .series-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .series-card-content {
-        padding: 24px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .series-card-title {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 12px;
-        line-height: 1.3;
-    }
-
-    .series-card-description {
-        font-size: 16px;
-        color: #666;
-        margin-bottom: 16px;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .series-card-meta {
-        margin-top: auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .series-card-count {
-        font-size: 14px;
-        color: #888;
-    }
-
-    .series-card-date {
-        font-size: 14px;
-        color: #888;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
-<div class="tabs-container">
+<div class="container mx-auto px-4">
     {% with active_tab='series' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
-    
-    {% include 'board/author/components/series_search_filter.html' %}
-    
-    <div class="content-with-sidebar">
-        <div class="main-content">
-            {% if user == author %}
-                <div class="series-actions" style="text-align: right; margin-bottom: 16px;">
-                    <a href="/@{{ author.username }}/series/create" class="btn btn-primary" style="font-size: 14px; padding: 8px 16px;">
-                        <i class="fas fa-plus"></i> 새 시리즈 만들기
+
+    <!-- 필터 영역 -->
+    <div class="bg-white border border-solid border-gray-200 rounded-xl p-5 mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+            <div class="w-full sm:w-auto sm:flex-1 sm:max-w-md">
+                <label class="block text-sm font-medium text-gray-700 mb-2">시리즈 찾기</label>
+                {% include 'components/search_query_filter.html' with placeholder='검색어를 입력해주세요' %}
+            </div>
+            
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">정렬</label>
+                    {% include 'components/dropdown_filter.html' with options=series_sort_options param_name='sort' current_value=request.GET.sort|default:'newest' %}
+                </div>
+                {% if request.user == author %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">&nbsp;</label>
+                    <a href="/@{{ author.username }}/series/create" class="inline-flex items-center justify-center gap-2 bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors">
+                        <i class="fas fa-plus"></i> 
+                        <span>새 시리즈 만들기</span>
                     </a>
                 </div>
-            {% endif %}
-            
-            {% if is_loading %}
-                {% include 'board/author/components/loading_state.html' %}
-            {% elif not series_list %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-3">        
+            {% if not series_list %}
                 {% if request.GET.q %}
                     {% with empty_title='No matching series' empty_message='No series match your search criteria.' %}
                         {% include 'board/author/components/empty_state.html' %}
@@ -121,18 +51,18 @@
                     {% endwith %}
                 {% endif %}
             {% else %}
-                <div class="series-grid">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {% for series in series_list %}
-                    <a href="/@{{ author.username }}/series/{{ series.url }}" class="series-card">
-                        <div class="series-card-content">
-                            <h2 class="series-card-title">{{ series.name }}</h2>
-                            <p class="series-card-description">{{ series.description }}</p>
-                            <div class="series-card-meta">
-                                <div class="series-card-count flex gap-1 align-center">
+                    <a href="/@{{ author.username }}/series/{{ series.url }}" class="block bg-white rounded-2xl overflow-hidden border border-solid border-gray-200">
+                        <div class="p-6 flex flex-col h-full">
+                            <h2 class="text-lg font-semibold text-gray-800 leading-snug mb-3">{{ series.name }}</h2>
+                            <p class="text-sm text-gray-600 leading-relaxed flex-grow mb-4 line-clamp-3">{{ series.description }}</p>
+                            <div class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+                                <div class="flex items-center gap-1.5">
                                     <i class="far fa-file-alt"></i>
                                     <span>{{ series.post_count }} posts</span>
                                 </div>
-                                <div class="series-card-date flex gap-1 align-center">
+                                <div class="flex items-center gap-1.5">
                                     <i class="far fa-clock"></i>
                                     <span>{{ series.updated_date }}</span>
                                 </div>
@@ -143,7 +73,7 @@
                 </div>
                 
                 {% if page_count > 1 %}
-                <div class="pagination-wrapper">
+                <div class="mt-8">
                     {% include 'components/pagination.html' with page=page_number last=page_count %}
                 </div>
                 {% endif %}
