@@ -124,7 +124,7 @@ const SocialLinks: React.FC = () => {
     const [socials, setSocials] = useState<SocialLink[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const { data: socialData, isLoading: isDataLoading, isError, refetch } = useFetch({
+    const { data: socialData, isError } = useFetch({
         queryKey: ['social-links-setting'],
         queryFn: async () => {
             const { data } = await http('v1/setting/profile', { method: 'GET' });
