@@ -8,7 +8,7 @@
     <meta name="referrer" content="origin" />
     <title>{% block title %}BLEX{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="{% island_css 'main' %}">
+    <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
     <link rel="icon" href="{% static 'favicon.ico' %}" />
     <link rel="apple-touch-icon" sizes="57x57" href="{% static 'logo57.png' %}" />
     <link rel="apple-touch-icon" sizes="72x72" href="{% static 'logo72.png' %}" />
@@ -109,7 +109,7 @@
     {% block extra_scripts %}{% endblock %}
 
     {% vite_hmr_client %}
-    <script type="module" src="{% island_entry 'island' %}"></script>
+    <script type="module" src="{% island_entry 'src/island.tsx' %}"></script>
 </body>
 
 </html>

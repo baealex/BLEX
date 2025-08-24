@@ -20,7 +20,7 @@ def get_manifest():
         # Try multiple possible locations for the manifest file
         possible_paths = [
             # Production path (using STATIC_ROOT)
-            os.path.join(settings.STATIC_ROOT, 'islands', 'manifest.json') if hasattr(settings, 'STATIC_ROOT') else None,
+            os.path.join(settings.STATIC_ROOT, 'islands', '.vite', 'manifest.json') if hasattr(settings, 'STATIC_ROOT') else None,
         ]
         
         for path in possible_paths:
@@ -47,21 +47,19 @@ def island_entry(entry_name):
     
     Usage:
     {% load island %}
-    <script type="module" src="{% island_entry 'island' %}"></script>
+    <script type="module" src="{% island_entry 'src/island.tsx' %}"></script>
     """
     # Check if in development mode
     if settings.DEBUG:
-        return f"http://localhost:5173/src/{entry_name}.tsx"
+        return f"http://localhost:5173/{entry_name}"
     
     manifest = get_manifest()
     entry_path = f"{entry_name}"
-    entry_ext = [".js", ".jsx", ".ts", ".tsx"]
     
     # Look for the entry in the manifest
     for key, value in manifest.items():
-        for ext in entry_ext:
-            if entry_path in key and key.endswith(ext):
-                return static(f"islands/{value['file']}")
+        if entry_path in key:
+            return static(f"islands/{value['file']}")
     
     # If not found in manifest (e.g., in development), return the default path
     return static(f"islands/{entry_name}")
@@ -73,22 +71,19 @@ def island_css(entry_name):
     
     Usage:
     {% load island %}
-    <link rel="stylesheet" href="{% island_css 'main' %}">
+    <link rel="stylesheet" href="{% island_css 'styles/main.scss' %}">
     """
-
     # Check if in development mode
     if settings.DEBUG:
-        return f"http://localhost:5173/styles/{entry_name}.scss"
+        return f"http://localhost:5173/{entry_name}"
     
     manifest = get_manifest()
     entry_path = f"{entry_name}"
-    entry_ext = [".css", ".scss", ".sass"]
     
     # Look for the CSS entry in the manifest
     for key, value in manifest.items():
-        for ext in entry_ext:
-            if entry_path in key and key.endswith(ext):
-                return static(f"islands/{value['file']}")
+        if entry_path in key:
+            return static(f"islands/{value['file']}")
     
     return static(f"islands/{entry_name}")
 
