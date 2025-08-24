@@ -7,7 +7,7 @@
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
-<div class="container mx-auto px-4">
+<div class="container mx-auto">
     {% with active_tab='series' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
@@ -42,16 +42,16 @@
         <div class="md:col-span-3">        
             {% if not series_list %}
                 {% if request.GET.q %}
-                    {% with empty_title='No matching series' empty_message='No series match your search criteria.' %}
+                    {% with empty_title='일치하는 시리즈가 없습니다.' empty_message='검색어를 다시 확인해주세요.' %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% else %}
-                    {% with empty_title='No series yet' empty_message=author.username|add:" hasn't created any series yet." %}
+                    {% with empty_title='시리즈가 없습니다.' empty_message=author.username|add:"님이 시리즈를 준비중입니다." %}
                         {% include 'board/author/components/empty_state.html' %}
                     {% endwith %}
                 {% endif %}
             {% else %}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {% for series in series_list %}
                     <a href="/@{{ author.username }}/series/{{ series.url }}" class="block bg-white rounded-2xl overflow-hidden border border-solid border-gray-200">
                         <div class="p-6 flex flex-col h-full">

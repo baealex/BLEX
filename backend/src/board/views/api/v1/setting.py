@@ -251,6 +251,7 @@ def setting(request, parameter):
             return StatusDone({
                 'username': user.username,
                 'series': list(map(lambda series_item: {
+                    'id': series_item.id,
                     'url': series_item.url,
                     'title': series_item.name,
                     'total_posts': series_item.total_posts

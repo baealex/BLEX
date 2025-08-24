@@ -1,6 +1,7 @@
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 from django.views.generic import TemplateView
+from django.contrib.auth import views as auth_views
 # from graphene_django.views import GraphQLView
 
 from board.sitemaps import sitemaps, sitemap_section
@@ -35,6 +36,7 @@ urlpatterns = [
     path('authors', staff_member_required(authors_view), name='authors'),
     path('like/<str:url>', staff_member_required(like_post), name='like_post'),
     path('login', staff_member_required(login_view), name='login'),
+    path('logout', staff_member_required(auth_views.LogoutView.as_view()), name='logout'),
     path('security', staff_member_required(security_view), name='security'),
 
     # Static pages

@@ -1,6 +1,6 @@
 {% load static %}
 <header 
-    class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50 transition-all duration-300 border-b border-gray-100"
+    class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50 transition-all duration-300 border-b border-gray-100 px-4"
     x-data="{ 
         hidden: false, 
         lastScrollY: 0,
@@ -20,17 +20,17 @@
     }"
     :class="{ '-translate-y-full': hidden }"
 >
-    <div class="container mx-auto px-4 lg:px-6">
+    <div class="container mx-auto">
         <div class="flex justify-between items-center py-3">
             <a href="/" class="flex items-center group">
                 <img class="h-9 w-auto transition-transform group-hover:scale-105" src="{% static 'logob.svg' %}" alt="BLEX">
             </a>
             <nav class="flex items-center space-x-3">
+                {% if user.is_authenticated %}
                 <a href="/write" class="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
                     <i class="fas fa-pen text-sm"></i>
                     <span class="hidden sm:inline">글 작성</span>
                 </a>
-                {% if user.is_authenticated %}
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-xl transition-all duration-200 group">
                         <div class="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
@@ -55,19 +55,22 @@
                             </div>
                             <span class="font-medium">프로필</span>
                         </a>
-                        <a href="/settings/account" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
+                        <a href="/settings/profile" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
                             <div class="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
                                 <i class="fas fa-cog text-white text-xs"></i>
                             </div>
                             <span class="font-medium">설정</span>
                         </a>
                         <div class="border-t border-gray-100 my-1"></div>
-                        <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-150">
-                            <div class="w-8 h-8 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center">
-                                <i class="fas fa-sign-out-alt text-white text-xs"></i>
-                            </div>
-                            <span class="font-medium">로그아웃</span>
-                        </a>
+                        <form x-ref="logoutForm" action="/logout" method="post" class="w-full">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                            <button type="submit" @click.prevent="$refs.logoutForm.submit()" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 w-full text-left">
+                                <div class="w-8 h-8 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-sign-out-alt text-white text-xs"></i>
+                                </div>
+                                <span class="font-medium">로그아웃</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
                 {% else %}

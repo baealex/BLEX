@@ -12,7 +12,6 @@ const LazyComponents = {
     MarkdownEditor: lazy(() => import('./MarkdownEditor')),
 
     // Settings
-    AboutSetting: lazy(() => import('./Settings/AboutSetting')),
     FormsSetting: lazy(() => import('./Settings/FormsSetting')),
     IntegrationSetting: lazy(() => import('./Settings/IntegrationSetting')),
     InvitationSetting: lazy(() => import('./Settings/InvitationSetting')),

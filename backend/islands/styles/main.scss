@@ -16,3 +16,7 @@ a {
     border-bottom: none;
     border-top: none;
 }
+
+[x-cloak] {
+    display: none !important;
+}

@@ -19,3 +19,10 @@
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+@media (min-width: 1280px) {
+    .masonry-grid,
+    .posts-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

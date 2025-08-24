@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" role="main">
+<div class="max-w-4xl mx-auto py-8" role="main">
     <article itemscope itemtype="https://schema.org/BlogPosting" lang="{{ LANGUAGE_CODE|default:'ko' }}">
         <meta itemprop="headline" content="{{ post.title }}">
         <meta itemprop="description" content="{{ post.meta_description }}">
@@ -115,6 +115,57 @@
             {% endif %}
         </div>
     </article>
+
+    <!-- 스티키 액션 바 (Alpine.js 사용) -->
+    <div x-data="{ shareMessage: '공유' }" class="sticky bottom-0 left-0 right-0 z-40 mb-8">
+        <div class="max-w-4xl mx-auto px-4 py-3 bg-white border-t border-gray-200 rounded-2xl">
+            <div class="flex items-center justify-between">
+                <!-- 왼쪽: 포스트 정보 -->
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <a href="/@{{ post.author_username }}">
+                            <img class="w-8 h-8 rounded-full object-cover flex-shrink-0" 
+                                src="{% if post.author_image %}{% static post.author_image %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
+                                alt="{{ post.author_username }}">
+                        </a>
+                        <div class="min-w-0 hidden sm:block">
+                            <div class="font-semibold text-gray-900 truncate">{{ post.title }}</div>
+                            <div class="text-xs text-gray-500">by {{ post.author_username }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 오른쪽: 액션 버튼들 -->
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked size='small' %}
+                    
+                    <button @click="
+                        if (navigator.share) {
+                            navigator.share({
+                                title: '{{ post.title }}',
+                                text: '{{ post.meta_description }}',
+                                url: window.location.href
+                            }).catch(error => console.log('Error sharing:', error));
+                        } else {
+                            navigator.clipboard.writeText(window.location.href);
+                            shareMessage = '링크 복사됨!';
+                            setTimeout(() => shareMessage = '공유', 2000);
+                        }
+                    " class="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors duration-200 text-sm" aria-label="게시물 공유하기">
+                        <i class="fas fa-share-alt"></i>
+                        <span class="hidden sm:inline" x-text="shareMessage"></span>
+                    </button>
+                    
+                    {% if user.is_authenticated and user.username == post.author_username %}
+                    <a href="{% url 'post_edit' post.author_username post.url %}" class="flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm">
+                        <i class="fas fa-edit"></i>
+                        <span class="hidden sm:inline">편집</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 시리즈 정보 -->
     {% if post.series %}
@@ -250,57 +301,6 @@
         </div>
     </div>
     {% endif %}
-</div>
-
-<!-- 스티키 액션 바 (Alpine.js 사용) -->
-<div x-data="{ shareMessage: '공유' }" class="sticky bottom-0 left-0 right-0 z-40">
-    <div class="max-w-4xl mx-auto px-4 py-3 bg-white border-t border-gray-200 rounded-2xl">
-        <div class="flex items-center justify-between">
-            <!-- 왼쪽: 포스트 정보 -->
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-                <div class="flex items-center gap-2 min-w-0">
-                    <a href="/@{{ post.author_username }}">
-                        <img class="w-8 h-8 rounded-full object-cover flex-shrink-0" 
-                             src="{% if post.author_image %}{% static post.author_image %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
-                             alt="{{ post.author_username }}">
-                    </a>
-                    <div class="min-w-0 hidden sm:block">
-                        <div class="font-semibold text-gray-900 truncate">{{ post.title }}</div>
-                        <div class="text-xs text-gray-500">by {{ post.author_username }}</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 오른쪽: 액션 버튼들 -->
-            <div class="flex items-center gap-2 flex-shrink-0">
-                {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked size='small' %}
-                
-                <button @click="
-                    if (navigator.share) {
-                        navigator.share({
-                            title: '{{ post.title }}',
-                            text: '{{ post.meta_description }}',
-                            url: window.location.href
-                        }).catch(error => console.log('Error sharing:', error));
-                    } else {
-                        navigator.clipboard.writeText(window.location.href);
-                        shareMessage = '링크 복사됨!';
-                        setTimeout(() => shareMessage = '공유', 2000);
-                    }
-                " class="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors duration-200 text-sm" aria-label="게시물 공유하기">
-                    <i class="fas fa-share-alt"></i>
-                    <span class="hidden sm:inline" x-text="shareMessage"></span>
-                </button>
-                
-                {% if user.is_authenticated and user.username == post.author_username %}
-                <a href="{% url 'post_edit' post.author_username post.url %}" class="flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm">
-                    <i class="fas fa-edit"></i>
-                    <span class="hidden sm:inline">편집</span>
-                </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
