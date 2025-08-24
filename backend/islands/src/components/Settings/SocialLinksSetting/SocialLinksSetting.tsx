@@ -19,6 +19,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
+import { useFetch } from '~/hooks/use-fetch';
 
 interface SocialLink {
     id: number;
@@ -26,10 +27,6 @@ interface SocialLink {
     value: string;
     order: number;
     prepare?: boolean;
-}
-
-interface SocialLinksProps {
-    social: SocialLink[];
 }
 
 interface SocialLinkItemProps {
@@ -41,16 +38,16 @@ interface SocialLinkItemProps {
 
 const getIconClassName = (name: string) => {
     const iconMap: Record<string, string> = {
-        github: 'fa-brands fa-github',
-        twitter: 'fa-brands fa-twitter',
-        facebook: 'fa-brands fa-facebook',
-        telegram: 'fa-brands fa-telegram',
-        instagram: 'fa-brands fa-instagram',
-        linkedin: 'fa-brands fa-linkedin',
-        youtube: 'fa-brands fa-youtube',
-        other: 'fa-solid fa-globe'
+        github: 'fab fa-github',
+        twitter: 'fab fa-twitter',
+        facebook: 'fab fa-facebook-f',
+        telegram: 'fab fa-telegram',
+        instagram: 'fab fa-instagram',
+        linkedin: 'fab fa-linkedin-in',
+        youtube: 'fab fa-youtube',
+        other: 'fas fa-link'
     };
-    return iconMap[name] || 'fa-solid fa-globe';
+    return iconMap[name] || 'fas fa-link';
 };
 
 const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemProps) => {
@@ -68,22 +65,27 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
     };
 
     return (
-        <div ref={setNodeRef} style={style} className="mb-2">
-            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md shadow-sm">
-                <div className="cursor-grab text-gray-500 w-5 text-center" {...attributes} {...listeners}>
-                    <i className="fas fa-bars" />
+        <div ref={setNodeRef} style={style} className="mb-4">
+            <div className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div
+                    className="cursor-grab text-gray-400 hover:text-gray-600 w-6 h-6 flex items-center justify-center transition-colors"
+                    {...attributes}
+                    {...listeners}>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" />
+                    </svg>
                 </div>
 
-                <div className="w-5 text-center">
-                    <i className={getIconClassName(social.name)} />
+                <div className="w-8 h-8 flex items-center justify-center bg-gray-50 rounded-full">
+                    <i className={`${getIconClassName(social.name)} text-gray-600`} />
                 </div>
 
-                <div className="w-32">
+                <div className="w-40">
                     <select
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2"
-                        defaultValue={social.name}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 transition-colors"
+                        value={social.name}
                         onChange={(e) => onChange(index, 'name', e.target.value)}>
-                        <option disabled value="">아이콘</option>
+                        <option disabled value="">아이콘 선택</option>
                         <option value="github">깃허브</option>
                         <option value="twitter">트위터</option>
                         <option value="facebook">페이스북</option>
@@ -95,35 +97,58 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     </select>
                 </div>
 
-                <div className="flex-grow">
+                <div className="flex-1">
                     <input
                         type="url"
-                        placeholder="주소"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2"
-                        defaultValue={social.value}
+                        placeholder="https://example.com"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 transition-colors"
+                        value={social.value}
                         onChange={(e) => onChange(index, 'value', e.target.value)}
                     />
                 </div>
 
                 <button
                     type="button"
-                    className="p-2 bg-transparent border-none text-red-600 cursor-pointer"
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                     onClick={() => onRemove(social.id)}>
-                    <i className="fas fa-times" />
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
                 </button>
             </div>
         </div>
     );
 };
 
-const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial = [] }) => {
-    const [socials, setSocials] = useState<SocialLink[]>(
-        initialSocial.map(social => ({
-            ...social,
-            prepare: false
-        }))
-    );
+const SocialLinks: React.FC = () => {
+    const [socials, setSocials] = useState<SocialLink[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+
+    const { data: socialData, isLoading: isDataLoading, isError, refetch } = useFetch({
+        queryKey: ['social-links-setting'],
+        queryFn: async () => {
+            const { data } = await http('v1/setting/profile', { method: 'GET' });
+            if (data.status === 'DONE') {
+                return data.body.social || [];
+            }
+            throw new Error('소셜 링크 정보를 불러오는데 실패했습니다.');
+        }
+    });
+
+    React.useEffect(() => {
+        if (socialData) {
+            setSocials(socialData.map((social: SocialLink) => ({
+                ...social,
+                prepare: false
+            })));
+        }
+    }, [socialData]);
+
+    React.useEffect(() => {
+        if (isError) {
+            notification('소셜 링크 정보를 불러오는데 실패했습니다.', { type: 'error' });
+        }
+    }, [isError]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -165,26 +190,8 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial = [] })
         }]);
     };
 
-    const handleSocialRemove = async (id: number) => {
-        const targetSocial = socials.find(social => social.id === id);
-
-        if (targetSocial?.prepare) {
-            setSocials(socials.filter(social => social.id !== id));
-            return;
-        }
-
-        try {
-            const { data } = await http(`v1/setting/social/${id}`, { method: 'DELETE' });
-
-            if (data.status === 'DONE') {
-                setSocials(socials.filter(social => social.id !== id));
-                notification('소셜 링크가 삭제되었습니다.', { type: 'success' });
-            } else {
-                notification(data.message || '소셜 링크 삭제에 실패했습니다.', { type: 'error' });
-            }
-        } catch (error) {
-            notification('소셜 링크 삭제에 실패했습니다.', { type: 'error' });
-        }
+    const handleSocialRemove = (id: number) => {
+        setSocials(socials.filter(social => social.id !== id));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -219,12 +226,14 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial = [] })
             const updateItems = socials.filter((social) => !social.prepare);
             const createItems = socials.filter((social) => social.prepare);
 
+            const params = new URLSearchParams();
+            params.append('update', updateItems.map((item) => `${item.id},${item.name},${item.value},${item.order}`).join('&'));
+            params.append('create', createItems.map((item) => `${item.name},${item.value},${item.order}`).join('&'));
+
             const { data } = await http('v1/setting/social', {
                 method: 'PUT',
-                data: {
-                    update: updateItems.map((item) => `${item.id},${item.name},${item.value},${item.order}`).join('&'),
-                    create: createItems.map((item) => `${item.name},${item.value},${item.order}`).join('&')
-                }
+                data: params.toString(),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
 
             if (data.status === 'DONE') {
@@ -238,6 +247,8 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ social: initialSocial = [] })
             }
         } catch (error) {
             notification('소셜 정보 업데이트에 실패했습니다.', { type: 'error' });
+        } finally {
+            setIsLoading(false);
         }
     };
 

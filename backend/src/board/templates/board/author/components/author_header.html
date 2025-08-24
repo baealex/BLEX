@@ -18,6 +18,27 @@
         </p>
         {% endif %}
         
+        {% if author.profile.homepage %}
+        <div class="mb-6 sm:mb-8" x-data="{ 
+            url: '{{ author.profile.homepage }}',
+            get hostname() {
+                try {
+                    return new URL(this.url).hostname.replace('www.', '');
+                } catch (e) {
+                    return this.url;
+                }
+            }
+        }">
+            <a :href="url" target="_blank" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg 
+                      text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 
+                      transition-all duration-300 text-sm font-medium">
+                <i class="fas fa-external-link-alt"></i>
+                <span x-text="hostname"></span>
+            </a>
+        </div>
+        {% endif %}
+        
         {% if user.is_authenticated and user.id != author.id %}
         <div class="mb-6 sm:mb-8">
             {% island_component 'FollowButton' authorId=author.username isFollowing=is_following %}

@@ -3,29 +3,27 @@ import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 
 interface TelegramConnection {
-    is_connected: boolean;
-    telegram_id?: string;
+    isConnected: boolean;
+    telegramId?: string;
 }
 
 const IntegrationSettings: React.FC = () => {
-    const [telegramConnection, setTelegramConnection] = useState<TelegramConnection>({ is_connected: false });
+    const [telegramConnection, setTelegramConnection] = useState<TelegramConnection>({ isConnected: false });
     const [telegramToken, setTelegramToken] = useState('');
 
     const fetchTelegramStatus = async () => {
         try {
-            const { data } = await http.get('v1/setting/integration-telegram');
+            const { data } = await http('v1/setting/integration-telegram', { method: 'GET' });
             if (data.status === 'DONE') {
-                setTelegramConnection({ 
-                    is_connected: data.body.is_connected,
-                    telegram_id: data.body.telegram_id
+                setTelegramConnection({
+                    isConnected: data.body.isConnected,
+                    telegramId: data.body.telegramId
                 });
-                if (!data.body.is_connected) {
-                    // If not connected, get a new token
+                if (!data.body.isConnected) {
                     refreshToken();
                 }
             }
         } catch (error) {
-            console.error('Error fetching telegram status:', error);
             notification('텔레그램 연동 정보를 불러오는데 실패했습니다.', { type: 'error' });
         }
     };
@@ -34,22 +32,21 @@ const IntegrationSettings: React.FC = () => {
         fetchTelegramStatus();
 
         const interval = setInterval(() => {
-            if (!telegramConnection.is_connected) {
+            if (!telegramConnection.isConnected) {
                 fetchTelegramStatus();
             }
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [telegramConnection.is_connected]);
+    }, [telegramConnection.isConnected]);
 
     const refreshToken = async () => {
         try {
-            const { data } = await http.post('/v1/telegram/makeToken');
+            const { data } = await http('v1/telegram/makeToken', { method: 'POST' });
             if (data.status === 'DONE' && data.body.token) {
                 setTelegramToken(data.body.token);
             }
         } catch (error) {
-            console.error('Error refreshing token:', error);
             notification('토큰 생성에 실패했습니다.', { type: 'error' });
         }
     };
@@ -60,11 +57,10 @@ const IntegrationSettings: React.FC = () => {
         }
 
         try {
-            const { data } = await http.post('/v1/telegram/unsync');
+            const { data } = await http('v1/telegram/unsync', { method: 'POST' });
             if (data.status === 'DONE') {
                 notification('연동이 해제되었습니다.', { type: 'success' });
-                setTelegramConnection({ is_connected: false });
-                // Refresh token for next connection
+                setTelegramConnection({ isConnected: false });
                 refreshToken();
             } else {
                 notification(data.errorMessage || '연동 해제에 실패했습니다.', { type: 'error' });
@@ -75,73 +71,80 @@ const IntegrationSettings: React.FC = () => {
     };
 
     return (
-        <div className="integration-settings">
-            <div className="card setting-card">
-                <div className="card-body">
-                    <div style={{ lineHeight: '1.75' }}>
-                        <div className="mb-3">
-                            <strong>텔레그램과 연동하면 어떤 효과가 있나요?</strong>
-                        </div>
-                        <ul className="mb-3">
-                            <li>실시간으로 회원님의 알림을 전달해 드립니다.</li>
-                            <li>로그인시 2차 인증을 사용할 수 있습니다.</li>
-                        </ul>
-                        
-                        {!telegramConnection.is_connected && (
-                            <>
-                                <div className="my-3">
-                                    <strong>어떻게 연동하나요?</strong>
-                                    <ul>
-                                        <li>
-                                            텔레그램을 실행하고{' '}
-                                            <a 
-                                                href="http://t.me/blex_bot" 
-                                                className="text-decoration-none"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                @blex_bot
-                                            </a>
-                                            을 추가해주세요!
-                                        </li>
-                                        <li>
-                                            봇에게{' '}
-                                            <code className="bg-primary text-white px-2 py-1 rounded">
-                                                {telegramToken}
-                                            </code>
-                                            을 전송해주세요!
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div className="text-muted">
-                                    해당 토큰은 회원님을 위해 생성된 일회성 토큰이며 연동을 완료되거나 오늘이 지나면 파기됩니다.
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
+        <div className="p-6 bg-white shadow-md rounded-lg">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                <h3 className="text-lg font-semibold text-blue-900 mb-4">
+                    텔레그램과 연동하면 어떤 효과가 있나요?
+                </h3>
+                <ul className="text-blue-800 space-y-2 mb-4">
+                    <li className="flex items-start">
+                        <svg className="w-5 h-5 mt-0.5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        실시간으로 회원님의 알림을 전달해 드립니다.
+                    </li>
+                    <li className="flex items-start">
+                        <svg className="w-5 h-5 mt-0.5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        로그인시 2차 인증을 사용할 수 있습니다.
+                    </li>
+                </ul>
             </div>
 
-            {telegramConnection.is_connected && (
-                <div className="card setting-card mt-3">
-                    <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center flex-wrap">
-                            <div>
-                                <div className="d-flex align-items-center mb-2">
-                                    <i className="fab fa-telegram-plane text-primary fs-4 me-2"></i>
-                                    <span className="fw-bold">연동된 아이디</span>
+            {!telegramConnection.isConnected && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+                    <h4 className="text-md font-semibold text-gray-900 mb-4">어떻게 연동하나요?</h4>
+                    <div className="space-y-3 mb-4">
+                        <div className="flex items-start">
+                            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full mr-3 mt-0.5">1</span>
+                            <span className="text-gray-700">
+                                텔레그램을 실행하고{' '}
+                                <a
+                                    href="http://t.me/blex_bot"
+                                    className="text-blue-600 hover:text-blue-800 font-medium"
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+                                    @blex_bot
+                                </a>
+                                을 추가해주세요!
+                            </span>
+                        </div>
+                        <div className="flex items-start">
+                            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full mr-3 mt-0.5">2</span>
+                            <div className="text-gray-700">
+                                봇에게 다음 코드를 전송해주세요:
+                                <div className="mt-2 p-3 bg-gray-900 text-white font-mono text-sm rounded-lg">
+                                    {telegramToken}
                                 </div>
-                                <div className="fs-5">{telegramConnection.telegram_id}</div>
                             </div>
                         </div>
-                        <button 
-                            type="button" 
-                            className="btn btn-outline-danger w-100 mt-3"
-                            onClick={disconnectTelegram}
-                        >
-                            연동 해제
-                        </button>
                     </div>
+                    <div className="text-sm text-gray-500 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        해당 토큰은 회원님을 위해 생성된 일회성 토큰이며 연동을 완료되거나 오늘이 지나면 파기됩니다.
+                    </div>
+                </div>
+            )}
+
+            {telegramConnection.isConnected && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                    <div className="flex items-center mb-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full mr-4">
+                            <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 className="text-lg font-semibold text-green-900">텔레그램 연동 완료</h4>
+                            <p className="text-green-700">연동된 아이디: {telegramConnection.telegramId}</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        className="w-full inline-flex justify-center py-2 px-4 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        onClick={disconnectTelegram}>
+                        연동 해제
+                    </button>
                 </div>
             )}
         </div>

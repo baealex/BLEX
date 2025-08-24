@@ -56,7 +56,7 @@ def series_detail(request, username, series_url):
     
     # Get current page and implement pagination
     page = int(request.GET.get('page', 1))
-    posts_per_page = 5  # Show 5 posts per page
+    posts_per_page = 10  # Show 10 posts per page
     total_posts = all_posts.count()
     total_pages = (total_posts + posts_per_page - 1) // posts_per_page  # Ceiling division
     
