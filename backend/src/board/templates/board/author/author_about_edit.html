@@ -1,0 +1,48 @@
+{% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+
+{% block title %}Edit About {{ author.username }} - BLEX{% endblock %}
+
+{% block content %}
+{% include 'board/author/components/author_header.html' %}
+
+<div class="container mx-auto px-4">
+    {% with active_tab='about' %}
+        {% include 'board/author/components/tabs_nav.html' %}
+    {% endwith %}
+
+    <div class="max-w-3xl mx-auto py-6">
+        <div class="mb-6">
+            <h1 class="text-4xl font-bold mb-3 text-gray-800">자신을 소개해 보세요.</h1>
+            <p class="text-lg text-gray-600">자신을 소개하는 글을 작성해 보세요.</p>
+        </div>
+
+        <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-6 mb-6 text-white">
+            <div class="text-base leading-relaxed mb-4 last:mb-0">
+                💡 자신을 소개하는 글을 작성해 보세요. 자신의 주요 관심사 등을 작성해 보세요.
+            </div>
+            <div class="text-base leading-relaxed mb-4 last:mb-0">
+                🎯 누구에게 자신을 소개하고 싶으신가요? 대상을 선정하면 작성이 쉬워집니다.
+            </div>
+            <div class="text-base leading-relaxed">
+                ✨ 소개글은 자신의 블로그 프로필 페이지에 노출됩니다. 자신을 표현해 보세요.
+            </div>
+        </div>
+
+        <div class="mb-6">
+            {% island 'AboutEditor' %}
+                <script type="application/json">
+                {
+                    "initialValue": "{{ about_md|escapejs }}",
+                    "username": "{{ author.username }}",
+                    "placeholder": "자신을 소개해보세요...",
+                    "successMessage": "소개가 업데이트되었습니다.",
+                    "redirectPath": "/@{{ author.username }}/about"
+                }
+                </script>
+            {% endisland %}
+        </div>
+    </div>
+</div>
+{% endblock %}

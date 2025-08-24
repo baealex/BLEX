@@ -2,11 +2,8 @@
 {% load static %}
 {% load island %}
 
-{% block setting_title %}초대 설정{% endblock %}
+{% block setting_title %}초대 관리{% endblock %}
 
 {% block setting_content %}
-<div class="setting-card">
-    <h2 class="setting-card-title">초대 관리</h2>
-    {% island_component 'InvitationManagement' invitations=invitations %}
-</div>
+{% island_component 'InvitationSetting' %}
 {% endblock %}

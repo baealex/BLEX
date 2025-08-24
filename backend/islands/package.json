@@ -4,7 +4,7 @@
     "description": "React islands for BLEX Django project",
     "type": "module",
     "scripts": {
-        "dev": "vite build --watch",
+        "dev": "vite dev",
         "build": "tsc && vite build"
     },
     "dependencies": {
@@ -13,26 +13,30 @@
         "@baejino/ui": "^0.2.1",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^10.0.0",
-        "axios": "^1.10.0",
+        "axios": "^1.11.0",
         "easymde": "^2.20.0",
         "frappe-charts": "^1.6.2",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "styled-jsx": "^5.1.7"
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "styled-jsx": "^5.1.7",
+        "react-hook-form": "^7.52.1",
+        "zod": "^3.23.8",
+        "@hookform/resolvers": "^3.6.0"
     },
     "devDependencies": {
-        "@baejino/eslint-config": "^0.0.1",
-        "@baejino/eslint-config-react": "^0.0.1",
-        "@types/react": "^18.2.15",
-        "@types/react-dom": "^18.2.7",
-        "@typescript-eslint/eslint-plugin": "^6.0.0",
-        "@typescript-eslint/parser": "^6.0.0",
-        "@vitejs/plugin-react": "^4.0.3",
-        "eslint": "^8.57.1",
-        "eslint-plugin-react-hooks": "^4.6.0",
-        "eslint-plugin-react-refresh": "^0.4.3",
-        "sass": "^1.63.4",
-        "typescript": "^5.0.2",
-        "vite": "^4.4.5"
+        "@baejino/eslint-config": "^0.1.0",
+        "@baejino/eslint-config-react": "^0.1.0",
+        "@types/react": "^19.1.11",
+        "@types/react-dom": "^19.1.7",
+        "@vitejs/plugin-react": "^5.0.1",
+        "autoprefixer": "^10.4.21",
+        "chokidar": "^4.0.3",
+        "eslint": "^9.34.0",
+        "glob": "^11.0.3",
+        "postcss": "^8.5.6",
+        "sass": "^1.90.0",
+        "tailwindcss": "^3.4.17",
+        "typescript": "^5.9.2",
+        "vite": "^7.1.3"
     }
 }

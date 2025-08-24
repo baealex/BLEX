@@ -25,7 +25,7 @@ const LikeButton = ({ postId, likesCount, hasLiked }: LikeButtonProps) => {
                 setCount(data.count_likes);
                 setLiked(data.has_liked);
             }
-        } catch (error) {
+        } catch {
             // Error is already handled by setting isLoading to false
         } finally {
             setIsLoading(false);

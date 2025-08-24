@@ -10,13 +10,20 @@ const LazyComponents = {
     LikeButton: lazy(() => import('./LikeButton')),
     Comments: lazy(() => import('./Comments')),
     MarkdownEditor: lazy(() => import('./MarkdownEditor')),
-    SocialLinks: lazy(() => import('./SocialLinks')),
-    ProfileForm: lazy(() => import('./ProfileForm')),
-    SeriesManagement: lazy(() => import('./SeriesManagement')),
-    PostsManagement: lazy(() => import('./PostsManagement')),
-    NotifySettings: lazy(() => import('./NotifySettings')),
-    VisitorAnalytics: lazy(() => import('./VisitorAnalytics')),
-    AccountSettings: lazy(() => import('./AccountSettings'))
+
+    // Settings
+    AboutSetting: lazy(() => import('./Settings/AboutSetting')),
+    FormsSetting: lazy(() => import('./Settings/FormsSetting')),
+    IntegrationSetting: lazy(() => import('./Settings/IntegrationSetting')),
+    InvitationSetting: lazy(() => import('./Settings/InvitationSetting')),
+    PostsSetting: lazy(() => import('./Settings/PostsSetting')),
+    RefererAnalyticsSetting: lazy(() => import('./Settings/RefererAnalyticsSetting')),
+    SeriesSetting: lazy(() => import('./Settings/SeriesSetting')),
+    VisitorAnalyticsSetting: lazy(() => import('./Settings/VisitorAnalyticsSetting')),
+    NotifySetting: lazy(() => import('./Settings/NotifySetting')),
+    AccountSetting: lazy(() => import('./Settings/AccountSetting')),
+    ProfileSetting: lazy(() => import('./Settings/ProfileSetting')),
+    SocialLinksSetting: lazy(() => import('./Settings/SocialLinksSetting'))
 };
 
 const App = ({ __name, ...props }: AppProps) => {

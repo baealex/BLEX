@@ -5,8 +5,11 @@
 {% block setting_title %}알림 설정{% endblock %}
 
 {% block setting_content %}
-<div class="setting-card">
-    <h2 class="setting-card-title">알림 설정</h2>
-    {% island_component 'NotifySettings' settings=settings %}
+{% if not user.profile.has_telegram_connected %}
+<div class="alert alert-info mb-3" onclick="location.href='{% url 'setting_integration' %}'">
+    <i class="fab fa-telegram-plane"></i> 텔레그램을 연동하여 실시간 알림을 받아보세요.
 </div>
+{% endif %}
+
+{% island_component 'NotifySetting' settings=notify_settings %}
 {% endblock %}

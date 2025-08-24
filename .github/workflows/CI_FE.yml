@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'frontend/src/**'
+      - 'frontend/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'frontend/src/**'
+      - 'frontend/**'
   workflow_dispatch:
 
 jobs:

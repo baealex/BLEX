@@ -1,0 +1,84 @@
+{% load static %}
+<header 
+    class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50 transition-all duration-300 border-b border-gray-100"
+    x-data="{ 
+        hidden: false, 
+        lastScrollY: 0,
+        init() {
+            this.$nextTick(() => {
+                window.addEventListener('scroll', () => {
+                    const currentScrollY = window.scrollY;
+                    if (currentScrollY > this.lastScrollY && currentScrollY > 100) {
+                        this.hidden = true;
+                    } else {
+                        this.hidden = false;
+                    }
+                    this.lastScrollY = currentScrollY;
+                });
+            });
+        }
+    }"
+    :class="{ '-translate-y-full': hidden }"
+>
+    <div class="container mx-auto px-4 lg:px-6">
+        <div class="flex justify-between items-center py-3">
+            <a href="/" class="flex items-center group">
+                <img class="h-9 w-auto transition-transform group-hover:scale-105" src="{% static 'logob.svg' %}" alt="BLEX">
+            </a>
+            <nav class="flex items-center space-x-3">
+                <a href="/write" class="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                    <i class="fas fa-pen text-sm"></i>
+                    <span class="hidden sm:inline">글 작성</span>
+                </a>
+                {% if user.is_authenticated %}
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-xl transition-all duration-200 group">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <span class="font-medium text-gray-700 hidden md:inline">{{ user.username }}</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform duration-200 group-hover:text-gray-700" :class="{ 'transform rotate-180': open }"></i>
+                    </button>
+                    <div x-show="open" 
+                         x-cloak
+                         x-transition:enter="transition ease-out duration-200" 
+                         x-transition:enter-start="opacity-0 scale-95" 
+                         x-transition:enter-end="opacity-100 scale-100" 
+                         x-transition:leave="transition ease-in duration-150" 
+                         x-transition:leave-start="opacity-100 scale-100" 
+                         x-transition:leave-end="opacity-0 scale-95" 
+                         @click.away="open = false" 
+                         class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl py-2 z-50 border border-gray-100">
+                        <a href="/@{{ user.username }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-xs"></i>
+                            </div>
+                            <span class="font-medium">프로필</span>
+                        </a>
+                        <a href="/settings/account" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
+                            <div class="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-cog text-white text-xs"></i>
+                            </div>
+                            <span class="font-medium">설정</span>
+                        </a>
+                        <div class="border-t border-gray-100 my-1"></div>
+                        <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-150">
+                            <div class="w-8 h-8 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-sign-out-alt text-white text-xs"></i>
+                            </div>
+                            <span class="font-medium">로그아웃</span>
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="/login" class="text-gray-600 hover:text-primary-600 font-medium transition-colors duration-200 px-3 py-2 rounded-xl hover:bg-gray-50">
+                    로그인
+                </a>
+                <a href="/register" class="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                    회원가입
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>

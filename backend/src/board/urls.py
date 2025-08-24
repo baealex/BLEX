@@ -9,15 +9,17 @@ from board.views.api import v1 as api_v1
 from board.views import main
 from board.views.post_actions import like_post
 from board.views.search import search_view
-from board.views.author import author_posts, author_series, author_about
+from board.views.authors import authors_view
+from board.views.author import author_posts, author_series, author_about, author_about_edit
 from board.views.post import post_detail, post_editor
-from board.views.series import series_detail
+from board.views.series import series_detail, series_create, series_edit
 from board.views.auth import login_view, security_view
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import about_view, privacy_view, terms_view
 from board.views.settings import (
     setting_profile, setting_account, setting_notify, setting_series,
-    setting_posts, setting_analytics, setting_integration, setting_invitation
+    setting_posts, setting_analytics,
+    setting_integration, setting_invitation, setting_forms
 )
 from board.decorators import staff_member_required
 
@@ -30,6 +32,7 @@ urlpatterns = [
     path('', staff_member_required(main.index), name='index'),
     path('dashboard', staff_member_required(main.dashboard), name='dashboard'),
     path('search', staff_member_required(search_view), name='search'),
+    path('authors', staff_member_required(authors_view), name='authors'),
     path('like/<str:url>', staff_member_required(like_post), name='like_post'),
     path('login', staff_member_required(login_view), name='login'),
     path('security', staff_member_required(security_view), name='security'),
@@ -48,12 +51,16 @@ urlpatterns = [
     path('settings/analytics', staff_member_required(setting_analytics), name='setting_analytics'),
     path('settings/integration', staff_member_required(setting_integration), name='setting_integration'),
     path('settings/invitation', staff_member_required(setting_invitation), name='setting_invitation'),
+    path('settings/forms', staff_member_required(setting_forms), name='setting_forms'),
 
     # Author
     path('@<username>/series', staff_member_required(author_series), name='user_series'),
+    path('@<username>/series/create', staff_member_required(series_create), name='series_create'),
     path('@<username>/about', staff_member_required(author_about), name='user_about'),
+    path('@<username>/about/edit', staff_member_required(author_about_edit), name='user_about_edit'),
     path('@<username>/<post_url>', staff_member_required(post_detail), name='post_detail'),
     path('@<username>/series/<series_url>', staff_member_required(series_detail), name='series_detail'),
+    path('@<username>/series/<series_url>/edit', staff_member_required(series_edit), name='series_edit'),
     path('@<username>/<post_url>/edit', staff_member_required(post_editor), name='post_edit'),
     path('@<username>', staff_member_required(author_posts), name='user_profile'),
 
@@ -110,7 +117,11 @@ urlpatterns = [
     path('v1/users/@<username>/series', api_v1.user_series),
     path('v1/users/@<username>/series/<url>', api_v1.user_series),
     path('v1/users/@<username>/check-redirect', api_v1.check_redirect),
+    path('v1/series', api_v1.series_create_update),
+    path('v1/series/<int:series_id>', api_v1.series_detail),
     path('v1/series/valid-posts', api_v1.posts_can_add_series),
+    path('v1/series/order', api_v1.series_order),
+    path('v1/upload/image', api_v1.image),
     path('v1/report/error', api_v1.error_report),
     path('v1/report/article/<url>', api_v1.article_report),
     path('v1/invitation/owners', api_v1.invitation_owners),

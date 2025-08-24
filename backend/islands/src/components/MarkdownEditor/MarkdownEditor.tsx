@@ -162,7 +162,7 @@ const MarkdownEditor: React.FC<EditorProps> = ({
     const editor = useRef<EasyMDE | null>(null);
     const textarea = useRef<HTMLTextAreaElement>(null);
     const imageInput = useRef<HTMLInputElement>(null);
-    const detectPreview = useRef<ReturnType<typeof setTimeout>>();
+    const detectPreview = useRef<NodeJS.Timeout | undefined>(undefined);
 
     useEffect(() => {
         if (textarea.current && !editor.current) {

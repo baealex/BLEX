@@ -6,452 +6,215 @@
     {% if query %}
         {{ query }} 검색 결과
     {% else %}
-        검색
+        포스트 검색
     {% endif %}
 {% endblock %}
 
-{% block extra_styles %}
-{{ block.super }}
-<style>
-    .search-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-    }
-    
-    .search-title {
-        font-size: 1.8rem;
-        margin-bottom: 1.5rem;
-        font-weight: 700;
-    }
-    
-    .search-box-container {
-        position: relative;
-        margin-bottom: 2rem;
-    }
-    
-    .search-form {
-        display: flex;
-        position: relative;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .input-container {
-        position: relative;
-        flex-grow: 1;
-    }
-    
-    .search-input {
-        width: 100%;
-        padding: 12px 40px 12px 15px;
-        border: none;
-        font-size: 15px;
-        outline: none;
-        transition: all 0.2s;
-        background-color: #fff;
-    }
-    
-    .search-input:focus {
-        background-color: #fff;
-    }
-    
-    .clear-button {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #adb5bd;
-        cursor: pointer;
-        font-size: 12px;
-        padding: 5px;
-        z-index: 2;
-    }
-    
-    .search-button {
-        background-color: #4568dc;
-        border: none;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-        padding: 0 20px;
-        transition: background-color 0.2s;
-    }
-    
-    .search-button:hover {
-        background-color: #3a57c4;
-    }
-    
-    /* 검색 탭 스타일 */
-    .search-tabs {
-        display: flex;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #e9ecef;
-    }
-    
-    .search-tab {
-        padding: 12px 20px;
-        font-size: 15px;
-        color: #6c757d;
-        border-bottom: 3px solid transparent;
-        transition: all 0.2s;
-        margin-right: 10px;
-    }
-    
-    .search-tab:hover {
-        color: #4568dc;
-        text-decoration: none;
-    }
-    
-    .search-tab.active {
-        color: #4568dc;
-        border-bottom-color: #4568dc;
-        font-weight: 600;
-    }
-    
-    .search-tab i {
-        margin-right: 6px;
-    }
-    
-    /* 검색 결과 스타일 */
-    .search-results {
-        margin-top: 30px;
-    }
-    
-    .search-result-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        color: #6c757d;
-        font-size: 14px;
-        background-color: #f8f9fa;
-        padding: 12px 16px;
-        border-radius: 6px;
-    }
-    
-    .search-result-item {
-        margin-bottom: 24px;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .search-result-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-    
-    .search-result-title {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-    
-    .search-result-title a {
-        color: #212529;
-        text-decoration: none;
-    }
-    
-    .search-result-title a:hover {
-        color: #4568dc;
-    }
-    
-    .search-result-meta {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 12px;
-        font-size: 13px;
-        color: #6c757d;
-        flex-wrap: wrap;
-    }
-    
-    .search-result-author {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background-color: #f8f9fa;
-        padding: 4px 10px;
-        border-radius: 20px;
-        transition: background-color 0.2s;
-    }
-    
-    .search-result-author:hover {
-        background-color: #e9ecef;
-    }
-    
-    .search-result-author img {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    
-    .search-result-description {
-        font-size: 14px;
-        line-height: 1.6;
-        color: #495057;
-        margin-bottom: 10px;
-    }
-    
-    .search-result-positions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 12px;
-    }
-    
-    .search-result-position {
-        font-size: 12px;
-        padding: 4px 10px;
-        border-radius: 16px;
-        background-color: rgba(69, 104, 220, 0.1);
-        color: #4568dc;
-        transition: all 0.2s;
-    }
-    
-    .search-result-position:hover {
-        background-color: rgba(69, 104, 220, 0.2);
-    }
-    
-    /* 사용자 검색 결과 스타일 */
-    .user-search-results {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
-    
-    .user-search-item {
-        display: flex;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .user-search-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-    
-    .user-avatar {
-        flex-shrink: 0;
-        margin-right: 16px;
-    }
-    
-    .user-avatar img {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    
-    .user-info {
-        flex-grow: 1;
-    }
-    
-    .user-name {
-        margin: 0 0 8px 0;
-        font-size: 18px;
-    }
-    
-    .user-name a {
-        color: #343a40;
-        text-decoration: none;
-    }
-    
-    .user-name a:hover {
-        color: #4568dc;
-    }
-    
-    .user-fullname {
-        font-size: 14px;
-        color: #6c757d;
-        margin-left: 8px;
-        font-weight: normal;
-    }
-    
-    .user-bio {
-        margin: 8px 0;
-        font-size: 14px;
-        color: #6c757d;
-        line-height: 1.5;
-    }
-    
-    .user-stats {
-        display: flex;
-        gap: 16px;
-        margin-top: 10px;
-    }
-    
-    .user-stat {
-        font-size: 13px;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
-    }
-    
-    .user-stat i {
-        margin-right: 6px;
-        color: #4568dc;
-    }
-    
-    .no-results {
-        text-align: center;
-        padding: 40px 0;
-    }
-    
-    .no-results h3 {
-        font-size: 20px;
-        margin-bottom: 10px;
-        color: #495057;
-    }
-    
-    .no-results p {
-        color: #6c757d;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="search-container">
-    <div class="search-container">
-        <!-- 검색 탭 추가 -->
-        <div class="search-tabs">
-            <a href="?{% if query %}q={{ query }}{% endif %}{% if username %}&u={{ username }}{% endif %}&type=post" class="search-tab {% if not search_type or search_type == 'post' %}active{% endif %}">
-                <i class="fas fa-file-alt"></i> 게시글 검색
-            </a>
-            <a href="?{% if query %}q={{ query }}{% endif %}{% if username %}&u={{ username }}{% endif %}&type=user" class="search-tab {% if search_type == 'user' %}active{% endif %}">
-                <i class="fas fa-users"></i> 사용자 검색
-            </a>
+<!-- Hero Section with Search -->
+<div class="relative overflow-hidden">
+    <div class="relative max-w-7xl mx-auto px-4 py-16 sm:py-20">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm text-indigo-700 mb-6 shadow-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                포스트 검색
+            </div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
+                원하는&nbsp;
+                <span class="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">포스트</span>를&nbsp;<br class="sm:hidden">
+                찾아보세요
+            </h1>
+            <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">제목, 내용, 태그로 BLEX의 모든 포스트를 검색할 수 있습니다</p>
         </div>
         
-        <form action="{% url 'search' %}" method="get" class="search-form" id="searchForm">
-            <input type="hidden" name="type" value="{{ search_type|default:'post' }}">
-            <div class="input-container">
-                <input 
-                    type="text" 
-                    name="q" 
-                    value="{{ query }}" 
-                    placeholder="검색어를 입력하세요." 
-                    maxlength="20" 
-                    class="search-input"
-                    autocomplete="off"
-                    required
-                >
-                {% if query %}
-                <button type="button" class="clear-button" id="clearButton">
-                    <i class="fas fa-times"></i>
-                </button>
-                {% endif %}
-            </div>
-            <input type="hidden" name="u" id="usernameInput" value="{{ username }}">
-            <button type="submit" class="search-button">
-                <i class="fas fa-search"></i>
-            </button>
-        </form>
-    </div>
-    
-    <div class="search-results">
-        {% if query %}
-            {% if results %}
-                <div class="search-result-info">
-                    <div>
-                        <strong>{{ total_size }}</strong>개의 검색 결과
-                    </div>
-                    <div>
-                        {{ elapsed_time }}초
+        <!-- Enhanced Search Form -->
+        <div class="max-w-3xl mx-auto px-4" x-data="{ query: '{{ query }}' }">
+            <form action="{% url 'search' %}" method="get" class="relative group">
+                <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 group-focus-within:shadow-2xl">
+                    <div class="flex items-center">
+                        <div class="pl-4 sm:pl-6 pr-3 sm:pr-4 py-4 sm:py-6">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            name="q" 
+                            x-model="query"
+                            placeholder="검색어를 입력하세요..." 
+                            maxlength="20" 
+                            class="flex-1 py-4 sm:py-6 text-base sm:text-lg bg-transparent border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
+                            autocomplete="off"
+                            required
+                        >
+                        <button type="button" 
+                                x-show="query.length > 0" 
+                                x-on:click="query = ''"
+                                class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                        <button type="submit" class="m-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
+                            검색
+                        </button>
                     </div>
                 </div>
                 
-                {% if search_type == 'user' %}
-                <!-- 사용자 검색 결과 표시 -->
-                <div class="user-search-results">
-                    {% for result in results %}
-                    <div class="user-search-item">
-                        <div class="user-avatar">
-                            <img src="{% static result.avatar %}" alt="{{ result.username }}">
-                        </div>
-                        <div class="user-info">
-                            <h3 class="user-name">
-                                <a href="/@{{ result.username }}">{{ result.username }}</a>
-                                {% if result.name %}<span class="user-fullname">{{ result.name }}</span>{% endif %}
-                            </h3>
-                            {% if result.bio %}
-                            <p class="user-bio">{{ result.bio }}</p>
-                            {% endif %}
-                            <div class="user-stats">
-                                <span class="user-stat"><i class="fas fa-file-alt"></i> 게시글 {{ result.post_count }}개</span>
-                                <span class="user-stat"><i class="fas fa-users"></i> 팔로워 {{ result.follower_count }}명</span>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <!-- 게시글 검색 결과 표시 -->
-                {% for result in results %}
-                <div class="search-result-item">
-                    <div class="search-result-meta">
-                        <a href="/@{{ result.author }}" class="search-result-author">
-                            <img src="{% static result.author_image %}" alt="{{ result.author }}">
-                            <span>{{ result.author }}</span>
-                        </a>
-                        <span>{{ result.created_date }}</span>
-                    </div>
-                    <h3 class="search-result-title">
-                        <a href="/@{{ result.author }}/{{ result.url }}">{{ result.title }}</a>
-                    </h3>
-                    <p class="search-result-description">{{ result.description }}</p>
-                    <div class="search-result-positions">
-                        {% for position in result.positions %}
-                        <span class="search-result-position">{{ position }}</span>
-                        {% endfor %}
+                <!-- Search Tips -->
+                <div class="mt-4 text-center">
+                    <div class="inline-flex flex-wrap gap-2 text-sm text-gray-500">
+                        <span class="bg-white/80 px-3 py-1 rounded-full">💡 팁:</span>
+                        <span class="bg-white/80 px-3 py-1 rounded-full">제목에서 검색</span>
+                        <span class="bg-white/80 px-3 py-1 rounded-full">내용에서 검색</span>
+                        <span class="bg-white/80 px-3 py-1 rounded-full">태그에서 검색</span>
                     </div>
                 </div>
-                {% endfor %}
-                {% endif %}
-
-                {% include 'components/pagination.html' with style='numbered' page=page last=page_count %}
-            {% else %}
-                <div class="no-results">
-                    <h3>검색 결과가 없습니다.</h3>
-                    <p>다른 검색어로 다시 시도해보세요.</p>
-                </div>
-            {% endif %}
-        {% endif %}
+            </form>
+        </div>
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const usernameInput = document.getElementById('usernameInput');
-        const clearButton = document.getElementById('clearButton');
-        const searchInput = document.querySelector('.search-input');
-        
-        // 검색어 지우기 버튼
-        if (clearButton) {
-            clearButton.addEventListener('click', function() {
-                searchInput.value = '';
-                this.style.display = 'none';
-                searchInput.focus();
-            });
-        }
-        
-        // 검색어 입력 시 지우기 버튼 표시/숨김
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                if (clearButton) {
-                    clearButton.style.display = this.value ? 'block' : 'none';
-                }
-            });
-        }
-    });
-</script>
+<div class="container-lg mx-auto px-4 py-8">
+    
+    <!-- 검색 결과 -->
+    {% if query %}
+        {% if results %}
+            <!-- 검색 결과 정보 -->
+            <div class="mb-8">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <strong class="text-indigo-600">{{ total_size }}</strong>개의 포스트를 찾았습니다
+                                </h3>
+                                <p class="text-sm text-gray-500">"{{ query }}" 검색 결과</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-gray-400">⚡</div>
+                            <div class="text-xs text-gray-500">{{ elapsed_time }}초</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 포스트 검색 결과 -->
+            <div class="grid gap-6">
+                {% for result in results %}
+                <article class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-4 sm:p-8">
+                        <!-- 작성자 정보 및 날짜 -->
+                        <div class="flex items-start justify-between mb-6 gap-4">
+                            <a href="/@{{ result.author }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity min-w-0">
+                                <div class="relative flex-shrink-0">
+                                    <img src="{% static result.author_image %}" alt="{{ result.author }}" 
+                                         class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-gray-100">
+                                    <div class="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full border-2 border-white"></div>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors truncate text-sm sm:text-base">{{ result.author }}</div>
+                                    <div class="text-xs sm:text-sm text-gray-500">작가</div>
+                                </div>
+                            </a>
+                            <div class="text-right flex-shrink-0">
+                                <div class="text-xs sm:text-sm text-gray-500">{{ result.created_date }}</div>
+                                {% if result.read_time %}
+                                <div class="text-xs text-gray-400 flex items-center gap-1 justify-end mt-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="hidden sm:inline">{{ result.read_time }}분 읽기</span>
+                                    <span class="sm:hidden">{{ result.read_time }}분</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- 포스트 제목 -->
+                        <h3 class="text-xl sm:text-xl font-bold text-gray-900 mb-4 hover:text-indigo-600 transition-colors leading-tight">
+                            <a href="/@{{ result.author }}/{{ result.url }}" class="hover:underline decoration-2 underline-offset-2">
+                                {{ result.title }}
+                            </a>
+                        </h3>
+                        
+                        <!-- 포스트 설명 -->
+                        {% if result.description %}
+                        <p class="text-gray-600 leading-relaxed mb-6 text-base sm:text-lg line-clamp-3">{{ result.description }}</p>
+                        {% endif %}
+                        
+                        <!-- 하단 정보: 검색 위치 태그 -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-gray-100 gap-4">
+                            {% if result.positions %}
+                            <div class="flex flex-wrap gap-2">
+                                {% for position in result.positions %}
+                                <span class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium bg-gradient-to-r 
+                                    {% if position == '제목' %}from-red-100 to-red-200 text-red-800
+                                    {% elif position == '설명' %}from-blue-100 to-blue-200 text-blue-800
+                                    {% elif position == '태그' %}from-green-100 to-green-200 text-green-800
+                                    {% elif position == '내용' %}from-purple-100 to-purple-200 text-purple-800
+                                    {% else %}from-gray-100 to-gray-200 text-gray-800
+                                    {% endif %}">
+                                    <span class="hidden sm:inline">
+                                        {% if position == '제목' %}📝
+                                        {% elif position == '설명' %}💬
+                                        {% elif position == '태그' %}🏷️
+                                        {% elif position == '내용' %}📄
+                                        {% endif %}
+                                    </span>
+                                    <span class="hidden sm:inline">{{ position }}에서 발견</span>
+                                    <span class="sm:hidden">{{ position }}</span>
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <a href="/@{{ result.author }}/{{ result.url }}" 
+                               class="inline-flex items-center justify-center sm:justify-start gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 sm:bg-transparent sm:text-indigo-600 sm:hover:bg-indigo-50 sm:px-3">
+                                읽어보기
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="mt-8">
+                {% include 'components/pagination.html' with style='numbered' page=page last=page_count %}
+            </div>
+        {% else %}
+            <!-- 검색 결과 없음 -->
+            <div class="text-center py-16">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">검색 결과가 없습니다</h3>
+                <p class="text-gray-600">다른 검색어로 다시 시도해보세요.</p>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- 검색 안내 -->
+        <div class="text-center py-16">
+            <svg class="w-20 h-20 text-gray-300 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">포스트를 검색해보세요</h3>
+            <p class="text-gray-600">제목, 내용, 태그로 원하는 포스트를 찾을 수 있습니다.</p>
+        </div>
+    {% endif %}
+</div>
+
 {% endblock %}

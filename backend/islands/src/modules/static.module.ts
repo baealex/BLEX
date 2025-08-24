@@ -4,5 +4,6 @@ export const userResource = (assets?: string) => {
 };
 
 export const getStaticPath = (resource: string) => {
+    if (resource.startsWith('http')) return resource;
     return window.configuration.static + resource;
 };
