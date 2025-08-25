@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { Response } from '~/modules/http.module';
 import { http } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
-import { getStaticPath, userResource } from '~/modules/static.module';
+import { getStaticPath } from '~/modules/static.module';
 
 interface CommentsProps {
     postUrl: string;
