@@ -20,5 +20,5 @@ class TelegramSyncAdmin(admin.ModelAdmin):
         return AdminDisplayService.check_mark(obj.tid)
 
     def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['user']
+        # kwargs['exclude'] = ['user']
         return super().get_form(request, obj, **kwargs)

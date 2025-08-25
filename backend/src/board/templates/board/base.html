@@ -27,16 +27,13 @@
     <meta name="msapplication-TileImage" content="{% static 'logo144.png' %}" />
     <meta name="msapplication-TileColor" content="#000" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
     {% block extra_styles %}{% endblock %}
 </head>
 
 <body class="bg-gray-50">
     {% include 'components/header.html' %}
 
-    <main class="max-w-7xl mx-auto py-8 px-4">
+    <main class="min-h-[calc(100vh-10.5rem)] flex flex-col px-4 py-8">
         {% block content %}{% endblock %}
     </main>
 
@@ -50,8 +47,10 @@
             user: {
                 isAuthenticated: "{{ user.is_authenticated }}",
                 username: "{{ user.username }}",
-            }
+            },
             {% endif %}
+            googleClientId: "{{ GOOGLE_OAUTH_CLIENT_ID|default:'' }}",
+            githubClientId: "{{ GITHUB_OAUTH_CLIENT_ID|default:'' }}"
         };
     </script>
 

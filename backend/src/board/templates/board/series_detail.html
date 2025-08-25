@@ -5,146 +5,148 @@
 {% block title %}{{ series.name }} - {{ author.username }} | BLEX{% endblock %}
 
 {% block content %}
-<!-- 시리즈 헤더 -->
-<div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
-    <!-- 시리즈 타이틀과 메타 정보 -->
-    <div class="flex flex-col lg:flex-row lg:items-start gap-6">
-        <!-- 왼쪽: 시리즈 정보 -->
-        <div class="flex-1">
-            <div class="flex items-center gap-2 mb-3">
-                <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
-                <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Series</span>
-            </div>
-            
-            <h1 class="text-2xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                {{ series.name }}
-            </h1>
-            
-            {% if series.text_html %}
-            <div class="text-lg text-gray-600 mb-6 leading-relaxed">
-                {{ series.text_html | safe }}
-            </div>
-            {% endif %}
-        </div>
-        
-        <!-- 오른쪽: 작성자 정보와 액션 -->
-        <div class="lg:w-80 flex-shrink-0">
-            <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
-                <!-- 작성자 정보 -->
-                <div class="flex items-center gap-4 mb-4">
-                    <a href="/@{{ author.username }}">
-                        <img class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" 
-                             src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
-                             alt="{{ author.username }}">
-                    </a>
-                    <div>
-                        <div class="text-sm text-gray-500 mb-1">작성자</div>
-                        <a href="/@{{ author.username }}" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
-                            {{ author.username }}
-                        </a>
-                    </div>
+<div class="max-w-5xl mx-auto">
+    <!-- 시리즈 헤더 -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+        <!-- 시리즈 타이틀과 메타 정보 -->
+        <div class="flex flex-col lg:flex-row lg:items-start gap-6">
+            <!-- 왼쪽: 시리즈 정보 -->
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
+                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Series</span>
                 </div>
                 
-                <!-- 시리즈 통계 -->
-                <div class="space-y-2 mb-4">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-500">포스트 수</span>
-                        <span class="font-medium text-gray-900">{{ posts|length }}개</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-500">마지막 업데이트</span>
-                        <span class="font-medium text-gray-900">{{ series.updated_date }}</span>
-                    </div>
-                </div>
+                <h1 class="text-2xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                    {{ series.name }}
+                </h1>
                 
-                <!-- 편집 버튼 -->
-                {% if request.user == author %}
-                <a href="/@{{ author.username }}/series/{{ series.url }}/edit" 
-                   class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-block">
-                    시리즈 편집
-                </a>
+                {% if series.text_html %}
+                <div class="text-lg text-gray-600 mb-6 leading-relaxed">
+                    {{ series.text_html | safe }}
+                </div>
                 {% endif %}
             </div>
-        </div>
-    </div>
-</div>
-
-{% if is_loading %}
-<div class="flex justify-center items-center py-16">
-    <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-</div>
-
-{% elif not posts %}
-<div class="flex flex-col items-center justify-center min-h-96 text-center">
-    <div class="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
-        <i class="fas fa-file-alt text-2xl text-indigo-500"></i>
-    </div>
-    <h2 class="text-2xl font-bold text-gray-900 mb-4">아직 포스트가 없습니다</h2>
-    <p class="text-lg text-gray-600">이 시리즈에는 아직 포스트가 없습니다.</p>
-</div>
-
-{% else %}
-<!-- 정렬 컨트롤 -->
-<div class="flex justify-end mb-6">
-    <div class="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-300">
-        {% if sort_order == 'desc' %}
-        <a href="?sort=asc" class="px-3 py-2 bg-white text-indigo-600 shadow-sm rounded-md text-sm font-medium transition-all">
-            <i class="fas fa-sort-amount-up mr-2"></i>오래된순
-        </a>
-        {% else %}
-        <a href="?sort=desc" class="px-3 py-2 bg-white text-indigo-600 shadow-sm rounded-md text-sm font-medium transition-all">
-            <i class="fas fa-sort-amount-down mr-2"></i>최신순
-        </a>
-        {% endif %}
-    </div>
-</div>
-
-<!-- 포스트 목록 -->
-<div class="space-y-4">
-    {% for post_number, post in posts %}
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
-        <a href="/@{{ author.username }}/{{ post.url }}" class="flex items-start gap-4">
-            <!-- 포스트 번호 -->
-            <div class="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-900 text-lg font-bold">
-                {{ post_number }}
-            </div>
             
-            <!-- 포스트 내용 -->
-            <div class="flex-1 min-w-0">
-                <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-indigo-600 transition-colors">
-                    {{ post.title }}
-                </h3>
-                
-                <!-- 메타 정보 -->
-                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                    <div class="flex items-center gap-1">
-                        <i class="far fa-calendar-alt"></i>
-                        <span>{{ post.created_date }}</span>
+            <!-- 오른쪽: 작성자 정보와 액션 -->
+            <div class="lg:w-80 flex-shrink-0">
+                <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                    <!-- 작성자 정보 -->
+                    <div class="flex items-center gap-4 mb-4">
+                        <a href="/@{{ author.username }}">
+                            <img class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" 
+                                src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
+                                alt="{{ author.username }}">
+                        </a>
+                        <div>
+                            <div class="text-sm text-gray-500 mb-1">작성자</div>
+                            <a href="/@{{ author.username }}" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+                                {{ author.username }}
+                            </a>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <i class="far fa-clock"></i>
-                        <span>{{ post.read_time }}분</span>
+                    
+                    <!-- 시리즈 통계 -->
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">포스트 수</span>
+                            <span class="font-medium text-gray-900">{{ posts|length }}개</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">마지막 업데이트</span>
+                            <span class="font-medium text-gray-900">{{ series.updated_date }}</span>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <i class="far fa-heart"></i>
-                        <span>{{ post.count_likes }}</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <i class="far fa-comment"></i>
-                        <span>{{ post.count_comments }}</span>
-                    </div>
+                    
+                    <!-- 편집 버튼 -->
+                    {% if request.user == author %}
+                    <a href="/@{{ author.username }}/series/{{ series.url }}/edit" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-block">
+                        시리즈 편집
+                    </a>
+                    {% endif %}
                 </div>
             </div>
-        </a>
+        </div>
     </div>
-    {% endfor %}
-</div>
 
-<!-- 페이지네이션 -->
-{% if total_pages > 1 %}
-<div class="mt-8">
-    {% include 'components/pagination.html' with page=page last=total_pages request=request style="numbered" %}
+    {% if is_loading %}
+    <div class="flex justify-center items-center py-16">
+        <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+    </div>
+
+    {% elif not posts %}
+    <div class="flex flex-col items-center justify-center min-h-96 text-center">
+        <div class="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
+            <i class="fas fa-file-alt text-2xl text-indigo-500"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">아직 포스트가 없습니다</h2>
+        <p class="text-lg text-gray-600">이 시리즈에는 아직 포스트가 없습니다.</p>
+    </div>
+
+    {% else %}
+    <!-- 정렬 컨트롤 -->
+    <div class="flex justify-end mb-6">
+        <div class="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-300">
+            {% if sort_order == 'desc' %}
+            <a href="?sort=asc" class="px-3 py-2 bg-white text-indigo-600 shadow-sm rounded-md text-sm font-medium transition-all">
+                <i class="fas fa-sort-amount-up mr-2"></i>오래된순
+            </a>
+            {% else %}
+            <a href="?sort=desc" class="px-3 py-2 bg-white text-indigo-600 shadow-sm rounded-md text-sm font-medium transition-all">
+                <i class="fas fa-sort-amount-down mr-2"></i>최신순
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 포스트 목록 -->
+    <div class="space-y-4">
+        {% for post_number, post in posts %}
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+            <a href="/@{{ author.username }}/{{ post.url }}" class="flex items-start gap-4">
+                <!-- 포스트 번호 -->
+                <div class="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-900 text-lg font-bold">
+                    {{ post_number }}
+                </div>
+                
+                <!-- 포스트 내용 -->
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-indigo-600 transition-colors">
+                        {{ post.title }}
+                    </h3>
+                    
+                    <!-- 메타 정보 -->
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        <div class="flex items-center gap-1">
+                            <i class="far fa-calendar-alt"></i>
+                            <span>{{ post.created_date }}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <i class="far fa-clock"></i>
+                            <span>{{ post.read_time }}분</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <i class="far fa-heart"></i>
+                            <span>{{ post.count_likes }}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <i class="far fa-comment"></i>
+                            <span>{{ post.count_comments }}</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 페이지네이션 -->
+    {% if total_pages > 1 %}
+    <div class="mt-8">
+        {% include 'components/pagination.html' with page=page last=total_pages request=request style="numbered" %}
+    </div>
+    {% endif %}
+    {% endif %}
 </div>
-{% endif %}
-{% endif %}
 {% endblock %}

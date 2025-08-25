@@ -7,41 +7,113 @@
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
-<div class="container mx-auto px-4">
+<div class="container mx-auto">
     {% with active_tab='about' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
 
-    <div class="max-w-3xl mx-auto py-6">
+    <div class="max-w-3xl w-full mx-auto py-6">
         <div class="mb-6">
             <h1 class="text-4xl font-bold mb-3 text-gray-800">자신을 소개해 보세요.</h1>
             <p class="text-lg text-gray-600">자신을 소개하는 글을 작성해 보세요.</p>
         </div>
 
-        <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-6 mb-6 text-white">
-            <div class="text-base leading-relaxed mb-4 last:mb-0">
-                💡 자신을 소개하는 글을 작성해 보세요. 자신의 주요 관심사 등을 작성해 보세요.
-            </div>
-            <div class="text-base leading-relaxed mb-4 last:mb-0">
-                🎯 누구에게 자신을 소개하고 싶으신가요? 대상을 선정하면 작성이 쉬워집니다.
-            </div>
-            <div class="text-base leading-relaxed">
-                ✨ 소개글은 자신의 블로그 프로필 페이지에 노출됩니다. 자신을 표현해 보세요.
-            </div>
+        <div class="bg-white rounded-xl p-6 mb-6 text-gray-800 border border-solid border-gray-200"
+             x-data="{
+                tips: [],
+                currentIndex: 0,
+                init() {
+                    this.tips = JSON.parse(this.$refs.tipsData.textContent);
+                    setInterval(() => {
+                        this.currentIndex = (this.currentIndex + 1) % this.tips.length;
+                    }, 5000);
+                }
+            }">
+            <template x-for="(tip, index) in tips" :key="index">
+                <div class="flex items-center"
+                     x-show="currentIndex === index"
+                     class="text-base leading-relaxed">
+                     <span class="bg-primary-50 text-primary-500 px-2 py-1 border border-solid border-primary-200 rounded-md mr-2 text-xs">TIP</span>
+                     <span x-text="tip"
+                           x-show="currentIndex === index"
+                           x-transition:enter="transition ease-out duration-500"
+                           x-transition:enter-start="opacity-0 transform scale-90"
+                           x-transition:enter-end="opacity-100 transform scale-100">
+                    </span>
+                </div>
+            </template>
+            <script type="application/json" x-ref="tipsData">
+                [
+                    "자신을 소개하는 글을 작성해 보세요. 자신의 주요 관심사 등을 작성해 보세요.",
+                    "누구에게 자신을 소개하고 싶으신가요? 대상을 선정하면 작성이 쉬워집니다.",
+                    "소개글은 자신의 블로그 프로필 페이지에 노출됩니다. 자신을 표현해 보세요."
+                ]
+            </script>
         </div>
 
-        <div class="mb-6">
-            {% island 'AboutEditor' %}
-                <script type="application/json">
-                {
-                    "initialValue": "{{ about_md|escapejs }}",
-                    "username": "{{ author.username }}",
-                    "placeholder": "자신을 소개해보세요...",
-                    "successMessage": "소개가 업데이트되었습니다.",
-                    "redirectPath": "/@{{ author.username }}/about"
+        <div class="mb-6"
+             x-data="{
+                content: '{{ about_md|escapejs }}',
+                username: '{{ author.username }}',
+                redirectPath: '/@{{ author.username }}/about',
+                isSaving: false,
+                message: '',
+                isSuccess: false,
+                init() {
+                    const data = JSON.parse(this.$refs.formData.textContent);
+                    this.content = data.initialValue;
+                    this.username = data.username;
+                    this.redirectPath = data.redirectPath;
+                },
+                async saveAbout() {
+                    this.isSaving = true;
+                    this.message = '';
+                    this.isSuccess = false;
+        
+                    try {
+                        const formData = new FormData();
+                        formData.append('about_md', this.content);
+                        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                        const response = await fetch(`/@${this.username}/about/edit`, {
+                            method: 'POST',
+                            body: formData
+                        });
+        
+                        if (response.ok) {
+                            this.message = '소개가 업데이트되었습니다.';
+                            this.isSuccess = true;
+                            window.location.replace(this.redirectPath);
+                        } else {
+                            const errorData = await response.json();
+                            this.message = errorData.detail || '저장 실패: 알 수 없는 오류가 발생했습니다.';
+                            this.isSuccess = false;
+                        }
+                    } catch (error) {
+                        this.message = '네트워크 오류: ' + error.message;
+                        this.isSuccess = false;
+                    } finally {
+                        this.isSaving = false;
+                    }
                 }
-                </script>
-            {% endisland %}
+            }">
+            <textarea
+                x-model="content"
+                :placeholder="placeholder"
+                class="w-full p-4 border border-solid border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-64"
+            ></textarea>
+            <button
+                @click="saveAbout()"
+                :disabled="isSaving"
+                class="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            >
+                <span x-show="!isSaving">저장</span>
+                <span x-show="isSaving">저장 중...</span>
+            </button>
+
+            <div x-show="message" :class="isSuccess ? 'text-green-600' : 'text-red-600'" class="mt-4 text-sm">
+                <span x-text="message"></span>
+            </div>
         </div>
     </div>
 </div>

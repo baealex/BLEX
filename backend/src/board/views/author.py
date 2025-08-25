@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Exists, OuterRef, Q, F, Case, When, Value, IntegerField
+from django.db.models import Count, Exists, OuterRef, Q, F
 from django.utils import timezone
 from board.modules.paginator import Paginator
+from django.http import JsonResponse
 
-from board.models import Post, Series, PostLikes, Follow, Tag
+from board.models import Post, Series, PostLikes, Follow, Tag, Profile
+from modules import markdown
 
 
 def author_posts(request, username):
@@ -245,7 +247,7 @@ def author_about(request, username):
     
     # Get author's profile
     profile = getattr(author, 'profile', None)
-    about_content = getattr(profile, 'about', None)
+    about_content = getattr(profile, 'about_html', None)
     
     # Count posts, series, and followers
     post_count = Post.objects.filter(
@@ -288,8 +290,19 @@ def author_about_edit(request, username):
     if request.user != author:
         return render(request, 'board/error/403.html', status=403)
     
-    # Get author's profile
-    profile = getattr(author, 'profile', None)
+    profile, created = Profile.objects.get_or_create(user=author)
+
+    if request.method == 'POST':
+        new_about_md = request.POST.get('about_md', '')
+        profile.about_md = new_about_md
+        profile.about_html = markdown.parse_to_html(new_about_md)
+        try:
+            profile.save()
+            return JsonResponse({'status': 'success', 'message': '소개가 성공적으로 업데이트되었습니다.'}) 
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    # GET request handling
     about_md = getattr(profile, 'about_md', '') if profile else ''
     
     # Count posts, series, and followers

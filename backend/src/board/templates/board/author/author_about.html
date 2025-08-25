@@ -4,34 +4,40 @@
 
 {% block title %}About {{ author.username }} - BLEX{% endblock %}
 
+{% block extra_styles %}
+<link rel="stylesheet" href="{% island_css 'styles/post.scss' %}">
+{% endblock %}
+
 {% block content %}
 {% include 'board/author/components/author_header.html' %}
 
-<div class="container mx-auto px-4">
+<div class="container mx-auto">
     {% with active_tab='about' %}
         {% include 'board/author/components/tabs_nav.html' %}
     {% endwith %}
 
     {% if not about_content %}
         <div class="text-center py-16">
-            <h2 class="text-2xl font-bold mb-3 text-gray-800">No about information</h2>
-            <p class="text-base text-gray-600 mb-6">{{ author.username }} hasn't added any about information yet.</p>
+            <h2 class="text-2xl font-bold mb-3 text-gray-800">소개글이 없습니다.</h2>
+            <p class="text-base text-gray-600 mb-6">{{ author.username }}님이 아직 소개글을 작성하지 않았어요.</p>
             {% if user == author %}
-                <a href="/@{{ author.username }}/about/edit" class="bg-primary-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors">Add about information</a>
+                <a href="/@{{ author.username }}/about/edit" class="bg-primary-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-600 transition-colors">소개글 추가하기</a>
             {% endif %}
         </div>
     {% else %}
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-3xl w-full mx-auto">
         {% if user == author %}
             <div class="text-right mb-4">
-                <a href="/@{{ author.username }}/about/edit" class="inline-flex items-center gap-2 border border-primary-500 text-primary-500 px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-50 transition-colors">
+                <a href="#" x-data="{ url: '/@{{ author.username }}/about/edit' }" @click="window.location.replace(url)" class="inline-flex items-center gap-2 border border-primary-500 text-primary-500 px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-50 transition-colors">
                     <i class="fas fa-edit"></i> 
-                    <span>Edit</span>
+                    <span>수정하기</span>
                 </a>
             </div>
         {% endif %}
-        <div class="prose lg:prose-xl max-w-none">
-            {{ about_content|safe }}
+        <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+            <div class="prose blog-post-content lg:prose-xl max-w-none">
+                {{ about_content|safe }}
+            </div>
         </div>
     </div>
     {% endif %}

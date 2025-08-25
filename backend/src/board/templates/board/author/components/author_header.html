@@ -39,12 +39,6 @@
         </div>
         {% endif %}
         
-        {% if user.is_authenticated and user.id != author.id %}
-        <div class="mb-6 sm:mb-8">
-            {% island_component 'FollowButton' authorId=author.username isFollowing=is_following %}
-        </div>
-        {% endif %}
-        
         {% with author.profile.collect_social as social_links %}
         {% if social_links %}
         <div class="flex gap-2 sm:gap-3 flex-wrap justify-center max-w-xs sm:max-w-sm mx-auto">

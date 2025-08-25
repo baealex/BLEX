@@ -1,31 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { http } from '~/modules/http.module';
+import { useState, useEffect } from 'react';
+import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useForm, useWatch } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useFetch } from '~/hooks/use-fetch';
 
 interface Series {
     id: number;
-    name: string;
     url: string;
-    description: string;
-    thumbnail: string;
-    postCount: number;
+    title: string;
+    totalPosts: number;
 }
 
 interface SortableSeriesItemProps {
     series: Series;
-    onEdit: (series: Series) => void;
-    onDelete: (id: number) => void;
+    username: string;
 }
 
-const SortableSeriesItem: React.FC<SortableSeriesItemProps> = ({ series, onEdit, onDelete }) => {
+const SortableSeriesItem = ({ series, username }: SortableSeriesItemProps) => {
     const {
         attributes,
         listeners,
@@ -41,276 +36,187 @@ const SortableSeriesItem: React.FC<SortableSeriesItemProps> = ({ series, onEdit,
         opacity: isDragging ? 0.5 : 1
     };
 
+    const handleEdit = () => {
+        window.location.href = `/@${username}/series/${series.url}/edit`;
+    };
+
+    const handleView = () => {
+        window.location.href = `/@${username}/series/${series.url}`;
+    };
+
     return (
         <div
             ref={setNodeRef}
             style={style}
-            className="series-item">
-            <div className="series-drag-handle" {...attributes} {...listeners}>
-                <i className="fas fa-bars" />
+            className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center gap-4 hover:bg-gray-100 transition-colors">
+            <div
+                className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 flex items-center justify-center"
+                {...attributes}
+                {...listeners}>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 8a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 16a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
+                </svg>
             </div>
-            <div className="series-thumbnail">
-                {series.thumbnail ? (
-                    <img src={series.thumbnail} alt={series.name} />
-                ) : (
-                    <div className="thumbnail-placeholder">
-                        <i className="fas fa-book" />
-                    </div>
-                )}
-            </div>
-            <div className="series-info">
-                <h4 className="series-name">{series.name}</h4>
-                <p className="series-description">{series.description || '설명 없음'}</p>
-                <div className="series-meta">
-                    <span className="series-count">
-                        <i className="fas fa-file-alt" /> {series.postCount}개의 포스트
-                    </span>
+
+            <div className="flex-1">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">{series.title}</h3>
+                <div className="text-sm text-gray-500 flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                    </svg>
+                    {series.totalPosts}개의 포스트
                 </div>
             </div>
-            <div className="series-actions">
+
+            <div className="flex gap-2">
                 <button
-                    type="button"
-                    className="btn btn-icon"
-                    onClick={() => onEdit(series)}>
-                    <i className="fas fa-edit" />
+                    onClick={handleView}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation min-h-[48px]">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                    </svg>
+                    보기
                 </button>
                 <button
-                    type="button"
-                    className="btn btn-icon btn-danger"
-                    onClick={() => onDelete(series.id)}>
-                    <i className="fas fa-trash" />
+                    onClick={handleEdit}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation min-h-[48px]">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                    수정
                 </button>
             </div>
         </div>
     );
 };
 
-const seriesFormSchema = z.object({
-    name: z.string().min(1, '시리즈 이름을 입력해주세요.'),
-    url: z.string().min(1, 'URL을 입력해주세요.').regex(/^[a-zA-Z0-9-]+$/, 'URL은 영문, 숫자, 하이픈(-)만 사용할 수 있습니다.'),
-    description: z.string().optional(),
-    thumbnail: z.string().optional()
-});
-
-type SeriesFormInputs = z.infer<typeof seriesFormSchema>;
-
-const SeriesManagement: React.FC = () => {
+const SeriesSetting = () => {
     const [series, setSeries] = useState<Series[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingSeries, setEditingSeries] = useState<Series | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [username, setUsername] = useState<string>('');
 
-    const {
-        register, handleSubmit, reset, setValue, formState: { errors }, control
-    } = useForm<SeriesFormInputs>({ resolver: zodResolver(seriesFormSchema) });
-
-    const thumbnail = useWatch({
-        control,
-        name: 'thumbnail'
+    const { data: seriesData, isLoading, isError } = useFetch({
+        queryKey: ['series-setting'],
+        queryFn: async () => {
+            const { data } = await http<Response<{ username: string; series: Series[] }>>('v1/setting/series', { method: 'GET' });
+            if (data.status === 'DONE') {
+                return data.body;
+            }
+            throw new Error('시리즈 목록을 불러오는데 실패했습니다.');
+        }
     });
 
     useEffect(() => {
-        const fetchSeries = async () => {
-            try {
-                const { data } = await http('v1/setting/series', { method: 'GET' });
-                if (data.status === 'DONE') {
-                    // The API returns 'title' and 'total_posts', not 'name', 'id', 'description', 'thumbnail'
-                    // We need to fetch full series details for 'id', 'description', 'thumbnail'
-                    // For now, we'll use a placeholder for id and empty for description/thumbnail
-                    const fetchedSeries: Series[] = data.body.series.map((item: any) => ({
-                        id: item.url.hashCode(), // Using URL as a temporary ID for DND
-                        name: item.title,
-                        url: item.url,
-                        description: '', // Not provided by this API
-                        thumbnail: item.image || '', // 'image' is provided, map to 'thumbnail'
-                        postCount: item.total_posts
-                    }));
-                    setSeries(fetchedSeries);
-                } else {
-                    notification('시리즈 정보를 불러오는데 실패했습니다.', { type: 'error' });
-                }
-            } catch (error) {
-                notification('시리즈 정보를 불러오는데 실패했습니다.', { type: 'error' });
-            }
-        };
-        fetchSeries();
-    }, []);
-
-    const handleOpenModal = (seriesItem: Series | null = null) => {
-        if (seriesItem) {
-            setEditingSeries(seriesItem);
-            reset({
-                name: seriesItem.name,
-                url: seriesItem.url,
-                description: seriesItem.description,
-                thumbnail: seriesItem.thumbnail
-            });
-        } else {
-            setEditingSeries(null);
-            reset({
-                name: '',
-                url: '',
-                description: '',
-                thumbnail: ''
-            });
+        if (seriesData) {
+            setSeries(seriesData.series);
+            setUsername(seriesData.username);
         }
-        setIsModalOpen(true);
-    };
+    }, [seriesData]);
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setEditingSeries(null);
-        reset(); // Clear form data
-    };
-
-    const handleThumbnailChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const formData = new FormData();
-        formData.append('thumbnail', file);
-
-        try {
-            const { data } = await http('v1/upload/image', {
-                method: 'POST',
-                data: formData
-            });
-
-            if (data.status === 'DONE') {
-                setValue('thumbnail', data.body.url); // Set thumbnail URL in react-hook-form
-                notification('썸네일이 업로드되었습니다.', { type: 'success' });
-            } else {
-                notification('썸네일 업로드에 실패했습니다.', { type: 'error' });
-            }
-        } catch (error) {
-            notification('썸네일 업로드에 실패했습니다.', { type: 'error' });
+    useEffect(() => {
+        if (isError) {
+            notification('시리즈 목록을 불러오는데 실패했습니다.', { type: 'error' });
         }
-    };
-
-    const onSubmit = async (formData: SeriesFormInputs) => {
-        setIsLoading(true);
-
-        try {
-            if (editingSeries) {
-                // Update existing series
-                const { data } = await http(`v1/series/${editingSeries.id}`, {
-                    method: 'PUT',
-                    data: {
-                        name: formData.name,
-                        url: formData.url,
-                        description: formData.description,
-                        thumbnail: formData.thumbnail
-                    }
-                });
-
-                if (data.status === 'DONE') {
-                    setSeries(prev => prev.map(item =>
-                        item.id === editingSeries.id
-                            ? {
-                                ...item,
-                                name: formData.name,
-                                url: formData.url,
-                                description: formData.description || '',
-                                thumbnail: formData.thumbnail || ''
-                            }
-                            : item
-                    ));
-                    notification('시리즈가 업데이트 되었습니다.', { type: 'success' });
-                    handleCloseModal();
-                } else {
-                    notification(data.message || '시리즈 업데이트에 실패했습니다.', { type: 'error' });
-                }
-            } else {
-                // Create new series
-                const { data } = await http('v1/series', {
-                    method: 'POST',
-                    data: {
-                        name: formData.name,
-                        url: formData.url,
-                        description: formData.description,
-                        thumbnail: formData.thumbnail
-                    }
-                });
-
-                if (data.status === 'DONE') {
-                    setSeries(prev => [...prev, {
-                        id: data.body.id,
-                        name: data.body.name,
-                        url: data.body.url,
-                        description: data.body.description || '',
-                        thumbnail: data.body.thumbnail || '',
-                        postCount: data.body.postCount
-                    }]);
-                    notification('시리즈가 생성되었습니다.', { type: 'success' });
-                    handleCloseModal();
-                } else {
-                    notification(data.message || '시리즈 생성에 실패했습니다.', { type: 'error' });
-                }
-            }
-        } catch (error) {
-            notification('요청 처리에 실패했습니다.', { type: 'error' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        if (!confirm('정말로 이 시리즈를 삭제하시겠습니까? 시리즈에 속한 포스트는 삭제되지 않습니다.')) {
-            return;
-        }
-
-        try {
-            const { data } = await http(`v1/series/${id}`, { method: 'DELETE' });
-
-            if (data.status === 'DONE') {
-                setSeries(prev => prev.filter(item => item.id !== id));
-                notification('시리즈가 삭제되었습니다.', { type: 'success' });
-            } else {
-                notification(data.message || '시리즈 삭제에 실패했습니다.', { type: 'error' });
-            }
-        } catch (error) {
-            notification('시리즈 삭제에 실패했습니다.', { type: 'error' });
-        }
-    };
+    }, [isError]);
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            setSeries((items) => {
-                const oldIndex = items.findIndex((item) => item.id === active.id);
-                const newIndex = items.findIndex((item) => item.id === over.id);
+            const oldIndex = series.findIndex((item) => item.id === active.id);
+            const newIndex = series.findIndex((item) => item.id === over.id);
 
-                const newItems = arrayMove(items, oldIndex, newIndex);
+            const newSeries = arrayMove(series, oldIndex, newIndex);
+            setSeries(newSeries);
 
-                // Update series order on server
-                http('v1/series/order', {
+            try {
+                // Use the series order API endpoint
+                // This API expects JSON data with 'order' field containing array of [id, order] pairs
+                const orderData = newSeries.map((item, idx) => [item.id, idx]);
+
+                const { data } = await http('v1/series/order', {
                     method: 'PUT',
-                    data: { order: newItems.map((item, idx) => [item.id, idx]) }
-                }).catch(() => {
-                    notification('시리즈 순서 변경에 실패했습니다.', { type: 'error' });
+                    headers: { 'Content-Type': 'application/json' },
+                    data: JSON.stringify({ order: orderData })
                 });
 
-                return newItems;
-            });
+                if (data.status !== 'DONE') {
+                    throw new Error('Order update failed');
+                }
+
+                notification('시리즈 순서가 변경되었습니다.', { type: 'success' });
+            } catch {
+                // Revert on error
+                setSeries(series);
+                notification('시리즈 순서 변경에 실패했습니다.', { type: 'error' });
+            }
         }
     };
 
+    const handleCreateSeries = () => {
+        window.location.href = `/@${username}/series/create`;
+    };
+
+    if (isLoading) {
+        return (
+            <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
+                <div className="animate-pulse">
+                    <div className="flex justify-between items-center mb-4 sm:mb-6">
+                        <div className="h-6 bg-gray-200 rounded w-32" />
+                        <div className="h-10 w-28 bg-gray-200 rounded-md" />
+                    </div>
+                    <div className="space-y-4">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center gap-4">
+                                <div className="w-5 h-5 bg-gray-200 rounded" />
+                                <div className="flex-1">
+                                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
+                                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                                </div>
+                                <div className="flex gap-2">
+                                    <div className="h-8 w-16 bg-gray-200 rounded" />
+                                    <div className="h-8 w-16 bg-gray-200 rounded" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="series-management">
-            <div className="series-header">
-                <h3 className="series-title">내 시리즈 ({series.length})</h3>
+        <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                    내 시리즈 ({series.length})
+                </h2>
                 <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => handleOpenModal()}>
-                    <i className="fas fa-plus" /> 새 시리즈
+                    onClick={handleCreateSeries}
+                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation min-h-[48px]">
+                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                    새 시리즈
                 </button>
             </div>
 
+            {/* Series List */}
             {series.length === 0 ? (
-                <div className="empty-state">
-                    <p>아직 생성된 시리즈가 없습니다.</p>
+                <div className="text-center py-12 text-gray-500">
+                    <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                    </svg>
+                    <p className="mb-4">아직 생성된 시리즈가 없습니다.</p>
+                    <button
+                        onClick={handleCreateSeries}
+                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation min-h-[48px]">
+                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                        </svg>
+                        첫 시리즈 만들기
+                    </button>
                 </div>
             ) : (
                 <DndContext
@@ -319,317 +225,20 @@ const SeriesManagement: React.FC = () => {
                     <SortableContext
                         items={series.map(item => item.id)}
                         strategy={verticalListSortingStrategy}>
-                        <div className="series-list">
-                            {series.map(item => (
+                        <div className="space-y-3">
+                            {series.map((item) => (
                                 <SortableSeriesItem
                                     key={item.id}
                                     series={item}
-                                    onEdit={handleOpenModal}
-                                    onDelete={handleDelete}
+                                    username={username}
                                 />
                             ))}
                         </div>
                     </SortableContext>
                 </DndContext>
             )}
-
-            {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-container">
-                        <div className="modal-header">
-                            <h3>{editingSeries ? '시리즈 수정' : '새 시리즈 생성'}</h3>
-                            <button
-                                type="button"
-                                className="btn-close"
-                                onClick={handleCloseModal}>
-                                <i className="fas fa-times" />
-                            </button>
-                        </div>
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <div className="modal-body">
-                                <div className="form-group">
-                                    <label htmlFor="name" className="form-label">시리즈 이름</label>
-                                    <input
-                                        id="name"
-                                        type="text"
-                                        className="form-control"
-                                        {...register('name')}
-                                        placeholder="시리즈 이름"
-                                    />
-                                    {errors.name && <p className="text-danger">{errors.name.message}</p>}
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="url" className="form-label">URL</label>
-                                    <input
-                                        id="url"
-                                        type="text"
-                                        className="form-control"
-                                        {...register('url')}
-                                        placeholder="series-url"
-                                    />
-                                    <p className="form-help">영문, 숫자, 하이픈(-)만 사용할 수 있습니다.</p>
-                                    {errors.url && <p className="text-danger">{errors.url.message}</p>}
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="description" className="form-label">설명</label>
-                                    <textarea
-                                        id="description"
-                                        className="form-control"
-                                        {...register('description')}
-                                        rows={3}
-                                        placeholder="시리즈에 대한 간단한 설명"
-                                    />
-                                    {errors.description && <p className="text-danger">{errors.description.message}</p>}
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="form-label">썸네일</label>
-                                    <div className="thumbnail-container">
-                                        {editingSeries?.thumbnail || thumbnail ? (
-                                            <img
-                                                src={editingSeries?.thumbnail || thumbnail}
-                                                alt="썸네일 미리보기"
-                                                className="thumbnail-preview"
-                                            />
-                                        ) : (
-                                            <div className="thumbnail-placeholder">
-                                                <i className="fas fa-image" />
-                                            </div>
-                                        )}
-                                        <div className="thumbnail-upload">
-                                            <label htmlFor="thumbnail-input" className="btn btn-secondary">
-                                                <i className="fas fa-upload" /> 이미지 업로드
-                                            </label>
-                                            <input
-                                                id="thumbnail-input"
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleThumbnailChange}
-                                                className="thumbnail-input"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={handleCloseModal}>
-                                    취소
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary"
-                                    disabled={isLoading}>
-                                    {isLoading ? '처리 중...' : (editingSeries ? '수정' : '생성')}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            <style jsx>{`
-                .series-management {
-                    position: relative;
-                }
-
-                .series-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 20px;
-                }
-
-                .series-title {
-                    margin: 0;
-                    font-size: 18px;
-                }
-
-                .empty-state {
-                    padding: 40px 0;
-                    text-align: center;
-                    color: #6c757d;
-                }
-
-                .series-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-
-                .series-item {
-                    display: flex;
-                    gap: 16px;
-                    padding: 16px;
-                    background-color: #f8f9fa;
-                    border-radius: 8px;
-                }
-
-                .series-drag-handle {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 24px;
-                    cursor: grab;
-                    color: #6c757d;
-                }
-
-                .series-drag-handle:active {
-                    cursor: grabbing;
-                }
-
-                .series-thumbnail {
-                    width: 80px;
-                    height: 80px;
-                    flex-shrink: 0;
-                    border-radius: 4px;
-                    overflow: hidden;
-                }
-
-                .series-thumbnail img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .thumbnail-placeholder {
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: #e9ecef;
-                    color: #6c757d;
-                    font-size: 24px;
-                }
-
-                .series-info {
-                    flex: 1;
-                }
-
-                .series-name {
-                    margin: 0 0 8px 0;
-                    font-size: 18px;
-                }
-
-                .series-description {
-                    margin: 0 0 8px 0;
-                    font-size: 14px;
-                    color: #6c757d;
-                }
-
-                .series-meta {
-                    font-size: 14px;
-                    color: #6c757d;
-                }
-
-                .series-actions {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-
-                .btn-icon {
-                    width: 36px;
-                    height: 36px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 4px;
-                    background-color: #fff;
-                    border: 1px solid #ced4da;
-                    color: #495057;
-                    cursor: pointer;
-                }
-
-                .btn-icon.btn-danger {
-                    color: #dc3545;
-                }
-
-                .modal-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: rgba(0, 0, 0, 0.5);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 1000;
-                }
-
-                .modal-container {
-                    width: 90%;
-                    max-width: 600px;
-                    background-color: #fff;
-                    border-radius: 8px;
-                    overflow: hidden;
-                }
-
-                .modal-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 16px;
-                    border-bottom: 1px solid #e0e0e0;
-                }
-
-                .modal-header h3 {
-                    margin: 0;
-                    font-size: 18px;
-                }
-
-                .btn-close {
-                    background: none;
-                    border: none;
-                    font-size: 18px;
-                    cursor: pointer;
-                    color: #6c757d;
-                }
-
-                .modal-body {
-                    padding: 16px;
-                    max-height: 70vh;
-                    overflow-y: auto;
-                }
-
-                .modal-footer {
-                    display: flex;
-                    justify-content: flex-end;
-                    gap: 8px;
-                    padding: 16px;
-                    border-top: 1px solid #e0e0e0;
-                }
-
-                .form-help {
-                    font-size: 12px;
-                    color: #6c757d;
-                    margin-top: 4px;
-                }
-
-                .thumbnail-container {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-
-                .thumbnail-preview {
-                    max-width: 100%;
-                    max-height: 200px;
-                    border-radius: 44px;
-                }
-
-                .thumbnail-input {
-                    display: none;
-                }
-            `}</style>
         </div>
     );
 };
 
-export default SeriesManagement;
+export default SeriesSetting;

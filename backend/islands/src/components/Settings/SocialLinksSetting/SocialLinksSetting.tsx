@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
     DndContext,
@@ -120,7 +120,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
     );
 };
 
-const SocialLinks: React.FC = () => {
+const SocialLinks = () => {
     const [socials, setSocials] = useState<SocialLink[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -135,7 +135,7 @@ const SocialLinks: React.FC = () => {
         }
     });
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (socialData) {
             setSocials(socialData.map((social: SocialLink) => ({
                 ...social,
@@ -144,7 +144,7 @@ const SocialLinks: React.FC = () => {
         }
     }, [socialData]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (isError) {
             notification('소셜 링크 정보를 불러오는데 실패했습니다.', { type: 'error' });
         }
@@ -245,7 +245,7 @@ const SocialLinks: React.FC = () => {
             } else {
                 notification('소셜 정보 업데이트에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('소셜 정보 업데이트에 실패했습니다.', { type: 'error' });
         } finally {
             setIsLoading(false);

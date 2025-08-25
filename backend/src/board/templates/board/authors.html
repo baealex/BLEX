@@ -15,7 +15,7 @@
 {% block content %}
 <!-- Hero Section with Search -->
 <div class="relative overflow-hidden">
-    <div class="relative max-w-7xl mx-auto px-4 py-16 sm:py-20">
+    <div class="relative max-w-3xl w-full mx-auto py-16 sm:py-20">
         <!-- Header -->
         <div class="text-center mb-12">
             <div class="inline-flex items-center px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm text-purple-700 mb-6 shadow-sm">
@@ -33,7 +33,7 @@
         </div>
         
         <!-- Enhanced Search Form -->
-        <div class="max-w-3xl mx-auto px-4" x-data="{ query: '{{ query }}' }">
+        <div class="max-w-full" x-data="{ query: '{{ query }}' }">
             <form action="{% url 'authors' %}" method="get" class="relative group">
                 <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 group-focus-within:shadow-2xl">
                     <div class="flex items-center">
@@ -78,8 +78,7 @@
     </div>
 </div>
 
-<div class="max-w-7xl mx-auto px-4 py-8">
-    
+<div class="max-w-6xl w-full mx-auto py-8">
     <!-- 검색 결과 또는 작가 목록 -->
     {% if query %}
         {% if results %}

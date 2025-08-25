@@ -23,7 +23,7 @@ const IntegrationSettings: React.FC = () => {
                     refreshToken();
                 }
             }
-        } catch (error) {
+        } catch {
             notification('텔레그램 연동 정보를 불러오는데 실패했습니다.', { type: 'error' });
         }
     };
@@ -46,7 +46,7 @@ const IntegrationSettings: React.FC = () => {
             if (data.status === 'DONE' && data.body.token) {
                 setTelegramToken(data.body.token);
             }
-        } catch (error) {
+        } catch {
             notification('토큰 생성에 실패했습니다.', { type: 'error' });
         }
     };
@@ -65,7 +65,7 @@ const IntegrationSettings: React.FC = () => {
             } else {
                 notification(data.errorMessage || '연동 해제에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         }
     };
@@ -127,27 +127,25 @@ const IntegrationSettings: React.FC = () => {
             )}
 
             {telegramConnection.isConnected && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                    <div className="flex items-center mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full mr-4">
-                            <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-semibold text-green-900">텔레그램 연동 완료</h4>
-                            <p className="text-green-700">연동된 아이디: {telegramConnection.telegramId}</p>
+                <div>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <div className="flex items-center">
+                            <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full mr-4">
+                                <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                </svg>
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="text-lg font-semibold text-green-900">텔레그램이 연동되어 있습니다!</h4>
+                                <p className="text-sm text-green-600">텔레그램으로 알림을 받을 수 있습니다.</p>
+                            </div>
+                            <button className="bg-red-50 border border-solid border-red-200 rounded-lg p-2 px-4 text-sm font-medium text-red-600" onClick={disconnectTelegram}>연동 해제</button>
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        className="w-full inline-flex justify-center py-2 px-4 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                        onClick={disconnectTelegram}>
-                        연동 해제
-                    </button>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 

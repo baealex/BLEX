@@ -4,6 +4,12 @@
     line-height: 2;
     word-break: keep-all;
     overflow-wrap: anywhere;
+    overflow-x: hidden;
+
+    @media (max-width: 640px) {
+        font-size: 1rem;
+        line-height: 1.8;
+    }
 
     // General margin for all child elements
     & > * {
@@ -56,6 +62,12 @@
     ol {
         padding-left: 30px;
     }
+    ul {
+        list-style: disc;
+    }
+    ol {
+        list-style: decimal;
+    }
 
     li.checkbox {
         position: relative;
@@ -93,13 +105,24 @@
 
     // Code blocks
     pre {
-        overflow-x: scroll;
-        background-color: #eee;
+        overflow-x: auto;
+        background-color: #f8f9fa;
         padding: 16px;
         border-radius: 8px;
+        max-width: 100%;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+
+        @media (max-width: 640px) {
+            padding: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
 
         code {
             background-color: transparent;
+            white-space: pre-wrap;
+            word-break: break-all;
         }
     }
 
@@ -114,7 +137,12 @@
     img,
     video {
         max-width: 100%;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+        height: auto;
+        border-radius: 8px;
+        
+        @media (max-width: 640px) {
+            border-radius: 6px;
+        }
     }
 
     // Quotes
@@ -134,21 +162,30 @@
     table {
         display: block;
         width: 100%;
-        overflow: auto;
-        white-space: nowrap;
+        max-width: 100%;
+        overflow-x: auto;
         border-collapse: collapse;
         border-spacing: 0;
+        
+        @media (max-width: 640px) {
+            font-size: 14px;
+        }
 
         th {
             text-align: left;
             font-weight: 600;
             background-color: #f6f8fa;
+            white-space: nowrap;
         }
 
         th,
         td {
             border: 1px solid #dfe2e5;
             padding: 6px 13px;
+            
+            @media (max-width: 640px) {
+                padding: 4px 8px;
+            }
         }
 
         tr {
@@ -166,6 +203,8 @@
         display: grid;
         align-items: center;
         grid-gap: 8px;
+        max-width: 100%;
+        overflow: hidden;
 
         :not(img, figcaption, video) {
             display: none;
@@ -175,6 +214,8 @@
         video {
             order: -1;
             border-radius: 8px;
+            max-width: 100%;
+            height: auto;
         }
 
         figcaption {
@@ -183,6 +224,10 @@
             color: #919191;
             order: 2;
             grid-column: 1 / -1;
+            
+            @media (max-width: 640px) {
+                font-size: 12px;
+            }
         }
     }
 
@@ -197,10 +242,18 @@
 
     figure.col-2 {
         grid-template: 1fr / repeat(2, minmax(0, 1fr));
+        
+        @media (max-width: 640px) {
+            grid-template: repeat(2, 1fr) / minmax(0, 1fr);
+        }
     }
 
     figure.col-3 {
         grid-template: 1fr / repeat(3, minmax(0, 1fr));
+        
+        @media (max-width: 640px) {
+            grid-template: repeat(3, 1fr) / minmax(0, 1fr);
+        }
     }
 
     // Math rendering

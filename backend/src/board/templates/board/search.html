@@ -13,7 +13,7 @@
 {% block content %}
 <!-- Hero Section with Search -->
 <div class="relative overflow-hidden">
-    <div class="relative max-w-7xl mx-auto px-4 py-16 sm:py-20">
+    <div class="relative max-w-3xl w-full mx-auto py-16 sm:py-20">
         <!-- Header -->
         <div class="text-center mb-12">
             <div class="inline-flex items-center px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm text-indigo-700 mb-6 shadow-sm">
@@ -27,11 +27,11 @@
                 <span class="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">포스트</span>를&nbsp;<br class="sm:hidden">
                 찾아보세요
             </h1>
-            <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">제목, 내용, 태그로 BLEX의 모든 포스트를 검색할 수 있습니다</p>
+            <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">제목, 내용, 태그로 BLEX의 모든 포스트를 검색할 수 있습니다</p>
         </div>
         
         <!-- Enhanced Search Form -->
-        <div class="max-w-3xl mx-auto px-4" x-data="{ query: '{{ query }}' }">
+        <div class="max-w-full" x-data="{ query: '{{ query }}' }">
             <form action="{% url 'search' %}" method="get" class="relative group">
                 <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 group-focus-within:shadow-2xl">
                     <div class="flex items-center">
@@ -78,8 +78,7 @@
     </div>
 </div>
 
-<div class="container-lg mx-auto px-4 py-8">
-    
+<div class="max-w-3xl w-full mx-auto">
     <!-- 검색 결과 -->
     {% if query %}
         {% if results %}
