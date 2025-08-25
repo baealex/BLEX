@@ -10,6 +10,32 @@ from board.models import Post, Series, PostLikes, PostConfig, PostContent
 from modules import markdown
 
 
+def generate_unique_url(title, author, exclude_id=None):
+    """
+    Generate a unique URL for a post by the given author.
+    If the base URL already exists, append a number suffix.
+    """
+    base_url = slugify(title)
+    if not base_url:
+        base_url = 'untitled'
+    
+    url = base_url
+    counter = 1
+    
+    while True:
+        # Check if URL already exists for this author
+        query = Post.objects.filter(author=author, url=url)
+        if exclude_id:
+            query = query.exclude(id=exclude_id)
+        
+        if not query.exists():
+            return url
+        
+        # If exists, try with counter suffix
+        url = f"{base_url}-{counter}"
+        counter += 1
+
+
 def post_detail(request, username, post_url):
     """
     View for the post detail page.
@@ -199,7 +225,8 @@ def post_editor(request, username=None, post_url=None):
         if is_edit:
             # Update existing post
             post.title = title
-            post.url = url
+            # Don't update URL when editing to maintain SEO and avoid breaking links
+            # post.url = url  
             post.meta_description = meta_description
             post.series = series
             post.updated_date = timezone.now()
@@ -229,10 +256,13 @@ def post_editor(request, username=None, post_url=None):
             
             messages.success(request, 'Post has been updated successfully.')
         else:
+            # Generate unique URL for new post
+            unique_url = url or generate_unique_url(title, request.user)
+            
             # Create the post first
             post = Post.objects.create(
                 title=title,
-                url=url or slugify(title),
+                url=unique_url,
                 meta_description=meta_description,
                 author=request.user,
                 series=series
@@ -263,8 +293,12 @@ def post_editor(request, username=None, post_url=None):
             
             messages.success(request, 'Post has been created successfully.')
         
-        # If it's a draft, redirect to the editor page again
-        if is_draft:
+        # If it's a draft and this is a new post, redirect to edit mode
+        if is_draft and not is_edit:
+            messages.success(request, '게시글이 임시저장되었습니다.')
+            return redirect('post_editor', username=request.user.username, post_url=post.url)
+        elif is_draft and is_edit:
+            messages.success(request, '게시글이 임시저장되었습니다.')
             return redirect('post_editor', username=request.user.username, post_url=post.url)
         
         # Redirect to the post detail page

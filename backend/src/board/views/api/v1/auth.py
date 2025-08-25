@@ -14,7 +14,7 @@ from django.utils import timezone
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     TwoFactorAuth, Config, Profile, Post, Invitation,
-    UserLinkMeta, UsernameChangeLog, TelegramSync)
+    UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules import oauth
@@ -444,4 +444,14 @@ def security_send(request):
 
         return StatusError(ErrorCode.REJECT)
 
+    raise Http404
+
+
+def social_providers(request):
+    """
+    Get available social authentication providers
+    """
+    if request.method == 'GET':
+        providers = SocialAuthProvider.objects.all().values('key', 'name', 'icon', 'color')
+        return StatusDone(list(providers))
     raise Http404

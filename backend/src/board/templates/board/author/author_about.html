@@ -25,7 +25,7 @@
             {% endif %}
         </div>
     {% else %}
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-3xl w-full mx-auto">
         {% if user == author %}
             <div class="text-right mb-4">
                 <a href="#" x-data="{ url: '/@{{ author.username }}/about/edit' }" @click="window.location.replace(url)" class="inline-flex items-center gap-2 border border-primary-500 text-primary-500 px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-50 transition-colors">

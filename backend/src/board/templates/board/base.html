@@ -33,7 +33,7 @@
 <body class="bg-gray-50">
     {% include 'components/header.html' %}
 
-    <main class="min-h-[calc(100vh-10.5rem)] px-4 py-8">
+    <main class="min-h-[calc(100vh-10.5rem)] flex flex-col px-4 py-8">
         {% block content %}{% endblock %}
     </main>
 
@@ -47,8 +47,10 @@
             user: {
                 isAuthenticated: "{{ user.is_authenticated }}",
                 username: "{{ user.username }}",
-            }
+            },
             {% endif %}
+            googleClientId: "{{ GOOGLE_OAUTH_CLIENT_ID|default:'' }}",
+            githubClientId: "{{ GITHUB_OAUTH_CLIENT_ID|default:'' }}"
         };
     </script>
 

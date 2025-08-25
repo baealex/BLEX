@@ -14,6 +14,18 @@ def login_view(request):
     return render(request, 'board/login.html')
 
 
+def signup_view(request):
+    """
+    Signup page view that renders the signup template.
+    If user is already authenticated, redirects to home page.
+    """
+    # If user is already authenticated, redirect to home page
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    return render(request, 'board/signup.html')
+
+
 @login_required
 def security_view(request):
     """

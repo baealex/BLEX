@@ -106,14 +106,15 @@ const NotifySetting = () => {
 
     if (isNotifyLoading) {
         return (
-            <div className="p-6 bg-white shadow-md rounded-lg">
+            <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
                 <div className="animate-pulse">
-                    <div className="flex justify-end mb-4">
-                        <div className="h-10 w-32 bg-gray-200 rounded-md" />
+                    <div className="flex flex-col sm:flex-row justify-end mb-4 gap-2">
+                        <div className="h-10 sm:h-10 w-full sm:w-32 bg-gray-200 rounded-md" />
+                        <div className="h-10 sm:h-10 w-full sm:w-24 bg-gray-200 rounded-md" />
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                         {[...Array(5)].map((_, i) => (
-                            <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4">
                                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
                                 <div className="h-3 bg-gray-200 rounded w-1/2" />
                             </div>
@@ -125,16 +126,16 @@ const NotifySetting = () => {
     }
 
     return (
-        <div className="p-6 bg-white shadow-md rounded-lg">
+        <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
             {/* Header with telegram integration and settings button */}
-            <div className="flex items-center justify-between mb-4 gap-4">
-                <a href="/settings/integration" className="bg-blue-50 border border-solid border-blue-200 text-blue-800 px-4 py-3 rounded-md text-sm flex items-center flex-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-4 gap-3 sm:gap-4">
+                <a href="/settings/integration" className="bg-blue-50 border border-solid border-blue-200 text-blue-800 px-4 py-3 rounded-md text-sm flex items-center flex-1 min-h-[48px]">
                     <i className="fab fa-telegram-plane mr-2" />
                     텔레그램을 연동하여 실시간 알림을 받아보세요.
                 </a>
                 <button
                     onClick={() => setIsOpenConfig(true)}
-                    className="inline-flex items-center px-4 py-3 border border-solid border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors whitespace-nowrap">
+                    className="inline-flex items-center justify-center px-4 py-3 border border-solid border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation min-h-[48px] w-full sm:w-auto">
                     <i className="fas fa-cog mr-2" />
                     알림 설정
                 </button>
@@ -145,7 +146,7 @@ const NotifySetting = () => {
                 {notifyList?.notify.map((item) => (
                     <div
                         key={item.id}
-                        className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                        className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-gray-100 transition-colors touch-manipulation"
                         style={{ opacity: item.isRead ? 0.4 : 1 }}
                         onClick={() => handleClickNotify(item)}>
                         <div className="text-sm text-gray-900 mb-1">
@@ -157,8 +158,8 @@ const NotifySetting = () => {
                     </div>
                 ))}
                 {notifyList?.notify.length === 0 && (
-                    <div className="text-center py-12 text-gray-500">
-                        <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="text-center py-8 sm:py-12 text-gray-500">
+                        <svg className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 2L3 7v11a2 2 0 002 2h4v-6h2v6h4a2 2 0 002-2V7l-7-5z" />
                         </svg>
                         <p>알림이 없습니다.</p>
@@ -169,22 +170,22 @@ const NotifySetting = () => {
             {/* Settings Modal */}
             {isOpenConfig && (
                 <div
-                    className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+                    className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
                     onClick={() => setIsOpenConfig(false)}>
                     <div
-                        className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto"
+                        className="bg-white rounded-t-lg sm:rounded-lg shadow-xl max-w-md w-full max-h-[85vh] sm:max-h-[80vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900">알림 설정</h3>
+                        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900">알림 설정</h3>
                             <button
                                 onClick={() => setIsOpenConfig(false)}
-                                className="text-gray-400 hover:text-gray-500">
+                                className="text-gray-400 hover:text-gray-500 p-1 touch-manipulation">
                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                                 </svg>
                             </button>
                         </div>
-                        <div className="p-6 space-y-4">
+                        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                             {isConfigLoading ? (
                                 <div className="space-y-4">
                                     {[...Array(7)].map((_, i) => (

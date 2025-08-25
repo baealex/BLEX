@@ -14,7 +14,8 @@ from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail, series_create, series_edit
-from board.views.auth import login_view, security_view
+from board.views.auth import login_view, signup_view, security_view
+from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import about_view, privacy_view, terms_view
 from board.views.settings import (
@@ -36,6 +37,8 @@ urlpatterns = [
     path('authors', staff_member_required(authors_view), name='authors'),
     path('like/<str:url>', staff_member_required(like_post), name='like_post'),
     path('login', staff_member_required(login_view), name='login'),
+    path('sign', staff_member_required(signup_view), name='signup'),
+    path('login/callback/<str:provider>', oauth_callback, name='oauth_callback'),
     path('logout', staff_member_required(auth_views.LogoutView.as_view()), name='logout'),
     path('security', staff_member_required(security_view), name='security'),
 
@@ -89,6 +92,7 @@ urlpatterns = [
     path('v1/logout', api_v1.logout),
     path('v1/sign', api_v1.sign),
     path('v1/sign/<social>', api_v1.sign_social),
+    path('v1/social-providers', api_v1.social_providers),
     path('v1/auth/email-verify/<token>', api_v1.email_verify),
     path('v1/auth/security', api_v1.security),
     path('v1/auth/security/send', api_v1.security_send),
