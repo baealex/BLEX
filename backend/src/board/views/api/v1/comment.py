@@ -158,7 +158,7 @@ def comment_detail(request, id):
         comment.save()
         return StatusDone({
             'author': comment.author_username(),
-            'author_image': comment.author_thumbnail(),
+            'author_image': None if not comment.author else comment.author.profile.get_thumbnail(),
             'rendered_content': comment.get_text_html(),
         })
 

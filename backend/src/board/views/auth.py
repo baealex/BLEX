@@ -26,11 +26,3 @@ def signup_view(request):
     return render(request, 'board/signup.html')
 
 
-@login_required
-def security_view(request):
-    """
-    Two-factor authentication security page view.
-    This is a placeholder for the 2FA verification page.
-    """
-    # This is a placeholder - you would implement the 2FA verification here
-    return render(request, 'board/security.html')

@@ -23,19 +23,6 @@ interface CommentEditData {
     textMd: string;
 }
 
-declare global {
-    interface Window {
-        configuration: {
-            host: string;
-            static: string;
-            user?: {
-                isAuthenticated: boolean;
-                username: string;
-            };
-        };
-    }
-}
-
 const Comments = (props: CommentsProps) => {
     const { postUrl } = props;
 

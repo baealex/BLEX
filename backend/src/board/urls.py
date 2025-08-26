@@ -14,12 +14,12 @@ from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit
 from board.views.post import post_detail, post_editor
 from board.views.series import series_detail, series_create, series_edit
-from board.views.auth import login_view, signup_view, security_view
+from board.views.auth import login_view, signup_view
 from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import about_view, privacy_view, terms_view
 from board.views.settings import (
-    setting_profile, setting_account, setting_notify, setting_series,
+    setting_dashboard, setting_profile, setting_account, setting_notify, setting_series,
     setting_posts, setting_analytics,
     setting_integration, setting_invitation, setting_forms
 )
@@ -30,9 +30,7 @@ def empty():
 
 
 urlpatterns = [
-    # Main page (Django template version)
     path('', staff_member_required(main.index), name='index'),
-    path('dashboard', staff_member_required(main.dashboard), name='dashboard'),
     path('search', staff_member_required(search_view), name='search'),
     path('authors', staff_member_required(authors_view), name='authors'),
     path('like/<str:url>', staff_member_required(like_post), name='like_post'),
@@ -40,7 +38,6 @@ urlpatterns = [
     path('sign', staff_member_required(signup_view), name='signup'),
     path('login/callback/<str:provider>', oauth_callback, name='oauth_callback'),
     path('logout', staff_member_required(auth_views.LogoutView.as_view()), name='logout'),
-    path('security', staff_member_required(security_view), name='security'),
 
     # Static pages
     path('about', staff_member_required(about_view), name='about'),
@@ -48,6 +45,7 @@ urlpatterns = [
     path('terms', staff_member_required(terms_view), name='terms'),
 
     # Settings Pages
+    path('settings/dashboard', staff_member_required(setting_dashboard), name='setting_dashboard'),
     path('settings/profile', staff_member_required(setting_profile), name='setting_profile'),
     path('settings/account', staff_member_required(setting_account), name='setting_account'),
     path('settings/notify', staff_member_required(setting_notify), name='setting_notify'),

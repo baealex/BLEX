@@ -151,17 +151,44 @@ def login(request):
         return StatusError(ErrorCode.NEED_LOGIN)
 
     if request.method == 'POST':
+        # Server-side rate limiting check
+        client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+        cache_key = f'login_attempts:{client_ip}'
+        
+        from django.core.cache import cache
+        attempts = cache.get(cache_key, 0)
+        
+        # Block if too many attempts
+        if attempts >= 5:
+            return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
+        
         social = request.POST.get('social', '')
         if not social:
             username = request.POST.get('username', '')
             password = request.POST.get('password', '')
+            hcaptcha_response = request.POST.get('h-captcha-response', '')
+
+            # Validate hCaptcha if attempts >= 3
+            if attempts >= 3:
+                if not hcaptcha_response:
+                    return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
+                
+                if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
+                    # Increment attempts for failed captcha
+                    cache.set(cache_key, attempts + 1, 300)  # 5 minutes
+                    return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
 
             user = auth.authenticate(username=username, password=password)
 
             if user is not None:
                 if user.is_active:
+                    # Reset attempts on successful login
+                    cache.delete(cache_key)
                     return common_auth(request, user)
-            return StatusError(ErrorCode.AUTHENTICATION)
+            else:
+                # Increment failed attempts
+                cache.set(cache_key, attempts + 1, 300)  # 5 minutes
+                return StatusError(ErrorCode.AUTHENTICATION)
     raise Http404
 
 
@@ -417,31 +444,55 @@ def security(request):
 
 def security_send(request):
     if request.method == 'POST':
+        # Server-side 2FA rate limiting
+        client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+        cache_key = f'2fa_attempts:{client_ip}'
+        
+        from django.core.cache import cache
+        attempts = cache.get(cache_key, 0)
+        
+        # Block if too many 2FA attempts
+        if attempts >= 5:
+            return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 5분 동안 차단되었습니다.')
+
         body = QueryDict(request.body)
         auth_token = body.get('auth_token', '')
+        code = body.get('code', '')  # For the new 2FA flow
+        
         try:
-            if len(auth_token) == 6:
-                two_factor_auth = TwoFactorAuth.objects.get(otp=auth_token)
+            # Handle 6-digit 2FA code
+            verification_code = code or auth_token
+            if len(verification_code) == 6:
+                two_factor_auth = TwoFactorAuth.objects.get(otp=verification_code)
                 if two_factor_auth:
                     if two_factor_auth.is_token_expire():
                         return StatusError(ErrorCode.EXPIRED)
                     user = two_factor_auth.user
                     two_factor_auth.otp = ''
                     two_factor_auth.save()
+                    
+                    # Reset 2FA attempts on success
+                    cache.delete(cache_key)
                     auth.login(request, user)
                     return login_response(request.user)
-            else:
+            # Handle recovery key
+            elif len(verification_code) > 6:
                 two_factor_auth = TwoFactorAuth.objects.get(
-                    recovery_key=auth_token)
+                    recovery_key=verification_code)
                 if two_factor_auth:
                     user = two_factor_auth.user
                     two_factor_auth.otp = ''
                     two_factor_auth.save()
+                    
+                    # Reset 2FA attempts on success
+                    cache.delete(cache_key)
                     auth.login(request, user)
                     return login_response(request.user)
-        except:
+        except Exception as e:
             traceback.print_exc()
 
+        # Increment failed 2FA attempts
+        cache.set(cache_key, attempts + 1, 300)  # 5 minutes
         return StatusError(ErrorCode.REJECT)
 
     raise Http404

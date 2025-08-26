@@ -10,6 +10,9 @@ const LazyComponents = {
     LikeButton: lazy(() => import('./LikeButton')),
     Comments: lazy(() => import('./Comments')),
     MarkdownEditor: lazy(() => import('./MarkdownEditor')),
+    Heatmap: lazy(() => import('./Heatmap')),
+    Login: lazy(() => import('./Login')),
+    SocialLogin: lazy(() => import('./SocialLogin')),
 
     // Settings
     FormsSetting: lazy(() => import('./Settings/FormsSetting')),

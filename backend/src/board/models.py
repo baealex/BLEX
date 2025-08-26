@@ -83,11 +83,6 @@ class Comment(models.Model):
             return 'Ghost'
         return self.author.username
 
-    def author_thumbnail(self):
-        if not self.author:
-            return None
-        return self.author.profile.get_thumbnail()
-
     def get_text_html(self):
         if not self.author:
             return '<p>삭제된 댓글입니다.</p>'
@@ -97,7 +92,7 @@ class Comment(models.Model):
         if self.image:
             return settings.STATIC_URL + self.image.url
         else:
-            return settings.STATIC_URL + 'images/default-post.png'
+            return None
 
     def get_absolute_url(self):
         return self.post.get_absolute_url()
@@ -369,7 +364,7 @@ class Post(models.Model):
         return [tag.value for tag in self.tags.all() if tag]
 
     def get_thumbnail(self):
-        return self.image.url if self.image else ''
+        return self.image.url if self.image else None
 
     def __str__(self):
         return self.title
@@ -504,8 +499,7 @@ class Profile(models.Model):
     def get_thumbnail(self):
         if self.avatar:
             return settings.STATIC_URL + self.avatar.url
-        else:
-            return settings.STATIC_URL + 'images/default-avatar.jpg'
+        return None
 
     def total_subscriber(self):
         return self.subscriber.count()

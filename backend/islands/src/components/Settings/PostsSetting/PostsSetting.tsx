@@ -67,27 +67,27 @@ const POSTS_ORDER = [
         order: '-updated_date'
     },
     {
-        name: '좋아요순',
+        name: '좋아요 많은순',
         order: '-count_likes'
     },
     {
-        name: '댓글순',
+        name: '댓글 많은순',
         order: '-count_comments'
     },
     {
-        name: '오늘 조회수순',
+        name: '오늘 조회수 높은순',
         order: '-today_count'
     },
     {
-        name: '읽기시간순',
+        name: '분량 많은순',
         order: '-read_time'
     },
     {
-        name: '공개 글만',
+        name: '공개 글 우선',
         order: 'hide'
     },
     {
-        name: '비공개 글만',
+        name: '비공개 글 우선',
         order: '-hide'
     }
 ];
@@ -102,11 +102,14 @@ const PostsSetting = () => {
     });
 
     const [posts, setPosts] = useState<Post[]>([]);
+    const [postsMounted, setPostsMounted] = useState(false);
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { data: postsData, isLoading, isError, refetch } = useFetch({
         queryKey: ['posts-setting', JSON.stringify(filters)],
         queryFn: async () => {
+            setPostsMounted(false);
+
             const params = new URLSearchParams();
             Object.entries(filters).forEach(([key, value]) => {
                 if (value) params.append(key, value);
@@ -145,6 +148,7 @@ const PostsSetting = () => {
 
     useEffect(() => {
         if (postsData) {
+            setPostsMounted(true);
             setPosts(postsData.posts.map(post => ({
                 ...post,
                 hasTagChanged: false,
@@ -314,408 +318,373 @@ const PostsSetting = () => {
         return new Date(dateString).toLocaleDateString('ko-KR');
     };
 
-    if (isLoading) {
-        return (
-            <div className="bg-white shadow-md rounded-lg">
-                <div className="animate-pulse">
-                    <div className="flex justify-between items-center mb-6">
-                        <div className="h-6 bg-gray-200 rounded w-48" />
-                        <div className="h-10 w-28 bg-gray-200 rounded-md" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        {[...Array(4)].map((_, i) => (
-                            <div key={i} className="h-10 bg-gray-200 rounded" />
-                        ))}
-                    </div>
-                    <div className="space-y-4">
-                        {[...Array(5)].map((_, i) => (
-                            <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2" />
-                                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2" />
-                                <div className="h-4 bg-gray-200 rounded w-1/4" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div >
-            {/* Beautiful Header */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <div className="mb-4 sm:mb-0">
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            내 포스트 관리
-                        </h1>
-                        <p className="text-gray-600 mt-2">
-                            총 <span className="font-semibold text-blue-600">{posts.length}개</span>의 포스트
-                        </p>
+        <div className="p-4 sm:p-6 bg-white shadow-sm border border-slate-200/60 rounded-xl">
+            {/* 헤더 섹션 */}
+            <div className="mb-6">
+                <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200/60 rounded-xl p-4 sm:p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-lg sm:text-xl font-bold text-indigo-900 mb-2 flex items-center">
+                                <i className="fas fa-file-alt mr-3 text-indigo-700" />
+                                내 포스트 관리 ({posts.length})
+                            </h2>
+                            <p className="text-indigo-700 text-sm">포스트를 관리하고 태그, 시리즈를 편집하세요.</p>
+                        </div>
+                        <a
+                            href="/write"
+                            className="hidden sm:inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                            <i className="fas fa-plus mr-2" />
+                            새 포스트 작성
+                        </a>
                     </div>
-                    <a
-                        href="/write"
-                        className="group inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-medium">
-                        <svg className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                        </svg>
-                        새 포스트 작성
-                    </a>
-                </div>
-            </div>
-
-            {/* Beautiful Filters */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-                <div className="flex items-center mb-4">
-                    <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3" />
-                    <h2 className="text-lg font-semibold text-gray-800">필터 및 검색</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="포스트 제목 검색..."
-                            defaultValue={filters.search}
-                            onChange={handleSearchChange}
-                            className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm transition-all duration-200"
-                        />
-                    </div>
-
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                            </svg>
-                        </div>
-                        <select
-                            value={filters.tag}
-                            onChange={(e) => handleFilterChange('tag', e.target.value)}
-                            className="block w-full pl-10 pr-8 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm transition-all duration-200 appearance-none">
-                            <option value="">태그 선택</option>
-                            {tags?.map((tag, index) => (
-                                <option key={index} value={tag.name}>
-                                    {tag.name} ({tag.count})
-                                </option>
-                            ))}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                        </div>
-                        <select
-                            value={filters.series}
-                            onChange={(e) => handleFilterChange('series', e.target.value)}
-                            className="block w-full pl-10 pr-8 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm transition-all duration-200 appearance-none">
-                            <option value="">시리즈 선택</option>
-                            {series?.map((item, index) => (
-                                <option key={index} value={item.url}>
-                                    {item.title} ({item.totalPosts})
-                                </option>
-                            ))}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                            </svg>
-                        </div>
-                        <select
-                            value={filters.order}
-                            onChange={(e) => handleFilterChange('order', e.target.value)}
-                            className="block w-full pl-10 pr-8 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm transition-all duration-200 appearance-none">
-                            {POSTS_ORDER.map((order, index) => (
-                                <option key={index} value={order.order}>
-                                    {order.name}
-                                </option>
-                            ))}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
+                    <div className="sm:hidden mt-4">
+                        <a
+                            href="/write"
+                            className="w-full inline-flex items-center justify-center px-4 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                            <i className="fas fa-plus mr-2" />
+                            새 포스트 작성
+                        </a>
                     </div>
                 </div>
             </div>
 
-            {/* Beautiful Posts List */}
-            {posts.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-                    <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-                        <svg className="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+            {/* 필터 및 검색 섹션 */}
+            <div className="mb-6">
+                <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200/60 rounded-xl p-4 sm:p-6">
+                    <div className="mb-4">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center">
+                            <i className="fas fa-filter mr-3 text-slate-700" />
+                            필터 및 검색
+                        </h3>
+                        <p className="text-slate-600 text-sm">포스트를 검색하고 필터링하세요.</p>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">아직 포스트가 없어요</h3>
-                    <p className="text-gray-600 mb-8">첫 번째 포스트를 작성해서 블로그를 시작해보세요!</p>
-                    <a
-                        href="/write"
-                        className="group inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-medium">
-                        <svg className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                        </svg>
-                        첫 포스트 작성하기
-                    </a>
-                </div>
-            ) : (
-                <div className="space-y-6">
-                    {posts.map((post) => (
-                        <div
-                            key={post.url}
-                            className="bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 overflow-hidden">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i className="fas fa-search text-slate-400 text-sm" />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="포스트 제목 검색..."
+                                defaultValue={filters.search}
+                                onChange={handleSearchChange}
+                                className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-lg bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm transition-all duration-200"
+                            />
+                        </div>
 
-                            {/* Post Header */}
-                            <div className="p-6 pb-0">
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i className="fas fa-tag text-slate-400 text-sm" />
+                            </div>
+                            <select
+                                value={filters.tag}
+                                onChange={(e) => handleFilterChange('tag', e.target.value)}
+                                className="block w-full pl-10 pr-8 py-3 border border-slate-200 rounded-lg bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm transition-all duration-200 appearance-none">
+                                <option value="">태그 선택</option>
+                                {tags?.map((tag, index) => (
+                                    <option key={index} value={tag.name}>
+                                        {tag.name} ({tag.count})
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i className="fas fa-chevron-down text-slate-400 text-sm" />
+                            </div>
+                        </div>
+
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i className="fas fa-book text-slate-400 text-sm" />
+                            </div>
+                            <select
+                                value={filters.series}
+                                onChange={(e) => handleFilterChange('series', e.target.value)}
+                                className="block w-full pl-10 pr-8 py-3 border border-slate-200 rounded-lg bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm transition-all duration-200 appearance-none">
+                                <option value="">시리즈 선택</option>
+                                {series?.map((item, index) => (
+                                    <option key={index} value={item.url}>
+                                        {item.title} ({item.totalPosts})
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i className="fas fa-chevron-down text-slate-400 text-sm" />
+                            </div>
+                        </div>
+
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i className="fas fa-sort text-slate-400 text-sm" />
+                            </div>
+                            <select
+                                value={filters.order}
+                                onChange={(e) => handleFilterChange('order', e.target.value)}
+                                className="block w-full pl-10 pr-8 py-3 border border-slate-200 rounded-lg bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm transition-all duration-200 appearance-none">
+                                {POSTS_ORDER.map((order, index) => (
+                                    <option key={index} value={order.order}>
+                                        {order.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i className="fas fa-chevron-down text-slate-400 text-sm" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mb-6">
+                {isLoading ? (
+                    <div className="animate-pulse space-y-4">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="bg-white border border-slate-200/60 rounded-xl p-4 sm:p-6">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-3">
-                                            <h3 className="text-xl font-bold text-gray-900 line-clamp-2">
-                                                <a
-                                                    href={`/@${postsData?.username}/${post.url}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="hover:text-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text transition-all duration-300">
-                                                    {post.title}
-                                                </a>
-                                            </h3>
-                                            {post.isHide && (
-                                                <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full border border-red-200">
-                                                    <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                                                    </svg>
-                                                    비공개
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        <div className="flex items-center text-sm text-gray-500 space-x-4 mb-4">
-                                            <div className="flex items-center">
-                                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                작성: {formatDate(post.createdDate)}
-                                            </div>
-                                            {post.createdDate !== post.updatedDate && (
-                                                <div className="flex items-center">
-                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
-                                                    수정: {formatDate(post.updatedDate)}
-                                                </div>
-                                            )}
+                                        <div className="h-6 bg-slate-200 rounded w-3/4 mb-3" />
+                                        <div className="flex items-center space-x-4">
+                                            <div className="h-4 bg-slate-200 rounded w-24" />
+                                            <div className="h-4 bg-slate-200 rounded w-24" />
                                         </div>
                                     </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="flex items-center gap-2 ml-6">
-                                        <button
-                                            onClick={() => handlePostVisibilityToggle(post.url)}
-                                            className={`group p-3 rounded-xl transition-all duration-200 ${post.isHide
-                                                ? 'bg-green-100 text-green-700 hover:bg-green-200 hover:shadow-md'
-                                                : 'bg-red-100 text-red-700 hover:bg-red-200 hover:shadow-md'
-                                                }`}
-                                            title={post.isHide ? '공개로 변경' : '비공개로 변경'}>
-                                            {post.isHide ? (
-                                                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                            ) : (
-                                                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                                                </svg>
-                                            )}
-                                        </button>
-
-                                        <a
-                                            href={`/@${postsData?.username}/${post.url}/edit`}
-                                            className="group p-3 bg-blue-100 text-blue-700 hover:bg-blue-200 hover:shadow-md rounded-xl transition-all duration-200"
-                                            title="포스트 수정">
-                                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </a>
-
-                                        <button
-                                            onClick={() => handlePostDelete(post.url)}
-                                            className="group p-3 bg-red-100 text-red-700 hover:bg-red-200 hover:shadow-md rounded-xl transition-all duration-200"
-                                            title="포스트 삭제">
-                                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Beautiful Stats Bar */}
-                                <div className="flex items-center justify-between bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 mb-4">
-                                    <div className="flex items-center space-x-6">
-                                        <div className="flex items-center text-pink-600">
-                                            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                                            </svg>
-                                            <span className="font-medium">{post.countLikes}</span>
-                                        </div>
-                                        <div className="flex items-center text-blue-600">
-                                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                            </svg>
-                                            <span className="font-medium">{post.countComments}</span>
-                                        </div>
-                                        <div className="flex items-center text-purple-600">
-                                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span className="font-medium">{post.readTime}분</span>
-                                        </div>
-                                    </div>
-                                    <div className="text-sm text-gray-600">
-                                        <span className="font-medium text-green-600">오늘 {post.todayCount}</span>
-                                        <span className="mx-2">·</span>
-                                        <span className="font-medium text-orange-600">어제 {post.yesterdayCount}</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-10 h-10 bg-slate-200 rounded-lg" />
+                                        <div className="w-10 h-10 bg-slate-200 rounded-lg" />
+                                        <div className="w-10 h-10 bg-slate-200 rounded-lg" />
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Tag and Series Editing */}
-                            <div className="px-6 pb-4 space-y-4">
-                                {/* Tag Input */}
-                                <div className="flex items-center gap-3">
-                                    <div className="flex items-center text-blue-600">
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                        </svg>
-                                        <span className="font-medium text-sm">태그</span>
-                                    </div>
-                                    <div className="flex-1">
-                                        <input
-                                            type="text"
-                                            placeholder="태그를 입력하세요..."
-                                            value={post.tag}
-                                            onChange={(e) => handleTagChange(post.url, e.target.value)}
-                                            className="block w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm transition-all duration-200"
-                                        />
-                                    </div>
-                                    {post.hasTagChanged && (
-                                        <button
-                                            onClick={() => handleTagSubmit(post.url)}
-                                            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-medium text-sm hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                                            저장
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* Series Select */}
-                                <div className="flex items-center gap-3">
-                                    <div className="flex items-center text-purple-600">
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                        </svg>
-                                        <span className="font-medium text-sm">시리즈</span>
-                                    </div>
-                                    <div className="flex-1 relative">
-                                        <select
-                                            value={post.series}
-                                            onChange={(e) => handleSeriesChange(post.url, e.target.value)}
-                                            className="block w-full px-4 py-2 pr-8 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 text-sm transition-all duration-200 appearance-none">
-                                            <option value="">시리즈 선택 안함</option>
-                                            {series?.map((item, index) => (
-                                                <option key={index} value={item.url}>
-                                                    {item.title}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    {post.hasSeriesChanged && (
-                                        <button
-                                            onClick={() => handleSeriesSubmit(post.url)}
-                                            className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-medium text-sm hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                                            저장
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Warning for long posts */}
-                            {post.readTime > 30 && (
-                                <div className="mx-6 mb-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl">
-                                    <div className="flex items-start">
-                                        <div className="flex-shrink-0 mt-0.5">
-                                            <svg className="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
-                                        <div className="ml-3">
-                                            <h4 className="text-sm font-medium text-yellow-800">긴 글 주의</h4>
-                                            <p className="text-sm text-yellow-700 mt-1">
-                                                이 글의 읽기 시간이 {post.readTime}분으로 길어서 검색 엔진 최적화와 독자 경험에 영향을 줄 수 있어요. 내용을 나누어 여러 포스트로 작성하는 것을 고려해보세요.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                        ))}
+                    </div>
+                ) : postsMounted && posts.length === 0 ? (
+                    <div className="text-center py-12">
+                        <div className="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <i className="fas fa-file-alt text-slate-400 text-2xl" />
                         </div>
-                    ))}
-                </div>
-            )}
+                        <h3 className="text-lg font-medium text-slate-900 mb-2">포스트가 없습니다</h3>
+                        <p className="text-slate-500 mb-4">첫 번째 포스트를 작성해보세요!</p>
+                        <a
+                            href="/write"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md">
+                            <i className="fas fa-plus text-sm" />
+                            첫 포스트 작성하기
+                        </a>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {posts.map((post) => (
+                            <div key={post.url} className="mb-6">
+                                <div className="bg-white border border-solid border-slate-200/60 rounded-2xl shadow-lg overflow-hidden">
+                                    <div className="bg-slate-100 p-4 sm:p-6 text-slate-900">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                <div className="min-w-0 flex-1">
+                                                    <h3 className="text-xl font-bold text-slate-900 truncate transition-colors">
+                                                        <a
+                                                            href={`/@${postsData?.username}/${post.url}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="hover:text-primary-600 transition-colors">
+                                                            {post.title}
+                                                        </a>
+                                                    </h3>
+                                                    <div className="flex items-center gap-4 mt-1 text-sm text-slate-600/80 flex-wrap">
+                                                        <span className="flex items-center">
+                                                            <i className="fas fa-calendar mr-1" />
+                                                            {formatDate(post.createdDate)}
+                                                        </span>
+                                                        {post.createdDate !== post.updatedDate && (
+                                                            <span className="flex items-center">
+                                                                <i className="fas fa-edit mr-1" />
+                                                                수정됨
+                                                            </span>
+                                                        )}
+                                                        {post.isHide && (
+                                                            <span className="bg-red-300/80 text-red-800 px-2 py-1 rounded-full text-xs flex items-center">
+                                                                <i className="fas fa-lock mr-1" />
+                                                                비공개
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
 
-            {/* Beautiful Pagination */}
-            {postsData && postsData.lastPage > 1 && (
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mt-8">
-                    <div className="flex justify-center items-center gap-2">
+                                            <div className="flex items-center gap-2 ml-4">
+                                                <button
+                                                    onClick={() => handlePostVisibilityToggle(post.url)}
+                                                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl transition-all duration-200 backdrop-blur-sm bg-green-300/20 text-green-800 hover:bg-green-300/30"
+                                                    title={post.isHide ? '공개로 변경' : '비공개로 변경'}>
+                                                    <i className={`fas ${post.isHide ? 'fa-eye' : 'fa-eye-slash'} text-sm sm:text-lg`} />
+                                                </button>
+
+                                                <a
+                                                    href={`/@${postsData?.username}/${post.url}/edit`}
+                                                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-blue-400/20 text-blue-800 hover:bg-blue-400/30 rounded-xl transition-all duration-200 backdrop-blur-sm"
+                                                    title="포스트 수정">
+                                                    <i className="fas fa-edit text-sm sm:text-lg" />
+                                                </a>
+
+                                                <button
+                                                    onClick={() => handlePostDelete(post.url)}
+                                                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-red-400/20 text-red-800 hover:bg-red-400/30 rounded-xl transition-all duration-200 backdrop-blur-sm"
+                                                    title="포스트 삭제">
+                                                    <i className="fas fa-trash text-sm sm:text-lg" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 통계 영역 */}
+                                    <div className="bg-slate-100 px-6 py-4 border-b border-slate-100">
+                                        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
+                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-red-100/50 text-center">
+                                                <div className="flex items-center justify-center text-red-500 mb-1">
+                                                    <i className="fas fa-heart text-sm sm:text-lg" />
+                                                </div>
+                                                <div className="text-xs sm:text-sm font-semibold text-slate-700">{post.countLikes}</div>
+                                                <div className="text-xs text-slate-500 hidden sm:block">좋아요</div>
+                                            </div>
+                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-blue-100/50 text-center">
+                                                <div className="flex items-center justify-center text-blue-500 mb-1">
+                                                    <i className="fas fa-comment text-sm sm:text-lg" />
+                                                </div>
+                                                <div className="text-xs sm:text-sm font-semibold text-slate-700">{post.countComments}</div>
+                                                <div className="text-xs text-slate-500 hidden sm:block">댓글</div>
+                                            </div>
+                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-purple-100/50 text-center">
+                                                <div className="flex items-center justify-center text-purple-500 mb-1">
+                                                    <i className="fas fa-clock text-sm sm:text-lg" />
+                                                </div>
+                                                <div className="text-xs sm:text-sm font-semibold text-slate-700">{post.readTime}분</div>
+                                                <div className="text-xs text-slate-500 hidden sm:block">분량</div>
+                                            </div>
+                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-green-100/50 text-center">
+                                                <div className="flex items-center justify-center text-green-500 mb-1">
+                                                    <i className="fas fa-eye text-sm sm:text-lg" />
+                                                </div>
+                                                <div className="text-xs sm:text-sm font-semibold text-slate-700">{post.todayCount}</div>
+                                                <div className="text-xs text-slate-500 hidden sm:block">오늘 조회</div>
+                                            </div>
+                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-orange-100/50 text-center">
+                                                <div className="flex items-center justify-center text-orange-500 mb-1">
+                                                    <i className="fas fa-history text-sm sm:text-lg" />
+                                                </div>
+                                                <div className="text-xs sm:text-sm font-semibold text-slate-700">{post.yesterdayCount}</div>
+                                                <div className="text-xs text-slate-500 hidden sm:block">어제 조회</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 편집 영역 */}
+                                    <div className="p-4 sm:p-6 space-y-6">
+                                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4 border border-blue-100/50">
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                                                    <i className="fas fa-tag text-sm sm:text-lg" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <label className="block text-sm font-medium text-blue-900 mb-2">태그 관리</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="태그를 입력하세요..."
+                                                        value={post.tag}
+                                                        onChange={(e) => handleTagChange(post.url, e.target.value)}
+                                                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-blue-200 rounded-lg text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 focus:ring-offset-0 bg-white shadow-sm"
+                                                    />
+                                                </div>
+                                                {post.hasTagChanged && (
+                                                    <button
+                                                        onClick={() => handleTagSubmit(post.url)}
+                                                        className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg text-sm font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                                        <i className="fas fa-save mr-2" />저장
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-3 sm:p-4 border border-purple-100/50">
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                                                    <i className="fas fa-book text-sm sm:text-lg" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <label className="block text-sm font-medium text-purple-900 mb-2">시리즈 관리</label>
+                                                    <div className="relative">
+                                                        <select
+                                                            value={post.series}
+                                                            onChange={(e) => handleSeriesChange(post.url, e.target.value)}
+                                                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-8 sm:pr-10 border border-purple-200 rounded-lg text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-200/50 focus:ring-offset-0 appearance-none bg-white shadow-sm">
+                                                            <option value="">시리즈 선택 안함</option>
+                                                            {series?.map((item, index) => (
+                                                                <option key={index} value={item.url}>
+                                                                    {item.title}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <div className="absolute inset-y-0 right-0 pr-2 sm:pr-3 flex items-center pointer-events-none">
+                                                            <i className="fas fa-chevron-down text-purple-400 text-sm" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {post.hasSeriesChanged && (
+                                                    <button
+                                                        onClick={() => handleSeriesSubmit(post.url)}
+                                                        className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg text-sm font-medium hover:from-purple-600 hover:to-pink-700 transition-all duration-200 shadow-md hover:shadow-lg">
+                                                        <i className="fas fa-save mr-2" />저장
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {post.readTime > 30 && (
+                                            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 rounded-lg p-4">
+                                                <div className="flex items-start">
+                                                    <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center mr-3">
+                                                        <i className="fas fa-exclamation-triangle text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-yellow-800 mb-1">긴 글 주의</h4>
+                                                        <p className="text-sm text-yellow-700">
+                                                            이 글은 너무 길어서 독자 경험에 영향을 줄 수 있습니다.
+                                                            내용을 나누어 여러 포스트로 작성하는 것을 고려해보세요.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* 페이지네이션 */}
+                {postsData && postsData.lastPage > 1 && (
+                    <div className="flex justify-center items-center gap-3 mt-6">
                         <button
                             onClick={() => handleFilterChange('page', String(Math.max(1, parseInt(filters.page) - 1)))}
                             disabled={filters.page === '1'}
-                            className="px-6 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
-                            <svg className="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
+                            className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <i className="fas fa-chevron-left mr-2" />
                             이전
                         </button>
-                        <div className="px-6 py-3 text-sm">
-                            <span className="font-medium text-blue-600">{filters.page}</span>
-                            <span className="text-gray-500 mx-2">of</span>
-                            <span className="font-medium text-gray-700">{postsData.lastPage}</span>
+                        <div className="px-4 py-2 text-sm text-slate-600">
+                            <span className="font-medium text-indigo-600">{filters.page}</span>
+                            <span className="mx-2">/</span>
+                            <span className="font-medium">{postsData.lastPage}</span>
                         </div>
                         <button
                             onClick={() => handleFilterChange('page', String(Math.min(postsData.lastPage, parseInt(filters.page) + 1)))}
                             disabled={filters.page === String(postsData.lastPage)}
-                            className="px-6 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+                            className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                             다음
-                            <svg className="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
+                            <i className="fas fa-chevron-right ml-2" />
                         </button>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };
