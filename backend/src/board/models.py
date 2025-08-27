@@ -45,24 +45,48 @@ def title_image_path(instance, filename):
 
 
 def make_thumbnail(instance, size, quality=100, type='normal'):
+    import os
+    from django.conf import settings
+    
     if hasattr(instance, 'avatar'):
         instance.image = instance.avatar
-    image = Image.open(instance.image)
+    
+    # Use instance.image.path for uploaded files, which gives the full system path
+    # If no path attribute, construct path in media directory
+    if hasattr(instance.image, 'path'):
+        image_path = instance.image.path
+    else:
+        image_path = os.path.join(settings.MEDIA_ROOT, str(instance.image))
+    
+    if not os.path.exists(image_path):
+        print(f"Warning: Image file not found at {image_path}")
+        return
+    
+    try:
+        image = Image.open(image_path)
+    except Exception as e:
+        print(f"Error opening image: {e}")
+        return
 
     if type == 'preview':
         convert_image = image.convert('RGB')
         preview_image = convert_image.filter(ImageFilter.GaussianBlur(50))
-        preview_image.save(
-            f"static/{instance.image}.preview.jpg", quality=quality)
+        preview_path = f"{image_path}.preview.jpg"
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(preview_path), exist_ok=True)
+        preview_image.save(preview_path, quality=quality)
         return
     
     if type == 'minify':
         image.thumbnail((size, size), Image.LANCZOS)
-        image.save(
-            f"static/{instance.image}.minify.{str(instance.image).split('.')[-1]}", quality=quality)
+        minify_path = f"{image_path}.minify.{str(instance.image).split('.')[-1]}"
+        os.makedirs(os.path.dirname(minify_path), exist_ok=True)
+        image.save(minify_path, quality=quality)
+        return
     
     image.thumbnail((size, size), Image.LANCZOS)
-    image.save(f'static/{instance.image}', quality=quality)
+    os.makedirs(os.path.dirname(image_path), exist_ok=True)
+    image.save(image_path, quality=quality)
     return
 
 
@@ -90,9 +114,8 @@ class Comment(models.Model):
 
     def get_thumbnail(self):
         if self.image:
-            return settings.STATIC_URL + self.image.url
-        else:
-            return None
+            return self.image.url
+        return None
 
     def get_absolute_url(self):
         return self.post.get_absolute_url()
@@ -305,7 +328,7 @@ class Post(models.Model):
         if self.image:
             return self.image.url
         else:
-            return settings.STATIC_URL + 'images/default-post.png'
+            return settings.RESOURCE_URL + 'assets/images/default-cover-1.jpg'
 
     def is_published(self):
         return self.created_date < timezone.now()
@@ -364,7 +387,9 @@ class Post(models.Model):
         return [tag.value for tag in self.tags.all() if tag]
 
     def get_thumbnail(self):
-        return self.image.url if self.image else None
+        if self.image:
+            return self.image.url
+        return None
 
     def __str__(self):
         return self.title
@@ -498,8 +523,8 @@ class Profile(models.Model):
 
     def get_thumbnail(self):
         if self.avatar:
-            return settings.STATIC_URL + self.avatar.url
-        return None
+            return self.avatar.url
+        return settings.RESOURCE_URL + 'assets/images/default-avatar.jpg'
 
     def total_subscriber(self):
         return self.subscriber.count()
@@ -652,8 +677,16 @@ class TelegramSync(models.Model):
         return self.user.username
     
     def save(self, *args, **kwargs):
-        self.tid = encrypt_value(self.tid).decode()
+        if self.tid and not self._is_encrypted(self.tid):
+            self.tid = encrypt_value(self.tid).decode()
         super().save(*args, **kwargs)
+    
+    def _is_encrypted(self, value):
+        try:
+            decrypt_value(value)
+            return True
+        except:
+            return False
 
 
 class TempPosts(models.Model):

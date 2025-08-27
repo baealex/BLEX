@@ -143,7 +143,7 @@ def authors_view(request):
                 'username': author.username,
                 'name': author.first_name,
                 'bio': author.profile.bio if hasattr(author, 'profile') and author.profile else '',
-                'avatar': author.avatar if hasattr(author, 'avatar') and author.avatar else '/static/images/default-avatar.png',
+                'avatar': author.profile.get_thumbnail(),
                 'post_count': author.post_count,
                 'follower_count': author.follower_count or 0,
             })

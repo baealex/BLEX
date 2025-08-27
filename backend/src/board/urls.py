@@ -130,6 +130,7 @@ urlpatterns = [
     path('v1/report/article/<url>', api_v1.article_report),
     path('v1/invitation/owners', api_v1.invitation_owners),
     path('v1/invitation/requests', api_v1.invitation_requests),
+    path('v1/invitation/<int:invitation_id>', api_v1.invitation_respond),
     path('v1/image', api_v1.image),
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),

@@ -6,6 +6,26 @@ services:
     env_file: ./backend/.env
     restart: always
     volumes:
+      # 개발환경에서만 소스 마운트 (프로덕션에선 제거)
       - ./backend/src/:/app/
+      - ./backend/src/resources/media:/app/resources/media
+    networks:
+      - blex-network
+
+  nginx:
+    build:
+      context: ./backend
+      target: nginx-stage
+    restart: always
+    volumes:
+      - ./backend/src/resources/media:/resources/media
     ports:
-      - 20002:8000
+      - 20002:80
+    depends_on:
+      - backend
+    networks:
+      - blex-network
+
+networks:
+  blex-network:
+    driver: bridge

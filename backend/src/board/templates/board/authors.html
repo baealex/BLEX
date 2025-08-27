@@ -1,6 +1,6 @@
 {% extends 'board/base.html' %}
 {% load search_tags %}
-{% load static %}
+{% load resource %}
 
 {% block title %}
     {% if query %}
@@ -116,7 +116,7 @@
                         <div class="text-center mb-4 sm:mb-6">
                             <a href="/@{{ result.username }}" class="block">
                                 <div class="relative inline-block">
-                                    <img src="{% static result.avatar %}" alt="{{ result.username }}" 
+                                    <img src="{% media result.avatar %}" alt="{{ result.username }}" 
                                          class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mx-auto ring-2 sm:ring-4 ring-purple-50 group-hover:ring-purple-100 transition-all">
                                     <div class="absolute -bottom-1 sm:-bottom-2 -right-1 sm:-right-2 w-4 h-4 sm:w-6 sm:h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 sm:border-3 border-white flex items-center justify-center">
                                         <svg class="w-2 h-2 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -216,7 +216,7 @@
                     <div class="p-6">
                         <div class="text-center">
                             <a href="/@{{ author.username }}" class="block">
-                                <img src="{% static author.avatar %}" alt="{{ author.username }}" 
+                                <img src="{% media author.avatar %}" alt="{{ author.username }}" 
                                      class="w-20 h-20 rounded-full object-cover mx-auto mb-4">
                             </a>
                             <h3 class="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors truncate mb-1">

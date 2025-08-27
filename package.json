@@ -3,19 +3,15 @@
     "version": "1.0.0",
     "description": "BLOG EXPRESS ME",
     "scripts": {
-        "install": "npm run client:setup && npm run server:setup && npm run island:setup",
-        "client:setup": "pnpm install --prefix frontend/src",
-        "client:dev": "export $(cat frontend/.env | xargs); npm run dev --prefix frontend/src",
+        "install": "npm run server:setup && npm run island:setup",
         "server:setup": "cd backend/src && python -m venv mvenv && source mvenv/bin/activate && pip install -r requirements.txt",
         "server:dev": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py runserver",
         "server:test": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py test -v 2",
         "server:static": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py collectstatic --noinput",
-        "static:serve": "serve backend/src/static --listen 8080",
         "island:setup": "pnpm install --prefix backend/islands",
         "island:dev": "npm run dev --prefix backend/islands",
-        "island:static": "npm run build --prefix backend/islands",
-        "setup": "npm run server:setup && npm run island:setup && npm run client:setup",
-        "dev": "concurrently \"npm run server:dev\" \"npm run island:dev\" \"npm run client:dev\" \"npm run static:serve\""
+        "island:build": "npm run build --prefix backend/islands",
+        "dev": "concurrently \"npm run server:dev\" \"npm run island:dev\""
     },
     "repository": {
         "type": "git",
@@ -29,7 +25,6 @@
     "homepage": "https://github.com/baealex/BLEX#readme",
     "devDependencies": {
         "concurrently": "^9.2.0",
-        "pnpm": "^10.13.1",
-        "serve": "^14.2.4"
+        "pnpm": "^10.13.1"
     }
 }

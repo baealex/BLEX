@@ -15,7 +15,7 @@ const profileSchema = z.object({
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
 const ProfileSetting = () => {
-    const [avatar, setAvatar] = useState('/static/assets/images/default-avatar.jpg');
+    const [avatar, setAvatar] = useState('/resources/staticfiles/images/default-avatar.jpg');
     const [isLoading, setIsLoading] = useState(false);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>({ resolver: zodResolver(profileSchema) });
@@ -33,7 +33,7 @@ const ProfileSetting = () => {
 
     React.useEffect(() => {
         if (profileData) {
-            setAvatar(profileData.avatar || '/static/assets/images/default-avatar.jpg');
+            setAvatar(profileData.avatar || '/resources/staticfiles/images/default-avatar.jpg');
             reset({
                 bio: profileData.bio || '',
                 homepage: profileData.homepage || ''

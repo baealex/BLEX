@@ -475,7 +475,7 @@ const PostsSetting = () => {
                     <div className="space-y-6">
                         {posts.map((post) => (
                             <div key={post.url} className="mb-6">
-                                <div className="bg-white border border-solid border-slate-200/60 rounded-2xl shadow-lg overflow-hidden">
+                                <div className="bg-white border border-solid border-slate-200/60 rounded-2xl overflow-hidden">
                                     <div className="bg-slate-100 p-4 sm:p-6 text-slate-900">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3 flex-1 min-w-0">

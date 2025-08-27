@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from django.contrib import auth
 from django.db.models import (
@@ -367,11 +368,9 @@ def setting(request, parameter):
             })
 
         if parameter == 'integration-telegram':
-            if hasattr(request.user, 'telegramsync') and request.user.telegramsync.tid:
-                user_tid = request.user.telegramsync.get_decrypted_tid()
+            if request.user.config.has_telegram_id():
                 return StatusDone({
                     'is_connected': True,
-                    'telegram_id': user_tid.replace(user_tid[2:7], '*'.ljust(5, '*')),
                 })
             return StatusDone({
                 'is_connected': False,
@@ -387,7 +386,14 @@ def setting(request, parameter):
             })
 
     if request.method == 'PUT':
-        put = QueryDict(request.body)
+        # Try to parse JSON first, fallback to QueryDict
+        try:
+            put_data = json.loads(request.body.decode('utf-8')) if request.body else {}
+            put = type('QueryDict', (), {
+                'get': lambda self, key, default='': put_data.get(key, default)
+            })()
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            put = QueryDict(request.body)
 
         if parameter == 'notify':
             id = put.get('id')

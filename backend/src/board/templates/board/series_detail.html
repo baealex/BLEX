@@ -1,6 +1,7 @@
 {% extends 'board/base.html' %}
 {% load static %}
 {% load island %}
+{% load resource %}
 
 {% block title %}{{ series.name }} - {{ author.username }} | BLEX{% endblock %}
 
@@ -35,7 +36,7 @@
                     <div class="flex items-center gap-4 mb-4">
                         <a href="/@{{ author.username }}">
                             <img class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" 
-                                src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
+                                src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}" 
                                 alt="{{ author.username }}">
                         </a>
                         <div>

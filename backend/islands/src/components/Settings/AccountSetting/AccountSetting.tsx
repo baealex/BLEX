@@ -39,7 +39,9 @@ type NameFormInputs = z.infer<typeof nameSchema>;
 type PasswordFormInputs = z.infer<typeof passwordSchema>;
 
 const AccountSettings: React.FC = () => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isUsernameLoading, setIsUsernameLoading] = useState(false);
+    const [isNameLoading, setIsNameLoading] = useState(false);
+    const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
     // Forms
     const { register: registerUsername, handleSubmit: handleUsernameSubmit, reset: resetUsername, formState: { errors: errorsUsername } } = useForm<UsernameFormInputs>({ resolver: zodResolver(usernameSchema) });
@@ -71,32 +73,28 @@ const AccountSettings: React.FC = () => {
     }, [isError]);
 
     const onSubmitUsername = async (formData: UsernameFormInputs) => {
-        setIsLoading(true);
+        setIsUsernameLoading(true);
         try {
-            const dataToSend = new FormData();
-            dataToSend.append('update_username', '1');
-            dataToSend.append('username', formData.username);
-
-            const { data } = await http('settings/account', { // Still using old endpoint for username
-                method: 'POST',
-                data: dataToSend
+            const { data } = await http('v1/setting/account', {
+                method: 'PUT',
+                data: { username: formData.username }
             });
 
-            if (data.success || data.status === 'DONE') {
+            if (data.status === 'DONE') {
                 notification('아이디가 변경되었습니다.', { type: 'success' });
                 refetch();
             } else {
-                notification(data.message || '아이디 변경에 실패했습니다.', { type: 'error' });
+                notification(data.errorMessage || '아이디 변경에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         } finally {
-            setIsLoading(false);
+            setIsUsernameLoading(false);
         }
     };
 
     const onSubmitName = async (formData: NameFormInputs) => {
-        setIsLoading(true);
+        setIsNameLoading(true);
         try {
             const { data } = await http('v1/setting/account', {
                 method: 'PUT',
@@ -107,17 +105,17 @@ const AccountSettings: React.FC = () => {
                 notification('이름이 업데이트되었습니다.', { type: 'success' });
                 refetch();
             } else {
-                notification('이름 업데이트에 실패했습니다.', { type: 'error' });
+                notification(data.errorMessage || '이름 업데이트에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         } finally {
-            setIsLoading(false);
+            setIsNameLoading(false);
         }
     };
 
     const onSubmitPassword = async (formData: PasswordFormInputs) => {
-        setIsLoading(true);
+        setIsPasswordLoading(true);
         try {
             const { data } = await http('v1/setting/account', {
                 method: 'PUT',
@@ -132,12 +130,12 @@ const AccountSettings: React.FC = () => {
                 });
                 refetch();
             } else {
-                notification('비밀번호 변경에 실패했습니다.', { type: 'error' });
+                notification(data.errorMessage || '비밀번호 변경에 실패했습니다.', { type: 'error' });
             }
         } catch (error) {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         } finally {
-            setIsLoading(false);
+            setIsPasswordLoading(false);
         }
     };
 
@@ -233,8 +231,8 @@ const AccountSettings: React.FC = () => {
                     <button
                         type="submit"
                         className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-h-[48px]"
-                        disabled={isLoading}>
-                        {isLoading ? (
+                        disabled={isUsernameLoading}>
+                        {isUsernameLoading ? (
                             <>
                                 <svg
                                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -294,8 +292,8 @@ const AccountSettings: React.FC = () => {
                     <button 
                         type="submit" 
                         className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
-                        disabled={isLoading}>
-                        {isLoading ? (
+                        disabled={isNameLoading}>
+                        {isNameLoading ? (
                             <>
                                 <svg
                                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -394,8 +392,8 @@ const AccountSettings: React.FC = () => {
                     <button 
                         type="submit" 
                         className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
-                        disabled={isLoading}>
-                        {isLoading ? (
+                        disabled={isPasswordLoading}>
+                        {isPasswordLoading ? (
                             <>
                                 <svg
                                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"

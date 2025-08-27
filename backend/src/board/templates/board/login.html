@@ -7,6 +7,9 @@
 
 {% block extra_styles %}
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<script>
+    window.HCAPTCHA_SITE_KEY = '{{ HCAPTCHA_SITE_KEY }}';
+</script>
 <style>
     island-component {
         flex: 1;

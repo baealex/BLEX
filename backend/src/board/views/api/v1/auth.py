@@ -1,6 +1,7 @@
 import re
 import datetime
 import traceback
+import json
 
 from django.conf import settings
 from django.contrib import auth
@@ -162,21 +163,30 @@ def login(request):
         if attempts >= 5:
             return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
         
-        social = request.POST.get('social', '')
-        if not social:
-            username = request.POST.get('username', '')
-            password = request.POST.get('password', '')
-            hcaptcha_response = request.POST.get('h-captcha-response', '')
+        # Try to parse JSON first, then fallback to POST data
+        try:
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+            social = data.get('social', '') or request.POST.get('social', '')
+            if not social:
+                username = data.get('username', '') or request.POST.get('username', '')
+                password = data.get('password', '') or request.POST.get('password', '')
+                # hcaptcha_response = data.get('h-captcha-response', '') or request.POST.get('h-captcha-response', '')
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            social = request.POST.get('social', '')
+            if not social:
+                username = request.POST.get('username', '')
+                password = request.POST.get('password', '')
+                # hcaptcha_response = request.POST.get('h-captcha-response', '')
 
             # Validate hCaptcha if attempts >= 3
-            if attempts >= 3:
-                if not hcaptcha_response:
-                    return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
-                
-                if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
-                    # Increment attempts for failed captcha
-                    cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-                    return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
+            # if attempts >= 3:
+            #     if not hcaptcha_response:
+            #         return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
+            #     
+            #     if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
+            #         # Increment attempts for failed captcha
+            #         cache.set(cache_key, attempts + 1, 300)  # 5 minutes
+            #         return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
 
             user = auth.authenticate(username=username, password=password)
 

@@ -1,0 +1,10 @@
+{% extends 'board/base.html' %}
+{% load island %}
+
+{% block title %}에디터 초대 필요 - BLEX{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl w-full mx-auto">
+    {% island_component 'InvitationRequest' %}
+</div>
+{% endblock %}
