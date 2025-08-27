@@ -23,7 +23,7 @@ jobs:
     - name: Load .env file
       uses: xom9ikk/dotenv@v2.2.0
       with:
-        path: samples/backend
+        path: samples
 
     - name: Set up Python 3.12
       uses: actions/setup-python@v5
