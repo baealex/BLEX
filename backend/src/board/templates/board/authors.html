@@ -26,7 +26,7 @@
             </div>
             <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
                 멋진&nbsp;
-                <span class="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">개발자</span>들을&nbsp;<br class="sm:hidden">
+                <span class="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">창작자</span>들을&nbsp;<br class="sm:hidden">
                 만나보세요
             </h1>
             <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">BLEX의 다양한 분야 전문가들과 만나보세요</p>
@@ -216,7 +216,7 @@
                     <div class="p-6">
                         <div class="text-center">
                             <a href="/@{{ author.username }}" class="block">
-                                <img src="{% media author.avatar %}" alt="{{ author.username }}" 
+                                <img src="{{ author.avatar }}" alt="{{ author.username }}" 
                                      class="w-20 h-20 rounded-full object-cover mx-auto mb-4">
                             </a>
                             <h3 class="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors truncate mb-1">
