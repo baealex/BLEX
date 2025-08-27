@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push backend
         uses: docker/build-push-action@v4
         with:
           context: ./backend
@@ -36,3 +36,14 @@ jobs:
           tags: baealex/blex-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build and push nginx
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          target: nginx-stage
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          tags: baealex/blex-nginx:latest
+          cache-from: type=gha

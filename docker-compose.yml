@@ -6,16 +6,13 @@ services:
     env_file: ./backend/.env
     restart: always
     volumes:
-      # 개발환경에서만 소스 마운트 (프로덕션에선 제거)
-      - ./backend/src/:/app/
+      - ./backend/src/db.sqlite3:/app/db.sqlite3
       - ./backend/src/resources/media:/app/resources/media
     networks:
       - blex-network
 
   nginx:
-    build:
-      context: ./backend
-      target: nginx-stage
+    image: baealex/blex-nginx
     restart: always
     volumes:
       - ./backend/src/resources/media:/resources/media
