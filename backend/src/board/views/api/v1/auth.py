@@ -5,6 +5,7 @@ import json
 
 from django.conf import settings
 from django.contrib import auth
+from django.core.cache import cache
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.db.models import Count, Case, When, Value, Exists, OuterRef
@@ -156,7 +157,6 @@ def login(request):
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
         cache_key = f'login_attempts:{client_ip}'
         
-        from django.core.cache import cache
         attempts = cache.get(cache_key, 0)
         
         # Block if too many attempts
@@ -458,7 +458,6 @@ def security_send(request):
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
         cache_key = f'2fa_attempts:{client_ip}'
         
-        from django.core.cache import cache
         attempts = cache.get(cache_key, 0)
         
         # Block if too many 2FA attempts

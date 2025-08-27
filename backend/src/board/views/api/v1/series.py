@@ -1,3 +1,4 @@
+import json
 from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
@@ -96,7 +97,6 @@ def user_series(request, username, url=None):
                 })
 
         if request.method == 'POST':
-            import json
             try:
                 body = json.loads(request.body)
             except:
@@ -204,7 +204,6 @@ def user_series(request, username, url=None):
             return StatusError(ErrorCode.AUTHENTICATION)
 
         if request.method == 'PUT':
-            import json
             try:
                 put = json.loads(request.body)
             except:
@@ -254,7 +253,6 @@ def series_order(request):
         if not request.user.is_authenticated:
             return StatusError(ErrorCode.AUTHENTICATION)
             
-        import json
         try:
             body = json.loads(request.body)
         except:
@@ -288,7 +286,6 @@ def series_create_update(request):
         if not request.user.is_authenticated:
             return StatusError(ErrorCode.AUTHENTICATION)
             
-        import json
         try:
             body = json.loads(request.body)
         except:
@@ -350,7 +347,6 @@ def series_detail(request, series_id):
         return StatusError(ErrorCode.NOT_FOUND, '시리즈를 찾을 수 없습니다.')
     
     if request.method == 'PUT':
-        import json
         try:
             body = json.loads(request.body)
         except:

@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -45,8 +46,6 @@ def title_image_path(instance, filename):
 
 
 def make_thumbnail(instance, size, quality=100, type='normal'):
-    import os
-    from django.conf import settings
     
     if hasattr(instance, 'avatar'):
         instance.image = instance.avatar
