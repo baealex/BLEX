@@ -117,7 +117,30 @@
     </article>
 
     <!-- 스티키 액션 바 (Alpine.js 사용) -->
-    <div x-data="{ shareMessage: '공유' }" class="sticky bottom-0 left-0 right-0 z-40 mb-6 sm:mb-8">
+    <div x-data="{ 
+        shareMessage: '공유',
+        showFeedback: false,
+        async copyToClipboard() {
+            try {
+                const decodedUrl = decodeURIComponent(window.location.href);
+                await navigator.clipboard.writeText(decodedUrl);
+                this.shareMessage = '링크 복사됨!';
+                this.showFeedback = true;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                
+                setTimeout(() => {
+                    this.shareMessage = '공유';
+                    this.showFeedback = false;
+                }, 2000);
+            } catch (error) {
+                this.shareMessage = '복사 실패';
+                setTimeout(() => this.shareMessage = '공유', 2000);
+            }
+        }
+    }" class="sticky bottom-0 left-0 right-0 z-40 mb-6 sm:mb-8">
         <div class="max-w-4xl w-full mx-auto px-2 sm:px-4 py-3 bg-white shadow-sm rounded-2xl">
             <div class="flex items-center justify-between">
                 <!-- 왼쪽: 포스트 정보 -->
@@ -136,24 +159,30 @@
                 </div>
                 
                 <!-- 오른쪽: 액션 버튼들 -->
-                <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                     {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked size='small' %}
                     
                     <button @click="
                         if (navigator.share) {
+                            const decodedUrl = decodeURIComponent(window.location.href);
                             navigator.share({
                                 title: '{{ post.title }}',
                                 text: '{{ post.meta_description }}',
-                                url: window.location.href
-                            }).catch(error => console.log('Error sharing:', error));
+                                url: decodedUrl
+                            }).catch(error => {
+                                console.log('Error sharing:', error);
+                                copyToClipboard();
+                            });
                         } else {
-                            navigator.clipboard.writeText(window.location.href);
-                            shareMessage = '링크 복사됨!';
-                            setTimeout(() => shareMessage = '공유', 2000);
+                            copyToClipboard();
                         }
-                    " class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors duration-200 text-sm" aria-label="게시물 공유하기">
-                        <i class="fas fa-share-alt"></i>
+                    " 
+                    class="flex items-center gap-1 sm:gap-2 px-3 py-2.5 sm:px-3 sm:py-2 transition-all duration-200 text-sm rounded-lg font-medium min-h-[44px] min-w-[44px] sm:min-h-auto sm:min-w-auto"
+                    :class="showFeedback ? 'bg-green-100 text-green-700 transform scale-95' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:scale-105 active:scale-95'"
+                    aria-label="게시물 공유하기">
+                        <i class="fas fa-share-alt" :class="showFeedback ? 'text-green-600' : ''"></i>
                         <span class="hidden sm:inline" x-text="shareMessage"></span>
+                        <span class="sm:hidden text-xs" x-show="showFeedback" x-transition>✓</span>
                     </button>
                     
                     {% if user.is_authenticated and user.username == post.author_username %}
@@ -250,7 +279,7 @@
     {% endif %}
 
     <!-- 댓글 섹션 -->
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm mb-8">
         <h3 class="text-xl sm:text-2xl font-bold text-gray-900 p-4 sm:p-6 lg:p-8">
             댓글 {{ post.count_comments }}개
         </h3>

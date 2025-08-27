@@ -1,6 +1,6 @@
 import json
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.http import Http404, QueryDict
 from django.views.decorators.csrf import csrf_exempt
 
 from board.models import Form
@@ -66,7 +66,6 @@ def forms_detail(request, id):
                 title = data.get('title', '')
                 content = data.get('content', '')
             else:
-                from django.http import QueryDict
                 body = QueryDict(request.body)
                 title = body.get('title', '')
                 content = body.get('content', '')

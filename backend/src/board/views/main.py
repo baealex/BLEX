@@ -1,10 +1,13 @@
+import time
+import datetime
 from django.shortcuts import render
 from django.utils import timezone
-from django.db.models import F, Count, Exists, OuterRef, Sum, Q
-from django.contrib.auth.decorators import login_required
+from django.db.models import F, Count, Exists, OuterRef, Q, Case, When, BooleanField
 
-from board.models import Post, PostLikes, Comment, PostAnalytics
+from board.models import Post, PostLikes, Search, SearchValue
 from board.modules.paginator import Paginator
+from board.modules.time import convert_to_localtime
+from board.modules.analytics import create_device, get_network_addr
 
 
 def index(request):
@@ -17,12 +20,6 @@ def index(request):
     
     if query:
         # Search functionality
-        import time
-        from django.db.models import Case, When, BooleanField
-        from board.modules.time import convert_to_localtime
-        from board.modules.analytics import create_device, get_network_addr
-        from board.models import Search, SearchValue
-        import datetime
         
         start_time = time.time()
         

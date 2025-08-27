@@ -1,3 +1,5 @@
+import ipaddress
+import re
 from django.conf import settings
 from django.utils import timezone
 
@@ -53,20 +55,72 @@ BOT_TYPES = [
 
 
 def get_network_addr(request):
-    ip_maps = [
-        'HTTP_CF_CONNECTING_IP',
-        'HTTP_X_FORWARDED_FOR',
-        'REMOTE_ADDR',
+    """
+    Extract the real client IP address from request headers.
+    Handles proxy chains, load balancers, and CDN forwarded IPs.
+    """
+    
+    # Priority order: most trusted sources first
+    ip_headers = [
+        'HTTP_CF_CONNECTING_IP',      # Cloudflare
+        'HTTP_X_REAL_IP',             # Nginx proxy_pass
+        'HTTP_X_FORWARDED_FOR',       # Standard proxy header
+        'HTTP_X_FORWARDED',           # Less common
+        'HTTP_X_CLUSTER_CLIENT_IP',   # Cluster/load balancer
+        'HTTP_FORWARDED_FOR',         # Legacy
+        'HTTP_FORWARDED',             # RFC 7239
+        'REMOTE_ADDR',                # Direct connection
     ]
-    for ip_map in ip_maps:
-        ip_addr = request.META.get(ip_map, '').split(',')[0]
-        if ip_addr:
-            return ip_addr
+    
+    def is_valid_ip(ip_str):
+        """Validate if string is a valid IP address"""
+        try:
+            ip_obj = ipaddress.ip_address(ip_str.strip())
+            # Exclude private/local addresses for forwarded headers
+            if ip_str != request.META.get('REMOTE_ADDR', ''):
+                return not (ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved)
+            return True
+        except (ValueError, ipaddress.AddressValueError):
+            return False
+    
+    def clean_ip(ip_str):
+        """Clean and extract IP from header value"""
+        if not ip_str:
+            return None
+            
+        # Remove port numbers (IPv4:port or [IPv6]:port)
+        ip_str = re.sub(r':(\d+)$', '', ip_str)
+        ip_str = re.sub(r'^\[(.+)\]$', r'\1', ip_str)  # Remove IPv6 brackets
+        
+        # Handle forwarded headers with multiple IPs
+        if ',' in ip_str:
+            # Take the leftmost (original client) IP
+            ips = [ip.strip() for ip in ip_str.split(',')]
+            for ip in ips:
+                if is_valid_ip(ip):
+                    return ip.strip()
+        else:
+            ip_str = ip_str.strip()
+            if is_valid_ip(ip_str):
+                return ip_str
+        
+        return None
+    
+    # Try each header in priority order
+    for header in ip_headers:
+        header_value = request.META.get(header, '')
+        if header_value:
+            ip = clean_ip(header_value)
+            if ip:
+                return ip
+    
+    # Fallback: return None if no valid IP found
     return None
 
 
-def view_count(post: Post, request, ip, user_agent, referer):
-    if post.author == request.user:
+def view_count(post: Post, request, ip, user_agent, referrer):
+    # Skip if author viewing own post
+    if request.user.is_authenticated and post.author == request.user:
         return
 
     if post.config.hide or not post.is_published():
@@ -75,38 +129,28 @@ def view_count(post: Post, request, ip, user_agent, referer):
     if ip and user_agent:
         create_viewer(post, ip, user_agent)
 
-    if referer:
-        create_referer(post, referer)
+    if referrer:
+        create_referer(post, referrer)
 
 
 def create_referer(post: Post, referer: str):
     if not has_valid_referer(referer):
         return
 
-    today = timezone.now()
-    today_analytics = None
-    try:
-        today_analytics = PostAnalytics.objects.get(
-            created_date=today,
-            post=post
-        )
-    except:
-        today_analytics = PostAnalytics(post=post)
-        today_analytics.save()
-        today_analytics.refresh_from_db()
+    today = timezone.now().date()
+    today_analytics, _ = PostAnalytics.objects.get_or_create(
+        created_date=today,
+        post=post
+    )
 
-    referer_from = None
+    # Normalize referer URL
     referer = referer[:500]
     if 'google' in referer and 'url' in referer:
         referer = 'https://www.google.com/'
 
-    referer_from = RefererFrom.objects.filter(location=referer)
-    if referer_from.exists():
-        referer_from = referer_from.first()
-    else:
-        referer_from = RefererFrom(location=referer)
-        referer_from.save()
-        referer_from.refresh_from_db()
+    referer_from, _ = RefererFrom.objects.get_or_create(
+        location=referer
+    )
 
     if referer_from.should_update():
         def func():
@@ -160,23 +204,18 @@ def create_device(ip, user_agent):
     return device
 
 
-def create_viewer(posts, ip, user_agent):
-    history = create_device(ip, user_agent)
+def create_viewer(post, ip, user_agent):
+    device = create_device(ip, user_agent)
 
-    if not 'bot' in history.category:
-        today = timezone.now()
-        today_analytics = None
-        try:
-            today_analytics = PostAnalytics.objects.get(
-                created_date=today, post=posts)
-        except:
-            today_analytics = PostAnalytics(post=posts)
-            today_analytics.save()
-            today_analytics.refresh_from_db()
+    if 'bot' not in device.category:
+        today = timezone.now().date()
+        today_analytics, _ = PostAnalytics.objects.get_or_create(
+            created_date=today, 
+            post=post
+        )
 
-        if not today_analytics.devices.filter(id=history.id).exists():
-            today_analytics.devices.add(history)
-            today_analytics.save()
+        # Use add() which automatically handles duplicates
+        today_analytics.devices.add(device)
 
 
 def has_bot_keyword(user_agent):

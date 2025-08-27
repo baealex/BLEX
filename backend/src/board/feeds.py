@@ -4,6 +4,7 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.urls import reverse
 
 from board.models import Post
 from board.modules.time import convert_to_localtime
@@ -70,7 +71,6 @@ class UserPostsFeed(Feed):
         return f'{item.username} ({item.first_name})'
 
     def link(self, item):
-        from django.urls import reverse
         return reverse('user_profile', args=[item.username])
 
     def description(self, item):

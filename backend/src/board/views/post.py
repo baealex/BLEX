@@ -7,6 +7,7 @@ from django.utils.text import slugify
 from django.contrib import messages
 
 from board.models import Post, Series, PostLikes, PostConfig, PostContent, Invitation
+from board.modules.analytics import view_count, get_network_addr
 from modules import markdown
 
 
@@ -121,29 +122,52 @@ def post_detail(request, username, post_url):
         post.next_post = series_posts[current_idx + 1] if current_idx < post.series_total - 1 else None
         post.visible_series_posts = visible_posts
     
-    # Get related posts (posts with similar tags)
+    # Get related posts (posts with similar tags) - optimized for performance
     related_posts = []
-    # if post.tags:
-    #     related_posts = Post.objects.select_related(
-    #         'author', 'author__profile'
-    #     ).filter(
-    #         tags__overlap=post.tags,
-    #         config__hide=False,
-    #     ).exclude(
-    #         id=post.id
-    #     ).annotate(
-    #         author_username=F('author__username'),
-    #         author_image=F('author__profile__avatar'),
-    #         count_likes=Count('likes', distinct=True),
-    #         count_comments=Count('comments', distinct=True),
-    #     ).order_by('-created_date')[:3]
-    #     
-    #     # Format dates and calculate read time for related posts
-    #     for related_post in related_posts:
-    #         related_post.created_date = related_post.created_date.strftime('%Y-%m-%d')
-    #         word_count = len(related_post.content.split())
-    #         related_post.read_time = max(1, round(word_count / 200))
+    if post.tags.exists():  # Check if post has any tags
+        # Get tag values for current post
+        current_tags = list(post.tags.values_list('value', flat=True))
+        
+        # Find related posts with shared tags (limit to 3 for performance)
+        related_posts = Post.objects.select_related(
+            'author', 'author__profile', 'config'
+        ).filter(
+            tags__value__in=current_tags,
+            config__hide=False,
+            created_date__lte=timezone.now(),
+        ).exclude(
+            id=post.id
+        ).annotate(
+            author_username=F('author__username'),
+            author_image=F('author__profile__avatar'),
+            count_likes=Count('likes', distinct=True),
+            count_comments=Count('comments', distinct=True),
+        ).order_by('-created_date').distinct()[:3]
+        
+        # Format dates for related posts
+        for related_post in related_posts:
+            related_post.created_date = related_post.created_date.strftime('%Y-%m-%d')
     
+    # Collect analytics data (IP, user agent, referrer)
+    try:
+        user_ip = get_network_addr(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        referrer = request.META.get('HTTP_REFERER', '')
+        
+        # Only collect analytics if not the author viewing their own post
+        if not request.user.is_authenticated or request.user != post.author:
+            view_count(
+                post=post,
+                request=request,
+                ip=user_ip,
+                user_agent=user_agent,
+                referer=referrer
+            )
+    except Exception:
+        # Log error but don't break the view
+        # Could add proper logging here if needed
+        pass
+
     context = {
         'post': post,
         'related_posts': related_posts,
