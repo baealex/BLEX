@@ -1,6 +1,6 @@
 {% extends 'board/base.html' %}
 {% load island %}
-{% load static %}
+{% load resource %}
 {% load search_tags %}
 
 {% block title %}
@@ -19,10 +19,10 @@
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-white bg-opacity-5 rounded-full translate-y-24 -translate-x-24"></div>    
         
         <div class="relative z-10 text-center py-20 px-8">
-            <img src="{% static 'logow.svg' %}" alt="BLEX Logo" class="w-24 h-24 mx-auto mb-6 drop-shadow-lg">
-            <h1 class="text-2xl md:text-3xl font-bold mb-4">창작자를 위한 블로그 플랫폼</h1>
+            <img src="{% resource 'logow.svg' %}" alt="BLEX Logo" class="w-24 h-24 mx-auto mb-6 drop-shadow-lg">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4">개발자를 위한 블로그 플랫폼</h1>
             <p class="text-lg text-white text-opacity-90 max-w-2xl mx-auto leading-relaxed">
-                개발자, 디자이너, 창작자들이 모여 지식과 경험을 공유하는 공간입니다
+                개발자들이 모여 지식과 경험을 공유하는 공간입니다
             </p>
         </div>
     </div>
@@ -96,7 +96,7 @@
         </div>
         <h2 class="text-3xl font-bold text-gray-900 mb-4">아직 포스트가 없어요</h2>
         <p class="text-lg text-gray-600 mb-8 max-w-md">
-            첫 번째 창작자가 되어 멋진 콘텐츠를 공유해보세요!
+            첫 번째 에디터가 되어 멋진 콘텐츠를 공유해보세요!
         </p>
         <a href="/write" class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-xl font-medium transition-colors inline-flex items-center gap-2">
             <i class="fas fa-edit"></i>

@@ -1,13 +1,14 @@
 {% extends 'board/base.html' %}
 {% load static %}
 {% load island %}
+{% load resource %}
 
 {% block title %}{{ series.name }} - {{ author.username }} | BLEX{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto">
+<div class="max-w-4xl w-full mx-auto">
     <!-- 시리즈 헤더 -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+    <div class="bg-white rounded-2xl p-8 mb-8 shadow-sm">
         <!-- 시리즈 타이틀과 메타 정보 -->
         <div class="flex flex-col lg:flex-row lg:items-start gap-6">
             <!-- 왼쪽: 시리즈 정보 -->
@@ -35,7 +36,7 @@
                     <div class="flex items-center gap-4 mb-4">
                         <a href="/@{{ author.username }}">
                             <img class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" 
-                                src="{% if author.profile.avatar %}{% static author.profile.avatar.url %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
+                                src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}" 
                                 alt="{{ author.username }}">
                         </a>
                         <div>
@@ -103,7 +104,7 @@
     <!-- 포스트 목록 -->
     <div class="space-y-4">
         {% for post_number, post in posts %}
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+        <div class="bg-white p-6 rounded-2xl shadow-sm">
             <a href="/@{{ author.username }}/{{ post.url }}" class="flex items-start gap-4">
                 <!-- 포스트 번호 -->
                 <div class="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-900 text-lg font-bold">

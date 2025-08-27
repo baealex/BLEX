@@ -3,10 +3,18 @@
 @forward "./forwarded.scss";
 @forward "./tailwind.css";
 
+body {
+    font-family: 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 a {
     text-decoration: none;
     color: inherit;
     transition: color var(--transition-fast);
+}
+
+.notification__container {
+    top: 88px;
 }
 
 .notification__item {
@@ -15,6 +23,13 @@ a {
     border-right: none;
     border-bottom: none;
     border-top: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 18px;
+
+    .notification__close {
+        color: #000;
+    }
 }
 
 [x-cloak] {

@@ -11,13 +11,12 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/nextjs-14-yellow?style=flat-square">
     <img src="https://img.shields.io/badge/django-5-blue?style=flat-square">
 </p>
 
 <br>
 
-***"예쁘고 유니크한 블로그 없을까요?"*** 🙋‍♂️ [여기 있습니다!](https://blex.me) 블렉스는 미니멀하고 아름다운 디자인을 지향합니다. 폐쇠형 서비스로 변경되어, 다른 에디터로부터 초대장을 받아야 사용할 수 있습니다. 의견은 [im@baejino.com](mailto:im@baejino.com)으로 보내주세요. 언제나 환영입니다.
+***"예쁘고 유니크한 블로그 없을까요?"*** 🙋‍♂️ [여기 있습니다!](https://blex.me) 블렉스는 미니멀하고 아름다운 디자인을 지향합니다. 블렉스는 다른 에디터로부터 초대장을 받아야 사용할 수 있습니다. 의견은 [im@baejino.com](mailto:im@baejino.com)으로 보내주세요. 언제나 환영입니다.
 
 ![blex](https://user-images.githubusercontent.com/35596687/144164653-d4ed4668-f872-4600-938d-a824bd4b8599.jpg)
 
@@ -41,20 +40,12 @@
 
 ```bash
 npm i
-npm run dev -- -d --build
+npm run dev
 ```
 
 로컬에서만 동작하는 별도의 도메인 매핑을 권장합니다.
 
-```bash
-vi /etc/hosts
-```
-
-```bash
-127.0.0.1       blex.test
-```
-
-`blex.test:3000`으로 접속한 후, 기본 계정인 `admin/admin`으로 로그인하여 테스트 할 수 있습니다.
+`localhost:8000`으로 접속한 후, 기본 계정인 `admin/admin`으로 로그인하여 테스트 할 수 있습니다.
 
 <br>
 

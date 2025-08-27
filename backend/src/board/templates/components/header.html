@@ -1,4 +1,5 @@
 {% load static %}
+{% load resource %}
 <header 
     class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50 transition-all duration-300 border-b border-gray-100 px-4"
     x-data="{ 
@@ -23,7 +24,7 @@
     <div class="container mx-auto">
         <div class="flex justify-between items-center py-3">
             <a href="/" class="flex items-center group">
-                <img class="h-9 w-auto transition-transform group-hover:scale-105" src="{% static 'logob.svg' %}" alt="BLEX">
+                <img class="h-9 w-auto transition-transform group-hover:scale-105" src="{% resource 'logob.svg' %}" alt="BLEX">
             </a>
             <nav class="flex items-center space-x-3">
                 {% if user.is_authenticated %}
@@ -55,7 +56,7 @@
                             </div>
                             <span class="font-medium">프로필</span>
                         </a>
-                        <a href="/settings/profile" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
+                        <a href="/settings/dashboard" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150">
                             <div class="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
                                 <i class="fas fa-cog text-white text-xs"></i>
                             </div>

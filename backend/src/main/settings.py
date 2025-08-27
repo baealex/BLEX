@@ -42,8 +42,6 @@ SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.middleware.gzip.GZipMiddleware',  # Add GZip compression
-    'main.middleware.HTMLMinifyMiddleware',  # Add HTML minification
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main.middleware.DisableCSRF',
+    'main.middleware.HTMLMinifyMiddleware',
 ]
 
 if not DEBUG:
@@ -131,9 +130,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 SITE_URL = os.environ.get('SITE_URL')
+RESOURCE_URL = os.environ.get('RESOURCE_URL') + '/resources/'
 
-STATIC_URL = os.environ.get('STATIC_URL') + '/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = RESOURCE_URL + 'staticfiles/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'resources', 'staticfiles')
+
+MEDIA_URL = RESOURCE_URL + 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'resources', 'media')
 
 # Extension (Telegram)
 
@@ -157,6 +160,7 @@ GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET')
 
 # Extension (Captcha)
 
+HCAPTCHA_SITE_KEY = os.environ.get('HCAPTCHA_SITE_KEY')
 HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
 
 

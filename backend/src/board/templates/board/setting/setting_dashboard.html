@@ -1,0 +1,143 @@
+{% extends 'board/setting/setting_base.html' %}
+{% load static %}
+{% load island %}
+{% load humanize %}
+
+{% block setting_title %}대시보드{% endblock %}
+
+
+{% block setting_content %}
+<!-- 헤더 섹션 -->
+<div class="mb-8">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
+        <h1 class="text-2xl font-bold text-blue-900 mb-2 flex items-center">
+            <i class="fas fa-tachometer-alt mr-3 text-blue-700"></i>
+            대시보드
+        </h1>
+        <p class="text-blue-700">{{ user.username }}님의 블로그 활동을 한눈에 확인하세요</p>
+    </div>
+</div>
+
+<!-- 통계 카드 그리드 -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- 총 포스트 -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 p-6 group hover:-translate-y-1">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                <i class="fas fa-file-alt text-xl"></i>
+            </div>
+            <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">포스트</span>
+        </div>
+        <div class="space-y-1">
+            <p class="text-2xl font-bold text-slate-900">{{ stats.total_posts | intcomma }}</p>
+            <p class="text-sm text-slate-500">총 작성한 글</p>
+        </div>
+    </div>
+
+    <!-- 총 조회수 -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 p-6 group hover:-translate-y-1">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-200">
+                <i class="fas fa-eye text-xl"></i>
+            </div>
+            <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">조회수</span>
+        </div>
+        <div class="space-y-1">
+            <p class="text-2xl font-bold text-slate-900">{{ stats.total_views | intcomma }}</p>
+            <p class="text-sm text-slate-500">총 조회 횟수</p>
+        </div>
+    </div>
+
+    <!-- 총 좋아요 -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 p-6 group hover:-translate-y-1">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-pink-200">
+                <i class="fas fa-heart text-xl"></i>
+            </div>
+            <span class="text-xs font-medium text-pink-600 bg-pink-50 px-2 py-1 rounded-full">좋아요</span>
+        </div>
+        <div class="space-y-1">
+            <p class="text-2xl font-bold text-slate-900">{{ stats.total_likes | intcomma }}</p>
+            <p class="text-sm text-slate-500">받은 좋아요</p>
+        </div>
+    </div>
+
+    <!-- 총 댓글 -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 p-6 group hover:-translate-y-1">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-200">
+                <i class="fas fa-comment text-xl"></i>
+            </div>
+            <span class="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded-full">댓글</span>
+        </div>
+        <div class="space-y-1">
+            <p class="text-2xl font-bold text-slate-900">{{ stats.total_comments | intcomma }}</p>
+            <p class="text-sm text-slate-500">받은 댓글</p>
+        </div>
+    </div>
+</div>
+
+<!-- 최근 활동 섹션 -->
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+            <i class="fas fa-clock mr-2 text-slate-600"></i>
+            최근 활동
+        </h2>
+    </div>
+    
+    <div class="space-y-4">
+        {% for activity in recent_activities %}
+        <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors duration-200">
+            {% if activity.type == 'post' %}
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white shadow-sm flex-shrink-0">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-medium text-slate-900">새 포스트를 작성했습니다</p>
+                <p class="text-slate-600 truncate">"{{ activity.title }}"</p>
+                <p class="text-xs text-slate-500 mt-1">{{ activity.date }}</p>
+            </div>
+            {% elif activity.type == 'comment' %}
+            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center text-white shadow-sm flex-shrink-0">
+                <i class="fas fa-comment"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-medium text-slate-900">댓글을 작성했습니다</p>
+                <p class="text-slate-600 truncate">{{ activity.post_title }}</p>
+                <p class="text-xs text-slate-500 mt-1">{{ activity.date }}</p>
+            </div>
+            {% elif activity.type == 'like' %}
+            <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center text-white shadow-sm flex-shrink-0">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-medium text-slate-900">좋아요를 눌렀습니다</p>
+                <p class="text-slate-600 truncate">{{ activity.post_title }}</p>
+                <p class="text-xs text-slate-500 mt-1">{{ activity.date }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center py-12">
+            <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-clock text-slate-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-slate-900 mb-2">아직 활동이 없습니다</h3>
+            <p class="text-slate-500">첫 번째 포스트를 작성해보세요!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- 활동 히트맵 섹션 -->
+<div class="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="mb-6">
+        <h2 class="text-lg font-semibold text-slate-900 flex items-center mb-2">
+            <i class="fas fa-fire mr-2 text-orange-500"></i>
+            활동 히트맵
+        </h2>
+    </div>
+    {% island_component 'Heatmap' %}
+</div>
+{% endblock %}

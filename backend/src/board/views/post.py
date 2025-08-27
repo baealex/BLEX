@@ -6,7 +6,7 @@ from django.http import Http404
 from django.utils.text import slugify
 from django.contrib import messages
 
-from board.models import Post, Series, PostLikes, PostConfig, PostContent
+from board.models import Post, Series, PostLikes, PostConfig, PostContent, Invitation
 from modules import markdown
 
 
@@ -161,7 +161,12 @@ def post_editor(request, username=None, post_url=None):
     if not request.user.is_authenticated:
         return redirect('login')
     
+    # Check if user has invitation (for new posts)
     is_edit = username is not None and post_url is not None
+    if not is_edit:
+        has_invitation = Invitation.objects.filter(receiver=request.user).exists()
+        if not has_invitation:
+            return render(request, 'board/invitation_required.html')
     post = None
     series_list = []
     

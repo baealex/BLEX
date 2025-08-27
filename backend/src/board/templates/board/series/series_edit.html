@@ -4,377 +4,373 @@
 
 {% block title %}Edit Series - {{ series.name }} - BLEX{% endblock %}
 
-{% block extra_styles %}
-<style>
-    .series-edit-container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 24px 0;
-    }
-
-    .series-edit-header {
-        margin-bottom: 32px;
-        text-align: center;
-    }
-
-    .series-edit-title {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: #222;
-    }
-
-    .series-edit-subtitle {
-        font-size: 16px;
-        color: #666;
-    }
-
-    .form-section {
-        margin-bottom: 24px;
-    }
-
-    .form-section-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 16px;
-        color: #333;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 8px;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        font-size: 16px;
-        transition: border-color 0.3s ease;
-        box-sizing: border-box;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: #4568dc;
-        box-shadow: 0 0 0 3px rgba(69, 104, 220, 0.1);
-    }
-
-    .form-textarea {
-        min-height: 100px;
-        resize: vertical;
-        font-family: inherit;
-    }
-
-    .posts-section {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 24px;
-    }
-
-    .posts-grid {
-        display: grid;
-        gap: 12px;
-    }
-
-    .post-checkbox {
-        display: flex;
-        align-items: center;
-        padding: 12px 16px;
-        background: white;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: border-color 0.2s ease, background-color 0.2s ease;
-    }
-
-    .post-checkbox:hover {
-        border-color: #4568dc;
-        background-color: #f8f9ff;
-    }
-
-    .post-checkbox.selected {
-        border-color: #4568dc;
-        background-color: #f0f7ff;
-    }
-
-    .post-checkbox input[type="checkbox"] {
-        margin-right: 12px;
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-    }
-
-    .post-title {
-        font-size: 14px;
-        font-weight: 500;
-        color: #333;
-        flex: 1;
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 32px;
-        gap: 16px;
-    }
-
-    .btn {
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: none;
-        display: inline-block;
-        text-align: center;
-    }
-
-    .btn-secondary {
-        background: #6c757d;
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background: #5a6268;
-        color: white;
-    }
-
-    .btn-danger {
-        background: #dc3545;
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background: #c82333;
-        color: white;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        color: white;
-    }
-
-    .btn-primary:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-
-    .empty-posts {
-        text-align: center;
-        padding: 40px 20px;
-        color: #666;
-    }
-
-    .loading-spinner {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 40px 0;
-    }
-
-    .spinner {
-        border: 3px solid rgba(0, 0, 0, 0.1);
-        border-radius: 50%;
-        border-top: 3px solid #4568dc;
-        width: 30px;
-        height: 30px;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="series-edit-container">
-    <div class="series-edit-header">
-        <h1 class="series-edit-title">시리즈 편집</h1>
-        <p class="series-edit-subtitle">{{ series.name }}</p>
+<div class="max-w-4xl w-full mx-auto px-4 py-6 sm:py-8" x-data="seriesEdit()">
+    <!-- Header -->
+    <div class="text-center mb-8 sm:mb-12">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+            </svg>
+        </div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">시리즈 편집</h1>
+        <p class="text-sm sm:text-base lg:text-lg text-gray-600 max-w-lg mx-auto px-4">시리즈 정보를 수정하고 포함될 글들을 관리해보세요.</p>
     </div>
 
-    <form id="series-edit-form" method="POST">
-        {% csrf_token %}
-        <div class="form-section">
-            <div class="form-group">
-                <label for="series-name" class="form-label">시리즈 이름 *</label>
-                <input 
-                    type="text" 
-                    id="series-name" 
-                    name="title"
-                    class="form-input" 
-                    placeholder="이 시리즈의 이름을 입력해주세요"
-                    maxlength="200"
-                    value="{{ series.name }}"
-                    required
-                >
+    <!-- Current Series Info Card -->
+    <div class="bg-white border border-emerald-200 rounded-xl p-6 mb-8 shadow-sm">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                </svg>
             </div>
-            
-            <div class="form-group">
-                <label for="series-description" class="form-label">시리즈 설명</label>
-                <textarea 
-                    id="series-description" 
-                    name="description"
-                    class="form-input form-textarea" 
-                    placeholder="이 시리즈에는 어떤 내용을 다루고 있나요?"
-                    maxlength="500"
-                >{{ series.text_md }}</textarea>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">{{ series.name }}</h3>
+                <p class="text-sm text-gray-500">현재 편집 중인 시리즈</p>
             </div>
         </div>
+    </div>
 
-        <div class="form-section">
-            <div class="form-section-title">포함할 글 선택</div>
-            <div class="posts-section">
-                {% if is_loading %}
-                    <div class="loading-spinner">
-                        <div class="spinner"></div>
+    <!-- Main Form -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <form @submit.prevent="submitForm()" class="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+            {% csrf_token %}
+            
+            <!-- Series Info Section -->
+            <div class="space-y-6">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
                     </div>
-                {% elif not available_posts %}
-                    <div class="empty-posts">
-                        시리즈에 추가할 수 있는 글이 없습니다.
+                    <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">기본 정보</h2>
+                </div>
+
+                <!-- Title Input -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">시리즈 제목 *</label>
+                    <div class="relative">
+                        <input 
+                            type="text"
+                            x-model="formData.title"
+                            placeholder="시리즈의 제목을 입력해주세요"
+                            maxlength="200"
+                            required
+                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-solid border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 text-base sm:text-lg"
+                            :class="{'border-red-300 focus:border-red-500 focus:ring-red-100': titleError}"
+                        >
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4">
+                            <span class="text-sm text-gray-400" x-text="`${formData.title.length}/200`"></span>
+                        </div>
+                    </div>
+                    <p x-show="titleError" x-text="titleError" class="text-sm text-red-600 mt-1"></p>
+                </div>
+
+                <!-- Description Input -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700">시리즈 설명</label>
+                    <div class="relative">
+                        <textarea 
+                            x-model="formData.description"
+                            placeholder="이 시리즈에서 다루는 내용을 간략하게 설명해주세요"
+                            maxlength="500"
+                            rows="4"
+                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-solid border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none text-base"
+                        ></textarea>
+                        <div class="absolute bottom-3 right-4">
+                            <span class="text-sm text-gray-400" x-text="`${formData.description.length}/500`"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posts Selection Section -->
+            <div class="space-y-6 border-t border-gray-100 pt-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">포함할 글 선택</h2>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <span x-text="selectedPosts.length"></span>개 선택됨
+                    </div>
+                </div>
+
+                {% if not available_posts %}
+                    <!-- Empty State -->
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-12">
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto mb-6 bg-amber-100 rounded-2xl flex items-center justify-center">
+                                <svg class="w-8 h-8 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-amber-900 mb-2">추가할 수 있는 글이 없습니다</h3>
+                            <p class="text-amber-700 mb-4">모든 글이 이미 다른 시리즈에 포함되어 있습니다.</p>
+                            <a href="/write" class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                </svg>
+                                새 글 작성하기
+                            </a>
+                        </div>
                     </div>
                 {% else %}
-                    <div class="posts-grid">
-                        {% for post in available_posts %}
-                        <label class="post-checkbox {% if post.id in current_post_ids %}selected{% endif %}">
-                            <input 
-                                type="checkbox" 
-                                name="post_ids" 
-                                value="{{ post.id }}"
-                                {% if post.id in current_post_ids %}checked{% endif %}
-                            >
-                            <span class="post-title">{{ post.title }}</span>
-                        </label>
-                        {% endfor %}
+                    <!-- Posts Grid -->
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <div class="space-y-3 max-h-80 overflow-y-auto overflow-x-hidden">
+                            {% for post in available_posts %}
+                            <label class="flex items-center p-4 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group w-full"
+                                   :class="selectedPosts.includes({{ post.id }}) ? 'border-indigo-500 bg-indigo-50' : ''">
+                                <input 
+                                    type="checkbox" 
+                                    value="{{ post.id }}"
+                                    x-model="selectedPosts"
+                                    {% if post.id in current_post_ids %}checked{% endif %}
+                                    class="w-5 h-5 flex-shrink-0 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 mr-4"
+                                >
+                                <div class="flex-1 min-w-0 overflow-hidden">
+                                    <p class="text-sm font-medium text-gray-900 truncate group-hover:text-indigo-900">{{ post.title }}</p>
+                                    <p class="text-xs text-gray-500 mt-1 truncate">{{ post.created_date|date:"Y.m.d" }}</p>
+                                </div>
+                                <svg class="w-5 h-5 flex-shrink-0 text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
+                                     :class="selectedPosts.includes({{ post.id }}) ? 'opacity-100' : ''"
+                                     fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </label>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% endif %}
             </div>
-        </div>
 
-        <div class="form-actions">
-            <div>
-                <a href="/@{{ author.username }}/series/{{ series.url }}" class="btn btn-secondary">취소</a>
-                <button type="button" class="btn btn-danger" onclick="deleteSeries()" style="margin-left: 8px;">
-                    시리즈 삭제
+            <!-- Form Actions -->
+            <div class="flex flex-col gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-gray-100">
+                <!-- 메인 액션 버튼 (모바일 우선) -->
+                <div class="order-1">
+                    <button type="submit" 
+                            :disabled="isSubmitting || !formData.title.trim()"
+                            :class="isSubmitting || !formData.title.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg hover:-translate-y-0.5'"
+                            class="w-full px-6 sm:px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold transition-all duration-200 shadow-md disabled:transform-none text-sm sm:text-base">
+                        <span x-show="!isSubmitting" class="flex items-center justify-center">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                            시리즈 수정
+                        </span>
+                        <span x-show="isSubmitting" class="flex items-center justify-center">
+                            <div class="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            수정 중...
+                        </span>
+                    </button>
+                </div>
+                
+                <!-- 보조 액션 버튼들 -->
+                <div class="order-2 flex flex-col sm:flex-row gap-3">
+                    <a href="/@{{ author.username }}/series/{{ series.url }}" 
+                       class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 text-center font-medium text-sm sm:text-base">
+                        취소
+                    </a>
+                    <button type="button" 
+                            @click="showDeleteModal = true"
+                            class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 text-white bg-red-500 hover:bg-red-600 rounded-xl transition-all duration-200 text-center font-medium text-sm sm:text-base">
+                        시리즈 삭제
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div x-show="isSubmitting" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40"
+         style="display: none;">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-6 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <div class="w-8 h-8 border-3 border-emerald-300 border-t-emerald-600 rounded-full animate-spin"></div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">시리즈 수정 중...</h3>
+                <p class="text-gray-600 text-sm">잠시만 기다려주세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div x-show="showDeleteModal" 
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+     style="display: none;">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+        <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+                <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M4 5a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">시리즈를 삭제하시겠습니까?</h3>
+            <p class="text-gray-600 mb-8">이 작업은 되돌릴 수 없습니다.<br>시리즈가 영구적으로 삭제됩니다.</p>
+            
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button @click="showDeleteModal = false"
+                        class="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 font-medium">
+                    취소
+                </button>
+                <button @click="deleteSeries()"
+                        :disabled="isDeleting"
+                        :class="isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-700'"
+                        class="px-6 py-3 bg-red-600 text-white rounded-xl font-medium transition-all duration-200 disabled:transform-none">
+                    <span x-show="!isDeleting">삭제하기</span>
+                    <span x-show="isDeleting" class="flex items-center justify-center">
+                        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        삭제 중...
+                    </span>
                 </button>
             </div>
-            <button type="submit" class="btn btn-primary" id="submit-btn">
-                시리즈 수정
-            </button>
         </div>
-    </form>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div x-show="showSuccessModal" 
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+     style="display: none;">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+        <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+                <svg class="w-10 h-10 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">시리즈가 수정되었습니다!</h3>
+            <p class="text-gray-600 mb-6">변경사항이 성공적으로 저장되었습니다.</p>
+        </div>
+    </div>
 </div>
 
 <script>
-document.getElementById('series-edit-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const submitBtn = document.getElementById('submit-btn');
-    const originalText = submitBtn.textContent;
-    
-    // Get form data
-    const formData = new FormData(e.target);
-    const title = formData.get('title');
-    const description = formData.get('description') || '';
-    const postIds = formData.getAll('post_ids');
-    
-    if (!title) {
-        alert('시리즈 이름을 입력해주세요.');
-        return;
-    }
-    
-    // Disable submit button
-    submitBtn.disabled = true;
-    submitBtn.textContent = '수정 중...';
-    
-    try {
-        const response = await fetch('/v1/users/@{{ author.username }}/series/{{ series.url }}', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
-            },
-            body: JSON.stringify({
-                title: title,
-                description: description,
-                post_ids: postIds.join(',')
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'DONE') {
-            alert('시리즈가 수정되었습니다.');
-            window.location.href = `/@{{ author.username }}/series/${data.body.url}`;
-        } else {
-            throw new Error(data.errorMessage || '시리즈 수정에 실패했습니다.');
-        }
-    } catch (error) {
-        alert(error.message || '시리즈 수정에 실패했습니다.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-    }
-});
+function seriesEdit() {
+    return {
+        formData: {
+            title: '{{ series.name|escapejs }}',
+            description: '{{ series.text_md|escapejs }}'
+        },
+        selectedPosts: [
+            {% for post_id in current_post_ids %}{{ post_id }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        ],
+        isSubmitting: false,
+        isDeleting: false,
+        showDeleteModal: false,
+        showSuccessModal: false,
+        titleError: '',
 
-async function deleteSeries() {
-    if (!confirm('정말 이 시리즈를 삭제할까요? 이 작업은 되돌릴 수 없습니다.')) {
-        return;
-    }
-    
-    try {
-        const response = await fetch('/v1/users/@{{ author.username }}/series/{{ series.url }}', {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+        async submitForm() {
+            this.titleError = '';
+            
+            if (!this.formData.title.trim()) {
+                this.titleError = '시리즈 제목을 입력해주세요.';
+                return;
             }
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'DONE') {
-            alert('시리즈가 삭제되었습니다.');
-            window.location.href = '/@{{ author.username }}/series';
-        } else {
-            throw new Error(data.errorMessage || '시리즈 삭제에 실패했습니다.');
-        }
-    } catch (error) {
-        alert(error.message || '시리즈 삭제에 실패했습니다.');
-    }
-}
 
-// Add visual feedback for checkboxes
-document.addEventListener('change', function(e) {
-    if (e.target.type === 'checkbox' && e.target.name === 'post_ids') {
-        const label = e.target.closest('.post-checkbox');
-        if (e.target.checked) {
-            label.classList.add('selected');
-        } else {
-            label.classList.remove('selected');
+            this.isSubmitting = true;
+
+            try {
+                const response = await fetch('/v1/users/@{{ author.username }}/series/{{ series.url }}', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        title: this.formData.title.trim(),
+                        description: this.formData.description.trim(),
+                        post_ids: this.selectedPosts.length > 0 ? this.selectedPosts.join(',') : ''
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'DONE') {
+                    // URL 변경 없이 현재 페이지에 머물면서 데이터만 업데이트
+                    // 또는 시리즈 상세 페이지로 바로 이동 (edit → view)
+                    window.location.href = `/@{{ author.username }}/series/{{ series.url }}`;
+                } else {
+                    throw new Error(data.errorMessage || '시리즈 수정에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Series update error:', error);
+                const errorMessage = error.message || '시리즈 수정에 실패했습니다.';
+                alert(errorMessage);
+            } finally {
+                this.isSubmitting = false;
+            }
+        },
+
+        async deleteSeries() {
+            this.isDeleting = true;
+
+            try {
+                const response = await fetch('/v1/users/@{{ author.username }}/series/{{ series.url }}', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'DONE') {
+                    // 바로 시리즈 목록으로 이동
+                    window.location.href = '/@{{ author.username }}/series';
+                } else {
+                    throw new Error(data.errorMessage || '시리즈 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Series delete error:', error);
+                const errorMessage = error.message || '시리즈 삭제에 실패했습니다.';
+                alert(errorMessage);
+            } finally {
+                this.isDeleting = false;
+            }
         }
-    }
-});
+    };
+}
 </script>
 {% endblock %}

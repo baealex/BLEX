@@ -1,9 +1,7 @@
 /.idea
 /node_modules
-/backend/src/static/images/
-/backend/src/static/admin/
-/backend/src/static/islands/
-/backend/src/static/graphene_django/
+/backend/src/resources/staticfiles/
+/backend/src/resources/media/
 /frontend/**.env
 /backend/**.env
 
@@ -15,3 +13,4 @@ DockerfileDev
 deploy.overrides.sh
 
 .DS_Store
+

@@ -1,9 +1,9 @@
 export const userResource = (assets?: string) => {
-    if (!assets) return '/assets/images/ghost.jpg';
+    if (!assets) return '/resources/media/images/ghost.jpg';
     return assets;
 };
 
 export const getStaticPath = (resource: string) => {
-    if (resource.startsWith('http')) return resource;
+    if (resource.startsWith(window.configuration.static)) return resource;
     return window.configuration.static + resource;
 };

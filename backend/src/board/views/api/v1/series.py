@@ -111,7 +111,6 @@ def user_series(request, username, url=None):
                 text_md=body.get('description', ''),
                 text_html=body.get('description', ''),
             )
-            series.create_unique_url()
             series.save()
 
             if body.get('post_ids', ''):
@@ -213,7 +212,6 @@ def user_series(request, username, url=None):
                 
             series.name = put.get('title')
             series.text_md = put.get('description')
-            series.create_unique_url()
             series.save()
             
             # Handle post_ids if provided

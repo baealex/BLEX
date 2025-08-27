@@ -162,7 +162,7 @@ const MarkdownEditor: React.FC<EditorProps> = ({
     const editor = useRef<EasyMDE | null>(null);
     const textarea = useRef<HTMLTextAreaElement>(null);
     const imageInput = useRef<HTMLInputElement>(null);
-    const detectPreview = useRef<NodeJS.Timeout | undefined>(undefined);
+    const detectPreview = useRef<number>(undefined);
 
     useEffect(() => {
         if (textarea.current && !editor.current) {
@@ -365,7 +365,7 @@ const MarkdownEditor: React.FC<EditorProps> = ({
             } else {
                 notification('이미지 업로드에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('이미지 업로드에 실패했습니다.', { type: 'error' });
         }
     };

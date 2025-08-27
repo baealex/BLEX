@@ -16,32 +16,61 @@ on:
 jobs:
   backend_ci:
     runs-on: ubuntu-latest
-
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.12]
-
+    
     steps:
     - uses: actions/checkout@v4
 
     - name: Load .env file
       uses: xom9ikk/dotenv@v2.2.0
       with:
-        path: samples/backend
+        path: samples
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
 
-    - name: Install
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
       working-directory: backend/src
 
-    - name: Test
+    - name: Test Backend
       run: |
         python manage.py test --verbosity 2
       working-directory: backend/src
+
+  islands_ci:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js with pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+        cache-dependency-path: backend/islands/pnpm-lock.yaml
+
+    - name: Install Islands dependencies
+      run: pnpm install
+      working-directory: backend/islands
+
+    - name: Lint Islands
+      run: pnpm lint
+      working-directory: backend/islands
+
+    - name: Type check Islands
+      run: pnpm type-check
+      working-directory: backend/islands
+
+    - name: Build Islands
+      run: pnpm run build
+      working-directory: backend/islands

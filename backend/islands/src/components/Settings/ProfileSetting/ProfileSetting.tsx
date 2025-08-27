@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useForm } from 'react-hook-form';
@@ -15,7 +15,7 @@ const profileSchema = z.object({
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
 const ProfileSetting = () => {
-    const [avatar, setAvatar] = useState('/static/assets/images/default-avatar.jpg');
+    const [avatar, setAvatar] = useState('/resources/staticfiles/images/default-avatar.jpg');
     const [isLoading, setIsLoading] = useState(false);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>({ resolver: zodResolver(profileSchema) });
@@ -31,9 +31,9 @@ const ProfileSetting = () => {
         }
     });
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (profileData) {
-            setAvatar(profileData.avatar || '/static/assets/images/default-avatar.jpg');
+            setAvatar(profileData.avatar || '/resources/staticfiles/images/default-avatar.jpg');
             reset({
                 bio: profileData.bio || '',
                 homepage: profileData.homepage || ''
@@ -41,7 +41,7 @@ const ProfileSetting = () => {
         }
     }, [profileData, reset]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (isError) {
             notification('프로필 정보를 불러오는데 실패했습니다.', { type: 'error' });
         }
@@ -54,13 +54,11 @@ const ProfileSetting = () => {
             const params = new URLSearchParams();
             params.append('bio', formData.bio || '');
             params.append('homepage', formData.homepage || '');
-            
+
             const { data } = await http('v1/setting/profile', {
                 method: 'PUT',
                 data: params.toString(),
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
 
             if (data.status === 'DONE') {
@@ -69,7 +67,7 @@ const ProfileSetting = () => {
             } else {
                 notification('프로필 업데이트에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('프로필 업데이트에 실패했습니다.', { type: 'error' });
         } finally {
             setIsLoading(false);
@@ -96,7 +94,7 @@ const ProfileSetting = () => {
             } else {
                 notification('프로필 이미지 업데이트에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('프로필 이미지 업데이트에 실패했습니다.', { type: 'error' });
         }
     };

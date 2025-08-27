@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
         },
 
         build: {
-            outDir: '../src/static/islands',
+            outDir: '../src/resources/staticfiles/islands',
             emptyOutDir: true,
             manifest: true,
             modulePreload: { polyfill: true },

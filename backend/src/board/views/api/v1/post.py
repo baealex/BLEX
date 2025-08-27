@@ -420,7 +420,7 @@ def post_comment_list(request, url):
             'comments': list(map(lambda comment: {
                 'id': comment.id,
                 'author': comment.author_username(),
-                'author_image': comment.author_thumbnail(),
+                'author_image': None if not comment.author else comment.author.profile.get_thumbnail(),
                 'is_edited': comment.edited,
                 'rendered_content': comment.get_text_html(),
                 'created_date': comment.time_since(),

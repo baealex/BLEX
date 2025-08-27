@@ -26,6 +26,16 @@
                         <nav class="p-2">
                             <ul class="space-y-1">
                                 <li>
+                                    <a href="{% url 'setting_dashboard' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
+                                        {% if active == 'dashboard' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
+                                            {% if active == 'dashboard' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
+                                            <i class="fas fa-tachometer-alt {% if active == 'dashboard' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        </div>
+                                        <span class="font-medium">대시보드</span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="{% url 'setting_profile' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
                                         {% if active == 'profile' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
                                         <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
@@ -183,6 +193,18 @@
             
             <nav>
                 <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'setting_dashboard' %}" 
+                           @click="open = false"
+                           class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
+                            {% if active == 'dashboard' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
+                                {% if active == 'dashboard' %}bg-white/20{% else %}bg-slate-100{% endif %}">
+                                <i class="fas fa-tachometer-alt {% if active == 'dashboard' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                            </div>
+                            <span class="font-medium">대시보드</span>
+                        </a>
+                    </li>
                     <li>
                         <a href="{% url 'setting_profile' %}" 
                            @click="open = false"

@@ -1,167 +1,27 @@
 {% extends 'board/base.html' %}
+{% load static %}
+{% load island %}
+{% load humanize %}
 
 {% block title %}로그인 - BLEX{% endblock %}
 
+{% block extra_styles %}
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<script>
+    window.HCAPTCHA_SITE_KEY = '{{ HCAPTCHA_SITE_KEY }}';
+</script>
+<style>
+    island-component {
+        flex: 1;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="flex-1 flex items-center justify-center">
-    <div class="max-w-md w-full space-y-8">
-        <!-- Logo & Title -->
-        <div class="text-center">
-            <div class="mx-auto h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-            <h1 class="text-3xl font-bold text-slate-900 mb-2">
-                다시 오신 것을 환영합니다
-            </h1>
-            <p class="text-slate-600">
-                BLEX에서 새로운 아이디어를 발견해보세요
-            </p>
-        </div>
-
-        <!-- Main Login Card -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 space-y-8">
-            <!-- Social Login -->
-            <div class="space-y-4">
-                <div class="text-center">
-                    <h2 class="text-lg font-semibold text-slate-700 mb-4">간편 로그인</h2>
-                </div>
-                {% include 'components/social_login.html' %}
-            </div>
-
-            <!-- Divider -->
-            <div class="relative">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-slate-300"></div>
-                </div>
-                <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-white text-slate-500 font-medium">
-                        또는 이메일로 계속하기
-                    </span>
-                </div>
-            </div>
-
-            <!-- Email Login Form -->
-            <form class="space-y-6" x-data="{
-                username: '',
-                password: '',
-                usernameError: '',
-                passwordError: '',
-                loginError: '',
-                isLoading: false,
-                async submitForm() {
-                    this.usernameError = '';
-                    this.passwordError = '';
-                    this.loginError = '';
-                    this.isLoading = true;
-
-                    let hasError = false;
-                    if (!this.username) {
-                        this.usernameError = '사용자 이름이 필요합니다.';
-                        hasError = true;
-                    }
-                    if (!this.password) {
-                        this.passwordError = '비밀번호가 필요합니다.';
-                        hasError = true;
-                    }
-
-                    if (hasError) {
-                        this.isLoading = false;
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch('/v1/login', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                            },
-                            body: new URLSearchParams({
-                                'username': this.username,
-                                'password': this.password
-                            })
-                        });
-                        const data = await response.json();
-
-                        if (data.status === 'DONE') {
-                            if (data.body.security) {
-                                window.location.href = '/security';
-                            } else {
-                                window.location.href = '/';
-                            }
-                        } else {
-                            this.loginError = '잘못된 사용자 이름 또는 비밀번호입니다.';
-                        }
-                    } catch (error) {
-                        this.loginError = '오류가 발생했습니다. 다시 시도해주세요.';
-                        console.error('Error:', error);
-                    } finally {
-                        this.isLoading = false;
-                    }
-                }
-            }" @submit.prevent="submitForm">
-                {% csrf_token %}
-                
-                <div class="space-y-5">
-                    <div>
-                        <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">사용자 이름</label>
-                        <input id="username" 
-                               name="username" 
-                               type="text" 
-                               autocomplete="username" 
-                               required
-                               x-model="username"
-                               class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder-slate-500 transition-all duration-200 bg-white/50"
-                               placeholder="사용자 이름을 입력하세요">
-                        <p x-show="usernameError" x-text="usernameError" class="text-red-500 text-sm mt-1.5 font-medium"></p>
-                    </div>
-                    
-                    <div>
-                        <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">비밀번호</label>
-                        <input id="password" 
-                               name="password" 
-                               type="password" 
-                               autocomplete="current-password" 
-                               required
-                               x-model="password"
-                               class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder-slate-500 transition-all duration-200 bg-white/50"
-                               placeholder="비밀번호를 입력하세요">
-                        <p x-show="passwordError" x-text="passwordError" class="text-red-500 text-sm mt-1.5 font-medium"></p>
-                    </div>
-                </div>
-
-                <div x-show="loginError" class="bg-red-50 border border-red-200 rounded-xl p-4">
-                    <p x-text="loginError" class="text-red-700 text-sm font-medium text-center"></p>
-                </div>
-
-                <button type="submit"
-                        :disabled="isLoading"
-                        class="w-full flex items-center justify-center py-3 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                    <svg x-show="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span x-text="isLoading ? '로그인 중...' : '로그인'"></span>
-                </button>
-            </form>
-
-            <!-- Footer Links -->
-            <div class="text-center space-y-4 pt-4 border-t border-slate-200">
-                <p class="text-slate-600">
-                    계정이 없으신가요?
-                    <a href="/sign" class="font-semibold text-blue-600 hover:text-blue-800 transition-colors duration-200 ml-1">
-                        회원가입하기
-                    </a>
-                </p>
-                <div class="flex items-center justify-center space-x-6 text-sm text-slate-500">
-                    <a href="/about" class="hover:text-slate-700 transition-colors">서비스 소개</a>
-                    <a href="/privacy" class="hover:text-slate-700 transition-colors">개인정보처리방침</a>
-                    <a href="/terms" class="hover:text-slate-700 transition-colors">이용약관</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    {% island_component 'Login' %}
+    {% csrf_token %}
 {% endblock %}

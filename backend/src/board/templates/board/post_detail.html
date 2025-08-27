@@ -1,5 +1,5 @@
 {% extends 'board/base.html' %}
-{% load static %}
+{% load resource %}
 {% load island %}
 
 {% block title %}{{ post.title }} - {{ post.author_username }} | BLEX{% endblock %}
@@ -18,7 +18,7 @@
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
 <meta property="og:title" content="{{ post.title }}">
 <meta property="og:description" content="{{ post.meta_description }}">
-{% if post.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static post.image.url %}">{% endif %}
+{% if post.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">{% endif %}
 <meta property="article:published_time" content="{{ post.created_at|date:'c' }}">
 <meta property="article:modified_time" content="{{ post.updated_at|date:'c' }}">
 <meta property="article:author" content="{{ request.scheme }}://{{ request.get_host }}/@{{ post.author_username }}">
@@ -29,7 +29,7 @@
 <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
 <meta property="twitter:title" content="{{ post.title }}">
 <meta property="twitter:description" content="{{ post.meta_description }}">
-{% if post.image %}<meta property="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static post.image.url %}">{% endif %}
+{% if post.image %}<meta property="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">{% endif %}
 
 <!-- Canonical URL -->
 <link rel="canonical" href="{{ request.build_absolute_uri }}">
@@ -47,7 +47,7 @@
         <meta itemprop="datePublished" content="{{ post.created_at|date:'c' }}">
         <meta itemprop="dateModified" content="{{ post.updated_at|date:'c' }}">
         {% if post.image %}
-        <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{% static post.image.url %}">
+        <meta itemprop="image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
         {% endif %}
         
         <!-- 포스트 헤더 -->
@@ -67,7 +67,7 @@
                 <div class="flex items-center gap-2" itemprop="author" itemscope itemtype="https://schema.org/Person">
                     <a href="/@{{ post.author_username }}">
                         <img class="w-8 h-8 rounded-full object-cover" 
-                             src="{% if post.author_image %}{% static post.author_image %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
+                             src="{% media post.author_image %}"
                              alt="{{ post.author_username }}">
                     </a>
                     <a href="/@{{ post.author_username }}" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors" itemprop="name">
@@ -90,7 +90,7 @@
             <!-- 커버 이미지 -->
             {% if post.image %}
             <div class="mt-0">
-                <img class="w-full rounded-xl shadow-sm" src="{% static post.image.url %}" alt="{{ post.title }}" itemprop="image">
+                <img class="w-full rounded-xl shadow-sm" src="{{ post.image.url }}" alt="{{ post.title }}" itemprop="image">
             </div>
             {% endif %}
         </div>
@@ -118,14 +118,14 @@
 
     <!-- 스티키 액션 바 (Alpine.js 사용) -->
     <div x-data="{ shareMessage: '공유' }" class="sticky bottom-0 left-0 right-0 z-40 mb-6 sm:mb-8">
-        <div class="max-w-4xl w-full mx-auto px-2 sm:px-4 py-3 bg-white border-t border-gray-200 rounded-2xl">
+        <div class="max-w-4xl w-full mx-auto px-2 sm:px-4 py-3 bg-white shadow-sm rounded-2xl">
             <div class="flex items-center justify-between">
                 <!-- 왼쪽: 포스트 정보 -->
                 <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                     <div class="flex items-center gap-2 min-w-0">
                         <a href="/@{{ post.author_username }}">
                             <img class="w-8 h-8 rounded-full object-cover flex-shrink-0" 
-                                src="{% if post.author_image %}{% static post.author_image %}{% else %}{% static 'default_avatar.jpg' %}{% endif %}" 
+                                src="{% media post.author_image %}" 
                                 alt="{{ post.author_username }}">
                         </a>
                         <div class="min-w-0 hidden sm:block">
@@ -318,7 +318,7 @@
   },
   "headline": "{{ post.title }}",
   "description": "{{ post.meta_description }}",
-  "image": {% if post.image %}"{{ request.scheme }}://{{ request.get_host }}{% static post.image.url %}"{% else %}null{% endif %},
+  "image": {% if post.image %}"{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}"{% else %}null{% endif %},
   "author": {
     "@type": "Person",
     "name": "{{ post.author_username }}",
@@ -329,7 +329,7 @@
     "name": "BLEX",
     "logo": {
       "@type": "ImageObject",
-      "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'logo.png' %}"
+      "url": "{{ request.scheme }}://{{ request.get_host }}{% resource 'logo.png' %}"
     }
   },
   "datePublished": "{{ post.created_at|date:'c' }}",
