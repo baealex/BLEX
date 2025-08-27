@@ -644,6 +644,14 @@ class Series(models.Model):
 
     def get_absolute_url(self):
         return reverse('series_list', args=[self.owner, self.url])
+    
+    def save(self, *args, **kwargs):
+        # URL이 없거나 새로 생성하는 경우에만 URL 생성
+        if not self.url:
+            self.create_unique_url()
+        # 업데이트 시간 갱신
+        self.updated_date = timezone.now()
+        super(Series, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name

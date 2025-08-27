@@ -27,8 +27,31 @@
     <meta name="application-name" content="BLEX" />
     <meta name="msapplication-TileImage" content="{% resource 'logo144.png' %}" />
     <meta name="msapplication-TileColor" content="#000" />
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     {% block extra_styles %}{% endblock %}
+    <style>
+        @font-face {
+            font-family: 'SpoqaHanSansNeo';
+            src:
+                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.ttf') format('truetype'),
+                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff2') format('woff2'),
+                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'SpoqaHanSansNeo';
+            src:
+                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.ttf') format('truetype'),
+                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff2') format('woff2'),
+                url('/resources/assets/fonts/SpoqaHanSansNeo/SpoqaHanSansNeo-Bold.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -42,7 +65,7 @@
 
     <script>
         window.configuration = {
-            host: "{{ request}}",
+            host: "{{ request }}",
             static: "{% resource '' %}",
             {% if user.is_authenticated %}
             user: {
@@ -105,7 +128,6 @@
             });
         }
     </script>
-
     {% block extra_scripts %}{% endblock %}
 
     {% vite_hmr_client %}

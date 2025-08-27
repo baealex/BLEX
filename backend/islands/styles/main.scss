@@ -3,6 +3,10 @@
 @forward "./forwarded.scss";
 @forward "./tailwind.css";
 
+body {
+    font-family: 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 a {
     text-decoration: none;
     color: inherit;

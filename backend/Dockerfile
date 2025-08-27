@@ -36,7 +36,7 @@ COPY --from=islands-builder /app/src/resources/staticfiles/islands/ /app/resourc
 FROM nginx:alpine AS nginx-stage
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=backend-stage /app/resources/staticfiles/ /resources/staticfiles/
+COPY --from=backend-stage /app/resources/ /resources/
 
 #####
 

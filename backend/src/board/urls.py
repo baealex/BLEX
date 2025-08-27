@@ -30,49 +30,49 @@ def empty():
 
 
 urlpatterns = [
-    path('', staff_member_required(main.index), name='index'),
-    path('search', staff_member_required(search_view), name='search'),
-    path('authors', staff_member_required(authors_view), name='authors'),
-    path('like/<str:url>', staff_member_required(like_post), name='like_post'),
-    path('login', staff_member_required(login_view), name='login'),
-    path('sign', staff_member_required(signup_view), name='signup'),
+    path('', main.index, name='index'),
+    path('search', search_view, name='search'),
+    path('authors', authors_view, name='authors'),
+    path('like/<str:url>', like_post, name='like_post'),
+    path('login', login_view, name='login'),
+    path('sign', signup_view, name='signup'),
     path('login/callback/<str:provider>', oauth_callback, name='oauth_callback'),
-    path('logout', staff_member_required(auth_views.LogoutView.as_view()), name='logout'),
+    path('logout', auth_views.LogoutView.as_view(), name='logout'),
 
     # Static pages
-    path('about', staff_member_required(about_view), name='about'),
-    path('privacy', staff_member_required(privacy_view), name='privacy'),
-    path('terms', staff_member_required(terms_view), name='terms'),
+    path('about', about_view, name='about'),
+    path('privacy', privacy_view, name='privacy'),
+    path('terms', terms_view, name='terms'),
 
     # Settings Pages
-    path('settings/dashboard', staff_member_required(setting_dashboard), name='setting_dashboard'),
-    path('settings/profile', staff_member_required(setting_profile), name='setting_profile'),
-    path('settings/account', staff_member_required(setting_account), name='setting_account'),
-    path('settings/notify', staff_member_required(setting_notify), name='setting_notify'),
-    path('settings/series', staff_member_required(setting_series), name='setting_series'),
-    path('settings/posts', staff_member_required(setting_posts), name='setting_posts'),
-    path('settings/analytics', staff_member_required(setting_analytics), name='setting_analytics'),
-    path('settings/integration', staff_member_required(setting_integration), name='setting_integration'),
-    path('settings/invitation', staff_member_required(setting_invitation), name='setting_invitation'),
-    path('settings/forms', staff_member_required(setting_forms), name='setting_forms'),
+    path('settings/dashboard', setting_dashboard, name='setting_dashboard'),
+    path('settings/profile', setting_profile, name='setting_profile'),
+    path('settings/account', setting_account, name='setting_account'),
+    path('settings/notify', setting_notify, name='setting_notify'),
+    path('settings/series', setting_series, name='setting_series'),
+    path('settings/posts', setting_posts, name='setting_posts'),
+    path('settings/analytics', setting_analytics, name='setting_analytics'),
+    path('settings/integration', setting_integration, name='setting_integration'),
+    path('settings/invitation', setting_invitation, name='setting_invitation'),
+    path('settings/forms', setting_forms, name='setting_forms'),
 
     # Author
-    path('@<username>/series', staff_member_required(author_series), name='user_series'),
-    path('@<username>/series/create', staff_member_required(series_create), name='series_create'),
-    path('@<username>/about', staff_member_required(author_about), name='user_about'),
-    path('@<username>/about/edit', staff_member_required(author_about_edit), name='user_about_edit'),
-    path('@<username>/<post_url>', staff_member_required(post_detail), name='post_detail'),
-    path('@<username>/series/<series_url>', staff_member_required(series_detail), name='series_detail'),
-    path('@<username>/series/<series_url>/edit', staff_member_required(series_edit), name='series_edit'),
-    path('@<username>/<post_url>/edit', staff_member_required(post_editor), name='post_edit'),
-    path('@<username>', staff_member_required(author_posts), name='user_profile'),
+    path('@<username>/series', author_series, name='user_series'),
+    path('@<username>/series/create', series_create, name='series_create'),
+    path('@<username>/about', author_about, name='user_about'),
+    path('@<username>/about/edit', author_about_edit, name='user_about_edit'),
+    path('@<username>/<post_url>', post_detail, name='post_detail'),
+    path('@<username>/series/<series_url>', series_detail, name='series_detail'),
+    path('@<username>/series/<series_url>/edit', series_edit, name='series_edit'),
+    path('@<username>/<post_url>/edit', post_editor, name='post_edit'),
+    path('@<username>', author_posts, name='user_profile'),
 
     # Posts write
-    path('write', staff_member_required(post_editor), name='post_write'),
+    path('write', post_editor, name='post_write'),
 
     # Tags
-    path('tags', staff_member_required(tag_list_view), name='tag_list'),
-    path('tag/<str:name>', staff_member_required(tag_detail_view), name='tag_detail'),
+    path('tags', tag_list_view, name='tag_list'),
+    path('tag/<str:name>', tag_detail_view, name='tag_detail'),
 
     # Sitemap Generator
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
