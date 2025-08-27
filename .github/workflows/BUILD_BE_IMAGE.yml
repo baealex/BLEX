@@ -34,8 +34,7 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           tags: baealex/blex-backend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          no-cache: true
 
       - name: Build and push nginx
         uses: docker/build-push-action@v4
@@ -46,4 +45,4 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           push: true
           tags: baealex/blex-nginx:latest
-          cache-from: type=gha
+          no-cache: true
