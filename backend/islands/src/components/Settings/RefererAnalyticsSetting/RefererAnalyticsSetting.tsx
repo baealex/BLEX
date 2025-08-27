@@ -19,7 +19,6 @@ interface RefererAnalytics {
     referers: RefererItem[];
 }
 
-
 const RefererAnalytics: React.FC = () => {
     const { data: referers, isLoading } = useFetch({
         queryKey: ['setting', 'analytics-referer'],
@@ -60,14 +59,14 @@ const RefererAnalytics: React.FC = () => {
                 </div>
             ) : (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
-                {referers?.referers.length === 0 ? (
-                    <div className="text-center py-12">
-                        <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">신규 유입 경로가 없습니다</h3>
-                        <p className="text-gray-500">아직 외부 사이트에서의 유입이 감지되지 않았습니다.</p>
-                    </div>
+                    {referers?.referers.length === 0 ? (
+                        <div className="text-center py-12">
+                            <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">신규 유입 경로가 없습니다</h3>
+                            <p className="text-gray-500">아직 외부 사이트에서의 유입이 감지되지 않았습니다.</p>
+                        </div>
                 ) : (
                     <div className="space-y-4">
                         {referers?.referers.map((item, index) => (
@@ -75,12 +74,11 @@ const RefererAnalytics: React.FC = () => {
                                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 space-y-2 sm:space-y-0">
                                     <div className="flex-1 min-w-0">
                                         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-                                            <a 
-                                                href={item.url} 
-                                                target="_blank" 
+                                            <a
+                                                href={item.url}
+                                                target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="hover:text-green-600 transition-colors flex items-center break-all sm:break-normal"
-                                            >
+                                                className="hover:text-green-600 transition-colors flex items-center break-all sm:break-normal">
                                                 <span className="truncate">{item.title || item.url}</span>
                                                 <svg className="w-4 h-4 ml-1 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -100,14 +98,13 @@ const RefererAnalytics: React.FC = () => {
                                         {item.time}
                                     </div>
                                 </div>
-                                
+
                                 <div className="border-t border-gray-100 pt-3">
                                     <div className="flex flex-col sm:flex-row sm:items-center text-sm space-y-1 sm:space-y-0">
                                         <span className="text-gray-500 mr-2 flex-shrink-0">연결된 글:</span>
-                                        <a 
-                                            href={`/@${item.posts.author}/${item.posts.url}`} 
-                                            className="font-medium text-green-600 hover:text-green-700 transition-colors flex items-center min-w-0"
-                                        >
+                                        <a
+                                            href={`/@${item.posts.author}/${item.posts.url}`}
+                                            className="font-medium text-green-600 hover:text-green-700 transition-colors flex items-center min-w-0">
                                             <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>

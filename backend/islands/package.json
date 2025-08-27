@@ -5,7 +5,9 @@
     "type": "module",
     "scripts": {
         "dev": "vite dev",
-        "build": "tsc && vite build"
+        "build": "vite build",
+        "lint": "eslint src --ext ts,tsx",
+        "type-check": "tsc --noEmit"
     },
     "dependencies": {
         "@baejino/handy": "^0.2.3",

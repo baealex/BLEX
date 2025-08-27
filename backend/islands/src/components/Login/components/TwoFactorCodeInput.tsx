@@ -21,11 +21,8 @@ const TwoFactorCodeInput: React.FC<TwoFactorCodeInputProps> = ({
         }
     }, [autoFocus]);
 
-    // Expose focus method to parent
     useEffect(() => {
-        (window as any).focusFirstCodeInput = () => {
-            inputRefs.current[0]?.focus();
-        };
+        inputRefs.current[0]?.focus();
     }, []);
 
     return (

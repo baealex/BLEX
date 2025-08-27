@@ -365,7 +365,7 @@ const MarkdownEditor: React.FC<EditorProps> = ({
             } else {
                 notification('이미지 업로드에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('이미지 업로드에 실패했습니다.', { type: 'error' });
         }
     };

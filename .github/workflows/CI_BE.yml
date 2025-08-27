@@ -63,8 +63,12 @@ jobs:
       run: pnpm install
       working-directory: backend/islands
 
+    - name: Lint Islands
+      run: pnpm lint
+      working-directory: backend/islands
+
     - name: Type check Islands
-      run: pnpm run typecheck
+      run: pnpm type-check
       working-directory: backend/islands
 
     - name: Build Islands

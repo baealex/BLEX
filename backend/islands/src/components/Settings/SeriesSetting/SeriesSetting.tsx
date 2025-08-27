@@ -239,9 +239,7 @@ const SeriesSetting = () => {
         if (!seriesItem) return;
 
         try {
-            const { data } = await http(`v1/users/@${username}/series/${seriesItem.url}`, {
-                method: 'DELETE'
-            });
+            const { data } = await http(`v1/users/@${username}/series/${seriesItem.url}`, { method: 'DELETE' });
 
             if (data.status === 'DONE') {
                 setSeries(series.filter(s => s.id !== seriesId));

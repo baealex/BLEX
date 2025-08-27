@@ -86,7 +86,7 @@ const AccountSettings: React.FC = () => {
             } else {
                 notification(data.errorMessage || '아이디 변경에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         } finally {
             setIsUsernameLoading(false);
@@ -107,7 +107,7 @@ const AccountSettings: React.FC = () => {
             } else {
                 notification(data.errorMessage || '이름 업데이트에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         } finally {
             setIsNameLoading(false);
@@ -132,7 +132,7 @@ const AccountSettings: React.FC = () => {
             } else {
                 notification(data.errorMessage || '비밀번호 변경에 실패했습니다.', { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         } finally {
             setIsPasswordLoading(false);
@@ -153,7 +153,7 @@ const AccountSettings: React.FC = () => {
             } else {
                 notification(`2차 인증 ${enable ? '활성화' : '해제'}에 실패했습니다.`, { type: 'error' });
             }
-        } catch (error) {
+        } catch {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         }
     };
@@ -188,7 +188,7 @@ const AccountSettings: React.FC = () => {
                 <h2 className="text-lg sm:text-xl font-bold text-blue-900 mb-2">계정 설정</h2>
                 <p className="text-blue-700">아이디, 이름, 비밀번호 등 계정 정보를 관리하세요.</p>
             </div>
-            
+
             {/* 가입일 */}
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -289,9 +289,9 @@ const AccountSettings: React.FC = () => {
                         </svg>
                         {errorsName.name.message}
                     </p>}
-                    <button 
-                        type="submit" 
-                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
+                    <button
+                        type="submit"
+                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         disabled={isNameLoading}>
                         {isNameLoading ? (
                             <>
@@ -389,9 +389,9 @@ const AccountSettings: React.FC = () => {
                             {errorsPassword.confirmPassword.message}
                         </p>}
                     </div>
-                    <button 
-                        type="submit" 
-                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
+                    <button
+                        type="submit"
+                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         disabled={isPasswordLoading}>
                         {isPasswordLoading ? (
                             <>
