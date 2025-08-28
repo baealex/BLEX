@@ -135,4 +135,6 @@ urlpatterns = [
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),
     path('v1/telegram/<parameter>', api_v1.telegram),
+    path('v1/dashboard/stats', api_v1.dashboard_stats),
+    path('v1/dashboard/activities', api_v1.dashboard_activities),
 ]
