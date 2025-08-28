@@ -52,6 +52,10 @@
         }
     </style>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    {% if CUSTOM_HEAD_SCRIPTS %}
+        {{ CUSTOM_HEAD_SCRIPTS|safe }}
+    {% endif %}
 </head>
 
 <body class="bg-gray-50">
@@ -132,6 +136,10 @@
 
     {% vite_hmr_client %}
     <script type="module" src="{% island_entry 'src/island.tsx' %}"></script>
+    
+    {% if CUSTOM_BODY_SCRIPTS %}
+        {{ CUSTOM_BODY_SCRIPTS|safe }}
+    {% endif %}
 </body>
 
 </html>
