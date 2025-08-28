@@ -2,3 +2,8 @@ User-agent: *
 Allow: /
 Disallow: /*.preview.jpg
 Disallow: /*.minify.*
+Disallow: /settings/
+Disallow: /write
+Disallow: /v1/
+
+Sitemap: https://blex.me/sitemap.xml
