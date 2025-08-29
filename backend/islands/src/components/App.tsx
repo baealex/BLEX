@@ -15,6 +15,10 @@ const LazyComponents = {
     SocialLogin: lazy(() => import('./SocialLogin')),
     InvitationRequest: lazy(() => import('./InvitationRequest')),
 
+    // Dashboard
+    DashboardStats: lazy(() => import('./DashboardStats')),
+    DashboardActivities: lazy(() => import('./DashboardActivities')),
+
     // Settings
     FormsSetting: lazy(() => import('./Settings/FormsSetting')),
     IntegrationSetting: lazy(() => import('./Settings/IntegrationSetting')),
