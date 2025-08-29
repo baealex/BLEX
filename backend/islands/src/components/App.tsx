@@ -10,6 +10,7 @@ const LazyComponents = {
     LikeButton: lazy(() => import('./LikeButton')),
     Comments: lazy(() => import('./Comments')),
     MarkdownEditor: lazy(() => import('./MarkdownEditor')),
+    PostEditor: lazy(() => import('./PostEditor')),
     Heatmap: lazy(() => import('./Heatmap')),
     Login: lazy(() => import('./Login')),
     SocialLogin: lazy(() => import('./SocialLogin')),
@@ -30,6 +31,7 @@ const LazyComponents = {
     NotifySetting: lazy(() => import('./Settings/NotifySetting')),
     AccountSetting: lazy(() => import('./Settings/AccountSetting')),
     ProfileSetting: lazy(() => import('./Settings/ProfileSetting')),
+    TempPostsSetting: lazy(() => import('./Settings/TempPostsSetting')),
     SocialLinksSetting: lazy(() => import('./Settings/SocialLinksSetting'))
 };
 

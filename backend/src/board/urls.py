@@ -21,7 +21,7 @@ from board.views.static_pages import about_view, privacy_view, terms_view
 from board.views.settings import (
     setting_dashboard, setting_profile, setting_account, setting_notify, setting_series,
     setting_posts, setting_analytics,
-    setting_integration, setting_invitation, setting_forms
+    setting_integration, setting_invitation, setting_forms, setting_temp_posts
 )
 from board.decorators import staff_member_required
 
@@ -55,6 +55,7 @@ urlpatterns = [
     path('settings/integration', setting_integration, name='setting_integration'),
     path('settings/invitation', setting_invitation, name='setting_invitation'),
     path('settings/forms', setting_forms, name='setting_forms'),
+    path('settings/temp-posts', setting_temp_posts, name='setting_temp_posts'),
 
     # Author
     path('@<username>/series', author_series, name='user_series'),

@@ -192,7 +192,17 @@ def post_editor(request, username=None, post_url=None):
         if not has_invitation:
             return render(request, 'board/invitation_required.html')
     post = None
+    temp_post = None
     series_list = []
+    
+    # Check for temp post token
+    temp_token = request.GET.get('temp_token') or request.GET.get('tempToken')
+    if temp_token and not is_edit:
+        try:
+            from board.models import TempPosts
+            temp_post = TempPosts.objects.get(token=temp_token, author=request.user)
+        except TempPosts.DoesNotExist:
+            pass
     
     # If editing an existing post
     if is_edit:
@@ -285,17 +295,17 @@ def post_editor(request, username=None, post_url=None):
             
             messages.success(request, 'Post has been updated successfully.')
         else:
-            # Generate unique URL for new post
-            unique_url = url or generate_unique_url(title, request.user)
-            
-            # Create the post first
-            post = Post.objects.create(
+            # Create the post first without URL
+            post = Post(
                 title=title,
-                url=unique_url,
                 meta_description=meta_description,
                 author=request.user,
                 series=series
             )
+            
+            # Generate unique URL using Post model's method
+            post.create_unique_url(url)
+            post.save()
             
             # Handle image upload
             if 'image' in request.FILES:
@@ -325,10 +335,19 @@ def post_editor(request, username=None, post_url=None):
         # If it's a draft and this is a new post, redirect to edit mode
         if is_draft and not is_edit:
             messages.success(request, '게시글이 임시저장되었습니다.')
-            return redirect('post_editor', username=request.user.username, post_url=post.url)
+            return redirect('post_edit', username=request.user.username, post_url=post.url)
         elif is_draft and is_edit:
             messages.success(request, '게시글이 임시저장되었습니다.')
-            return redirect('post_editor', username=request.user.username, post_url=post.url)
+            return redirect('post_edit', username=request.user.username, post_url=post.url)
+        
+        # 임시저장 토큰이 있으면 임시글 삭제
+        temp_token = request.POST.get('temp_token')
+        if temp_token:
+            try:
+                temp_post_to_delete = TempPosts.objects.get(token=temp_token, author=request.user)
+                temp_post_to_delete.delete()
+            except TempPosts.DoesNotExist:
+                pass
         
         # Redirect to the post detail page
         return redirect('post_detail', username=request.user.username, post_url=post.url)
@@ -336,7 +355,8 @@ def post_editor(request, username=None, post_url=None):
     context = {
         'is_edit': is_edit,
         'post': post,
+        'temp_post': temp_post,
         'series_list': series_list,
     }
     
-    return render(request, 'board/post_editor.html', context)
+    return render(request, 'board/post_editor_react.html', context)

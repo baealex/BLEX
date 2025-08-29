@@ -43,6 +43,7 @@ interface FilterOptions {
     series: string;
     order: string;
     page: string;
+    status: string;
 }
 
 const POSTS_ORDER = [

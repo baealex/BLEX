@@ -120,3 +120,15 @@ def setting_forms(request):
         'active': 'forms'
     }
     return render(request, 'board/setting/setting_forms.html', context)
+
+
+@login_required
+def setting_temp_posts(request):
+    """
+    Temporary posts management page view.
+    Renders the temporary posts management template with user's saved drafts.
+    """
+    context = {
+        'active': 'temp_posts'
+    }
+    return render(request, 'board/setting/setting_temp_posts.html', context)
