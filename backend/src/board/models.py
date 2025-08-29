@@ -330,7 +330,17 @@ class Post(models.Model):
             return settings.RESOURCE_URL + 'assets/images/default-cover-1.jpg'
 
     def is_published(self):
-        return self.created_date < timezone.now()
+        try:
+            # Handle case where created_date might not be a datetime object
+            if isinstance(self.created_date, str):
+                from dateutil import parser
+                created_date = parser.parse(self.created_date)
+            else:
+                created_date = self.created_date
+            return created_date < timezone.now()
+        except (ValueError, TypeError, AttributeError) as e:
+            # If we can't parse the date, assume it's published to be safe
+            return True
 
     def time_stamp(self):
         return time_stamp(self.created_date)

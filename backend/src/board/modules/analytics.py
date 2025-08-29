@@ -119,11 +119,13 @@ def get_network_addr(request):
 
 
 def view_count(post: Post, request, ip, user_agent, referrer):
-    # Skip if author viewing own post
     if request.user.is_authenticated and post.author == request.user:
         return
 
-    if post.config.hide or not post.is_published():
+    if post.config.hide:
+        return
+    
+    if not post.is_published():
         return
 
     if ip and user_agent:
@@ -178,6 +180,8 @@ def has_valid_referer(referer):
 
 
 def create_device(ip, user_agent):
+    if not ip:
+        return None
     key = get_sha256(ip)
 
     device = Device.objects.filter(key=key)
@@ -206,7 +210,10 @@ def create_device(ip, user_agent):
 
 def create_viewer(post, ip, user_agent):
     device = create_device(ip, user_agent)
-
+    
+    if not device:
+        return
+    
     if 'bot' not in device.category:
         today = timezone.now().date()
         today_analytics, _ = PostAnalytics.objects.get_or_create(
