@@ -1,3 +1,5 @@
+import traceback
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.db.models import Count, F, Exists, OuterRef
@@ -153,20 +155,17 @@ def post_detail(request, username, post_url):
         user_ip = get_network_addr(request)
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         referrer = request.META.get('HTTP_REFERER', '')
-        
-        # Only collect analytics if not the author viewing their own post
+
         if not request.user.is_authenticated or request.user != post.author:
             view_count(
                 post=post,
                 request=request,
                 ip=user_ip,
                 user_agent=user_agent,
-                referer=referrer
+                referrer=referrer
             )
-    except Exception:
-        # Log error but don't break the view
-        # Could add proper logging here if needed
-        pass
+    except Exception as e:
+        traceback.print_exc()
 
     context = {
         'post': post,

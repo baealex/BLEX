@@ -5,9 +5,9 @@
 {% block title %}{% block setting_title %}설정{% endblock %} | BLEX{% endblock %}
 
 {% block content %}
-<div class="container mx-auto">
-    <div class="max-w-7xl w-full mx-auto">
-        <div class="flex flex-col xl:flex-row gap-8">
+<div class="container mx-auto min-w-0 overflow-hidden">
+    <div class="max-w-7xl w-full mx-auto min-w-0">
+        <div class="flex flex-col xl:flex-row gap-8 min-w-0">
             <!-- 사이드바 네비게이션 -->
             <aside class="xl:w-80 order-2 xl:order-1 hidden xl:block">
                 <div class="sticky top-8">
@@ -146,7 +146,7 @@
                 </div>
             </aside>
             <!-- 메인 콘텐츠 영역 -->
-            <main class="flex-1 order-1 xl:order-2">
+            <main class="flex-1 order-1 xl:order-2 min-w-0">
                 {% block setting_content %}{% endblock %}
             </main>
         </div>
