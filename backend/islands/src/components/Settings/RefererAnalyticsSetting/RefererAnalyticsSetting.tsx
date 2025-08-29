@@ -70,16 +70,16 @@ const RefererAnalytics: React.FC = () => {
                 ) : (
                     <div className="space-y-4">
                         {referers?.referers.map((item, index) => (
-                            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow">
+                            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 space-y-2 sm:space-y-0">
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                                    <div className="flex-1 min-w-0 overflow-hidden">
+                                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 overflow-hidden">
                                             <a
                                                 href={item.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="hover:text-green-600 transition-colors flex items-center break-words">
-                                                <span className="truncate">{item.title || item.url}</span>
+                                                className="hover:text-green-600 transition-colors flex items-center min-w-0 w-full">
+                                                <span className="truncate flex-1 min-w-0">{item.title || item.url}</span>
                                                 <svg className="w-4 h-4 ml-1 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                                                 </svg>
@@ -100,15 +100,15 @@ const RefererAnalytics: React.FC = () => {
                                 </div>
 
                                 <div className="border-t border-gray-100 pt-3">
-                                    <div className="flex flex-col sm:flex-row sm:items-center text-sm space-y-1 sm:space-y-0">
+                                    <div className="flex flex-col sm:flex-row sm:items-center text-sm space-y-1 sm:space-y-0 overflow-hidden">
                                         <span className="text-gray-500 mr-2 flex-shrink-0">연결된 글:</span>
                                         <a
                                             href={`/@${item.posts.author}/${item.posts.url}`}
-                                            className="font-medium text-green-600 hover:text-green-700 transition-colors flex items-center min-w-0">
+                                            className="font-medium text-green-600 hover:text-green-700 transition-colors flex items-center min-w-0 overflow-hidden">
                                             <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <span className="truncate">{item.posts.title}</span>
+                                            <span className="truncate flex-1 min-w-0">{item.posts.title}</span>
                                         </a>
                                     </div>
                                 </div>
