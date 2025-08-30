@@ -35,16 +35,8 @@ COPY --from=islands-builder /app/src/resources/staticfiles/islands/ /app/resourc
 
 FROM nginx:alpine AS nginx-stage
 
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=backend-stage /app/resources/ /resources/
-
-RUN echo '#!/bin/sh' > /entrypoint.sh && \
-    echo 'envsubst "\$BACKEND_HOST" < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf' >> /entrypoint.sh && \
-    echo 'exec nginx -g "daemon off;"' >> /entrypoint.sh && \
-    chmod +x /entrypoint.sh
-
-COPY ./nginx.conf.template /etc/nginx/nginx.conf.template
-
-ENTRYPOINT ["/entrypoint.sh"]
 
 #####
 

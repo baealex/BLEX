@@ -20,8 +20,6 @@ services:
       - 20002:80
     depends_on:
       - backend-blue
-    environment:
-      - BACKEND_HOST=backend-blue
     networks:
       - blex-network
 
