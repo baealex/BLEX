@@ -120,9 +120,9 @@ class PostTestCase(TestCase):
         post = Post.objects.get(url='test-post-1')
         response = self.client.post('/v1/users/@author/posts/test-post-1', {
             'title': f'{post.title} Updated',
-            'text_md': post.content.text_md,
-            'hide': post.config.hide,
-            'advertise': post.config.advertise,
+            'text_html': post.content.text_html,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
         })
 
         post.refresh_from_db()
@@ -165,7 +165,7 @@ class PostTestCase(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        self.assertEqual(len(content['body']['url']),
+        self.assertEqual(len(content['url']),
                          len('test-post-1-00000000'))
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
@@ -182,7 +182,7 @@ class PostTestCase(TestCase):
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content['body']['url'], 'custom-url')
+        self.assertEqual(content['url'], 'custom-url')
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post(self, mock_service):
@@ -197,7 +197,7 @@ class PostTestCase(TestCase):
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content['body']['url'], 'test-post-1000')
+        self.assertEqual(content['url'], 'test-post-1000')
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_with_not_logged_in_user(self, return_value):
@@ -248,7 +248,7 @@ class PostTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        self.assertEqual(content['body']['url'], 'test-reserved-post')
+        self.assertEqual(content['url'], 'test-reserved-post')
 
         params = {'mode': 'view'}
         response = self.client.get(
@@ -289,7 +289,7 @@ class PostTestCase(TestCase):
             'is_advertise': False,
         })
         content = json.loads(response.content)
-        post = Post.objects.get(url=content['body']['url'])
+        post = Post.objects.get(url=content['url'])
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.meta_description, 'Mocked Text')
@@ -306,7 +306,7 @@ class PostTestCase(TestCase):
             'description': 'Custom Description'
         })
         content = json.loads(response.content)
-        post = Post.objects.get(url=content['body']['url'])
+        post = Post.objects.get(url=content['url'])
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.meta_description, 'Custom Description')

@@ -179,7 +179,8 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
 
         # 과거의 유저네임 변경 기록이 남아있는지 확인
-        log = UsernameChangeLog.objects.get(user=self.user)
+        user = User.objects.get(username='test2')
+        log = UsernameChangeLog.objects.get(user=user)
         self.assertEqual(log.username, 'test')
         self.assertEqual(log.user.username, 'test2')
 
