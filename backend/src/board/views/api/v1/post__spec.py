@@ -159,13 +159,13 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        self.assertEqual(len(content['url']),
+        self.assertEqual(len(content['body']['url']),
                          len('test-post-1-00000000'))
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
@@ -174,7 +174,7 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
             'url': 'custom-url'
@@ -182,7 +182,7 @@ class PostTestCase(TestCase):
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content['url'], 'custom-url')
+        self.assertEqual(content['body']['url'], 'custom-url')
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post(self, mock_service):
@@ -190,20 +190,20 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1000',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content['url'], 'test-post-1000')
+        self.assertEqual(content['body']['url'], 'test-post-1000')
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_post_with_not_logged_in_user(self, return_value):
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
@@ -216,7 +216,7 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': '',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
@@ -228,7 +228,7 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '',
+            'text_html': '',
             'is_hide': False,
             'is_advertise': False,
         })
@@ -240,7 +240,7 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Reserved Post',
-            'text_md': '# Test Reserved Post',
+            'text_html': '# Test Reserved Post',
             'is_hide': False,
             'is_advertise': False,
             'reserved_date': f"{(datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')}T12:00:00.000Z"
@@ -248,7 +248,7 @@ class PostTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        self.assertEqual(content['url'], 'test-reserved-post')
+        self.assertEqual(content['body']['url'], 'test-reserved-post')
 
         params = {'mode': 'view'}
         response = self.client.get(
@@ -271,7 +271,7 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Reserved Post',
-            'text_md': '# Test Reserved Post',
+            'text_html': '# Test Reserved Post',
             'is_hide': False,
             'is_advertise': False,
             'reserved_date': f"{(datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')}T12:00:00.000Z"
@@ -284,12 +284,12 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
         content = json.loads(response.content)
-        post = Post.objects.get(url=content['url'])
+        post = Post.objects.get(url=content['body']['url'])
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.meta_description, 'Mocked Text')
@@ -300,13 +300,13 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
             'description': 'Custom Description'
         })
         content = json.loads(response.content)
-        post = Post.objects.get(url=content['url'])
+        post = Post.objects.get(url=content['body']['url'])
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.meta_description, 'Custom Description')
@@ -317,7 +317,7 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
             'description': 'Custom Description'

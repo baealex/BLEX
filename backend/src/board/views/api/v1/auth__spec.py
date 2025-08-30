@@ -165,7 +165,7 @@ class AuthTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
