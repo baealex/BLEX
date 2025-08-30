@@ -29,7 +29,7 @@ def image(request):
 
         if image_cache.exists():
             return StatusDone({
-                'url': '/' + image_cache.first().path,
+                'url': settings.MEDIA_URL + image_cache.first().path,
             })
 
         image_cache = ImageCache(
@@ -119,10 +119,10 @@ def image(request):
             except:
                 return StatusError(ErrorCode.REJECT, '이미지 업로드를 실패했습니다.')
         image_cache.path = upload_path.replace(
-            'static/', '') + file_name + '.' + ext
+            'resources/media/', '') + file_name + '.' + ext
         image_cache.save()
         return StatusDone({
-            'url': '/' + image_cache.path,
+            'url': settings.MEDIA_URL + image_cache.path,
         })
 
     raise Http404
