@@ -59,7 +59,7 @@ def authors_view(request):
                 'username': user.username,
                 'name': user.first_name,
                 'bio': user.profile.bio if hasattr(user, 'profile') and user.profile else '',
-                'avatar': user.avatar if hasattr(user, 'avatar') and user.avatar else '/static/images/default-avatar.png',
+                'avatar': user.avatar if hasattr(user, 'avatar') and user.avatar else '/resources/assets/images/default-avatar.png',
                 'post_count': user.post_count,
                 'follower_count': user.follower_count or 0,
             })

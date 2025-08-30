@@ -36,14 +36,13 @@ def post_list(request):
             return StatusError(ErrorCode.VALIDATE, '작성 권한이 없습니다.')
 
         title = request.POST.get('title', '')
-        text_md = request.POST.get('text_md', '')
+        text_html = request.POST.get('text_html', '')
 
         if not title:
             return StatusError(ErrorCode.VALIDATE, '제목을 입력해주세요.')
-        if not text_md:
+        if not text_html:
             return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
 
-        text_html = markdown.parse_to_html(text_md)
         read_time = calc_read_time(text_html)
 
         post = Post()
@@ -92,7 +91,7 @@ def post_list(request):
 
         post_content = PostContent.objects.create(
             post=post,
-            text_md=text_md,
+            text_md=text_html,  # Store HTML in both fields for compatibility
             text_html=text_html
         )
 
@@ -586,14 +585,16 @@ def user_posts(request, username, url=None):
                 return StatusDone({
                     'image': post.get_thumbnail(),
                     'title': post.title,
+                    'url': post.url,
                     'description': post.meta_description,
                     'series': {
-                        'url': post.series.url,
+                        'id': str(post.series.id),
                         'name': post.series.name,
                     } if post.series else None,
-                    'text_md': post.content.text_md,
+                    'text_html': post.content.text_html,  # Now sending HTML instead of markdown
                     'tags': post.tagging(),
                     'is_hide': post.config.hide,
+                    'is_notice': post.config.notice,
                     'is_advertise': post.config.advertise
                 })
 
@@ -631,14 +632,13 @@ def user_posts(request, username, url=None):
                 raise Http404
 
             title = request.POST.get('title', '')
-            text_md = request.POST.get('text_md', '')
+            text_html = request.POST.get('text_html', '')
 
             if not title:
                 return StatusError(ErrorCode.VALIDATE, '제목을 입력해주세요.')
-            if not text_md:
+            if not text_html:
                 return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
 
-            text_html = markdown.parse_to_html(text_md)
             read_time = calc_read_time(text_html)
 
             post.title = title
@@ -665,7 +665,6 @@ def user_posts(request, username, url=None):
                 pass
 
             post_content = post.content
-            post_content.text_md = request.POST.get('text_md', '')
             post_content.text_html = text_html
             post_content.save()
 

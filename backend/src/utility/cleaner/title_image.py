@@ -5,7 +5,7 @@ import django
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-TITLE_IMAGE_DIR   = BASE_DIR + '/static/images/title'
+TITLE_IMAGE_DIR   = BASE_DIR + '/resources/media/images/title'
 
 sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')

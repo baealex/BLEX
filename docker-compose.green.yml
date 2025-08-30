@@ -1,7 +1,7 @@
 version: "2.1"
 
 services:
-  backend-blue:
+  backend-green:
     image: baealex/blex-backend
     env_file: ./backend/.env
     restart: always
@@ -11,15 +11,15 @@ services:
     networks:
       - blex-network
 
-  nginx-blue:
+  nginx-green:
     image: baealex/blex-nginx
     restart: always
     volumes:
       - ./backend/src/resources/media:/resources/media
     ports:
-      - 20002:80
+      - 20012:80
     depends_on:
-      - backend-blue
+      - backend-green
     networks:
       - blex-network
 

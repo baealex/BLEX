@@ -8,7 +8,7 @@ from itertools import chain
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-CONTENT_IMAGE_DIR = BASE_DIR + '/static/images/content'
+CONTENT_IMAGE_DIR = BASE_DIR + '/resources/media/images/content'
 
 sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')

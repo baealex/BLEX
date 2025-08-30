@@ -91,7 +91,9 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const image = entry.target;
-                        image.src = image.dataset.src;
+                        if (image.dataset.src) {
+                            image.src = image.dataset.src;
+                        }
                         image.classList.remove('lazy');
                         imageObserver.unobserve(image);
                     }
@@ -108,8 +110,10 @@
                     if (entry.isIntersecting) {
                         const video = entry.target;
                         const source = video.querySelector('source');
-                        source.src = source.dataset.src;
-                        video.load();
+                        if (source.dataset.src) {
+                            source.src = source.dataset.src;
+                            video.load();
+                        }
                         video.classList.remove('lazy');
                         videoObserver.unobserve(video);
                     }

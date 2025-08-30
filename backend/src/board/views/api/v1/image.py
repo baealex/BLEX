@@ -29,7 +29,7 @@ def image(request):
 
         if image_cache.exists():
             return StatusDone({
-                'url': settings.MEDIA_URL + image_cache.first().path,
+                'url': '/' + image_cache.first().path,
             })
 
         image_cache = ImageCache(
@@ -43,7 +43,8 @@ def image(request):
 
         dt = datetime.datetime.now()
         upload_path = make_path([
-            'static',
+            'resources',
+            'media',
             'images',
             'content',
             str(dt.year),
@@ -121,7 +122,7 @@ def image(request):
             'static/', '') + file_name + '.' + ext
         image_cache.save()
         return StatusDone({
-            'url': settings.MEDIA_URL + image_cache.path,
+            'url': '/' + image_cache.path,
         })
 
     raise Http404

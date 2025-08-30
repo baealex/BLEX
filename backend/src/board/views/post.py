@@ -235,8 +235,8 @@ def post_editor(request, username=None, post_url=None):
         # Get form data
         title = request.POST.get('title')
         url = request.POST.get('url')
-        text_md = request.POST.get('text_md')
-        text_html = markdown.parse_to_html(text_md)
+        text_html = request.POST.get('text_md')  # Now receiving HTML directly from editor
+        text_md = text_html  # Keep text_md for backward compatibility, but it's now HTML
         meta_description = request.POST.get('meta_description', '')
         tags_str = request.POST.get('tags', '')
         series_id = request.POST.get('series', '')
@@ -342,12 +342,17 @@ def post_editor(request, username=None, post_url=None):
         
         # 임시저장 토큰이 있으면 임시글 삭제
         temp_token = request.POST.get('temp_token')
+        print(f"[DEBUG] POST 데이터: {dict(request.POST)}")
+        print(f"[DEBUG] temp_token 값: {temp_token}")
         if temp_token:
             try:
                 temp_post_to_delete = TempPosts.objects.get(token=temp_token, author=request.user)
                 temp_post_to_delete.delete()
+                print(f"[DEBUG] 임시저장 데이터 삭제 성공: {temp_token}")
             except TempPosts.DoesNotExist:
-                pass
+                print(f"[DEBUG] 임시저장 데이터를 찾을 수 없음: {temp_token}")
+        else:
+            print("[DEBUG] temp_token이 POST 데이터에 없음")
         
         # Redirect to the post detail page
         return redirect('post_detail', username=request.user.username, post_url=post.url)
@@ -359,4 +364,4 @@ def post_editor(request, username=None, post_url=None):
         'series_list': series_list,
     }
     
-    return render(request, 'board/post_editor_react.html', context)
+    return render(request, 'board/post_editor.html', context)

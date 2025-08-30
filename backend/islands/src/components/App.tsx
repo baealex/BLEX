@@ -9,7 +9,6 @@ interface AppProps {
 const LazyComponents = {
     LikeButton: lazy(() => import('./LikeButton')),
     Comments: lazy(() => import('./Comments')),
-    MarkdownEditor: lazy(() => import('./MarkdownEditor')),
     PostEditor: lazy(() => import('./PostEditor')),
     Heatmap: lazy(() => import('./Heatmap')),
     Login: lazy(() => import('./Login')),
