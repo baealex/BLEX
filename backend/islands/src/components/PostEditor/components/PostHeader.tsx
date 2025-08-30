@@ -1,10 +1,13 @@
 import React from 'react';
+import AutoSaveStatus from './AutoSaveStatus';
 
 interface PostHeaderProps {
     mode: 'new' | 'edit' | 'temp';
     isSaving: boolean;
     isSubmitting: boolean;
     lastSaved: Date | null;
+    nextSaveIn?: number;
+    saveProgress?: number;
     onManualSave: () => void;
     onSubmit: () => void;
 }
@@ -14,6 +17,8 @@ const PostHeader: React.FC<PostHeaderProps> = ({
     isSaving,
     isSubmitting,
     lastSaved,
+    nextSaveIn = 0,
+    saveProgress = 0,
     onManualSave,
     onSubmit
 }) => {
@@ -27,27 +32,13 @@ const PostHeader: React.FC<PostHeaderProps> = ({
                 </h1>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     {/* Auto-save status */}
-                    {(isSaving || lastSaved) && (
-                        <div className="flex items-center gap-2 text-sm text-slate-500">
-                            {isSaving ? (
-                                <>
-                                    <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
-                                    <span>저장 중...</span>
-                                </>
-                            ) : lastSaved ? (
-                                <>
-                                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    <span>
-                                        {lastSaved.toLocaleTimeString('ko-KR', {
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })} 자동저장됨
-                                    </span>
-                                </>
-                            ) : null}
-                        </div>
+                    {!isEdit && (
+                        <AutoSaveStatus
+                            isSaving={isSaving}
+                            lastSaved={lastSaved}
+                            nextSaveIn={nextSaveIn}
+                            saveProgress={saveProgress}
+                        />
                     )}
 
                     {!isEdit && (

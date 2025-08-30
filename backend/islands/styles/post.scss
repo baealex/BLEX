@@ -1,3 +1,5 @@
+@forward 'highlight.js/styles/github.css';
+
 .blog-post-content {
     max-width: 100%;
     font-size: 1.1rem;
@@ -54,7 +56,12 @@
     // Links
     a {
         text-decoration: none;
-        color: #000;
+        color: #2563eb;
+        
+        &:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
     }
 
     // Lists
@@ -104,6 +111,19 @@
     }
 
     // Code blocks
+    .code-block-wrapper {
+        border: 1px solid #e1e4e8;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+
+        .code-block-header {
+            background: #f6f8fa;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e1e4e8;
+            font-size: 0.875rem;
+        }
+    }
+
     pre {
         overflow-x: auto;
         background-color: #f8f9fa;
@@ -123,6 +143,19 @@
             background-color: transparent;
             white-space: pre-wrap;
             word-break: break-all;
+        }
+    }
+
+    // code-block-wrapper 안의 pre는 다른 스타일 적용
+    .code-block-wrapper pre {
+        margin: 0;
+        border-radius: 0 0 8px 8px;
+        border: none;
+        padding: 16px;
+        
+        code {
+            background-color: transparent;
+            padding: 0;
         }
     }
 

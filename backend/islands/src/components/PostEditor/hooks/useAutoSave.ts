@@ -4,19 +4,14 @@ import { http } from '~/modules/http.module';
 interface AutoSaveData {
     title: string;
     content: string;
-    tags: string[];
-    metaDescription: string;
-    url: string;
-    seriesId: string;
-    hide: boolean;
-    notice: boolean;
-    advertise: boolean;
+    tags: string;
 }
 
 interface UseAutoSaveOptions {
     enabled: boolean;
     intervalMs?: number;
     getCsrfToken: () => string;
+    tempToken?: string;
     onSuccess?: (token?: string) => void;
     onError?: (error: Error) => void;
 }
@@ -24,80 +19,132 @@ interface UseAutoSaveOptions {
 export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-    const autoSaveRef = useRef<number | null>(null);
-    const {
-        enabled,
-        intervalMs = 30000,
-        getCsrfToken,
-        onSuccess,
-        onError
-    } = options;
+    const [nextSaveIn, setNextSaveIn] = useState<number>(0);
+    const [saveProgress, setSaveProgress] = useState<number>(0);
 
-    const performAutoSave = useCallback(async () => {
-        if (isSaving || !enabled) return;
+    const autoSaveRef = useRef<number | null>(null);
+    const countdownRef = useRef<number | null>(null);
+    const progressRef = useRef<number | null>(null);
+    const dataRef = useRef(data);
+    const optionsRef = useRef(options);
+    const prevDataStringRef = useRef<string>(JSON.stringify({
+        title: data.title,
+        content: data.content,
+        tags: data.tags
+    }));
+
+    // Keep refs updated
+    dataRef.current = data;
+    optionsRef.current = options;
+
+    const { intervalMs = 10000 } = options;
+
+    // Serialize only the auto-save relevant data
+    const currentDataString = JSON.stringify({
+        title: data.title,
+        content: data.content,
+        tags: data.tags
+    });
+
+    // Manual save
+    const manualSave = useCallback(async () => {
+        const currentData = dataRef.current;
+        const currentOptions = optionsRef.current;
+
+        if (isSaving || !currentOptions.enabled) return;
 
         setIsSaving(true);
         try {
-            const tempData = {
-                title: data.title || '제목 없음',
-                content: data.content,
-                tags: data.tags,
-                meta_description: data.metaDescription,
-                url: data.url,
-                series: data.seriesId || '',
-                hide: data.hide,
-                notice: data.notice,
-                advertise: data.advertise
-            };
+            if (currentOptions.tempToken) {
+                // Update temp post
+                const formData = new URLSearchParams();
+                formData.append('title', currentData.title || '제목 없음');
+                formData.append('text_md', currentData.content);
+                formData.append('tag', currentData.tags);
 
-            const response = await http('v1/temp-posts', {
-                method: 'POST',
-                data: tempData,
-                headers: {
-                    'X-CSRFToken': getCsrfToken(),
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.data?.status === 'DONE') {
-                setLastSaved(new Date());
-                onSuccess?.(response.data.body?.token);
+                await http(`v1/temp-posts/${currentOptions.tempToken}`, {
+                    method: 'PUT',
+                    data: formData,
+                    headers: {
+                        'X-CSRFToken': currentOptions.getCsrfToken(),
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+            } else {
+                // Create temp post
+                const response = await http('v1/temp-posts', {
+                    method: 'POST',
+                    data: {
+                        title: currentData.title || '제목 없음',
+                        content: currentData.content,
+                        tags: currentData.tags
+                    },
+                    headers: {
+                        'X-CSRFToken': currentOptions.getCsrfToken(),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                currentOptions.onSuccess?.(response.data?.body?.token);
             }
+
+            setLastSaved(new Date());
+            currentOptions.onSuccess?.();
         } catch (error) {
-            onError?.(error as Error);
+            currentOptions.onError?.(error as Error);
         } finally {
             setIsSaving(false);
         }
-    }, [data, enabled, isSaving, getCsrfToken, onSuccess, onError]);
-
-    const manualSave = useCallback(async () => {
-        await performAutoSave();
-    }, [performAutoSave]);
+    }, [isSaving]);
 
     // Auto-save effect
     useEffect(() => {
-        if (!enabled) return;
+        if (!options.enabled) return;
 
-        if (autoSaveRef.current) {
-            clearTimeout(autoSaveRef.current);
-        }
+        // Check if data has actually changed
+        if (prevDataStringRef.current === currentDataString) return;
 
+        // Update previous data
+        prevDataStringRef.current = currentDataString;
+
+        // Clear existing timers
+        if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        if (progressRef.current) clearInterval(progressRef.current);
+
+        // Start countdown and progress
+        setNextSaveIn(intervalMs);
+        setSaveProgress(0);
+
+        // Countdown timer
+        countdownRef.current = window.setInterval(() => {
+            setNextSaveIn(prev => Math.max(0, prev - 1000));
+        }, 1000);
+
+        // Progress bar
+        progressRef.current = window.setInterval(() => {
+            setSaveProgress(prev => Math.min(100, prev + (100 / (intervalMs / 100))));
+        }, 100);
+
+        // Auto save timer
         autoSaveRef.current = window.setTimeout(() => {
-            if (data.title || data.content) {
-                performAutoSave();
+            const currentData = dataRef.current;
+            if (currentData.title || currentData.content) {
+                manualSave();
             }
         }, intervalMs);
 
         return () => {
-            if (autoSaveRef.current) {
-                clearTimeout(autoSaveRef.current);
-            }
+            if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            if (progressRef.current) clearInterval(progressRef.current);
         };
-    }, [enabled, data.title, data.content, data.tags, data.seriesId, data.metaDescription, data.url, data.hide, data.notice, data.advertise, intervalMs, performAutoSave]);
+    }, [currentDataString, options.enabled, intervalMs, manualSave]);
 
     return {
         lastSaved,
         isSaving,
+        nextSaveIn,
+        saveProgress,
         manualSave
     };
 };

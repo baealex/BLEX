@@ -51,6 +51,25 @@ export const useImageUpload = (editor: Editor | null) => {
         }
     }, [editor, isImageFile]);
 
+    const handlePaste = useCallback(async (event: ClipboardEvent) => {
+        if (!editor) return;
+
+        const items = event.clipboardData?.items;
+        if (!items) return;
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type.startsWith('image/')) {
+                event.preventDefault();
+                const file = item.getAsFile();
+                if (file) {
+                    await uploadImage(file);
+                }
+                break;
+            }
+        }
+    }, [editor, uploadImage]);
+
     const handleImageUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -79,6 +98,7 @@ export const useImageUpload = (editor: Editor | null) => {
 
     return {
         handleImageUpload,
-        handleDrop
+        handleDrop,
+        handlePaste
     };
 };

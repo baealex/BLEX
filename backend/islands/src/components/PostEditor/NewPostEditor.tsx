@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import PostHeader from './components/PostHeader';
@@ -12,7 +12,11 @@ interface Series {
     name: string;
 }
 
-const NewPostEditor = () => {
+interface NewPostEditorProps {
+    tempToken?: string;
+}
+
+const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
 
@@ -33,68 +37,95 @@ const NewPostEditor = () => {
     });
 
     // Get CSRF token from DOM
-    const getCsrfToken = () => {
+    const getCsrfToken = useCallback(() => {
         const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement;
         return tokenElement ? tokenElement.value : '';
-    };
+    }, []);
 
     // Custom hooks
     const { imagePreview, handleImageUpload, handleRemoveImage } = useImageUpload();
 
-    const { lastSaved, isSaving, manualSave } = useAutoSave(
-        {
-            title: formData.title,
-            content: formData.content,
-            tags,
-            metaDescription: formData.metaDescription,
-            url: formData.url,
-            seriesId: selectedSeries.id,
-            hide: formData.hide,
-            notice: formData.notice,
-            advertise: formData.advertise
-        },
-        {
-            enabled: true,
-            getCsrfToken,
-            onSuccess: (token) => {
-                // Update URL to include tempToken for first save
-                if (token) {
-                    const newUrl = new URL(window.location.href);
-                    newUrl.searchParams.set('tempToken', token);
-                    window.history.replaceState({}, '', newUrl.toString());
-                }
-            },
-            onError: () => {
-                // Auto-save failure is not critical, no notification needed
-            }
+    const handleAutoSaveSuccess = useCallback((token?: string) => {
+        // Update URL to include tempToken for first save
+        if (token && !tempToken) {
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('tempToken', token);
+            window.history.replaceState({}, '', newUrl.toString());
         }
-    );
+    }, [tempToken]);
 
-    const { formRef, isSubmitting, submitForm } = useFormSubmit({
+    const handleAutoSaveError = useCallback(() => {
+        // Auto-save failure is not critical, no notification needed
+    }, []);
+
+    const autoSaveData = useMemo(() => ({
+        title: formData.title,
+        content: formData.content,
+        tags: tags.join(',')
+    }), [formData.title, formData.content, tags.join(',')]);
+
+    const autoSaveOptions = useMemo(() => ({
+        enabled: true,
         getCsrfToken,
-        onSubmitError: () => {
-            // Error notification is handled inside useFormSubmit
-        }
-    });
+        tempToken,
+        onSuccess: handleAutoSaveSuccess,
+        onError: handleAutoSaveError
+    }), [getCsrfToken, tempToken, handleAutoSaveSuccess, handleAutoSaveError]);
 
-    // Fetch series list
+    const {
+        lastSaved,
+        isSaving,
+        nextSaveIn,
+        saveProgress,
+        manualSave
+    } = useAutoSave(autoSaveData, autoSaveOptions);
+
+    const handleSubmitError = useCallback(() => {
+        // Error notification is handled inside useFormSubmit
+    }, []);
+
+    const submitOptions = useMemo(() => ({
+        getCsrfToken,
+        onSubmitError: handleSubmitError
+    }), [getCsrfToken, handleSubmitError]);
+
+    const { formRef, isSubmitting, submitForm } = useFormSubmit(submitOptions);
+
+    // Fetch series list and temp post data if tempToken exists
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
+                // Fetch series list
                 const { data: seriesResponse } = await http('v1/series');
                 if (seriesResponse.status === 'DONE') {
                     setSeriesList(seriesResponse.body.series || []);
                 }
+
+                // Fetch temp post data if tempToken exists
+                if (tempToken) {
+                    const { data: tempResponse } = await http(`v1/temp-posts/${tempToken}`);
+                    if (tempResponse.status === 'DONE' && tempResponse.body) {
+                        const tempData = tempResponse.body;
+                        setFormData(prev => ({
+                            ...prev,
+                            title: tempData.title || '',
+                            content: tempData.textMd || ''
+                        }));
+                        if (tempData.tag) {
+                            setTags(tempData.tag.split(',').filter(Boolean));
+                        }
+                    }
+                }
             } catch {
-                notification('시리즈 목록을 불러오는데 실패했습니다.', { type: 'error' });
+                notification(tempToken ? '임시 포스트 데이터를 불러오는데 실패했습니다.' : '시리즈 목록을 불러오는데 실패했습니다.', { type: 'error' });
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchData();
-    }, []);
+    }, [tempToken]);
 
     const handleManualSave = async () => {
         if (!formData.title.trim()) {
@@ -148,14 +179,18 @@ const NewPostEditor = () => {
         );
     };
 
+    console.log('xxx');
+
     return (
         <div className="bg-slate-50 py-4 sm:py-8">
             <div className="max-w-7xl w-full mx-auto">
                 <PostHeader
-                    mode="new"
+                    mode={tempToken ? 'temp' : 'new'}
                     isSaving={isSaving}
                     isSubmitting={isSubmitting}
                     lastSaved={lastSaved}
+                    nextSaveIn={nextSaveIn}
+                    saveProgress={saveProgress}
                     onManualSave={handleManualSave}
                     onSubmit={() => handleSubmit()}
                 />
