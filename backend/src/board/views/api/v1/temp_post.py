@@ -6,6 +6,7 @@ from django.utils import timezone
 from board.models import TempPosts
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules.randomness import randstr
+from modules import markdown
 
 
 def temp_posts_list(request):
