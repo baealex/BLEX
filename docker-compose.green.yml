@@ -1,0 +1,28 @@
+version: "2.1"
+
+services:
+  backend-green:
+    image: baealex/blex-backend
+    env_file: ./backend/.env
+    restart: always
+    volumes:
+      - ./backend/src/db.sqlite3:/app/db.sqlite3
+      - ./backend/src/resources/media:/app/resources/media
+    networks:
+      - blex-network
+
+  nginx-green:
+    image: baealex/blex-nginx
+    restart: always
+    volumes:
+      - ./backend/src/resources/media:/resources/media
+    ports:
+      - 20012:80
+    depends_on:
+      - backend-green
+    networks:
+      - blex-network
+
+networks:
+  blex-network:
+    driver: bridge

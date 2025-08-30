@@ -120,9 +120,9 @@ class PostTestCase(TestCase):
         post = Post.objects.get(url='test-post-1')
         response = self.client.post('/v1/users/@author/posts/test-post-1', {
             'title': f'{post.title} Updated',
-            'text_md': post.content.text_md,
-            'hide': post.config.hide,
-            'advertise': post.config.advertise,
+            'text_html': post.content.text_html,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
         })
 
         post.refresh_from_db()
@@ -159,7 +159,7 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
@@ -174,7 +174,7 @@ class PostTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
             'url': 'custom-url'
@@ -184,13 +184,12 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content['body']['url'], 'custom-url')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post(self, mock_service):
+    def test_create_post(self):
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1000',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
@@ -199,48 +198,44 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content['body']['url'], 'test-post-1000')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_with_not_logged_in_user(self, return_value):
+    def test_create_post_with_not_logged_in_user(self):
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
 
         self.assertEqual(response.status_code, 404)
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_empty_title(self, mock_service):
+    def test_create_post_empty_title(self):
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': '',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
         })
         self.assertEqual(response.json()['status'], 'ERROR')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_empty_text(self, mock_service):
+    def test_create_post_empty_text(self):
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '',
+            'text_html': '',
             'is_hide': False,
             'is_advertise': False,
         })
         self.assertEqual(response.json()['status'], 'ERROR')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_reserved(self, mock_service):
+    def test_create_post_reserved(self):
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Reserved Post',
-            'text_md': '# Test Reserved Post',
+            'text_html': '# Test Reserved Post',
             'is_hide': False,
             'is_advertise': False,
             'reserved_date': f"{(datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')}T12:00:00.000Z"
@@ -265,42 +260,24 @@ class PostTestCase(TestCase):
             '/v1/users/@author/posts/test-reserved-post', params)
         self.assertEqual(response.status_code, 404)
     
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_reserved_before(self, mock_service):
+    def test_create_post_reserved_before(self):
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Reserved Post',
-            'text_md': '# Test Reserved Post',
+            'text_html': '# Test Reserved Post',
             'is_hide': False,
             'is_advertise': False,
             'reserved_date': f"{(datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')}T12:00:00.000Z"
         })
         self.assertEqual(response.json()['status'], 'ERROR')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_auto_generate_description(self, mock_service):
+    def test_create_post_custom_description(self):
         self.client.login(username='author', password='author')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '# Test Post',
-            'is_hide': False,
-            'is_advertise': False,
-        })
-        content = json.loads(response.content)
-        post = Post.objects.get(url=content['body']['url'])
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(post.meta_description, 'Mocked Text')
-
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_custom_description(self, mock_service):
-        self.client.login(username='author', password='author')
-
-        response = self.client.post('/v1/posts', {
-            'title': 'Test Post',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
             'description': 'Custom Description'
@@ -311,13 +288,12 @@ class PostTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(post.meta_description, 'Custom Description')
     
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_create_post_without_invitation(self, mock_service):
+    def test_create_post_without_invitation(self):
         self.client.login(username='viewer', password='viewer')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post',
-            'text_md': '# Test Post',
+            'text_html': '# Test Post',
             'is_hide': False,
             'is_advertise': False,
             'description': 'Custom Description'

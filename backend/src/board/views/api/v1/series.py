@@ -280,9 +280,29 @@ def series_order(request):
 
 def series_create_update(request):
     """
-    Create new series (POST) for the current user.
+    Get series list (GET) or Create new series (POST) for the current user.
     """
-    if request.method == 'POST':
+    if request.method == 'GET':
+        if not request.user.is_authenticated:
+            return StatusError(ErrorCode.AUTHENTICATION)
+            
+        series = Series.objects.filter(
+            owner=request.user
+        ).annotate(
+            total_posts=Count('posts')
+        ).order_by('order', '-id')
+        
+        return StatusDone({
+            'series': list(map(lambda item: {
+                'id': str(item.id),
+                'name': item.name,
+                'url': item.url,
+                'total_posts': item.total_posts,
+                'created_date': convert_to_localtime(item.created_date).strftime('%Y년 %m월 %d일'),
+            }, series))
+        })
+    
+    elif request.method == 'POST':
         if not request.user.is_authenticated:
             return StatusError(ErrorCode.AUTHENTICATION)
             

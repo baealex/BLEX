@@ -5,7 +5,7 @@
     "scripts": {
         "install": "npm run server:setup && npm run island:setup",
         "server:setup": "cd backend/src && python -m venv mvenv && source mvenv/bin/activate && pip install -r requirements.txt",
-        "server:dev": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py runserver",
+        "server:dev": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py runserver 0.0.0.0:8000",
         "server:test": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py test -v 2",
         "server:static": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py collectstatic --noinput",
         "island:setup": "pnpm install --prefix backend/islands",

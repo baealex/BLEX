@@ -43,6 +43,7 @@ interface FilterOptions {
     series: string;
     order: string;
     page: string;
+    status: string;
 }
 
 const POSTS_ORDER = [
@@ -98,7 +99,8 @@ const PostsSetting = () => {
         tag: '',
         series: '',
         order: '-created_date',
-        page: '1'
+        page: '1',
+        status: ''
     });
 
     const [posts, setPosts] = useState<Post[]>([]);

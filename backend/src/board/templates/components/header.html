@@ -28,10 +28,12 @@
             </a>
             <nav class="flex items-center space-x-3">
                 {% if user.is_authenticated %}
-                <a href="/write" class="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
-                    <i class="fas fa-pen text-sm"></i>
-                    <span class="hidden sm:inline">글 작성</span>
-                </a>
+                    {% if not is_editor_page %}
+                    <a href="/write" class="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                        <i class="fas fa-pen text-sm"></i>
+                        <span class="hidden sm:inline">글 작성</span>
+                    </a>
+                    {% endif %}
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-xl transition-all duration-200 group">
                         <div class="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-medium text-sm">

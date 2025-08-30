@@ -159,13 +159,12 @@ class AuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_change_username_when_have_post(self, mock_service):
+    def test_change_username_when_have_post(self):
         self.client.login(username='test', password='test')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1',
-            'text_md': '# Test Post',
+            'text_html': '<h1>Test</h1>',
             'is_hide': False,
             'is_advertise': False,
         })
@@ -179,7 +178,9 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
 
         # 과거의 유저네임 변경 기록이 남아있는지 확인
-        log = UsernameChangeLog.objects.get(username='test')
+        user = User.objects.get(username='test2')
+        log = UsernameChangeLog.objects.get(user=user)
+        self.assertEqual(log.username, 'test')
         self.assertEqual(log.user.username, 'test2')
 
         # 6개월 이내에 재변경이 불가능한지 확인

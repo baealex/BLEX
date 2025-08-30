@@ -1,3 +1,4 @@
+import json
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -5,6 +6,7 @@ from django.utils import timezone
 from board.models import TempPosts
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from modules.randomness import randstr
+from modules import markdown
 
 
 def temp_posts_list(request):
@@ -26,23 +28,62 @@ def temp_posts_list(request):
         if temp_posts.count() >= 100:
             return StatusError(ErrorCode.SIZE_OVERFLOW)
 
-        token = randstr(25)
-        has_token = TempPosts.objects.filter(
-            token=token, author=request.user).exists()
-        while has_token:
+        # Parse JSON data from request body
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST
+        except (ValueError, json.JSONDecodeError):
+            data = request.POST
+
+        # Get or create existing temp post based on content similarity
+        title = data.get('title') or '제목 없음'
+        content = data.get('content') or data.get('text_md', '')
+        tags = data.get('tags', [])
+        if isinstance(tags, list):
+            tag = ','.join(tags) if tags else ''
+        else:
+            tag = str(tags) if tags else ''
+
+        # Try to find existing temp post with similar content
+        existing_temp = TempPosts.objects.filter(
+            author=request.user,
+            text_md=content
+        ).first()
+
+        if existing_temp:
+            # Update existing temp post
+            existing_temp.title = title
+            existing_temp.text_md = content
+            existing_temp.tag = tag
+            existing_temp.updated_date = timezone.now()
+            existing_temp.save()
+            return StatusDone({
+                'token': existing_temp.token
+            })
+        else:
+            # Create new temp post
             token = randstr(25)
             has_token = TempPosts.objects.filter(
                 token=token, author=request.user).exists()
+            while has_token:
+                token = randstr(25)
+                has_token = TempPosts.objects.filter(
+                    token=token, author=request.user).exists()
 
-        temp_post = TempPosts(token=token, author=request.user)
-        temp_post.title = request.POST.get('title')
-        temp_post.text_md = request.POST.get('text_md')
-        temp_post.tag = request.POST.get('tag')
-        temp_post.save()
+            temp_post = TempPosts(
+                token=token, 
+                author=request.user,
+                title=title,
+                text_md=content,
+                tag=tag
+            )
+            temp_post.save()
 
-        return StatusDone({
-            'token': token
-        })
+            return StatusDone({
+                'token': token
+            })
 
 
 def temp_posts_detail(request, token):
