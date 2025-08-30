@@ -18,7 +18,6 @@ import { Gapcursor } from '@tiptap/extension-gapcursor';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableHeader } from '@tiptap/extension-table-header';
@@ -34,11 +33,11 @@ import { common, createLowlight } from 'lowlight';
 import { IframeNode } from '../extensions/IframeNode';
 import { VideoNode } from '../extensions/VideoNode';
 import { CustomImage } from '../extensions/CustomImage';
+import { CodeBlockWithLanguageSelector } from '../extensions/CodeBlockWithLanguageSelector';
 
 const customLowlight = createLowlight(common);
 
 export const getEditorExtensions = (placeholder: string) => [
-    // 기본 문서 구조 (StarterKit 동등)
     Document,
     Paragraph,
     Text,
@@ -56,11 +55,7 @@ export const getEditorExtensions = (placeholder: string) => [
     History,
     Dropcursor,
     Gapcursor,
-
-    // 커스텀 미디어 (Image extension 대체)
     CustomImage,
-
-    // 추가 기능들
     Link.configure({ openOnClick: false }),
     Placeholder.configure({ placeholder }),
     Typography,
@@ -71,7 +66,10 @@ export const getEditorExtensions = (placeholder: string) => [
     Subscript,
     Superscript,
     TextAlign.configure({ types: ['heading', 'paragraph'] }),
-    CodeBlockLowlight.configure({ lowlight: customLowlight }),
+    CodeBlockWithLanguageSelector.configure({
+        lowlight: customLowlight,
+        defaultLanguage: 'plaintext'
+    }),
     Table,
     TableRow,
     TableHeader,

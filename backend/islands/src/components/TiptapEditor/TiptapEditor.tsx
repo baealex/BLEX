@@ -37,7 +37,22 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         }
     });
 
-    const { handleDrop } = useImageUpload(editor);
+    const { handleDrop, handlePaste } = useImageUpload(editor);
+
+    useEffect(() => {
+        if (!editor) return;
+
+        const handlePasteEvent = (event: ClipboardEvent) => {
+            handlePaste(event);
+        };
+
+        // document에 paste 이벤트 리스너 추가
+        document.addEventListener('paste', handlePasteEvent);
+
+        return () => {
+            document.removeEventListener('paste', handlePasteEvent);
+        };
+    }, [editor, handlePaste]);
 
     useEffect(() => {
         if (editor && content !== undefined) {
@@ -85,7 +100,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
                 .ProseMirror-focused {
                     outline: none;
                 }
-
             `}</style>
         </div>
     );

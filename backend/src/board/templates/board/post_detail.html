@@ -369,4 +369,74 @@
 }
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 코드 블록에 언어 헤더 추가 및 syntax highlighting 적용
+    const codeBlocks = document.querySelectorAll('pre > code[class*="language-"]');
+    
+    codeBlocks.forEach(function(codeElement) {
+        const preElement = codeElement.parentElement;
+        const languageClass = codeElement.className.match(/language-(\w+)/);
+        
+        if (languageClass && preElement && !preElement.parentElement.classList.contains('code-block-wrapper')) {
+            const language = languageClass[1];
+            const languageLabels = {
+                'plaintext': 'Plain Text',
+                'javascript': 'JavaScript',
+                'typescript': 'TypeScript',
+                'python': 'Python',
+                'java': 'Java',
+                'cpp': 'C++',
+                'c': 'C',
+                'csharp': 'C#',
+                'php': 'PHP',
+                'ruby': 'Ruby',
+                'go': 'Go',
+                'rust': 'Rust',
+                'kotlin': 'Kotlin',
+                'swift': 'Swift',
+                'html': 'HTML',
+                'css': 'CSS',
+                'scss': 'SCSS',
+                'json': 'JSON',
+                'xml': 'XML',
+                'yaml': 'YAML',
+                'markdown': 'Markdown',
+                'bash': 'Bash',
+                'shell': 'Shell',
+                'sql': 'SQL',
+                'dockerfile': 'Dockerfile'
+            };
+            
+            // syntax highlighting 적용
+            hljs.highlightElement(codeElement);
+            
+            // wrapper div 생성
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-block-wrapper';
+            
+            // header div 생성
+            const header = document.createElement('div');
+            header.className = 'code-block-header';
+            
+            // language span 생성
+            const languageSpan = document.createElement('span');
+            languageSpan.className = 'code-language';
+            languageSpan.textContent = languageLabels[language] || 'Plain Text';
+            
+            header.appendChild(languageSpan);
+            wrapper.appendChild(header);
+            
+            // pre 요소를 wrapper로 감싸기
+            preElement.parentElement.insertBefore(wrapper, preElement);
+            wrapper.appendChild(preElement);
+            
+            // hljs 클래스 추가
+            preElement.classList.add('hljs');
+        }
+    });
+});
+</script>
+
 {% endblock %}
