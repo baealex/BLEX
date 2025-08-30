@@ -20,8 +20,6 @@ services:
       - 20012:80
     depends_on:
       - backend-green
-    environment:
-      - BACKEND_HOST=backend-green
     networks:
       - blex-network
 
