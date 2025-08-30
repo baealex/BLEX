@@ -159,13 +159,12 @@ class AuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'DONE')
 
-    @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
-    def test_change_username_when_have_post(self, mock_service):
+    def test_change_username_when_have_post(self):
         self.client.login(username='test', password='test')
 
         response = self.client.post('/v1/posts', {
             'title': 'Test Post 1',
-            'text_html': '# Test Post',
+            'text_html': '<h1>Test</h1>',
             'is_hide': False,
             'is_advertise': False,
         })
