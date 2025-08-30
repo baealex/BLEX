@@ -130,17 +130,5 @@ export const CustomImage = Node.create({
             figureAttrs,
             ...content
         ];
-    },
-
-    addCommands() {
-        return {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            setImage: (attributes: Record<string, unknown>) => ({ commands }: { commands: any }) => {
-                return commands.insertContent({
-                    type: this.name,
-                    attrs: attributes
-                });
-            }
-        };
     }
 });

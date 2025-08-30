@@ -99,7 +99,8 @@ const PostsSetting = () => {
         tag: '',
         series: '',
         order: '-created_date',
-        page: '1'
+        page: '1',
+        status: ''
     });
 
     const [posts, setPosts] = useState<Post[]>([]);

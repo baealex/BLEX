@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import PostHeader from './components/PostHeader';

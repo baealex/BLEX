@@ -35,9 +35,12 @@ export const useImageUpload = (editor: Editor | null) => {
                     editor.chain().focus().insertContent(`<video src="${fileSrc}" controls autoplay muted loop playsinline style="max-width: 100%; height: auto;"></video>`).run();
                 } else {
                     // 일반 이미지는 실제 URL로 삽입
-                    editor.chain().focus().setImage({
-                        src: fileSrc,
-                        alt: file.name || ''
+                    editor.chain().focus().insertContent({
+                        type: 'image',
+                        attrs: {
+                            src: fileSrc,
+                            alt: file.name || ''
+                        }
                     }).run();
                 }
             } else {

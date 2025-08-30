@@ -25,18 +25,5 @@ export const IframeNode = Node.create({
 
     renderHTML({ HTMLAttributes }) {
         return ['iframe', HTMLAttributes];
-    },
-
-    addCommands() {
-        return {
-            setIframe:
-                (attributes) =>
-                ({ commands }) => {
-                    return commands.insertContent({
-                        type: this.name,
-                        attrs: attributes
-                    });
-                }
-        };
     }
 });

@@ -362,6 +362,7 @@ def post_editor(request, username=None, post_url=None):
         'post': post,
         'temp_post': temp_post,
         'series_list': series_list,
+        'is_editor_page': True,
     }
     
     return render(request, 'board/post_editor.html', context)
