@@ -14,14 +14,13 @@ interface UseFormSubmitOptions {
     tempToken?: string;
     onBeforeSubmit?: () => void;
     onSubmitSuccess?: () => void;
-    onSubmitError?: (error: any) => void;
+    onSubmitError?: (error: Error) => void;
 }
 
 export const useFormSubmit = (options: UseFormSubmitOptions) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
     const {
-        getCsrfToken,
         tempToken,
         onBeforeSubmit,
         onSubmitSuccess,
@@ -33,12 +32,12 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             notification('제목을 입력해주세요.', { type: 'error' });
             return false;
         }
-        
+
         if (!isEdit && !data.url.trim()) {
             notification('URL 주소를 입력해주세요.', { type: 'error' });
             return false;
         }
-        
+
         return true;
     }, []);
 
@@ -55,7 +54,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
     const submitForm = useCallback(async (data: FormSubmitData, isDraft = false, isEdit = false) => {
         if (!validateForm(data, isEdit)) return;
-        
+
         setIsSubmitting(true);
         try {
             const form = formRef.current;
@@ -66,7 +65,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             addHiddenField(form, 'tag', data.tags.join(','));
             addHiddenField(form, 'series', data.seriesId);
             addHiddenField(form, 'text_md', data.content);
-            
+
             if (isDraft) {
                 addHiddenField(form, 'is_draft', 'true');
             }
@@ -74,7 +73,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             // Handle temp token
             if (tempToken) {
                 addHiddenField(form, 'token', tempToken);
-                
+
                 // Remove tempToken from URL when submitting the post
                 const newUrl = new URL(window.location.href);
                 newUrl.searchParams.delete('tempToken');
@@ -85,7 +84,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
                 const urlTempToken = urlParams.get('tempToken');
                 if (urlTempToken) {
                     addHiddenField(form, 'token', urlTempToken);
-                    
+
                     const newUrl = new URL(window.location.href);
                     newUrl.searchParams.delete('tempToken');
                     window.history.replaceState({}, '', newUrl.toString());
@@ -97,7 +96,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
         } catch (error) {
             const errorMessage = isEdit ? '게시글 수정에 실패했습니다.' : '게시글 저장에 실패했습니다.';
             notification(errorMessage, { type: 'error' });
-            onSubmitError?.(error);
+            onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }
     }, [validateForm, addHiddenField, tempToken, onBeforeSubmit, onSubmitSuccess, onSubmitError]);
@@ -121,7 +120,7 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
             form.submit();
         } catch (error) {
             notification('게시글 삭제에 실패했습니다.', { type: 'error' });
-            onSubmitError?.(error);
+            onSubmitError?.(error as Error);
             setIsSubmitting(false);
         }
     }, [onSubmitError]);

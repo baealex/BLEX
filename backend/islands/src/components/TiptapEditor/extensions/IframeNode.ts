@@ -9,29 +9,17 @@ export const IframeNode = Node.create({
 
     addAttributes() {
         return {
-            src: {
-                default: null,
-            },
-            width: {
-                default: null,
-            },
-            height: {
-                default: null,
-            },
-            frameborder: {
-                default: '0',
-            },
-            allowfullscreen: {
-                default: true,
-            },
+            src: { default: null },
+            width: { default: null },
+            height: { default: null },
+            frameborder: { default: '0' },
+            allowfullscreen: { default: true }
         };
     },
 
     parseHTML() {
         return [
-            {
-                tag: 'iframe',
-            },
+            { tag: 'iframe' }
         ];
     },
 
@@ -46,9 +34,9 @@ export const IframeNode = Node.create({
                 ({ commands }) => {
                     return commands.insertContent({
                         type: this.name,
-                        attrs: attributes,
+                        attrs: attributes
                     });
-                },
+                }
         };
-    },
+    }
 });

@@ -120,10 +120,6 @@ export const VideoNode = Node.create({
             height,
             align,
             caption,
-            autoplay,
-            muted,
-            loop,
-            playsinline,
             ...otherAttrs
         } = HTMLAttributes;
 
@@ -174,6 +170,7 @@ export const VideoNode = Node.create({
 
     addCommands() {
         return {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setVideo: (attributes: Record<string, unknown>) => ({ commands }: { commands: any }) => {
                 return commands.insertContent({
                     type: this.name,

@@ -18,13 +18,13 @@ interface UseAutoSaveOptions {
     intervalMs?: number;
     getCsrfToken: () => string;
     onSuccess?: (token?: string) => void;
-    onError?: (error: any) => void;
+    onError?: (error: Error) => void;
 }
 
 export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-    const autoSaveRef = useRef<number>();
+    const autoSaveRef = useRef<number | null>(null);
     const {
         enabled,
         intervalMs = 30000,
@@ -64,7 +64,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
                 onSuccess?.(response.data.body?.token);
             }
         } catch (error) {
-            onError?.(error);
+            onError?.(error as Error);
         } finally {
             setIsSaving(false);
         }

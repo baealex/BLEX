@@ -10,12 +10,19 @@ interface SlashCommandState {
 export const useSlashCommand = (editor: Editor | null) => {
     const [state, setState] = useState<SlashCommandState>({
         isVisible: false,
-        position: { top: 0, left: 0 },
+        position: {
+            top: 0,
+            left: 0
+        },
         slashPos: null
     });
 
     const hideMenu = useCallback(() => {
-        setState(prev => ({ ...prev, isVisible: false, slashPos: null }));
+        setState(prev => ({
+            ...prev,
+            isVisible: false,
+            slashPos: null
+        }));
     }, []);
 
     const showMenu = useCallback((position: { top: number; left: number }, slashPos: number) => {
@@ -33,7 +40,7 @@ export const useSlashCommand = (editor: Editor | null) => {
         try {
             editorElement = editor.view?.dom as HTMLElement;
             if (!editorElement) return;
-        } catch (error) {
+        } catch {
             // 에디터가 아직 마운트되지 않음
             return;
         }
@@ -53,15 +60,15 @@ export const useSlashCommand = (editor: Editor | null) => {
                 // 현재 위치가 빈 라인이거나 라인 시작인지 확인
                 const $pos = editor.state.doc.resolve(from);
                 const textBefore = $pos.parent.textBetween(0, $pos.parentOffset);
-                
+
                 if (textBefore.trim() === '' || textBefore.endsWith(' ')) {
                     // 즉시 슬래시 위치 저장 (아직 문자가 입력되기 전)
                     const slashPosition = from;
-                    
+
                     setTimeout(() => {
                         // "/" 문자가 삽입된 후 위치 계산
                         const coords = editor.view.coordsAtPos(slashPosition + 1);
-                        
+
                         showMenu({
                             top: coords.top + 25,
                             left: coords.left
@@ -76,7 +83,7 @@ export const useSlashCommand = (editor: Editor | null) => {
 
             const { selection } = editor.state;
             const { from } = selection;
-            
+
             // 커서가 슬래시 위치에서 벗어나면 메뉴 숨김
             if (from < state.slashPos || from > state.slashPos + 10) {
                 hideMenu();
@@ -106,9 +113,8 @@ export const useSlashCommand = (editor: Editor | null) => {
         if (state.slashPos !== null && editor) {
             try {
                 // "/" 문자 제거
-                const currentPos = editor.state.selection.from;
                 const doc = editor.state.doc;
-                
+
                 // 슬래시 위치에 "/" 문자가 있는지 확인하고 제거
                 const slashChar = doc.textBetween(state.slashPos, state.slashPos + 1);
                 if (slashChar === '/') {

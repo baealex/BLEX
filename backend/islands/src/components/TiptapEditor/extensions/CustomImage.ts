@@ -2,9 +2,9 @@ import { Node } from '@tiptap/react';
 
 export const CustomImage = Node.create({
     name: 'image',
-    
+
     group: 'block',
-    
+
     atom: true,
 
     addAttributes() {
@@ -29,21 +29,21 @@ export const CustomImage = Node.create({
                     const figure = element as HTMLElement;
                     const img = figure.querySelector('img');
                     const caption = figure.querySelector('figcaption');
-                    
+
                     if (!img) return false;
-                    
+
                     let src = img.src || img.getAttribute('src') || '';
-                    
+
                     // data-src가 있으면 사용
                     if (img.dataset.src) {
                         src = img.dataset.src;
                     }
-                    
+
                     // preview.jpg 제거
                     if (src.includes('.preview.jpg')) {
                         src = src.replace('.preview.jpg', '');
                     }
-                    
+
                     return {
                         src,
                         alt: img.alt || null,
@@ -62,17 +62,17 @@ export const CustomImage = Node.create({
                 getAttrs: (element) => {
                     const img = element as HTMLImageElement;
                     let src = img.src || img.getAttribute('src') || '';
-                    
+
                     // data-src가 있으면 사용
                     if (img.dataset.src) {
                         src = img.dataset.src;
                     }
-                    
+
                     // preview.jpg 제거
                     if (src.includes('.preview.jpg')) {
                         src = src.replace('.preview.jpg', '');
                     }
-                    
+
                     return {
                         src,
                         alt: img.alt || null,
@@ -89,18 +89,20 @@ export const CustomImage = Node.create({
     },
 
     renderHTML({ HTMLAttributes }) {
-        const { src, alt, title, width, height, align, objectFit, caption } = HTMLAttributes;
-        
+        const {
+            src, alt, title, width, height, align, objectFit, caption
+        } = HTMLAttributes;
+
         const imgAttrs: Record<string, string> = {
             src: src || '',
-            alt: alt || '',
+            alt: alt || ''
         };
-        
+
         if (title) imgAttrs.title = title;
         if (width) imgAttrs.width = width;
         if (height) imgAttrs.height = height;
         if (objectFit && objectFit !== 'cover') imgAttrs.style = `object-fit: ${objectFit}`;
-        
+
         const figureAttrs: Record<string, string> = {};
         if (align) {
             let alignStyle = `text-align: ${align};`;
@@ -114,15 +116,15 @@ export const CustomImage = Node.create({
             }
             figureAttrs.style = alignStyle;
         }
-        
+
         const content = [
             ['img', imgAttrs]
         ];
-        
+
         if (caption) {
             content.push(['figcaption', {}, caption]);
         }
-        
+
         return [
             'figure',
             figureAttrs,
@@ -132,6 +134,7 @@ export const CustomImage = Node.create({
 
     addCommands() {
         return {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setImage: (attributes: Record<string, unknown>) => ({ commands }: { commands: any }) => {
                 return commands.insertContent({
                     type: this.name,

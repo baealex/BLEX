@@ -23,7 +23,7 @@ const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
             <label className="block text-sm font-semibold text-slate-700 mb-4">태그</label>
-            
+
             <div className="space-y-4">
                 <div className="flex gap-2">
                     <input
@@ -49,12 +49,11 @@ const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
                         type="button"
                         onClick={handleAddTag}
                         disabled={!newTag.trim()}
-                        className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm sm:text-base"
-                    >
+                        className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm sm:text-base">
                         추가
                     </button>
                 </div>
-                
+
                 {tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                         {tags.map((tag, index) => (
@@ -63,8 +62,7 @@ const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveTag(index)}
-                                    className="w-4 h-4 hover:bg-blue-200 rounded-full flex items-center justify-center"
-                                >
+                                    className="w-4 h-4 hover:bg-blue-200 rounded-full flex items-center justify-center">
                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>

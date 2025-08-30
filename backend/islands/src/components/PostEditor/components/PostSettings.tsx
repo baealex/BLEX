@@ -19,7 +19,7 @@ const PostSettings: React.FC<PostSettingsProps> = ({ formData, onChange }) => {
                 </svg>
                 게시글 설정
             </h3>
-            
+
             <div className="space-y-4">
                 <label className="flex items-start gap-3 cursor-pointer group">
                     <input
@@ -35,7 +35,7 @@ const PostSettings: React.FC<PostSettingsProps> = ({ formData, onChange }) => {
                         <div className="text-xs sm:text-sm text-slate-500">본인만 볼 수 있습니다</div>
                     </div>
                 </label>
-                
+
                 <label className="flex items-start gap-3 cursor-pointer group">
                     <input
                         type="checkbox"
@@ -50,7 +50,7 @@ const PostSettings: React.FC<PostSettingsProps> = ({ formData, onChange }) => {
                         <div className="text-xs sm:text-sm text-slate-500">블로그 상단에 고정됩니다</div>
                     </div>
                 </label>
-                
+
                 <label className="flex items-start gap-3 cursor-pointer group">
                     <input
                         type="checkbox"

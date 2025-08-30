@@ -132,8 +132,8 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
         if (!searchTerm) return true;
         const term = searchTerm.toLowerCase();
         return item.title.toLowerCase().includes(term) ||
-               item.description.toLowerCase().includes(term) ||
-               item.keywords.some(keyword => keyword.toLowerCase().includes(term));
+            item.description.toLowerCase().includes(term) ||
+            item.keywords.some(keyword => keyword.toLowerCase().includes(term));
     });
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -212,9 +212,8 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
             className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg min-w-64 max-w-80"
             style={{
                 top: `${position.top}px`,
-                left: `${position.left}px`,
-            }}
-        >
+                left: `${position.left}px`
+            }}>
             <div className="p-2 border-b border-gray-100">
                 <input
                     ref={inputRef}
@@ -226,18 +225,16 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
                     onKeyDown={handleKeyDown}
                 />
             </div>
-            
+
             <div className="max-h-64 overflow-y-auto">
                 {filteredCommands.length > 0 ? (
                     filteredCommands.map((item, index) => (
                         <button
                             key={item.id}
                             ref={index === selectedIndex ? selectedItemRef : null}
-                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 ${
-                                index === selectedIndex ? 'bg-blue-50' : ''
-                            }`}
-                            onClick={() => handleCommandClick(item)}
-                        >
+                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 ${index === selectedIndex ? 'bg-blue-50' : ''
+                                }`}
+                            onClick={() => handleCommandClick(item)}>
                             <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">
                                 <i className={`${item.icon} text-sm text-gray-600`} />
                             </div>

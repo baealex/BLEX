@@ -29,7 +29,7 @@ class TagTestCase(TestCase):
 
         response = self.client.post('/v1/posts', {
             'title': 'test',
-            'text_md': 'test',
+            'text_html': 'test',
             'is_hide': False,
             'is_advertise': False,
             'tag': 'test3,test4,test5'

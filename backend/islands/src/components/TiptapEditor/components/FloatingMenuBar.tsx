@@ -8,7 +8,10 @@ interface FloatingMenuBarProps {
 
 const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({ editor }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const [position, setPosition] = useState({ top: 0, left: 0 });
+    const [position, setPosition] = useState({
+        top: 0,
+        left: 0
+    });
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -17,14 +20,14 @@ const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({ editor }) => {
         const updateMenuPosition = () => {
             const { state } = editor;
             const { selection } = state;
-            
+
             if (selection.empty) {
                 setIsVisible(false);
                 return;
             }
 
             const { from, to } = selection;
-            
+
             // 이미지나 비디오가 선택된 경우 FloatingMenuBar 숨김
             const node = state.doc.nodeAt(from);
             if (node && (node.type.name === 'image' || node.type.name === 'video')) {
@@ -33,22 +36,22 @@ const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({ editor }) => {
             }
             const start = editor.view.coordsAtPos(from);
             const end = editor.view.coordsAtPos(to);
-            
+
             const rect = {
                 left: Math.min(start.left, end.left),
                 right: Math.max(start.right, end.right),
                 top: Math.min(start.top, end.top),
-                bottom: Math.max(start.bottom, end.bottom),
+                bottom: Math.max(start.bottom, end.bottom)
             };
 
             const centerX = (rect.left + rect.right) / 2;
             const menuWidth = menuRef.current?.offsetWidth || 300;
-            
+
             setPosition({
                 top: rect.top - 50,
-                left: Math.max(10, centerX - menuWidth / 2),
+                left: Math.max(10, centerX - menuWidth / 2)
             });
-            
+
             setIsVisible(true);
         };
 
@@ -77,9 +80,8 @@ const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({ editor }) => {
             className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-2 transition-all duration-200"
             style={{
                 top: `${position.top}px`,
-                left: `${position.left}px`,
-            }}
-        >
+                left: `${position.left}px`
+            }}>
             <div className="flex gap-1">
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
@@ -111,9 +113,9 @@ const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({ editor }) => {
                     title="형광펜">
                     <i className="fa fa-marker text-sm" />
                 </ToolbarButton>
-                
+
                 <div className="w-px bg-gray-300 mx-1" />
-                
+
                 <ToolbarButton
                     onClick={() => {
                         const url = window.prompt('링크 URL을 입력하세요:');

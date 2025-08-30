@@ -7,7 +7,11 @@ interface MediaFloatingMenuProps {
 
 const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const [position, setPosition] = useState({ top: 0, left: 0 });
+    const [position, setPosition] = useState({
+        top: 0,
+        left: 0
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [selectedNode, setSelectedNode] = useState<{ type: string; attrs: any; pos: number } | null>(null);
 
     useEffect(() => {
@@ -16,7 +20,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
         const updateMenu = () => {
             const { selection, doc } = editor.state;
             const { from } = selection;
-            
+
             // 현재 선택된 노드 찾기
             const node = doc.nodeAt(from);
             if (node && (node.type.name === 'image' || node.type.name === 'video')) {
@@ -25,16 +29,16 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                     attrs: node.attrs,
                     pos: from
                 };
-                
+
                 // 노드가 실제로 변경되었을 때만 업데이트
-                if (!selectedNode || 
-                    selectedNode.pos !== newSelectedNode.pos || 
+                if (!selectedNode ||
+                    selectedNode.pos !== newSelectedNode.pos ||
                     JSON.stringify(selectedNode.attrs) !== JSON.stringify(newSelectedNode.attrs)) {
                     setSelectedNode(newSelectedNode);
                 }
-                
+
                 setIsVisible(true);
-                
+
                 // 노드의 DOM 요소 찾아서 위치 계산
                 const nodeDOM = editor.view.nodeDOM(from) as HTMLElement;
                 if (nodeDOM) {
@@ -61,7 +65,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
 
     if (!isVisible || !selectedNode || !editor) return null;
 
-    const updateAttribute = (attr: string, value: any) => {
+    const updateAttribute = (attr: string, value: unknown) => {
         if (selectedNode) {
             // focus() 호출하지 않고 직접 업데이트
             editor.chain().updateAttributes(selectedNode.type, { [attr]: value }).run();
@@ -94,7 +98,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
             className="media-floating-menu"
             onMouseDown={(e) => {
                 // 입력 필드가 아닌 경우에만 preventDefault
-                if (e.target instanceof HTMLElement && 
+                if (e.target instanceof HTMLElement &&
                     !['INPUT', 'SELECT'].includes(e.target.tagName)) {
                     e.preventDefault();
                 }
@@ -117,10 +121,14 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                 gap: '8px',
                 alignItems: 'center',
                 fontSize: '14px'
-            }}
-        >
+            }}>
             {/* 정렬 버튼 */}
-            <div className="align-group" style={{ display: 'flex', gap: '4px' }}>
+            <div
+                className="align-group"
+                style={{
+                    display: 'flex',
+                    gap: '4px'
+                }}>
                 <button
                     type="button"
                     onClick={(e) => handleAlignChange(e, 'left')}
@@ -132,8 +140,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                         color: selectedNode.attrs.align === 'left' ? 'white' : 'black',
                         borderRadius: '4px',
                         cursor: 'pointer'
-                    }}
-                >
+                    }}>
                     왼쪽
                 </button>
                 <button
@@ -147,8 +154,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                         color: selectedNode.attrs.align === 'center' ? 'white' : 'black',
                         borderRadius: '4px',
                         cursor: 'pointer'
-                    }}
-                >
+                    }}>
                     가운데
                 </button>
                 <button
@@ -162,14 +168,19 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                         color: selectedNode.attrs.align === 'right' ? 'white' : 'black',
                         borderRadius: '4px',
                         cursor: 'pointer'
-                    }}
-                >
+                    }}>
                     오른쪽
                 </button>
             </div>
 
             {/* 구분선 */}
-            <div style={{ width: '1px', height: '24px', background: '#ddd' }} />
+            <div
+                style={{
+                    width: '1px',
+                    height: '24px',
+                    background: '#ddd'
+                }}
+            />
 
             {/* Object Fit (이미지만) */}
             {selectedNode.type === 'image' && (
@@ -181,15 +192,20 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                             padding: '4px 8px',
                             border: '1px solid #ddd',
                             borderRadius: '4px'
-                        }}
-                    >
+                        }}>
                         <option value="cover">맞춤</option>
                         <option value="contain">포함</option>
                         <option value="fill">채움</option>
                         <option value="none">원본</option>
                     </select>
-                    
-                    <div style={{ width: '1px', height: '24px', background: '#ddd' }} />
+
+                    <div
+                        style={{
+                            width: '1px',
+                            height: '24px',
+                            background: '#ddd'
+                        }}
+                    />
                 </>
             )}
 
@@ -234,7 +250,13 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                 }}
             />
 
-            <div style={{ width: '1px', height: '24px', background: '#ddd' }} />
+            <div
+                style={{
+                    width: '1px',
+                    height: '24px',
+                    background: '#ddd'
+                }}
+            />
 
             {/* 캡션 */}
             <input

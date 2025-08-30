@@ -44,7 +44,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ editor }) => {
 
             {/* 플로팅 메뉴바 - 텍스트 선택 시 나타남 */}
             <FloatingMenuBar editor={editor} />
-            
+
             {/* 미디어 플로팅 메뉴바 - 이미지/비디오 선택 시 나타남 */}
             <MediaFloatingMenu editor={editor} />
 
