@@ -8,6 +8,7 @@ services:
     volumes:
       - ./backend/src/db.sqlite3:/app/db.sqlite3
       - ./backend/src/resources/media:/app/resources/media
+      - ./backend/src/board/templates/custom:/app/board/templates/custom
     networks:
       - blex-network
 

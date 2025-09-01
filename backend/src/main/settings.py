@@ -82,7 +82,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'board.context_processors.oauth_settings',
-                'board.context_processors.custom_scripts',
             ],
         },
     },
@@ -163,11 +162,6 @@ GITHUB_OAUTH_CLIENT_SECRET = os.environ.get('GITHUB_OAUTH_CLIENT_SECRET')
 
 HCAPTCHA_SITE_KEY = os.environ.get('HCAPTCHA_SITE_KEY')
 HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
-
-
-# Custom Scripts
-CUSTOM_HEAD_SCRIPTS = os.environ.get('CUSTOM_HEAD_SCRIPTS', '')
-CUSTOM_BODY_SCRIPTS = os.environ.get('CUSTOM_BODY_SCRIPTS', '')
 
 
 LOGGING = {
