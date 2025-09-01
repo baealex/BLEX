@@ -77,7 +77,7 @@ def tag_list_view(request):
         'sort_options': sort_options,
     }
     
-    return render(request, 'board/tag_list.html', context)
+    return render(request, 'board/tags/tag_list.html', context)
 
 
 def tag_detail_view(request, name):
@@ -145,4 +145,4 @@ def tag_detail_view(request, name):
         'last_page': paginated_posts.paginator.num_pages,
     }
     
-    return render(request, 'board/tag_detail.html', context)
+    return render(request, 'board/tags/tag_detail.html', context)

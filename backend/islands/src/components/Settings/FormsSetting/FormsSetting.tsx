@@ -128,7 +128,7 @@ const FormsManagement: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="p-6 bg-white shadow-md rounded-lg">
+            <div className="p-6 bg-white shadow-sm rounded-lg">
                 <div className="animate-pulse">
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6">
                         <div className="h-6 bg-gray-200 rounded w-32 mb-2" />
@@ -150,7 +150,7 @@ const FormsManagement: React.FC = () => {
     const forms = formsData?.forms || [];
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
+        <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
             {/* Header Section */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
                 <h2 className="text-lg sm:text-xl font-bold text-blue-900 mb-2">서식 관리</h2>

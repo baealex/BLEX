@@ -111,7 +111,7 @@ def series_detail(request, username, series_url):
         'request': request,
     }
     
-    return render(request, 'board/series_detail.html', context)
+    return render(request, 'board/series/series_detail.html', context)
 
 
 @login_required

@@ -36,7 +36,7 @@ const TwoFactorCodeInput: React.FC<TwoFactorCodeInputProps> = ({
                     value={code}
                     onChange={(e) => onCodeChange(index, e.target.value)}
                     onKeyDown={(e) => onKeyDown(index, e)}
-                    className="w-12 h-14 text-center text-2xl font-bold border border-solid border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 transition-all duration-200"
+                    className="w-12 h-14 text-center text-2xl font-bold border border-sol border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 transition-all duration-200"
                     inputMode="numeric"
                     pattern="[0-9]"
                     autoComplete="off"

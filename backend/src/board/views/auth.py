@@ -17,7 +17,7 @@ def login_view(request):
         'username': request.session.get('pending_2fa_username', '')
     }
     
-    return render(request, 'board/login.html', context)
+    return render(request, 'board/auth/login.html', context)
 
 
 def signup_view(request):
@@ -29,6 +29,6 @@ def signup_view(request):
     if request.user.is_authenticated:
         return redirect('/')
     
-    return render(request, 'board/signup.html')
+    return render(request, 'board/auth/signup.html')
 
 

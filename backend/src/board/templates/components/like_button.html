@@ -1,0 +1,55 @@
+{% comment %}
+Alpine.js 기반 좋아요 버튼 컴포넌트
+사용법: {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
+
+매개변수:
+- post_url: 포스트 URL (필수)
+- likes_count: 좋아요 수 (필수) 
+- has_liked: 사용자가 좋아요 했는지 여부 (필수)
+- size: 버튼 크기 'small' 또는 'normal' (선택, 기본값: normal)
+{% endcomment %}
+
+<button 
+    x-data="{ 
+        count: {{ likes_count }}, 
+        liked: {{ has_liked|yesno:'true,false' }},
+        loading: false,
+        async handleLike() {
+            if (this.loading) return;
+            this.loading = true;
+            try {
+                const response = await fetch(`/like/{{ post_url }}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    this.count = data.count_likes;
+                    this.liked = data.has_liked;
+                }
+            } catch (error) {
+                console.error('Like failed:', error);
+            } finally {
+                this.loading = false;
+            }
+        }
+    }"
+    @click="handleLike()"
+    :class="{
+        'bg-red-50 text-red-600 hover:bg-red-100': liked,
+        'bg-gray-100 text-gray-700 hover:bg-gray-200': !liked,
+        'opacity-70 cursor-not-allowed': loading,
+        'active:scale-95': !loading
+    }"
+    :disabled="loading"
+    class="inline-flex items-center justify-center gap-1.5 border-0 font-medium transition-all duration-200 outline-none cursor-pointer
+    {% if size == 'small' %}px-3 py-2.5 sm:py-2 min-h-[44px] sm:min-h-auto text-sm rounded-lg{% else %}px-3 py-1 rounded-3xl text-sm{% endif %}">
+    <i :class="{
+        'fas fa-heart text-red-600': liked,
+        'fas fa-heart text-gray-600': !liked
+    }"></i>
+    <span x-text="count"></span>
+</button>
