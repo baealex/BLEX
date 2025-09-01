@@ -482,6 +482,12 @@ def security_send(request):
                     
                     # Reset 2FA attempts on success
                     cache.delete(cache_key)
+                    
+                    # Clear OAuth 2FA session data if exists
+                    if 'pending_2fa_user_id' in request.session:
+                        del request.session['pending_2fa_user_id']
+                        del request.session['pending_2fa_username']
+                    
                     auth.login(request, user)
                     return login_response(request.user)
             # Handle recovery key
@@ -495,6 +501,12 @@ def security_send(request):
                     
                     # Reset 2FA attempts on success
                     cache.delete(cache_key)
+                    
+                    # Clear OAuth 2FA session data if exists
+                    if 'pending_2fa_user_id' in request.session:
+                        del request.session['pending_2fa_user_id']
+                        del request.session['pending_2fa_username']
+                    
                     auth.login(request, user)
                     return login_response(request.user)
         except Exception as e:

@@ -1,5 +1,12 @@
 import { useState } from 'react';
 
+interface Window {
+    USERNAME?: string;
+    SHOW_2FA?: boolean;
+}
+
+declare const window: Window & typeof globalThis;
+
 export interface LoginState {
     // Login step
     username: string;
@@ -28,13 +35,13 @@ export interface LoginState {
 
 export const useLoginState = () => {
     const [state, setState] = useState<LoginState>({
-        username: '',
+        username: window.USERNAME || '',
         password: '',
         usernameError: '',
         passwordError: '',
         loginError: '',
         isLoading: false,
-        showTwoFactor: false,
+        showTwoFactor: window.SHOW_2FA || false,
         codes: ['', '', '', '', '', ''],
         verificationError: '',
         successMessage: '',

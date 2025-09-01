@@ -1,11 +1,40 @@
 from django.shortcuts import render, redirect
 from django.http import Http404
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.conf import settings
 
 from modules import oauth
-from board.views.api.v1.auth import common_auth, create_user
+from board.views.api.v1.auth import create_user
 from board.models import User, UserLinkMeta
+from modules.randomness import randnum
+from modules.sub_task import SubTaskProcessor
+from modules.telegram import TelegramBot
+
+
+def handle_oauth_auth(request, user):
+    """
+    Handle OAuth authentication with 2FA support
+    """
+    # Check if 2FA is required
+    if not settings.DEBUG and user.config.has_two_factor_auth():
+        # Create and send 2FA token
+        def create_auth_token():
+            token = randnum(6)
+            user.twofactorauth.create_token(token)
+            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
+            bot.send_message(user.telegramsync.get_decrypted_tid(),
+                            f'2차 인증 코드입니다 : {token}')
+        
+        SubTaskProcessor.process(create_auth_token)
+        # Store user info in session for 2FA completion
+        request.session['pending_2fa_user_id'] = user.id
+        request.session['pending_2fa_username'] = user.username
+        messages.info(request, '2차 인증이 필요합니다. 텔레그램으로 전송된 코드를 입력해주세요.')
+        return redirect('/login')
+    
+    # No 2FA required, login directly
+    auth.login(request, user)
+    return redirect('/')
 
 
 def oauth_callback(request, provider):
@@ -35,9 +64,9 @@ def oauth_callback(request, provider):
 
             users = User.objects.filter(last_name=token)
             if users.exists():
-                return common_auth(request, users.first())
+                return handle_oauth_auth(request, users.first())
 
-            user, profile, config = create_user(
+            user, _, _ = create_user(
                 username=user_id,
                 name=name,
                 email='',
@@ -51,7 +80,7 @@ def oauth_callback(request, provider):
                 value=f'https://github.com/{user_id}'
             )
 
-            return common_auth(request, user)
+            return handle_oauth_auth(request, user)
 
         elif provider == 'google':
             state = oauth.auth_google(code)
@@ -68,9 +97,9 @@ def oauth_callback(request, provider):
 
             users = User.objects.filter(last_name=token)
             if users.exists():
-                return common_auth(request, users.first())
+                return handle_oauth_auth(request, users.first())
 
-            user, profile, config = create_user(
+            user, _, _ = create_user(
                 username=user_id,
                 name=name,
                 email=email,
@@ -78,9 +107,9 @@ def oauth_callback(request, provider):
                 token=token,
             )
 
-            return common_auth(request, user)
+            return handle_oauth_auth(request, user)
 
-    except Exception as e:
+    except Exception:
         messages.error(request, f'{provider.title()} 로그인 중 오류가 발생했습니다.')
         return redirect('login')
 
