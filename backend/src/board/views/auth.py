@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
 
@@ -13,7 +12,9 @@ def login_view(request):
         return redirect('/')
     
     context = {
-        'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', '')
+        'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', ''),
+        'show_2fa': 'pending_2fa_user_id' in request.session,
+        'username': request.session.get('pending_2fa_username', '')
     }
     
     return render(request, 'board/auth/login.html', context)

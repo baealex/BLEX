@@ -9,6 +9,8 @@
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <script>
     window.HCAPTCHA_SITE_KEY = '{{ HCAPTCHA_SITE_KEY }}';
+    window.SHOW_2FA = {{ show_2fa|yesno:"true,false" }};
+    window.USERNAME = '{{ username|escapejs }}';
 </script>
 <style>
     island-component {
