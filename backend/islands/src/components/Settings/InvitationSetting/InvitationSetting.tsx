@@ -46,7 +46,7 @@ const InvitationManagement = () => {
 
     if (isLoading) {
         return (
-            <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
+            <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
                 <div className="animate-pulse">
                     <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
                         <div className="h-6 bg-gray-200 rounded w-64 mb-2" />
@@ -64,7 +64,7 @@ const InvitationManagement = () => {
     const invitationList = Array.isArray(invitations?.invitations) ? invitations.invitations : [];
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
+        <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
             {/* Header Section */}
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
                 <h2 className="text-lg sm:text-xl font-bold text-purple-900 mb-2">에디터 초대 요청</h2>

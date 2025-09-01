@@ -58,7 +58,7 @@ const VisitorAnalytics = () => {
     const monthTotal = useMemo(() => views?.body.views.reduce((acc, cur) => acc + cur.count, 0), [views]);
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg space-y-4 sm:space-y-6">
+        <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg space-y-4 sm:space-y-6">
             {/* Header Section */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 sm:p-6">
                 <h2 className="text-lg sm:text-xl font-bold text-blue-900 mb-2 flex items-center">
@@ -205,7 +205,7 @@ const VisitorAnalytics = () => {
                     ) : (
                         <div className="space-y-3">
                             {postViews.posts.map((item, index) => (
-                                <div key={item.url} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow">
+                                <div key={item.url} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-sm transition-shadow">
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                                         <div className="flex items-center space-x-3 flex-1">
                                             <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 text-blue-600 rounded-full text-xs sm:text-sm font-semibold flex-shrink-0">
@@ -228,10 +228,10 @@ const VisitorAnalytics = () => {
                                             </span>
                                             <span
                                                 className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${item.increaseCount > 0
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : item.increaseCount < 0
-                                                            ? 'bg-red-100 text-red-800'
-                                                            : 'bg-gray-100 text-gray-800'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : item.increaseCount < 0
+                                                        ? 'bg-red-100 text-red-800'
+                                                        : 'bg-gray-100 text-gray-800'
                                                     }`}>
                                                 {item.increaseCount > 0 ? '↑' : item.increaseCount < 0 ? '↓' : '='}
                                                 {Math.abs(item.increaseCount)}

@@ -204,6 +204,6 @@ def search_view(request):
             'page_count': (total_size + 9) // 10,
         }
 
-        return render(request, 'board/search.html', context)
+        return render(request, 'board/search/search_posts.html', context)
 
-    return render(request, 'board/search.html', {})
+    return render(request, 'board/search/search_posts.html', {})

@@ -172,7 +172,7 @@ def post_detail(request, username, post_url):
         'related_posts': related_posts,
     }
     
-    return render(request, 'board/post_detail.html', context)
+    return render(request, 'board/posts/post_detail.html', context)
 
 
 def post_editor(request, username=None, post_url=None):
@@ -189,7 +189,7 @@ def post_editor(request, username=None, post_url=None):
     if not is_edit:
         has_invitation = Invitation.objects.filter(receiver=request.user).exists()
         if not has_invitation:
-            return render(request, 'board/invitation_required.html')
+            return render(request, 'board/auth/invitation_required.html')
     post = None
     temp_post = None
     series_list = []
@@ -364,4 +364,4 @@ def post_editor(request, username=None, post_url=None):
         'is_editor_page': True,
     }
     
-    return render(request, 'board/post_editor.html', context)
+    return render(request, 'board/posts/post_editor.html', context)

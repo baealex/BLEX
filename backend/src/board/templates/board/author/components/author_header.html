@@ -15,7 +15,7 @@
             {% endif %}
         </div>
         
-        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
             {{ author.username }}
         </h1>
         
@@ -26,22 +26,21 @@
         {% endif %}
         
         {% if author.profile.homepage %}
-        <div class="mb-6 sm:mb-8" x-data="{ 
-            url: '{{ author.profile.homepage }}',
-            get hostname() {
-                try {
-                    return new URL(this.url).hostname.replace('www.', '');
-                } catch (e) {
-                    return this.url;
-                }
-            }
-        }">
-            <a :href="url" target="_blank" 
+        <div class="mb-6 sm:mb-8">
+            <a href="{{ author.profile.homepage }}" target="_blank" 
                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg 
                       text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 
                       transition-all duration-300 text-sm font-medium">
                 <i class="fas fa-external-link-alt"></i>
-                <span x-text="hostname"></span>
+                <span>
+                    {% if 'https://' in author.profile.homepage %}
+                        {{ author.profile.homepage|slice:"8:"|truncatechars:30 }}
+                    {% elif 'http://' in author.profile.homepage %}
+                        {{ author.profile.homepage|slice:"7:"|truncatechars:30 }}
+                    {% else %}
+                        {{ author.profile.homepage|truncatechars:30 }}
+                    {% endif %}
+                </span>
             </a>
         </div>
         {% endif %}

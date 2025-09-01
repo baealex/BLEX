@@ -16,7 +16,7 @@ def login_view(request):
         'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', '')
     }
     
-    return render(request, 'board/login.html', context)
+    return render(request, 'board/auth/login.html', context)
 
 
 def signup_view(request):
@@ -28,6 +28,6 @@ def signup_view(request):
     if request.user.is_authenticated:
         return redirect('/')
     
-    return render(request, 'board/signup.html')
+    return render(request, 'board/auth/signup.html')
 
 

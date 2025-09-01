@@ -61,7 +61,7 @@ Parameters:
                     <span>{{ post.count_comments }}</span>
                 </div>
                 <div class="flex items-center gap-1.5 text-sm">
-                    {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked %}
+                    {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked %}
                 </div>
             </div>
         </footer>

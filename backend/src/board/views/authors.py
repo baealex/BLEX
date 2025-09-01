@@ -154,4 +154,4 @@ def authors_view(request):
             'page_count': paginator.num_pages,
         }
     
-    return render(request, 'board/authors.html', context)
+    return render(request, 'board/search/search_authors.html', context)

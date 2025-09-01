@@ -106,7 +106,7 @@ const NotifySetting = () => {
 
     if (isNotifyLoading) {
         return (
-            <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
+            <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
                 <div className="animate-pulse">
                     <div className="flex flex-col sm:flex-row justify-end mb-4 gap-2">
                         <div className="h-10 sm:h-10 w-full sm:w-32 bg-gray-200 rounded-md" />
@@ -126,7 +126,7 @@ const NotifySetting = () => {
     }
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-md rounded-lg">
+        <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
             {/* Header with telegram integration and settings button */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-4 gap-3 sm:gap-4">
                 <a href="/settings/integration" className="bg-blue-50 border border-solid border-blue-200 text-blue-800 px-4 py-3 rounded-md text-sm flex items-center flex-1 min-h-[48px]">

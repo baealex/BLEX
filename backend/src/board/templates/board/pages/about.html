@@ -1,0 +1,196 @@
+{% extends 'board/base.html' %}
+{% load static %}
+
+{% block title %}About - BLEX{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 mb-16 pt-8">
+    <div class="relative bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white rounded-3xl shadow-2xl overflow-hidden mb-12">
+        <!-- 배경 장식 -->
+        <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%)] bg-[length:20px_20px]"></div>
+        <div class="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-zinc-400/20 to-zinc-600/10 rounded-full blur-xl"></div>
+        <div class="absolute -bottom-20 -left-20 w-72 h-72 bg-gradient-to-tr from-zinc-500/10 to-zinc-700/5 rounded-full blur-xl"></div>
+        
+        <div class="relative z-10 text-center py-24 px-8">
+            <div class="w-24 h-24 bg-gradient-to-br from-zinc-200/20 to-zinc-300/10 backdrop-blur-sm rounded-3xl mx-auto mb-8 flex items-center justify-center shadow-lg">
+                <svg class="w-12 h-12 text-zinc-100" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+            </div>
+            <h1 class="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-zinc-100 via-white to-zinc-100 bg-clip-text text-transparent">
+                BLEX
+            </h1>
+            <p class="text-xl sm:text-2xl text-zinc-200 max-w-3xl mx-auto leading-relaxed font-light">
+                개발자를 위한 차세대 블로그 플랫폼<br>
+                <span class="text-lg text-zinc-300">지식을 공유하고, 성장하고, 연결되세요</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+    <div class="text-center mb-16">
+        <div class="w-24 h-1.5 bg-gradient-to-r from-zinc-400 to-zinc-600 rounded-full mx-auto mb-8"></div>
+        <p class="text-xl text-zinc-600 max-w-3xl mx-auto leading-relaxed">
+            개발자를 위해 설계된&nbsp;<span class="font-semibold text-zinc-800">편리하고 직관적인</span>&nbsp;블로깅 도구들을 만나보세요
+        </p>
+    </div>
+
+    <!-- 특별한 글쓰기 기능 강조 섹션 -->
+    <div class="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-3xl p-12 mb-16 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%)] bg-[length:30px_30px]"></div>
+        <div class="relative z-10">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="px-4 py-2 bg-zinc-100/10 backdrop-blur-sm rounded-full border border-zinc-100/20">
+                    <span class="text-zinc-100 text-sm font-medium">🚀 NEW</span>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-bold text-white">더 나은 글쓰기 경험</h3>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h4 class="text-xl font-semibold text-zinc-100 mb-6">WYSIWYG + 마크다운의 완벽한 조화</h4>
+                    <ul class="space-y-4 text-zinc-300">
+                        <li class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-zinc-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span><strong class="text-zinc-100">실시간 프리뷰</strong> - 작성과 동시에 결과 확인</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-zinc-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span><strong class="text-zinc-100">스마트 자동완성</strong> - 마크다운 문법 지원</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-zinc-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span><strong class="text-zinc-100">드래그 앤 드롭</strong> - 이미지와 파일 간편 업로드</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 개선된 에디터 강조 -->
+        <div class="group bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-zinc-200/60 p-8 hover:-translate-y-3 transition-all duration-500 hover:shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-zinc-100/50 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+            <div class="w-14 h-14 bg-gradient-to-br from-zinc-600 to-zinc-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="relative z-10">
+                <h3 class="text-xl font-bold text-zinc-800 mb-4">직관적인 에디터</h3>
+                <p class="text-zinc-600 leading-relaxed mb-4">
+                    마크다운과 WYSIWYG의 장점을 결합한 에디터로 글쓰기가 즐거워집니다.
+                </p>
+                <div class="text-sm text-zinc-500">
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">실시간 프리뷰</span>
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">자동완성</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-zinc-200/60 p-8 hover:-translate-y-3 transition-all duration-500 hover:shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-zinc-100/50 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+            <div class="w-14 h-14 bg-gradient-to-br from-zinc-600 to-zinc-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                </svg>
+            </div>
+            <div class="relative z-10">
+                <h3 class="text-xl font-bold text-zinc-800 mb-4">코드 하이라이팅</h3>
+                <p class="text-zinc-600 leading-relaxed mb-4">
+                    다양한 프로그래밍 언어의 코드를 아름답고 읽기 쉽게 표시합니다.
+                </p>
+                <div class="text-sm text-zinc-500">
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">Python</span>
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">JavaScript</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-zinc-200/60 p-8 hover:-translate-y-3 transition-all duration-500 hover:shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-zinc-100/50 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+            <div class="w-14 h-14 bg-gradient-to-br from-zinc-600 to-zinc-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+            </div>
+            <div class="relative z-10">
+                <h3 class="text-xl font-bold text-zinc-800 mb-4">스마트 태그</h3>
+                <p class="text-zinc-600 leading-relaxed mb-4">
+                    자동 완성과 추천 기능이 있는 태그 시스템으로 콘텐츠를 체계적으로 분류하세요.
+                </p>
+                <div class="text-sm text-zinc-500">
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">자동추천</span>
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">검색최적화</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-zinc-200/60 p-8 hover:-translate-y-3 transition-all duration-500 hover:shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-zinc-100/50 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+            <div class="w-14 h-14 bg-gradient-to-br from-zinc-600 to-zinc-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <div class="relative z-10">
+                <h3 class="text-xl font-bold text-zinc-800 mb-4">모든 기기 지원</h3>
+                <p class="text-zinc-600 leading-relaxed mb-4">
+                    데스크톱부터 모바일까지 완벽한 반응형 디자인으로 어디서나 최적의 경험을 제공합니다.
+                </p>
+                <div class="text-sm text-zinc-500">
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">반응형</span>
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">PWA</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-zinc-200/60 p-8 hover:-translate-y-3 transition-all duration-500 hover:shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-zinc-100/50 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+            <div class="w-14 h-14 bg-gradient-to-br from-zinc-600 to-zinc-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </div>
+            <div class="relative z-10">
+                <h3 class="text-xl font-bold text-zinc-800 mb-4">실시간 분석</h3>
+                <p class="text-zinc-600 leading-relaxed mb-4">
+                    방문자 통계, 인기 포스트, 성장 지표를 한눈에 확인하고 콘텐츠를 최적화하세요.
+                </p>
+                <div class="text-sm text-zinc-500">
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">대시보드</span>
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">성과분석</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-zinc-200/60 p-8 hover:-translate-y-3 transition-all duration-500 hover:shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-zinc-100/50 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+            <div class="w-14 h-14 bg-gradient-to-br from-zinc-600 to-zinc-800 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+                </svg>
+            </div>
+            <div class="relative z-10">
+                <h3 class="text-xl font-bold text-zinc-800 mb-4">소셜 통합</h3>
+                <p class="text-zinc-600 leading-relaxed mb-4">
+                    SEO 최적화와 소셜 미디어 연동으로 더 많은 독자에게 콘텐츠를 효과적으로 전달하세요.
+                </p>
+                <div class="text-sm text-zinc-500">
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">SEO</span>
+                    <span class="inline-block bg-zinc-100 px-2 py-1 rounded-md mr-2 mb-1">공유기능</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

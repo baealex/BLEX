@@ -160,7 +160,7 @@
                 
                 <!-- 오른쪽: 액션 버튼들 -->
                 <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                    {% island_component 'LikeButton' postId=post.url likesCount=post.count_likes hasLiked=post.has_liked size='small' %}
+                    {% include 'components/like_button.html' with post_url=post.url likes_count=post.count_likes has_liked=post.has_liked size='small' %}
                     
                     <button @click="
                         if (navigator.share) {

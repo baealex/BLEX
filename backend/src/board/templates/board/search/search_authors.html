@@ -33,10 +33,10 @@
         </div>
         
         <!-- Enhanced Search Form -->
-        <div class="max-w-full" x-data="{ query: '{{ query }}' }">
+        <div class="max-w-full px-4" x-data="{ query: '{{ query }}' }">
             <form action="{% url 'authors' %}" method="get" class="relative group">
-                <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 group-focus-within:shadow-2xl">
-                    <div class="flex items-center">
+                <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 group-focus-within:shadow-2xl overflow-hidden">
+                    <div class="flex items-center min-w-0">
                         <div class="pl-4 sm:pl-6 pr-3 sm:pr-4 py-4 sm:py-6">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-focus-within:text-purple-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -47,7 +47,7 @@
                             name="q" 
                             x-model="query"
                             placeholder="작가 이름이나 소개글로 검색..." 
-                            class="flex-1 py-4 sm:py-6 text-base sm:text-lg bg-transparent border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
+                            class="flex-1 min-w-0 py-4 sm:py-6 text-base sm:text-lg bg-transparent border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
                             autocomplete="off"
                         >
                         <button type="button" 
@@ -58,7 +58,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
-                        <button type="submit" class="m-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <button type="submit" class="m-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-3 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold transition-all duration-200 shadow-lg hover:shadow-xl flex-shrink-0">
                             검색
                         </button>
                     </div>

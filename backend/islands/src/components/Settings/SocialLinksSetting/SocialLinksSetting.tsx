@@ -68,63 +68,9 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
     return (
         <div ref={setNodeRef} style={style} className="mb-4">
-            {/* 데스크탑 레이아웃 */}
-            <div className="hidden sm:flex items-center gap-3 p-4 bg-white border border-slate-200/60 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-200/60 transition-all duration-200 group">
-                <div
-                    className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center transition-colors group-hover:text-indigo-500 hover:bg-slate-100 rounded-lg"
-                    style={{ touchAction: 'none' }}
-                    {...attributes}
-                    {...listeners}>
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" />
-                    </svg>
-                </div>
-
-                <div className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg shadow-sm group-hover:from-indigo-50 group-hover:to-indigo-100 transition-all duration-200">
-                    <i className={`${getIconClassName(social.name)} text-slate-600 text-lg group-hover:text-indigo-600`} />
-                </div>
-
-                <div className="w-44">
-                    <select
-                        className="block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-slate-50/50 hover:bg-white"
-                        value={social.name}
-                        onChange={(e) => onChange(index, 'name', e.target.value)}>
-                        <option disabled value="">아이콘 선택</option>
-                        <option value="github">깃허브</option>
-                        <option value="twitter">트위터</option>
-                        <option value="facebook">페이스북</option>
-                        <option value="telegram">텔레그램</option>
-                        <option value="instagram">인스타그램</option>
-                        <option value="linkedin">링크드인</option>
-                        <option value="youtube">유튜브</option>
-                        <option value="other">기타</option>
-                    </select>
-                </div>
-
-                <div className="flex-1">
-                    <input
-                        type="url"
-                        placeholder="https://example.com"
-                        className="block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-slate-50/50 hover:bg-white"
-                        value={social.value}
-                        onChange={(e) => onChange(index, 'value', e.target.value)}
-                    />
-                </div>
-
-                <button
-                    type="button"
-                    className="w-10 h-10 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 group/btn"
-                    onClick={() => onRemove(social.id)}>
-                    <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                </button>
-            </div>
-
-            {/* 모바일 레이아웃 */}
-            <div className="sm:hidden bg-white border border-slate-200/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-                {/* 상단 헤더 */}
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
+            <div className="bg-white border border-slate-200/60 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-200/60 transition-all duration-200 group overflow-hidden">
+                {/* 헤더 영역 - 모든 화면 크기에서 표시 */}
+                <div className="flex items-center justify-between p-4 sm:hidden bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
                     <div className="flex items-center gap-3">
                         <div
                             className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center transition-colors touch-none hover:bg-slate-100 rounded-lg"
@@ -150,12 +96,29 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     </button>
                 </div>
 
-                {/* 컨텐츠 영역 */}
-                <div className="p-4 space-y-4">
-                    <div>
-                        <label className="block text-xs font-medium text-slate-600 mb-2">플랫폼 선택</label>
+                {/* 메인 컨텐츠 영역 */}
+                <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
+                    {/* 드래그 핸들 - 데스크톱에서만 표시 */}
+                    <div
+                        className="hidden sm:flex cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 w-8 h-8 items-center justify-center transition-colors group-hover:text-indigo-500 hover:bg-slate-100 rounded-lg flex-shrink-0"
+                        style={{ touchAction: 'none' }}
+                        {...attributes}
+                        {...listeners}>
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" />
+                        </svg>
+                    </div>
+
+                    {/* 아이콘 - 데스크톱에서만 표시 */}
+                    <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg shadow-sm group-hover:from-indigo-50 group-hover:to-indigo-100 transition-all duration-200 flex-shrink-0">
+                        <i className={`${getIconClassName(social.name)} text-slate-600 text-lg group-hover:text-indigo-600`} />
+                    </div>
+
+                    {/* 플랫폼 선택 */}
+                    <div className="w-full sm:w-44 flex-shrink-0">
+                        <label className="block text-xs font-medium text-slate-600 mb-2 sm:hidden">플랫폼 선택</label>
                         <select
-                            className="block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-slate-50/50"
+                            className="block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-slate-50/50 hover:bg-white"
                             value={social.name}
                             onChange={(e) => onChange(index, 'name', e.target.value)}>
                             <option disabled value="">아이콘 선택</option>
@@ -170,16 +133,27 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                         </select>
                     </div>
 
-                    <div>
-                        <label className="block text-xs font-medium text-slate-600 mb-2">링크 주소</label>
+                    {/* 링크 주소 */}
+                    <div className="flex-1">
+                        <label className="block text-xs font-medium text-slate-600 mb-2 sm:hidden">링크 주소</label>
                         <input
                             type="url"
                             placeholder="https://example.com"
-                            className="block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-slate-50/50"
+                            className="block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-slate-50/50 hover:bg-white"
                             value={social.value}
                             onChange={(e) => onChange(index, 'value', e.target.value)}
                         />
                     </div>
+
+                    {/* 삭제 버튼 - 데스크톱에서만 표시 */}
+                    <button
+                        type="button"
+                        className="hidden sm:flex w-10 h-10 items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 group/btn flex-shrink-0"
+                        onClick={() => onRemove(social.id)}>
+                        <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
