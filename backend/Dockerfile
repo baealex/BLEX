@@ -42,4 +42,4 @@ COPY --from=backend-stage /app/resources/ /resources/
 
 FROM backend-stage
 ENTRYPOINT ["gunicorn"]
-CMD ["--bind", "0.0.0.0:8000", "--workers", "4", "--access-log", "-", "--log-level", "info", "main.wsgi:application"]
+CMD ["--bind", "0.0.0.0:8000", "--workers", "4", "--access-logfile", "-", "--log-level", "info", "main.wsgi:application"]
