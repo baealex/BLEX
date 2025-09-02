@@ -1,5 +1,11 @@
 from django.shortcuts import render
 
+def custom_404_view(request, exception=None):
+    """
+    Custom 404 error page handler.
+    """
+    return render(request, 'board/404.html', status=404)
+
 def about_view(request):
     """
     View function for the About page.

@@ -19,13 +19,19 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 
+from board.views.static_pages import custom_404_view
+
 urlpatterns = []
 
-# Serve static and media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.RESOURCE_URL, document_root=os.path.join(settings.BASE_DIR, 'resources'))
+    urlpatterns += [
+        path('404', custom_404_view),
+    ]
 
 urlpatterns += [
     path('djangomyadmin/', admin.site.urls),
     path('', include('board.urls')),
 ]
+
+handler404 = custom_404_view
