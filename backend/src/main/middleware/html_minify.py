@@ -3,136 +3,94 @@ from django.utils.deprecation import MiddlewareMixin
 
 
 class HTMLMinifyMiddleware(MiddlewareMixin):
-    """
-    HTML 압축 미들웨어 - 안전하고 견고한 압축
-    """
-    
-    def __init__(self, get_response=None):
+    def __init__(self, get_response):
         self.get_response = get_response
-        self.async_mode = False
-        
-        # 보존할 태그들의 정규식 패턴 (스크립트와 텍스트 영역만)
-        self.preserve_patterns = [
-            (re.compile(r'(<script[^>]*>.*?</script>)', re.DOTALL | re.IGNORECASE), 'SCRIPT'),
-            (re.compile(r'(<pre[^>]*>.*?</pre>)', re.DOTALL | re.IGNORECASE), 'PRE'),
-            (re.compile(r'(<code[^>]*>.*?</code>)', re.DOTALL | re.IGNORECASE), 'CODE'),
-            (re.compile(r'(<textarea[^>]*>.*?</textarea>)', re.DOTALL | re.IGNORECASE), 'TEXTAREA'),
-        ]
-        
-        # CSS 압축을 위한 별도 패턴
-        self.style_pattern = re.compile(r'(<style[^>]*>)(.*?)(</style>)', re.DOTALL | re.IGNORECASE)
+        super().__init__(get_response)
 
     def process_response(self, request, response):
-        # HTML 응답만 처리
-        content_type = response.get('Content-Type', '')
-        if 'text/html' not in content_type:
-            return response
+        # Only minify HTML responses
+        if (response.status_code == 200 and 
+            response.get('Content-Type', '').startswith('text/html')):
             
-        # 관리자 페이지는 제외
-        if request.path.startswith('/admin/'):
-            return response
-            
-        try:
             content = response.content.decode('utf-8')
-            minified_content = self._minify_html(content)
-            
+            minified_content = self.minify_html(content)
             response.content = minified_content.encode('utf-8')
             response['Content-Length'] = len(response.content)
-            
-        except Exception:
-            # 오류 발생 시 원본 그대로 반환
-            pass
-            
+        
         return response
 
-    def _minify_html(self, content):
-        """HTML을 안전하게 압축"""
-        if not content.strip():
-            return content
-            
-        # 1단계: 보존할 태그들을 플레이스홀더로 대체
+    def minify_html(self, html):
+        # Store sensitive content blocks to preserve them
         preserved_blocks = {}
-        for pattern, tag_type in self.preserve_patterns:
-            def preserve_block(match):
-                placeholder = f'__PRESERVE_{tag_type}_{len(preserved_blocks)}__'
-                preserved_blocks[placeholder] = match.group(1)
-                return placeholder
-            content = pattern.sub(preserve_block, content)
-        
-        # 2단계: 스타일 태그 CSS 압축 처리
-        def minify_style(match):
-            opening_tag = match.group(1)
-            css_content = match.group(2)
-            closing_tag = match.group(3)
-            
-            minified_css = self._minify_css(css_content)
-            return opening_tag + minified_css + closing_tag
-            
-        content = self.style_pattern.sub(minify_style, content)
-        
-        # 3단계: HTML 주석 제거 (조건부 주석은 보존)
-        content = re.sub(r'<!--(?!\s*(?:\[if|<!)).*?-->', '', content, flags=re.DOTALL)
-        
-        # 4단계: 공백 정리
-        content = self._clean_whitespace(content)
-        
-        # 5단계: 보존된 블록 복원
-        for placeholder, original in preserved_blocks.items():
-            content = content.replace(placeholder, original)
-            
-        return content
+        block_counter = 0
 
-    def _clean_whitespace(self, content):
-        """공백을 안전하게 정리"""
-        # 줄바꿈과 연속된 공백을 하나의 공백으로
-        content = re.sub(r'\s+', ' ', content)
-        
-        # 태그 사이의 불필요한 공백 제거
-        content = re.sub(r'>\s+<', '><', content)
-        
-        # 태그 시작/끝의 공백 정리
-        content = re.sub(r'\s*>\s*', '>', content)
-        content = re.sub(r'\s*<\s*', '<', content)
-        
-        # 속성 주변 공백 정리 (더 안전한 패턴)
-        content = re.sub(r'\s*=\s*', '=', content)
-        
-        # 셀프 클로징 태그 정리
-        content = re.sub(r'\s+/>', '/>', content)
-        
-        # 앞뒤 공백 제거
-        content = content.strip()
-        
-        return content
+        # Preserve script tags (JavaScript)
+        def preserve_script(match):
+            nonlocal block_counter
+            key = f"__PRESERVED_SCRIPT_{block_counter}__"
+            preserved_blocks[key] = match.group(0)
+            block_counter += 1
+            return key
 
-    def _minify_css(self, css_content):
-        """CSS를 안전하게 압축"""
-        if not css_content.strip():
-            return css_content
+        # Preserve style tags (CSS)
+        def preserve_style(match):
+            nonlocal block_counter
+            key = f"__PRESERVED_STYLE_{block_counter}__"
+            preserved_blocks[key] = match.group(0)
+            block_counter += 1
+            return key
+
+        # Preserve pre and textarea tags (formatted content)
+        def preserve_pre_textarea(match):
+            nonlocal block_counter
+            key = f"__PRESERVED_PRE_{block_counter}__"
+            preserved_blocks[key] = match.group(0)
+            block_counter += 1
+            return key
+
+        # Preserve Alpine.js attributes and x-data content
+        def preserve_alpine_data(match):
+            nonlocal block_counter
+            key = f"__PRESERVED_ALPINE_{block_counter}__"
+            preserved_blocks[key] = match.group(0)
+            block_counter += 1
+            return key
+
+        # Store all sensitive content
+        html = re.sub(r'<script\b[^>]*>.*?</script>', preserve_script, html, flags=re.DOTALL | re.IGNORECASE)
+        html = re.sub(r'<style\b[^>]*>.*?</style>', preserve_style, html, flags=re.DOTALL | re.IGNORECASE)
+        html = re.sub(r'<(pre|textarea)\b[^>]*>.*?</\1>', preserve_pre_textarea, html, flags=re.DOTALL | re.IGNORECASE)
         
-        # CSS 주석 제거 (/* ... */ 형식)
-        css_content = re.sub(r'/\*.*?\*/', '', css_content, flags=re.DOTALL)
+        # Preserve Alpine.js x-data attributes (they contain JavaScript)
+        html = re.sub(r'x-data\s*=\s*"[^"]*"', preserve_alpine_data, html, flags=re.IGNORECASE)
+        html = re.sub(r"x-data\s*=\s*'[^']*'", preserve_alpine_data, html, flags=re.IGNORECASE)
+
+        # Now perform safe minification
+        # Remove HTML comments (but not IE conditional comments)
+        html = re.sub(r'<!--(?!\[if).*?-->', '', html, flags=re.DOTALL)
         
-        # 연속된 공백, 탭, 줄바꿈을 하나의 공백으로
-        css_content = re.sub(r'\s+', ' ', css_content)
+        # Remove unnecessary whitespace between tags, but preserve single spaces
+        # This prevents text from sticking together
+        html = re.sub(r'>\s+<', '><', html)
         
-        # 중괄호 주변 공백 제거
-        css_content = re.sub(r'\s*{\s*', '{', css_content)
-        css_content = re.sub(r'\s*}\s*', '}', css_content)
+        # Remove leading/trailing whitespace from lines, but keep line breaks for inline elements
+        lines = html.split('\n')
+        cleaned_lines = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped:
+                cleaned_lines.append(stripped)
+        html = '\n'.join(cleaned_lines)
         
-        # 세미콜론 주변 공백 정리
-        css_content = re.sub(r'\s*;\s*', ';', css_content)
+        # Compress multiple consecutive whitespace characters to single space
+        # But preserve intentional spacing in text content
+        html = re.sub(r'[ \t]+', ' ', html)
         
-        # 콜론 주변 공백 정리
-        css_content = re.sub(r'\s*:\s*', ':', css_content)
-        
-        # 콤마 주변 공백 정리
-        css_content = re.sub(r'\s*,\s*', ',', css_content)
-        
-        # 마지막 세미콜론 전 공백 제거
-        css_content = re.sub(r'\s*;\s*}', '}', css_content)
-        
-        # 앞뒤 공백 제거
-        css_content = css_content.strip()
-        
-        return css_content
+        # Remove unnecessary line breaks (but keep some for readability and text flow)
+        html = re.sub(r'\n\s*\n', '\n', html)
+
+        # Restore all preserved content
+        for key, content in preserved_blocks.items():
+            html = html.replace(key, content)
+
+        return html
