@@ -2,7 +2,9 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
+from board.constants.config_meta import CONFIG_TYPE
 from board.models import Post, PostLikes
+from board.modules.notify import create_notify
 
 
 @require_POST
@@ -37,6 +39,15 @@ def like_post(request, url):
             post=post,
             user=request.user
         )
+        # Send notification to post author
+        if request.user != post.author and post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_LIKE):
+            send_notify_content = (
+                f"'{post.title}' 글을 "
+                f"@{request.user.username}님께서 추천하였습니다.")
+            create_notify(
+                user=post.author,
+                url=post.get_absolute_url(),
+                content=send_notify_content)
     
     # Get updated like count
     count_likes = PostLikes.objects.filter(post=post).count()
