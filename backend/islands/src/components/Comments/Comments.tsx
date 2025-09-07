@@ -222,7 +222,7 @@ const Comments = (props: CommentsProps) => {
             )}
 
             {data?.comments.length === 0 ? (
-                <div className="h-[200px] flex flex-col items-center justify-center rounded-2xl p-6 sm:p-8 border-2 border-dashed border-gray-200">
+                <div className="h-[200px] flex flex-col items-center justify-center rounded-2xl">
                     <div className="text-3xl sm:text-4xl text-gray-300 mb-3 sm:mb-4">
                         <i className="far fa-comments" />
                     </div>
@@ -360,12 +360,9 @@ const Comments = (props: CommentsProps) => {
                             rows={4}
                         />
 
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                            <p className="text-xs sm:text-sm text-gray-500 order-2 sm:order-1">
-                                💡 `@username`을 사용하여 다른 사용자를 언급할 수 있습니다.
-                            </p>
+                        <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3">
                             <button
-                                className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2"
+                                className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2"
                                 onClick={handleWrite}
                                 disabled={isSubmitting || !commentText.trim()}>
                                 {isSubmitting ? (

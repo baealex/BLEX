@@ -755,3 +755,51 @@ def user_posts(request, username, url=None):
             return StatusDone()
 
     raise Http404
+
+
+def user_post_related(request, username, url):
+    """
+    Get related posts for a specific post based on shared tags.
+    """
+    if request.method == 'GET':
+        post = get_object_or_404(Post.objects.select_related('config').prefetch_related('tags'), 
+                                 author__username=username, url=url)
+        
+        # Check if the post is accessible
+        if post.config.hide and (not request.user.is_authenticated or request.user != post.author):
+            raise Http404
+        
+        # Get related posts (posts with similar tags) - limit to 3 for performance
+        related_posts = []
+        if post.tags.exists():
+            # Get tag values for current post
+            current_tags = list(post.tags.values_list('value', flat=True))
+            
+            # Find related posts with shared tags
+            related_posts = Post.objects.select_related(
+                'author', 'author__profile', 'config'
+            ).filter(
+                tags__value__in=current_tags,
+                config__hide=False,
+                created_date__lte=timezone.now(),
+            ).exclude(
+                id=post.id
+            ).annotate(
+                author_username=F('author__username'),
+                author_image=F('author__profile__avatar'),
+            ).order_by('-created_date').distinct()[:3]
+        
+        return StatusDone({
+            'posts': list(map(lambda related_post: {
+                'url': related_post.url,
+                'title': related_post.title,
+                'image': str(related_post.image) if related_post.image else None,
+                'meta_description': related_post.meta_description,
+                'read_time': related_post.read_time,
+                'created_date': convert_to_localtime(related_post.created_date).strftime('%Y-%m-%d'),
+                'author_username': related_post.author_username,
+                'author_image': str(related_post.author_image) if related_post.author_image else None,
+            }, related_posts))
+        })
+    
+    raise Http404

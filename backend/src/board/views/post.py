@@ -124,31 +124,6 @@ def post_detail(request, username, post_url):
         post.next_post = series_posts[current_idx + 1] if current_idx < post.series_total - 1 else None
         post.visible_series_posts = visible_posts
     
-    # Get related posts (posts with similar tags) - optimized for performance
-    related_posts = []
-    if post.tags.exists():  # Check if post has any tags
-        # Get tag values for current post
-        current_tags = list(post.tags.values_list('value', flat=True))
-        
-        # Find related posts with shared tags (limit to 3 for performance)
-        related_posts = Post.objects.select_related(
-            'author', 'author__profile', 'config'
-        ).filter(
-            tags__value__in=current_tags,
-            config__hide=False,
-            created_date__lte=timezone.now(),
-        ).exclude(
-            id=post.id
-        ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar'),
-            count_likes=Count('likes', distinct=True),
-            count_comments=Count('comments', distinct=True),
-        ).order_by('-created_date').distinct()[:3]
-        
-        # Format dates for related posts
-        for related_post in related_posts:
-            related_post.created_date = related_post.created_date.strftime('%Y-%m-%d')
     
     # Collect analytics data (IP, user agent, referrer)
     try:
@@ -169,7 +144,6 @@ def post_detail(request, username, post_url):
 
     context = {
         'post': post,
-        'related_posts': related_posts,
     }
     
     return render(request, 'board/posts/post_detail.html', context)
@@ -237,7 +211,7 @@ def post_editor(request, username=None, post_url=None):
         text_html = request.POST.get('text_md')  # Now receiving HTML directly from editor
         text_md = text_html  # Keep text_md for backward compatibility, but it's now HTML
         meta_description = request.POST.get('meta_description', '')
-        tags_str = request.POST.get('tags', '')
+        tags_str = request.POST.get('tag', '')
         series_id = request.POST.get('series', '')
         
         # Process tags

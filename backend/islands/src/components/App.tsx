@@ -12,6 +12,7 @@ const LazyComponents = {
     Heatmap: lazy(() => import('./Heatmap')),
     Login: lazy(() => import('./Login')),
     SocialLogin: lazy(() => import('./SocialLogin')),
+    RelatedPosts: lazy(() => import('./RelatedPosts')),
     InvitationRequest: lazy(() => import('./InvitationRequest')),
 
     // Dashboard

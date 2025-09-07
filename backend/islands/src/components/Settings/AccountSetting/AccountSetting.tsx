@@ -439,9 +439,6 @@ const AccountSettings: React.FC = () => {
                 <div className="space-y-3">
                     <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
                         <div className="flex items-center">
-                            <svg className="w-5 h-5 mr-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-0.257-0.257A6 6 0 1118 8zM2 8a8 8 0 1016 0A8 8 0 002 8zm8-3a3 3 0 100 6 3 3 0 000-6z" clipRule="evenodd" />
-                            </svg>
                             <div>
                                 <p className="font-medium text-gray-900">2차 인증</p>
                                 <p className="text-sm text-gray-500">계정 보안을 강화합니다</p>
@@ -452,9 +449,6 @@ const AccountSettings: React.FC = () => {
                                 type="button"
                                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                                 onClick={() => handle2FA(false)}>
-                                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
                                 중지
                             </button>
                         ) : (
@@ -462,19 +456,12 @@ const AccountSettings: React.FC = () => {
                                 type="button"
                                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                                 onClick={() => handle2FA(true)}>
-                                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
                                 활성화
                             </button>
                         )}
                     </div>
                     <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
                         <div className="flex items-center">
-                            <svg className="w-5 h-5 mr-3 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clipRule="evenodd" />
-                                <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h2a2 2 0 002-2V3a2 2 0 012 2v6.5A1.5 1.5 0 0114.5 17h-9A1.5 1.5 0 014 15.5V5zM7 8a1 1 0 012 0v3a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v3a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
                             <div>
                                 <p className="font-medium text-gray-900">계정 삭제</p>
                                 <p className="text-sm text-gray-500">모든 데이터가 영구적으로 삭제됩니다</p>
@@ -484,10 +471,6 @@ const AccountSettings: React.FC = () => {
                             type="button"
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                             onClick={() => notification('계정 삭제 기능을 구현 중입니다.', { type: 'info' })}>
-                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clipRule="evenodd" />
-                                <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h2a2 2 0 002-2V3a2 2 0 012 2v6.5A1.5 1.5 0 0114.5 17h-9A1.5 1.5 0 014 15.5V5zM7 8a1 1 0 012 0v3a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v3a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
                             삭제
                         </button>
                     </div>
