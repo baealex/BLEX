@@ -13,7 +13,7 @@ const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
             .toLowerCase()
             .replace(/[^a-z0-9가-힣\s]/g, '')
             .replace(/\s+/g, '-');
-        
+
         if (processedTag && !tags.includes(processedTag)) {
             onTagsChange([...tags, processedTag]);
             setNewTag('');
