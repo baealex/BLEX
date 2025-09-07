@@ -8,7 +8,7 @@ from board.sitemaps import sitemaps, sitemap_section
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
 from board.views import main
-from board.views.post_actions import like_post
+from board.views.post_actions import like_post, thanks_post, no_thanks_post
 from board.views.search import search_view
 from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit
@@ -33,7 +33,6 @@ urlpatterns = [
     path('', main.index, name='index'),
     path('search', search_view, name='search'),
     path('authors', authors_view, name='authors'),
-    path('like/<str:url>', like_post, name='like_post'),
     path('login', login_view, name='login'),
     path('sign', signup_view, name='signup'),
     path('login/callback/<str:provider>', oauth_callback, name='oauth_callback'),
@@ -56,6 +55,11 @@ urlpatterns = [
     path('settings/invitation', setting_invitation, name='setting_invitation'),
     path('settings/forms', setting_forms, name='setting_forms'),
     path('settings/temp-posts', setting_temp_posts, name='setting_temp_posts'),
+
+    # Post actions
+    path('like/<url>', like_post, name='like_post'),
+    path('thanks/<url>', thanks_post, name='thanks_post'),
+    path('nothanks/<url>', no_thanks_post, name='no_thanks_post'),
 
     # Author
     path('@<username>/series', author_series, name='user_series'),

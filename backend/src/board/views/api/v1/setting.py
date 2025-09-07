@@ -269,7 +269,7 @@ def setting(request, parameter):
                             analytics__created_date=parse_datetime(date),
                             then='analytics__devices'
                         )
-                    )
+                    ), distinct=True
                 ),
                 yesterday_count=Count(
                     Case(
@@ -277,7 +277,7 @@ def setting(request, parameter):
                             analytics__created_date=parse_datetime(date) - datetime.timedelta(days=1),
                             then='analytics__devices'
                         )
-                    )
+                    ), distinct=True
                 )
             ).order_by('-today_count', '-yesterday_count', '-created_date')[:8]
 
@@ -300,7 +300,7 @@ def setting(request, parameter):
             post_analytics = PostAnalytics.objects.values(
                 'created_date',
             ).annotate(
-                table_count=Count('devices'),
+                table_count=Count('devices', distinct=True),
             ).filter(
                 post__author=user,
                 created_date__gt=one_month_ago,
@@ -318,9 +318,9 @@ def setting(request, parameter):
 
             total = PostAnalytics.objects.filter(
                 post__author=user
-            ).annotate(
-                table_count=Count('devices'),
-            ).aggregate(sum=Sum('table_count'))['sum']
+            ).aggregate(
+                sum=Count('devices', distinct=True)
+            )['sum']
 
             return StatusDone({
                 'username': user.username,
