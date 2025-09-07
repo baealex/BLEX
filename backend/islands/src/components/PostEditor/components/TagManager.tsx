@@ -9,9 +9,13 @@ const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
     const [newTag, setNewTag] = useState('');
 
     const handleAddTag = () => {
-        const tag = newTag.trim();
-        if (tag && !tags.includes(tag)) {
-            onTagsChange([...tags, tag]);
+        const processedTag = newTag.trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9가-힣\s]/g, '')
+            .replace(/\s+/g, '-');
+        
+        if (processedTag && !tags.includes(processedTag)) {
+            onTagsChange([...tags, processedTag]);
             setNewTag('');
         }
     };
@@ -29,13 +33,7 @@ const TagManager: React.FC<TagManagerProps> = ({ tags, onTagsChange }) => {
                     <input
                         type="text"
                         value={newTag}
-                        onChange={(e) => {
-                            const value = e.target.value
-                                .toLowerCase()
-                                .replace(/[^a-z0-9가-힣\s]/g, '')
-                                .replace(/\s+/g, '-');
-                            setNewTag(value);
-                        }}
+                        onChange={(e) => setNewTag(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault();

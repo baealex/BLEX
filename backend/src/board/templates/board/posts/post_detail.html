@@ -185,14 +185,14 @@
                     :class="showFeedback ? 'bg-green-100 text-green-700 transform scale-95' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:scale-105 active:scale-95'"
                     aria-label="게시물 공유하기">
                         <i class="fas fa-share-alt" :class="showFeedback ? 'text-green-600' : ''"></i>
-                        <span class="hidden sm:inline" x-text="shareMessage"></span>
-                        <span class="sm:hidden text-xs" x-show="showFeedback" x-transition>✓</span>
+                        <span x-text="shareMessage"></span>
+                        <span class="text-xs" x-show="showFeedback" x-transition>✓</span>
                     </button>
                     
                     {% if user.is_authenticated and user.username == post.author_username %}
-                    <a href="{% url 'post_edit' post.author_username post.url %}" class="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm">
+                    <a href="{% url 'post_edit' post.author_username post.url %}" class="flex items-center gap-1 sm:gap-2 px-3 py-2.5 sm:px-3 sm:py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm min-h-[44px] min-w-[44px] sm:min-h-auto sm:min-w-auto">
                         <i class="fas fa-edit"></i>
-                        <span class="hidden sm:inline">편집</span>
+                        <span>편집</span>
                     </a>
                     {% endif %}
                 </div>
