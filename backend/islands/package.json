@@ -17,6 +17,7 @@
         "@dnd-kit/modifiers": "^9.0.0",
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
+        "@fortawesome/fontawesome-free": "^7.0.1",
         "@hookform/resolvers": "^3.6.0",
         "@tiptap/extension-blockquote": "^3.3.0",
         "@tiptap/extension-bold": "^3.3.0",
@@ -53,6 +54,7 @@
         "@tiptap/extension-underline": "^3.3.0",
         "@tiptap/pm": "^3.3.0",
         "@tiptap/react": "^3.3.0",
+        "alpinejs": "^3.15.0",
         "axios": "^1.11.0",
         "chart.js": "^4.5.0",
         "frappe-charts": "^1.6.2",
@@ -68,6 +70,7 @@
     "devDependencies": {
         "@baejino/eslint-config": "^0.1.0",
         "@baejino/eslint-config-react": "^0.1.0",
+        "@types/alpinejs": "^3.13.11",
         "@types/react": "^19.1.11",
         "@types/react-dom": "^19.1.7",
         "@vitejs/plugin-react": "^5.0.1",

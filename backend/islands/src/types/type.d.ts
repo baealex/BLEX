@@ -1,3 +1,4 @@
+import type Alpine from 'alpinejs';
 import 'react';
 
 declare module 'react' {
@@ -14,8 +15,9 @@ declare module '*.scss' {
 
 declare global {
     interface Window {
+        Alpine: Alpine;
         configuration: {
-            host: string;
+            media: string;
             static: string;
             user?: {
                 isAuthenticated: boolean;

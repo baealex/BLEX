@@ -29,7 +29,10 @@ export default defineConfig(({ mode }) => {
                 input: {
                     island: resolve(__dirname, 'src/island.tsx'),
                     mainStyle: resolve(__dirname, 'styles/main.scss'),
-                    postStyle: resolve(__dirname, 'styles/post.scss')
+                    postStyle: resolve(__dirname, 'styles/post.scss'),
+                    lazyLoading: resolve(__dirname, 'src/scripts/lazy-loading.ts'),
+                    alpineLoader: resolve(__dirname, 'src/scripts/alpine-loader.ts'),
+                    syntaxHighlighting: resolve(__dirname, 'src/scripts/syntax-highlighting.ts')
                 },
                 output: {
                     entryFileNames: '[name].[hash].js',

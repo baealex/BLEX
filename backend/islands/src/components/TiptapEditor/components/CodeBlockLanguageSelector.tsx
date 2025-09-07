@@ -1,115 +1,13 @@
 import React, { useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
+import { SUPPORTED_LANGUAGES, getLanguageLabel } from '../../../utils/languages';
 
 interface CodeBlockLanguageSelectorProps {
     editor: Editor;
     node: NodeViewProps['node'];
     updateAttributes: (attributes: Record<string, unknown>) => void;
 }
-
-const LANGUAGES = [
-    {
-        value: 'plaintext',
-        label: 'Plain Text'
-    },
-    {
-        value: 'javascript',
-        label: 'JavaScript'
-    },
-    {
-        value: 'typescript',
-        label: 'TypeScript'
-    },
-    {
-        value: 'python',
-        label: 'Python'
-    },
-    {
-        value: 'java',
-        label: 'Java'
-    },
-    {
-        value: 'cpp',
-        label: 'C++'
-    },
-    {
-        value: 'c',
-        label: 'C'
-    },
-    {
-        value: 'csharp',
-        label: 'C#'
-    },
-    {
-        value: 'php',
-        label: 'PHP'
-    },
-    {
-        value: 'ruby',
-        label: 'Ruby'
-    },
-    {
-        value: 'go',
-        label: 'Go'
-    },
-    {
-        value: 'rust',
-        label: 'Rust'
-    },
-    {
-        value: 'kotlin',
-        label: 'Kotlin'
-    },
-    {
-        value: 'swift',
-        label: 'Swift'
-    },
-    {
-        value: 'html',
-        label: 'HTML'
-    },
-    {
-        value: 'css',
-        label: 'CSS'
-    },
-    {
-        value: 'scss',
-        label: 'SCSS'
-    },
-    {
-        value: 'json',
-        label: 'JSON'
-    },
-    {
-        value: 'xml',
-        label: 'XML'
-    },
-    {
-        value: 'yaml',
-        label: 'YAML'
-    },
-    {
-        value: 'markdown',
-        label: 'Markdown'
-    },
-    {
-        value: 'bash',
-        label: 'Bash'
-    },
-    {
-        value: 'shell',
-        label: 'Shell'
-    },
-    {
-        value: 'sql',
-        label: 'SQL'
-    },
-    {
-        value: 'dockerfile',
-        label: 'Dockerfile'
-    }
-];
 
 const CodeBlockLanguageSelector: React.FC<CodeBlockLanguageSelectorProps> = ({
     node,
@@ -124,8 +22,7 @@ const CodeBlockLanguageSelector: React.FC<CodeBlockLanguageSelectorProps> = ({
     };
 
     const getCurrentLanguageLabel = () => {
-        const lang = LANGUAGES.find(l => l.value === currentLanguage);
-        return lang ? lang.label : 'Plain Text';
+        return getLanguageLabel(currentLanguage);
     };
 
     return (
@@ -143,7 +40,7 @@ const CodeBlockLanguageSelector: React.FC<CodeBlockLanguageSelectorProps> = ({
             {isOpen && (
                 <div className="absolute left-0 z-50 mt-1 w-48 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
                     <div className="py-1">
-                        {LANGUAGES.map((language) => (
+                        {SUPPORTED_LANGUAGES.map((language) => (
                             <button
                                 key={language.value}
                                 onClick={() => handleLanguageChange(language.value)}

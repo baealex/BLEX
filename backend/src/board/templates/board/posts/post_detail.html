@@ -284,58 +284,13 @@
 
     <!-- 댓글 섹션 -->
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm mb-8">
-        <h3 class="text-xl sm:text-2xl font-bold text-gray-900 p-4 sm:p-6 lg:p-8">
-            댓글 {{ post.count_comments }}개
-        </h3>
         <div class="p-4 sm:p-6 lg:p-8">
             {% island_component 'Comments' postUrl=post.url %}
         </div>
     </div>
 
     <!-- 관련 포스트 -->
-    {% if related_posts %}
-    <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm">
-        <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">관련 포스트</h3>
-        <div class="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {% for related_post in related_posts %}
-            <div class="group">
-                <a href="{% url 'post_detail' related_post.author_username related_post.url %}" class="block">
-                    {% if related_post.image %}
-                    <div class="aspect-video mb-4 overflow-hidden rounded-lg bg-gray-100">
-                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" 
-                             src="{{ related_post.image.url }}" 
-                             alt="{{ related_post.title }}">
-                    </div>
-                    {% else %}
-                    <div class="aspect-video mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-file-alt text-3xl text-gray-400"></i>
-                    </div>
-                    {% endif %}
-                    
-                    <h4 class="font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
-                        {{ related_post.title }}
-                    </h4>
-                    
-                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                        {{ related_post.meta_description }}
-                    </p>
-                    
-                    <div class="flex items-center gap-4 text-xs text-gray-500">
-                        <div class="flex items-center gap-1">
-                            <i class="far fa-calendar"></i>
-                            <span>{{ related_post.created_date }}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <i class="far fa-clock"></i>
-                            <span>{{ related_post.read_time }}분</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
+    {% island_component 'RelatedPosts' postUrl=post.url username=post.author_username %}
 </div>
 {% endblock %}
 
@@ -372,75 +327,6 @@
   "wordCount": "{{ post.read_time|default:5|stringformat:'i' }}00"
 }
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 코드 블록에 언어 헤더 추가 및 syntax highlighting 적용
-    const codeBlocks = document.querySelectorAll('pre > code[class*="language-"]');
-    
-    codeBlocks.forEach(function(codeElement) {
-        const preElement = codeElement.parentElement;
-        const languageClass = codeElement.className.match(/language-(\w+)/);
-        
-        if (languageClass && preElement && !preElement.parentElement.classList.contains('code-block-wrapper')) {
-            const language = languageClass[1];
-            const languageLabels = {
-                'plaintext': 'Plain Text',
-                'javascript': 'JavaScript',
-                'typescript': 'TypeScript',
-                'python': 'Python',
-                'java': 'Java',
-                'cpp': 'C++',
-                'c': 'C',
-                'csharp': 'C#',
-                'php': 'PHP',
-                'ruby': 'Ruby',
-                'go': 'Go',
-                'rust': 'Rust',
-                'kotlin': 'Kotlin',
-                'swift': 'Swift',
-                'html': 'HTML',
-                'css': 'CSS',
-                'scss': 'SCSS',
-                'json': 'JSON',
-                'xml': 'XML',
-                'yaml': 'YAML',
-                'markdown': 'Markdown',
-                'bash': 'Bash',
-                'shell': 'Shell',
-                'sql': 'SQL',
-                'dockerfile': 'Dockerfile'
-            };
-            
-            // syntax highlighting 적용
-            hljs.highlightElement(codeElement);
-            
-            // wrapper div 생성
-            const wrapper = document.createElement('div');
-            wrapper.className = 'code-block-wrapper';
-            
-            // header div 생성
-            const header = document.createElement('div');
-            header.className = 'code-block-header';
-            
-            // language span 생성
-            const languageSpan = document.createElement('span');
-            languageSpan.className = 'code-language';
-            languageSpan.textContent = languageLabels[language] || 'Plain Text';
-            
-            header.appendChild(languageSpan);
-            wrapper.appendChild(header);
-            
-            // pre 요소를 wrapper로 감싸기
-            preElement.parentElement.insertBefore(wrapper, preElement);
-            wrapper.appendChild(preElement);
-            
-            // hljs 클래스 추가
-            preElement.classList.add('hljs');
-        }
-    });
-});
-</script>
+<script type="module" src="{% island_entry 'src/scripts/syntax-highlighting.ts' %}"></script>
 
 {% endblock %}

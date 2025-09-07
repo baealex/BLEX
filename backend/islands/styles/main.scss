@@ -2,9 +2,13 @@
 @forward "@baejino/ui/css/main.css";
 @forward "./forwarded.scss";
 @forward "./tailwind.css";
+@forward "./fontawesome.scss";
 
 body {
     font-family: 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    overflow-x: hidden;
 }
 
 a {
