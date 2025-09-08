@@ -1,27 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import type { Response } from '~/modules/http.module';
-import { http } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
 import { getStaticPath } from '~/modules/static.module';
+import { commentsApi } from '~/api/comments';
 
 interface CommentsProps {
     postUrl: string;
 }
 
-interface Comment {
-    id: number;
-    author: string;
-    authorImage: string;
-    renderedContent: string;
-    isEdited: boolean;
-    createdDate: string;
-    countLikes: number;
-    isLiked: boolean;
-}
-
-interface CommentEditData {
-    textMd: string;
-}
 
 const Comments = (props: CommentsProps) => {
     const { postUrl } = props;
@@ -37,13 +22,7 @@ const Comments = (props: CommentsProps) => {
 
     const { data, isError, isLoading, refetch } = useFetch({
         queryKey: [postUrl, 'comments'],
-        queryFn: async () => {
-            const response = await http<Response<{ comments: Comment[] }>>(`v1/posts/${postUrl}/comments`, { method: 'GET' });
-            if (response.data.status === 'ERROR') {
-                throw new Error(response.data.errorMessage);
-            }
-            return response.data.body;
-        },
+        queryFn: () => commentsApi.getComments(postUrl),
         enable: !!postUrl
     });
 
@@ -61,18 +40,8 @@ const Comments = (props: CommentsProps) => {
 
     const handleLike = async (commentId: number) => {
         try {
-            const response = await http<Response<{ countLikes: number }>>(`v1/comments/${commentId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: 'like=like'
-            });
-
-            if (response.data.status === 'DONE') {
-                refetch();
-            } else {
-                setError('Failed to like comment');
-                setTimeout(() => setError(null), 3000);
-            }
+            await commentsApi.likeComment(commentId);
+            refetch();
         } catch {
             setError('Error liking comment');
             setTimeout(() => setError(null), 3000);
@@ -90,23 +59,11 @@ const Comments = (props: CommentsProps) => {
         setError(null);
 
         try {
-            const params = new URLSearchParams();
-            params.append('comment_md', commentText);
-
-            const response = await http<Response<Comment>>(`v1/comments?url=${encodeURIComponent(postUrl)}`, {
-                method: 'POST',
-                data: params.toString(),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-
-            if (response.data.status === 'DONE') {
-                setCommentText('');
-                refetch();
-            } else {
-                setError(response.data.errorMessage || 'Failed to post comment');
-            }
-        } catch {
-            setError('Error posting comment');
+            await commentsApi.createComment(postUrl, commentText);
+            setCommentText('');
+            refetch();
+        } catch (error) {
+            setError(error instanceof Error ? error.message : 'Error posting comment');
         } finally {
             setIsSubmitting(false);
         }
@@ -114,26 +71,20 @@ const Comments = (props: CommentsProps) => {
 
     const startEditing = async (commentId: number) => {
         try {
-            const response = await http<Response<CommentEditData>>(`v1/comments/${commentId}`, { method: 'GET' });
+            const commentData = await commentsApi.getCommentForEdit(commentId);
+            setEditingCommentId(commentId);
+            setEditText(commentData.textMd);
 
-            if (response.data.status === 'DONE' && response.data.body) {
-                setEditingCommentId(commentId);
-                setEditText(response.data.body.textMd);
-
-                // Focus and adjust the edit textarea after it renders
-                setTimeout(() => {
-                    if (editTextareaRef.current) {
-                        editTextareaRef.current.focus();
-                        editTextareaRef.current.style.height = 'auto';
-                        editTextareaRef.current.style.height = `${editTextareaRef.current.scrollHeight}px`;
-                    }
-                }, 0);
-            } else {
-                setError('Failed to get comment data');
-                setTimeout(() => setError(null), 3000);
-            }
-        } catch {
-            setError('Error retrieving comment data');
+            // Focus and adjust the edit textarea after it renders
+            setTimeout(() => {
+                if (editTextareaRef.current) {
+                    editTextareaRef.current.focus();
+                    editTextareaRef.current.style.height = 'auto';
+                    editTextareaRef.current.style.height = `${editTextareaRef.current.scrollHeight}px`;
+                }
+            }, 0);
+        } catch (error) {
+            setError(error instanceof Error ? error.message : 'Error retrieving comment data');
             setTimeout(() => setError(null), 3000);
         }
     };
@@ -154,26 +105,12 @@ const Comments = (props: CommentsProps) => {
         setError(null);
 
         try {
-            const params = new URLSearchParams();
-            params.append('comment', 'true');
-            params.append('comment_md', editText);
-
-            const response = await http<Response<Comment>>(`v1/comments/${commentId}`, {
-                method: 'PUT',
-                data: params.toString(),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-
-            if (response.data.status === 'DONE') {
-                setEditingCommentId(null);
-                setEditText('');
-                refetch();
-            } else {
-                setError(response.data.errorMessage || 'Failed to update comment');
-                setTimeout(() => setError(null), 3000);
-            }
-        } catch {
-            setError('Error updating comment');
+            await commentsApi.updateComment(commentId, editText);
+            setEditingCommentId(null);
+            setEditText('');
+            refetch();
+        } catch (error) {
+            setError(error instanceof Error ? error.message : 'Error updating comment');
             setTimeout(() => setError(null), 3000);
         } finally {
             setIsSubmitting(false);
@@ -186,16 +123,10 @@ const Comments = (props: CommentsProps) => {
         }
 
         try {
-            const response = await http<Response<Comment>>(`v1/comments/${commentId}`, { method: 'DELETE' });
-
-            if (response.data.status === 'DONE') {
-                refetch();
-            } else {
-                setError(response.data.errorMessage || 'Failed to delete comment');
-                setTimeout(() => setError(null), 3000);
-            }
-        } catch {
-            setError('Error deleting comment');
+            await commentsApi.deleteComment(commentId);
+            refetch();
+        } catch (error) {
+            setError(error instanceof Error ? error.message : 'Error deleting comment');
             setTimeout(() => setError(null), 3000);
         }
     };

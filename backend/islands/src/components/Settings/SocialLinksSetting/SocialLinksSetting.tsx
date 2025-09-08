@@ -19,7 +19,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 
-import { http } from '~/modules/http.module';
+import { settingsApi } from '~/api/settings';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 
@@ -168,11 +168,8 @@ const SocialLinks = () => {
     const { data: socialData, isError } = useFetch({
         queryKey: ['social-links-setting'],
         queryFn: async () => {
-            const { data } = await http('v1/setting/profile', { method: 'GET' });
-            if (data.status === 'DONE') {
-                return data.body.social || [];
-            }
-            throw new Error('소셜 링크 정보를 불러오는데 실패했습니다.');
+            const profileData = await settingsApi.getProfile();
+            return profileData.social || [];
         }
     });
 

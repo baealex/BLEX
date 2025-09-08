@@ -1,34 +1,11 @@
 import React from 'react';
-import { http } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
-import type { Response } from '~/modules/http.module';
-
-interface RefererItem {
-    url: string;
-    title?: string;
-    description?: string;
-    time: string;
-    posts: {
-        author: string;
-        url: string;
-        title: string;
-    };
-}
-
-interface RefererAnalytics {
-    referers: RefererItem[];
-}
+import { settingsApi } from '~/api/settings';
 
 const RefererAnalytics: React.FC = () => {
     const { data: referers, isLoading } = useFetch({
         queryKey: ['setting', 'analytics-referer'],
-        queryFn: async () => {
-            const { data } = await http.get<Response<RefererAnalytics>>('/v1/setting/analytics-referer');
-            if (data.status === 'DONE') {
-                return data.body;
-            }
-            return null;
-        }
+        queryFn: settingsApi.getAnalyticsRefererView
     });
 
     return (
@@ -59,7 +36,7 @@ const RefererAnalytics: React.FC = () => {
                 </div>
             ) : (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
-                    {referers?.referers.length === 0 ? (
+                    {referers?.referers?.length === 0 ? (
                         <div className="text-center py-12">
                             <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -69,7 +46,7 @@ const RefererAnalytics: React.FC = () => {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {referers?.referers.map((item, index) => (
+                            {referers?.referers?.map((item, index) => (
                                 <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-sm hover:shadow-sm transition-shadow overflow-hidden">
                                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 space-y-2 sm:space-y-0">
                                         <div className="flex-1 min-w-0 overflow-hidden">

@@ -4,9 +4,6 @@ import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import type { Response } from '~/modules/http.module';
 
-interface TelegramStatusData {
-    isConnected: boolean;
-}
 
 const IntegrationSettings: React.FC = () => {
     const [telegramToken, setTelegramToken] = useState('');
@@ -16,7 +13,7 @@ const IntegrationSettings: React.FC = () => {
     const { data: telegramData, isLoading, refetch } = useFetch({
         queryKey: ['telegram-integration'],
         queryFn: async () => {
-            const { data } = await http<Response<TelegramStatusData>>('v1/setting/integration-telegram', { method: 'GET' });
+            const { data } = await http<Response<{ isConnected: boolean }>>('v1/setting/integration-telegram', { method: 'GET' });
             if (data.status === 'DONE') {
                 return data.body;
             }

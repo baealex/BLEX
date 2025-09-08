@@ -11,6 +11,7 @@ interface InvitationItem {
     createdDate: string;
 }
 
+
 const InvitationManagement = () => {
     const { data: invitations, isLoading, refetch } = useFetch({
         queryKey: ['invitations'],

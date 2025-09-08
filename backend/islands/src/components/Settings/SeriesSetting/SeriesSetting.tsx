@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { settingsApi } from '~/api/settings';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -164,11 +165,14 @@ const SeriesSetting = () => {
     const { data: seriesData, isLoading, isError } = useFetch({
         queryKey: ['series-setting'],
         queryFn: async () => {
-            const { data } = await http<Response<{ username: string; series: Series[] }>>('v1/setting/series', { method: 'GET' });
-            if (data.status === 'DONE') {
-                return data.body;
-            }
-            throw new Error('시리즈 목록을 불러오는데 실패했습니다.');
+            const [seriesResult, accountResult] = await Promise.all([
+                settingsApi.getSeries(),
+                settingsApi.getAccount()
+            ]);
+            return {
+                series: seriesResult.series,
+                username: accountResult.username
+            };
         }
     });
 
