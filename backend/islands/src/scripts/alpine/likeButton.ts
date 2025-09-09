@@ -28,10 +28,11 @@ const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<Sta
         this.loading = true;
 
         try {
+            const csrfTokenInput = document.querySelector('[name=csrfmiddlewaretoken]') as HTMLInputElement;
             const response = await fetch(`/like/${this.postUrl}`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                    'X-CSRFToken': csrfTokenInput.value || '',
                     'Content-Type': 'application/json'
                 }
             });
