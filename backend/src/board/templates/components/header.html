@@ -2,24 +2,9 @@
 {% load resource %}
 <header 
     class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300 border-b border-gray-100 px-4"
-    x-data="{ 
-        hidden: false, 
-        lastScrollY: 0,
-        init() {
-            this.$nextTick(() => {
-                window.addEventListener('scroll', () => {
-                    const currentScrollY = window.scrollY;
-                    if (currentScrollY > this.lastScrollY && currentScrollY > 100) {
-                        this.hidden = true;
-                    } else {
-                        this.hidden = false;
-                    }
-                    this.lastScrollY = currentScrollY;
-                });
-            });
-        }
-    }"
-    :class="{ '-translate-y-full': hidden }"
+    x-data="headerScroll()"
+    :style="`transform: translateY(-${translateY}px)`"
+    style="transform: translateY(var(--translate-y, 0)); transition: transform 0.3s ease-in-out;"
 >
     <div class="container mx-auto">
         <div class="flex justify-between items-center py-3">

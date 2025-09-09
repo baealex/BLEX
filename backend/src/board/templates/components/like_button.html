@@ -10,33 +10,11 @@ Alpine.js 기반 좋아요 버튼 컴포넌트
 {% endcomment %}
 
 <button 
-    x-data="{ 
+    x-data="likeButton({ 
         count: {{ likes_count }}, 
         liked: {{ has_liked|yesno:'true,false' }},
-        loading: false,
-        async handleLike() {
-            if (this.loading) return;
-            this.loading = true;
-            try {
-                const response = await fetch(`/like/{{ post_url }}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    this.count = data.count_likes;
-                    this.liked = data.has_liked;
-                }
-            } catch (error) {
-                console.error('Like failed:', error);
-            } finally {
-                this.loading = false;
-            }
-        }
-    }"
+        postUrl: '{{ post_url }}'
+    })"
     @click="handleLike()"
     :class="{
         'bg-red-50 text-red-600 hover:bg-red-100': liked,
