@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { http } from '~/modules/http.module';
+import { postsApi } from '~/api/posts';
+
 
 interface RelatedPost {
     title: string;
@@ -23,10 +24,8 @@ const RelatedPosts: React.FC<RelatedPostsProps> = ({ postUrl, username }) => {
     useEffect(() => {
         const fetchRelatedPosts = async () => {
             try {
-                const { data } = await http(`v1/users/@${username}/posts/${postUrl}/related`);
-                if (data.status === 'DONE') {
-                    setRelatedPosts(data.body.posts || []);
-                }
+                const posts = await postsApi.getRelatedPosts(username, postUrl);
+                setRelatedPosts(posts);
             } catch (error) {
                 console.error('Failed to fetch related posts:', error);
             } finally {

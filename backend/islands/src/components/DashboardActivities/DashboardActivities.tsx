@@ -1,27 +1,11 @@
 import { useFetch } from '~/hooks/use-fetch';
-import { http } from '~/modules/http.module';
+import { postsApi } from '~/api/posts';
 
-interface Activity {
-    type: 'post' | 'comment' | 'like';
-    title?: string;
-    postTitle?: string;
-    date: string;
-}
-
-interface DashboardActivitiesData {
-    recentActivities: Activity[];
-}
 
 const DashboardActivities = () => {
-    const { data: activitiesData, isLoading } = useFetch<DashboardActivitiesData>({
+    const { data: activitiesData, isLoading } = useFetch({
         queryKey: ['dashboard-activities'],
-        queryFn: async () => {
-            const { data: response } = await http('/v1/dashboard/activities', { method: 'GET' });
-            if (response.status === 'DONE') {
-                return response.body;
-            }
-            throw new Error('Failed to fetch dashboard activities');
-        }
+        queryFn: postsApi.getDashboardActivities
     });
 
     if (isLoading) {
@@ -46,9 +30,9 @@ const DashboardActivities = () => {
         );
     }
 
-    const activities = activitiesData?.recentActivities || [];
+    const activities = activitiesData?.activities || [];
 
-    const getActivityIcon = (type: Activity['type']) => {
+    const getActivityIcon = (type: 'post' | 'comment' | 'like') => {
         switch (type) {
             case 'post':
                 return {

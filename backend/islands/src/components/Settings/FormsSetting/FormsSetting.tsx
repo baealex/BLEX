@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { settingsApi } from '~/api/settings';
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
@@ -7,15 +8,6 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Response } from '~/modules/http.module';
 
-interface FormItem {
-    id: number;
-    title: string;
-    content?: string;
-}
-
-interface FormsData {
-    forms: FormItem[];
-}
 
 const formSchema = z.object({
     title: z.string().min(1, '제목을 입력해주세요.').max(100, '제목은 100자 이내로 입력해주세요.'),
@@ -26,20 +18,14 @@ type FormInputs = z.infer<typeof formSchema>;
 
 const FormsManagement: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingForm, setEditingForm] = useState<FormItem | null>(null);
+    const [editingForm, setEditingForm] = useState<{ id: number; title: string; content?: string } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FormInputs>({ resolver: zodResolver(formSchema) });
 
     const { data: formsData, isLoading, refetch } = useFetch({
         queryKey: ['forms'],
-        queryFn: async () => {
-            const { data } = await http.get<Response<FormsData>>('/v1/forms');
-            if (data.status === 'DONE') {
-                return data.body;
-            }
-            return { forms: [] };
-        }
+        queryFn: () => settingsApi.getForms()
     });
 
     const handleDeleteForm = async (formId: number) => {
@@ -48,7 +34,7 @@ const FormsManagement: React.FC = () => {
         }
 
         try {
-            const { data } = await http.delete(`/v1/forms/${formId}`);
+            const data = await settingsApi.deleteForm(formId.toString());
 
             if (data.status === 'DONE') {
                 notification('서식이 삭제되었습니다.', { type: 'success' });
@@ -72,7 +58,8 @@ const FormsManagement: React.FC = () => {
 
     const handleEditForm = async (formId: number) => {
         try {
-            const { data } = await http.get<Response<FormItem>>(`/v1/forms/${formId}`);
+            // This would need a getFormById method in settingsApi
+            const { data } = await http.get<Response<{ id: number; title: string; content?: string }>>(`/v1/forms/${formId}`);
             if (data.status === 'DONE') {
                 setEditingForm(data.body);
                 reset({
@@ -91,8 +78,9 @@ const FormsManagement: React.FC = () => {
     const onSubmit = async (formData: FormInputs) => {
         setIsSubmitting(true);
         try {
+            let data;
             if (editingForm) {
-                const { data } = await http.put(`/v1/forms/${editingForm.id}`, formData);
+                data = await settingsApi.updateForm(editingForm.id.toString(), { name: formData.title, description: formData.content });
                 if (data.status === 'DONE') {
                     notification('서식이 수정되었습니다.', { type: 'success' });
                     setIsModalOpen(false);
@@ -101,7 +89,7 @@ const FormsManagement: React.FC = () => {
                     notification('서식 수정에 실패했습니다.', { type: 'error' });
                 }
             } else {
-                const { data } = await http.post('/v1/forms', formData);
+                data = await settingsApi.createForm({ name: formData.title, description: formData.content });
                 if (data.status === 'DONE') {
                     notification('서식이 생성되었습니다.', { type: 'success' });
                     setIsModalOpen(false);
@@ -147,7 +135,7 @@ const FormsManagement: React.FC = () => {
         );
     }
 
-    const forms = formsData?.forms || [];
+    const forms = formsData?.forms?.map(f => ({ id: parseInt(f.id), title: f.name, content: f.description })) || [];
 
     return (
         <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">

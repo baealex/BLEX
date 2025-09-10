@@ -1,27 +1,15 @@
 import { useEffect } from 'react';
-import { http, type Response } from '~/modules/http.module';
+import { settingsApi } from '~/api/settings';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 
-interface TempPost {
-    token: string;
-    title: string;
-    createdDate: string;
-}
-
-interface TempPostsData {
-    temps: TempPost[];
-}
 
 const TempPostsSetting = () => {
     const { data: tempPosts, isLoading, isError, refetch } = useFetch({
         queryKey: ['temp-posts'],
         queryFn: async () => {
-            const { data } = await http<Response<TempPostsData>>('v1/temp-posts', { method: 'GET' });
-            if (data.status === 'DONE') {
-                return data.body.temps;
-            }
-            throw new Error('임시저장 포스트 목록을 불러오는데 실패했습니다.');
+            const data = await settingsApi.getTempPosts();
+            return data.posts;
         }
     });
 
@@ -31,11 +19,11 @@ const TempPostsSetting = () => {
         }
     }, [isError]);
 
-    const handleTempPostDelete = async (token: string) => {
+    const handleTempPostDelete = async (id: string) => {
         if (!confirm('정말 이 임시저장 포스트를 삭제할까요?')) return;
 
         try {
-            const { data } = await http(`v1/temp-posts/${token}`, { method: 'DELETE' });
+            const data = await settingsApi.deleteTempPost(parseInt(id));
 
             if (data.status === 'DONE') {
                 notification('임시저장 포스트가 삭제되었습니다.', { type: 'success' });
@@ -98,7 +86,7 @@ const TempPostsSetting = () => {
                 ) : (
                     <div className="space-y-4">
                         {tempPosts.map((tempPost) => (
-                            <div key={tempPost.token} className="bg-white border border-slate-200 rounded-lg p-4">
+                            <div key={tempPost.id} className="bg-white border border-slate-200 rounded-lg p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1 min-w-0">
                                         <h3 className="text-lg font-medium text-slate-900 truncate mb-2">
@@ -107,7 +95,7 @@ const TempPostsSetting = () => {
                                         <div className="flex items-center gap-4 text-sm text-slate-500">
                                             <span className="flex items-center">
                                                 <i className="fas fa-clock mr-1" />
-                                                {tempPost.createdDate}
+                                                {tempPost.updatedDate}
                                             </span>
                                             <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs">
                                                 임시저장
@@ -117,13 +105,13 @@ const TempPostsSetting = () => {
 
                                     <div className="flex items-center gap-2 ml-4">
                                         <a
-                                            href={`/write?tempToken=${tempPost.token}`}
+                                            href={`/write?tempId=${tempPost.id}`}
                                             className="px-3 py-1 text-sm bg-blue-100 text-blue-700 hover:bg-blue-200 rounded transition-colors"
                                             title="임시저장 포스트 편집">
                                             편집
                                         </a>
                                         <button
-                                            onClick={() => handleTempPostDelete(tempPost.token)}
+                                            onClick={() => handleTempPostDelete(tempPost.id.toString())}
                                             className="px-3 py-1 text-sm bg-red-100 text-red-700 hover:bg-red-200 rounded transition-colors"
                                             title="임시저장 포스트 삭제">
                                             삭제

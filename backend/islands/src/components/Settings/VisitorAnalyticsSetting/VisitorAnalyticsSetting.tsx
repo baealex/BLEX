@@ -1,29 +1,8 @@
 import { useState, useMemo } from 'react';
-import { http } from '~/modules/http.module';
 import Chart from '~/components/Chart';
 import { handyDate } from '@baejino/handy';
 import { useFetch } from '~/hooks/use-fetch';
-import type { Response } from '~/modules/http.module';
-
-interface AnalyticsView {
-    username: string;
-    total: number;
-    views: {
-        date: string;
-        count: number;
-    }[];
-}
-
-interface PostView {
-    posts: {
-        id: number;
-        url: string;
-        title: string;
-        author: string;
-        todayCount: number;
-        increaseCount: number;
-    }[];
-}
+import { settingsApi } from '~/api/settings';
 
 const VisitorAnalytics = () => {
     const [date, setDate] = useState(new Date());
@@ -31,31 +10,18 @@ const VisitorAnalytics = () => {
 
     const { data: views, isLoading } = useFetch({
         queryKey: ['setting', 'analytics-view'],
-        queryFn: async () => {
-            const { data } = await http.get<Response<AnalyticsView>>('/v1/setting/analytics-view');
-            if (data.status === 'DONE') {
-                return {
-                    ...data,
-                    dates: data.body.views.map(item => item.date).reverse(),
-                    counts: data.body.views.map(item => item.count).reverse()
-                };
-            }
-            return null;
-        }
+        queryFn: settingsApi.getAnalyticsView
     });
 
     const { data: postViews, isLoading: isLoadingPostsView } = useFetch({
         queryKey: ['setting', 'analytics-posts-view', visibleDate],
-        queryFn: async () => {
-            const { data } = await http.get<Response<PostView>>('/v1/setting/analytics-posts-view', { params: { date: visibleDate } });
-            if (data.status === 'DONE') {
-                return data.body;
-            }
-            return null;
-        }
+        queryFn: () => settingsApi.getAnalyticsPostsView(visibleDate)
     });
 
-    const monthTotal = useMemo(() => views?.body.views.reduce((acc, cur) => acc + cur.count, 0), [views]);
+    const monthTotal = useMemo(() => {
+        if (!views?.body?.views) return 0;
+        return views.body.views.reduce((acc, cur) => acc + cur.count, 0);
+    }, [views]);
 
     return (
         <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg space-y-4 sm:space-y-6">

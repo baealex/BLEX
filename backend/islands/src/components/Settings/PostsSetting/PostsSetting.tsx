@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { settingsApi } from '~/api/settings';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
@@ -117,12 +118,8 @@ const PostsSetting = () => {
                 if (value) params.append(key, value);
             });
 
-            const { data } = await http<Response<PostsData>>(`v1/setting/posts?${params.toString()}`, { method: 'GET' });
-
-            if (data.status === 'DONE') {
-                return data.body;
-            }
-            throw new Error('포스트 목록을 불러오는데 실패했습니다.');
+            const data = await settingsApi.getPosts();
+            return data;
         }
     });
 
@@ -140,11 +137,8 @@ const PostsSetting = () => {
     const { data: series } = useFetch({
         queryKey: ['setting-series'],
         queryFn: async () => {
-            const { data } = await http<Response<{ series: Series[] }>>('v1/setting/series', { method: 'GET' });
-            if (data.status === 'DONE') {
-                return data.body.series;
-            }
-            throw new Error('시리즈 목록을 불러오는데 실패했습니다.');
+            const data = await settingsApi.getSeries();
+            return data.series;
         }
     });
 

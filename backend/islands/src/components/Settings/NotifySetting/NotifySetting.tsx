@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
+import { settingsApi } from '~/api/settings';
 
 const NOTIFY_CONFIG_LABEL = {
     'NOTIFY_POSTS_LIKE': '다른 사용자가 내 글 추천',
@@ -19,25 +19,13 @@ const NotifySetting = () => {
     // Fetch notify list
     const { data: notifyList, isLoading: isNotifyLoading, isError: isNotifyError } = useFetch({
         queryKey: ['notify-list'],
-        queryFn: async () => {
-            const { data } = await http<Response<{ notify: { id: number; url: string; isRead: boolean; content: string; createdDate: string }[]; isTelegramSync: boolean }>>('v1/setting/notify', { method: 'GET' });
-            if (data.status === 'DONE') {
-                return data.body;
-            }
-            throw new Error('알림 목록을 불러오는데 실패했습니다.');
-        }
+        queryFn: settingsApi.getNotifyList
     });
 
     // Fetch notify config for settings modal
     const { data: notifyConfig, isLoading: isConfigLoading, isError: isConfigError, refetch: refetchConfig } = useFetch({
         queryKey: ['notify-config'],
-        queryFn: async () => {
-            const { data } = await http<Response<{ config: { name: string; value: boolean }[] }>>('v1/setting/notify-config', { method: 'GET' });
-            if (data.status === 'DONE') {
-                return data.body.config;
-            }
-            throw new Error('알림 설정을 불러오는데 실패했습니다.');
-        },
+        queryFn: settingsApi.getNotifyConfig,
         enable: isOpenConfig
     });
 
@@ -56,12 +44,7 @@ const NotifySetting = () => {
     const handleClickNotify = async (notify: { id: number; url: string; isRead: boolean }) => {
         if (!notify.isRead) {
             try {
-                const urlEncodedData = `id=${notify.id}`;
-                await http('v1/setting/notify', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    data: urlEncodedData
-                });
+                await settingsApi.updateNotifyRead(notify.id);
             } catch {
                 // Silently handle error
             }
@@ -83,15 +66,7 @@ const NotifySetting = () => {
         });
 
         try {
-            const urlEncodedData = nextState
-                .map(item => `${item.name}=${encodeURIComponent(item.value.toString())}`)
-                .join('&');
-
-            const { data } = await http('v1/setting/notify-config', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: urlEncodedData
-            });
+            const data = await settingsApi.updateNotifyConfig(nextState);
 
             if (data.status === 'DONE') {
                 notification('알림 설정이 업데이트 되었습니다.', { type: 'success' });
