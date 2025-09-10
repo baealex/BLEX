@@ -171,14 +171,14 @@ const VisitorAnalytics = () => {
                     ) : (
                         <div className="space-y-3">
                             {postViews.posts.map((item, index) => (
-                                <div key={item.url} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-sm transition-shadow">
+                                <a key={item.url} href={`/@${item.author}/${item.url}`} target="_blank" className="block bg-white border border-gray-200 rounded-lg p-3 sm:p-4 hover:border-blue-300 transition-all">
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                                         <div className="flex items-center space-x-3 flex-1">
                                             <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 text-blue-600 rounded-full text-xs sm:text-sm font-semibold flex-shrink-0">
                                                 {index + 1}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="text-sm font-medium text-gray-900 line-clamp-1 sm:line-clamp-2">
+                                                <h4 className="text-sm font-medium text-gray-900 line-clamp-1 sm:line-clamp-2 hover:text-blue-600 transition-colors">
                                                     {item.title}
                                                 </h4>
                                             </div>
@@ -204,7 +204,7 @@ const VisitorAnalytics = () => {
                                             </span>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             ))}
                         </div>
                     )}

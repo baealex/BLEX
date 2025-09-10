@@ -12,7 +12,7 @@ from django.utils.dateparse import parse_datetime
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, RefererFrom, Series, Post, UserLinkMeta,
-    PostAnalytics, TempPosts, Profile, Notify)
+    PostAnalytics, TempPosts, Profile, Notify, Referer)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
@@ -279,7 +279,7 @@ def setting(request, parameter):
                         )
                     ), distinct=True
                 )
-            ).order_by('-today_count', '-yesterday_count', '-created_date')[:8]
+            ).order_by('-today_count', '-yesterday_count', '-created_date')[:10]
 
             return StatusDone({
                 'posts': list(map(lambda item: {
@@ -300,7 +300,7 @@ def setting(request, parameter):
             post_analytics = PostAnalytics.objects.values(
                 'created_date',
             ).annotate(
-                table_count=Count('devices', distinct=True),
+                table_count=Count('devices'),
             ).filter(
                 post__author=user,
                 created_date__gt=one_month_ago,
@@ -318,8 +318,10 @@ def setting(request, parameter):
 
             total = PostAnalytics.objects.filter(
                 post__author=user
+            ).annotate(
+                device_count=Count('devices')
             ).aggregate(
-                sum=Count('devices', distinct=True)
+                sum=Sum('device_count')
             )['sum']
 
             return StatusDone({
@@ -334,13 +336,52 @@ def setting(request, parameter):
         if parameter == 'analytics-referer':
             one_year_ago = timezone.now() - datetime.timedelta(days=365)
 
+            latest_referers_subquery = Referer.objects.filter(
+                post__author=user,
+                created_date__gt=one_year_ago,
+                referer_from__location=OuterRef('location')
+            ).exclude(
+                Q(referer_from__title__contains='검색') |
+                Q(referer_from__title__contains='Bing') |
+                Q(referer_from__title__contains='Info') |
+                Q(referer_from__title__contains='Google') |
+                Q(referer_from__title__contains='Search') |
+                Q(referer_from__title__contains='DuckDuckGo') |
+                Q(referer_from__location__contains='link.php') |
+                Q(referer_from__location__contains='link.naver.com')
+            ).order_by('-created_date').values('referer_from_id')[:1]
+
             referers = RefererFrom.objects.filter(
-                referers__post__author=user,
-                referers__created_date__gt=one_year_ago,
+                id__in=Subquery(latest_referers_subquery)
             ).annotate(
-                post_title=F('referers__post__title'),
-                post_author=F('referers__post__author__username'),
-                post_url=F('referers__post__url')
+                latest_created_date=Subquery(
+                    Referer.objects.filter(
+                        referer_from_id=OuterRef('id'),
+                        post__author=user,
+                        created_date__gt=one_year_ago
+                    ).order_by('-created_date').values('created_date')[:1]
+                ),
+                post_title=Subquery(
+                    Referer.objects.filter(
+                        referer_from_id=OuterRef('id'),
+                        post__author=user,
+                        created_date__gt=one_year_ago
+                    ).order_by('-created_date').values('post__title')[:1]
+                ),
+                post_author=Subquery(
+                    Referer.objects.filter(
+                        referer_from_id=OuterRef('id'),
+                        post__author=user,
+                        created_date__gt=one_year_ago
+                    ).order_by('-created_date').values('post__author__username')[:1]
+                ),
+                post_url=Subquery(
+                    Referer.objects.filter(
+                        referer_from_id=OuterRef('id'),
+                        post__author=user,
+                        created_date__gt=one_year_ago
+                    ).order_by('-created_date').values('post__url')[:1]
+                )
             ).exclude(
                 Q(title__contains='검색') |
                 Q(title__contains='Bing') |
@@ -350,11 +391,11 @@ def setting(request, parameter):
                 Q(title__contains='DuckDuckGo') |
                 Q(location__contains='link.php') |
                 Q(location__contains='link.naver.com')
-            ).order_by('-created_date').distinct()[:12]
+            ).order_by('-latest_created_date')[:12]
 
             return StatusDone({
                 'referers': list(map(lambda referer: {
-                    'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
+                    'time': convert_to_localtime(referer.latest_created_date).strftime('%Y-%m-%d %H:%M'),
                     'title': referer.title,
                     'url': referer.location,
                     'image': referer.image,
