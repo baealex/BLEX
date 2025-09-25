@@ -1,23 +1,11 @@
 import { useFetch } from '~/hooks/use-fetch';
-import { http } from '~/modules/http.module';
+import { postsApi } from '~/api/posts';
 
-interface DashboardStatsData {
-    totalPosts: number;
-    totalViews: number;
-    totalLikes: number;
-    totalComments: number;
-}
 
 const DashboardStats = () => {
-    const { data: stats, isLoading } = useFetch<DashboardStatsData>({
+    const { data: stats, isLoading } = useFetch({
         queryKey: ['dashboard-stats'],
-        queryFn: async () => {
-            const { data: response } = await http('/v1/dashboard/stats', { method: 'GET' });
-            if (response.status === 'DONE') {
-                return response.body;
-            }
-            throw new Error('Failed to fetch dashboard stats');
-        }
+        queryFn: postsApi.getDashboardStats
     });
 
     if (isLoading) {

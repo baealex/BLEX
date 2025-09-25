@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { http } from '~/modules/http.module';
+import { settingsApi } from '~/api/settings';
 import { notification } from '@baejino/ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,13 +22,7 @@ const ProfileSetting = () => {
 
     const { data: profileData, isLoading: isDataLoading, isError, refetch } = useFetch({
         queryKey: ['profile-setting'],
-        queryFn: async () => {
-            const { data } = await http('v1/setting/profile', { method: 'GET' });
-            if (data.status === 'DONE') {
-                return data.body;
-            }
-            throw new Error('프로필 정보를 불러오는데 실패했습니다.');
-        }
+        queryFn: () => settingsApi.getProfile()
     });
 
     useEffect(() => {
@@ -51,14 +45,9 @@ const ProfileSetting = () => {
         setIsLoading(true);
 
         try {
-            const params = new URLSearchParams();
-            params.append('bio', formData.bio || '');
-            params.append('homepage', formData.homepage || '');
-
-            const { data } = await http('v1/setting/profile', {
-                method: 'PUT',
-                data: params.toString(),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            const data = await settingsApi.updateProfile({
+                bio: formData.bio,
+                ...(formData.homepage && { homepage: formData.homepage })
             });
 
             if (data.status === 'DONE') {
@@ -82,10 +71,7 @@ const ProfileSetting = () => {
         formData.append('avatar', file);
 
         try {
-            const { data } = await http('v1/setting/avatar', {
-                method: 'POST',
-                data: formData
-            });
+            const data = await settingsApi.uploadAvatar(formData);
 
             if (data.status === 'DONE') {
                 setAvatar(data.body.url);
