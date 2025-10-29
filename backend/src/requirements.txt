@@ -15,6 +15,7 @@ idna==3.10
 Markdown==3.8.2
 pillow==11.1.0
 promise==2.3
+psycopg2-binary==2.9.10
 pycparser==2.22
 pyhumps==3.8.0
 pymdown-extensions==10.16

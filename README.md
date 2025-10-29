@@ -47,6 +47,15 @@ npm run dev
 
 `localhost:8000`으로 접속한 후, 기본 계정인 `admin/admin`으로 로그인하여 테스트 할 수 있습니다.
 
+### 데이터베이스
+
+BLEX는 **SQLite**(기본값)와 **PostgreSQL** 두 가지 데이터베이스를 지원합니다.
+
+- **개발 환경**: SQLite를 사용하여 빠르게 시작
+- **프로덕션 환경**: PostgreSQL을 사용하여 성능과 확장성 향상
+
+PostgreSQL로 전환하려면 `.env` 파일에서 `DB_ENGINE=postgresql`로 설정하세요. 자세한 내용은 [데이터베이스 마이그레이션 가이드](docs/DATABASE_MIGRATION.md)를 참고하세요.
+
 <br>
 
 ## 관련 문서
@@ -61,6 +70,7 @@ npm run dev
 - [사용하는 기술들](documents/Tech-Stack.md)
 - [소스코드 아키택쳐 구조](documents/Architecture.md)
 - [아키택쳐 의사결정 기록](documents/Architecture-Decision-Records.md)
+- [데이터베이스 마이그레이션 가이드](docs/DATABASE_MIGRATION.md)
 
 <br>
 

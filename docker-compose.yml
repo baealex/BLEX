@@ -1,6 +1,23 @@
 version: "2.1"
 
 services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-blex}
+      POSTGRES_USER: ${DB_USER:-blex}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-blex}
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - blex-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-blex}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     image: baealex/blex-backend
     env_file: ./backend/.env
@@ -11,6 +28,9 @@ services:
       - ./backend/src/board/templates/custom:/app/board/templates/custom
     networks:
       - blex-network
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   nginx:
     image: baealex/blex-nginx
@@ -27,3 +47,6 @@ services:
 networks:
   blex-network:
     driver: bridge
+
+volumes:
+  postgres-data:
