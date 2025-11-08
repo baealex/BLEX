@@ -33,6 +33,7 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         content: data.content,
         tags: data.tags
     }));
+    const isInitialLoadRef = useRef(true);
 
     // Keep refs updated
     dataRef.current = data;
@@ -107,6 +108,20 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         // Check if data has actually changed
         if (prevDataStringRef.current === currentDataString) return;
+
+        // Skip initial load trigger - when data changes from empty to loaded
+        if (isInitialLoadRef.current) {
+            const prevData = JSON.parse(prevDataStringRef.current);
+            const wasEmpty = !prevData.title && !prevData.content && !prevData.tags;
+
+            if (wasEmpty) {
+                isInitialLoadRef.current = false;
+                prevDataStringRef.current = currentDataString;
+                return;
+            }
+        }
+
+        isInitialLoadRef.current = false;
 
         // Update previous data
         prevDataStringRef.current = currentDataString;

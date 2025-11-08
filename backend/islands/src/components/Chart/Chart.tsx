@@ -106,8 +106,9 @@ const Chart = <T extends ChartData, K>(props: ChartProps<T, K>) => {
                         const date = new Date(label);
                         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
                     },
-                    label: (context: { parsed: { y: number } }) => {
-                        return `조회수: ${context.parsed.y.toLocaleString()}회`;
+                    label: (context: { parsed: { y: number | null } }) => {
+                        const value = context.parsed.y ?? 0;
+                        return `조회수: ${value.toLocaleString()}회`;
                     }
                 }
             }
