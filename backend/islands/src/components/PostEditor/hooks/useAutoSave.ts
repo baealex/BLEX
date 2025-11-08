@@ -27,11 +27,13 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
     const progressRef = useRef<number | null>(null);
     const dataRef = useRef(data);
     const optionsRef = useRef(options);
+    const tempTokenRef = useRef<string | undefined>(options.tempToken);
     const prevDataStringRef = useRef<string>(JSON.stringify({
         title: data.title,
         content: data.content,
         tags: data.tags
     }));
+    const isInitialLoadRef = useRef(true);
 
     // Keep refs updated
     dataRef.current = data;
@@ -55,14 +57,14 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         setIsSaving(true);
         try {
-            if (currentOptions.tempToken) {
+            if (tempTokenRef.current) {
                 // Update temp post
                 const formData = new URLSearchParams();
                 formData.append('title', currentData.title || '제목 없음');
                 formData.append('text_md', currentData.content);
                 formData.append('tag', currentData.tags);
 
-                await http(`v1/temp-posts/${currentOptions.tempToken}`, {
+                await http(`v1/temp-posts/${tempTokenRef.current}`, {
                     method: 'PUT',
                     data: formData,
                     headers: {
@@ -84,7 +86,11 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
                         'Content-Type': 'application/json'
                     }
                 });
-                currentOptions.onSuccess?.(response.data?.body?.token);
+                const token = response.data?.body?.token;
+                if (token) {
+                    tempTokenRef.current = token;
+                }
+                currentOptions.onSuccess?.(token);
             }
 
             setLastSaved(new Date());
@@ -102,6 +108,20 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         // Check if data has actually changed
         if (prevDataStringRef.current === currentDataString) return;
+
+        // Skip initial load trigger - when data changes from empty to loaded
+        if (isInitialLoadRef.current) {
+            const prevData = JSON.parse(prevDataStringRef.current);
+            const wasEmpty = !prevData.title && !prevData.content && !prevData.tags;
+
+            if (wasEmpty) {
+                isInitialLoadRef.current = false;
+                prevDataStringRef.current = currentDataString;
+                return;
+            }
+        }
+
+        isInitialLoadRef.current = false;
 
         // Update previous data
         prevDataStringRef.current = currentDataString;

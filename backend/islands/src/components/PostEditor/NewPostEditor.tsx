@@ -62,15 +62,15 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
         title: formData.title,
         content: formData.content,
         tags: tags.join(',')
-    }), [formData.title, formData.content, tags.join(',')]);
+    }), [formData.title, formData.content, tags]);
 
     const autoSaveOptions = useMemo(() => ({
-        enabled: true,
+        enabled: !isLoading,
         getCsrfToken,
         tempToken,
         onSuccess: handleAutoSaveSuccess,
         onError: handleAutoSaveError
-    }), [getCsrfToken, tempToken, handleAutoSaveSuccess, handleAutoSaveError]);
+    }), [getCsrfToken, tempToken, handleAutoSaveSuccess, handleAutoSaveError, isLoading]);
 
     const {
         lastSaved,
@@ -178,8 +178,6 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
             false // isEdit
         );
     };
-
-    console.log('xxx');
 
     return (
         <div className="bg-slate-50 py-4 sm:py-8">
