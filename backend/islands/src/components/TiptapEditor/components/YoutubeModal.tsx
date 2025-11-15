@@ -51,7 +51,7 @@ const YoutubeModal: React.FC<YoutubeModalProps> = ({ isOpen, onClose, onUpload }
                                 setYoutubeId(id);
                             }}
                             placeholder="dQw4w9WgXcQ 또는 https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                         />
                     </div>
                     <div className="flex justify-end gap-2">
@@ -64,7 +64,7 @@ const YoutubeModal: React.FC<YoutubeModalProps> = ({ isOpen, onClose, onUpload }
                         <button
                             type="submit"
                             disabled={!youtubeId}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                             추가
                         </button>
                     </div>

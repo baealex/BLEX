@@ -30,7 +30,7 @@ const CodeBlockLanguageSelector: React.FC<CodeBlockLanguageSelectorProps> = ({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                 {getCurrentLanguageLabel()}
                 <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -45,7 +45,7 @@ const CodeBlockLanguageSelector: React.FC<CodeBlockLanguageSelectorProps> = ({
                                 key={language.value}
                                 onClick={() => handleLanguageChange(language.value)}
                                 className={`block w-full px-3 py-2 text-left text-xs hover:bg-gray-100 ${currentLanguage === language.value
-                                    ? 'bg-blue-50 text-blue-600 font-medium'
+                                    ? 'bg-gray-50 text-gray-600 font-medium'
                                     : 'text-gray-700'
                                     }`}>
                                 {language.label}
