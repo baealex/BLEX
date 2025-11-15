@@ -67,11 +67,13 @@ class CommentTestCase(TestCase):
         )
 
     def test_get_post_comment_list(self):
+        """게시글 댓글 목록 조회 테스트"""
         response = self.client.get('/v1/posts/test-post/comments')
         self.assertEqual(response.status_code, 200)
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_comment(self, mock_service):
+        """댓글 생성 테스트"""
         self.client.login(username='viewer', password='test')
         data = {
             'comment_md': '# New Comment',
@@ -82,6 +84,7 @@ class CommentTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_notify_on_create_comment(self, mock_service):
+        """댓글 생성 시 작성자에게 알림 발송 테스트"""
         author = User.objects.get(username='author')
         author.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT, 'true')
 
@@ -98,6 +101,7 @@ class CommentTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_not_notify_on_create_comment_when_user_disagree_notify(self, mock_service):
+        """사용자가 알림 거부 시 댓글 생성 알림 미발송 테스트"""
         author = User.objects.get(username='author')
         Notify.objects.create(
             user=author,
@@ -116,6 +120,7 @@ class CommentTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_create_comment_not_logged_in(self, mock_service):
+        """비로그인 상태에서 댓글 생성 실패 테스트"""
         data = {
             'comment_md': '# New Comment',
         }
@@ -125,6 +130,7 @@ class CommentTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_notify_user_tag_on_comment_when_user_agree_notify(self, mock_service):
+        """댓글에서 사용자 태그 시 알림 발송 테스트"""
         viewer = User.objects.get(username='viewer')
         viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
 
@@ -139,6 +145,7 @@ class CommentTestCase(TestCase):
 
     @patch('modules.markdown.parse_to_html', return_value='<h1>Mocked Text</h1>')
     def test_not_notify_user_tag_on_comment_when_user_disagree_notify(self, mock_service):
+        """사용자가 멘션 알림 거부 시 태그 알림 미발송 테스트"""
         viewer = User.objects.get(username='viewer')
         Notify.objects.create(
             user=viewer,
@@ -156,6 +163,7 @@ class CommentTestCase(TestCase):
         self.assertTrue('mock last notify' in last_notify.content)
 
     def test_user_comment_like(self):
+        """댓글 좋아요 테스트"""
         last_comment = Comment.objects.last()
         self.client.login(username='author', password='test')
         response = self.client.put(
@@ -164,6 +172,7 @@ class CommentTestCase(TestCase):
         self.assertEqual(Comment.objects.last().likes.count(), 1)
 
     def test_notify_user_comment_like_when_user_agree_notify(self):
+        """댓글 좋아요 시 알림 발송 테스트"""
         viewer = User.objects.get(username='viewer')
         viewer.config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
 
@@ -176,6 +185,7 @@ class CommentTestCase(TestCase):
         self.assertTrue('@author' in last_notify.content)
 
     def test_not_notify_user_comment_like_when_user_disagree_notify(self):
+        """사용자가 좋아요 알림 거부 시 알림 미발송 테스트"""
         viewer = User.objects.get(username='viewer')
         Notify.objects.create(
             user=viewer,
@@ -193,6 +203,7 @@ class CommentTestCase(TestCase):
         self.assertTrue('mock last notify' in last_notify.content)
 
     def test_user_comment_unlike(self):
+        """댓글 좋아요 취소 테스트"""
         last_comment = Comment.objects.last()
         self.client.login(username='author', password='test')
         response = self.client.put(
@@ -206,6 +217,7 @@ class CommentTestCase(TestCase):
         self.assertEqual(Comment.objects.last().likes.count(), 0)
 
     def test_user_comment_self_like(self):
+        """자신의 댓글에 좋아요 시도 시 실패 테스트"""
         last_comment = Comment.objects.last()
         self.client.login(username='viewer', password='test')
         response = self.client.put(
@@ -215,6 +227,7 @@ class CommentTestCase(TestCase):
         self.assertEqual(Comment.objects.last().likes.count(), 0)
 
     def test_user_comment_like_not_logged_in(self):
+        """비로그인 상태에서 댓글 좋아요 시도 시 실패 테스트"""
         last_comment = Comment.objects.last()
         response = self.client.put(
             f'/v1/comments/{last_comment.id}', "like=like")

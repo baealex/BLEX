@@ -39,6 +39,7 @@ class SettingTestCase(TestCase):
         self.client = Client(HTTP_USER_AGENT='Mozilla/5.0')
 
     def test_get_setting_notify_not_login(self):
+        """비로그인 상태에서 알림 설정 조회 시 에러 테스트"""
         response = self.client.get('/v1/setting/notify')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -46,6 +47,7 @@ class SettingTestCase(TestCase):
         self.assertEqual(content['errorCode'], 'error:NL')
 
     def test_get_setting_notify(self):
+        """알림 설정 조회 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.get('/v1/setting/notify')
@@ -55,6 +57,7 @@ class SettingTestCase(TestCase):
         self.assertEqual(content['body']['isTelegramSync'], False)
     
     def test_get_setting_notify_config(self):
+        """알림 설정 구성 조회 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.get('/v1/setting/notify-config')
@@ -63,6 +66,7 @@ class SettingTestCase(TestCase):
         self.assertEqual(type(content['body']['config']), list)
     
     def test_get_setting_account(self):
+        """계정 설정 조회 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.get('/v1/setting/account')
