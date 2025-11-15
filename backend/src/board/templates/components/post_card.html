@@ -20,7 +20,7 @@ Parameters:
     {% endif %}
     <div class="p-5 flex flex-col flex-grow">
         <h3 class="text-lg font-semibold text-gray-900 leading-snug mb-3 line-clamp-2">
-            <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-primary-600 transition-colors">{{ post.title }}</a>
+            <a href="/@{{ post.author }}/{{ post.url }}" class="hover:text-black transition-colors">{{ post.title }}</a>
         </h3>
 
         <div class="text-sm text-gray-500 mb-3 flex items-center gap-3">
@@ -43,11 +43,11 @@ Parameters:
                     <img class="w-5 h-5 rounded-full" src="{% media post.author_image %}" alt="{{ post.author }}" loading="lazy">
                 </a>
                 <div class="flex flex-col min-w-0">
-                    <a href="/@{{ post.author }}" class="font-medium text-gray-900 hover:text-primary-600 transition-colors text-sm truncate">{{ post.author }}</a>
+                    <a href="/@{{ post.author }}" class="font-medium text-gray-900 hover:text-black transition-colors text-sm truncate">{{ post.author }}</a>
                 </div>
             </div>
             {% elif show_author == 'false' or show_author == False and post.series %}
-                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-40 bg-primary-50 text-primary-600 rounded-full text-xs font-medium hover:bg-primary-100 transition-colors truncate">
+                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-40 bg-black text-black rounded-full text-xs font-medium hover:bg-black transition-colors truncate">
                     <i class="fas fa-layer-group mr-1.5"></i>
                     <span class="truncate">{{ post.series.name }}</span>
                 </a>
