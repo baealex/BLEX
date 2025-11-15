@@ -76,10 +76,6 @@ const POSTS_ORDER = [
         order: '-count_comments'
     },
     {
-        name: '오늘 조회수 높은순',
-        order: '-today_count'
-    },
-    {
         name: '분량 많은순',
         order: '-read_time'
     },
@@ -539,7 +535,7 @@ const PostsSetting = () => {
 
                                     {/* 통계 영역 */}
                                     <div className="bg-slate-100 px-6 py-4 border-b border-slate-100">
-                                        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
+                                        <div className="grid grid-cols-3 gap-2 sm:gap-4">
                                             <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-red-100/50 text-center">
                                                 <div className="flex items-center justify-center text-red-500 mb-1">
                                                     <i className="fas fa-heart text-sm sm:text-lg" />
@@ -560,20 +556,6 @@ const PostsSetting = () => {
                                                 </div>
                                                 <div className="text-xs sm:text-sm font-semibold text-slate-700">{post.readTime}분</div>
                                                 <div className="text-xs text-slate-500 hidden sm:block">분량</div>
-                                            </div>
-                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-green-100/50 text-center">
-                                                <div className="flex items-center justify-center text-green-500 mb-1">
-                                                    <i className="fas fa-eye text-sm sm:text-lg" />
-                                                </div>
-                                                <div className="text-xs sm:text-sm font-semibold text-slate-700">{post.todayCount}</div>
-                                                <div className="text-xs text-slate-500 hidden sm:block">오늘 조회</div>
-                                            </div>
-                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-orange-100/50 text-center">
-                                                <div className="flex items-center justify-center text-orange-500 mb-1">
-                                                    <i className="fas fa-history text-sm sm:text-lg" />
-                                                </div>
-                                                <div className="text-xs sm:text-sm font-semibold text-slate-700">{post.yesterdayCount}</div>
-                                                <div className="text-xs text-slate-500 hidden sm:block">어제 조회</div>
                                             </div>
                                         </div>
                                     </div>
