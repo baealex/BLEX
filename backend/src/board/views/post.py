@@ -1,41 +1,11 @@
-import traceback
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.db.models import Count, F, Exists, OuterRef
-from django.utils import timezone
 from django.http import Http404
-from django.utils.text import slugify
 from django.contrib import messages
 
-from board.models import Post, Series, PostLikes, PostConfig, PostContent
-from modules import markdown
-
-
-def generate_unique_url(title, author, exclude_id=None):
-    """
-    Generate a unique URL for a post by the given author.
-    If the base URL already exists, append a number suffix.
-    """
-    base_url = slugify(title)
-    if not base_url:
-        base_url = 'untitled'
-    
-    url = base_url
-    counter = 1
-    
-    while True:
-        # Check if URL already exists for this author
-        query = Post.objects.filter(author=author, url=url)
-        if exclude_id:
-            query = query.exclude(id=exclude_id)
-        
-        if not query.exists():
-            return url
-        
-        # If exists, try with counter suffix
-        url = f"{base_url}-{counter}"
-        counter += 1
+from board.models import Post, Series, PostLikes, TempPosts
+from board.services.post_service import PostService, PostValidationError
 
 
 def post_detail(request, username, post_url):
@@ -183,7 +153,7 @@ def post_editor(request, username=None, post_url=None):
     if request.method == 'POST':
         # Check if delete action is requested
         if is_edit and request.POST.get('delete') == 'true':
-            post.delete()
+            PostService.delete_post(post)
             messages.success(request, 'Post has been deleted successfully.')
             return redirect('user_profile', username=request.user.username)
         
@@ -217,98 +187,66 @@ def post_editor(request, username=None, post_url=None):
         
         # Create or update post
         if is_edit:
-            # Update existing post
-            post.title = title
-            # Don't update URL when editing to maintain SEO and avoid breaking links
-            # post.url = url  
-            post.meta_description = meta_description
-            post.series = series
-            post.updated_date = timezone.now()
-            
             # Handle image upload
+            image = None
             if 'image' in request.FILES:
-                post.image = request.FILES['image']
+                image = request.FILES['image']
             elif request.POST.get('remove_image') == 'true':
+                image = None  # This will be handled separately
+
+            # Update existing post using service
+            PostService.update_post(
+                post=post,
+                title=title,
+                text_html=text_html,
+                description=meta_description,
+                series_url=series.url if series else None,
+                tag=','.join(tags) if tags else None,
+                image=image,
+                is_hide=hide,
+                is_notice=notice,
+                is_advertise=advertise,
+            )
+
+            # Handle image removal separately if needed
+            if request.POST.get('remove_image') == 'true':
                 post.image = None
-            
-            post.save()
-            
-            # Update post content
-            post.content.text_md = text_md
-            post.content.text_html = text_html
-            post.content.save()
-            
-            # Update post config
-            post.config.hide = hide
-            post.config.notice = notice
-            post.config.advertise = advertise
-            post.config.save()
-            
-            # Process tags
-            if tags:
-                post.set_tags(','.join(tags))
-            
+                post.save()
+
             messages.success(request, 'Post has been updated successfully.')
         else:
-            # Create the post first without URL
-            post = Post(
-                title=title,
-                meta_description=meta_description,
-                author=request.user,
-                series=series
-            )
-            
-            # Generate unique URL using Post model's method
-            post.create_unique_url(url)
-            post.save()
-            
             # Handle image upload
-            if 'image' in request.FILES:
-                post.image = request.FILES['image']
-                post.save()
-            
-            # Now create the related models
-            PostConfig.objects.create(
-                post=post,
-                hide=hide,
-                notice=notice,
-                advertise=advertise
-            )
-            
-            PostContent.objects.create(
-                post=post,
-                text_md=text_md,
-                text_html=text_html
-            )
-            
-            # Process tags
-            if tags:
-                post.set_tags(','.join(tags))
-            
-            messages.success(request, 'Post has been created successfully.')
-        
-        # If it's a draft and this is a new post, redirect to edit mode
-        if is_draft and not is_edit:
-            messages.success(request, '게시글이 임시저장되었습니다.')
-            return redirect('post_edit', username=request.user.username, post_url=post.url)
-        elif is_draft and is_edit:
-            messages.success(request, '게시글이 임시저장되었습니다.')
-            return redirect('post_edit', username=request.user.username, post_url=post.url)
-        
-        # 임시저장 토큰이 있으면 임시글 삭제
-        temp_token = request.POST.get('temp_token')
-        print(f"[DEBUG] POST 데이터: {dict(request.POST)}")
-        print(f"[DEBUG] temp_token 값: {temp_token}")
-        if temp_token:
+            image = request.FILES.get('image', None)
+
+            # Get temp post token if exists
+            temp_token = request.POST.get('temp_token', '')
+
+            # Create new post using service
             try:
-                temp_post_to_delete = TempPosts.objects.get(token=temp_token, author=request.user)
-                temp_post_to_delete.delete()
-                print(f"[DEBUG] 임시저장 데이터 삭제 성공: {temp_token}")
-            except TempPosts.DoesNotExist:
-                print(f"[DEBUG] 임시저장 데이터를 찾을 수 없음: {temp_token}")
-        else:
-            print("[DEBUG] temp_token이 POST 데이터에 없음")
+                post, post_content, post_config = PostService.create_post(
+                    user=request.user,
+                    title=title,
+                    text_html=text_html,
+                    description=meta_description,
+                    series_url=series.url if series else '',
+                    custom_url=url,
+                    tag=','.join(tags) if tags else '',
+                    image=image,
+                    is_hide=hide,
+                    is_notice=notice,
+                    is_advertise=advertise,
+                    temp_post_token=temp_token,
+                )
+                messages.success(request, 'Post has been created successfully.')
+            except PostValidationError as e:
+                messages.error(request, e.message)
+                return redirect('post_editor')
         
+        # If it's a draft, redirect to edit mode
+        if is_draft:
+            messages.success(request, '게시글이 임시저장되었습니다.')
+            return redirect('post_edit', username=request.user.username, post_url=post.url)
+
         # Redirect to the post detail page
         return redirect('post_detail', username=request.user.username, post_url=post.url)
     
