@@ -1,8 +1,11 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import {
+ useState, useEffect, useCallback, useMemo, useRef
+} from 'react';
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
+import TempPostsPanel from './components/TempPostsPanel';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useFormSubmit } from './hooks/useFormSubmit';
@@ -19,6 +22,8 @@ interface NewPostEditorProps {
 const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
+    const [isTempPostsPanelOpen, setIsTempPostsPanelOpen] = useState(false);
+    const [pendingTempToken, setPendingTempToken] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -34,6 +39,13 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
     const [selectedSeries, setSelectedSeries] = useState({
         id: '',
         name: ''
+    });
+
+    // Track initial state for dirty check
+    const initialDataRef = useRef({
+        title: '',
+        content: '',
+        tags: [] as string[]
     });
 
     // Get CSRF token from DOM
@@ -107,14 +119,23 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                     const { data: tempResponse } = await http(`v1/temp-posts/${tempToken}`);
                     if (tempResponse.status === 'DONE' && tempResponse.body) {
                         const tempData = tempResponse.body;
+                        const newTitle = tempData.title || '';
+                        const newContent = tempData.textMd || '';
+                        const newTags = tempData.tag ? tempData.tag.split(',').filter(Boolean) : [];
+
                         setFormData(prev => ({
                             ...prev,
-                            title: tempData.title || '',
-                            content: tempData.textMd || ''
+                            title: newTitle,
+                            content: newContent
                         }));
-                        if (tempData.tag) {
-                            setTags(tempData.tag.split(',').filter(Boolean));
-                        }
+                        setTags(newTags);
+
+                        // Store initial state
+                        initialDataRef.current = {
+                            title: newTitle,
+                            content: newContent,
+                            tags: newTags
+                        };
                     }
                 }
             } catch {
@@ -126,6 +147,43 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
 
         fetchData();
     }, [tempToken]);
+
+    // Check if form has unsaved changes
+    const hasUnsavedChanges = useCallback(() => {
+        const initial = initialDataRef.current;
+        return (
+            formData.title !== initial.title ||
+            formData.content !== initial.content ||
+            JSON.stringify(tags) !== JSON.stringify(initial.tags)
+        );
+    }, [formData.title, formData.content, tags]);
+
+    // Handle temp post selection
+    const handleSelectTempPost = useCallback((token: string) => {
+        if (token === tempToken) {
+            // Already on this post
+            setIsTempPostsPanelOpen(false);
+            return;
+        }
+
+        if (hasUnsavedChanges()) {
+            // Show confirmation
+            setPendingTempToken(token);
+        } else {
+            // Navigate directly
+            window.location.href = `/write?tempToken=${token}`;
+        }
+    }, [tempToken, hasUnsavedChanges]);
+
+    const handleConfirmNavigation = useCallback(() => {
+        if (pendingTempToken) {
+            window.location.href = `/write?tempToken=${pendingTempToken}`;
+        }
+    }, [pendingTempToken]);
+
+    const handleCancelNavigation = useCallback(() => {
+        setPendingTempToken(null);
+    }, []);
 
     const handleManualSave = async () => {
         if (!formData.title.trim()) {
@@ -181,7 +239,7 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
 
     return (
         <div className="bg-gray-50 py-4 sm:py-8">
-            <div className="max-w-7xl w-full mx-auto">
+            <div className="max-w-4xl w-full mx-auto">
                 <PostHeader
                     mode={tempToken ? 'temp' : 'new'}
                     isSaving={isSaving}
@@ -191,6 +249,7 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                     saveProgress={saveProgress}
                     onManualSave={handleManualSave}
                     onSubmit={() => handleSubmit()}
+                    onOpenTempPosts={() => setIsTempPostsPanelOpen(true)}
                 />
 
                 <PostForm
@@ -223,6 +282,39 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                     getCsrfToken={getCsrfToken}
                 />
             </div>
+
+            {/* Temp Posts Panel */}
+            <TempPostsPanel
+                isOpen={isTempPostsPanelOpen}
+                onClose={() => setIsTempPostsPanelOpen(false)}
+                onSelectPost={handleSelectTempPost}
+                currentToken={tempToken}
+            />
+
+            {/* Navigation Warning Modal */}
+            {pendingTempToken && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black bg-opacity-50" onClick={handleCancelNavigation} />
+                    <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">저장되지 않은 변경사항</h3>
+                        <p className="text-sm text-gray-600 mb-6">
+                            현재 작성 중인 내용이 저장되지 않았습니다. 다른 임시 글로 이동하시겠습니까?
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={handleCancelNavigation}
+                                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                                취소
+                            </button>
+                            <button
+                                onClick={handleConfirmNavigation}
+                                className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                                이동
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

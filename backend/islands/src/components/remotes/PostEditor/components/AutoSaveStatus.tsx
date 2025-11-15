@@ -13,56 +13,51 @@ const AutoSaveStatus: React.FC<AutoSaveStatusProps> = ({
     nextSaveIn,
     saveProgress
 }) => {
-    return (
-        <div className="flex flex-col gap-2 min-w-0">
-            {/* Status text */}
-            <div className="flex items-center gap-2 text-sm">
-                {isSaving ? (
-                    <div className="flex items-center gap-2 text-gray-600">
-                        <div className="w-4 h-4 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
-                        <span className="font-medium">자동저장 중...</span>
-                    </div>
-                ) : lastSaved ? (
-                    <div className="flex items-center gap-2 text-gray-600">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="font-medium">
-                            {lastSaved.toLocaleTimeString('ko-KR', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })} 자동저장됨
-                        </span>
-                    </div>
-                ) : nextSaveIn > 0 ? (
-                    <div className="flex items-center gap-2 text-gray-500">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>
-                            {Math.ceil(nextSaveIn / 1000)}초 후 자동저장
-                        </span>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2 text-gray-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>자동저장 대기 중</span>
-                    </div>
-                )}
-            </div>
+    const isWaiting = nextSaveIn > 0 && !isSaving;
 
-            {/* Progress bar */}
-            {(nextSaveIn > 0 || saveProgress > 0) && !isSaving && (
-                <div className="w-full max-w-48">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                            className="bg-gray-500 h-2 rounded-full transition-all duration-300 ease-linear"
-                            style={{ width: `${Math.max(1, saveProgress)}%` }}
-                        />
+    return (
+        <div className="flex items-center gap-1.5 text-xs text-gray-500 px-3 py-2 bg-gray-50 rounded-lg relative overflow-hidden">
+            {/* Progress bar background */}
+            {isWaiting && (
+                <div
+                    className="absolute bottom-0 left-0 h-0.5 bg-gray-300 transition-all duration-300 ease-linear"
+                    style={{ width: `${saveProgress}%` }}
+                />
+            )}
+
+            {isSaving ? (
+                <>
+                    <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                    <span>저장 중</span>
+                </>
+            ) : lastSaved ? (
+                <>
+                    <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>
+                        {lastSaved.toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })} 저장됨
+                    </span>
+                </>
+            ) : isWaiting ? (
+                <>
+                    <div className="flex gap-0.5">
+                        <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+                        <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                        <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
                     </div>
-                </div>
+                    <span>{Math.ceil(nextSaveIn / 1000)}초 후 저장</span>
+                </>
+            ) : (
+                <>
+                    <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>대기 중</span>
+                </>
             )}
         </div>
     );
