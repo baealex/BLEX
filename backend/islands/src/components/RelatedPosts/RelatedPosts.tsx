@@ -83,7 +83,7 @@ const RelatedPosts: React.FC<RelatedPostsProps> = ({ postUrl, username }) => {
                                 </div>
                             )}
 
-                            <h4 className="font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                            <h4 className="font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors">
                                 {relatedPost.title}
                             </h4>
 

@@ -62,7 +62,7 @@ const InvitationRequest = () => {
         return (
             <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
                 <div className="animate-pulse">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
                         <div className="h-6 bg-gray-200 rounded w-64 mb-2" />
                         <div className="h-4 bg-gray-200 rounded w-full mb-2" />
                         <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -84,29 +84,29 @@ const InvitationRequest = () => {
     return (
         <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
             {/* Header Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-blue-900 mb-2">에디터 초대 요청</h2>
-                <p className="text-blue-700 mb-4">포스트를 작성하려면 기존 에디터로부터 초대를 받아야 합니다.</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">에디터 초대 요청</h2>
+                <p className="text-gray-700 mb-4">포스트를 작성하려면 기존 에디터로부터 초대를 받아야 합니다.</p>
 
                 <div className="space-y-2">
-                    <div className="flex items-center text-sm text-blue-700">
-                        <i className="fas fa-check-circle mr-2 text-blue-600" />
+                    <div className="flex items-center text-sm text-gray-700">
+                        <i className="fas fa-check-circle mr-2 text-gray-600" />
                         에디터에게 초대를 요청하여 블로그 작성 권한을 받으세요
                     </div>
-                    <div className="flex items-center text-sm text-blue-700">
-                        <i className="fas fa-check-circle mr-2 text-blue-600" />
+                    <div className="flex items-center text-sm text-gray-700">
+                        <i className="fas fa-check-circle mr-2 text-gray-600" />
                         자세한 자기소개와 함께 요청하면 승낙 확률이 높아집니다
                     </div>
                 </div>
             </div>
 
             {/* Guide Section */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-amber-800 mb-2">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                <h3 className="font-semibold text-gray-800 mb-2">
                     <i className="fas fa-lightbulb mr-2" />
                     초대 요청 작성 가이드
                 </h3>
-                <ul className="text-sm text-amber-700 space-y-1">
+                <ul className="text-sm text-gray-700 space-y-1">
                     <li>• 자신의 배경과 전문 분야를 간략하게 소개해주세요</li>
                     <li>• 어떤 주제로 포스트를 작성하고 싶은지 설명해주세요</li>
                     <li>• 기존 작품이나 프로젝트가 있다면 링크를 포함해주세요</li>
@@ -147,7 +147,7 @@ const InvitationRequest = () => {
                                     />
                                     <div
                                         className={`p-4 rounded-lg border-2 transition-colors ${selectedOwner === owner.user
-                                            ? 'border-blue-500 bg-blue-50'
+                                            ? 'border-gray-500 bg-gray-50'
                                             : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                                             }`}>
                                         <div className="flex items-center space-x-4">
@@ -161,7 +161,7 @@ const InvitationRequest = () => {
                                                 <p className="text-sm text-gray-600 mt-1">{owner.userDescription}</p>
                                             </div>
                                             {selectedOwner === owner.user && (
-                                                <div className="text-blue-600">
+                                                <div className="text-gray-600">
                                                     <i className="fas fa-check-circle text-xl" />
                                                 </div>
                                             )}
@@ -179,7 +179,7 @@ const InvitationRequest = () => {
                         </label>
                         <textarea
                             id="content"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
                             rows={6}
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
@@ -195,7 +195,7 @@ const InvitationRequest = () => {
                         type="button"
                         onClick={submitRequest}
                         disabled={isSubmitting || !selectedOwner || !content.trim()}
-                        className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                         {isSubmitting ? (
                             <>
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
