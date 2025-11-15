@@ -126,13 +126,13 @@ const NotifySetting = () => {
         <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
             {/* Header with telegram integration and settings button */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-4 gap-3 sm:gap-4">
-                <a href="/settings/integration" className="bg-blue-50 border border-solid border-blue-200 text-blue-800 px-4 py-3 rounded-md text-sm flex items-center flex-1 min-h-[48px]">
+                <a href="/settings/integration" className="bg-gray-50 border border-solid border-gray-200 text-gray-800 px-4 py-3 rounded-md text-sm flex items-center flex-1 min-h-[48px]">
                     <i className="fab fa-telegram-plane mr-2" />
                     텔레그램을 연동하여 실시간 알림을 받아보세요.
                 </a>
                 <button
                     onClick={() => setIsOpenConfig(true)}
-                    className="inline-flex items-center justify-center px-4 py-3 border border-solid border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation min-h-[48px] w-full sm:w-auto">
+                    className="inline-flex items-center justify-center px-4 py-3 border border-solid border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors touch-manipulation min-h-[48px] w-full sm:w-auto">
                     <i className="fas fa-cog mr-2" />
                     알림 설정
                 </button>
@@ -207,7 +207,7 @@ const NotifySetting = () => {
                                                 checked={item.value}
                                                 onChange={() => handleToggleConfig(item.name as keyof typeof NOTIFY_CONFIG_LABEL)}
                                             />
-                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600" />
+                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black" />
                                         </label>
                                     </div>
                                 ))

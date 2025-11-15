@@ -130,7 +130,7 @@ const FormsManagement: React.FC = () => {
         return (
             <div className="p-6 bg-white shadow-sm rounded-lg">
                 <div className="animate-pulse">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
                         <div className="h-6 bg-gray-200 rounded w-32 mb-2" />
                         <div className="h-4 bg-gray-200 rounded w-64" />
                     </div>
@@ -152,16 +152,16 @@ const FormsManagement: React.FC = () => {
     return (
         <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
             {/* Header Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-blue-900 mb-2">서식 관리</h2>
-                <p className="text-blue-700">자주 사용하는 서식을 미리 만들어두면, 글을 더 빠르게 작성할 수 있을거예요.</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">서식 관리</h2>
+                <p className="text-gray-700">자주 사용하는 서식을 미리 만들어두면, 글을 더 빠르게 작성할 수 있을거예요.</p>
             </div>
 
             {/* Add Form Button */}
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
                 <button
                     type="button"
-                    className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors touch-manipulation min-h-[48px]"
+                    className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors touch-manipulation min-h-[48px]"
                     onClick={handleCreateForm}>
                     <i className="fas fa-plus mr-2" />
                     서식 추가
@@ -176,8 +176,8 @@ const FormsManagement: React.FC = () => {
                 </h3>
 
                 {forms.length === 0 ? (
-                    <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-6 rounded-md text-center">
-                        <i className="far fa-file-alt text-4xl mb-3 text-blue-400" />
+                    <div className="bg-gray-50 border border-gray-200 text-gray-800 px-4 py-6 rounded-md text-center">
+                        <i className="far fa-file-alt text-4xl mb-3 text-gray-400" />
                         <p className="font-medium">아직 작성된 서식이 없습니다</p>
                         <p className="text-sm mt-1">서식 추가 버튼을 눌러 첫 번째 서식을 만들어보세요.</p>
                     </div>
@@ -188,13 +188,13 @@ const FormsManagement: React.FC = () => {
                                 <div className="flex items-center justify-between">
                                     <button
                                         type="button"
-                                        className="flex-1 text-left text-gray-900 font-medium hover:text-blue-600 transition-colors focus:outline-none focus:text-blue-600"
+                                        className="flex-1 text-left text-gray-900 font-medium hover:text-gray-600 transition-colors focus:outline-none focus:text-gray-600"
                                         onClick={() => handleEditForm(form.id)}>
                                         {form.title}
                                     </button>
                                     <button
                                         type="button"
-                                        className="ml-4 inline-flex items-center p-2 border border-transparent text-sm font-medium rounded-md text-red-600 hover:text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                        className="ml-4 inline-flex items-center p-2 border border-transparent text-sm font-medium rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                                         onClick={() => handleDeleteForm(form.id)}
                                         title="서식 삭제">
                                         <i className="fas fa-trash" />
@@ -233,12 +233,12 @@ const FormsManagement: React.FC = () => {
                                         <input
                                             id="title"
                                             type="text"
-                                            className="block w-full rounded-md border border-solid border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-3 transition-colors"
+                                            className="block w-full rounded-md border border-solid border-gray-300 focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors"
                                             placeholder="서식 제목을 입력하세요"
                                             {...register('title')}
                                         />
                                         {errors.title && (
-                                            <p className="text-red-500 text-xs mt-1 flex items-center">
+                                            <p className="text-gray-500 text-xs mt-1 flex items-center">
                                                 <i className="fas fa-exclamation-circle mr-1" />
                                                 {errors.title.message}
                                             </p>
@@ -252,12 +252,12 @@ const FormsManagement: React.FC = () => {
                                         <textarea
                                             id="content"
                                             rows={12}
-                                            className="block w-full rounded-md border border-solid border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-3 transition-colors resize-y"
+                                            className="block w-full rounded-md border border-solid border-gray-300 focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors resize-y"
                                             placeholder="서식 내용을 입력하세요"
                                             {...register('content')}
                                         />
                                         {errors.content && (
-                                            <p className="text-red-500 text-xs mt-1 flex items-center">
+                                            <p className="text-gray-500 text-xs mt-1 flex items-center">
                                                 <i className="fas fa-exclamation-circle mr-1" />
                                                 {errors.content.message}
                                             </p>
@@ -268,14 +268,14 @@ const FormsManagement: React.FC = () => {
                                 <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
                                     <button
                                         type="button"
-                                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                                         onClick={closeModal}
                                         disabled={isSubmitting}>
                                         취소
                                     </button>
                                     <button
                                         type="submit"
-                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                         disabled={isSubmitting}>
                                         {isSubmitting ? (
                                             <>
