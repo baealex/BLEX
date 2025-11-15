@@ -10,14 +10,14 @@
         <div class="block xl:flex xl:flex-row gap-8 min-w-0">
             <!-- 사이드바 네비게이션 -->
             <aside class="xl:w-80 order-2 xl:order-1 hidden xl:block self-start">
-                <div class="bg-white backdrop-blur-sm bg-white/95 border border-slate-200/60 rounded-2xl shadow-lg shadow-slate-200/40 overflow-hidden">
+                <div class="bg-white backdrop-blur-sm bg-white/95 border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/40 overflow-hidden">
                     <!-- 헤더 -->
-                    <div class="px-6 py-3 border-b border-slate-300/60 border-solid">
+                    <div class="px-6 py-3 border-b border-gray-300/60 border-solid">
                         <div class="flex items-center">
-                            <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mr-3">
-                                <i class="fas fa-cog text-slate-800 text-xl"></i>
+                            <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-cog text-gray-800 text-xl"></i>
                             </div>
-                            <h2 class="font-bold text-slate-800">설정</h2>
+                            <h2 class="font-bold text-gray-800">설정</h2>
                         </div>
                     </div>
                     
@@ -26,70 +26,70 @@
                         <ul class="space-y-1">
                             <li>
                                 <a href="{% url 'setting_dashboard' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'dashboard' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'dashboard' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'dashboard' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-tachometer-alt {% if active == 'dashboard' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'dashboard' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-tachometer-alt {% if active == 'dashboard' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">대시보드</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'setting_profile' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'profile' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'profile' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'profile' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-user {% if active == 'profile' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'profile' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-user {% if active == 'profile' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">프로필</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'setting_account' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'account' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'account' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'account' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-user-cog {% if active == 'account' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'account' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-user-cog {% if active == 'account' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">계정</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'setting_notify' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'notify' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'notify' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'notify' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-bell {% if active == 'notify' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'notify' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-bell {% if active == 'notify' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">알림</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'setting_series' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'series' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'series' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'series' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-list {% if active == 'series' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'series' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-list {% if active == 'series' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">시리즈</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'setting_posts' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'posts' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'posts' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'posts' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-file-alt {% if active == 'posts' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'posts' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-file-alt {% if active == 'posts' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">포스트</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'setting_temp_posts' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'temp_posts' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'temp_posts' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'temp_posts' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-save {% if active == 'temp_posts' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'temp_posts' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-save {% if active == 'temp_posts' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">임시저장</span>
                                 </a>
@@ -97,10 +97,10 @@
                             {% if user.profile.is_editor %}
                             <li>
                                 <a href="{% url 'setting_analytics' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'analytics' or active == 'analytics/views' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'analytics' or active == 'analytics/views' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3
-                                        {% if active == 'analytics' or active == 'analytics/views' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-chart-bar {% if active == 'analytics' or active == 'analytics/views' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'analytics' or active == 'analytics/views' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-chart-bar {% if active == 'analytics' or active == 'analytics/views' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">통계</span>
                                 </a>
@@ -108,34 +108,34 @@
                             {% endif %}
                             <li>
                                 <a href="{% url 'setting_forms' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'forms' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'forms' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'forms' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-file-alt {% if active == 'forms' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'forms' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-file-alt {% if active == 'forms' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">서식</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{% url 'setting_integration' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'integration' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'integration' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'integration' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-plug {% if active == 'integration' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'integration' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-plug {% if active == 'integration' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">연동</span>
                                 </a>
                             </li>
                             {% if request.user.is_staff %}
                             <li>
-                                <div class="mx-3 my-2 border-t border-slate-200"></div>
+                                <div class="mx-3 my-2 border-t border-gray-200"></div>
                             </li>
                             <li>
                                 <a href="{% url 'admin:index' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'staff' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
+                                    {% if active == 'staff' %}bg-black text-white shadow-lg{% else %}text-gray-600 hover:bg-gray-50 hover:text-black{% endif %}">
                                     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'staff' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-user-shield {% if active == 'staff' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
+                                        {% if active == 'staff' %}bg-white/20{% else %}bg-gray-100 group-hover:bg-gray-200{% endif %}">
+                                        <i class="fas fa-user-shield {% if active == 'staff' %}text-white{% else %}text-gray-500 group-hover:text-black{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">관리자</span>
                                 </a>
@@ -156,7 +156,7 @@
 <!-- 모바일 네비게이션 토글 (Alpine.js 사용) -->
 <div class="xl:hidden fixed bottom-6 right-6 z-50" x-data="{ open: false }">
     <button @click="open = !open" 
-            class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center">
+            class="bg-black text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center">
         <i class="fas fa-cog text-xl" x-show="!open"></i>
         <i class="fas fa-times text-xl" x-show="open" x-cloak></i>
     </button>
@@ -188,7 +188,7 @@
                 <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
                     <i class="fas fa-cog text-white text-xl"></i>
                 </div>
-                <h2 class="text-xl font-bold text-slate-800">설정</h2>
+                <h2 class="text-xl font-bold text-gray-800">설정</h2>
             </div>
             
             <nav>
@@ -197,10 +197,10 @@
                         <a href="{% url 'setting_dashboard' %}" 
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'dashboard' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'dashboard' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'dashboard' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-tachometer-alt {% if active == 'dashboard' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'dashboard' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-tachometer-alt {% if active == 'dashboard' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">대시보드</span>
                         </a>
@@ -209,10 +209,10 @@
                         <a href="{% url 'setting_profile' %}" 
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'profile' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'profile' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'profile' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-user {% if active == 'profile' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'profile' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-user {% if active == 'profile' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">프로필</span>
                         </a>
@@ -221,10 +221,10 @@
                         <a href="{% url 'setting_account' %}"
                            @click="open = false" 
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'account' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'account' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'account' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-user-cog {% if active == 'account' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'account' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-user-cog {% if active == 'account' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">계정</span>
                         </a>
@@ -233,10 +233,10 @@
                         <a href="{% url 'setting_notify' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'notify' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'notify' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'notify' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-bell {% if active == 'notify' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'notify' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-bell {% if active == 'notify' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">알림</span>
                         </a>
@@ -245,10 +245,10 @@
                         <a href="{% url 'setting_series' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'series' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'series' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'series' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-list {% if active == 'series' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'series' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-list {% if active == 'series' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">시리즈</span>
                         </a>
@@ -257,10 +257,10 @@
                         <a href="{% url 'setting_posts' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'posts' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'posts' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'posts' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-file-alt {% if active == 'posts' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'posts' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-file-alt {% if active == 'posts' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">포스트</span>
                         </a>
@@ -269,10 +269,10 @@
                         <a href="{% url 'setting_temp_posts' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'temp_posts' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'temp_posts' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'temp_posts' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-save {% if active == 'temp_posts' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'temp_posts' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-save {% if active == 'temp_posts' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">임시저장</span>
                         </a>
@@ -282,10 +282,10 @@
                         <a href="{% url 'setting_analytics' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'analytics' or active == 'analytics/views' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'analytics' or active == 'analytics/views' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3
-                                {% if active == 'analytics' or active == 'analytics/views' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-chart-bar {% if active == 'analytics' or active == 'analytics/views' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'analytics' or active == 'analytics/views' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-chart-bar {% if active == 'analytics' or active == 'analytics/views' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">통계</span>
                         </a>
@@ -295,10 +295,10 @@
                         <a href="{% url 'setting_forms' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'forms' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'forms' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'forms' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-file-alt {% if active == 'forms' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'forms' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-file-alt {% if active == 'forms' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">서식</span>
                         </a>
@@ -307,26 +307,26 @@
                         <a href="{% url 'setting_integration' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'integration' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'integration' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'integration' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-plug {% if active == 'integration' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'integration' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-plug {% if active == 'integration' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">연동</span>
                         </a>
                     </li>
                     {% if request.user.is_staff %}
                     <li>
-                        <div class="my-4 border-t border-slate-200"></div>
+                        <div class="my-4 border-t border-gray-200"></div>
                     </li>
                     <li>
                         <a href="{% url 'admin:index' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'staff' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                            {% if active == 'staff' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'staff' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-user-shield {% if active == 'staff' %}text-white{% else %}text-slate-500{% endif %}"></i>
+                                {% if active == 'staff' %}bg-white/20{% else %}bg-gray-100{% endif %}">
+                                <i class="fas fa-user-shield {% if active == 'staff' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">관리자</span>
                         </a>

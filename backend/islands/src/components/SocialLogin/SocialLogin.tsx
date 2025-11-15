@@ -85,8 +85,8 @@ const SocialLogin: React.FC = () => {
     if (loading) {
         return (
             <div className="space-y-3">
-                <div className="w-full h-12 bg-slate-200 rounded-lg animate-pulse" />
-                <div className="w-full h-12 bg-slate-200 rounded-lg animate-pulse" />
+                <div className="w-full h-12 bg-gray-200 rounded-lg animate-pulse" />
+                <div className="w-full h-12 bg-gray-200 rounded-lg animate-pulse" />
             </div>
         );
     }
@@ -105,7 +105,7 @@ const SocialLogin: React.FC = () => {
                         e.currentTarget.style.borderColor = '';
                         e.currentTarget.style.color = '';
                     }}
-                    className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-300 rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 shadow-sm hover:shadow-md group">
+                    className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md group">
                     <span className="flex-shrink-0">
                         {provider.key === 'google' && <GoogleIcon />}
                         {provider.key === 'github' && <GitHubIcon />}

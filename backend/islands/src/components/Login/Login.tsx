@@ -252,15 +252,15 @@ const Login = () => {
         <div className="max-w-md w-full space-y-8">
             {/* Logo & Title */}
             <div className="text-center">
-                <div className="mx-auto h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                <div className="mx-auto h-16 w-16 bg-gradient-to-br from-gray-600 to-gray-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     {state.showTwoFactor ? '이중 인증' : '다시 오신 것을 환영합니다'}
                 </h1>
-                <p className="text-slate-600">
+                <p className="text-gray-600">
                     {state.showTwoFactor ? '텔레그램으로 전송된 인증 코드를 입력해주세요' : 'BLEX에서 새로운 아이디어를 발견해보세요'}
                 </p>
             </div>
@@ -294,19 +294,19 @@ const Login = () => {
                 )}
 
                 {/* Footer Links */}
-                <div className="text-center space-y-4 pt-4 border-t border-slate-200">
+                <div className="text-center space-y-4 pt-4 border-t border-gray-200">
                     {!state.showTwoFactor && (
-                        <p className="text-slate-600">
+                        <p className="text-gray-600">
                             계정이 없으신가요?
-                            <a href="/sign" className="font-semibold text-blue-600 hover:text-blue-800 transition-colors duration-200 ml-1">
+                            <a href="/sign" className="font-semibold text-gray-600 hover:text-gray-800 transition-colors duration-200 ml-1">
                                 회원가입하기
                             </a>
                         </p>
                     )}
-                    <div className="flex items-center justify-center space-x-6 text-sm text-slate-500">
-                        <a href="/about" className="hover:text-slate-700 transition-colors">서비스 소개</a>
-                        <a href="/privacy" className="hover:text-slate-700 transition-colors">개인정보처리방침</a>
-                        <a href="/terms" className="hover:text-slate-700 transition-colors">이용약관</a>
+                    <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
+                        <a href="/about" className="hover:text-gray-700 transition-colors">서비스 소개</a>
+                        <a href="/privacy" className="hover:text-gray-700 transition-colors">개인정보처리방침</a>
+                        <a href="/terms" className="hover:text-gray-700 transition-colors">이용약관</a>
                     </div>
                 </div>
             </div>

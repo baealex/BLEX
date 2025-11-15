@@ -162,7 +162,7 @@ const AccountSettings: React.FC = () => {
         return (
             <div className="p-6 bg-white shadow-sm rounded-lg">
                 <div className="animate-pulse">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
                         <div className="h-6 bg-gray-200 rounded w-32 mb-2" />
                         <div className="h-4 bg-gray-200 rounded w-64" />
                     </div>
@@ -184,9 +184,9 @@ const AccountSettings: React.FC = () => {
     return (
         <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
             {/* Header Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-blue-900 mb-2">계정 설정</h2>
-                <p className="text-blue-700">아이디, 이름, 비밀번호 등 계정 정보를 관리하세요.</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">계정 설정</h2>
+                <p className="text-gray-700">아이디, 이름, 비밀번호 등 계정 정보를 관리하세요.</p>
             </div>
 
             {/* 가입일 */}
@@ -209,7 +209,7 @@ const AccountSettings: React.FC = () => {
                         </svg>
                         사용자 필명
                     </h3>
-                    <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-md text-sm mb-4 flex items-center">
+                    <div className="bg-yellow-50 border border-gray-300 text-gray-900 px-4 py-3 rounded-md text-sm mb-4 flex items-center">
                         <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
@@ -217,12 +217,12 @@ const AccountSettings: React.FC = () => {
                     </div>
                     <input
                         type="text"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-3 mb-3 transition-colors"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm p-3 mb-3 transition-colors"
                         placeholder="사용자 필명"
                         maxLength={30}
                         {...registerUsername('username')}
                     />
-                    {errorsUsername.username && <p className="text-red-500 text-xs mb-3 flex items-center">
+                    {errorsUsername.username && <p className="text-gray-500 text-xs mb-3 flex items-center">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
@@ -230,7 +230,7 @@ const AccountSettings: React.FC = () => {
                     </p>}
                     <button
                         type="submit"
-                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-h-[48px]"
+                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-h-[48px]"
                         disabled={isUsernameLoading}>
                         {isUsernameLoading ? (
                             <>
@@ -278,12 +278,12 @@ const AccountSettings: React.FC = () => {
                     </h3>
                     <input
                         type="text"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-3 mb-3 transition-colors"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm p-3 mb-3 transition-colors"
                         placeholder="사용자 실명"
                         maxLength={30}
                         {...registerName('name')}
                     />
-                    {errorsName.name && <p className="text-red-500 text-xs mb-3 flex items-center">
+                    {errorsName.name && <p className="text-gray-500 text-xs mb-3 flex items-center">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
@@ -291,7 +291,7 @@ const AccountSettings: React.FC = () => {
                     </p>}
                     <button
                         type="submit"
-                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         disabled={isNameLoading}>
                         {isNameLoading ? (
                             <>
@@ -349,7 +349,7 @@ const AccountSettings: React.FC = () => {
                         </svg>
                         비밀번호 변경
                     </h3>
-                    <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-md text-sm mb-4 flex items-center">
+                    <div className="bg-yellow-50 border border-gray-300 text-gray-900 px-4 py-3 rounded-md text-sm mb-4 flex items-center">
                         <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
@@ -360,12 +360,12 @@ const AccountSettings: React.FC = () => {
                         <input
                             id="newPassword"
                             type="password"
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 transition-colors"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm p-3 transition-colors"
                             placeholder="새 비밀번호"
                             maxLength={200}
                             {...registerPassword('newPassword')}
                         />
-                        {errorsPassword.newPassword && <p className="text-red-500 text-xs mt-1 flex items-center">
+                        {errorsPassword.newPassword && <p className="text-gray-500 text-xs mt-1 flex items-center">
                             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
@@ -377,12 +377,12 @@ const AccountSettings: React.FC = () => {
                         <input
                             id="confirmPassword"
                             type="password"
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 transition-colors"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 sm:text-sm p-3 transition-colors"
                             placeholder="비밀번호 확인"
                             maxLength={200}
                             {...registerPassword('confirmPassword')}
                         />
-                        {errorsPassword.confirmPassword && <p className="text-red-500 text-xs mt-1 flex items-center">
+                        {errorsPassword.confirmPassword && <p className="text-gray-500 text-xs mt-1 flex items-center">
                             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
@@ -391,7 +391,7 @@ const AccountSettings: React.FC = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         disabled={isPasswordLoading}>
                         {isPasswordLoading ? (
                             <>
@@ -447,14 +447,14 @@ const AccountSettings: React.FC = () => {
                         {accountData?.has2fa ? (
                             <button
                                 type="button"
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                                 onClick={() => handle2FA(false)}>
                                 중지
                             </button>
                         ) : (
                             <button
                                 type="button"
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                                 onClick={() => handle2FA(true)}>
                                 활성화
                             </button>
@@ -469,7 +469,7 @@ const AccountSettings: React.FC = () => {
                         </div>
                         <button
                             type="button"
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                             onClick={() => notification('계정 삭제 기능을 구현 중입니다.', { type: 'info' })}>
                             삭제
                         </button>

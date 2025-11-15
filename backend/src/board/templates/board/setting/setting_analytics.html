@@ -5,74 +5,45 @@
 {% block setting_title %}통계 설정{% endblock %}
 
 {% block setting_content %}
-<div class="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-6">
-    <h2 class="text-xl font-bold text-blue-900 mb-4">
-        <i class="fas fa-chart-line mr-2"></i>
-        통계 설정
-    </h2>
-    <p class="text-blue-800">
-        운영자가 제공하는 통계 공유 URL을 입력하여 대시보드에서 통계를 확인할 수 있습니다.
-    </p>
-</div>
 
-<form method="post" class="bg-white border rounded-xl p-6">
-    {% csrf_token %}
-
-    <div class="mb-6">
-        <label class="block text-sm font-semibold text-gray-700 mb-2">
-            <i class="fas fa-link mr-2 text-blue-600"></i>
-            분석 도구 공유 URL
-        </label>
-        <input
-            type="url"
-            name="analytics_share_url"
-            value="{{ user.profile.analytics_share_url }}"
-            placeholder="https://analytics.example.com/share/..."
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-        <p class="mt-2 text-sm text-gray-600">
-            <i class="fas fa-info-circle mr-1"></i>
-            운영자에게 요청하여 받은 통계 공유 URL을 입력하세요.
+<div class="bg-white border rounded-xl p-6">
+    <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 mb-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">
+            <i class="fas fa-chart-line mr-2"></i>
+            통계 설정
+        </h2>
+        <p class="text-gray-800">
+            서비스 준비중입니다.
         </p>
     </div>
 
-    <div class="bg-gray-50 border rounded-lg p-4 mb-6">
-        <h4 class="font-semibold text-gray-800 mb-2">
-            <i class="fas fa-question-circle mr-2 text-gray-600"></i>
-            통계 공유 URL이란?
-        </h4>
-        <ul class="text-sm text-gray-700 space-y-1">
-            <li>• 사이트 운영자가 Umami, Google Analytics 등의 분석 도구로 전체 사이트를 분석합니다</li>
-            <li>• 운영자는 각 작성자별로 필터된 통계 Share URL을 생성할 수 있습니다</li>
-            <li>• 생성된 URL을 입력하면 대시보드에서 나의 글 통계만 볼 수 있습니다</li>
-        </ul>
-    </div>
+    <form method="post" class="hidden">
+        {% csrf_token %}
 
-    <div class="flex justify-end">
-        <button
-            type="submit"
-            class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-        >
-            <i class="fas fa-save mr-2"></i>
-            저장하기
-        </button>
-    </div>
-</form>
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fas fa-link mr-2 text-gray-600"></i>
+                분석 도구 공유 URL
+            </label>
+            <input
+                type="url"
+                name="analytics_share_url"
+                value="{{ user.profile.analytics_share_url }}"
+                placeholder="https://analytics.example.com/share/..."
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+        </div>
 
-{% if user.profile.analytics_share_url %}
-<div class="mt-6 bg-white border rounded-xl p-6">
-    <h3 class="text-lg font-bold text-gray-900 mb-4">
-        <i class="fas fa-chart-bar mr-2 text-green-600"></i>
-        통계 미리보기
-    </h3>
-    <div class="border rounded-lg overflow-hidden">
-        <iframe
-            src="{{ user.profile.analytics_share_url }}"
-            class="w-full"
-            style="height: 600px; border: none;"
-            loading="lazy"
-        ></iframe>
-    </div>
+        <div class="flex justify-end">
+            <button
+                type="submit"
+                class="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors"
+            >
+                <i class="fas fa-save mr-2"></i>
+                저장하기
+            </button>
+        </div>
+    </form>
 </div>
-{% endif %}
+
 {% endblock %}

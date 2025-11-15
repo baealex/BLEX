@@ -68,12 +68,12 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
     return (
         <div ref={setNodeRef} style={style} className="mb-4">
-            <div className="bg-white border border-slate-200/60 rounded-xl shadow-sm hover:shadow-md hover:border-indigo-200/60 transition-all duration-200 group overflow-hidden">
+            <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-200 group overflow-hidden">
                 {/* 헤더 영역 - 모든 화면 크기에서 표시 */}
-                <div className="flex items-center justify-between p-4 sm:hidden bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200/60">
+                <div className="flex items-center justify-between p-4 sm:hidden bg-gray-50 border-b border-gray-200/60">
                     <div className="flex items-center gap-3">
                         <div
-                            className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center transition-colors touch-none hover:bg-slate-100 rounded-lg"
+                            className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center transition-colors touch-none hover:bg-gray-100 rounded-lg"
                             style={{ touchAction: 'none' }}
                             {...attributes}
                             {...listeners}>
@@ -82,13 +82,13 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                             </svg>
                         </div>
                         <div className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm">
-                            <i className={`${getIconClassName(social.name)} text-slate-600 text-sm`} />
+                            <i className={`${getIconClassName(social.name)} text-gray-600 text-sm`} />
                         </div>
-                        <span className="text-sm font-medium text-slate-700">소셜 링크</span>
+                        <span className="text-sm font-medium text-gray-700">소셜 링크</span>
                     </div>
                     <button
                         type="button"
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all duration-200"
                         onClick={() => onRemove(social.id)}>
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -100,7 +100,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                 <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
                     {/* 드래그 핸들 - 데스크톱에서만 표시 */}
                     <div
-                        className="hidden sm:flex cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 w-8 h-8 items-center justify-center transition-colors group-hover:text-indigo-500 hover:bg-slate-100 rounded-lg flex-shrink-0"
+                        className="hidden sm:flex cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 w-8 h-8 items-center justify-center transition-colors group-hover:text-gray-500 hover:bg-gray-100 rounded-lg flex-shrink-0"
                         style={{ touchAction: 'none' }}
                         {...attributes}
                         {...listeners}>
@@ -110,15 +110,15 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     </div>
 
                     {/* 아이콘 - 데스크톱에서만 표시 */}
-                    <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg shadow-sm group-hover:from-indigo-50 group-hover:to-indigo-100 transition-all duration-200 flex-shrink-0">
-                        <i className={`${getIconClassName(social.name)} text-slate-600 text-lg group-hover:text-indigo-600`} />
+                    <div className="hidden sm:flex w-10 h-10 items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg shadow-sm group-hover:from-gray-50 group-hover:to-gray-100 transition-all duration-200 flex-shrink-0">
+                        <i className={`${getIconClassName(social.name)} text-gray-600 text-lg group-hover:text-gray-600`} />
                     </div>
 
                     {/* 플랫폼 선택 */}
                     <div className="w-full sm:w-44 flex-shrink-0">
-                        <label className="block text-xs font-medium text-slate-600 mb-2 sm:hidden">플랫폼 선택</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-2 sm:hidden">플랫폼 선택</label>
                         <select
-                            className="block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-slate-50/50 hover:bg-white"
+                            className="block w-full rounded-lg border-gray-200 shadow-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-gray-50/50 hover:bg-white"
                             value={social.name}
                             onChange={(e) => onChange(index, 'name', e.target.value)}>
                             <option disabled value="">아이콘 선택</option>
@@ -135,11 +135,11 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
                     {/* 링크 주소 */}
                     <div className="flex-1">
-                        <label className="block text-xs font-medium text-slate-600 mb-2 sm:hidden">링크 주소</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-2 sm:hidden">링크 주소</label>
                         <input
                             type="url"
                             placeholder="https://example.com"
-                            className="block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-slate-50/50 hover:bg-white"
+                            className="block w-full rounded-lg border-gray-200 shadow-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 text-sm p-3 transition-all duration-200 bg-gray-50/50 hover:bg-white"
                             value={social.value}
                             onChange={(e) => onChange(index, 'value', e.target.value)}
                         />
@@ -148,7 +148,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
                     {/* 삭제 버튼 - 데스크톱에서만 표시 */}
                     <button
                         type="button"
-                        className="hidden sm:flex w-10 h-10 items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 group/btn flex-shrink-0"
+                        className="hidden sm:flex w-10 h-10 items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all duration-200 group/btn flex-shrink-0"
                         onClick={() => onRemove(social.id)}>
                         <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -310,15 +310,14 @@ const SocialLinks = () => {
     };
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-sm border border-slate-200/60 rounded-xl">
+        <div className="p-4 sm:p-6 bg-white shadow-sm border border-gray-200/60 rounded-xl">
             {/* 헤더 섹션 */}
             <div className="mb-6">
-                <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200/60 rounded-xl p-4 sm:p-6">
-                    <h2 className="text-lg sm:text-xl font-bold text-indigo-900 mb-2 flex items-center">
-                        <i className="fas fa-share-alt mr-3 text-indigo-700" />
+                <div className="bg-gray-50 border border-gray-200/60 rounded-xl p-4 sm:p-6">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 flex items-center">
                         소셜 링크 설정
                     </h2>
-                    <p className="text-indigo-700 text-sm">프로필에 표시될 소셜 미디어 링크를 추가하고 순서를 조정하세요.</p>
+                    <p className="text-gray-700 text-sm">프로필에 표시될 소셜 미디어 링크를 추가하고 순서를 조정하세요.</p>
                 </div>
             </div>
 
@@ -326,14 +325,14 @@ const SocialLinks = () => {
                 <div className="mb-6">
                     {socials.length === 0 ? (
                         <div className="text-center py-12">
-                            <div className="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                                <i className="fas fa-share-alt text-slate-400 text-2xl" />
+                            <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                <i className="fas fa-share-alt text-gray-400 text-2xl" />
                             </div>
-                            <h3 className="text-lg font-medium text-slate-900 mb-2">소셜 링크가 없습니다</h3>
-                            <p className="text-slate-500 mb-4">첫 번째 소셜 링크를 추가해보세요!</p>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">소셜 링크가 없습니다</h3>
+                            <p className="text-gray-500 mb-4">첫 번째 소셜 링크를 추가해보세요!</p>
                             <button
                                 type="button"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-black hover:bg-gray-900 text-white rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
                                 onClick={handleSocialAdd}>
                                 <i className="fas fa-plus text-sm" />
                                 첫 링크 추가하기
@@ -363,17 +362,17 @@ const SocialLinks = () => {
                 </div>
 
                 {socials.length > 0 && (
-                    <div className="flex flex-col sm:flex-row gap-3 sm:justify-between border-t border-slate-200 pt-6">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:justify-between border-t border-gray-200 pt-6">
                         <button
                             type="button"
-                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 shadow-sm text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
                             onClick={handleSocialAdd}>
                             <i className="fas fa-plus text-xs" />
                             링크 추가
                         </button>
                         <button
                             type="submit"
-                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                             disabled={isLoading}>
                             {isLoading ? (
                                 <>

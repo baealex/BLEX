@@ -61,8 +61,8 @@ const Heatmap = ({ data }: HeatmapProps) => {
     if (isLoading) {
         return (
             <div className="animate-pulse">
-                <div className="h-6 bg-slate-200 rounded w-48 mb-4" />
-                <div className="h-48 bg-slate-200 rounded" />
+                <div className="h-6 bg-gray-200 rounded w-48 mb-4" />
+                <div className="h-48 bg-gray-200 rounded" />
             </div>
         );
     }

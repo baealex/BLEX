@@ -232,7 +232,7 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
                         <button
                             key={item.id}
                             ref={index === selectedIndex ? selectedItemRef : null}
-                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 ${index === selectedIndex ? 'bg-blue-50' : ''
+                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-3 ${index === selectedIndex ? 'bg-gray-50' : ''
                                 }`}
                             onClick={() => handleCommandClick(item)}>
                             <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded">

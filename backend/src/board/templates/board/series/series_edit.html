@@ -8,7 +8,7 @@
 <div class="max-w-4xl w-full mx-auto px-4 py-6 sm:py-8" x-data="seriesEdit()">
     <!-- Header -->
     <div class="text-center mb-8 sm:mb-12">
-        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl flex items-center justify-center shadow-lg">
             <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
             </svg>
@@ -18,10 +18,10 @@
     </div>
 
     <!-- Current Series Info Card -->
-    <div class="bg-white border border-emerald-200 rounded-xl p-6 mb-8 shadow-sm">
+    <div class="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
         <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <svg class="w-6 h-6 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
                 </svg>
             </div>
@@ -40,8 +40,8 @@
             <!-- Series Info Section -->
             <div class="space-y-6">
                 <div class="flex items-center space-x-3 mb-6">
-                    <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                         </svg>
                     </div>
@@ -58,14 +58,14 @@
                             placeholder="시리즈의 제목을 입력해주세요"
                             maxlength="200"
                             required
-                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-solid border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 text-base sm:text-lg"
-                            :class="{'border-red-300 focus:border-red-500 focus:ring-red-100': titleError}"
+                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-solid border-gray-300 rounded-xl focus:ring-4 focus:ring-gray-100 focus:border-gray-500 transition-all duration-200 text-gray-900 placeholder-gray-400 text-base sm:text-lg"
+                            :class="{'border-gray-300 focus:border-gray-300 focus:ring-red-100': titleError}"
                         >
                         <div class="absolute inset-y-0 right-0 flex items-center pr-4">
                             <span class="text-sm text-gray-400" x-text="`${formData.title.length}/200`"></span>
                         </div>
                     </div>
-                    <p x-show="titleError" x-text="titleError" class="text-sm text-red-600 mt-1"></p>
+                    <p x-show="titleError" x-text="titleError" class="text-sm text-gray-600 mt-1"></p>
                 </div>
 
                 <!-- Description Input -->
@@ -77,7 +77,7 @@
                             placeholder="이 시리즈에서 다루는 내용을 간략하게 설명해주세요"
                             maxlength="500"
                             rows="4"
-                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-solid border-gray-300 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none text-base"
+                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-solid border-gray-300 rounded-xl focus:ring-4 focus:ring-gray-100 focus:border-gray-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none text-base"
                         ></textarea>
                         <div class="absolute bottom-3 right-4">
                             <span class="text-sm text-gray-400" x-text="`${formData.description.length}/500`"></span>
@@ -90,8 +90,8 @@
             <div class="space-y-6 border-t border-gray-100 pt-8">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
                             </svg>
                         </div>
@@ -104,16 +104,16 @@
 
                 {% if not available_posts %}
                     <!-- Empty State -->
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-12">
+                    <div class="bg-gray-50 border border-gray-300 rounded-xl p-12">
                         <div class="text-center">
-                            <div class="w-16 h-16 mx-auto mb-6 bg-amber-100 rounded-2xl flex items-center justify-center">
-                                <svg class="w-8 h-8 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-semibold text-amber-900 mb-2">추가할 수 있는 글이 없습니다</h3>
-                            <p class="text-amber-700 mb-4">모든 글이 이미 다른 시리즈에 포함되어 있습니다.</p>
-                            <a href="/write" class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors duration-200">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">추가할 수 있는 글이 없습니다</h3>
+                            <p class="text-gray-700 mb-4">모든 글이 이미 다른 시리즈에 포함되어 있습니다.</p>
+                            <a href="/write" class="inline-flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors duration-200">
                                 <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                                 </svg>
@@ -126,20 +126,20 @@
                     <div class="bg-gray-50 rounded-xl p-6">
                         <div class="space-y-3 max-h-80 overflow-y-auto overflow-x-hidden">
                             {% for post in available_posts %}
-                            <label class="flex items-center p-4 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 group w-full"
-                                   :class="selectedPosts.includes({{ post.id }}) ? 'border-indigo-500 bg-indigo-50' : ''">
+                            <label class="flex items-center p-4 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group w-full"
+                                   :class="selectedPosts.includes({{ post.id }}) ? 'border-gray-500 bg-gray-100' : ''">
                                 <input 
                                     type="checkbox" 
                                     value="{{ post.id }}"
                                     x-model="selectedPosts"
                                     {% if post.id in current_post_ids %}checked{% endif %}
-                                    class="w-5 h-5 flex-shrink-0 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 mr-4"
+                                    class="w-5 h-5 flex-shrink-0 text-gray-700 border-gray-300 rounded focus:ring-gray-500 focus:ring-2 mr-4"
                                 >
                                 <div class="flex-1 min-w-0 overflow-hidden">
-                                    <p class="text-sm font-medium text-gray-900 truncate group-hover:text-indigo-900">{{ post.title }}</p>
+                                    <p class="text-sm font-medium text-gray-900 truncate group-hover:text-gray-900">{{ post.title }}</p>
                                     <p class="text-xs text-gray-500 mt-1 truncate">{{ post.created_date|date:"Y.m.d" }}</p>
                                 </div>
-                                <svg class="w-5 h-5 flex-shrink-0 text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
+                                <svg class="w-5 h-5 flex-shrink-0 text-black opacity-0 group-hover:opacity-100 transition-opacity ml-2"
                                      :class="selectedPosts.includes({{ post.id }}) ? 'opacity-100' : ''"
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -180,7 +180,7 @@
                     </a>
                     <button type="button" 
                             @click="showDeleteModal = true"
-                            class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 text-white bg-red-500 hover:bg-red-600 rounded-xl transition-all duration-200 text-center font-medium text-sm sm:text-base">
+                            class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 text-white bg-gray-500 hover:bg-black rounded-xl transition-all duration-200 text-center font-medium text-sm sm:text-base">
                         시리즈 삭제
                     </button>
                 </div>
@@ -197,7 +197,7 @@
          style="display: none;">
         <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
             <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-6 bg-emerald-100 rounded-full flex items-center justify-center">
+                <div class="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
                     <div class="w-8 h-8 border-3 border-emerald-300 border-t-emerald-600 rounded-full animate-spin"></div>
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">시리즈 수정 중...</h3>
@@ -222,8 +222,8 @@
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100">
         <div class="text-center">
-            <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
-                <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg class="w-10 h-10 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
                     <path fill-rule="evenodd" d="M4 5a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
                 </svg>
@@ -238,8 +238,8 @@
                 </button>
                 <button @click="deleteSeries()"
                         :disabled="isDeleting"
-                        :class="isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-700'"
-                        class="px-6 py-3 bg-red-600 text-white rounded-xl font-medium transition-all duration-200 disabled:transform-none">
+                        :class="isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-900'"
+                        class="px-6 py-3 bg-black text-white rounded-xl font-medium transition-all duration-200 disabled:transform-none">
                     <span x-show="!isDeleting">삭제하기</span>
                     <span x-show="isDeleting" class="flex items-center justify-center">
                         <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -266,8 +266,8 @@
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100">
         <div class="text-center">
-            <div class="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
-                <svg class="w-10 h-10 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg class="w-10 h-10 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
             </div>

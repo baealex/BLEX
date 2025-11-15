@@ -25,7 +25,7 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({
         className={`
             p-2 rounded-md transition-colors duration-200 min-w-[36px] h-9 flex items-center justify-center
             ${isActive
-                ? 'bg-blue-600 text-white'
+                ? 'bg-black text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-solid border-gray-300'
             }
             ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}

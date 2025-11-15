@@ -18,12 +18,12 @@ const AutoSaveStatus: React.FC<AutoSaveStatusProps> = ({
             {/* Status text */}
             <div className="flex items-center gap-2 text-sm">
                 {isSaving ? (
-                    <div className="flex items-center gap-2 text-blue-600">
-                        <div className="w-4 h-4 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                    <div className="flex items-center gap-2 text-gray-600">
+                        <div className="w-4 h-4 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
                         <span className="font-medium">자동저장 중...</span>
                     </div>
                 ) : lastSaved ? (
-                    <div className="flex items-center gap-2 text-green-600">
+                    <div className="flex items-center gap-2 text-gray-600">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                         </svg>
@@ -35,7 +35,7 @@ const AutoSaveStatus: React.FC<AutoSaveStatusProps> = ({
                         </span>
                     </div>
                 ) : nextSaveIn > 0 ? (
-                    <div className="flex items-center gap-2 text-slate-500">
+                    <div className="flex items-center gap-2 text-gray-500">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -44,7 +44,7 @@ const AutoSaveStatus: React.FC<AutoSaveStatusProps> = ({
                         </span>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-2 text-slate-400">
+                    <div className="flex items-center gap-2 text-gray-400">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -56,9 +56,9 @@ const AutoSaveStatus: React.FC<AutoSaveStatusProps> = ({
             {/* Progress bar */}
             {(nextSaveIn > 0 || saveProgress > 0) && !isSaving && (
                 <div className="w-full max-w-48">
-                    <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                            className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-linear"
+                            className="bg-gray-500 h-2 rounded-full transition-all duration-300 ease-linear"
                             style={{ width: `${Math.max(1, saveProgress)}%` }}
                         />
                     </div>

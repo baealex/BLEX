@@ -124,9 +124,9 @@ const ProfileSetting = () => {
     return (
         <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
             {/* Header Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-blue-900 mb-2">프로필 설정</h2>
-                <p className="text-blue-700">다른 사용자들에게 보여질 프로필 정보를 관리하세요.</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">프로필 설정</h2>
+                <p className="text-gray-700">다른 사용자들에게 보여질 프로필 정보를 관리하세요.</p>
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Profile Image Section */}
@@ -139,7 +139,7 @@ const ProfileSetting = () => {
                                 alt="프로필 이미지"
                                 className="w-full h-full rounded-full object-cover border-4 border-white shadow-lg"
                             />
-                            <div className="absolute bottom-0 right-0 bg-blue-600 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-blue-700 transition-colors">
+                            <div className="absolute bottom-0 right-0 bg-black w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-gray-900 transition-colors">
                                 <label htmlFor="avatar-input" className="text-white cursor-pointer w-full h-full flex items-center justify-center">
                                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
@@ -175,12 +175,12 @@ const ProfileSetting = () => {
                         </label>
                         <textarea
                             id="bio"
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-3 transition-colors"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors"
                             {...register('bio')}
                             rows={4}
                             placeholder="자신을 간단히 소개해 보세요. 관심사, 전문 분야, 취미 등을 알려주세요."
                         />
-                        {errors.bio && <p className="text-red-500 text-xs mt-1 flex items-center">
+                        {errors.bio && <p className="text-gray-500 text-xs mt-1 flex items-center">
                             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
@@ -198,11 +198,11 @@ const ProfileSetting = () => {
                         <input
                             id="homepage"
                             type="url"
-                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-3 transition-colors"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors"
                             {...register('homepage')}
                             placeholder="https://example.com"
                         />
-                        {errors.homepage && <p className="text-red-500 text-xs mt-1 flex items-center">
+                        {errors.homepage && <p className="text-gray-500 text-xs mt-1 flex items-center">
                             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
@@ -213,7 +213,7 @@ const ProfileSetting = () => {
 
                 <button
                     type="submit"
-                    className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-h-[48px]"
+                    className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-h-[48px]"
                     disabled={isLoading}>
                     {isLoading ? (
                         <>

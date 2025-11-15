@@ -112,11 +112,11 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                 top: position.top,
                 left: position.left,
                 zIndex: 1100,
-                background: 'white',
-                border: '1px solid #ccc',
+                background: 'var(--color-white)',
+                border: '1px solid var(--color-border-default)',
                 borderRadius: '8px',
                 padding: '12px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                boxShadow: '0 4px 12px var(--color-shadow-sm)',
                 display: 'flex',
                 gap: '8px',
                 alignItems: 'center',
@@ -135,9 +135,9 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                     className={selectedNode.attrs.align === 'left' ? 'active' : ''}
                     style={{
                         padding: '4px 8px',
-                        border: '1px solid #ddd',
-                        background: selectedNode.attrs.align === 'left' ? '#007bff' : 'white',
-                        color: selectedNode.attrs.align === 'left' ? 'white' : 'black',
+                        border: '1px solid var(--color-border-light)',
+                        background: selectedNode.attrs.align === 'left' ? 'var(--color-interactive-primary)' : 'var(--color-white)',
+                        color: selectedNode.attrs.align === 'left' ? 'var(--color-text-inverted)' : 'var(--color-text-primary)',
                         borderRadius: '4px',
                         cursor: 'pointer'
                     }}>
@@ -149,9 +149,9 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                     className={selectedNode.attrs.align === 'center' ? 'active' : ''}
                     style={{
                         padding: '4px 8px',
-                        border: '1px solid #ddd',
-                        background: selectedNode.attrs.align === 'center' ? '#007bff' : 'white',
-                        color: selectedNode.attrs.align === 'center' ? 'white' : 'black',
+                        border: '1px solid var(--color-border-light)',
+                        background: selectedNode.attrs.align === 'center' ? 'var(--color-interactive-primary)' : 'var(--color-white)',
+                        color: selectedNode.attrs.align === 'center' ? 'var(--color-text-inverted)' : 'var(--color-text-primary)',
                         borderRadius: '4px',
                         cursor: 'pointer'
                     }}>
@@ -163,9 +163,9 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                     className={selectedNode.attrs.align === 'right' ? 'active' : ''}
                     style={{
                         padding: '4px 8px',
-                        border: '1px solid #ddd',
-                        background: selectedNode.attrs.align === 'right' ? '#007bff' : 'white',
-                        color: selectedNode.attrs.align === 'right' ? 'white' : 'black',
+                        border: '1px solid var(--color-border-light)',
+                        background: selectedNode.attrs.align === 'right' ? 'var(--color-interactive-primary)' : 'var(--color-white)',
+                        color: selectedNode.attrs.align === 'right' ? 'var(--color-text-inverted)' : 'var(--color-text-primary)',
                         borderRadius: '4px',
                         cursor: 'pointer'
                     }}>
@@ -178,7 +178,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                 style={{
                     width: '1px',
                     height: '24px',
-                    background: '#ddd'
+                    background: 'var(--color-border-light)'
                 }}
             />
 
@@ -190,7 +190,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                         onChange={handleObjectFitChange}
                         style={{
                             padding: '4px 8px',
-                            border: '1px solid #ddd',
+                            border: '1px solid var(--color-border-light)',
                             borderRadius: '4px'
                         }}>
                         <option value="cover">맞춤</option>
@@ -203,7 +203,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                         style={{
                             width: '1px',
                             height: '24px',
-                            background: '#ddd'
+                            background: 'var(--color-border-light)'
                         }}
                     />
                 </>
@@ -225,7 +225,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                 style={{
                     width: '60px',
                     padding: '4px',
-                    border: '1px solid #ddd',
+                    border: '1px solid var(--color-border-light)',
                     borderRadius: '4px'
                 }}
             />
@@ -245,7 +245,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                 style={{
                     width: '60px',
                     padding: '4px',
-                    border: '1px solid #ddd',
+                    border: '1px solid var(--color-border-light)',
                     borderRadius: '4px'
                 }}
             />
@@ -254,7 +254,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                 style={{
                     width: '1px',
                     height: '24px',
-                    background: '#ddd'
+                    background: 'var(--color-border-light)'
                 }}
             />
 
@@ -274,7 +274,7 @@ const MediaFloatingMenu: React.FC<MediaFloatingMenuProps> = ({ editor }) => {
                 style={{
                     width: '120px',
                     padding: '4px 8px',
-                    border: '1px solid #ddd',
+                    border: '1px solid var(--color-border-light)',
                     borderRadius: '4px'
                 }}
             />
