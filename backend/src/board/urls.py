@@ -8,7 +8,7 @@ from board.sitemaps import sitemaps, sitemap_section
 from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
 from board.views import main
-from board.views.post_actions import like_post, thanks_post, no_thanks_post
+from board.views.post_actions import like_post
 from board.views.search import search_view
 from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit
@@ -21,7 +21,7 @@ from board.views.static_pages import about_view, privacy_view, terms_view
 from board.views.settings import (
     setting_dashboard, setting_profile, setting_account, setting_notify, setting_series,
     setting_posts, setting_analytics,
-    setting_integration, setting_invitation, setting_forms, setting_temp_posts
+    setting_integration, setting_forms, setting_temp_posts
 )
 from board.decorators import staff_member_required
 
@@ -52,14 +52,11 @@ urlpatterns = [
     path('settings/posts', setting_posts, name='setting_posts'),
     path('settings/analytics', setting_analytics, name='setting_analytics'),
     path('settings/integration', setting_integration, name='setting_integration'),
-    path('settings/invitation', setting_invitation, name='setting_invitation'),
     path('settings/forms', setting_forms, name='setting_forms'),
     path('settings/temp-posts', setting_temp_posts, name='setting_temp_posts'),
 
     # Post actions
     path('like/<url>', like_post, name='like_post'),
-    path('thanks/<url>', thanks_post, name='thanks_post'),
-    path('nothanks/<url>', no_thanks_post, name='no_thanks_post'),
 
     # Author
     path('@<username>/series', author_series, name='user_series'),
@@ -114,7 +111,6 @@ urlpatterns = [
     path('v1/posts/pinned', api_v1.pinned_post_list),
     path('v1/posts/pinnable', api_v1.pinnable_post_list),
     path('v1/posts/<url>/comments', api_v1.post_comment_list),
-    path('v1/posts/<url>/analytics', api_v1.post_analytics),
     path('v1/temp-posts', api_v1.temp_posts_list),
     path('v1/temp-posts/<token>', api_v1.temp_posts_detail),
     path('v1/comments', api_v1.comment_list),
@@ -133,10 +129,6 @@ urlpatterns = [
     path('v1/series/order', api_v1.series_order),
     path('v1/upload/image', api_v1.image),
     path('v1/report/error', api_v1.error_report),
-    path('v1/report/article/<url>', api_v1.article_report),
-    path('v1/invitation/owners', api_v1.invitation_owners),
-    path('v1/invitation/requests', api_v1.invitation_requests),
-    path('v1/invitation/<int:invitation_id>', api_v1.invitation_respond),
     path('v1/image', api_v1.image),
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),

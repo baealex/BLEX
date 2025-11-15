@@ -1,5 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 
 @login_required
 def setting_dashboard(request):
@@ -78,8 +80,24 @@ def setting_posts(request):
 def setting_analytics(request):
     """
     Analytics settings page view.
-    Renders the analytics template with user's visitor statistics.
+    Allows users to set their analytics share URL for personal analytics.
+    Only accessible by users with EDITOR or ADMIN role.
     """
+    # Check if user has editor role or higher
+    if not request.user.profile.is_editor():
+        raise PermissionDenied("편집자 권한이 필요합니다.")
+
+    if request.method == 'POST':
+        analytics_share_url = request.POST.get('analytics_share_url', '').strip()
+
+        # Update profile
+        profile = request.user.profile
+        profile.analytics_share_url = analytics_share_url
+        profile.save()
+
+        messages.success(request, '통계 설정이 저장되었습니다.')
+        return redirect('setting_analytics')
+
     context = {
         'active': 'analytics'
     }
@@ -96,18 +114,6 @@ def setting_integration(request):
         'active': 'integration'
     }
     return render(request, 'board/setting/setting_integration.html', context)
-
-
-@login_required
-def setting_invitation(request):
-    """
-    Invitation management page view.
-    Renders the invitation management template with user's invitation codes.
-    """
-    context = {
-        'active': 'invitation'
-    }
-    return render(request, 'board/setting/setting_invitation.html', context)
 
 
 @login_required
