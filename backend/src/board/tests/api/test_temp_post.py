@@ -32,6 +32,7 @@ class TempPostTestCase(TestCase):
             )
 
     def test_get_temp_post_list(self):
+        """임시 게시글 목록 조회 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.get('/v1/temp-posts')
@@ -40,6 +41,7 @@ class TempPostTestCase(TestCase):
         self.assertEqual(len(content['body']['temps']), 10)
 
     def test_no_access_temp_post_list_to_not_logged_in_user(self):
+        """비로그인 사용자의 임시 게시글 목록 접근 차단 테스트"""
         response = self.client.get('/v1/temp-posts')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -47,6 +49,7 @@ class TempPostTestCase(TestCase):
         self.assertEqual(content['errorCode'], 'error:NL')
 
     def test_get_temp_post_detail(self):
+        """임시 게시글 상세 조회 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.get('/v1/temp-posts/test-token-0')
@@ -55,6 +58,7 @@ class TempPostTestCase(TestCase):
         self.assertEqual(content['body']['title'], 'Test Post 0')
 
     def test_no_access_temp_post_detail_to_not_logged_in_user(self):
+        """비로그인 사용자의 임시 게시글 상세 접근 차단 테스트"""
         response = self.client.get('/v1/temp-posts/test-token-0')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -62,6 +66,7 @@ class TempPostTestCase(TestCase):
         self.assertEqual(content['errorCode'], 'error:NL')
 
     def test_create_temp_post(self):
+        """임시 게시글 생성 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.post('/v1/temp-posts', {

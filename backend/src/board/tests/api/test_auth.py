@@ -21,6 +21,7 @@ class AuthTestCase(TestCase):
         Config.objects.create(user=user)
 
     def test_login_not_logged_in_user(self):
+        """로그인하지 않은 사용자 테스트"""
         response = self.client.get('/v1/login')
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
@@ -28,6 +29,7 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['errorCode'], 'error:NL')
 
     def test_login(self):
+        """로그인 성공 테스트"""
         response = self.client.post('/v1/login', {
             'username': 'test',
             'password': 'test',
@@ -44,6 +46,7 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['body']['username'], 'test')
 
     def test_logout(self):
+        """로그아웃 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.get('/v1/login')
@@ -60,6 +63,7 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'ERROR')
 
     def test_create_account(self):
+        """계정 생성 테스트"""
         response = self.client.post('/v1/sign', {
             'username': 'test2',
             'password': 'test2',
@@ -80,6 +84,7 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['body']['username'], 'test2')
 
     def test_delete_account(self):
+        """계정 삭제 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.delete('/v1/sign')
@@ -101,6 +106,7 @@ class AuthTestCase(TestCase):
         'name': 'Test User 3',
     }))
     def test_create_account_from_github(self, mock_servuce):
+        """GitHub OAuth로 계정 생성 테스트"""
         response = self.client.post('/v1/sign/github', {
             'code': 'SECRET_TOKEN_VALUE',
         })
@@ -127,6 +133,7 @@ class AuthTestCase(TestCase):
         'name': 'Test User 3',
     }))
     def test_create_account_from_google(self, mock_servuce):
+        """Google OAuth로 계정 생성 테스트"""
         response = self.client.post('/v1/sign/google', {
             'code': 'SECRET_TOKEN_VALUE',
         })
@@ -148,6 +155,7 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['body']['isFirstLogin'], False)
 
     def test_change_username(self):
+        """유저네임 변경 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.patch('/v1/sign',
@@ -159,6 +167,7 @@ class AuthTestCase(TestCase):
         self.assertEqual(content['status'], 'DONE')
 
     def test_change_username_when_have_post(self):
+        """게시글이 있는 사용자의 유저네임 변경 테스트"""
         self.client.login(username='test', password='test')
 
         response = self.client.post('/v1/posts', {

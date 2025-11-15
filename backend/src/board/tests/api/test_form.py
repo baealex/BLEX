@@ -12,6 +12,7 @@ class FormTestCase(TestCase):
             user=self.user, title='Test Form', content='Test Content')
 
     def test_forms_list(self):
+        """폼 목록 조회 테스트"""
         # 로그인하지 않은 경우
         response = self.client.get('/v1/forms')
         self.assertEqual(response.status_code, 200)
@@ -25,6 +26,7 @@ class FormTestCase(TestCase):
         self.assertEqual(len(response.json()['body']['forms']), 1)
 
     def test_forms_detail(self):
+        """폼 상세 조회, 수정, 삭제 테스트"""
         # 로그인하지 않은 경우
         response = self.client.get(f'/v1/forms/{self.form.id}')
         self.assertEqual(response.status_code, 200)
@@ -61,6 +63,7 @@ class FormTestCase(TestCase):
         self.assertFalse(Form.objects.filter(id=self.form.id).exists())
 
     def test_create_form(self):
+        """폼 생성 테스트"""
         self.client.login(username='testuser', password='testpass')
         response = self.client.post('/v1/forms', {
             'title': 'New Title',
