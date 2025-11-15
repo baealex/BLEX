@@ -3,7 +3,7 @@ from graphene_django import DjangoObjectType
 from board.models import (
     Comment, Config, Form, Notify, Tag,
     Post, PostContent, PostConfig, Profile,
-    Report, Search, Series, User)
+    Series, User)
 
 class CommentType(DjangoObjectType):
     class Meta:
@@ -40,14 +40,6 @@ class PostConfigType(DjangoObjectType):
 class ProfileType(DjangoObjectType):
     class Meta:
         model = Profile
-
-class ReportType(DjangoObjectType):
-    class Meta:
-        model = Report
-
-class SearchType(DjangoObjectType):
-    class Meta:
-        model = Search
 
 class SeriesType(DjangoObjectType):
     class Meta:

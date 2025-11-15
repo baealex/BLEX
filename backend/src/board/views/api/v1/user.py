@@ -10,7 +10,7 @@ from django.utils import timezone
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, UsernameChangeLog, Post, PinnedPost, Profile, Series,
-    Comment, Follow, Tag)
+    Comment, Tag)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since, time_stamp
@@ -26,14 +26,6 @@ def users(request, username):
             user_profile = Profile.objects.get(user=user)
             data = dict()
             for include in set(includes):
-                if include == 'subscribe':
-                    data[include] = {
-                        'has_subscribe': Follow.objects.filter(
-                            follower__id=request.user.id,
-                            following=user.profile
-                        ).exists()
-                    }
-
                 if include == 'profile':
                     data[include] = {
                         'image': user_profile.get_thumbnail(),
@@ -41,10 +33,6 @@ def users(request, username):
                         'name': user.first_name,
                         'bio': user_profile.bio,
                         'homepage': user_profile.homepage,
-                        'has_subscribe': Follow.objects.filter(
-                            follower__id=request.user.id,
-                            following=user.profile
-                        ).exists()
                     }
 
                 elif include == 'social':
@@ -134,12 +122,8 @@ def users(request, username):
                     ).annotate(
                         author_username=F('author__username'),
                         author_image=F('author__profile__avatar'),
-                        thanks_count=Count('thanks', distinct=True),
-                        nothanks_count=Count('nothanks', distinct=True),
                         likes_count=Count('likes', distinct=True),
-                        point=F('thanks_count') - F('nothanks_count') +
-                        (F('likes_count') * 1.5)
-                    ).order_by('-point', '-created_date')[:6]
+                    ).order_by('-likes_count', '-created_date')[:6]
 
                     data[include] = list(map(lambda post: {
                         'url': post.url,
@@ -216,33 +200,6 @@ def users(request, username):
 
     if request.method == 'PUT':
         put = QueryDict(request.body)
-        if put.get('follow'):
-            if not request.user.is_active:
-                return StatusError(ErrorCode.NEED_LOGIN)
-
-            if request.user == user:
-                return StatusError(ErrorCode.AUTHENTICATION)
-
-            follower = User.objects.get(username=request.user)
-            follow_query = Follow.objects.filter(
-                follower=follower,
-                following=user.profile
-            )
-            if follow_query.exists():
-                follow_query.delete()
-                return StatusDone({'has_subscribe': False})
-            else:
-                if user.config.get_meta(CONFIG_TYPE.NOTIFY_FOLLOW):
-                    send_notify_content = (
-                        f"@{follower.username}님께서 "
-                        f"회원님을 구독하기 시작했습니다.")
-                    create_notify(
-                        user=user,
-                        url='/setting/notify',
-                        content=send_notify_content)
-                Follow(follower=follower, following=user.profile).save()
-                return StatusDone({'has_subscribe': True})
-
         if put.get('about'):
             if not request.user == user:
                 return StatusError(ErrorCode.AUTHENTICATION)
