@@ -17,7 +17,7 @@ class AuthTestCase(TestCase):
             email='test@test.com',
             first_name='Test User',
         )
-        Profile.objects.create(user=user)
+        Profile.objects.create(user=user, role=Profile.Role.EDITOR)
         Config.objects.create(user=user)
 
     def test_login_not_logged_in_user(self):

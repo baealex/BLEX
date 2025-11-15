@@ -54,7 +54,6 @@ def setting(request, parameter):
                 CONFIG_TYPE.NOTIFY_POSTS_LIKE,
                 CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
                 CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
-                CONFIG_TYPE.NOTIFY_FOLLOW,
                 CONFIG_TYPE.NOTIFY_MENTION,
             ]
             return StatusDone({
@@ -281,7 +280,6 @@ def setting(request, parameter):
                 CONFIG_TYPE.NOTIFY_POSTS_LIKE,
                 CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
                 CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
-                CONFIG_TYPE.NOTIFY_FOLLOW,
                 CONFIG_TYPE.NOTIFY_MENTION,
             ]
             for config in configs:

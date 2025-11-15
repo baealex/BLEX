@@ -17,6 +17,7 @@ class TempPostTestCase(TestCase):
 
         Profile.objects.create(
             user=User.objects.get(username='test'),
+            role=Profile.Role.EDITOR
         )
 
         number_of_temp_posts = 10

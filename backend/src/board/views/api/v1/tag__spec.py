@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from board.models import User, Tag
+from board.models import User, Tag, Profile
 
 
 class TagTestCase(TestCase):
@@ -14,6 +14,7 @@ class TagTestCase(TestCase):
             email='test@test.com',
             first_name='test User',
         )
+        Profile.objects.create(user=user, role=Profile.Role.EDITOR)
 
         Tag.objects.create(value='test1')
         Tag.objects.create(value='test2')

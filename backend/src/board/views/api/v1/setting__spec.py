@@ -24,6 +24,7 @@ class SettingTestCase(TestCase):
 
         Profile.objects.create(
             user=User.objects.get(username='test'),
+            role=Profile.Role.EDITOR
         )
 
         for i in range(2):
