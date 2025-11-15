@@ -70,7 +70,7 @@
                              src="{% media post.author_image %}"
                              alt="{{ post.author_username }}">
                     </a>
-                    <a href="/@{{ post.author_username }}" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors" itemprop="name">
+                    <a href="/@{{ post.author_username }}" class="font-semibold text-gray-900 hover:text-black transition-colors" itemprop="name">
                         {{ post.author_username }}
                     </a>
                 </div>
@@ -178,15 +178,15 @@
                         }
                     " 
                     class="flex items-center gap-1 sm:gap-2 px-3 py-2.5 sm:px-3 sm:py-2 transition-all duration-200 text-sm rounded-lg font-medium min-h-[44px] min-w-[44px] sm:min-h-auto sm:min-w-auto"
-                    :class="showFeedback ? 'bg-green-100 text-green-700 transform scale-95' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:scale-105 active:scale-95'"
+                    :class="showFeedback ? 'bg-gray-100 text-gray-900 transform scale-95' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:scale-105 active:scale-95'"
                     aria-label="게시물 공유하기">
-                        <i class="fas fa-share-alt" :class="showFeedback ? 'text-green-600' : ''"></i>
+                        <i class="fas fa-share-alt" :class="showFeedback ? 'text-gray-900' : ''"></i>
                         <span x-text="shareMessage"></span>
                         <span class="text-xs" x-show="showFeedback" x-transition>✓</span>
                     </button>
                     
                     {% if user.is_authenticated and user.username == post.author_username %}
-                    <a href="{% url 'post_edit' post.author_username post.url %}" class="flex items-center gap-1 sm:gap-2 px-3 py-2.5 sm:px-3 sm:py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm min-h-[44px] min-w-[44px] sm:min-h-auto sm:min-w-auto">
+                    <a href="{% url 'post_edit' post.author_username post.url %}" class="flex items-center gap-1 sm:gap-2 px-3 py-2.5 sm:px-3 sm:py-2 bg-gray-100 hover:bg-gray-100 text-white rounded-lg font-medium transition-colors duration-200 text-sm min-h-[44px] min-w-[44px] sm:min-h-auto sm:min-w-auto">
                         <i class="fas fa-edit"></i>
                         <span>편집</span>
                     </a>
@@ -208,7 +208,7 @@
                 </div>
                 
                 <h3 class="text-2xl font-bold text-gray-900 mb-4">
-                    <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-indigo-600 transition-colors">
+                    <a href="{% url 'series_detail' post.author_username post.series.url %}" class="hover:text-black transition-colors">
                         {{ post.series.name }}
                     </a>
                 </h3>
@@ -224,15 +224,15 @@
             <h4 class="font-semibold text-gray-900 mb-4">시리즈 목록</h4>
             <div class="space-y-2">
                 {% for series_post in post.visible_series_posts %}
-                <div class="flex items-center gap-3 p-3 {% if series_post.url == post.url %}bg-indigo-50 border border-indigo-200{% else %}bg-gray-50 border border-gray-200{% endif %} rounded-lg">
-                    <div class="w-8 h-8 {% if series_post.url == post.url %}bg-indigo-600 text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full flex items-center justify-center text-sm font-bold">
+                <div class="flex items-center gap-3 p-3 {% if series_post.url == post.url %}bg-gray-100 border border-gray-300{% else %}bg-gray-50 border border-gray-200{% endif %} rounded-lg">
+                    <div class="w-8 h-8 {% if series_post.url == post.url %}bg-gray-100 text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full flex items-center justify-center text-sm font-bold">
                         {{ series_post.series_index }}
                     </div>
                     {% if series_post.url == post.url %}
-                    <span class="flex-1 font-medium text-indigo-900">{{ series_post.title }}</span>
-                    <span class="text-xs flex items-center gap-1 text-indigo-600 font-medium"><i class="fas fa-check"></i><span>읽는 중</span></span>
+                    <span class="flex-1 font-medium text-black">{{ series_post.title }}</span>
+                    <span class="text-xs flex items-center gap-1 text-black font-medium"><i class="fas fa-check"></i><span>읽는 중</span></span>
                     {% else %}
-                    <a href="{% url 'post_detail' post.author_username series_post.url %}" class="flex-1 font-medium text-gray-700 hover:text-indigo-600 transition-colors">
+                    <a href="{% url 'post_detail' post.author_username series_post.url %}" class="flex-1 font-medium text-gray-700 hover:text-black transition-colors">
                         {{ series_post.title }}
                     </a>
                     {% endif %}
@@ -256,7 +256,7 @@
                 </div>
                 {% endif %}
                 
-                <a href="{% url 'series_detail' post.author_username post.series.url %}" class="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base">
+                <a href="{% url 'series_detail' post.author_username post.series.url %}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-100 text-white rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base">
                     <i class="fas fa-th-list"></i>
                     <span>전체 시리즈</span>
                 </a>
