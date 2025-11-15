@@ -21,104 +21,44 @@ from board.modules.post_description import create_post_description
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
+from board.services.post_service import PostService, PostValidationError
 from modules import markdown
 from modules.sub_task import SubTaskProcessor
 from modules.discord import Discord
 
 
 def post_list(request):
+    """Create a new post using PostService"""
     if request.method == 'POST':
-        if not request.user.is_active:
+        if not request.user.is_authenticated:
             raise Http404
 
-        if not request.user.profile.is_editor():
-            return StatusError(ErrorCode.VALIDATE, '편집자 권한이 필요합니다.')
-
-        title = request.POST.get('title', '')
-        text_html = request.POST.get('text_html', '')
-
-        if not title:
-            return StatusError(ErrorCode.VALIDATE, '제목을 입력해주세요.')
-        if not text_html:
-            return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
-
-        read_time = calc_read_time(text_html)
-
-        post = Post()
-        post.title = title
-        post.author = request.user
-        post.read_time = read_time
-
-        description = request.POST.get('description', '')
-        if description:
-            post.meta_description = request.POST.get('description', '')
-        else:
-            post.meta_description = create_post_description(
-                post_content_html=text_html)
-
-        reserved_date = request.POST.get('reserved_date', '')
-        if reserved_date:
-            reserved_date = parse_datetime(reserved_date)
-            if reserved_date < timezone.now():
-                return StatusError(ErrorCode.VALIDATE, '예약시간이 현재시간보다 이전입니다.')
-            post.created_date = reserved_date
-            post.updated_date = reserved_date
-
-        series_url = request.POST.get('series', '')
-        series = Series.objects.filter(
-            owner=request.user,
-            url=series_url
-        )
-        if series.exists():
-            post.series = series.first()
-
         try:
-            post.image = request.FILES['image']
-        except:
-            pass
+            # Get image from FILES if provided
+            image = request.FILES.get('image', None)
 
-        url = request.POST.get('url', '')
-        if url:
-            url = slugify(url, allow_unicode=True)
-        else:
-            url = slugify(post.title, allow_unicode=True)
+            # Create post using service
+            post, post_content, post_config = PostService.create_post(
+                user=request.user,
+                title=request.POST.get('title', ''),
+                text_html=request.POST.get('text_html', ''),
+                description=request.POST.get('description', ''),
+                reserved_date_str=request.POST.get('reserved_date', ''),
+                series_url=request.POST.get('series', ''),
+                custom_url=request.POST.get('url', ''),
+                tag=request.POST.get('tag', ''),
+                image=image,
+                is_hide=BooleanType(request.POST.get('is_hide', '')),
+                is_advertise=BooleanType(request.POST.get('is_advertise', '')),
+                temp_post_token=request.POST.get('token', '')
+            )
 
-        post.create_unique_url(url)
-        post.save()
+            return StatusDone({
+                'url': post.url,
+            })
 
-        post.set_tags(request.POST.get('tag', ''))
-
-        post_content = PostContent.objects.create(
-            post=post,
-            text_md=text_html,  # Store HTML in both fields for compatibility
-            text_html=text_html
-        )
-
-        post_config = PostConfig.objects.create(
-            post=post,
-            hide=BooleanType(request.POST.get('is_hide', '')),
-            advertise=BooleanType(request.POST.get('is_advertise', ''))
-        )
-
-        if not post_config.hide and post.is_published() and settings.DISCORD_NEW_POSTS_WEBHOOK:
-            def func():
-                post_url = settings.SITE_URL + post.get_absolute_url()
-                Discord.send_webhook(
-                    url=settings.DISCORD_NEW_POSTS_WEBHOOK,
-                    content=f'[새 글이 발행되었어요!]({post_url})'
-                )
-            SubTaskProcessor.process(func)
-
-        token = request.POST.get('token')
-        if token:
-            try:
-                TempPosts.objects.get(
-                    token=token, author=request.user).delete()
-            except:
-                pass
-        return StatusDone({
-            'url': post.url,
-        })
+        except PostValidationError as e:
+            return StatusError(e.code, e.message)
 
     raise Http404
 
