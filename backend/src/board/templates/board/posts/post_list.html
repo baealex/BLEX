@@ -1,7 +1,6 @@
 {% extends 'board/base.html' %}
 {% load island %}
 {% load resource %}
-{% load search_tags %}
 
 {% block title %}
     BLEX - 최신 포스트
@@ -12,41 +11,8 @@
 {% block content %}
 <div class="container mx-auto">
 {% if posts %}
-    <div class="container mx-auto">
-    <!-- Search and Navigation Section -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
-        <div class="space-y-4">
-            <!-- Navigation and Filter Section -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100">
-                <!-- 둘러보기 타이틀 -->
-                <div class="flex items-center gap-3 text-sm text-gray-500 font-medium">
-                    <i class="fas fa-compass"></i>
-                    <span>둘러보기</span>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                    <a href="/search"
-                       class="w-full sm:w-auto px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 border border-gray-200">
-                        <i class="fas fa-search text-xs"></i>
-                        <span>포스트 검색</span>
-                    </a>
-                    <a href="/authors"
-                       class="w-full sm:w-auto px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 border border-gray-200">
-                        <i class="fas fa-users text-xs"></i>
-                        <span>작가 검색</span>
-                    </a>
-                    <a href="/tags"
-                       class="w-full sm:w-auto px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 border border-gray-200">
-                        <i class="fas fa-hashtag text-xs"></i>
-                        <span>태그 클라우드</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex justify-end mb-4">
+    <div class="flex items-center justify-between mb-4">
+        <h1 class="text-2xl font-semibold text-gray-900">전체 포스트</h1>
         <div class="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-300">
             <a href="?sort=latest" 
                class="px-3 py-2 rounded-md text-sm font-medium transition-all {% if not request.GET.sort or request.GET.sort == 'latest' %}bg-white text-black shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-white/50{% endif %}">

@@ -9,7 +9,6 @@ from board.feeds import SitePostsFeed, UserPostsFeed
 from board.views.api import v1 as api_v1
 from board.views import main
 from board.views.post_actions import like_post
-from board.views.search import search_view
 from board.views.authors import authors_view
 from board.views.author import author_posts, author_series, author_about, author_about_edit
 from board.views.post import post_detail, post_editor
@@ -31,7 +30,6 @@ def empty():
 
 urlpatterns = [
     path('', main.index, name='index'),
-    path('search', search_view, name='search'),
     path('authors', authors_view, name='authors'),
     path('login', login_view, name='login'),
     path('sign', signup_view, name='signup'),

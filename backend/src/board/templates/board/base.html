@@ -59,6 +59,9 @@
         {% block content %}{% endblock %}
     </main>
     {% include 'components/footer.html' %}
+
+    <!-- 검색 모달 -->
+    <island-component name="SearchModal"></island-component>
     <script>
         window.configuration = {
             media: "{% resource 'media/' %}",

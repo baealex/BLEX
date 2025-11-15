@@ -47,7 +47,7 @@ Parameters:
                 </div>
             </div>
             {% elif show_author == 'false' or show_author == False and post.series %}
-                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-40 bg-black text-black rounded-full text-xs font-medium hover:bg-black transition-colors truncate">
+                <a href="/@{{ post.author }}/series/{{ post.series.url }}" class="inline-flex items-center px-3 py-1.5 max-w-40 bg-gray-100 text-black rounded-full text-xs font-medium hover:bg-gray-200 transition-colors truncate">
                     <i class="fas fa-layer-group mr-1.5"></i>
                     <span class="truncate">{{ post.series.name }}</span>
                 </a>
