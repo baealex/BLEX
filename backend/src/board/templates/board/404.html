@@ -18,11 +18,11 @@
         50% { transform: translateY(-20px); }
     }
     @keyframes text-glow {
-        0%, 100% { 
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3);
+        0%, 100% {
+            text-shadow: 0 0 20px var(--color-overlay-light), 0 0 40px rgba(255, 255, 255, 0.3);
         }
-        50% { 
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.5);
+        50% {
+            text-shadow: 0 0 30px var(--color-overlay-medium), 0 0 60px var(--color-overlay-light);
         }
     }
     @keyframes gradient-shift {
@@ -31,13 +31,13 @@
         100% { background-position: 0% 50%; }
     }
     .gradient-bg {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--color-bg-darker);
     }
     .glass-effect {
         backdrop-filter: blur(16px);
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        background: var(--color-glass-bg);
+        border: 1px solid var(--color-glass-border);
+        box-shadow: 0 8px 32px var(--color-shadow-sm);
     }
     .glow-text {
         animation: text-glow 3s ease-in-out infinite;
@@ -97,17 +97,17 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button 
-                    @click="goBack()" 
-                    class="px-8 py-4 bg-white text-purple-600 font-semibold rounded-full hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-xl min-w-[160px]"
+                <button
+                    @click="goBack()"
+                    class="px-8 py-4 bg-white text-gray-900 font-semibold rounded-full hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-xl min-w-[160px]"
                 >
                     <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                     뒤로가기
                 </button>
-                
-                <a href="/" class="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-purple-600 transform hover:scale-105 transition-all duration-300 min-w-[160px]">
+
+                <a href="/" class="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-full hover:bg-white hover:text-gray-900 transform hover:scale-105 transition-all duration-300 min-w-[160px]">
                     홈으로 이동
                 </a>
             </div>
