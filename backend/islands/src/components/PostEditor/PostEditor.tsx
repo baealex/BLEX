@@ -19,10 +19,10 @@ const PostEditor: React.FC<PostEditorProps> = ({
 }) => {
     if (mode === 'edit' && (!username || !postUrl)) {
         return (
-            <div className="bg-slate-50 py-4 sm:py-8">
+            <div className="bg-gray-50 py-4 sm:py-8">
                 <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                        <div className="text-center text-red-600">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div className="text-center text-gray-600">
                             편집 모드에는 username과 postUrl이 필요합니다.
                         </div>
                     </div>
@@ -33,10 +33,10 @@ const PostEditor: React.FC<PostEditorProps> = ({
 
     if (mode === 'temp' && (!tempToken || !username)) {
         return (
-            <div className="bg-slate-50 py-4 sm:py-8">
+            <div className="bg-gray-50 py-4 sm:py-8">
                 <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                        <div className="text-center text-red-600">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div className="text-center text-gray-600">
                             임시저장 모드에는 tempToken과 username이 필요합니다.
                         </div>
                     </div>
@@ -47,10 +47,10 @@ const PostEditor: React.FC<PostEditorProps> = ({
 
     if (mode === 'new' && !username) {
         return (
-            <div className="bg-slate-50 py-4 sm:py-8">
+            <div className="bg-gray-50 py-4 sm:py-8">
                 <div className="max-w-7xl w-full mx-auto">
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                        <div className="text-center text-red-600">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div className="text-center text-gray-600">
                             새 글 작성 모드에는 username이 필요합니다.
                         </div>
                     </div>
@@ -69,10 +69,10 @@ const PostEditor: React.FC<PostEditorProps> = ({
 
         default:
             return (
-                <div className="bg-slate-50 py-4 sm:py-8">
+                <div className="bg-gray-50 py-4 sm:py-8">
                     <div className="max-w-7xl w-full mx-auto">
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                            <div className="text-center text-red-600">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div className="text-center text-gray-600">
                                 지원되지 않는 모드입니다: {mode}
                             </div>
                         </div>

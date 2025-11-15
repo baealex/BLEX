@@ -180,7 +180,7 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
     };
 
     return (
-        <div className="bg-slate-50 py-4 sm:py-8">
+        <div className="bg-gray-50 py-4 sm:py-8">
             <div className="max-w-7xl w-full mx-auto">
                 <PostHeader
                     mode={tempToken ? 'temp' : 'new'}
