@@ -41,7 +41,7 @@
                         </a>
                         <div>
                             <div class="text-sm text-gray-500 mb-1">작성자</div>
-                            <a href="/@{{ author.username }}" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+                            <a href="/@{{ author.username }}" class="font-semibold text-gray-900 hover:text-black transition-colors">
                                 {{ author.username }}
                             </a>
                         </div>
@@ -62,7 +62,7 @@
                     <!-- 편집 버튼 -->
                     {% if request.user == author %}
                     <a href="/@{{ author.username }}/series/{{ series.url }}/edit" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-block">
+                    class="w-full bg-gray-100 hover:bg-gray-100 text-white text-center px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-block">
                         시리즈 편집
                     </a>
                     {% endif %}
@@ -73,13 +73,13 @@
 
     {% if is_loading %}
     <div class="flex justify-center items-center py-16">
-        <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div class="w-8 h-8 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
     </div>
 
     {% elif not posts %}
     <div class="flex flex-col items-center justify-center min-h-96 text-center">
         <div class="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
-            <i class="fas fa-file-alt text-2xl text-indigo-500"></i>
+            <i class="fas fa-file-alt text-2xl text-black"></i>
         </div>
         <h2 class="text-2xl font-bold text-gray-900 mb-4">아직 포스트가 없습니다</h2>
         <p class="text-lg text-gray-600">이 시리즈에는 아직 포스트가 없습니다.</p>
@@ -90,11 +90,11 @@
     <div class="flex justify-end mb-6">
         <div class="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-300">
             {% if sort_order == 'desc' %}
-            <a href="?sort=asc" class="px-3 py-2 bg-white text-indigo-600 shadow-sm rounded-md text-sm font-medium transition-all">
+            <a href="?sort=asc" class="px-3 py-2 bg-white text-black shadow-sm rounded-md text-sm font-medium transition-all">
                 <i class="fas fa-sort-amount-up mr-2"></i>오래된순
             </a>
             {% else %}
-            <a href="?sort=desc" class="px-3 py-2 bg-white text-indigo-600 shadow-sm rounded-md text-sm font-medium transition-all">
+            <a href="?sort=desc" class="px-3 py-2 bg-white text-black shadow-sm rounded-md text-sm font-medium transition-all">
                 <i class="fas fa-sort-amount-down mr-2"></i>최신순
             </a>
             {% endif %}
@@ -113,7 +113,7 @@
                 
                 <!-- 포스트 내용 -->
                 <div class="flex-1 min-w-0">
-                    <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-indigo-600 transition-colors">
+                    <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-black transition-colors">
                         {{ post.title }}
                     </h3>
                     
