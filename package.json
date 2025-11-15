@@ -8,6 +8,8 @@
         "server:dev": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py runserver 0.0.0.0:8000",
         "server:test": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py test -v 2",
         "server:static": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py collectstatic --noinput",
+        "server:makemigrations": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py makemigrations",
+        "server:migrate": "cd backend/src && source mvenv/bin/activate && export $(cat ../.env | xargs); python manage.py migrate",
         "island:setup": "pnpm install --prefix backend/islands",
         "island:dev": "npm run dev --prefix backend/islands",
         "island:build": "npm run build --prefix backend/islands",
