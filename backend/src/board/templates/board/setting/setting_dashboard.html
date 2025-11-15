@@ -18,8 +18,49 @@
     </div>
 </div>
 
-<!-- 통계 카드 그리드 -->
-{% island_component 'DashboardStats' %}
+{% if user.profile.is_editor %}
+    {% if user.profile.analytics_share_url %}
+    <!-- 통계 섹션 -->
+    <div class="mb-8 bg-white rounded-2xl shadow-sm border overflow-hidden">
+        <div class="p-6 border-b bg-gradient-to-r from-green-50 to-emerald-50">
+            <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+                <i class="fas fa-chart-line mr-2 text-green-600"></i>
+                나의 글 통계
+            </h2>
+            <p class="text-sm text-slate-600 mt-1">실시간 조회수 및 유입 경로 분석</p>
+        </div>
+        <div class="relative">
+            <iframe
+                src="{{ user.profile.analytics_share_url }}"
+                class="w-full"
+                style="height: 600px; border: none;"
+                loading="lazy"
+                title="Analytics Dashboard"
+            ></iframe>
+        </div>
+    </div>
+    {% else %}
+    <!-- 통계 미설정 안내 -->
+    <div class="mb-8 bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
+        <div class="flex items-start">
+            <i class="fas fa-info-circle text-yellow-600 text-2xl mt-1 mr-4"></i>
+            <div class="flex-1">
+                <h3 class="font-semibold text-yellow-900 mb-2">통계가 설정되지 않았습니다</h3>
+                <p class="text-yellow-800 mb-3">
+                    통계 설정에서 분석 도구 공유 URL을 입력하면 여기에서 나의 글 통계를 확인할 수 있습니다.
+                </p>
+                <a
+                    href="{% url 'setting_analytics' %}"
+                    class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                >
+                    <i class="fas fa-cog mr-2"></i>
+                    통계 설정하기
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endif %}
 
 <!-- 최근 활동 섹션 -->
 {% island_component 'DashboardActivities' %}
