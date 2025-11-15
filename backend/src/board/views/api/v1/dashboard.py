@@ -4,7 +4,7 @@ from django.db.models import F, Count, Sum, Q, Subquery, OuterRef
 from django.utils import timezone
 from django.core.cache import cache
 
-from board.models import Post, PostAnalytics, Comment, PostLikes
+from board.models import Post, Comment, PostLikes
 from board.modules.response import StatusDone, StatusError, ErrorCode
 
 
@@ -36,20 +36,12 @@ def dashboard_stats(request):
         total_likes=Count('likes', distinct=True),
         total_comments=Count('comments', distinct=True),
     )
-    
-    # Separate optimized query for views (most expensive operation)
-    # Count devices per PostAnalytics record, then sum them (like Post.total() method)
-    total_views = PostAnalytics.objects.filter(
-        post__author=request.user
-    ).annotate(
-        device_count=Count('devices')
-    ).aggregate(
-        total_views=Sum('device_count')
-    )['total_views'] or 0
-    
+
+    # Note: total_views removed as analytics functionality has been replaced with external services
+
     stats = {
         'total_posts': stats_query['total_posts'] or 0,
-        'total_views': total_views,
+        'total_views': 0,  # Analytics moved to external services (Umami, GA, etc.)
         'total_likes': stats_query['total_likes'] or 0,
         'total_comments': stats_query['total_comments'] or 0,
     }

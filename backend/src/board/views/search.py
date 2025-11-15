@@ -3,12 +3,11 @@ import time
 
 from django.shortcuts import render
 from django.core.paginator import Paginator as DjangoPaginator, EmptyPage, PageNotAnInteger
-from django.db.models import F, Q, Count, When, Case, Subquery, OuterRef, BooleanField, Value, IntegerField
+from django.db.models import F, Q, Count, When, Case, Subquery, OuterRef, BooleanField
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from board.models import Post, Search, SearchValue, Follow
-from board.modules.analytics import create_device, get_network_addr
+from board.models import Post
 from board.modules.paginator import Paginator
 from board.modules.time import convert_to_localtime
 
@@ -61,13 +60,7 @@ def search_view(request):
         posts = Post.objects.filter(id__in=subqueries).annotate(
             author_username=F('author__username'),
             author_image=F('author__profile__avatar'),
-            thanks_count=Count('thanks', filter=Q(
-                thanks__created_date__gte=timezone.now() - datetime.timedelta(days=180)
-            )),
-            nothanks_count=Count('nothanks', filter=Q(
-                nothanks__created_date__gte=timezone.now() - datetime.timedelta(days=180)
-            )),
-            score=F('thanks_count') - F('nothanks_count'),
+            likes_count=Count('likes'),
             is_contain_title=Case(
                 When(
                     id__in=Subquery(
@@ -122,7 +115,7 @@ def search_view(request):
             '-is_contain_description',
             '-is_contain_tags',
             '-is_contain_content',
-            '-score',
+            '-likes_count',
             '-created_date'
         )
 
@@ -158,40 +151,6 @@ def search_view(request):
                 'author': post.author_username,
                 'positions': positions,
             })
-        
-        # 검색 기록 저장
-        user_addr = get_network_addr(request)
-        user_agent = request.META['HTTP_USER_AGENT']
-        device = create_device(user_addr, user_agent)
-
-        search_value, search_value_created = SearchValue.objects.get_or_create(
-            value=query,
-        )
-        search_value.reference_count = total_size
-        search_value.save()
-
-        six_hours_ago = timezone.now() - datetime.timedelta(hours=6)
-        has_search_query = Search.objects.filter(
-            device=device,
-            search_value=search_value,
-            created_date__gt=six_hours_ago,
-        )
-
-        if request.user.id:
-            if has_search_query.exists():
-                has_search_query.update(user=request.user)
-            else:
-                Search.objects.create(
-                    user=request.user,
-                    device=device,
-                    search_value=search_value,
-                )
-        else:
-            if not has_search_query.exists():
-                Search.objects.create(
-                    device=device,
-                    search_value=search_value,
-                )
 
         elapsed_time = round(time.time() - start_time, 3)
 
