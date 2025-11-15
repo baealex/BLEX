@@ -1,5 +1,5 @@
 import React from 'react';
-import SocialLogin from '~/components/SocialLogin';
+import SocialLogin from '~/components/remotes/SocialLogin';
 
 interface LoginFormProps {
     username: string;

@@ -13,6 +13,14 @@
             </a>
             <nav class="flex items-center space-x-3">
                 {% if user.is_authenticated %}
+                    <!-- 검색 버튼 -->
+                    <button
+                        onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
+                        class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-200"
+                        aria-label="검색"
+                    >
+                        <i class="fas fa-search text-lg"></i>
+                    </button>
                     {% if not is_editor_page %}
                     <a href="/write" class="bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
                         <i class="fas fa-pen text-sm"></i>
@@ -62,6 +70,14 @@
                     </div>
                 </div>
                 {% else %}
+                <!-- 검색 버튼 (비로그인) -->
+                <button
+                    onclick="window.dispatchEvent(new CustomEvent('openSearchModal'))"
+                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-200"
+                    aria-label="검색"
+                >
+                    <i class="fas fa-search text-lg"></i>
+                </button>
                 <a href="/login" class="text-gray-600 hover:text-black font-medium transition-colors duration-200 px-3 py-2 rounded-xl hover:bg-gray-50">
                     로그인
                 </a>

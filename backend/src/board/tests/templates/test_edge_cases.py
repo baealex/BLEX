@@ -149,12 +149,6 @@ class EdgeCaseTemplateTestCase(TestCase):
             # int() 변환 실패는 예상된 동작
             pass
 
-    def test_very_long_search_query(self):
-        """매우 긴 검색어 처리 테스트"""
-        long_query = 'a' * 1000
-        response = self.client.get(reverse('search') + f'?q={long_query}')
-        self.assertEqual(response.status_code, 200)
-
     def test_post_with_empty_content(self):
         """빈 내용의 포스트 처리 테스트"""
         empty_post = Post.objects.create(

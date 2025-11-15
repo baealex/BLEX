@@ -1,40 +1,42 @@
 {% comment %}
-Search Input Component
+Search query filter component
 Parameters:
-- redirect: The URL to redirect to when the form is submitted.
-- placeholder: The placeholder text for the search input.
+- placeholder: Placeholder text for the input field (optional, default: '검색어를 입력하세요')
 {% endcomment %}
 
-<div class="relative" x-data="{
-    searchValue: '{{ request.GET.q|default:'' }}',
-    hasQueryParam: '{{ request.GET.q|default:'' }}' !== '',
-    clearSearch() {
-        this.searchValue = '';
-        if (this.hasQueryParam) {
-            const url = new URL(window.location);
-            url.searchParams.delete('q');
-            window.location = url;
-        }
-    }
-}">
-    <form method="GET" action="{{ redirect }}" id="searchForm">
-        <input 
-            type="text" 
-            name="q" 
-            placeholder="{{ placeholder }}" 
-            x-model="searchValue"
-            class="w-full px-4 py-2 pr-20 rounded-lg border border-solid border-gray-200 focus:ring-black focus:border-black text-sm"
-        >
-        <button 
-            type="button" 
-            @click="clearSearch()" 
-            x-show="searchValue.length > 0"
-            class="absolute right-10 top-0 h-full px-2 text-gray-400 hover:text-black transition-colors duration-200"
-        >
-            <i class="fas fa-times"></i>
-        </button>
-        <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-black">
-            <i class="fas fa-search"></i>
-        </button>
+<div x-data="{ query: '{{ request.GET.q|default:'' }}' }">
+    <form method="get" class="relative">
+        <!-- Preserve other query parameters -->
+        {% for key, value in request.GET.items %}
+            {% if key != 'q' and key != 'page' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
+
+        <div class="relative">
+            <input
+                type="text"
+                name="q"
+                x-model="query"
+                placeholder="{{ placeholder|default:'검색어를 입력하세요' }}"
+                class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all"
+                autocomplete="off"
+            >
+            <button
+                type="button"
+                x-show="query.length > 0"
+                @click="query = ''; $el.closest('form').submit()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+                <i class="fas fa-times"></i>
+            </button>
+            <button
+                type="submit"
+                x-show="query.length === 0"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+            >
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
     </form>
 </div>

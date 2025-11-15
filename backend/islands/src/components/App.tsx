@@ -7,28 +7,28 @@ interface AppProps {
 }
 
 const LazyComponents = {
-    Comments: lazy(() => import('./Comments')),
-    PostEditor: lazy(() => import('./PostEditor')),
-    Heatmap: lazy(() => import('./Heatmap')),
-    Login: lazy(() => import('./Login')),
-    SocialLogin: lazy(() => import('./SocialLogin')),
-    RelatedPosts: lazy(() => import('./RelatedPosts')),
-    InvitationRequest: lazy(() => import('./InvitationRequest')),
+    Comments: lazy(() => import('./remotes/Comments')),
+    PostEditor: lazy(() => import('./remotes/PostEditor')),
+    Heatmap: lazy(() => import('./remotes/Heatmap')),
+    Login: lazy(() => import('./remotes/Login')),
+    SocialLogin: lazy(() => import('./remotes/SocialLogin')),
+    RelatedPosts: lazy(() => import('./remotes/RelatedPosts')),
+    SearchModal: lazy(() => import('./remotes/SearchModal')),
 
     // Dashboard
-    DashboardActivities: lazy(() => import('./DashboardActivities')),
+    DashboardActivities: lazy(() => import('./remotes/DashboardActivities')),
 
     // Settings
-    FormsSetting: lazy(() => import('./Settings/FormsSetting')),
-    IntegrationSetting: lazy(() => import('./Settings/IntegrationSetting')),
-    InvitationSetting: lazy(() => import('./Settings/InvitationSetting')),
-    PostsSetting: lazy(() => import('./Settings/PostsSetting')),
-    SeriesSetting: lazy(() => import('./Settings/SeriesSetting')),
-    NotifySetting: lazy(() => import('./Settings/NotifySetting')),
-    AccountSetting: lazy(() => import('./Settings/AccountSetting')),
-    ProfileSetting: lazy(() => import('./Settings/ProfileSetting')),
-    TempPostsSetting: lazy(() => import('./Settings/TempPostsSetting')),
-    SocialLinksSetting: lazy(() => import('./Settings/SocialLinksSetting'))
+    FormsSetting: lazy(() => import('./remotes/Settings/FormsSetting')),
+    IntegrationSetting: lazy(() => import('./remotes/Settings/IntegrationSetting')),
+    InvitationSetting: lazy(() => import('./remotes/Settings/InvitationSetting')),
+    PostsSetting: lazy(() => import('./remotes/Settings/PostsSetting')),
+    SeriesSetting: lazy(() => import('./remotes/Settings/SeriesSetting')),
+    NotifySetting: lazy(() => import('./remotes/Settings/NotifySetting')),
+    AccountSetting: lazy(() => import('./remotes/Settings/AccountSetting')),
+    ProfileSetting: lazy(() => import('./remotes/Settings/ProfileSetting')),
+    TempPostsSetting: lazy(() => import('./remotes/Settings/TempPostsSetting')),
+    SocialLinksSetting: lazy(() => import('./remotes/Settings/SocialLinksSetting'))
 };
 
 const App = ({ __name, ...props }: AppProps) => {

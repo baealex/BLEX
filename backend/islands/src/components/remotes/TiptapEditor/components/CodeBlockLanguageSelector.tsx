@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
-import { SUPPORTED_LANGUAGES, getLanguageLabel } from '../../../utils/languages';
+import { SUPPORTED_LANGUAGES, getLanguageLabel } from '../../../../utils/languages';
 
 interface CodeBlockLanguageSelectorProps {
     editor: Editor;
