@@ -18,7 +18,7 @@
     <div class="relative max-w-3xl w-full mx-auto py-16 sm:py-20">
         <!-- Header -->
         <div class="text-center mb-12">
-            <div class="inline-flex items-center px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm text-purple-700 mb-6 shadow-sm">
+            <div class="inline-flex items-center px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm text-gray-900 mb-6 shadow-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
@@ -38,7 +38,7 @@
                 <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 group-focus-within:shadow-2xl overflow-hidden">
                     <div class="flex items-center min-w-0">
                         <div class="pl-4 sm:pl-6 pr-3 sm:pr-4 py-4 sm:py-6">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-focus-within:text-purple-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-focus-within:text-gray-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </div>
@@ -94,7 +94,7 @@
                             </div>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900">
-                                    <strong class="text-purple-600">{{ total_size }}</strong>명의 멋진 작가를 찾았습니다
+                                    <strong class="text-gray-900">{{ total_size }}</strong>명의 멋진 작가를 찾았습니다
                                 </h3>
                                 <p class="text-sm text-gray-500">"{{ query }}" 검색 결과</p>
                             </div>
@@ -129,7 +129,7 @@
                         
                         <!-- 작가 정보 -->
                         <div class="text-center mb-4 sm:mb-6">
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-2">
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-gray-900 transition-colors mb-2">
                                 <a href="/@{{ result.username }}" class="hover:underline decoration-2 underline-offset-2">{{ result.username }}</a>
                             </h3>
                             {% if result.name %}
@@ -177,7 +177,7 @@
             <div class="text-center py-20">
                 <div class="max-w-md mx-auto">
                     <div class="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-8">
-                        <svg class="w-12 h-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-12 h-12 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                     </div>
@@ -186,7 +186,7 @@
                         "<span class="font-semibold text-gray-800">{{ query }}</span>"에 맞는 작가가 없습니다.<br>
                         다른 검색어로 다시 시도해보세요.
                     </p>
-                    <div class="bg-purple-50 rounded-xl p-4 text-sm text-purple-800">
+                    <div class="bg-gray-100 rounded-xl p-4 text-sm text-gray-900">
                         <h4 class="font-semibold mb-2">👥 검색 팁</h4>
                         <ul class="text-left space-y-1">
                             <li>• 작가의 닉네임으로 검색해보세요</li>
@@ -209,7 +209,7 @@
                                 <img src="{{ author.avatar }}" alt="{{ author.username }}" 
                                      class="w-20 h-20 rounded-full object-cover mx-auto mb-4">
                             </a>
-                            <h3 class="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors truncate mb-1">
+                            <h3 class="text-lg font-semibold text-gray-900 hover:text-gray-900 transition-colors truncate mb-1">
                                 <a href="/@{{ author.username }}">{{ author.username }}</a>
                             </h3>
                             {% if author.name %}

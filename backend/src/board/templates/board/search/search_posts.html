@@ -17,7 +17,7 @@
     <div class="relative max-w-3xl w-full mx-auto py-16 sm:py-20">
         <!-- Header -->
         <div class="text-center mb-12">
-            <div class="inline-flex items-center px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm text-indigo-700 mb-6 shadow-sm">
+            <div class="inline-flex items-center px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm text-black mb-6 shadow-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
@@ -37,7 +37,7 @@
                 <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 group-focus-within:shadow-2xl overflow-hidden">
                     <div class="flex items-center min-w-0">
                         <div class="pl-4 sm:pl-6 pr-3 sm:pr-4 py-4 sm:py-6">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-focus-within:text-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
@@ -95,7 +95,7 @@
                             </div>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900">
-                                    <strong class="text-indigo-600">{{ total_size }}</strong>개의 포스트를 찾았습니다
+                                    <strong class="text-black">{{ total_size }}</strong>개의 포스트를 찾았습니다
                                 </h3>
                                 <p class="text-sm text-gray-500">"{{ query }}" 검색 결과</p>
                             </div>
@@ -119,10 +119,10 @@
                                 <div class="relative flex-shrink-0">
                                     <img src="{% media result.author_image %}" alt="{{ result.author }}" 
                                          class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-gray-100">
-                                    <div class="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full border-2 border-white"></div>
+                                    <div class="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gray-100 rounded-full border-2 border-white"></div>
                                 </div>
                                 <div class="min-w-0">
-                                    <div class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors truncate text-sm sm:text-base">{{ result.author }}</div>
+                                    <div class="font-semibold text-gray-900 hover:text-black transition-colors truncate text-sm sm:text-base">{{ result.author }}</div>
                                     <div class="text-xs sm:text-sm text-gray-500">작가</div>
                                 </div>
                             </a>
@@ -141,7 +141,7 @@
                         </div>
                         
                         <!-- 포스트 제목 -->
-                        <h3 class="text-xl sm:text-xl font-bold text-gray-900 mb-4 hover:text-indigo-600 transition-colors leading-tight">
+                        <h3 class="text-xl sm:text-xl font-bold text-gray-900 mb-4 hover:text-black transition-colors leading-tight">
                             <a href="/@{{ result.author }}/{{ result.url }}" class="hover:underline decoration-2 underline-offset-2">
                                 {{ result.title }}
                             </a>
@@ -158,10 +158,10 @@
                             <div class="flex flex-wrap gap-2">
                                 {% for position in result.positions %}
                                 <span class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium bg-gradient-to-r 
-                                    {% if position == '제목' %}from-red-100 to-red-200 text-red-800
-                                    {% elif position == '설명' %}from-blue-100 to-blue-200 text-blue-800
-                                    {% elif position == '태그' %}from-green-100 to-green-200 text-green-800
-                                    {% elif position == '내용' %}from-purple-100 to-purple-200 text-purple-800
+                                    {% if position == '제목' %}from-red-100 to-red-200 text-gray-900
+                                    {% elif position == '설명' %}from-blue-100 to-blue-200 text-gray-900
+                                    {% elif position == '태그' %}from-green-100 to-green-200 text-gray-900
+                                    {% elif position == '내용' %}from-purple-100 to-purple-200 text-gray-900
                                     {% else %}from-gray-100 to-gray-200 text-gray-800
                                     {% endif %}">
                                     <span class="hidden sm:inline">
@@ -179,7 +179,7 @@
                             {% endif %}
                             
                             <a href="/@{{ result.author }}/{{ result.url }}" 
-                               class="inline-flex items-center justify-center sm:justify-start gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 hover:text-indigo-800 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 sm:bg-transparent sm:text-indigo-600 sm:hover:bg-indigo-50 sm:px-3">
+                               class="inline-flex items-center justify-center sm:justify-start gap-2 bg-gray-100 hover:bg-gray-100 text-black hover:text-black px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 sm:bg-transparent sm:text-black sm:hover:bg-gray-100 sm:px-3">
                                 읽어보기
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
