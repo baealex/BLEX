@@ -3,45 +3,28 @@ from django.http import HttpResponse, Http404
 
 from modules.telegram import TelegramBot
 
-from board.models import Post, Report
-from board.modules.analytics import create_device, get_network_addr
 
+def get_client_ip(request):
+    """Get client IP address from request"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
-def article_report(request, url):
-    if request.method == 'POST':
-        article = Post.objects.get(url=url)
-        content = request.POST.get('content')
-
-        user_addr = get_network_addr(request)
-        user_agent = request.META['HTTP_USER_AGENT']
-        history = create_device(user_addr, user_agent)
-
-        report = Report.objects.create(
-            user=request.user,
-            device=history,
-            post=article,
-            content=content
-        )
-        report.save()
-
-        if settings.TELEGRAM_ERROR_REPORT_ID and settings.TELEGRAM_BOT_TOKEN:
-            message = '[REPORT]\n'
-            message += 'User: ' + str(user_addr) + '\n'
-            message += 'Post: ' + str(article.title) + '\n'
-            message += '\n' + content
-
-            bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)
-            bot.send_message(settings.TELEGRAM_ERROR_REPORT_ID, message)
-        return HttpResponse(status=200)
-    raise Http404
 
 def error_report(request):
+    """
+    Send error reports to Telegram.
+    This does not depend on Device model.
+    """
     if request.method == 'POST':
         if settings.TELEGRAM_ERROR_REPORT_ID and settings.TELEGRAM_BOT_TOKEN:
             user = request.POST.get('user')
             path = request.POST.get('path')
-            user_addr = get_network_addr(request)
-            user_agent = request.META['HTTP_USER_AGENT']
+            user_addr = get_client_ip(request)
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
             content = request.POST.get('content')
 
             message = '[ERROR REPORT]\n'
@@ -53,7 +36,7 @@ def error_report(request):
                 message += 'Location: ' + user_addr + '\n'
             if user_agent:
                 message += 'UserAgent: ' + user_agent + '\n'
-            
+
             message += '\n' + content
 
             bot = TelegramBot(settings.TELEGRAM_BOT_TOKEN)

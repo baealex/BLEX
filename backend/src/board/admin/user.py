@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import reverse
 
 from board.models import (
-    UserConfigMeta, UserLinkMeta, Config, Follow, UsernameChangeLog,
+    UserConfigMeta, UserLinkMeta, Config, UsernameChangeLog,
     EmailChange, Profile
 )
 from board.constants.config_meta import CONFIG_TYPES
@@ -48,7 +48,7 @@ class UserConfigMetaAdmin(admin.ModelAdmin):
 
 
 @admin.register(UserLinkMeta)
-class PostNoThanksAdmin(admin.ModelAdmin):
+class UserLinkMetaAdmin(admin.ModelAdmin):
     list_display = ['user', 'name', 'value']
 
     def get_form(self, request, obj=None, **kwargs):
@@ -78,38 +78,42 @@ class ConfigAdmin(admin.ModelAdmin):
     list_per_page = 30
 
 
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
-    list_display = ['id', 'to_link', 'from_link', 'created_date']
-    list_per_page = 30
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('following', 'follower', 'following__user')
-
-    def to_link(self, obj):
-        return AdminLinkService.create_user_link(obj.following.user)
-    to_link.short_description = 'to'
-
-    def from_link(self, obj):
-        return AdminLinkService.create_user_link(obj.follower)
-    from_link.short_description = 'from'
-
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['following', 'follower']
-        return super().get_form(request, obj, **kwargs)
-
-
 @admin.register(Profile)
-class FollowAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user']
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'role', 'analytics_share_url_status']
+    list_filter = ['role']
+    search_fields = ['user__username', 'user__email']
     list_per_page = 30
+
+    fieldsets = (
+        ('사용자 정보', {
+            'fields': ('user',)
+        }),
+        ('권한 설정', {
+            'fields': ('role',),
+            'description': '편집자: 글 작성 및 통계 접근 가능, 독자: 읽기만 가능'
+        }),
+        ('프로필 정보', {
+            'fields': ('bio', 'homepage', 'cover', 'avatar'),
+        }),
+        ('소개 페이지', {
+            'fields': ('about_md', 'about_html'),
+            'classes': ('collapse',),
+        }),
+        ('통계 설정', {
+            'fields': ('analytics_share_url',),
+            'classes': ('collapse',),
+        }),
+    )
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user')
 
-    def to_link(self, obj):
-        return AdminLinkService.create_user_link(obj.user)
-    to_link.short_description = 'user'
+    def analytics_share_url_status(self, obj):
+        if obj.analytics_share_url:
+            return '✓ 설정됨'
+        return '✗ 미설정'
+    analytics_share_url_status.short_description = '통계 URL'
 
     def get_form(self, request, obj=None, **kwargs):
         return super().get_form(request, obj, **kwargs)

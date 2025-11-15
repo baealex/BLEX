@@ -4,7 +4,6 @@ from .comment import *
 from .dashboard import *
 from .form import *
 from .image import *
-from .invitation import *
 from .post import *
 from .report import *
 from .search import *

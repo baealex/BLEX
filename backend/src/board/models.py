@@ -201,18 +201,6 @@ class Config(models.Model):
         return self.user.username
 
 
-class Follow(models.Model):
-    class Meta:
-        db_table = 'board_user_follow'
-
-    following = models.ForeignKey('board.Profile', related_name='subscriber', on_delete=models.CASCADE) # TODO: Change filed name to 'to'
-    follower = models.ForeignKey('auth.User', on_delete=models.CASCADE) # TODO: Change filed name to 'from'
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return str(self.follower)
-
-
 class Form(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
@@ -223,16 +211,6 @@ class Form(models.Model):
 
     def __str__(self):
         return self.title
-
-
-class Device(models.Model):
-    key = models.CharField(max_length=44, unique=True)
-    ip = models.CharField(max_length=39)
-    agent = models.CharField(max_length=200)
-    category = models.CharField(max_length=15, blank=True)
-
-    def __str__(self):
-        return str(self.key)
 
 
 class ImageCache(models.Model):
@@ -351,32 +329,6 @@ class Post(models.Model):
     def time_since(self):
         return time_since(self.created_date)
 
-    def today(self):
-        count = 0
-        try:
-            today = timezone.now()
-            count = self.analytics.get(created_date=today).devices.count()
-        except:
-            pass
-        return count
-
-    def yesterday(self):
-        count = 0
-        try:
-            yesterday = timezone.now() - datetime.timedelta(days=1)
-            count = self.analytics.get(created_date=yesterday).devices.count()
-        except:
-            pass
-        return count
-
-    def total(self):
-        count = PostAnalytics.objects.annotate(device_count=Count('devices')).filter(post=self).aggregate(
-            Sum('device_count'))
-        if count['device_count__sum']:
-            return count['device_count__sum']
-        else:
-            return 0
-
     def set_tags(self, tags: str):
         self.tags.clear()
         tags = tags.replace(',', '-').replace('_', '-')
@@ -449,15 +401,6 @@ class PostConfigMeta(models.Model):
     updated_date = models.DateTimeField(default=timezone.now)
 
 
-class PostAnalytics(models.Model):
-    post = models.ForeignKey('board.Post', related_name='analytics', on_delete=models.CASCADE)
-    devices = models.ManyToManyField('board.Device', blank=True)
-    created_date = models.DateField(default=timezone.now)
-
-    def __str__(self):
-        return str(self.post)
-
-
 class PinnedPost(models.Model):
     post = models.ForeignKey('board.Post', related_name='pinned', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -474,24 +417,6 @@ class PostLikes(models.Model):
 
     post = models.ForeignKey('board.Post', related_name='likes', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return str(self.post)
-
-
-class PostThanks(models.Model):
-    post = models.ForeignKey('board.Post', related_name='thanks', on_delete=models.CASCADE)
-    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return str(self.post)
-
-
-class PostNoThanks(models.Model):
-    post = models.ForeignKey('board.Post', related_name='nothanks', on_delete=models.CASCADE)
-    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -518,6 +443,31 @@ class Profile(models.Model):
     homepage = models.CharField(max_length=100, blank=True)
     about_md = models.TextField(blank=True)
     about_html = models.TextField(blank=True)
+
+    # Analytics integration (Share URL from analytics provider)
+    analytics_share_url = models.URLField(max_length=500, blank=True,
+                                           help_text='분석 도구 공유 URL (예: Umami, Google Analytics 등)')
+
+    # User role for permission control
+    class Role(models.TextChoices):
+        READER = 'READER', '독자'
+        EDITOR = 'EDITOR', '편집자'
+        ADMIN = 'ADMIN', '관리자'
+
+    role = models.CharField(
+        max_length=10,
+        choices=Role.choices,
+        default=Role.READER,
+        help_text='사용자 역할 (독자: 읽기만, 편집자: 글 작성 및 통계, 관리자: 전체 관리)'
+    )
+
+    def is_editor(self):
+        """Check if user has editor or admin role"""
+        return self.role in [self.Role.EDITOR, self.Role.ADMIN]
+
+    def is_profile_admin(self):
+        """Check if user has admin role"""
+        return self.role == self.Role.ADMIN
 
     def collect_social(self):
         socials = []
@@ -558,71 +508,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
-
-
-class Referer(models.Model):
-    post = models.ForeignKey('board.Post', on_delete=models.SET_NULL, null=True) # TODO: SET_NULL -> CASCADE
-    analytics = models.ForeignKey('board.PostAnalytics', on_delete=models.CASCADE)
-    referer_from = models.ForeignKey('board.RefererFrom', related_name='referers', on_delete=models.CASCADE)
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.referer_from.location
-
-
-class RefererFrom(models.Model):
-    location = models.CharField(max_length=500, unique=True)
-    title = models.CharField(max_length=100, default='', blank=True)
-    image = models.CharField(max_length=500, default='', blank=True)
-    description = models.CharField(max_length=250, default='', blank=True)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
-
-    def should_update(self):
-        six_month_ago = timezone.now() - datetime.timedelta(days=180)
-        if self.updated_date < six_month_ago:
-            return True
-
-        if self.title and self.image and self.description:
-            return False
-        
-        return True
-
-    def save(self, *args, **kwargs):
-        self.updated_date = timezone.now()
-        super(RefererFrom, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.title if self.title else self.location
-
-
-class Report(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    post = models.ForeignKey('board.Post', on_delete=models.CASCADE)
-    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
-    content = models.TextField(blank=True)
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.post.title
-
-
-class Search(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
-    search_value = models.ForeignKey('board.SearchValue', related_name='searches', on_delete=models.CASCADE)
-    created_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.search_value.value
-
-
-class SearchValue(models.Model):
-    value = models.CharField(max_length=50, unique=True)
-    reference_count = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.value
 
 
 class Series(models.Model):
@@ -786,7 +671,9 @@ class DeveloperToken(models.Model):
 
 class DeveloperRequestLog(models.Model):
     developer = models.ForeignKey('board.DeveloperToken', on_delete=models.CASCADE)
-    device = models.ForeignKey('board.Device', on_delete=models.CASCADE)
+    # device field removed as Device model has been deprecated
+    # Use user_agent field to store device information
+    user_agent = models.CharField(max_length=500, blank=True, help_text='User agent string')
     endpoint = models.CharField(max_length=255)
     headers = models.TextField(blank=True)
     payload = models.TextField(blank=True)
@@ -823,22 +710,34 @@ class SocialAuth(models.Model):
         return f'{self.provider.name} - {self.user.username}'
 
 
-class Invitation(models.Model):
-    sender = models.ForeignKey('auth.User', related_name='invitations_sent', null=True, on_delete=models.SET_NULL)
-    receiver = models.ForeignKey('auth.User', related_name='invitations_received', null=True, blank=True, on_delete=models.SET_NULL)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
+class SiteSetting(models.Model):
+    """
+    Site-wide settings for custom scripts and analytics.
+    Only one instance should exist (singleton pattern).
+    """
+    # Custom scripts for site-wide analytics
+    header_script = models.TextField(blank=True,
+                                      help_text='<head> 태그 안에 삽입될 스크립트 (예: Google Analytics, Umami)')
+    footer_script = models.TextField(blank=True,
+                                      help_text='</body> 태그 전에 삽입될 스크립트')
+
+    # Metadata
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Site Setting'
+        verbose_name_plural = 'Site Settings'
 
     def __str__(self):
-        return f'{self.sender.username} -> {self.receiver.username if self.receiver else "None"}'
+        return 'Site Settings'
 
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists (singleton)
+        self.pk = 1
+        super().save(*args, **kwargs)
 
-class InvitationRequest(models.Model):
-    sender = models.ForeignKey('auth.User', related_name='invitation_requests_sent', null=True, on_delete=models.SET_NULL)
-    receiver = models.ForeignKey('auth.User', related_name='invitation_requests_received', null=True, on_delete=models.SET_NULL)
-    content = models.TextField()
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f'{self.sender.username} -> {self.receiver.username}'
+    @classmethod
+    def get_instance(cls):
+        """Get or create the singleton instance"""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj

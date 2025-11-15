@@ -101,10 +101,6 @@
                 {{ post.content.text_html|safe }}
             </div>
 
-            <div class="flex justify-center items-center mt-6">
-                {% include 'components/thanks_buttons.html' with post_url=post.url %}
-            </div>
-            
             <!-- 태그 -->
             {% if post.tags %}
             <div class="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200" itemprop="keywords">

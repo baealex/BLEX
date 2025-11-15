@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.db.models import Count
 
 from board.models import (
-    EditHistory, EditRequest, Post, PinnedPost, PostAnalytics, PostConfig,
-    PostContent, PostLikes, PostNoThanks, PostThanks, TempPosts,
+    EditHistory, EditRequest, Post, PinnedPost,
+    PostConfig, PostContent, PostLikes, TempPosts,
 )
 
 from .service import AdminDisplayService, AdminLinkService
@@ -99,47 +99,10 @@ class TempPostsAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **kwargs)
 
 
-@admin.register(PostAnalytics)
-class PostAnalyticsAdmin(admin.ModelAdmin):
-    list_display = ['post', 'today', 'created_date']
-    list_filter = ['created_date']
-    list_per_page = 30
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).annotate(today=Count('devices', distinct=True))
-
-    def today(self, obj):
-        return obj.today
-
-    today.admin_order_field = 'today'
-
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['post', 'devices']
-        return super().get_form(request, obj, **kwargs)
-
-
 @admin.register(PostLikes)
 class PostLikesAdmin(admin.ModelAdmin):
     list_display = ['user', 'post', 'created_date']
 
     def get_form(self, request, obj=None, **kwargs):
         kwargs['exclude'] = ['user', 'post']
-        return super().get_form(request, obj, **kwargs)
-
-
-@admin.register(PostThanks)
-class PostThanksAdmin(admin.ModelAdmin):
-    list_display = ['post', 'created_date']
-
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['device', 'post']
-        return super().get_form(request, obj, **kwargs)
-
-
-@admin.register(PostNoThanks)
-class PostNoThanksAdmin(admin.ModelAdmin):
-    list_display = ['post', 'created_date']
-
-    def get_form(self, request, obj=None, **kwargs):
-        kwargs['exclude'] = ['device', 'post']
         return super().get_form(request, obj, **kwargs)

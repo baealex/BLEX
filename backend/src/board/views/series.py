@@ -5,7 +5,7 @@ from django.db.models import Count, F, Exists, OuterRef, Q
 from django.utils import timezone
 from django.http import Http404
 
-from board.models import Post, Series, PostLikes, Profile, Follow
+from board.models import Post, Series, PostLikes, Profile
 
 
 def series_detail(request, username, series_url):

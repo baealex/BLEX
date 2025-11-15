@@ -24,6 +24,7 @@ class CommentTestCase(TestCase):
 
         Profile.objects.create(
             user=User.objects.get(username='author'),
+            role=Profile.Role.EDITOR
         )
 
         User.objects.create_user(
@@ -37,6 +38,7 @@ class CommentTestCase(TestCase):
 
         Profile.objects.create(
             user=User.objects.get(username='viewer'),
+            role=Profile.Role.READER
         )
 
         Post.objects.create(

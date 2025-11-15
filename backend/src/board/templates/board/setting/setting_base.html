@@ -94,16 +94,18 @@
                                     <span class="font-medium">임시저장</span>
                                 </a>
                             </li>
+                            {% if user.profile.is_editor %}
                             <li>
                                 <a href="{% url 'setting_analytics' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
                                     {% if active == 'analytics' or active == 'analytics/views' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
-                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3
                                         {% if active == 'analytics' or active == 'analytics/views' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
                                         <i class="fas fa-chart-bar {% if active == 'analytics' or active == 'analytics/views' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">통계</span>
                                 </a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="{% url 'setting_forms' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
                                     {% if active == 'forms' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
@@ -122,16 +124,6 @@
                                         <i class="fas fa-plug {% if active == 'integration' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
                                     </div>
                                     <span class="font-medium">연동</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'setting_invitation' %}" class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02]
-                                    {% if active == 'invitation' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200{% else %}text-slate-600 hover:bg-slate-50 hover:text-indigo-600{% endif %}">
-                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                        {% if active == 'invitation' %}bg-white/20{% else %}bg-slate-100 group-hover:bg-indigo-100{% endif %}">
-                                        <i class="fas fa-envelope {% if active == 'invitation' %}text-white{% else %}text-slate-500 group-hover:text-indigo-500{% endif %}"></i>
-                                    </div>
-                                    <span class="font-medium">초대</span>
                                 </a>
                             </li>
                             {% if request.user.is_staff %}
@@ -285,18 +277,20 @@
                             <span class="font-medium">임시저장</span>
                         </a>
                     </li>
+                    {% if user.profile.is_editor %}
                     <li>
                         <a href="{% url 'setting_analytics' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
                             {% if active == 'analytics' or active == 'analytics/views' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3
                                 {% if active == 'analytics' or active == 'analytics/views' %}bg-white/20{% else %}bg-slate-100{% endif %}">
                                 <i class="fas fa-chart-bar {% if active == 'analytics' or active == 'analytics/views' %}text-white{% else %}text-slate-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">통계</span>
                         </a>
                     </li>
+                    {% endif %}
                     <li>
                         <a href="{% url 'setting_forms' %}"
                            @click="open = false"
@@ -319,18 +313,6 @@
                                 <i class="fas fa-plug {% if active == 'integration' %}text-white{% else %}text-slate-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">연동</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'setting_invitation' %}"
-                           @click="open = false"
-                           class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
-                            {% if active == 'invitation' %}bg-gradient-to-r from-indigo-500 to-purple-600 text-white{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
-                                {% if active == 'invitation' %}bg-white/20{% else %}bg-slate-100{% endif %}">
-                                <i class="fas fa-envelope {% if active == 'invitation' %}text-white{% else %}text-slate-500{% endif %}"></i>
-                            </div>
-                            <span class="font-medium">초대</span>
                         </a>
                     </li>
                     {% if request.user.is_staff %}

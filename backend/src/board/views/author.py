@@ -6,7 +6,7 @@ from django.utils import timezone
 from board.modules.paginator import Paginator
 from django.http import JsonResponse
 
-from board.models import Post, Series, PostLikes, Follow, Tag, Profile
+from board.models import Post, Series, PostLikes, Tag, Profile
 from modules import markdown
 
 
@@ -70,12 +70,6 @@ def author_posts(request, username):
         hide=False,
     ).annotate(
         count_posts=Count('posts', filter=Q(posts__config__hide=False)),
-        has_followed=Exists(
-            Follow.objects.filter(
-                follower_id=request.user.id if request.user.is_authenticated else None,
-                following=OuterRef('owner')
-            )
-        ),
     ).order_by('-updated_date')
     
     # Get author's tags with post counts
@@ -91,22 +85,13 @@ def author_posts(request, username):
     for tag in author_tags:
         tag_options.append({'value': tag.value, 'label': f'{tag.value} ({tag.count})'})
     
-    # Count posts, series, and followers
+    # Count posts and series
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
         config__hide=False
     ).count()
     series_count = series.count()
-    follower_count = Follow.objects.filter(following=author.profile).count()
-    
-    # Check if the current user is following the author
-    is_following = False
-    if request.user.is_authenticated and request.user != author:
-        is_following = Follow.objects.filter(
-            follower_id=request.user.id,
-            following=author.profile
-        ).exists()
     
     page = int(request.GET.get('page', 1))
     paginated_posts = Paginator(
@@ -129,8 +114,6 @@ def author_posts(request, username):
         'posts': paginated_posts,
         'post_count': post_count,
         'series_count': series_count,
-        'follower_count': follower_count,
-        'is_following': is_following,
         'page_number': page,
         'page_count': paginated_posts.paginator.num_pages,
         'author_tags': author_tags,
@@ -202,31 +185,20 @@ def author_series(request, username):
     ).annotate(
         count=Count('posts', distinct=True)
     ).order_by('-count', 'value')
-    
-    # Count posts, series, and followers
+
+    # Count posts and series
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
         config__hide=False
     ).count()
     series_count = Series.objects.filter(owner=author).count()
-    follower_count = Follow.objects.filter(following=author.profile).count()
-    
-    # Check if the current user is following the author
-    is_following = False
-    if request.user.is_authenticated and request.user != author:
-        is_following = Follow.objects.filter(
-            follower_id=request.user.id,
-            following=author.profile
-        ).exists()
-    
+
     context = {
         'author': author,
         'series_list': paginated_series,
         'post_count': post_count,
         'series_count': series_count,
-        'follower_count': follower_count,
-        'is_following': is_following,
         'is_loading': False,
         'author_tags': author_tags,
         'search_query': search_query,
@@ -248,31 +220,20 @@ def author_about(request, username):
     # Get author's profile
     profile = getattr(author, 'profile', None)
     about_content = getattr(profile, 'about_html', None)
-    
-    # Count posts, series, and followers
+
+    # Count posts and series
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
         config__hide=False
     ).count()
     series_count = Series.objects.filter(owner=author).count()
-    follower_count = Follow.objects.filter(following=author.profile).count()
-    
-    # Check if the current user is following the author
-    is_following = False
-    if request.user.is_authenticated and request.user != author:
-        is_following = Follow.objects.filter(
-            follower_id=request.user.id,
-            following=author.profile
-        ).exists()
-    
+
     context = {
         'author': author,
         'about_content': about_content,
         'post_count': post_count,
         'series_count': series_count,
-        'follower_count': follower_count,
-        'is_following': is_following,
         'is_loading': False,
     }
     
@@ -304,22 +265,20 @@ def author_about_edit(request, username):
 
     # GET request handling
     about_md = getattr(profile, 'about_md', '') if profile else ''
-    
-    # Count posts, series, and followers
+
+    # Count posts and series
     post_count = Post.objects.filter(
         author=author,
         created_date__lte=timezone.now(),
         config__hide=False
     ).count()
     series_count = Series.objects.filter(owner=author).count()
-    follower_count = Follow.objects.filter(following=author.profile).count()
-    
+
     context = {
         'author': author,
         'about_md': about_md,
         'post_count': post_count,
         'series_count': series_count,
-        'follower_count': follower_count,
         'is_loading': False,
     }
     

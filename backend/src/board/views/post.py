@@ -8,8 +8,7 @@ from django.http import Http404
 from django.utils.text import slugify
 from django.contrib import messages
 
-from board.models import Post, Series, PostLikes, PostConfig, PostContent, Invitation
-from board.modules.analytics import view_count, get_network_addr
+from board.models import Post, Series, PostLikes, PostConfig, PostContent
 from modules import markdown
 
 
@@ -125,23 +124,6 @@ def post_detail(request, username, post_url):
         post.visible_series_posts = visible_posts
     
     
-    # Collect analytics data (IP, user agent, referrer)
-    try:
-        user_ip = get_network_addr(request)
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        referrer = request.META.get('HTTP_REFERER', '')
-
-        if not request.user.is_authenticated or request.user != post.author:
-            view_count(
-                post=post,
-                request=request,
-                ip=user_ip,
-                user_agent=user_agent,
-                referrer=referrer
-            )
-    except Exception as e:
-        traceback.print_exc()
-
     context = {
         'post': post,
     }
@@ -158,12 +140,12 @@ def post_editor(request, username=None, post_url=None):
     if not request.user.is_authenticated:
         return redirect('login')
     
-    # Check if user has invitation (for new posts)
+    # Check if user has editor role (for creating/editing posts)
+    if not request.user.profile.is_editor():
+        messages.error(request, '편집자 권한이 필요합니다. 관리자에게 문의하세요.')
+        return redirect('index')
+
     is_edit = username is not None and post_url is not None
-    if not is_edit:
-        has_invitation = Invitation.objects.filter(receiver=request.user).exists()
-        if not has_invitation:
-            return render(request, 'board/auth/invitation_required.html')
     post = None
     temp_post = None
     series_list = []

@@ -11,8 +11,8 @@ from django.utils.dateparse import parse_datetime
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    User, RefererFrom, Series, Post, UserLinkMeta,
-    PostAnalytics, TempPosts, Profile, Notify, Referer)
+    User, Series, Post, UserLinkMeta,
+    TempPosts, Profile, Notify)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
@@ -53,10 +53,7 @@ def setting(request, parameter):
             configs = [
                 CONFIG_TYPE.NOTIFY_POSTS_LIKE,
                 CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
-                CONFIG_TYPE.NOTIFY_POSTS_THANKS,
-                CONFIG_TYPE.NOTIFY_POSTS_NO_THANKS,
                 CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
-                CONFIG_TYPE.NOTIFY_FOLLOW,
                 CONFIG_TYPE.NOTIFY_MENTION,
             ]
             return StatusDone({
@@ -90,23 +87,6 @@ def setting(request, parameter):
             ).filter(
                 author=user,
                 created_date__lte=timezone.now(),
-            ).annotate(
-                today_count=Subquery(
-                    PostAnalytics.objects.filter(
-                        post__id=OuterRef('id'),
-                        created_date=timezone.now(),
-                    ).values('post__id').annotate(
-                        count=Count('devices')
-                    ).values('count')
-                ),
-                yesterday_count=Subquery(
-                    PostAnalytics.objects.filter(
-                        post__id=OuterRef('id'),
-                        created_date=timezone.now() - datetime.timedelta(days=1),
-                    ).values('post__id').annotate(
-                        count=Count('devices')
-                    ).values('count')
-                ),
             ).order_by('-created_date')
 
             tag = request.GET.get('tag', '')
@@ -128,8 +108,6 @@ def setting(request, parameter):
                 'updated_date',
                 'count_likes',
                 'count_comments',
-                'today_count',
-                'yesterday_count',
                 'hide',
             ]
             order = request.GET.get('order', '')
@@ -171,8 +149,6 @@ def setting(request, parameter):
                     'is_hide': post.config.hide,
                     'count_likes': post.likes.count(),
                     'count_comments': post.comments.count(),
-                    'today_count': post.today_count if post.today_count else 0,
-                    'yesterday_count': post.yesterday_count if post.yesterday_count else 0,
                     'read_time': post.read_time,
                     'tag': ','.join(post.tagging()),
                     'series': post.series.url if post.series else '',
@@ -259,155 +235,6 @@ def setting(request, parameter):
                 }, series_items))
             })
 
-        if parameter == 'analytics-posts-view':
-            date = request.GET.get('date', timezone.now().strftime('%Y-%m-%d'))
-            posts = Post.objects.filter(author=user).annotate(
-                author_username=F('author__username'),
-                today_count=Count(
-                    Case(
-                        When(
-                            analytics__created_date=parse_datetime(date),
-                            then='analytics__devices'
-                        )
-                    ), distinct=True
-                ),
-                yesterday_count=Count(
-                    Case(
-                        When(
-                            analytics__created_date=parse_datetime(date) - datetime.timedelta(days=1),
-                            then='analytics__devices'
-                        )
-                    ), distinct=True
-                )
-            ).order_by('-today_count', '-yesterday_count', '-created_date')[:10]
-
-            return StatusDone({
-                'posts': list(map(lambda item: {
-                    'id': item.id,
-                    'url': item.url,
-                    'title': item.title,
-                    'author': item.author_username,
-                    'today_count': item.today_count,
-                    'increase_count': item.today_count - item.yesterday_count,
-                }, posts))
-            })
-
-        if parameter == 'analytics-view':
-            one_month = 30
-            one_month_ago = convert_to_localtime(
-                timezone.now() - datetime.timedelta(days=one_month))
-
-            post_analytics = PostAnalytics.objects.values(
-                'created_date',
-            ).annotate(
-                table_count=Count('devices'),
-            ).filter(
-                post__author=user,
-                created_date__gt=one_month_ago,
-            ).order_by('-created_date')
-
-            date_dict = dict()
-            for i in range(one_month):
-                key = str(convert_to_localtime(
-                    timezone.now() - datetime.timedelta(days=i)))[:10]
-                date_dict[key] = 0
-
-            for item in post_analytics:
-                key = str(item['created_date'])[:10]
-                date_dict[key] = item['table_count']
-
-            total = PostAnalytics.objects.filter(
-                post__author=user
-            ).annotate(
-                device_count=Count('devices')
-            ).aggregate(
-                sum=Sum('device_count')
-            )['sum']
-
-            return StatusDone({
-                'username': user.username,
-                'views': list(map(lambda item: {
-                    'date': item,
-                    'count': date_dict[item]
-                }, date_dict)),
-                'total': total if total else 0
-            })
-
-        if parameter == 'analytics-referer':
-            one_year_ago = timezone.now() - datetime.timedelta(days=365)
-
-            latest_referers_subquery = Referer.objects.filter(
-                post__author=user,
-                created_date__gt=one_year_ago,
-                referer_from__location=OuterRef('location')
-            ).exclude(
-                Q(referer_from__title__contains='검색') |
-                Q(referer_from__title__contains='Bing') |
-                Q(referer_from__title__contains='Info') |
-                Q(referer_from__title__contains='Google') |
-                Q(referer_from__title__contains='Search') |
-                Q(referer_from__title__contains='DuckDuckGo') |
-                Q(referer_from__location__contains='link.php') |
-                Q(referer_from__location__contains='link.naver.com')
-            ).order_by('-created_date').values('referer_from_id')[:1]
-
-            referers = RefererFrom.objects.filter(
-                id__in=Subquery(latest_referers_subquery)
-            ).annotate(
-                latest_created_date=Subquery(
-                    Referer.objects.filter(
-                        referer_from_id=OuterRef('id'),
-                        post__author=user,
-                        created_date__gt=one_year_ago
-                    ).order_by('-created_date').values('created_date')[:1]
-                ),
-                post_title=Subquery(
-                    Referer.objects.filter(
-                        referer_from_id=OuterRef('id'),
-                        post__author=user,
-                        created_date__gt=one_year_ago
-                    ).order_by('-created_date').values('post__title')[:1]
-                ),
-                post_author=Subquery(
-                    Referer.objects.filter(
-                        referer_from_id=OuterRef('id'),
-                        post__author=user,
-                        created_date__gt=one_year_ago
-                    ).order_by('-created_date').values('post__author__username')[:1]
-                ),
-                post_url=Subquery(
-                    Referer.objects.filter(
-                        referer_from_id=OuterRef('id'),
-                        post__author=user,
-                        created_date__gt=one_year_ago
-                    ).order_by('-created_date').values('post__url')[:1]
-                )
-            ).exclude(
-                Q(title__contains='검색') |
-                Q(title__contains='Bing') |
-                Q(title__contains='Info') |
-                Q(title__contains='Google') |
-                Q(title__contains='Search') |
-                Q(title__contains='DuckDuckGo') |
-                Q(location__contains='link.php') |
-                Q(location__contains='link.naver.com')
-            ).order_by('-latest_created_date')[:12]
-
-            return StatusDone({
-                'referers': list(map(lambda referer: {
-                    'time': convert_to_localtime(referer.latest_created_date).strftime('%Y-%m-%d %H:%M'),
-                    'title': referer.title,
-                    'url': referer.location,
-                    'image': referer.image,
-                    'description': referer.description,
-                    'posts': {
-                        'author': referer.post_author,
-                        'title': referer.post_title,
-                        'url': referer.post_url
-                    }
-                }, referers))
-            })
-
         if parameter == 'integration-telegram':
             if request.user.config.has_telegram_id():
                 return StatusDone({
@@ -452,10 +279,7 @@ def setting(request, parameter):
             configs = [
                 CONFIG_TYPE.NOTIFY_POSTS_LIKE,
                 CONFIG_TYPE.NOTIFY_POSTS_COMMENT,
-                CONFIG_TYPE.NOTIFY_POSTS_THANKS,
-                CONFIG_TYPE.NOTIFY_POSTS_NO_THANKS,
                 CONFIG_TYPE.NOTIFY_COMMENT_LIKE,
-                CONFIG_TYPE.NOTIFY_FOLLOW,
                 CONFIG_TYPE.NOTIFY_MENTION,
             ]
             for config in configs:

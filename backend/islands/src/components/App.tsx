@@ -16,7 +16,6 @@ const LazyComponents = {
     InvitationRequest: lazy(() => import('./InvitationRequest')),
 
     // Dashboard
-    DashboardStats: lazy(() => import('./DashboardStats')),
     DashboardActivities: lazy(() => import('./DashboardActivities')),
 
     // Settings
@@ -24,9 +23,7 @@ const LazyComponents = {
     IntegrationSetting: lazy(() => import('./Settings/IntegrationSetting')),
     InvitationSetting: lazy(() => import('./Settings/InvitationSetting')),
     PostsSetting: lazy(() => import('./Settings/PostsSetting')),
-    RefererAnalyticsSetting: lazy(() => import('./Settings/RefererAnalyticsSetting')),
     SeriesSetting: lazy(() => import('./Settings/SeriesSetting')),
-    VisitorAnalyticsSetting: lazy(() => import('./Settings/VisitorAnalyticsSetting')),
     NotifySetting: lazy(() => import('./Settings/NotifySetting')),
     AccountSetting: lazy(() => import('./Settings/AccountSetting')),
     ProfileSetting: lazy(() => import('./Settings/ProfileSetting')),

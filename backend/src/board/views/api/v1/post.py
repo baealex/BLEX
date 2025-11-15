@@ -12,10 +12,9 @@ from django.utils.text import slugify
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    Comment, Referer, PostAnalytics, Series,
+    Comment, Series,
     TempPosts, Post, PostContent, PostConfig, PinnedPost,
-    Invitation, PostLikes, PostThanks, PostNoThanks, calc_read_time)
-from board.modules.analytics import create_device, get_network_addr, view_count
+    PostLikes, calc_read_time)
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
 from board.modules.post_description import create_post_description
@@ -32,8 +31,8 @@ def post_list(request):
         if not request.user.is_active:
             raise Http404
 
-        if not Invitation.objects.filter(receiver=request.user).exists(): 
-            return StatusError(ErrorCode.VALIDATE, '작성 권한이 없습니다.')
+        if not request.user.profile.is_editor():
+            return StatusError(ErrorCode.VALIDATE, '편집자 권한이 필요합니다.')
 
         title = request.POST.get('title', '')
         text_html = request.POST.get('text_html', '')
@@ -135,15 +134,8 @@ def trending_post_list(request):
             config__notice=False,
             config__hide=False,
         ).annotate(
-            today_count=Subquery(
-                PostAnalytics.objects.filter(
-                    post__id=OuterRef('id'),
-                    created_date=timezone.now(),
-                ).values('post__id').annotate(
-                    count=Count('devices')
-                ).values('count')
-            ),
-        ).order_by('-today_count', '-created_date')
+            likes_count=Count('likes')
+        ).order_by('-likes_count', '-created_date')
 
         posts = Paginator(
             objects=posts,
@@ -427,78 +419,6 @@ def post_comment_list(request, url):
                 'is_liked': comment.has_liked,
             }, comments))
         })
-
-
-def post_analytics(request, url):
-    post = get_object_or_404(Post, url=url)
-    if request.method == 'GET':
-        if request.user != post.author:
-            raise Http404
-
-        seven_days = 7
-        seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-
-        posts_views = PostAnalytics.objects.values(
-            'created_date'
-        ).filter(
-            post__id=post.pk,
-            created_date__gt=seven_days_ago
-        ).annotate(
-            table_count=Count('devices')
-        ).order_by('-created_date')
-
-        date_dict = dict()
-        for i in range(seven_days):
-            key = str(convert_to_localtime(
-                timezone.now() - datetime.timedelta(days=i)))[:10]
-            date_dict[key] = 0
-
-        for item in posts_views:
-            key = str(item['created_date'])[:10]
-            date_dict[key] = item['table_count']
-
-        posts_referers = Referer.objects.filter(
-            post__id=post.pk,
-            created_date__gt=seven_days_ago
-        ).select_related(
-            'referer_from'
-        ).order_by('-created_date')[:30]
-
-        one_month_ago = timezone.now() - datetime.timedelta(days=30)
-
-        post_thanks = PostThanks.objects.filter(
-            post=post,
-            created_date__gt=one_month_ago
-        ).count()
-        post_no_thanks = PostNoThanks.objects.filter(
-            post=post,
-            created_date__gt=one_month_ago
-        ).count()
-
-        return StatusDone({
-            'items': list(map(lambda item: {
-                'date': item,
-                'count': date_dict[item]
-            }, date_dict)),
-            'referers': list(map(lambda referer: {
-                'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
-                'from': referer.referer_from.location,
-                'title': referer.referer_from.title
-            }, posts_referers)),
-            'thanks': {
-                'positive_count': post_thanks,
-                'negative_count': post_no_thanks,
-            }
-        })
-
-    if request.method == 'POST':
-        view_count(
-            post=post,
-            request=request,
-            ip=request.POST.get('ip', ''),
-            user_agent=request.POST.get('user_agent', ''),
-            referer=request.POST.get('referer', ''))
-        return StatusDone()
 
 
 def user_posts(request, username, url=None):

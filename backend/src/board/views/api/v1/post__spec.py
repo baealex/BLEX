@@ -6,8 +6,7 @@ from unittest.mock import patch
 from django.test import TestCase
 
 from board.models import (
-    User, Config, Post, PostContent, PostConfig, Profile,
-    PostThanks, PostNoThanks, Invitation
+    User, Config, Post, PostContent, PostConfig, Profile
 )
 
 
@@ -20,9 +19,8 @@ class PostTestCase(TestCase):
             email='author@author.com',
             first_name='Author User',
         )
-        Profile.objects.create(user=author)
+        Profile.objects.create(user=author, role=Profile.Role.EDITOR)
         Config.objects.create(user=author)
-        Invitation.objects.create(receiver=author)
 
         viewer = User.objects.create_user(
             username='viewer',
@@ -30,7 +28,7 @@ class PostTestCase(TestCase):
             email='viewer@author.com',
             first_name='Viewer User',
         )
-        Profile.objects.create(user=viewer)
+        Profile.objects.create(user=viewer, role=Profile.Role.READER)
         Config.objects.create(user=viewer)
 
         number_of_posts = 100
