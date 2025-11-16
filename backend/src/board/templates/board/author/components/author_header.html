@@ -5,11 +5,10 @@
 <div class="relative overflow-hidden">
     <div class="relative flex flex-col items-center text-center py-8 sm:py-12 md:py-16 px-4 sm:px-6 max-w-4xl mx-auto">
         <div class="relative group mb-6 sm:mb-8">
-            <div class="absolute -inset-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-30 group-hover:opacity-50 blur transition duration-300"></div>
             {% if author.profile.avatar %}
-            <img class="relative w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full object-cover border-4 border-white shadow-xl transition-transform duration-300 group-hover:scale-105" src="{{ author.profile.avatar.url }}" alt="{{ author.username }}">
+            <img class="relative w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full object-cover border-4 border-white shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl" src="{{ author.profile.avatar.url }}" alt="{{ author.username }}">
             {% else %}
-            <div class="relative w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-4 border-white shadow-xl transition-transform duration-300 group-hover:scale-105 flex items-center justify-center text-5xl sm:text-8xl font-bold text-white uppercase">
+            <div class="relative w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-4 border-white shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl bg-black flex items-center justify-center text-5xl sm:text-8xl font-bold text-white uppercase">
                 {{ author.username|slice:':1' }}
             </div>
             {% endif %}
@@ -27,10 +26,10 @@
         
         {% if author.profile.homepage %}
         <div class="mb-6 sm:mb-8">
-            <a href="{{ author.profile.homepage }}" target="_blank" 
-               class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg 
-                      text-gray-700 hover:bg-gray-900 hover:text-white hover:border-gray-900 
-                      transition-all duration-300 text-sm font-medium">
+            <a href="{{ author.profile.homepage }}" target="_blank"
+               class="inline-flex items-center gap-2 px-6 py-3 bg-gray-50 border border-gray-200 rounded-xl
+                      text-gray-700 hover:bg-black hover:text-white hover:border-black
+                      transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md">
                 <i class="fas fa-external-link-alt"></i>
                 <span>
                     {% if 'https://' in author.profile.homepage %}
@@ -49,11 +48,11 @@
         {% if social_links %}
         <div class="flex gap-2 sm:gap-3 flex-wrap justify-center max-w-xs sm:max-w-sm mx-auto">
             {% for social in social_links %}
-            <a href="{{ social.value }}" target="_blank" 
-               class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-50 border border-gray-200 
-                      flex items-center justify-center text-gray-600 
-                      hover:bg-gray-900 hover:text-white hover:border-gray-900 
-                      transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 transform" 
+            <a href="{{ social.value }}" target="_blank"
+               class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gray-50 border border-gray-200
+                      flex items-center justify-center text-gray-700
+                      hover:bg-black hover:text-white hover:border-black
+                      transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105 transform"
                title="{{ social.name }}">
                 {% if social.name|lower == 'github' %}
                     <i class="fab fa-github text-sm sm:text-lg"></i>

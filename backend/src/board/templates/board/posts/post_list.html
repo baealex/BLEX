@@ -11,26 +11,26 @@
 {% block content %}
 <div class="container mx-auto">
 {% if posts %}
-    <div class="flex items-center justify-between mb-4">
-        <h1 class="text-2xl font-semibold text-gray-900">전체 포스트</h1>
-        <div class="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-300">
-            <a href="?sort=latest" 
-               class="px-3 py-2 rounded-md text-sm font-medium transition-all {% if not request.GET.sort or request.GET.sort == 'latest' %}bg-white text-black shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-white/50{% endif %}">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">전체 포스트</h1>
+        <div class="flex gap-1 bg-white p-1.5 rounded-xl border border-gray-200 shadow-sm">
+            <a href="?sort=latest"
+               class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 {% if not request.GET.sort or request.GET.sort == 'latest' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 최신순
             </a>
-            <a href="?sort=popular" 
-               class="px-3 py-2 rounded-md text-sm font-medium transition-all {% if request.GET.sort == 'popular' %}bg-white text-black shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-white/50{% endif %}">
+            <a href="?sort=popular"
+               class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 {% if request.GET.sort == 'popular' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 인기순
             </a>
-            <a href="?sort=comments" 
-               class="px-3 py-2 rounded-md text-sm font-medium transition-all {% if request.GET.sort == 'comments' %}bg-white text-black shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-white/50{% endif %}">
+            <a href="?sort=comments"
+               class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 {% if request.GET.sort == 'comments' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 댓글순
             </a>
         </div>
     </div>
 
     <!-- Posts Grid -->
-    <div class="masonry-grid">
+    <div class="masonry-grid gap-6 mb-12">
         {% for post in posts %}
             {% include 'components/post_card.html' with post=post show_author=true %}
         {% endfor %}
@@ -41,17 +41,17 @@
         {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
     </div>
 {% else %}
-    <div class="flex flex-col items-center justify-center min-h-96 text-center">
-        <div class="w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-100 rounded-full flex items-center justify-center mb-8">
-            <i class="fas fa-pen-nib text-4xl text-black"></i>
+    <div class="flex flex-col items-center justify-center min-h-[50vh] text-center py-12">
+        <div class="w-24 h-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full flex items-center justify-center mb-6">
+            <i class="fas fa-pen-nib text-3xl text-gray-900"></i>
         </div>
-        <h2 class="text-3xl font-bold text-gray-900 mb-4">아직 포스트가 없어요</h2>
-        <p class="text-lg text-gray-600 mb-8 max-w-md">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3">아직 포스트가 없어요</h2>
+        <p class="text-base md:text-lg text-gray-600 mb-8 max-w-xl">
             첫 번째 에디터가 되어 멋진 콘텐츠를 공유해보세요!
         </p>
-        <a href="/write" class="bg-black hover:bg-black text-white px-8 py-3 rounded-xl font-medium transition-colors inline-flex items-center gap-2">
+        <a href="/write" class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-lg hover:scale-105">
             <i class="fas fa-edit"></i>
-            글 작성하기
+            <span>글 작성하기</span>
         </a>
     </div>
 {% endif %}
