@@ -6,45 +6,83 @@
 
 {% block content %}
     <div class="container mx-auto">
-    <div class="my-16">
-        <div class="text-center">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">#{{ tag }}</h1>
-            <p class="mt-2 text-lg text-gray-600">{{ posts|length }} post{% if posts|length != 1 %}s{% endif %}</p>
+    <!-- Breadcrumb Navigation -->
+    <nav class="pt-6 pb-4">
+        <a href="/tags" class="group inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors duration-200">
+            <svg class="w-4 h-4 mr-1.5 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            전체 태그
+        </a>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="pt-8 pb-16">
+        <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-3 mb-4">
+                <div class="w-1 h-12 bg-gray-900 rounded-full"></div>
+                <h1 class="text-4xl font-bold text-gray-900 tracking-tight">{{ tag }}</h1>
+            </div>
         </div>
     </div>
 
+    <!-- Featured Post -->
     {% if head_post %}
-    <div class="mb-8 p-6 bg-white border border-gray-200 rounded-2xl border border-solid border-gray-200">
-        <h2 class="text-2xl font-bold text-gray-900 mb-3">
-            <a href="/@{{ head_post.author }}/{{ head_post.url }}" class="hover:text-black">{{ head_post.title }}</a>
-        </h2>
-        <p class="text-gray-600 mb-4">{{ head_post.description }}</p>
-        <a href="/@{{ head_post.author }}/{{ head_post.url }}" class="font-semibold text-black hover:text-black">Read more &rarr;</a>
+    <div class="mb-20 group">
+        <div class="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-3xl p-8 md:p-12 transition-all duration-300 hover:shadow-xl hover:border-gray-300">
+            <div class="flex items-center gap-2 mb-6">
+                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                </svg>
+                <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">추천 포스트</span>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 leading-tight">
+                <a href="/@{{ head_post.author }}/{{ head_post.url }}" class="hover:text-gray-600 transition-colors duration-200">{{ head_post.title }}</a>
+            </h2>
+            <p class="text-lg text-gray-600 mb-8 leading-relaxed">{{ head_post.description }}</p>
+            <a href="/@{{ head_post.author }}/{{ head_post.url }}" class="inline-flex items-center gap-2 font-semibold text-gray-900 hover:gap-3 transition-all duration-200">
+                <span>포스트 읽기</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+            </a>
+        </div>
     </div>
     {% endif %}
 
     {% if posts %}
+        <!-- Posts Section -->
+        <div class="mb-8">
+            <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-8">모든 포스트</h2>
+        </div>
+
         <div class="masonry-grid">
             {% for post in posts %}
                 {% include 'components/post_card.html' with post=post show_author=true %}
             {% endfor %}
         </div>
 
-        <div class="mt-12">
+        <div class="mt-16 mb-8">
             {% include 'components/pagination.html' with style='numbered' page=page last=last_page %}
         </div>
     {% else %}
-        <div class="text-center py-16">
-            <div class="inline-block bg-gray-100 text-gray-700 p-6 rounded-full mb-6">
-                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                </svg>
+        <!-- Empty State -->
+        <div class="text-center py-24">
+            <div class="max-w-md mx-auto">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-8">
+                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">아직 포스트가 없습니다</h3>
+                <p class="text-gray-500 mb-10 text-lg leading-relaxed">이 태그에는 아직 포스트가 없습니다.</p>
+                <a href="{% url 'post_write' %}" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-full font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>포스트 작성</span>
+                </a>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">No posts found for #{{ tag }}</h3>
-            <p class="text-gray-600 mb-8">Be the first to write a post with this tag!</p>
-            <a href="{% url 'post_write' %}" class="bg-black hover:bg-black text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                Write a Post
-            </a>
         </div>
     {% endif %}
 </div>
