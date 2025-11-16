@@ -6,6 +6,7 @@ import { notification } from '@baejino/ui';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
 import TempPostsPanel from './components/TempPostsPanel';
+import SettingsDrawer from './components/SettingsDrawer';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useFormSubmit } from './hooks/useFormSubmit';
@@ -23,6 +24,7 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
     const [isTempPostsPanelOpen, setIsTempPostsPanelOpen] = useState(false);
+    const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState(false);
     const [pendingTempToken, setPendingTempToken] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
@@ -238,9 +240,10 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
     };
 
     return (
-        <div className="bg-gray-50 py-4 sm:py-8">
-            <div className="max-w-4xl w-full mx-auto">
+        <div className="bg-gray-50 min-h-screen relative transition-all duration-300">
+            <div className="w-full max-w-4xl mx-auto transition-all duration-300">
                 <PostHeader
+                    topOnly
                     mode={tempToken ? 'temp' : 'new'}
                     isSaving={isSaving}
                     isSubmitting={isSubmitting}
@@ -250,6 +253,7 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                     onManualSave={handleManualSave}
                     onSubmit={() => handleSubmit()}
                     onOpenTempPosts={() => setIsTempPostsPanelOpen(true)}
+                    onOpenSettings={() => setIsSettingsDrawerOpen(true)}
                 />
 
                 <PostForm
@@ -260,28 +264,54 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                     tags={tags}
                     imagePreview={imagePreview}
                     selectedSeries={selectedSeries}
-                    seriesList={seriesList}
                     onTitleChange={handleTitleChange}
-                    onUrlChange={handleUrlChange}
                     onContentChange={(content) => setFormData(prev => ({
                         ...prev,
                         content
                     }))}
-                    onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
-                        ...prev,
-                        metaDescription
-                    }))}
                     onTagsChange={setTags}
                     onImageUpload={handleImageUpload}
                     onRemoveImage={handleRemoveImage}
-                    onSeriesChange={setSelectedSeries}
-                    onFormDataChange={(field, value) => setFormData(prev => ({
-                        ...prev,
-                        [field]: value
-                    }))}
                     getCsrfToken={getCsrfToken}
                 />
+
+                {/* Bottom sticky header */}
+                <PostHeader
+                    bottomOnly
+                    mode={tempToken ? 'temp' : 'new'}
+                    isSaving={isSaving}
+                    isSubmitting={isSubmitting}
+                    lastSaved={lastSaved}
+                    nextSaveIn={nextSaveIn}
+                    saveProgress={saveProgress}
+                    onManualSave={handleManualSave}
+                    onSubmit={() => handleSubmit()}
+                    onOpenTempPosts={() => setIsTempPostsPanelOpen(true)}
+                    onOpenSettings={() => setIsSettingsDrawerOpen(true)}
+                />
             </div>
+
+            {/* Settings Drawer */}
+            <SettingsDrawer
+                isOpen={isSettingsDrawerOpen}
+                onClose={() => setIsSettingsDrawerOpen(false)}
+                isEdit={false}
+                url={formData.url}
+                metaDescription={formData.metaDescription}
+                selectedSeries={selectedSeries}
+                seriesList={seriesList}
+                formData={formData}
+                onUrlChange={handleUrlChange}
+                onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
+                    ...prev,
+                    metaDescription
+                }))}
+                onSeriesChange={setSelectedSeries}
+                onFormDataChange={(field, value) => setFormData(prev => ({
+                    ...prev,
+                    [field]: value
+                }))}
+            />
 
             {/* Temp Posts Panel */}
             <TempPostsPanel
