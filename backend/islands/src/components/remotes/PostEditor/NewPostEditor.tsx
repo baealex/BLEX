@@ -264,25 +264,14 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                     tags={tags}
                     imagePreview={imagePreview}
                     selectedSeries={selectedSeries}
-                    seriesList={seriesList}
                     onTitleChange={handleTitleChange}
-                    onUrlChange={handleUrlChange}
                     onContentChange={(content) => setFormData(prev => ({
                         ...prev,
                         content
                     }))}
-                    onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
-                        ...prev,
-                        metaDescription
-                    }))}
                     onTagsChange={setTags}
                     onImageUpload={handleImageUpload}
                     onRemoveImage={handleRemoveImage}
-                    onSeriesChange={setSelectedSeries}
-                    onFormDataChange={(field, value) => setFormData(prev => ({
-                        ...prev,
-                        [field]: value
-                    }))}
                     getCsrfToken={getCsrfToken}
                 />
 

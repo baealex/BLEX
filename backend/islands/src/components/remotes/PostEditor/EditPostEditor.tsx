@@ -221,25 +221,14 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
                     tags={tags}
                     imagePreview={imagePreview}
                     selectedSeries={selectedSeries}
-                    seriesList={seriesList}
                     onTitleChange={handleTitleChange}
-                    onUrlChange={() => { }} // URL is not editable in edit mode
                     onContentChange={(content) => setFormData(prev => ({
                         ...prev,
                         content
                     }))}
-                    onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
-                        ...prev,
-                        metaDescription
-                    }))}
                     onTagsChange={setTags}
                     onImageUpload={handleImageUpload}
                     onRemoveImage={handleRemoveImage}
-                    onSeriesChange={setSelectedSeries}
-                    onFormDataChange={(field, value) => setFormData(prev => ({
-                        ...prev,
-                        [field]: value
-                    }))}
                     onDelete={handleDelete}
                     getCsrfToken={getCsrfToken}
                 />
