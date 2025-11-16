@@ -46,10 +46,14 @@ def title_image_path(instance, filename):
 
 
 def make_thumbnail(instance, size, quality=100, type='normal'):
-    
+
     if hasattr(instance, 'avatar'):
         instance.image = instance.avatar
-    
+
+    # Check if image exists before processing
+    if not instance.image:
+        return
+
     # Use instance.image.path for uploaded files, which gives the full system path
     # If no path attribute, construct path in media directory
     if hasattr(instance.image, 'path'):

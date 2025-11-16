@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Response } from '~/modules/http.module';
+import { Button, Input, LoadingState } from '~/components/shared';
 
 interface FormItem {
     id: number;
@@ -64,9 +65,9 @@ const FormsManagement: React.FC = () => {
     const handleCreateForm = () => {
         setEditingForm(null);
         reset({
-            title: '',
-            content: ''
-        });
+ title: '',
+content: ''
+});
         setIsModalOpen(true);
     };
 
@@ -121,181 +122,134 @@ const FormsManagement: React.FC = () => {
         setIsModalOpen(false);
         setEditingForm(null);
         reset({
-            title: '',
-            content: ''
-        });
+ title: '',
+content: ''
+});
     };
 
     if (isLoading) {
-        return (
-            <div className="p-6 bg-white shadow-sm rounded-lg">
-                <div className="animate-pulse">
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-                        <div className="h-6 bg-gray-200 rounded w-32 mb-2" />
-                        <div className="h-4 bg-gray-200 rounded w-64" />
-                    </div>
-                    <div className="space-y-3">
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <div className="h-10 bg-gray-200 rounded" />
-                        </div>
-                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <div className="h-12 bg-gray-200 rounded" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+        return <LoadingState type="list" rows={3} />;
     }
 
     const forms = formsData?.forms || [];
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
+        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
             {/* Header Section */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">서식 관리</h2>
-                <p className="text-gray-700">자주 사용하는 서식을 미리 만들어두면, 글을 더 빠르게 작성할 수 있을거예요.</p>
-            </div>
+            <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">서식 관리</h2>
+                <p className="text-gray-600 mb-6">자주 사용하는 서식을 미리 만들어두면, 글을 더 빠르게 작성할 수 있어요.</p>
 
-            {/* Add Form Button */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <button
-                    type="button"
-                    className="w-full inline-flex justify-center items-center py-3 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors touch-manipulation min-h-[48px]"
+                <Button
+                    variant="primary"
+                    size="md"
+                    fullWidth
+                    leftIcon={<i className="fas fa-plus" />}
                     onClick={handleCreateForm}>
-                    <i className="fas fa-plus mr-2" />
                     서식 추가
-                </button>
+                </Button>
             </div>
 
             {/* Forms List */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <i className="fas fa-list mr-2 text-gray-500" />
-                    저장된 서식
-                </h3>
-
-                {forms.length === 0 ? (
-                    <div className="bg-gray-50 border border-gray-200 text-gray-800 px-4 py-6 rounded-md text-center">
-                        <i className="far fa-file-alt text-4xl mb-3 text-gray-400" />
-                        <p className="font-medium">아직 작성된 서식이 없습니다</p>
-                        <p className="text-sm mt-1">서식 추가 버튼을 눌러 첫 번째 서식을 만들어보세요.</p>
+            {forms.length === 0 ? (
+                <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i className="far fa-file-alt text-gray-400 text-3xl" />
                     </div>
-                ) : (
-                    <div className="space-y-3">
-                        {forms.map((form) => (
-                            <div key={form.id} className="bg-white border border-gray-200 rounded-lg p-4">
-                                <div className="flex items-center justify-between">
-                                    <button
-                                        type="button"
-                                        className="flex-1 text-left text-gray-900 font-medium hover:text-gray-600 transition-colors focus:outline-none focus:text-gray-600"
-                                        onClick={() => handleEditForm(form.id)}>
-                                        {form.title}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="ml-4 inline-flex items-center p-2 border border-transparent text-sm font-medium rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
-                                        onClick={() => handleDeleteForm(form.id)}
-                                        title="서식 삭제">
-                                        <i className="fas fa-trash" />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )
-                }
-            </div >
-
-            {/* Modal */}
-            {
-                isModalOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                    {editingForm ? '서식 편집' : '서식 추가'}
-                                </h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">서식이 없습니다</h3>
+                    <p className="text-gray-500">서식 추가 버튼을 눌러 첫 번째 서식을 만들어보세요.</p>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {forms.map((form) => (
+                        <div key={form.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 hover:bg-gray-100 hover:shadow-sm transition-all duration-300">
+                            <div className="flex items-center justify-between gap-3">
                                 <button
                                     type="button"
-                                    className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 transition-colors"
-                                    onClick={closeModal}>
-                                    <i className="fas fa-times text-xl" />
+                                    className="flex-1 text-left text-gray-900 font-semibold hover:text-gray-600 transition-colors focus:outline-none"
+                                    onClick={() => handleEditForm(form.id)}>
+                                    {form.title}
                                 </button>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="secondary"
+                                        size="md"
+                                        onClick={() => handleEditForm(form.id)}>
+                                        <i className="fas fa-edit" />
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        size="md"
+                                        onClick={() => handleDeleteForm(form.id)}>
+                                        <i className="fas fa-trash" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+                        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                            <h3 className="text-xl font-bold text-gray-900">
+                                {editingForm ? '서식 편집' : '서식 추가'}
+                            </h3>
+                            <button
+                                type="button"
+                                className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+                                onClick={closeModal}>
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto max-h-[calc(90vh-140px)]">
+                            <div className="p-6 space-y-6">
+                                <Input
+                                    label="제목"
+                                    type="text"
+                                    placeholder="서식 제목을 입력하세요"
+                                    error={errors.title?.message}
+                                    {...register('title')}
+                                />
+
+                                <Input
+                                    label="내용"
+                                    multiline
+                                    rows={12}
+                                    placeholder="서식 내용을 입력하세요"
+                                    error={errors.content?.message}
+                                    {...register('content')}
+                                />
                             </div>
 
-                            <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto max-h-[calc(90vh-140px)]">
-                                <div className="p-6 space-y-4">
-                                    <div>
-                                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                                            제목
-                                        </label>
-                                        <input
-                                            id="title"
-                                            type="text"
-                                            className="block w-full rounded-md border border-solid border-gray-300 focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors"
-                                            placeholder="서식 제목을 입력하세요"
-                                            {...register('title')}
-                                        />
-                                        {errors.title && (
-                                            <p className="text-gray-500 text-xs mt-1 flex items-center">
-                                                <i className="fas fa-exclamation-circle mr-1" />
-                                                {errors.title.message}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                                            내용
-                                        </label>
-                                        <textarea
-                                            id="content"
-                                            rows={12}
-                                            className="block w-full rounded-md border border-solid border-gray-300 focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors resize-y"
-                                            placeholder="서식 내용을 입력하세요"
-                                            {...register('content')}
-                                        />
-                                        {errors.content && (
-                                            <p className="text-gray-500 text-xs mt-1 flex items-center">
-                                                <i className="fas fa-exclamation-circle mr-1" />
-                                                {errors.content.message}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-                                    <button
-                                        type="button"
-                                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
-                                        onClick={closeModal}
-                                        disabled={isSubmitting}>
-                                        취소
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                        disabled={isSubmitting}>
-                                        {isSubmitting ? (
-                                            <>
-                                                <i className="fas fa-spinner fa-spin mr-2" />
-                                                {editingForm ? '수정 중...' : '생성 중...'}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className={`fas ${editingForm ? 'fa-save' : 'fa-plus'} mr-2`} />
-                                                {editingForm ? '수정' : '생성'}
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                                <Button
+                                    variant="secondary"
+                                    size="md"
+                                    onClick={closeModal}
+                                    disabled={isSubmitting}>
+                                    취소
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="md"
+                                    isLoading={isSubmitting}
+                                    leftIcon={!isSubmitting ? <i className={`fas ${editingForm ? 'fa-save' : 'fa-plus'}`} /> : undefined}>
+                                    {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '수정' : '생성')}
+                                </Button>
+                            </div>
+                        </form>
                     </div>
-                )
-            }
-        </div >
+                </div>
+            )}
+        </div>
     );
 };
 

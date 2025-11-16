@@ -1,0 +1,39 @@
+<!-- Series Title and Description Form Fields Component -->
+<div class="space-y-6">
+    <!-- Title Input -->
+    <div class="space-y-2">
+        <label class="block text-sm font-semibold text-gray-700">시리즈 제목 *</label>
+        <div class="relative">
+            <input
+                type="text"
+                x-model="formData.title"
+                placeholder="시리즈의 제목을 입력해주세요"
+                maxlength="200"
+                required
+                class="w-full px-4 py-3 border border-solid border-gray-300 rounded-xl focus:ring-4 focus:ring-gray-300 focus:border-gray-300 transition-all text-gray-900 placeholder-gray-400"
+                :class="{'border-gray-300 focus:ring-red-100': titleError}"
+            >
+            <div class="absolute inset-y-0 right-0 flex items-center pr-4">
+                <span class="text-sm text-gray-400" x-text="`${formData.title.length}/200`"></span>
+            </div>
+        </div>
+        <p x-show="titleError" x-text="titleError" class="text-sm text-gray-900 mt-1"></p>
+    </div>
+
+    <!-- Description Input -->
+    <div class="space-y-2">
+        <label class="block text-sm font-semibold text-gray-700">시리즈 설명</label>
+        <div class="relative">
+            <textarea
+                x-model="formData.description"
+                placeholder="이 시리즈에서 다루는 내용을 간략하게 설명해주세요"
+                maxlength="500"
+                rows="4"
+                class="w-full px-4 py-3 border border-solid border-gray-300 rounded-xl focus:ring-4 focus:ring-gray-300 focus:border-gray-300 transition-all text-gray-900 placeholder-gray-400 resize-none"
+            ></textarea>
+            <div class="absolute bottom-3 right-4">
+                <span class="text-sm text-gray-400" x-text="`${formData.description.length}/500`"></span>
+            </div>
+        </div>
+    </div>
+</div>

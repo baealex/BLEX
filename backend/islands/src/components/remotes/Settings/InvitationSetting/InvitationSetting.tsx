@@ -2,6 +2,7 @@ import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import type { Response } from '~/modules/http.module';
+import { Button, LoadingState } from '~/components/shared';
 
 interface InvitationItem {
     id: number;
@@ -45,38 +46,29 @@ const InvitationManagement = () => {
     };
 
     if (isLoading) {
-        return (
-            <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
-                <div className="animate-pulse">
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                        <div className="h-6 bg-gray-200 rounded w-64 mb-2" />
-                        <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                        <div className="h-4 bg-gray-200 rounded w-3/4" />
-                    </div>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
-                        <div className="h-20 bg-gray-200 rounded" />
-                    </div>
-                </div>
-            </div>
-        );
+        return <LoadingState type="list" rows={2} />;
     }
 
     const invitationList = Array.isArray(invitations?.invitations) ? invitations.invitations : [];
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
+        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
             {/* Header Section */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">에디터 초대 요청</h2>
-                <p className="text-gray-700 mb-4">다른 에디터로부터 받은 초대 요청을 확인하고 응답하세요.</p>
+            <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">에디터 초대 요청</h2>
+                <p className="text-gray-600 mb-6">다른 에디터로부터 받은 초대 요청을 확인하고 응답하세요.</p>
 
-                <div className="space-y-2">
+                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3">
                     <div className="flex items-center text-sm text-gray-700">
-                        <i className="fas fa-check-circle mr-2 text-gray-600" />
+                        <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            <i className="fas fa-check text-white text-xs" />
+                        </div>
                         초대를 승낙하면 해당 블로그의 에디터가 됩니다
                     </div>
                     <div className="flex items-center text-sm text-gray-700">
-                        <i className="fas fa-check-circle mr-2 text-gray-600" />
+                        <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            <i className="fas fa-check text-white text-xs" />
+                        </div>
                         에디터는 포스트 작성 및 관리 권한을 가집니다
                     </div>
                 </div>
@@ -84,58 +76,56 @@ const InvitationManagement = () => {
 
             {/* Invitation List */}
             {invitationList.length === 0 ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full flex-shrink-0">
-                            <i className="fas fa-inbox text-gray-600 text-xl" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900">초대 요청이 없습니다</h3>
-                            <p className="text-sm text-gray-700 mt-1">현재 받은 에디터 초대 요청이 없습니다.</p>
-                        </div>
+                <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i className="fas fa-inbox text-gray-400 text-3xl" />
                     </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">초대 요청이 없습니다</h3>
+                    <p className="text-gray-500">현재 받은 에디터 초대 요청이 없습니다.</p>
                 </div>
             ) : (
                 <div className="space-y-4">
                     {invitationList.map((invitation) => (
-                        <div key={invitation.id} className="bg-gray-50 rounded-lg border border-gray-200 p-4 sm:p-6">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                        <div key={invitation.id} className="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                                 <div className="flex items-center space-x-4">
                                     {invitation.senderImage ? (
                                         <img
                                             src={invitation.senderImage}
                                             alt="Profile"
-                                            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover flex-shrink-0"
+                                            className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg flex-shrink-0"
                                         />
                                     ) : (
-                                        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex-shrink-0 bg-gray-200 flex items-center justify-center">
+                                        <div className="w-16 h-16 rounded-full flex-shrink-0 bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
                                             <i className="fas fa-user text-gray-600 text-xl" />
                                         </div>
                                     )}
                                     <div className="min-w-0 flex-1">
-                                        <h3 className="text-lg font-semibold text-gray-900 truncate">{invitation.sender}</h3>
-                                        <p className="text-sm text-gray-600">{invitation.createdDate}</p>
+                                        <h3 className="text-lg font-bold text-gray-900 truncate">{invitation.sender}</h3>
+                                        <p className="text-sm text-gray-500">{invitation.createdDate}</p>
                                     </div>
                                 </div>
-                                <div className="flex space-x-3 sm:flex-shrink-0">
-                                    <button
-                                        type="button"
-                                        className="flex-1 sm:flex-none inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
-                                        onClick={() => respondToInvitation(invitation.id, 'reject')}>
+                                <div className="flex space-x-2 sm:flex-shrink-0">
+                                    <Button
+                                        variant="secondary"
+                                        size="md"
+                                        onClick={() => respondToInvitation(invitation.id, 'reject')}
+                                        className="flex-1 sm:flex-none">
                                         거절
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="flex-1 sm:flex-none inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
-                                        onClick={() => respondToInvitation(invitation.id, 'accept')}>
+                                    </Button>
+                                    <Button
+                                        variant="primary"
+                                        size="md"
+                                        onClick={() => respondToInvitation(invitation.id, 'accept')}
+                                        className="flex-1 sm:flex-none">
                                         승낙
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">초대 메시지</label>
                                 <textarea
-                                    className="w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
+                                    className="w-full px-4 py-3 text-sm text-gray-700 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 resize-none shadow-sm"
                                     readOnly
                                     rows={3}
                                     value={invitation.content}

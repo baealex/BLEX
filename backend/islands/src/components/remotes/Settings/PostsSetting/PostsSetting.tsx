@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
+import { Button, Input, LoadingState } from '~/components/shared';
 
 interface Post {
     url: string;
@@ -316,355 +317,293 @@ const PostsSetting = () => {
         return new Date(dateString).toLocaleDateString('ko-KR');
     };
 
+    if (isLoading) {
+        return <LoadingState type="list" rows={3} />;
+    }
+
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-sm border border-gray-200/60 rounded-xl">
+        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
             {/* 헤더 섹션 */}
             <div className="mb-6">
-                <div className="bg-gray-50 border border-gray-200/60 rounded-xl p-4 sm:p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 flex items-center">
-                                포스트 ({posts.length})
-                            </h2>
-                            <p className="text-gray-700 text-sm">포스트를 관리하고 태그, 시리즈를 편집하세요.</p>
-                        </div>
-                        <a
-                            href="/write"
-                            className="hidden sm:inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
-                            <i className="fas fa-plus mr-2" />
-                            새 포스트 작성
-                        </a>
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">포스트 ({posts.length})</h2>
+                        <p className="text-gray-600">포스트를 관리하고 태그, 시리즈를 편집하세요.</p>
                     </div>
-                    <div className="sm:hidden mt-4">
-                        <a
-                            href="/write"
-                            className="w-full inline-flex items-center justify-center px-4 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
-                            <i className="fas fa-plus mr-2" />
-                            새 포스트 작성
-                        </a>
-                    </div>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        leftIcon={<i className="fas fa-plus" />}
+                        onClick={() => window.location.href = '/write'}
+                        className="hidden sm:inline-flex">
+                        새 포스트 작성
+                    </Button>
+                </div>
+
+                {/* Mobile button */}
+                <div className="sm:hidden">
+                    <Button
+                        variant="primary"
+                        size="md"
+                        fullWidth
+                        leftIcon={<i className="fas fa-plus" />}
+                        onClick={() => window.location.href = '/write'}>
+                        새 포스트 작성
+                    </Button>
                 </div>
             </div>
 
             {/* 필터 및 검색 섹션 */}
-            <div className="mb-6">
-                <div className="bg-gray-50 border border-gray-200/60 rounded-xl p-4 sm:p-6">
-                    <div className="mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
-                            <i className="fas fa-filter mr-3 text-gray-700" />
-                            필터 및 검색
-                        </h3>
-                        <p className="text-gray-600 text-sm">포스트를 검색하고 필터링하세요.</p>
+            <div className="mb-6 p-6 bg-gray-50 border border-gray-200 rounded-2xl">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <i className="fas fa-filter mr-3" />
+                    필터 및 검색
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <Input
+                        type="text"
+                        placeholder="포스트 제목 검색..."
+                        defaultValue={filters.search}
+                        onChange={handleSearchChange}
+                        leftIcon={<i className="fas fa-search" />}
+                    />
+
+                    <div className="relative">
+                        <select
+                            value={filters.tag}
+                            onChange={(e) => handleFilterChange('tag', e.target.value)}
+                            className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
+                            <option value="">태그 선택</option>
+                            {tags?.map((tag, index) => (
+                                <option key={index} value={tag.name}>
+                                    {tag.name} ({tag.count})
+                                </option>
+                            ))}
+                        </select>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i className="fas fa-search text-gray-400 text-sm" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="포스트 제목 검색..."
-                                defaultValue={filters.search}
-                                onChange={handleSearchChange}
-                                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 text-sm transition-all duration-200"
-                            />
-                        </div>
 
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i className="fas fa-tag text-gray-400 text-sm" />
-                            </div>
-                            <select
-                                value={filters.tag}
-                                onChange={(e) => handleFilterChange('tag', e.target.value)}
-                                className="block w-full pl-10 pr-8 py-3 border border-gray-200 rounded-lg bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 text-sm transition-all duration-200 appearance-none">
-                                <option value="">태그 선택</option>
-                                {tags?.map((tag, index) => (
-                                    <option key={index} value={tag.name}>
-                                        {tag.name} ({tag.count})
-                                    </option>
-                                ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <i className="fas fa-chevron-down text-gray-400 text-sm" />
-                            </div>
-                        </div>
+                    <div className="relative">
+                        <select
+                            value={filters.series}
+                            onChange={(e) => handleFilterChange('series', e.target.value)}
+                            className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
+                            <option value="">시리즈 선택</option>
+                            {series?.map((item, index) => (
+                                <option key={index} value={item.url}>
+                                    {item.title} ({item.totalPosts})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
 
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i className="fas fa-book text-gray-400 text-sm" />
-                            </div>
-                            <select
-                                value={filters.series}
-                                onChange={(e) => handleFilterChange('series', e.target.value)}
-                                className="block w-full pl-10 pr-8 py-3 border border-gray-200 rounded-lg bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 text-sm transition-all duration-200 appearance-none">
-                                <option value="">시리즈 선택</option>
-                                {series?.map((item, index) => (
-                                    <option key={index} value={item.url}>
-                                        {item.title} ({item.totalPosts})
-                                    </option>
-                                ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <i className="fas fa-chevron-down text-gray-400 text-sm" />
-                            </div>
-                        </div>
-
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i className="fas fa-sort text-gray-400 text-sm" />
-                            </div>
-                            <select
-                                value={filters.order}
-                                onChange={(e) => handleFilterChange('order', e.target.value)}
-                                className="block w-full pl-10 pr-8 py-3 border border-gray-200 rounded-lg bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 text-sm transition-all duration-200 appearance-none">
-                                {POSTS_ORDER.map((order, index) => (
-                                    <option key={index} value={order.order}>
-                                        {order.name}
-                                    </option>
-                                ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <i className="fas fa-chevron-down text-gray-400 text-sm" />
-                            </div>
-                        </div>
+                    <div className="relative">
+                        <select
+                            value={filters.order}
+                            onChange={(e) => handleFilterChange('order', e.target.value)}
+                            className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
+                            {POSTS_ORDER.map((order, index) => (
+                                <option key={index} value={order.order}>
+                                    {order.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
             </div>
 
-            <div className="mb-6">
-                {isLoading ? (
-                    <div className="animate-pulse space-y-4">
-                        {[...Array(3)].map((_, i) => (
-                            <div key={i} className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex-1">
-                                        <div className="h-6 bg-gray-200 rounded w-3/4 mb-3" />
-                                        <div className="flex items-center space-x-4">
-                                            <div className="h-4 bg-gray-200 rounded w-24" />
-                                            <div className="h-4 bg-gray-200 rounded w-24" />
+            {/* 포스트 리스트 */}
+            {postsMounted && posts.length === 0 ? (
+                <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i className="fas fa-file-alt text-gray-400 text-3xl" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">포스트가 없습니다</h3>
+                    <p className="text-gray-500 mb-6">첫 번째 포스트를 작성해보세요!</p>
+                    <Button
+                        variant="primary"
+                        size="md"
+                        leftIcon={<i className="fas fa-plus" />}
+                        onClick={() => window.location.href = '/write'}>
+                        첫 포스트 작성하기
+                    </Button>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {posts.map((post) => (
+                        <div key={post.url} className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
+                            {/* 헤더 */}
+                            <div className="p-4 border-b border-gray-200">
+                                <div className="flex items-start justify-between gap-4 mb-3">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-base font-bold text-gray-900 mb-1.5 truncate">
+                                            <a
+                                                href={`/@${postsData?.username}/${post.url}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="hover:text-black transition-colors">
+                                                {post.title}
+                                            </a>
+                                        </h3>
+                                        <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                                            <span className="flex items-center">
+                                                <i className="fas fa-calendar mr-1.5" />
+                                                {formatDate(post.createdDate)}
+                                            </span>
+                                            {post.createdDate !== post.updatedDate && (
+                                                <span className="flex items-center">
+                                                    <i className="fas fa-edit mr-1.5" />
+                                                    수정됨
+                                                </span>
+                                            )}
+                                            {post.isHide && (
+                                                <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs flex items-center font-medium">
+                                                    <i className="fas fa-lock mr-1" />
+                                                    비공개
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
+
                                     <div className="flex items-center gap-2">
-                                        <div className="w-10 h-10 bg-gray-200 rounded-lg" />
-                                        <div className="w-10 h-10 bg-gray-200 rounded-lg" />
-                                        <div className="w-10 h-10 bg-gray-200 rounded-lg" />
+                                        <Button
+                                            variant="secondary"
+                                            size="md"
+                                            onClick={() => handlePostVisibilityToggle(post.url)}
+                                            title={post.isHide ? '공개로 변경' : '비공개로 변경'}>
+                                            <i className={`fas ${post.isHide ? 'fa-eye' : 'fa-eye-slash'}`} />
+                                        </Button>
+
+                                        <Button
+                                            variant="secondary"
+                                            size="md"
+                                            onClick={() => window.location.href = `/@${postsData?.username}/${post.url}/edit`}
+                                            title="포스트 수정">
+                                            <i className="fas fa-edit" />
+                                        </Button>
+
+                                        <Button
+                                            variant="secondary"
+                                            size="md"
+                                            onClick={() => handlePostDelete(post.url)}
+                                            title="포스트 삭제">
+                                            <i className="fas fa-trash" />
+                                        </Button>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : postsMounted && posts.length === 0 ? (
-                    <div className="text-center py-12">
-                        <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <i className="fas fa-file-alt text-gray-400 text-2xl" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">포스트가 없습니다</h3>
-                        <p className="text-gray-500 mb-4">첫 번째 포스트를 작성해보세요!</p>
-                        <a
-                            href="/write"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-black hover:bg-gray-900 text-white rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md">
-                            <i className="fas fa-plus text-sm" />
-                            첫 포스트 작성하기
-                        </a>
-                    </div>
-                ) : (
-                    <div className="space-y-6">
-                        {posts.map((post) => (
-                            <div key={post.url} className="mb-6">
-                                <div className="bg-white border border-solid border-gray-200/60 rounded-2xl overflow-hidden">
-                                    <div className="bg-gray-50 p-4 sm:p-6 text-gray-900">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                <div className="min-w-0 flex-1">
-                                                    <h3 className="text-xl font-bold text-gray-900 truncate transition-colors">
-                                                        <a
-                                                            href={`/@${postsData?.username}/${post.url}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="hover:text-black transition-colors">
-                                                            {post.title}
-                                                        </a>
-                                                    </h3>
-                                                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-600/80 flex-wrap">
-                                                        <span className="flex items-center">
-                                                            <i className="fas fa-calendar mr-1" />
-                                                            {formatDate(post.createdDate)}
-                                                        </span>
-                                                        {post.createdDate !== post.updatedDate && (
-                                                            <span className="flex items-center">
-                                                                <i className="fas fa-edit mr-1" />
-                                                                수정됨
-                                                            </span>
-                                                        )}
-                                                        {post.isHide && (
-                                                            <span className="bg-gray-300/80 text-gray-800 px-2 py-1 rounded-full text-xs flex items-center">
-                                                                <i className="fas fa-lock mr-1" />
-                                                                비공개
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
 
-                                            <div className="flex items-center gap-2 ml-4">
-                                                <button
-                                                    onClick={() => handlePostVisibilityToggle(post.url)}
-                                                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-gray-400/20 text-gray-800 hover:bg-gray-400/30 rounded-xl transition-all duration-200 backdrop-blur-sm"
-                                                    title={post.isHide ? '공개로 변경' : '비공개로 변경'}>
-                                                    <i className={`fas ${post.isHide ? 'fa-eye' : 'fa-eye-slash'} text-sm sm:text-lg`} />
-                                                </button>
-
-                                                <a
-                                                    href={`/@${postsData?.username}/${post.url}/edit`}
-                                                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-gray-400/20 text-gray-800 hover:bg-gray-400/30 rounded-xl transition-all duration-200 backdrop-blur-sm"
-                                                    title="포스트 수정">
-                                                    <i className="fas fa-edit text-sm sm:text-lg" />
-                                                </a>
-
-                                                <button
-                                                    onClick={() => handlePostDelete(post.url)}
-                                                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-gray-400/20 text-gray-800 hover:bg-gray-400/30 rounded-xl transition-all duration-200 backdrop-blur-sm"
-                                                    title="포스트 삭제">
-                                                    <i className="fas fa-trash text-sm sm:text-lg" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* 통계 영역 */}
-                                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
-                                        <div className="grid grid-cols-3 gap-2 sm:gap-4">
-                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100/50 text-center">
-                                                <div className="flex items-center justify-center text-gray-500 mb-1">
-                                                    <i className="fas fa-heart text-sm sm:text-lg" />
-                                                </div>
-                                                <div className="text-xs sm:text-sm font-semibold text-gray-700">{post.countLikes}</div>
-                                            </div>
-                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100/50 text-center">
-                                                <div className="flex items-center justify-center text-gray-500 mb-1">
-                                                    <i className="fas fa-comment text-sm sm:text-lg" />
-                                                </div>
-                                                <div className="text-xs sm:text-sm font-semibold text-gray-700">{post.countComments}</div>
-                                            </div>
-                                            <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100/50 text-center">
-                                                <div className="flex items-center justify-center text-gray-500 mb-1">
-                                                    <i className="fas fa-clock text-sm sm:text-lg" />
-                                                </div>
-                                                <div className="text-xs sm:text-sm font-semibold text-gray-700">{post.readTime}분</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* 편집 영역 */}
-                                    <div className="p-4 sm:p-6 space-y-6">
-                                        <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100/50">
-                                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
-                                                    <i className="fas fa-tag text-sm sm:text-lg" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <label className="block text-sm font-medium text-gray-900 mb-2">태그 관리</label>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="태그를 입력하세요..."
-                                                        value={post.tag}
-                                                        onChange={(e) => handleTagChange(post.url, e.target.value)}
-                                                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 bg-white shadow-sm"
-                                                    />
-                                                </div>
-                                                {post.hasTagChanged && (
-                                                    <button
-                                                        onClick={() => handleTagSubmit(post.url)}
-                                                        className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-900 transition-all duration-200 shadow-md hover:shadow-lg">
-                                                        <i className="fas fa-save mr-2" />저장
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100/50">
-                                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
-                                                    <i className="fas fa-book text-sm sm:text-lg" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <label className="block text-sm font-medium text-gray-900 mb-2">시리즈 관리</label>
-                                                    <div className="relative">
-                                                        <select
-                                                            value={post.series}
-                                                            onChange={(e) => handleSeriesChange(post.url, e.target.value)}
-                                                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-8 sm:pr-10 border border-gray-200 rounded-lg text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-200/50 focus:ring-offset-0 appearance-none bg-white shadow-sm">
-                                                            <option value="">시리즈 선택 안함</option>
-                                                            {series?.map((item, index) => (
-                                                                <option key={index} value={item.url}>
-                                                                    {item.title}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                        <div className="absolute inset-y-0 right-0 pr-2 sm:pr-3 flex items-center pointer-events-none">
-                                                            <i className="fas fa-chevron-down text-gray-400 text-sm" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {post.hasSeriesChanged && (
-                                                    <button
-                                                        onClick={() => handleSeriesSubmit(post.url)}
-                                                        className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-900 transition-all duration-200 shadow-md hover:shadow-lg">
-                                                        <i className="fas fa-save mr-2" />저장
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {post.readTime > 30 && (
-                                            <div className="bg-gray-50 border-l-4 border-gray-300 rounded-lg p-4">
-                                                <div className="flex items-start">
-                                                    <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center mr-3">
-                                                        <i className="fas fa-exclamation-triangle text-white" />
-                                                    </div>
-                                                    <div>
-                                                        <h4 className="text-sm font-medium text-gray-900 mb-1">긴 글 주의</h4>
-                                                        <p className="text-sm text-gray-900">
-                                                            이 글은 너무 길어서 독자 경험에 영향을 줄 수 있습니다.
-                                                            내용을 나누어 여러 포스트로 작성하는 것을 고려해보세요.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
+                                {/* 통계 */}
+                                <div className="flex items-center gap-4 text-sm">
+                                    <span className="flex items-center text-gray-700">
+                                        <i className="fas fa-heart text-red-500 mr-1.5" />
+                                        <span className="font-semibold">{post.countLikes}</span>
+                                    </span>
+                                    <span className="flex items-center text-gray-700">
+                                        <i className="fas fa-comment text-blue-500 mr-1.5" />
+                                        <span className="font-semibold">{post.countComments}</span>
+                                    </span>
+                                    <span className="flex items-center text-gray-700">
+                                        <i className="fas fa-clock text-gray-500 mr-1.5" />
+                                        <span className="font-semibold">{post.readTime}분</span>
+                                    </span>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
 
-                {/* 페이지네이션 */}
-                {postsData && postsData.lastPage > 1 && (
-                    <div className="flex justify-center items-center gap-3 mt-6">
-                        <button
-                            onClick={() => handleFilterChange('page', String(Math.max(1, parseInt(filters.page) - 1)))}
-                            disabled={filters.page === '1'}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                            <i className="fas fa-chevron-left mr-2" />
-                            이전
-                        </button>
-                        <div className="px-4 py-2 text-sm text-gray-600">
-                            <span className="font-medium text-gray-600">{filters.page}</span>
-                            <span className="mx-2">/</span>
-                            <span className="font-medium">{postsData.lastPage}</span>
+                            {/* 편집 영역 */}
+                            <div className="p-4 space-y-3">
+                                {/* 태그 */}
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                                        <i className="fas fa-tag text-xs" />
+                                    </div>
+                                    <Input
+                                        type="text"
+                                        placeholder="태그를 입력하세요..."
+                                        value={post.tag}
+                                        onChange={(e) => handleTagChange(post.url, e.target.value)}
+                                        className="flex-1"
+                                    />
+                                    {post.hasTagChanged && (
+                                        <Button
+                                            variant="primary"
+                                            size="md"
+                                            leftIcon={<i className="fas fa-save" />}
+                                            onClick={() => handleTagSubmit(post.url)}>
+                                            저장
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {/* 시리즈 */}
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                                        <i className="fas fa-book text-xs" />
+                                    </div>
+                                    <select
+                                        value={post.series}
+                                        onChange={(e) => handleSeriesChange(post.url, e.target.value)}
+                                        className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-500 bg-white">
+                                        <option value="">시리즈 선택 안함</option>
+                                        {series?.map((item, index) => (
+                                            <option key={index} value={item.url}>
+                                                {item.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {post.hasSeriesChanged && (
+                                        <Button
+                                            variant="primary"
+                                            size="md"
+                                            leftIcon={<i className="fas fa-save" />}
+                                            onClick={() => handleSeriesSubmit(post.url)}>
+                                            저장
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {post.readTime > 30 && (
+                                    <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-xl p-4">
+                                        <div className="flex items-start">
+                                            <i className="fas fa-exclamation-triangle text-yellow-600 mr-3 mt-0.5" />
+                                            <div>
+                                                <h4 className="text-sm font-semibold text-gray-900 mb-1">긴 글 주의</h4>
+                                                <p className="text-sm text-gray-600">
+                                                    이 글은 읽는데 {post.readTime}분이 걸립니다.
+                                                    내용을 나누어 여러 포스트로 작성하는 것을 고려해보세요.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <button
-                            onClick={() => handleFilterChange('page', String(Math.min(postsData.lastPage, parseInt(filters.page) + 1)))}
-                            disabled={filters.page === String(postsData.lastPage)}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                            다음
-                            <i className="fas fa-chevron-right ml-2" />
-                        </button>
+                    ))}
+                </div>
+            )}
+
+            {/* 페이지네이션 */}
+            {postsData && postsData.lastPage > 1 && (
+                <div className="flex justify-center items-center gap-3 mt-6">
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleFilterChange('page', String(Math.max(1, parseInt(filters.page) - 1)))}
+                        disabled={filters.page === '1'}
+                        leftIcon={<i className="fas fa-chevron-left" />}>
+                        이전
+                    </Button>
+                    <div className="px-4 py-2 text-sm text-gray-700 font-medium">
+                        {filters.page} / {postsData.lastPage}
                     </div>
-                )}
-            </div>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleFilterChange('page', String(Math.min(postsData.lastPage, parseInt(filters.page) + 1)))}
+                        disabled={filters.page === String(postsData.lastPage)}
+                        rightIcon={<i className="fas fa-chevron-right" />}>
+                        다음
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };

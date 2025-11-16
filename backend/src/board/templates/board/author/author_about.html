@@ -18,18 +18,21 @@
 
     {% if not about_content %}
         <div class="text-center py-16">
-            <h2 class="text-2xl font-bold mb-3 text-gray-800">소개글이 없습니다.</h2>
+            <h2 class="text-2xl font-bold mb-3 text-gray-900">소개글이 없습니다.</h2>
             <p class="text-base text-gray-600 mb-6">{{ author.username }}님이 아직 소개글을 작성하지 않았어요.</p>
             {% if user == author %}
-                <a href="/@{{ author.username }}/about/edit" class="bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-black transition-colors">소개글 추가하기</a>
+                <a href="/@{{ author.username }}/about/edit" class="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-all duration-200 shadow-md">
+                    <i class="fas fa-plus"></i>
+                    소개글 추가하기
+                </a>
             {% endif %}
         </div>
     {% else %}
     <div class="max-w-3xl w-full mx-auto">
         {% if user == author %}
             <div class="text-right mb-4">
-                <a href="#" x-data="{ url: '/@{{ author.username }}/about/edit' }" @click="window.location.replace(url)" class="inline-flex items-center gap-2 border border-gray-300 text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-black transition-colors">
-                    <i class="fas fa-edit"></i> 
+                <a href="#" x-data="{ url: '/@{{ author.username }}/about/edit' }" @click="window.location.replace(url)" class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200">
+                    <i class="fas fa-edit"></i>
                     <span>수정하기</span>
                 </a>
             </div>

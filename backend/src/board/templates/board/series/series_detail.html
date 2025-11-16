@@ -14,10 +14,10 @@
             <!-- 왼쪽: 시리즈 정보 -->
             <div class="flex-1">
                 <div class="flex items-center gap-2 mb-3">
-                    <div class="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
+                    <div class="w-3 h-3 bg-black rounded-full"></div>
                     <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Series</span>
                 </div>
-                
+
                 <h1 class="text-2xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
                     {{ series.name }}
                 </h1>
@@ -31,12 +31,12 @@
             
             <!-- 오른쪽: 작성자 정보와 액션 -->
             <div class="lg:w-80 flex-shrink-0">
-                <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                     <!-- 작성자 정보 -->
                     <div class="flex items-center gap-4 mb-4">
                         <a href="/@{{ author.username }}">
-                            <img class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" 
-                                src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}" 
+                            <img class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                                src="{% if author.profile.avatar %}{{ author.profile.avatar.url }}{% else %}{% resource 'assets/images/default-avatar.jpg' %}{% endif %}"
                                 alt="{{ author.username }}">
                         </a>
                         <div>
@@ -46,7 +46,7 @@
                             </a>
                         </div>
                     </div>
-                    
+
                     <!-- 시리즈 통계 -->
                     <div class="space-y-2 mb-4">
                         <div class="flex justify-between text-sm">
@@ -58,11 +58,11 @@
                             <span class="font-medium text-gray-900">{{ series.updated_date }}</span>
                         </div>
                     </div>
-                    
+
                     <!-- 편집 버튼 -->
                     {% if request.user == author %}
-                    <a href="/@{{ author.username }}/series/{{ series.url }}/edit" 
-                    class="w-full bg-gray-100 hover:bg-gray-100 text-center px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-block">
+                    <a href="/@{{ author.username }}/series/{{ series.url }}/edit"
+                    class="w-full bg-black hover:bg-gray-800 text-white text-center px-4 py-3 rounded-xl font-medium transition-all duration-200 inline-block shadow-md">
                         시리즈 편집
                     </a>
                     {% endif %}
@@ -73,13 +73,13 @@
 
     {% if is_loading %}
     <div class="flex justify-center items-center py-16">
-        <div class="w-8 h-8 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div class="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
     </div>
 
     {% elif not posts %}
     <div class="flex flex-col items-center justify-center min-h-96 text-center">
-        <div class="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
-            <i class="fas fa-file-alt text-2xl text-black"></i>
+        <div class="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+            <i class="fas fa-file-alt text-2xl text-gray-900"></i>
         </div>
         <h2 class="text-2xl font-bold text-gray-900 mb-4">아직 포스트가 없습니다</h2>
         <p class="text-lg text-gray-600">이 시리즈에는 아직 포스트가 없습니다.</p>
@@ -88,13 +88,13 @@
     {% else %}
     <!-- 정렬 컨트롤 -->
     <div class="flex justify-end mb-6">
-        <div class="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-300">
+        <div class="flex gap-1 bg-gray-100 p-1 rounded-xl border border-gray-200">
             {% if sort_order == 'desc' %}
-            <a href="?sort=asc" class="px-3 py-2 bg-white text-black shadow-sm rounded-md text-sm font-medium transition-all">
+            <a href="?sort=asc" class="px-3 py-2 bg-white text-black shadow-sm rounded-lg text-sm font-medium transition-all">
                 <i class="fas fa-sort-amount-up mr-2"></i>오래된순
             </a>
             {% else %}
-            <a href="?sort=desc" class="px-3 py-2 bg-white text-black shadow-sm rounded-md text-sm font-medium transition-all">
+            <a href="?sort=desc" class="px-3 py-2 bg-white text-black shadow-sm rounded-lg text-sm font-medium transition-all">
                 <i class="fas fa-sort-amount-down mr-2"></i>최신순
             </a>
             {% endif %}
@@ -104,19 +104,19 @@
     <!-- 포스트 목록 -->
     <div class="space-y-4">
         {% for post_number, post in posts %}
-        <div class="bg-white p-6 rounded-2xl shadow-sm">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
             <a href="/@{{ author.username }}/{{ post.url }}" class="flex items-start gap-4">
                 <!-- 포스트 번호 -->
-                <div class="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-900 text-lg font-bold">
+                <div class="flex-shrink-0 w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white text-lg font-bold">
                     {{ post_number }}
                 </div>
-                
+
                 <!-- 포스트 내용 -->
                 <div class="flex-1 min-w-0">
                     <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-black transition-colors">
                         {{ post.title }}
                     </h3>
-                    
+
                     <!-- 메타 정보 -->
                     <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                         <div class="flex items-center gap-1">

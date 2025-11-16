@@ -22,6 +22,7 @@ import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
+import { Button } from '~/components/shared';
 
 interface SocialLink {
     id: number;
@@ -68,7 +69,7 @@ const SocialLinkItem = ({ social, index, onRemove, onChange }: SocialLinkItemPro
 
     return (
         <div ref={setNodeRef} style={style} className="mb-4">
-            <div className="bg-white border border-gray-200/60 rounded-xl shadow-sm hover:shadow-md hover:border-gray-200/60 transition-all duration-200 group overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden">
                 {/* 헤더 영역 - 모든 화면 크기에서 표시 */}
                 <div className="flex items-center justify-between p-4 sm:hidden bg-gray-50 border-b border-gray-200/60">
                     <div className="flex items-center gap-3">
@@ -310,33 +311,29 @@ const SocialLinks = () => {
     };
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-sm border border-gray-200/60 rounded-xl">
+        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
             {/* 헤더 섹션 */}
             <div className="mb-6">
-                <div className="bg-gray-50 border border-gray-200/60 rounded-xl p-4 sm:p-6">
-                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 flex items-center">
-                        소셜 링크 설정
-                    </h2>
-                    <p className="text-gray-700 text-sm">프로필에 표시될 소셜 미디어 링크를 추가하고 순서를 조정하세요.</p>
-                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">소셜 링크</h2>
+                <p className="text-gray-600">프로필에 표시될 소셜 미디어 링크를 추가하고 순서를 조정하세요.</p>
             </div>
 
             <form onSubmit={handleSubmit}>
                 <div className="mb-6">
                     {socials.length === 0 ? (
-                        <div className="text-center py-12">
-                            <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                <i className="fas fa-share-alt text-gray-400 text-2xl" />
+                        <div className="text-center py-16">
+                            <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+                                <i className="fas fa-share-alt text-gray-400 text-3xl" />
                             </div>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">소셜 링크가 없습니다</h3>
-                            <p className="text-gray-500 mb-4">첫 번째 소셜 링크를 추가해보세요!</p>
-                            <button
-                                type="button"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-black hover:bg-gray-900 text-white rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">소셜 링크가 없습니다</h3>
+                            <p className="text-gray-500 mb-6">첫 번째 소셜 링크를 추가해보세요!</p>
+                            <Button
+                                variant="primary"
+                                size="md"
+                                leftIcon={<i className="fas fa-plus" />}
                                 onClick={handleSocialAdd}>
-                                <i className="fas fa-plus text-sm" />
                                 첫 링크 추가하기
-                            </button>
+                            </Button>
                         </div>
                     ) : (
                         <DndContext
@@ -363,39 +360,23 @@ const SocialLinks = () => {
 
                 {socials.length > 0 && (
                     <div className="flex flex-col sm:flex-row gap-3 sm:justify-between border-t border-gray-200 pt-6">
-                        <button
-                            type="button"
-                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
-                            onClick={handleSocialAdd}>
-                            <i className="fas fa-plus text-xs" />
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            leftIcon={<i className="fas fa-plus" />}
+                            onClick={handleSocialAdd}
+                            className="sm:w-auto">
                             링크 추가
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                            disabled={isLoading}>
-                            {isLoading ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle
-                                            className="opacity-25"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                    </svg>
-                                    저장 중...
-                                </>
-                            ) : (
-                                <>
-                                    <i className="fas fa-save text-xs" />
-                                    변경사항 저장
-                                </>
-                            )}
-                        </button>
+                            variant="primary"
+                            size="md"
+                            isLoading={isLoading}
+                            leftIcon={!isLoading ? <i className="fas fa-save" /> : undefined}
+                            className="sm:w-auto">
+                            {isLoading ? '저장 중...' : '변경사항 저장'}
+                        </Button>
                     </div>
                 )}
             </form>
