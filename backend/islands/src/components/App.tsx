@@ -14,6 +14,7 @@ const LazyComponents = {
     SocialLogin: lazy(() => import('./remotes/SocialLogin')),
     RelatedPosts: lazy(() => import('./remotes/RelatedPosts')),
     SearchModal: lazy(() => import('./remotes/SearchModal')),
+    LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
     InvitationRequest: lazy(() => import('./remotes/InvitationRequest')),
 
     // Settings
