@@ -240,7 +240,7 @@ def post_editor(request, username=None, post_url=None):
                 messages.success(request, 'Post has been created successfully.')
             except PostValidationError as e:
                 messages.error(request, e.message)
-                return redirect('post_editor')
+                return redirect('post_write')
         
         # If it's a draft, redirect to edit mode
         if is_draft:

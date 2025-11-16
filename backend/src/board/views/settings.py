@@ -4,16 +4,26 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
 @login_required
+def setting_overview(request):
+    """
+    Overview settings page view.
+    Shows user's blog statistics, activities, and notifications in one unified dashboard.
+    Combines the functionality of dashboard and notifications for better UX.
+    Data is loaded asynchronously through island components for better performance.
+    """
+    context = {
+        'active': 'overview',
+    }
+    return render(request, 'board/setting/setting_overview.html', context)
+
+@login_required
 def setting_dashboard(request):
     """
     Dashboard settings page view.
-    Shows user's blog statistics and activities within the settings area.
-    Data is now loaded asynchronously through island components for better performance.
+    DEPRECATED: Use setting_overview instead.
+    Redirects to the new overview page for backward compatibility.
     """
-    context = {
-        'active': 'dashboard',
-    }
-    return render(request, 'board/setting/setting_dashboard.html', context)
+    return redirect('setting_overview')
 
 
 @login_required
@@ -44,12 +54,10 @@ def setting_account(request):
 def setting_notify(request):
     """
     Notification settings page view.
-    Renders the notification settings template with user notification preferences.
+    DEPRECATED: Use setting_overview instead.
+    Redirects to the new overview page for backward compatibility.
     """
-    context = {
-        'active': 'notify'
-    }
-    return render(request, 'board/setting/setting_notify.html', context)
+    return redirect('setting_overview')
 
 
 @login_required

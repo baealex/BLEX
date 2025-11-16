@@ -519,10 +519,19 @@ def user_posts(request, username, url=None):
                 if series.exists():
                     post.series = series.first()
 
-            try:
+            # Handle image updates and deletions
+            if 'image_delete' in request.POST and request.POST.get('image_delete') == 'true':
+                # User explicitly wants to delete the image
+                if post.image:
+                    post.image.delete(save=False)
+                    post.image = None
+            elif 'image' in request.FILES:
+                # User uploaded a new image
+                if post.image:
+                    # Delete old image before assigning new one
+                    post.image.delete(save=False)
                 post.image = request.FILES['image']
-            except:
-                pass
+            # If neither condition is met, keep the existing image unchanged
 
             post_content = post.content
             post_content.text_html = text_html
