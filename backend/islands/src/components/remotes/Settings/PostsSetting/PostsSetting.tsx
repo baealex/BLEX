@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input } from '~/components/shared';
+import { Button, Input, LoadingState } from '~/components/shared';
+import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface Post {
     url: string;
@@ -91,6 +92,7 @@ const POSTS_ORDER = [
 ];
 
 const PostsSetting = () => {
+    const { confirm } = useConfirm();
     const [filters, setFilters] = useState<FilterOptions>({
         search: '',
         tag: '',
@@ -104,7 +106,7 @@ const PostsSetting = () => {
     const [postsMounted, setPostsMounted] = useState(false);
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const { data: postsData, isError, refetch } = useFetch({
+    const { data: postsData, isLoading, isError, refetch } = useFetch({
         queryKey: ['posts-setting', JSON.stringify(filters)],
         queryFn: async () => {
             setPostsMounted(false);
@@ -209,7 +211,14 @@ const PostsSetting = () => {
     };
 
     const handlePostDelete = async (postUrl: string) => {
-        if (!confirm('정말 이 포스트를 삭제할까요?')) return;
+        const confirmed = await confirm({
+            title: '포스트 삭제',
+            message: '정말 이 포스트를 삭제할까요?',
+            confirmText: '삭제',
+            variant: 'danger'
+        });
+
+        if (!confirmed) return;
 
         try {
             const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}`, { method: 'DELETE' });
@@ -316,6 +325,10 @@ const PostsSetting = () => {
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('ko-KR');
     };
+
+    if (isLoading) {
+        return <LoadingState type="list" rows={3} />;
+    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">

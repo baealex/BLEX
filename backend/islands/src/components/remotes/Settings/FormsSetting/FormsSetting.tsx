@@ -6,7 +6,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Response } from '~/modules/http.module';
-import { Button, Input } from '~/components/shared';
+import { Button, Input, LoadingState, Modal } from '~/components/shared';
+import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface FormItem {
     id: number;
@@ -26,13 +27,14 @@ const formSchema = z.object({
 type FormInputs = z.infer<typeof formSchema>;
 
 const FormsManagement: React.FC = () => {
+    const { confirm } = useConfirm();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingForm, setEditingForm] = useState<FormItem | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FormInputs>({ resolver: zodResolver(formSchema) });
 
-    const { data: formsData, refetch } = useFetch({
+    const { data: formsData, isLoading, refetch } = useFetch({
         queryKey: ['forms'],
         queryFn: async () => {
             const { data } = await http.get<Response<FormsData>>('/v1/forms');
@@ -44,9 +46,14 @@ const FormsManagement: React.FC = () => {
     });
 
     const handleDeleteForm = async (formId: number) => {
-        if (!confirm('정말 이 서식을 삭제할까요?')) {
-            return;
-        }
+        const confirmed = await confirm({
+            title: '서식 삭제',
+            message: '정말 이 서식을 삭제할까요?',
+            confirmText: '삭제',
+            variant: 'danger'
+        });
+
+        if (!confirmed) return;
 
         try {
             const { data } = await http.delete(`/v1/forms/${formId}`);
@@ -127,6 +134,10 @@ content: ''
 });
     };
 
+    if (isLoading) {
+        return <LoadingState type="list" rows={3} />;
+    }
+
     const forms = formsData?.forms || [];
 
     return (
@@ -187,64 +198,50 @@ content: ''
             )}
 
             {/* Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-                        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                            <h3 className="text-xl font-bold text-gray-900">
-                                {editingForm ? '서식 편집' : '서식 추가'}
-                            </h3>
-                            <button
-                                type="button"
-                                className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
-                                onClick={closeModal}>
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                title={editingForm ? '서식 편집' : '서식 추가'}
+                maxWidth="2xl">
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="p-6 space-y-6">
+                        <Input
+                            label="제목"
+                            type="text"
+                            placeholder="서식 제목을 입력하세요"
+                            error={errors.title?.message}
+                            {...register('title')}
+                        />
 
-                        <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto max-h-[calc(90vh-140px)]">
-                            <div className="p-6 space-y-6">
-                                <Input
-                                    label="제목"
-                                    type="text"
-                                    placeholder="서식 제목을 입력하세요"
-                                    error={errors.title?.message}
-                                    {...register('title')}
-                                />
-
-                                <Input
-                                    label="내용"
-                                    multiline
-                                    rows={12}
-                                    placeholder="서식 내용을 입력하세요"
-                                    error={errors.content?.message}
-                                    {...register('content')}
-                                />
-                            </div>
-
-                            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-                                <Button
-                                    variant="secondary"
-                                    size="md"
-                                    onClick={closeModal}
-                                    disabled={isSubmitting}>
-                                    취소
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    variant="primary"
-                                    size="md"
-                                    isLoading={isSubmitting}
-                                    leftIcon={!isSubmitting ? <i className={`fas ${editingForm ? 'fa-save' : 'fa-plus'}`} /> : undefined}>
-                                    {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '수정' : '생성')}
-                                </Button>
-                            </div>
-                        </form>
+                        <Input
+                            label="내용"
+                            multiline
+                            rows={12}
+                            placeholder="서식 내용을 입력하세요"
+                            error={errors.content?.message}
+                            {...register('content')}
+                        />
                     </div>
-                </div>
-            )}
+
+                    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            onClick={closeModal}
+                            disabled={isSubmitting}>
+                            취소
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            size="md"
+                            isLoading={isSubmitting}
+                            leftIcon={!isSubmitting ? <i className={`fas ${editingForm ? 'fa-save' : 'fa-plus'}`} /> : undefined}>
+                            {isSubmitting ? (editingForm ? '수정 중...' : '생성 중...') : (editingForm ? '수정' : '생성')}
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     );
 };

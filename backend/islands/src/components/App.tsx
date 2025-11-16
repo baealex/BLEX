@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { ConfirmProvider } from '~/contexts/ConfirmContext';
 
 interface AppProps {
     __name: keyof typeof LazyComponents;
@@ -19,7 +20,6 @@ const LazyComponents = {
     OverviewSetting: lazy(() => import('./remotes/Settings/OverviewSetting')),
     FormsSetting: lazy(() => import('./remotes/Settings/FormsSetting')),
     IntegrationSetting: lazy(() => import('./remotes/Settings/IntegrationSetting')),
-    InvitationSetting: lazy(() => import('./remotes/Settings/InvitationSetting')),
     PostsSetting: lazy(() => import('./remotes/Settings/PostsSetting')),
     SeriesSetting: lazy(() => import('./remotes/Settings/SeriesSetting')),
     AccountSetting: lazy(() => import('./remotes/Settings/AccountSetting')),
@@ -32,10 +32,12 @@ const App = ({ __name, ...props }: AppProps) => {
     const Component = LazyComponents[__name];
 
     return (
-        <Suspense>
-            {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
-            <Component {...props} />
-        </Suspense>
+        <ConfirmProvider>
+            <Suspense>
+                {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
+                <Component {...props} />
+            </Suspense>
+        </ConfirmProvider>
     );
 };
 

@@ -3,7 +3,8 @@ import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import type { Response } from '~/modules/http.module';
-import { Button } from '~/components/shared';
+import { Button, LoadingState } from '~/components/shared';
+import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface TelegramStatusData {
     isConnected: boolean;
@@ -13,6 +14,7 @@ const IntegrationSettings: React.FC = () => {
     const [telegramToken, setTelegramToken] = useState('');
     const [isGeneratingToken, setIsGeneratingToken] = useState(false);
     const [isDisconnecting, setIsDisconnecting] = useState(false);
+    const { confirm } = useConfirm();
 
     const { data: telegramData, isLoading, refetch } = useFetch({
         queryKey: ['telegram-integration'],
@@ -46,9 +48,14 @@ const IntegrationSettings: React.FC = () => {
     };
 
     const disconnectTelegram = async () => {
-        if (!confirm('정말 텔레그램 연동을 해제할까요?')) {
-            return;
-        }
+        const confirmed = await confirm({
+            title: '텔레그램 연동 해제',
+            message: '정말 텔레그램 연동을 해제할까요?',
+            confirmText: '연동 해제',
+            variant: 'danger'
+        });
+
+        if (!confirmed) return;
 
         setIsDisconnecting(true);
         try {
@@ -89,6 +96,10 @@ const IntegrationSettings: React.FC = () => {
             return () => clearInterval(interval);
         }
     }, [isConnected, refetch]);
+
+    if (isLoading) {
+        return <LoadingState type="form" rows={2} />;
+    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
