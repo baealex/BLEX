@@ -1,9 +1,12 @@
 import json
 import datetime
+from io import BytesIO
 
 from unittest.mock import patch
+from PIL import Image
 
 from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from board.models import (
     User, Config, Post, PostContent, PostConfig, Profile
@@ -324,3 +327,133 @@ class PostTestCase(TestCase):
         })
         content = json.loads(response.content)
         self.assertEqual(content['errorCode'], 'error:VA')
+
+    def _create_test_image(self, name='test.jpg', size=(100, 100), color='red'):
+        """테스트용 이미지 파일 생성 헬퍼 메소드"""
+        file = BytesIO()
+        image = Image.new('RGB', size, color)
+        image.save(file, 'JPEG')
+        file.seek(0)
+        return SimpleUploadedFile(
+            name,
+            file.read(),
+            content_type='image/jpeg'
+        )
+
+    def test_update_post_add_image(self):
+        """이미지가 없는 게시글에 이미지 추가 테스트"""
+        self.client.login(username='author', password='author')
+
+        post = Post.objects.get(url='test-post-1')
+        # 초기 상태 확인: 이미지가 없음
+        self.assertFalse(post.image)
+
+        # 이미지와 함께 게시글 업데이트
+        image = self._create_test_image('new_image.jpg')
+        response = self.client.post('/v1/users/@author/posts/test-post-1', {
+            'title': post.title,
+            'text_html': post.content.text_html,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
+            'image': image,
+        })
+
+        # 응답 확인
+        self.assertEqual(response.status_code, 200)
+
+        # 데이터베이스에서 다시 가져와서 확인
+        post.refresh_from_db()
+        self.assertTrue(post.image)
+        # 파일명은 title_image_path 함수에 의해 자동 생성되므로 경로만 확인
+        self.assertIn('images/title/', post.image.name)
+        self.assertIn('/author/', post.image.name)
+
+    def test_update_post_change_image(self):
+        """기존 이미지를 새 이미지로 변경 테스트"""
+        self.client.login(username='author', password='author')
+
+        # 먼저 이미지가 있는 게시글 생성
+        post = Post.objects.get(url='test-post-2')
+        old_image = self._create_test_image('old_image.jpg', color='blue')
+        post.image = old_image
+        post.save()
+        old_image_name = post.image.name
+
+        # 새 이미지로 변경
+        new_image = self._create_test_image('new_image.jpg', color='red')
+        response = self.client.post('/v1/users/@author/posts/test-post-2', {
+            'title': post.title,
+            'text_html': post.content.text_html,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
+            'image': new_image,
+        })
+
+        # 응답 확인
+        self.assertEqual(response.status_code, 200)
+
+        # 데이터베이스에서 다시 가져와서 확인
+        post.refresh_from_db()
+        self.assertTrue(post.image)
+        # 파일명은 title_image_path 함수에 의해 자동 생성되므로 경로만 확인
+        self.assertIn('images/title/', post.image.name)
+        self.assertIn('/author/', post.image.name)
+        self.assertNotEqual(post.image.name, old_image_name)
+
+    def test_update_post_delete_image(self):
+        """게시글의 이미지 삭제 테스트"""
+        self.client.login(username='author', password='author')
+
+        # 먼저 이미지가 있는 게시글 생성
+        post = Post.objects.get(url='test-post-3')
+        image = self._create_test_image('to_delete.jpg')
+        post.image = image
+        post.save()
+
+        # 이미지가 있는지 확인
+        self.assertTrue(post.image)
+
+        # image_delete 플래그와 함께 업데이트
+        response = self.client.post('/v1/users/@author/posts/test-post-3', {
+            'title': post.title,
+            'text_html': post.content.text_html,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
+            'image_delete': 'true',
+        })
+
+        # 응답 확인
+        self.assertEqual(response.status_code, 200)
+
+        # 데이터베이스에서 다시 가져와서 확인
+        post.refresh_from_db()
+        self.assertFalse(post.image)
+
+    def test_update_post_keep_existing_image(self):
+        """기존 이미지를 유지하는 테스트 (이미지 필드를 건드리지 않음)"""
+        self.client.login(username='author', password='author')
+
+        # 먼저 이미지가 있는 게시글 생성
+        post = Post.objects.get(url='test-post-4')
+        image = self._create_test_image('keep_image.jpg')
+        post.image = image
+        post.save()
+        original_image_name = post.image.name
+
+        # 이미지 필드 없이 다른 필드만 업데이트
+        response = self.client.post('/v1/users/@author/posts/test-post-4', {
+            'title': post.title + ' Updated',
+            'text_html': post.content.text_html,
+            'is_hide': post.config.hide,
+            'is_advertise': post.config.advertise,
+            # image 필드 없음 - 기존 이미지 유지되어야 함
+        })
+
+        # 응답 확인
+        self.assertEqual(response.status_code, 200)
+
+        # 데이터베이스에서 다시 가져와서 확인
+        post.refresh_from_db()
+        self.assertTrue(post.image)
+        self.assertEqual(post.image.name, original_image_name)
+        self.assertEqual(post.title, 'Test Post 4 Updated')
