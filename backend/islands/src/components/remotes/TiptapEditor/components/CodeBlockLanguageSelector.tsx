@@ -16,7 +16,10 @@ const CodeBlockLanguageSelector: React.FC<CodeBlockLanguageSelectorProps> = ({
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+    const [dropdownPosition, setDropdownPosition] = useState({
+ top: 0,
+left: 0
+});
     const buttonRef = useRef<HTMLButtonElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
