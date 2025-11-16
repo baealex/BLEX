@@ -1,0 +1,9 @@
+{% extends 'board/setting/setting_base.html' %}
+{% load static %}
+{% load island %}
+
+{% block setting_title %}개요{% endblock %}
+
+{% block setting_content %}
+{% island_component 'OverviewSetting' %}
+{% endblock %}
