@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import { Chart as FrappeCharts } from 'frappe-charts';
 
 interface HeatmapSectionProps {
@@ -8,11 +8,6 @@ interface HeatmapSectionProps {
 
 const HeatmapSection = ({ heatmapData, isLoading }: HeatmapSectionProps) => {
     const chartRef = useRef<HTMLDivElement>(null);
-
-    const totalActivity = useMemo(() => {
-        if (!heatmapData) return 0;
-        return Object.values(heatmapData).reduce((acc, cur) => acc + cur, 0);
-    }, [heatmapData]);
 
     // Initialize heatmap chart
     useEffect(() => {
