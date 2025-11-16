@@ -3,6 +3,7 @@ import type { Response } from '~/modules/http.module';
 import { http } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
 import { getStaticPath } from '~/modules/static.module';
+import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface CommentsProps {
     postUrl: string;
@@ -25,6 +26,7 @@ interface CommentEditData {
 
 const Comments = (props: CommentsProps) => {
     const { postUrl } = props;
+    const { confirm } = useConfirm();
 
     const [commentText, setCommentText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -181,9 +183,14 @@ const Comments = (props: CommentsProps) => {
     };
 
     const deleteComment = async (commentId: number) => {
-        if (!confirm('이 댓글을 삭제하시겠습니까?')) {
-            return;
-        }
+        const confirmed = await confirm({
+            title: '댓글 삭제',
+            message: '이 댓글을 삭제하시겠습니까?',
+            confirmText: '삭제',
+            variant: 'danger'
+        });
+
+        if (!confirmed) return;
 
         try {
             const response = await http<Response<Comment>>(`v1/comments/${commentId}`, { method: 'DELETE' });

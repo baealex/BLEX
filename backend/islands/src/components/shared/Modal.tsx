@@ -51,14 +51,14 @@ const Modal: React.FC<ModalProps> = ({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto"
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
             onClick={onClose}>
             {/* 블러 백드롭 */}
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
 
             {/* 모달 컨텐츠 */}
             <div
-                className={`relative w-full ${maxWidthClasses[maxWidth]} mx-4 my-8 bg-white rounded-2xl shadow-2xl`}
+                className={`relative w-full ${maxWidthClasses[maxWidth]} max-h-[90vh] sm:max-h-[85vh] overflow-y-auto bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl`}
                 onClick={(e) => e.stopPropagation()}>
                 {/* 헤더 (title이나 showCloseButton이 있을 때만 표시) */}
                 {(title || showCloseButton) && (

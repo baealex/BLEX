@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
+import { useConfirm } from '~/contexts/ConfirmContext';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
 import SettingsDrawer from './components/SettingsDrawer';
@@ -16,6 +17,7 @@ interface EditPostEditorProps {
 }
 
 const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) => {
+    const { confirm } = useConfirm();
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
     const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState(false);
@@ -161,9 +163,14 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
     };
 
     const handleDelete = async () => {
-        if (!confirm('정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-            return;
-        }
+        const confirmed = await confirm({
+            title: '게시글 삭제',
+            message: '정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+            confirmText: '삭제',
+            variant: 'danger'
+        });
+
+        if (!confirmed) return;
 
         setIsSubmitting(true);
         try {

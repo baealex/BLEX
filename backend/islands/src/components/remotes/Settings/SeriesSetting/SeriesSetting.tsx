@@ -21,7 +21,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button } from '~/components/shared';
+import { Button, LoadingState } from '~/components/shared';
+import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface Series {
     id: number;
@@ -37,6 +38,7 @@ interface SortableSeriesItemProps {
 }
 
 const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemProps) => {
+    const { confirm } = useConfirm();
     const {
         attributes,
         listeners,
@@ -60,8 +62,15 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
         window.location.href = `/@${username}/series/${series.url}`;
     };
 
-    const handleDelete = () => {
-        if (confirm(`"${series.title}" 시리즈를 정말 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+    const handleDelete = async () => {
+        const confirmed = await confirm({
+            title: '시리즈 삭제',
+            message: `"${series.title}" 시리즈를 정말 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`,
+            confirmText: '삭제',
+            variant: 'danger'
+        });
+
+        if (confirmed) {
             onDelete(series.id);
         }
     };
@@ -129,7 +138,7 @@ const SeriesSetting = () => {
     const [series, setSeries] = useState<Series[]>([]);
     const [username, setUsername] = useState<string>('');
 
-    const { data: seriesData, isError } = useFetch({
+    const { data: seriesData, isLoading, isError } = useFetch({
         queryKey: ['series-setting'],
         queryFn: async () => {
             const { data } = await http<Response<{ username: string; series: Series[] }>>('v1/setting/series', { method: 'GET' });
@@ -216,6 +225,10 @@ const SeriesSetting = () => {
             notification('시리즈 삭제에 실패했습니다.', { type: 'error' });
         }
     };
+
+    if (isLoading) {
+        return <LoadingState type="list" rows={3} />;
+    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">

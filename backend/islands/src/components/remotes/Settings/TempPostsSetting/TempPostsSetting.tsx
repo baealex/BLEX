@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button } from '~/components/shared';
+import { Button, LoadingState } from '~/components/shared';
+import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface TempPost {
     token: string;
@@ -15,7 +16,8 @@ interface TempPostsData {
 }
 
 const TempPostsSetting = () => {
-    const { data: tempPosts, isError, refetch } = useFetch({
+    const { confirm } = useConfirm();
+    const { data: tempPosts, isLoading, isError, refetch } = useFetch({
         queryKey: ['temp-posts'],
         queryFn: async () => {
             const { data } = await http<Response<TempPostsData>>('v1/temp-posts', { method: 'GET' });
@@ -33,7 +35,14 @@ const TempPostsSetting = () => {
     }, [isError]);
 
     const handleTempPostDelete = async (token: string) => {
-        if (!confirm('정말 이 임시저장 포스트를 삭제할까요?')) return;
+        const confirmed = await confirm({
+            title: '임시글 삭제',
+            message: '정말 이 임시저장 포스트를 삭제할까요?',
+            confirmText: '삭제',
+            variant: 'danger'
+        });
+
+        if (!confirmed) return;
 
         try {
             const { data } = await http(`v1/temp-posts/${token}`, { method: 'DELETE' });
@@ -48,6 +57,10 @@ const TempPostsSetting = () => {
             notification('임시저장 포스트 삭제에 실패했습니다.', { type: 'error' });
         }
     };
+
+    if (isLoading) {
+        return <LoadingState type="list" rows={3} />;
+    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">

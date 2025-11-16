@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, LoadingState } from '~/components/shared';
+import { Button, LoadingState, Modal } from '~/components/shared';
 import { Chart as FrappeCharts } from 'frappe-charts';
 
 // Notify config labels
@@ -322,59 +322,43 @@ const OverviewSetting = () => {
             </div>
 
             {/* Settings Modal */}
-            {isOpenConfig && (
-                <div
-                    className="fixed inset-0 z-50 overflow-auto bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
-                    onClick={() => setIsOpenConfig(false)}>
-                    <div
-                        className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] sm:max-h-[80vh] overflow-y-auto"
-                        onClick={(e) => e.stopPropagation()}>
-                        <div className="sticky top-0 bg-white border-b border-gray-200 rounded-t-2xl z-10">
-                            <div className="flex items-center justify-between p-6">
-                                <h3 className="text-xl font-bold text-gray-900">알림 설정</h3>
-                                <button
-                                    onClick={() => setIsOpenConfig(false)}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            {isConfigLoading ? (
-                                <div className="space-y-4">
-                                    {[...Array(4)].map((_, i) => (
-                                        <div key={i} className="animate-pulse">
-                                            <div className="flex items-center justify-between py-3">
-                                                <div className="h-4 bg-gray-200 rounded w-3/4" />
-                                                <div className="h-6 w-11 bg-gray-200 rounded-full" />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                notifyConfig?.map((item) => (
-                                    <div key={item.name} className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                                        <span className="text-sm font-medium text-gray-900">
-                                            {NOTIFY_CONFIG_LABEL[item.name as keyof typeof NOTIFY_CONFIG_LABEL]}
-                                        </span>
-                                        <label className="relative inline-flex items-center cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                className="sr-only peer"
-                                                checked={item.value}
-                                                onChange={() => handleToggleConfig(item.name as keyof typeof NOTIFY_CONFIG_LABEL)}
-                                            />
-                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black" />
-                                        </label>
+            <Modal
+                isOpen={isOpenConfig}
+                onClose={() => setIsOpenConfig(false)}
+                title="알림 설정"
+                maxWidth="md">
+                <div className="p-6 space-y-4">
+                    {isConfigLoading ? (
+                        <div className="space-y-4">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className="animate-pulse">
+                                    <div className="flex items-center justify-between py-3">
+                                        <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                        <div className="h-6 w-11 bg-gray-200 rounded-full" />
                                     </div>
-                                ))
-                            )}
+                                </div>
+                            ))}
                         </div>
-                    </div>
+                    ) : (
+                        notifyConfig?.map((item) => (
+                            <div key={item.name} className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                <span className="text-sm font-medium text-gray-900">
+                                    {NOTIFY_CONFIG_LABEL[item.name as keyof typeof NOTIFY_CONFIG_LABEL]}
+                                </span>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={item.value}
+                                        onChange={() => handleToggleConfig(item.name as keyof typeof NOTIFY_CONFIG_LABEL)}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black" />
+                                </label>
+                            </div>
+                        ))
+                    )}
                 </div>
-            )}
+            </Modal>
         </div>
     );
 };
