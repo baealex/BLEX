@@ -4,7 +4,7 @@ from django.db.models import Count, F, Exists, OuterRef
 from django.http import Http404
 from django.contrib import messages
 
-from board.models import Post, Series, PostLikes, TempPosts
+from board.models import Post, Series, PostLikes, TempPosts, UsernameChangeLog
 from board.services.post_service import PostService, PostValidationError
 
 
@@ -12,8 +12,16 @@ def post_detail(request, username, post_url):
     """
     View for the post detail page.
     """
+    # Check if this is an old username in the change log
+    username_log = UsernameChangeLog.objects.filter(username=username).select_related('user', 'user__profile').first()
+    if username_log:
+        # Check if the user is an editor
+        if username_log.user.profile.is_editor():
+            # This is an old username and user is an editor, redirect to the current username
+            return redirect('post_detail', username=username_log.user.username, post_url=post_url)
+
     author = get_object_or_404(User, username=username)
-    
+
     # Get the post
     try:
         post = Post.objects.select_related(
