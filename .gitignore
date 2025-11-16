@@ -5,7 +5,6 @@
 /frontend/**.env
 /backend/**.env
 
-/*.sh
 /*.log
 
 DockerfileDev
@@ -13,4 +12,3 @@ DockerfileDev
 deploy.overrides.sh
 
 .DS_Store
-
