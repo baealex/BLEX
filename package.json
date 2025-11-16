@@ -12,7 +12,9 @@
         "server:migrate": "./manage.sh migrate",
         "island:setup": "pnpm install --prefix backend/islands",
         "island:dev": "npm run dev --prefix backend/islands",
+        "island:lint": "npm run lint --prefix backend/islands",
         "island:build": "npm run build --prefix backend/islands",
+        "island:type-check": "npm run type-check --prefix backend/islands",
         "dev": "concurrently \"npm run server:dev\" \"npm run island:dev\""
     },
     "repository": {

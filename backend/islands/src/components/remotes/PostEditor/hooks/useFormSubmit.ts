@@ -64,7 +64,8 @@ export const useFormSubmit = (options: UseFormSubmitOptions) => {
 
             addHiddenField(form, 'tag', data.tags.join(','));
             addHiddenField(form, 'series', data.seriesId);
-            addHiddenField(form, 'text_md', data.content);
+            // Note: text_md is already added by TiptapEditor as a hidden input
+            // We don't need to add it here to avoid overwriting the editor's value
 
             if (isDraft) {
                 addHiddenField(form, 'is_draft', 'true');

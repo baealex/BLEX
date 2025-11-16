@@ -55,6 +55,11 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
 
         if (isSaving || !currentOptions.enabled) return;
 
+        // Clear existing timers when manually saving
+        if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        if (progressRef.current) clearInterval(progressRef.current);
+
         setIsSaving(true);
         try {
             if (tempTokenRef.current) {
@@ -94,6 +99,15 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
             }
 
             setLastSaved(new Date());
+            // Reset progress after manual save
+            setNextSaveIn(0);
+            setSaveProgress(0);
+            // Update previous data to prevent auto-save from triggering immediately
+            prevDataStringRef.current = JSON.stringify({
+                title: currentData.title,
+                content: currentData.content,
+                tags: currentData.tags
+            });
             currentOptions.onSuccess?.();
         } catch (error) {
             currentOptions.onError?.(error as Error);

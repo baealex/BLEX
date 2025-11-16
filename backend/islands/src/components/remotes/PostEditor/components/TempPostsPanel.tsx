@@ -52,12 +52,12 @@ const TempPostsPanel: React.FC<TempPostsPanelProps> = ({
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black bg-opacity-30 z-40"
+                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300"
                 onClick={onClose}
             />
 
             {/* Slide-over panel */}
-            <div className="fixed inset-y-0 left-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col">
+            <div className="fixed inset-y-0 left-0 w-full sm:w-[480px] bg-white shadow-2xl z-50 flex flex-col animate-slide-in-left">
                 {/* Header */}
                 <div className="flex items-center justify-between p-5 border-b border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-900">임시 저장 글</h2>
@@ -121,6 +121,20 @@ const TempPostsPanel: React.FC<TempPostsPanelProps> = ({
                     </p>
                 </div>
             </div>
+
+            <style>{`
+                @keyframes slide-in-left {
+                    from {
+                        transform: translateX(-100%);
+                    }
+                    to {
+                        transform: translateX(0);
+                    }
+                }
+                .animate-slide-in-left {
+                    animation: slide-in-left 0.3s ease-out;
+                }
+            `}</style>
         </>
     );
 };

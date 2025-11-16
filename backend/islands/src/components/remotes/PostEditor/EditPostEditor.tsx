@@ -3,6 +3,7 @@ import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
+import SettingsDrawer from './components/SettingsDrawer';
 
 interface Series {
     id: string;
@@ -17,6 +18,7 @@ interface EditPostEditorProps {
 const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [seriesList, setSeriesList] = useState<Series[]>([]);
+    const [isSettingsDrawerOpen, setIsSettingsDrawerOpen] = useState(false);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -198,15 +200,17 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
     }
 
     return (
-        <div className="bg-gray-50 py-4 sm:py-8">
-            <div className="max-w-4xl w-full mx-auto">
+        <div className="bg-gray-50 min-h-screen relative transition-all duration-300">
+            <div className="w-full max-w-4xl mx-auto transition-all duration-300">
                 <PostHeader
+                    topOnly
                     mode="edit"
                     isSaving={false}
                     isSubmitting={isSubmitting}
                     lastSaved={null}
                     onManualSave={() => { }}
                     onSubmit={() => handleSubmit()}
+                    onOpenSettings={() => setIsSettingsDrawerOpen(true)}
                 />
 
                 <PostForm
@@ -217,29 +221,52 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
                     tags={tags}
                     imagePreview={imagePreview}
                     selectedSeries={selectedSeries}
-                    seriesList={seriesList}
                     onTitleChange={handleTitleChange}
-                    onUrlChange={() => { }} // URL is not editable in edit mode
                     onContentChange={(content) => setFormData(prev => ({
                         ...prev,
                         content
                     }))}
-                    onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
-                        ...prev,
-                        metaDescription
-                    }))}
                     onTagsChange={setTags}
                     onImageUpload={handleImageUpload}
                     onRemoveImage={handleRemoveImage}
-                    onSeriesChange={setSelectedSeries}
-                    onFormDataChange={(field, value) => setFormData(prev => ({
-                        ...prev,
-                        [field]: value
-                    }))}
                     onDelete={handleDelete}
                     getCsrfToken={getCsrfToken}
                 />
+
+                {/* Bottom sticky header */}
+                <PostHeader
+                    bottomOnly
+                    mode="edit"
+                    isSaving={false}
+                    isSubmitting={isSubmitting}
+                    lastSaved={null}
+                    onManualSave={() => { }}
+                    onSubmit={() => handleSubmit()}
+                    onOpenSettings={() => setIsSettingsDrawerOpen(true)}
+                />
             </div>
+
+            {/* Settings Drawer */}
+            <SettingsDrawer
+                isOpen={isSettingsDrawerOpen}
+                onClose={() => setIsSettingsDrawerOpen(false)}
+                isEdit={true}
+                url={formData.url}
+                metaDescription={formData.metaDescription}
+                selectedSeries={selectedSeries}
+                seriesList={seriesList}
+                formData={formData}
+                onUrlChange={() => { }} // URL is not editable in edit mode
+                onMetaDescriptionChange={(metaDescription) => setFormData(prev => ({
+                    ...prev,
+                    metaDescription
+                }))}
+                onSeriesChange={setSelectedSeries}
+                onFormDataChange={(field, value) => setFormData(prev => ({
+                    ...prev,
+                    [field]: value
+                }))}
+            />
         </div>
     );
 };
