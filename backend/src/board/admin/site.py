@@ -51,9 +51,6 @@ class SiteSettingAdmin(admin.ModelAdmin):
         except Exception as e:
             # If table doesn't exist yet (migrations not run), show error
             return HttpResponse(
-                f'<h1>SiteSetting 테이블이 생성되지 않았습니다</h1>'
-                f'<p>다음 명령어를 실행하세요:</p>'
-                f'<pre>python manage.py makemigrations\npython manage.py migrate</pre>'
                 f'<p>Error: {str(e)}</p>',
                 status=503
             )
