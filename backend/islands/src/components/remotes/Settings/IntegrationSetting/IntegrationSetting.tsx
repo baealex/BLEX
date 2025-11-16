@@ -3,6 +3,7 @@ import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import type { Response } from '~/modules/http.module';
+import { Button, LoadingState } from '~/components/shared';
 
 interface TelegramStatusData {
     isConnected: boolean;
@@ -90,36 +91,27 @@ const IntegrationSettings: React.FC = () => {
     }, [isConnected, refetch]);
 
     if (isLoading) {
-        return (
-            <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
-                <div className="animate-pulse">
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                        <div className="h-6 bg-gray-200 rounded w-64 mb-2" />
-                        <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                        <div className="h-4 bg-gray-200 rounded w-3/4" />
-                    </div>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
-                        <div className="h-20 bg-gray-200 rounded" />
-                    </div>
-                </div>
-            </div>
-        );
+        return <LoadingState type="form" rows={2} />;
     }
 
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
+        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
             {/* Header Section */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">텔레그램 연동</h2>
-                <p className="text-gray-700 mb-4">텔레그램 봇과 연동하여 실시간 알림을 받아보세요.</p>
+            <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">텔레그램 연동</h2>
+                <p className="text-gray-600 mb-6">텔레그램 봇과 연동하여 실시간 알림을 받아보세요.</p>
 
-                <div className="space-y-2">
+                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3">
                     <div className="flex items-center text-sm text-gray-700">
-                        <i className="fas fa-check-circle mr-2 text-gray-600" />
+                        <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            <i className="fas fa-check text-white text-xs" />
+                        </div>
                         실시간으로 댓글, 좋아요 등의 알림을 전달받습니다
                     </div>
                     <div className="flex items-center text-sm text-gray-700">
-                        <i className="fas fa-check-circle mr-2 text-gray-600" />
+                        <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            <i className="fas fa-check text-white text-xs" />
+                        </div>
                         로그인 시 2차 인증을 사용할 수 있습니다
                     </div>
                 </div>
@@ -127,42 +119,34 @@ const IntegrationSettings: React.FC = () => {
 
             {/* Connection Status */}
             {isConnected ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
+                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div className="flex items-center gap-4 flex-1">
-                            <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full flex-shrink-0">
-                                <i className="fas fa-check text-gray-600 text-xl" />
+                            <div className="flex items-center justify-center w-14 h-14 bg-black rounded-2xl flex-shrink-0 shadow-md">
+                                <i className="fas fa-check text-white text-xl" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-lg font-semibold text-gray-900">연동 완료!</h3>
-                                <p className="text-sm text-gray-700 mt-1">
+                                <h3 className="text-lg font-bold text-gray-900">연동 완료!</h3>
+                                <p className="text-sm text-gray-600 mt-1">
                                     텔레그램으로 실시간 알림을 받을 수 있습니다.
                                 </p>
                             </div>
                         </div>
-                        <button
-                            type="button"
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                        <Button
+                            variant="danger"
+                            size="md"
+                            isLoading={isDisconnecting}
+                            leftIcon={!isDisconnecting ? <i className="fas fa-unlink" /> : undefined}
                             onClick={disconnectTelegram}
-                            disabled={isDisconnecting}>
-                            {isDisconnecting ? (
-                                <>
-                                    <i className="fas fa-spinner fa-spin mr-2" />
-                                    해제 중...
-                                </>
-                            ) : (
-                                <>
-                                    <i className="fas fa-unlink mr-2" />
-                                    연동 해제
-                                </>
-                            )}
-                        </button>
+                            className="flex-shrink-0">
+                            {isDisconnecting ? '해제 중...' : '연동 해제'}
+                        </Button>
                     </div>
                 </div>
             ) : (
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-6">
                     {/* Connection Guide */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
+                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
                         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center">
                             <i className="fas fa-link mr-2 text-gray-500" />
                             연동 방법
@@ -220,24 +204,15 @@ const IntegrationSettings: React.FC = () => {
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                                <button
-                                                    type="button"
-                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                                    onClick={refreshToken}
-                                                    disabled={isGeneratingToken}>
-                                                    {isGeneratingToken ? (
-                                                        <>
-                                                            <i className="fas fa-spinner fa-spin mr-2" />
-                                                            생성 중...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <i className="fas fa-key mr-2" />
-                                                            인증 코드 생성
-                                                        </>
-                                                    )}
-                                                </button>
+                                            <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+                                                <Button
+                                                    variant="primary"
+                                                    size="md"
+                                                    isLoading={isGeneratingToken}
+                                                    leftIcon={!isGeneratingToken ? <i className="fas fa-key" /> : undefined}
+                                                    onClick={refreshToken}>
+                                                    {isGeneratingToken ? '생성 중...' : '인증 코드 생성'}
+                                                </Button>
                                             </div>
                                         )}
                                     </div>

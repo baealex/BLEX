@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
+import { Button, LoadingState } from '~/components/shared';
 
 interface TempPost {
     token: string;
@@ -48,86 +49,67 @@ const TempPostsSetting = () => {
         }
     };
 
+    if (isLoading) {
+        return <LoadingState type="list" rows={3} />;
+    }
+
     return (
-        <div className="p-4 sm:p-6 bg-white shadow-sm border border-gray-200/60 rounded-xl">
+        <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
             {/* 헤더 섹션 */}
             <div className="mb-6">
-                <div className="border-b border-gray-200 pb-4">
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">
-                        임시저장 포스트 관리
-                    </h2>
-                    <p className="text-gray-600 text-sm">총 {tempPosts?.length || 0}개의 임시저장 포스트</p>
-                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">임시저장 포스트</h2>
+                <p className="text-gray-600">총 {tempPosts?.length || 0}개의 임시저장 포스트가 있습니다.</p>
             </div>
 
-            <div className="mb-6">
-                {isLoading ? (
-                    <div className="animate-pulse space-y-4">
-                        {[...Array(3)].map((_, i) => (
-                            <div key={i} className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex-1">
-                                        <div className="h-6 bg-gray-200 rounded w-3/4 mb-3" />
-                                        <div className="flex items-center space-x-4">
-                                            <div className="h-4 bg-gray-200 rounded w-24" />
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-10 h-10 bg-gray-200 rounded-lg" />
-                                        <div className="w-10 h-10 bg-gray-200 rounded-lg" />
-                                        <div className="w-10 h-10 bg-gray-200 rounded-lg" />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (!tempPosts || tempPosts.length === 0) ? (
-                    <div className="text-center py-12">
-                        <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <i className="fas fa-save text-gray-400 text-2xl" />
+            <div>
+                {(!tempPosts || tempPosts.length === 0) ? (
+                    <div className="text-center py-16">
+                        <div className="w-20 h-20 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6">
+                            <i className="fas fa-save text-gray-400 text-3xl" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">임시저장 포스트가 없습니다</h3>
-                        <p className="text-gray-500 mb-4">포스트 작성 중 임시저장하면 여기에 표시됩니다.</p>
-                        <a
-                            href="/write"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm transition-colors duration-200">
-                            <i className="fas fa-plus text-sm" />
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">임시저장 포스트가 없습니다</h3>
+                        <p className="text-gray-500 mb-6">포스트 작성 중 임시저장하면 여기에 표시됩니다.</p>
+                        <Button
+                            variant="primary"
+                            size="md"
+                            leftIcon={<i className="fas fa-plus" />}
+                            onClick={() => window.location.href = '/write'}>
                             첫 포스트 작성하기
-                        </a>
+                        </Button>
                     </div>
                 ) : (
-                    <div className="space-y-4">
-                        {tempPosts.map((tempPost) => (
-                            <div key={tempPost.token} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="space-y-3">
+                        {[...tempPosts].reverse().map((tempPost) => (
+                            <div key={tempPost.token} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 hover:bg-gray-100 hover:shadow-sm transition-all duration-300">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-lg font-medium text-gray-900 truncate mb-2">
+                                        <h3 className="text-base font-semibold text-gray-900 truncate mb-1.5">
                                             {tempPost.title || '제목 없음'}
                                         </h3>
-                                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                                        <div className="flex items-center gap-3 text-xs text-gray-500">
                                             <span className="flex items-center">
-                                                <i className="fas fa-clock mr-1" />
+                                                <i className="fas fa-clock mr-2" />
                                                 {tempPost.createdDate}
                                             </span>
-                                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                                            <span className="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-xl text-xs font-medium">
                                                 임시저장
                                             </span>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-2 ml-4">
-                                        <a
-                                            href={`/write?tempToken=${tempPost.token}`}
-                                            className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 rounded transition-colors"
-                                            title="임시저장 포스트 편집">
+                                        <Button
+                                            variant="secondary"
+                                            size="md"
+                                            onClick={() => window.location.href = `/write?tempToken=${tempPost.token}`}>
                                             편집
-                                        </a>
-                                        <button
-                                            onClick={() => handleTempPostDelete(tempPost.token)}
-                                            className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 rounded transition-colors"
-                                            title="임시저장 포스트 삭제">
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            size="md"
+                                            onClick={() => handleTempPostDelete(tempPost.token)}>
                                             삭제
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
