@@ -49,10 +49,12 @@
         <p class="text-base md:text-lg text-gray-600 mb-8 max-w-xl">
             첫 번째 에디터가 되어 멋진 콘텐츠를 공유해보세요!
         </p>
+        {% if user.is_authenticated and user.profile.is_editor %}
         <a href="/write" class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-lg hover:scale-105">
             <i class="fas fa-edit"></i>
             <span>글 작성하기</span>
         </a>
+        {% endif %}
     </div>
 {% endif %}
 </div>

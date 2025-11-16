@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Exists, OuterRef, Q, F
@@ -13,8 +13,13 @@ from modules import markdown
 def author_posts(request, username):
     """
     View for the author's posts page.
+    Only accessible for editors. Readers are redirected to about page.
     """
     author = get_object_or_404(User, username=username)
+
+    # If author is a reader (not an editor), redirect to about page
+    if not author.profile.is_editor():
+        return redirect('user_about', username=username)
     
     # Get search query and filters
     search_query = request.GET.get('q', '')
@@ -130,8 +135,13 @@ def author_posts(request, username):
 def author_series(request, username):
     """
     View for the author's series page.
+    Only accessible for editors. Readers are redirected to about page.
     """
     author = get_object_or_404(User, username=username)
+
+    # If author is a reader (not an editor), redirect to about page
+    if not author.profile.is_editor():
+        return redirect('user_about', username=username)
     
     # Get search query and filters
     search_query = request.GET.get('q', '')

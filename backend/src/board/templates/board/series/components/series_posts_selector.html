@@ -25,12 +25,14 @@
                 </div>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">추가할 수 있는 글이 없습니다</h3>
                 <p class="text-gray-600 mb-6">{{ empty_message|default:"시리즈에 포함되지 않은 글만 추가할 수 있습니다." }}</p>
+                {% if user.is_authenticated and user.profile.is_editor %}
                 <a href="/write" class="inline-flex items-center px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-all duration-200 font-medium shadow-md hover:shadow-lg hover:-translate-y-0.5">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                     </svg>
                     새 글 작성하기
                 </a>
+                {% endif %}
             </div>
         </div>
     {% else %}

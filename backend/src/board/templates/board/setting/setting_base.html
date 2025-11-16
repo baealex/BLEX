@@ -54,6 +54,7 @@
                                     <span class="font-semibold text-base">계정</span>
                                 </a>
                             </li>
+                            {% if user.profile.is_editor %}
                             <li>
                                 <a href="{% url 'setting_series' %}" class="group flex items-center px-5 py-4 rounded-2xl transition-all duration-300
                                     {% if active == 'series' %}bg-black text-white shadow-md{% else %}text-gray-700 hover:bg-gray-50 hover:text-gray-900{% endif %}">
@@ -84,7 +85,6 @@
                                     <span class="font-semibold text-base">임시저장</span>
                                 </a>
                             </li>
-                            {% if user.profile.is_editor %}
                             <li>
                                 <a href="{% url 'setting_analytics' %}" class="group flex items-center px-5 py-4 rounded-2xl transition-all duration-300
                                     {% if active == 'analytics' or active == 'analytics/views' %}bg-black text-white shadow-md{% else %}text-gray-700 hover:bg-gray-50 hover:text-gray-900{% endif %}">
@@ -95,7 +95,6 @@
                                     <span class="font-semibold text-base">통계</span>
                                 </a>
                             </li>
-                            {% endif %}
                             <li>
                                 <a href="{% url 'setting_forms' %}" class="group flex items-center px-5 py-4 rounded-2xl transition-all duration-300
                                     {% if active == 'forms' %}bg-black text-white shadow-md{% else %}text-gray-700 hover:bg-gray-50 hover:text-gray-900{% endif %}">
@@ -106,6 +105,7 @@
                                     <span class="font-semibold text-base">서식</span>
                                 </a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="{% url 'setting_integration' %}" class="group flex items-center px-5 py-4 rounded-2xl transition-all duration-300
                                     {% if active == 'integration' %}bg-black text-white shadow-md{% else %}text-gray-700 hover:bg-gray-50 hover:text-gray-900{% endif %}">
@@ -234,12 +234,13 @@
                             <span class="font-medium">계정</span>
                         </a>
                     </li>
+                    {% if user.profile.is_editor %}
                     <li>
                         <a href="{% url 'setting_series' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
                             {% if active == 'series' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3
                                 {% if active == 'series' %}bg-white/20{% else %}bg-gray-100{% endif %}">
                                 <i class="fas fa-list {% if active == 'series' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
@@ -251,7 +252,7 @@
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
                             {% if active == 'posts' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3
                                 {% if active == 'posts' %}bg-white/20{% else %}bg-gray-100{% endif %}">
                                 <i class="fas fa-file-alt {% if active == 'posts' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
@@ -263,14 +264,13 @@
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
                             {% if active == 'temp_posts' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3
                                 {% if active == 'temp_posts' %}bg-white/20{% else %}bg-gray-100{% endif %}">
                                 <i class="fas fa-save {% if active == 'temp_posts' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">임시저장</span>
                         </a>
                     </li>
-                    {% if user.profile.is_editor %}
                     <li>
                         <a href="{% url 'setting_analytics' %}"
                            @click="open = false"
@@ -283,19 +283,19 @@
                             <span class="font-medium">통계</span>
                         </a>
                     </li>
-                    {% endif %}
                     <li>
                         <a href="{% url 'setting_forms' %}"
                            @click="open = false"
                            class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200
                             {% if active == 'forms' %}bg-black text-white{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3
                                 {% if active == 'forms' %}bg-white/20{% else %}bg-gray-100{% endif %}">
                                 <i class="fas fa-file-alt {% if active == 'forms' %}text-white{% else %}text-gray-500{% endif %}"></i>
                             </div>
                             <span class="font-medium">서식</span>
                         </a>
                     </li>
+                    {% endif %}
                     <li>
                         <a href="{% url 'setting_integration' %}"
                            @click="open = false"
