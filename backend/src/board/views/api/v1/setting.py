@@ -1,7 +1,10 @@
 import datetime
 import json
+from collections import defaultdict
+from datetime import timedelta
 
 from django.contrib import auth
+from django.core.cache import cache
 from django.db.models import (
     Q, F, Count, Case, When, Sum, Subquery, OuterRef)
 from django.http import Http404, QueryDict
@@ -12,7 +15,7 @@ from django.utils.dateparse import parse_datetime
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
     User, Series, Post, UserLinkMeta,
-    TempPosts, Profile, Notify)
+    TempPosts, Profile, Notify, Comment, PostLikes)
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
@@ -70,6 +73,59 @@ def setting(request, parameter):
                 'email': user.email,
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
             })
+
+        if parameter == 'heatmap':
+            # Try to get heatmap from cache first (cache for 1 hour)
+            cache_key = f'user_heatmap_{user.id}'
+            heatmap = cache.get(cache_key)
+
+            if heatmap is None:
+                # Generate heatmap data for the last year
+                # Calculate date range (last 365 days)
+                end_date = timezone.now().date()
+                start_date = end_date - timedelta(days=365)
+
+                # Initialize heatmap with all dates
+                heatmap = defaultdict(int)
+
+                # Fetch posts within the date range
+                posts = Post.objects.filter(
+                    author=user,
+                    created_date__date__gte=start_date,
+                    created_date__date__lte=end_date,
+                ).values('created_date__date').annotate(count=Count('id'))
+
+                for post in posts:
+                    date_str = post['created_date__date'].strftime('%Y-%m-%d')
+                    heatmap[date_str] += post['count']
+
+                # Fetch comments within the date range
+                comments = Comment.objects.filter(
+                    author=user,
+                    created_date__date__gte=start_date,
+                    created_date__date__lte=end_date,
+                ).values('created_date__date').annotate(count=Count('id'))
+
+                for comment in comments:
+                    date_str = comment['created_date__date'].strftime('%Y-%m-%d')
+                    heatmap[date_str] += comment['count']
+
+                # Fetch likes within the date range
+                likes = PostLikes.objects.filter(
+                    user=user,
+                    created_date__date__gte=start_date,
+                    created_date__date__lte=end_date,
+                ).values('created_date__date').annotate(count=Count('id'))
+
+                for like in likes:
+                    date_str = like['created_date__date'].strftime('%Y-%m-%d')
+                    heatmap[date_str] += like['count']
+
+                # Convert to regular dict and cache for 1 hour (3600 seconds)
+                heatmap = dict(heatmap)
+                cache.set(cache_key, heatmap, 3600)
+
+            return StatusDone(heatmap)
 
         if parameter == 'profile':
             return StatusDone({

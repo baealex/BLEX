@@ -114,28 +114,28 @@ def dashboard_activities(request):
     for comment in recent_comments:
         activities.append({
             'type': 'comment',
-            'post_title': comment.post.title,
+            'postTitle': comment.post.title,  # Changed to camelCase
             'date': comment.time_since(),
             'sort_date': comment.created_date,
         })
-    
+
     # Add likes
     for like in recent_likes:
         activities.append({
             'type': 'like',
-            'post_title': like.post.title,
+            'postTitle': like.post.title,  # Changed to camelCase
             'date': like.time_since() if hasattr(like, 'time_since') else like.created_date.strftime('%Y-%m-%d'),
             'sort_date': like.created_date,
         })
-    
+
     # Sort by actual datetime and limit to 5
     recent_activities = sorted(activities, key=lambda x: x['sort_date'], reverse=True)[:5]
-    
+
     # Remove sort_date from final output
     for activity in recent_activities:
         del activity['sort_date']
-    
+
     # Cache the results for 2 minutes
     cache.set(cache_key, recent_activities, 120)
-    
-    return StatusDone({'recent_activities': recent_activities})
+
+    return StatusDone({'recentActivities': recent_activities})  # Changed to camelCase
