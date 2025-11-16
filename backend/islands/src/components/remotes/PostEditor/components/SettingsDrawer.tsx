@@ -97,7 +97,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                                             id="drawer-url"
                                             value={url}
                                             onChange={(e) => onUrlChange(e.target.value)}
-                                            className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black text-sm transition-all"
+                                            className="w-full px-4 py-2.5 border border-solid border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black text-sm transition-all"
                                             placeholder="게시글-url"
                                         />
                                         <p className="text-xs text-gray-400 mt-2">중복 시 자동으로 번호가 추가됩니다</p>
@@ -112,7 +112,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                                         id="drawer-meta"
                                         value={metaDescription}
                                         onChange={(e) => onMetaDescriptionChange(e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black resize-none text-sm transition-all"
+                                        className="w-full px-4 py-3 border border-solid border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black resize-none text-sm transition-all"
                                         rows={4}
                                         maxLength={150}
                                         placeholder="검색 엔진을 위한 설명을 입력하세요..."
@@ -163,7 +163,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                                         <button
                                             type="button"
                                             onClick={() => setIsSeriesDropdownOpen(!isSeriesDropdownOpen)}
-                                            className="w-full flex items-center justify-between px-4 py-2.5 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black text-sm hover:bg-gray-50 transition-all">
+                                            className="w-full flex items-center justify-between px-4 py-2.5 border border-solid border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-black text-sm hover:bg-gray-50 transition-all">
                                             <span className={selectedSeries.name ? 'text-gray-900' : 'text-gray-400'}>
                                                 {selectedSeries.name || '선택 안 함'}
                                             </span>

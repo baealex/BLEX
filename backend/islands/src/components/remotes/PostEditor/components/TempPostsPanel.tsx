@@ -86,7 +86,7 @@ const TempPostsPanel: React.FC<TempPostsPanelProps> = ({
                         </div>
                     ) : (
                         <div className="divide-y divide-gray-100">
-                            {tempPosts.map((post) => (
+                            {[...tempPosts].reverse().map((post) => (
                                 <button
                                     key={post.token}
                                     onClick={() => onSelectPost(post.token)}
