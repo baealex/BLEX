@@ -1,32 +1,35 @@
-<div class="relative mb-8">
+{% if author.profile.is_editor %}
+<div class="relative mb-6">
     <div class="flex justify-center overflow-x-auto">
-        <div class="inline-flex bg-white rounded-2xl p-1.5 shadow-sm border border-gray-100 min-w-fit">
-            {% if author.profile.is_editor %}
-            <a href="/@{{ author.username }}" class="relative px-4 sm:px-6 md:px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap {% if active_tab == 'posts' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
+        <div class="inline-flex bg-white rounded-2xl p-1 shadow-sm border border-gray-100 min-w-fit">
+            <a href="/@{{ author.username }}" class="relative px-5 sm:px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap {% if active_tab == 'posts' %}bg-black text-white{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
-                    <i class="fas fa-file-alt"></i>
-                    <span class="flex items-center gap-1">
+                    <i class="fas fa-file-alt text-xs"></i>
+                    <span class="flex items-center gap-1.5">
                         포스트
-                        <span class="hidden sm:inline text-xs px-2 py-0.5 rounded-full {% if active_tab == 'posts' %}bg-gray-800 text-white{% else %}bg-gray-100 text-gray-500{% endif %}">{{ post_count }}</span>
+                        <span class="text-xs px-1.5 py-0.5 rounded-md {% if active_tab == 'posts' %}bg-gray-800 text-white{% else %}bg-gray-100 text-gray-500{% endif %}">{{ post_count }}</span>
                     </span>
                 </span>
             </a>
-            <a href="/@{{ author.username }}/series" class="relative px-4 sm:px-6 md:px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap {% if active_tab == 'series' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
+            <a href="/@{{ author.username }}/series" class="relative px-5 sm:px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap {% if active_tab == 'series' %}bg-black text-white{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
-                    <i class="fas fa-th-list"></i>
-                    <span class="flex items-center gap-1">
+                    <i class="fas fa-th-list text-xs"></i>
+                    <span class="flex items-center gap-1.5">
                         시리즈
-                        <span class="hidden sm:inline text-xs px-2 py-0.5 rounded-full {% if active_tab == 'series' %}bg-gray-800 text-white{% else %}bg-gray-100 text-gray-500{% endif %}">{{ series_count }}</span>
+                        <span class="text-xs px-1.5 py-0.5 rounded-md {% if active_tab == 'series' %}bg-gray-800 text-white{% else %}bg-gray-100 text-gray-500{% endif %}">{{ series_count }}</span>
                     </span>
                 </span>
             </a>
-            {% endif %}
-            <a href="/@{{ author.username }}/about" class="relative px-4 sm:px-6 md:px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap {% if active_tab == 'about' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
+            <a href="/@{{ author.username }}/about" class="relative px-5 sm:px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap {% if active_tab == 'about' %}bg-black text-white{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 <span class="relative z-10 flex items-center gap-2">
-                    <i class="fas fa-user"></i>
+                    <i class="fas fa-user text-xs"></i>
                     소개
                 </span>
             </a>
         </div>
     </div>
 </div>
+{% else %}
+<!-- 편집자가 아닐 경우 탭 네비게이션 숨김 -->
+<div class="mb-6"></div>
+{% endif %}

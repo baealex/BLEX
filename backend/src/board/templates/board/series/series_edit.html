@@ -69,18 +69,18 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div x-show="isSubmitting" 
+    <div x-show="isSubmitting"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40"
          style="display: none;">
-        <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-lg">
             <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
                     <div class="w-8 h-8 border-3 border-gray-300 border-t-black rounded-full animate-spin"></div>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">시리즈 수정 중...</h3>
+                <h3 class="text-lg font-bold text-gray-900 mb-1">시리즈 수정 중...</h3>
                 <p class="text-gray-600 text-sm">잠시만 기다려주세요.</p>
             </div>
         </div>
@@ -88,7 +88,7 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div x-show="showDeleteModal" 
+<div x-show="showDeleteModal"
      x-transition:enter="transition ease-out duration-300"
      x-transition:enter-start="opacity-0"
      x-transition:enter-end="opacity-100"
@@ -97,29 +97,29 @@
      x-transition:leave-end="opacity-0"
      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
      style="display: none;">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100">
         <div class="text-center">
-            <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center">
-                <svg class="w-10 h-10 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
                     <path fill-rule="evenodd" d="M4 5a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
                 </svg>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">시리즈를 삭제하시겠습니까?</h3>
-            <p class="text-gray-600 mb-8">이 작업은 되돌릴 수 없습니다.<br>시리즈가 영구적으로 삭제됩니다.</p>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">시리즈를 삭제하시겠습니까?</h3>
+            <p class="text-gray-600 text-sm mb-6">이 작업은 되돌릴 수 없습니다.<br>시리즈가 영구적으로 삭제됩니다.</p>
 
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
                 <button @click="showDeleteModal = false"
-                        class="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 font-medium">
+                        class="px-6 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 font-medium text-sm">
                     취소
                 </button>
                 <button @click="deleteSeries()"
                         :disabled="isDeleting"
-                        :class="isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'"
-                        class="px-6 py-3 bg-black text-white rounded-xl font-medium transition-all duration-200 shadow-md disabled:transform-none">
+                        :class="isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-900'"
+                        class="px-6 py-2.5 bg-black text-white rounded-xl font-medium transition-all duration-200 disabled:transform-none text-sm">
                     <span x-show="!isDeleting">삭제하기</span>
                     <span x-show="isDeleting" class="flex items-center justify-center">
                         <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -132,7 +132,7 @@
 </div>
 
 <!-- Success Modal -->
-<div x-show="showSuccessModal" 
+<div x-show="showSuccessModal"
      x-transition:enter="transition ease-out duration-300"
      x-transition:enter-start="opacity-0"
      x-transition:enter-end="opacity-100"
@@ -141,18 +141,18 @@
      x-transition:leave-end="opacity-0"
      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
      style="display: none;">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100">
         <div class="text-center">
-            <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center">
-                <svg class="w-10 h-10 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">시리즈가 수정되었습니다!</h3>
-            <p class="text-gray-600 mb-6">변경사항이 성공적으로 저장되었습니다.</p>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">시리즈가 수정되었습니다!</h3>
+            <p class="text-gray-600 text-sm">변경사항이 성공적으로 저장되었습니다.</p>
         </div>
     </div>
 </div>

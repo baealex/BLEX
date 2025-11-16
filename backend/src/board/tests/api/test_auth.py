@@ -2,7 +2,7 @@ import json
 
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from board.models import User, UsernameChangeLog, Profile, Config
 from modules import oauth
@@ -62,6 +62,7 @@ class AuthTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(content['status'], 'ERROR')
 
+    @override_settings(HCAPTCHA_SECRET_KEY=None)
     def test_create_account(self):
         """계정 생성 테스트"""
         response = self.client.post('/v1/sign', {
