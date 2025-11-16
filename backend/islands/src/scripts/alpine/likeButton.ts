@@ -19,7 +19,7 @@ interface Actions {
 
 // Check if user is logged in
 const isLoggedIn = () => {
-    return !!(window as any).configuration?.user?.username;
+    return window.configuration?.user?.username;
 };
 
 // Show login prompt modal

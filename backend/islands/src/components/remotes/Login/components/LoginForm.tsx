@@ -18,7 +18,7 @@ interface LoginFormProps {
 declare global {
     interface Window {
         hcaptcha?: {
-            render: (container: string | HTMLElement, params: any) => string;
+            render: (container: string | HTMLElement, params: unknown) => string;
             reset: (widgetId?: string) => void;
             remove: (widgetId?: string) => void;
         };
@@ -53,7 +53,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             if (widgetIdRef.current) {
                 try {
                     window.hcaptcha.remove(widgetIdRef.current);
-                } catch (e) {
+                } catch {
                     // Ignore errors
                 }
             }
@@ -80,7 +80,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             if (widgetIdRef.current && window.hcaptcha) {
                 try {
                     window.hcaptcha.remove(widgetIdRef.current);
-                } catch (e) {
+                } catch {
                     // Ignore errors
                 }
             }
