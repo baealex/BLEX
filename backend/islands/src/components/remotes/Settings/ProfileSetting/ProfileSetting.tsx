@@ -21,7 +21,7 @@ const ProfileSetting = () => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>({ resolver: zodResolver(profileSchema) });
 
-    const { data: profileData, isLoading: isDataLoading, isError, refetch } = useFetch({
+    const { data: profileData, isError, refetch } = useFetch({
         queryKey: ['profile-setting'],
         queryFn: async () => {
             const { data } = await http('v1/setting/profile', { method: 'GET' });

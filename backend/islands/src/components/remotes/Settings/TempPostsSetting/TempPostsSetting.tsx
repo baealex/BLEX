@@ -15,7 +15,7 @@ interface TempPostsData {
 }
 
 const TempPostsSetting = () => {
-    const { data: tempPosts, isLoading, isError, refetch } = useFetch({
+    const { data: tempPosts, isError, refetch } = useFetch({
         queryKey: ['temp-posts'],
         queryFn: async () => {
             const { data } = await http<Response<TempPostsData>>('v1/temp-posts', { method: 'GET' });

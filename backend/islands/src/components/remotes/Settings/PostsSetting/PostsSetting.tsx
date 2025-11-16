@@ -104,7 +104,7 @@ const PostsSetting = () => {
     const [postsMounted, setPostsMounted] = useState(false);
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const { data: postsData, isLoading, isError, refetch } = useFetch({
+    const { data: postsData, isError, refetch } = useFetch({
         queryKey: ['posts-setting', JSON.stringify(filters)],
         queryFn: async () => {
             setPostsMounted(false);

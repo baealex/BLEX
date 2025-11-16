@@ -32,7 +32,7 @@ const FormsManagement: React.FC = () => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<FormInputs>({ resolver: zodResolver(formSchema) });
 
-    const { data: formsData, isLoading, refetch } = useFetch({
+    const { data: formsData, refetch } = useFetch({
         queryKey: ['forms'],
         queryFn: async () => {
             const { data } = await http.get<Response<FormsData>>('/v1/forms');

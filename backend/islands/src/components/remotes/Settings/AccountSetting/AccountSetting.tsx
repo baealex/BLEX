@@ -49,7 +49,7 @@ const AccountSettings: React.FC = () => {
     const { register: registerName, handleSubmit: handleNameSubmit, reset: resetName, formState: { errors: errorsName } } = useForm<NameFormInputs>({ resolver: zodResolver(nameSchema) });
     const { register: registerPassword, handleSubmit: handlePasswordSubmit, reset: resetPassword, formState: { errors: errorsPassword } } = useForm<PasswordFormInputs>({ resolver: zodResolver(passwordSchema) });
 
-    const { data: accountData, isLoading: isDataLoading, isError, refetch } = useFetch({
+    const { data: accountData, isError, refetch } = useFetch({
         queryKey: ['account-setting'],
         queryFn: async () => {
             const { data } = await http<Response<AccountData>>('v1/setting/account', { method: 'GET' });

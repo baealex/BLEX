@@ -129,7 +129,7 @@ const SeriesSetting = () => {
     const [series, setSeries] = useState<Series[]>([]);
     const [username, setUsername] = useState<string>('');
 
-    const { data: seriesData, isLoading, isError } = useFetch({
+    const { data: seriesData, isError } = useFetch({
         queryKey: ['series-setting'],
         queryFn: async () => {
             const { data } = await http<Response<{ username: string; series: Series[] }>>('v1/setting/series', { method: 'GET' });
