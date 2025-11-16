@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 
-from board.models import Post, PostContent, PostConfig, Series, Tag
+from board.models import Post, PostContent, PostConfig, Series, Tag, Profile
 
 
 class EdgeCaseTemplateTestCase(TestCase):
@@ -21,6 +21,11 @@ class EdgeCaseTemplateTestCase(TestCase):
             email='test@example.com',
             password='testpass123'
         )
+        # Create profile with EDITOR role
+        Profile.objects.create(
+            user=self.user,
+            role=Profile.Role.EDITOR
+        )
 
     def test_username_with_special_characters(self):
         """특수 문자가 포함된 사용자명 테스트"""
@@ -28,6 +33,11 @@ class EdgeCaseTemplateTestCase(TestCase):
             username='user_test-123',
             email='special@example.com',
             password='testpass123'
+        )
+        # Create profile with EDITOR role
+        Profile.objects.create(
+            user=special_user,
+            role=Profile.Role.EDITOR
         )
 
         response = self.client.get(
