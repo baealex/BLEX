@@ -211,9 +211,9 @@ const Comments = (props: CommentsProps) => {
     return (
         <div className="space-y-6 sm:space-y-8">
             {error && (
-                <div className="bg-gray-50 border-l-4 border-gray-400 text-gray-700 px-4 py-3 sm:px-5 sm:py-4 rounded-r-lg shadow-sm animate-fade-in">
+                <div className="bg-gray-50 border-l-4 border-gray-900 text-gray-700 px-4 py-3 sm:px-5 sm:py-4 rounded-xl shadow-sm animate-fade-in">
                     <div className="flex items-center">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 text-gray-900 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                         </svg>
                         <span className="font-medium text-sm sm:text-base">{error}</span>
@@ -242,7 +242,7 @@ const Comments = (props: CommentsProps) => {
                                             className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-gray-300 transition-all duration-200"
                                         />
                                     ) : (
-                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 ring-2 ring-gray-100 group-hover:ring-gray-300 transition-all duration-200 flex items-center justify-center text-white font-bold text-sm sm:text-base">
+                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black ring-2 ring-gray-100 group-hover:ring-gray-300 transition-all duration-200 flex items-center justify-center text-white font-bold text-sm sm:text-base">
                                             {comment.author.charAt(0).toUpperCase()}
                                         </div>
                                     )}
@@ -272,7 +272,7 @@ const Comments = (props: CommentsProps) => {
                                         <div className="space-y-3 sm:space-y-4">
                                             <textarea
                                                 ref={editTextareaRef}
-                                                className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 resize-none text-sm sm:text-base"
+                                                className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-gray-300 focus:border-gray-300 resize-none text-sm sm:text-base"
                                                 value={editText}
                                                 onChange={(e) => setEditText(e.target.value)}
                                                 placeholder="댓글을 수정하세요..."
@@ -281,13 +281,13 @@ const Comments = (props: CommentsProps) => {
                                             />
                                             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
                                                 <button
-                                                    className="w-full sm:w-auto px-4 py-2.5 bg-black hover:bg-gray-900 text-white rounded-lg font-medium transition-colors duration-200 text-sm disabled:opacity-50"
+                                                    className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-gray-800 text-white rounded-xl font-medium transition-all duration-200 text-sm disabled:opacity-50 shadow-md"
                                                     onClick={() => saveEdit(comment.id)}
                                                     disabled={isSubmitting}>
                                                     {isSubmitting ? '저장 중...' : '저장'}
                                                 </button>
                                                 <button
-                                                    className="w-full sm:w-auto px-4 py-2.5 bg-gray-500 hover:bg-black text-white rounded-lg font-medium transition-colors duration-200 text-sm disabled:opacity-50"
+                                                    className="w-full sm:w-auto px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-200 text-sm disabled:opacity-50"
                                                     onClick={cancelEditing}
                                                     disabled={isSubmitting}>
                                                     취소
@@ -304,12 +304,12 @@ const Comments = (props: CommentsProps) => {
                                             {/* 댓글 액션 */}
                                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                                 <button
-                                                    className={`flex items-center justify-center sm:justify-start gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${comment.isLiked
-                                                        ? 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                                    className={`flex items-center justify-center sm:justify-start gap-2 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${comment.isLiked
+                                                        ? 'bg-gray-50 text-gray-900 hover:bg-gray-100 border border-gray-200'
                                                         : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
                                                         }`}
                                                     onClick={() => handleLike(comment.id)}>
-                                                    <svg className={`w-4 h-4 ${comment.isLiked ? 'fill-blue-600' : 'fill-none stroke-current stroke-2'}`} viewBox="0 0 24 24">
+                                                    <svg className={`w-4 h-4 ${comment.isLiked ? 'fill-black' : 'fill-none stroke-current stroke-2'}`} viewBox="0 0 24 24">
                                                         <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
                                                     </svg>
                                                     {comment.countLikes > 0 && (
@@ -320,12 +320,12 @@ const Comments = (props: CommentsProps) => {
                                                 {window.configuration.user?.username === comment.author && (
                                                     <div className="flex gap-2 w-full sm:w-auto">
                                                         <button
-                                                            className="flex-1 sm:flex-none px-3 py-2 text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+                                                            className="flex-1 sm:flex-none px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-200 font-medium"
                                                             onClick={() => startEditing(comment.id)}>
                                                             수정
                                                         </button>
                                                         <button
-                                                            className="flex-1 sm:flex-none px-3 py-2 text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+                                                            className="flex-1 sm:flex-none px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-200 font-medium"
                                                             onClick={() => deleteComment(comment.id)}>
                                                             삭제
                                                         </button>
@@ -345,7 +345,7 @@ const Comments = (props: CommentsProps) => {
             <div className="border-t border-gray-200 pt-6 sm:pt-8 mt-8 sm:mt-10">
                 <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6">
                     <h4 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
-                        <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-gray-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-gray-900 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clipRule="evenodd" />
                         </svg>
                         댓글 작성
@@ -353,7 +353,7 @@ const Comments = (props: CommentsProps) => {
                     <div className="space-y-4 sm:space-y-5">
                         <textarea
                             ref={textareaRef}
-                            className="w-full p-3 sm:p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-400 resize-none bg-white transition-all duration-200 placeholder-gray-400 text-sm sm:text-base"
+                            className="w-full p-3 sm:p-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-gray-300 focus:border-gray-300 resize-none bg-white transition-all duration-200 placeholder-gray-400 text-sm sm:text-base"
                             value={commentText}
                             onChange={(e) => setCommentText(e.target.value)}
                             disabled={isSubmitting}
@@ -362,7 +362,7 @@ const Comments = (props: CommentsProps) => {
 
                         <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-3">
                             <button
-                                className="w-full sm:w-auto px-4 py-2 bg-black hover:bg-gray-900 disabled:bg-gray-400 text-white rounded-lg font-semibold transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2"
+                                className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white rounded-xl font-semibold transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 order-1 sm:order-2 shadow-md"
                                 onClick={handleWrite}
                                 disabled={isSubmitting || !commentText.trim()}>
                                 {isSubmitting ? (

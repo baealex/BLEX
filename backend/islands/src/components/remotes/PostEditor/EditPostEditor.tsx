@@ -30,6 +30,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
 
     const [tags, setTags] = useState<string[]>([]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imageDeleted, setImageDeleted] = useState(false);
     const [selectedSeries, setSelectedSeries] = useState({
         id: '',
         name: ''
@@ -105,6 +106,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
 
     const handleRemoveImage = () => {
         setImagePreview(null);
+        setImageDeleted(true);
     };
 
     const validateForm = () => {
@@ -142,6 +144,11 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
 
             if (isDraft) {
                 addHiddenField('is_draft', 'true');
+            }
+
+            // Handle image deletion
+            if (imageDeleted) {
+                addHiddenField('image_delete', 'true');
             }
 
             form.submit();

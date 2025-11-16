@@ -9,22 +9,19 @@ interface AppProps {
 const LazyComponents = {
     Comments: lazy(() => import('./remotes/Comments')),
     PostEditor: lazy(() => import('./remotes/PostEditor')),
-    Heatmap: lazy(() => import('./remotes/Heatmap')),
     Login: lazy(() => import('./remotes/Login')),
     SocialLogin: lazy(() => import('./remotes/SocialLogin')),
     RelatedPosts: lazy(() => import('./remotes/RelatedPosts')),
     SearchModal: lazy(() => import('./remotes/SearchModal')),
-
-    // Dashboard
-    DashboardActivities: lazy(() => import('./remotes/DashboardActivities')),
+    InvitationRequest: lazy(() => import('./remotes/InvitationRequest')),
 
     // Settings
+    OverviewSetting: lazy(() => import('./remotes/Settings/OverviewSetting')),
     FormsSetting: lazy(() => import('./remotes/Settings/FormsSetting')),
     IntegrationSetting: lazy(() => import('./remotes/Settings/IntegrationSetting')),
     InvitationSetting: lazy(() => import('./remotes/Settings/InvitationSetting')),
     PostsSetting: lazy(() => import('./remotes/Settings/PostsSetting')),
     SeriesSetting: lazy(() => import('./remotes/Settings/SeriesSetting')),
-    NotifySetting: lazy(() => import('./remotes/Settings/NotifySetting')),
     AccountSetting: lazy(() => import('./remotes/Settings/AccountSetting')),
     ProfileSetting: lazy(() => import('./remotes/Settings/ProfileSetting')),
     TempPostsSetting: lazy(() => import('./remotes/Settings/TempPostsSetting')),

@@ -29,6 +29,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     return (
         <div className="mb-6">
+            {/* File input - always rendered but hidden */}
+            <input
+                ref={imageInputRef}
+                type="file"
+                id="image"
+                name="image"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
+            />
+
             {showUploader && imagePreview ? (
                 // Image preview - clean and minimal
                 <div className="relative group">
@@ -45,21 +56,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             ) : showUploader && !imagePreview ? (
                 // Upload area - simple and clean
                 <div className="relative">
-                    <label className="flex flex-col items-center justify-center w-full px-4 py-12 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
+                    <label htmlFor="image" className="flex flex-col items-center justify-center w-full px-4 py-12 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
                         <svg className="w-10 h-10 text-gray-300 mb-3 group-hover:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span className="text-sm text-gray-500 mb-1">커버 이미지 추가</span>
                         <span className="text-xs text-gray-400">클릭하거나 드래그하여 업로드</span>
-                        <input
-                            ref={imageInputRef}
-                            type="file"
-                            id="image"
-                            name="image"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                        />
                     </label>
                     <button
                         type="button"
