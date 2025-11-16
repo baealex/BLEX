@@ -6,22 +6,30 @@
 
 {% block content %}
 <div class="max-w-4xl w-full mx-auto px-4 py-6 sm:py-8" x-data="seriesCreate()">
-    <!-- Header -->
-    <div class="text-center mb-8 sm:mb-12">
-        <div class="w-20 h-20 mx-auto mb-6 bg-black rounded-2xl flex items-center justify-center shadow-lg">
-            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-            </svg>
+    <!-- Header Card -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-8 shadow-sm flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-semibold text-gray-900">새 시리즈 만들기</h1>
+                <p class="text-sm text-gray-500">연관된 글들을 묶어 시리즈로 관리하세요</p>
+            </div>
         </div>
-        <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">새 시리즈 만들기</h1>
-        <p class="text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">연관된 글들을 하나의 시리즈로 묶어 독자들에게 더 나은 경험을 제공해보세요.</p>
+        <a href="/@{{ author.username }}/series"
+           class="px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 font-medium text-sm">
+            취소
+        </a>
     </div>
 
     <!-- Main Form -->
-    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <form @submit.prevent="submitForm()" class="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-8 shadow-sm">
+        <form @submit.prevent="submitForm()">
             {% csrf_token %}
-            
+
             <!-- Series Info Section -->
             {% include 'board/series/components/series_form_fields.html' %}
 
@@ -29,15 +37,11 @@
             {% include 'board/series/components/series_posts_selector.html' %}
 
             <!-- Form Actions -->
-            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-gray-100">
-                <a href="/@{{ author.username }}/series" 
-                   class="order-2 sm:order-1 w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 text-center font-medium text-sm sm:text-base">
-                    취소
-                </a>
+            <div class="pt-6 sm:pt-8 border-t border-gray-100">
                 <button type="submit"
                         :disabled="isSubmitting || !formData.title.trim()"
-                        :class="isSubmitting || !formData.title.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg hover:-translate-y-0.5'"
-                        class="order-1 sm:order-2 w-full sm:w-auto px-6 sm:px-8 py-3 bg-black text-white rounded-xl font-semibold transition-all duration-200 shadow-md disabled:transform-none text-sm sm:text-base hover:bg-gray-800">
+                        :class="isSubmitting || !formData.title.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-900'"
+                        class="w-full px-6 sm:px-8 py-3 bg-black text-white rounded-xl font-semibold transition-all duration-200 disabled:transform-none text-sm sm:text-base">
                     <span x-show="!isSubmitting" class="flex items-center justify-center">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -54,18 +58,18 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div x-show="isSubmitting" 
+    <div x-show="isSubmitting"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40"
          style="display: none;">
-        <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-lg">
             <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
                     <div class="w-8 h-8 border-3 border-gray-300 border-t-black rounded-full animate-spin"></div>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">시리즈 생성 중...</h3>
+                <h3 class="text-lg font-bold text-gray-900 mb-1">시리즈 생성 중...</h3>
                 <p class="text-gray-600 text-sm">잠시만 기다려주세요.</p>
             </div>
         </div>
@@ -73,7 +77,7 @@
 </div>
 
 <!-- Success Modal -->
-<div x-show="showSuccessModal" 
+<div x-show="showSuccessModal"
      x-transition:enter="transition ease-out duration-300"
      x-transition:enter-start="opacity-0"
      x-transition:enter-end="opacity-100"
@@ -82,18 +86,18 @@
      x-transition:leave-end="opacity-0"
      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
      style="display: none;">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100">
         <div class="text-center">
-            <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center">
-                <svg class="w-10 h-10 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+            <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">시리즈가 생성되었습니다!</h3>
-            <p class="text-gray-600 mb-6">새로운 시리즈가 성공적으로 만들어졌습니다.</p>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">시리즈가 생성되었습니다!</h3>
+            <p class="text-gray-600 text-sm">새로운 시리즈가 성공적으로 만들어졌습니다.</p>
         </div>
     </div>
 </div>
