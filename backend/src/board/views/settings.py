@@ -65,7 +65,12 @@ def setting_series(request):
     """
     Series management page view.
     Renders the series management template with user's series data.
+    Only accessible by users with EDITOR or ADMIN role.
     """
+    # Check if user has editor role or higher
+    if not request.user.profile.is_editor():
+        raise PermissionDenied("편집자 권한이 필요합니다.")
+
     context = {
         'active': 'series'
     }
@@ -77,7 +82,12 @@ def setting_posts(request):
     """
     Posts management page view.
     Renders the posts management template with user's posts data.
+    Only accessible by users with EDITOR or ADMIN role.
     """
+    # Check if user has editor role or higher
+    if not request.user.profile.is_editor():
+        raise PermissionDenied("편집자 권한이 필요합니다.")
+
     context = {
         'active': 'posts'
     }
@@ -129,7 +139,12 @@ def setting_forms(request):
     """
     Forms management page view.
     Renders the forms management template with user's saved forms.
+    Only accessible by users with EDITOR or ADMIN role.
     """
+    # Check if user has editor role or higher
+    if not request.user.profile.is_editor():
+        raise PermissionDenied("편집자 권한이 필요합니다.")
+
     context = {
         'active': 'forms'
     }
@@ -141,7 +156,12 @@ def setting_temp_posts(request):
     """
     Temporary posts management page view.
     Renders the temporary posts management template with user's saved drafts.
+    Only accessible by users with EDITOR or ADMIN role.
     """
+    # Check if user has editor role or higher
+    if not request.user.profile.is_editor():
+        raise PermissionDenied("편집자 권한이 필요합니다.")
+
     context = {
         'active': 'temp_posts'
     }

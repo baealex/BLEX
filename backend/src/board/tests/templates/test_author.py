@@ -21,6 +21,11 @@ class AuthorPostsPageTestCase(TestCase):
             email='author@example.com',
             password='testpass123'
         )
+        # Create profile with EDITOR role
+        Profile.objects.create(
+            user=self.user,
+            role=Profile.Role.EDITOR
+        )
 
         # 포스트 생성
         self.post = Post.objects.create(
@@ -124,6 +129,11 @@ class AuthorPostsPageTestCase(TestCase):
             email='new@example.com',
             password='testpass123'
         )
+        # Create profile with EDITOR role
+        Profile.objects.create(
+            user=new_user,
+            role=Profile.Role.EDITOR
+        )
 
         response = self.client.get(
             reverse('user_profile', kwargs={'username': new_user.username})
@@ -132,7 +142,7 @@ class AuthorPostsPageTestCase(TestCase):
         self.assertEqual(response.context['post_count'], 0)
 
     def test_author_without_profile(self):
-        """프로필이 없는 작가 페이지 접근"""
+        """프로필이 없는 작가 페이지 접근 - about 페이지로 리다이렉트"""
         new_user = User.objects.create_user(
             username='noprofile',
             email='noprofile@example.com',
@@ -142,7 +152,65 @@ class AuthorPostsPageTestCase(TestCase):
         response = self.client.get(
             reverse('user_profile', kwargs={'username': new_user.username})
         )
+        # Profile이 없으면 about 페이지로 리다이렉트
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('user_about', kwargs={'username': new_user.username}))
+
+    def test_reader_redirected_to_about(self):
+        """READER 역할 사용자의 posts 페이지 접근 시 about으로 리다이렉트"""
+        reader_user = User.objects.create_user(
+            username='reader',
+            email='reader@example.com',
+            password='testpass123'
+        )
+        # Create profile with READER role (default)
+        Profile.objects.create(
+            user=reader_user,
+            role=Profile.Role.READER
+        )
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': reader_user.username})
+        )
+        # READER는 about 페이지로 리다이렉트
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('user_about', kwargs={'username': reader_user.username}))
+
+    def test_editor_can_access_posts(self):
+        """EDITOR 역할 사용자는 posts 페이지 정상 접근"""
+        editor_user = User.objects.create_user(
+            username='editor',
+            email='editor@example.com',
+            password='testpass123'
+        )
+        Profile.objects.create(
+            user=editor_user,
+            role=Profile.Role.EDITOR
+        )
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': editor_user.username})
+        )
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'board/author/author.html')
+
+    def test_admin_can_access_posts(self):
+        """ADMIN 역할 사용자는 posts 페이지 정상 접근"""
+        admin_user = User.objects.create_user(
+            username='admin',
+            email='admin@example.com',
+            password='testpass123'
+        )
+        Profile.objects.create(
+            user=admin_user,
+            role=Profile.Role.ADMIN
+        )
+
+        response = self.client.get(
+            reverse('user_profile', kwargs={'username': admin_user.username})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'board/author/author.html')
 
 
 class AuthorSeriesPageTestCase(TestCase):
@@ -155,6 +223,11 @@ class AuthorSeriesPageTestCase(TestCase):
             username='testauthor',
             email='author@example.com',
             password='testpass123'
+        )
+        # Create profile with EDITOR role
+        Profile.objects.create(
+            user=self.user,
+            role=Profile.Role.EDITOR
         )
 
         # 시리즈 생성
@@ -246,6 +319,11 @@ class AuthorSeriesPageTestCase(TestCase):
             email='new@example.com',
             password='testpass123'
         )
+        # Create profile with EDITOR role
+        Profile.objects.create(
+            user=new_user,
+            role=Profile.Role.EDITOR
+        )
 
         response = self.client.get(
             reverse('user_series', kwargs={'username': new_user.username})
@@ -268,6 +346,62 @@ class AuthorSeriesPageTestCase(TestCase):
             reverse('user_series', kwargs={'username': self.user.username})
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_reader_redirected_to_about_from_series(self):
+        """READER 역할 사용자의 series 페이지 접근 시 about으로 리다이렉트"""
+        reader_user = User.objects.create_user(
+            username='reader',
+            email='reader@example.com',
+            password='testpass123'
+        )
+        # Create profile with READER role (default)
+        Profile.objects.create(
+            user=reader_user,
+            role=Profile.Role.READER
+        )
+
+        response = self.client.get(
+            reverse('user_series', kwargs={'username': reader_user.username})
+        )
+        # READER는 about 페이지로 리다이렉트
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('user_about', kwargs={'username': reader_user.username}))
+
+    def test_editor_can_access_series(self):
+        """EDITOR 역할 사용자는 series 페이지 정상 접근"""
+        editor_user = User.objects.create_user(
+            username='editor',
+            email='editor@example.com',
+            password='testpass123'
+        )
+        Profile.objects.create(
+            user=editor_user,
+            role=Profile.Role.EDITOR
+        )
+
+        response = self.client.get(
+            reverse('user_series', kwargs={'username': editor_user.username})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'board/author/author_series.html')
+
+    def test_admin_can_access_series(self):
+        """ADMIN 역할 사용자는 series 페이지 정상 접근"""
+        admin_user = User.objects.create_user(
+            username='admin',
+            email='admin@example.com',
+            password='testpass123'
+        )
+        Profile.objects.create(
+            user=admin_user,
+            role=Profile.Role.ADMIN
+        )
+
+        response = self.client.get(
+            reverse('user_series', kwargs={'username': admin_user.username})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'board/author/author_series.html')
 
 
 class AuthorAboutPageTestCase(TestCase):

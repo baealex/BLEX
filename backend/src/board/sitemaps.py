@@ -2,7 +2,7 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from django.conf import settings
 
-from board.models import Post, Series
+from board.models import Post, Series, Profile
 
 
 class SiteSitemap(Sitemap):
@@ -29,7 +29,11 @@ class UserSitemap(Sitemap):
     priority = 0.6
 
     def items(self):
-        users = Post.objects.filter(config__hide=False).values_list('author__username', flat=True).distinct()
+        # Only include users who have posts and are editors (EDITOR or ADMIN role)
+        users = Post.objects.filter(
+            config__hide=False,
+            author__profile__role__in=[Profile.Role.EDITOR, Profile.Role.ADMIN]
+        ).values_list('author__username', flat=True).distinct()
         return users
 
     def location(self, item):
