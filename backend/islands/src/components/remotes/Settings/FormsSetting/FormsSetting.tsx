@@ -64,7 +64,10 @@ const FormsManagement: React.FC = () => {
 
     const handleCreateForm = () => {
         setEditingForm(null);
-        reset({ title: '', content: '' });
+        reset({
+ title: '',
+content: ''
+});
         setIsModalOpen(true);
     };
 
@@ -118,7 +121,10 @@ const FormsManagement: React.FC = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setEditingForm(null);
-        reset({ title: '', content: '' });
+        reset({
+ title: '',
+content: ''
+});
     };
 
     if (isLoading) {

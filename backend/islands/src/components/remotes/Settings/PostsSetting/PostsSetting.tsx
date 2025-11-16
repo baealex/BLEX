@@ -48,16 +48,46 @@ interface FilterOptions {
 }
 
 const POSTS_ORDER = [
-    { name: '최신순', order: '-created_date' },
-    { name: '오래된순', order: 'created_date' },
-    { name: '제목순', order: 'title' },
-    { name: '제목 역순', order: '-title' },
-    { name: '수정일순', order: '-updated_date' },
-    { name: '좋아요 많은순', order: '-count_likes' },
-    { name: '댓글 많은순', order: '-count_comments' },
-    { name: '분량 많은순', order: '-read_time' },
-    { name: '공개 글 우선', order: 'hide' },
-    { name: '비공개 글 우선', order: '-hide' }
+    {
+        name: '최신순',
+        order: '-created_date'
+    },
+    {
+        name: '오래된순',
+        order: 'created_date'
+    },
+    {
+        name: '제목순',
+        order: 'title'
+    },
+    {
+        name: '제목 역순',
+        order: '-title'
+    },
+    {
+        name: '수정일순',
+        order: '-updated_date'
+    },
+    {
+        name: '좋아요 많은순',
+        order: '-count_likes'
+    },
+    {
+        name: '댓글 많은순',
+        order: '-count_comments'
+    },
+    {
+        name: '분량 많은순',
+        order: '-read_time'
+    },
+    {
+        name: '공개 글 우선',
+        order: 'hide'
+    },
+    {
+        name: '비공개 글 우선',
+        order: '-hide'
+    }
 ];
 
 const PostsSetting = () => {
@@ -163,7 +193,10 @@ const PostsSetting = () => {
             if (data.status === 'DONE') {
                 setPosts(prev => prev.map(post =>
                     post.url === postUrl
-                        ? { ...post, isHide: data.body.isHide }
+                        ? {
+                            ...post,
+                            isHide: data.body.isHide
+                        }
                         : post
                 ));
                 notification(`포스트가 ${data.body.isHide ? '비공개' : '공개'}로 변경되었습니다.`, { type: 'success' });

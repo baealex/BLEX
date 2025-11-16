@@ -9,7 +9,14 @@ interface CardProps {
     noPadding?: boolean;
 }
 
-const Card = ({ title, subtitle, icon, children, className = '', noPadding = false }: CardProps) => {
+const Card = ({
+ title,
+ subtitle,
+ icon,
+ children,
+ className = '',
+ noPadding = false
+}: CardProps) => {
     return (
         <div className={`bg-gray-50 border border-gray-200 rounded-2xl ${noPadding ? '' : 'p-6'} ${className}`}>
             {(title || subtitle || icon) && (

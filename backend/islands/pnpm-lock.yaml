@@ -172,11 +172,11 @@ importers:
         version: 3.25.76
     devDependencies:
       '@baejino/eslint-config':
-        specifier: ^0.1.0
-        version: 0.1.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
+        specifier: ^0.1.1
+        version: 0.1.1(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
       '@baejino/eslint-config-react':
-        specifier: ^0.1.0
-        version: 0.1.0(eslint@9.34.0(jiti@2.5.1))
+        specifier: ^0.1.1
+        version: 0.1.1(eslint@9.34.0(jiti@2.5.1))
       '@types/alpinejs':
         specifier: ^3.13.11
         version: 3.13.11
@@ -310,13 +310,13 @@ packages:
     resolution: {integrity: sha512-ruv7Ae4J5dUYULmeXw1gmb7rYRz57OWCPM57pHojnLq/3Z1CK2lNSLTCVjxVk1F/TZHwOZZrOWi0ur95BbLxNQ==}
     engines: {node: '>=6.9.0'}
 
-  '@baejino/eslint-config-react@0.1.0':
-    resolution: {integrity: sha512-nIF+HJWTQtPFHoWDuCqDjEaCwvKstl4Gz5RvPHD3VBtjytBhJlYkXtPBR0VBTFIzHojgxbY/YWzFimzecfqh1Q==}
+  '@baejino/eslint-config-react@0.1.1':
+    resolution: {integrity: sha512-CZRzVLjUrI7jnRzbmWtp7kztzRellBwWha4f+Ep7n//31hReUxFm4tX2yZTJ8henrqHhwPJyUDw6IzdH2rPxLw==}
     peerDependencies:
       eslint: ^9.0.0
 
-  '@baejino/eslint-config@0.1.0':
-    resolution: {integrity: sha512-F4eBbJk9BOg6O0Z/CBIRDFJW4smDwTVEOXhrYle5H0E3n3LT6qKaEcc1/q7MIQLwa0fF30O3VU6An+g1vXal5g==}
+  '@baejino/eslint-config@0.1.1':
+    resolution: {integrity: sha512-ie7MfbgR1GgJ11yC0Oc+ah6Asi8UFR7iybmb6mELKbI6p0I81JXr9nAhAI9qUCoW561iQIxy4RNniSXT4zDi9g==}
     peerDependencies:
       eslint: ^9.0.0
 
@@ -2803,14 +2803,14 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
-  '@baejino/eslint-config-react@0.1.0(eslint@9.34.0(jiti@2.5.1))':
+  '@baejino/eslint-config-react@0.1.1(eslint@9.34.0(jiti@2.5.1))':
     dependencies:
       eslint: 9.34.0(jiti@2.5.1)
       eslint-plugin-react: 7.37.5(eslint@9.34.0(jiti@2.5.1))
       eslint-plugin-react-hooks: 5.2.0(eslint@9.34.0(jiti@2.5.1))
       eslint-plugin-react-refresh: 0.4.20(eslint@9.34.0(jiti@2.5.1))
 
-  '@baejino/eslint-config@0.1.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)':
+  '@baejino/eslint-config@0.1.1(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)':
     dependencies:
       '@eslint/js': 9.34.0
       eslint: 9.34.0(jiti@2.5.1)

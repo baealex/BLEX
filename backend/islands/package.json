@@ -66,8 +66,8 @@
         "zod": "^3.23.8"
     },
     "devDependencies": {
-        "@baejino/eslint-config": "^0.1.0",
-        "@baejino/eslint-config-react": "^0.1.0",
+        "@baejino/eslint-config": "^0.1.1",
+        "@baejino/eslint-config-react": "^0.1.1",
         "@types/alpinejs": "^3.13.11",
         "@types/react": "^19.1.11",
         "@types/react-dom": "^19.1.7",
