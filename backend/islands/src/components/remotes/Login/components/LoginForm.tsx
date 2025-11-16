@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import SocialLogin from '~/components/remotes/SocialLogin';
 
 interface LoginFormProps {
@@ -8,9 +8,22 @@ interface LoginFormProps {
     passwordError: string;
     loginError: string;
     isLoading: boolean;
+    showCaptcha?: boolean;
     onUsernameChange: (value: string) => void;
     onPasswordChange: (value: string) => void;
     onSubmit: (e: React.FormEvent) => void;
+    onCaptchaVerify?: (token: string) => void;
+}
+
+declare global {
+    interface Window {
+        hcaptcha?: {
+            render: (container: string | HTMLElement, params: unknown) => string;
+            reset: (widgetId?: string) => void;
+            remove: (widgetId?: string) => void;
+        };
+        HCAPTCHA_SITE_KEY?: string;
+    }
 }
 
 const getCsrfToken = (): string => {
@@ -25,10 +38,55 @@ const LoginForm: React.FC<LoginFormProps> = ({
     passwordError,
     loginError,
     isLoading,
+    showCaptcha = false,
     onUsernameChange,
     onPasswordChange,
-    onSubmit
+    onSubmit,
+    onCaptchaVerify
 }) => {
+    const captchaRef = useRef<HTMLDivElement>(null);
+    const widgetIdRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        if (showCaptcha && captchaRef.current && window.hcaptcha && window.HCAPTCHA_SITE_KEY) {
+            // Remove existing widget if any
+            if (widgetIdRef.current) {
+                try {
+                    window.hcaptcha.remove(widgetIdRef.current);
+                } catch {
+                    // Ignore errors
+                }
+            }
+
+            // Render new hCaptcha widget
+            try {
+                widgetIdRef.current = window.hcaptcha.render(captchaRef.current, {
+                    sitekey: window.HCAPTCHA_SITE_KEY,
+                    theme: 'light',
+                    size: 'normal',
+                    callback: (token: string) => {
+                        if (onCaptchaVerify) {
+                            onCaptchaVerify(token);
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to render hCaptcha:', e);
+            }
+        }
+
+        return () => {
+            // Cleanup on unmount
+            if (widgetIdRef.current && window.hcaptcha) {
+                try {
+                    window.hcaptcha.remove(widgetIdRef.current);
+                } catch {
+                    // Ignore errors
+                }
+            }
+        };
+    }, [showCaptcha, onCaptchaVerify]);
+
     return (
         <>
             {/* Email Login Form */}
@@ -75,6 +133,13 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     )}
                 </div>
 
+                {/* HCaptcha */}
+                {showCaptcha && (
+                    <div className="flex justify-center">
+                        <div ref={captchaRef} className="transform scale-100 origin-center" />
+                    </div>
+                )}
+
                 {/* Error Message */}
                 {loginError && (
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
@@ -86,7 +151,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center py-3 px-6 bg-gradient-to-r from-gray-600 to-gray-600 hover:from-gray-700 hover:to-gray-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                    className="w-full flex items-center justify-center py-4 px-6 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-base">
                     {isLoading && (
                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle
@@ -107,11 +172,11 @@ const LoginForm: React.FC<LoginFormProps> = ({
             {/* Divider */}
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300 border-solid" />
+                    <div className="w-full border-t border-gray-200 border-solid" />
                 </div>
                 <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-white text-gray-500 font-medium">
-                        또는 간편 로그인
+                        또는 간편하게
                     </span>
                 </div>
             </div>
