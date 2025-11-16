@@ -1,7 +1,10 @@
 import datetime
 import json
+from collections import defaultdict
+from datetime import timedelta
 
 from django.contrib import auth
+from django.core.cache import cache
 from django.db.models import (
     Q, F, Count, Case, When, Sum, Subquery, OuterRef)
 from django.http import Http404, QueryDict
@@ -71,11 +74,7 @@ def setting(request, parameter):
                 'created_date': convert_to_localtime(user.date_joined).strftime('%Y년 %m월 %d일'),
             })
 
-        if parameter == 'profile':
-            from datetime import timedelta
-            from collections import defaultdict
-            from django.core.cache import cache
-
+        if parameter == 'heatmap':
             # Try to get heatmap from cache first (cache for 1 hour)
             cache_key = f'user_heatmap_{user.id}'
             heatmap = cache.get(cache_key)
@@ -126,12 +125,14 @@ def setting(request, parameter):
                 heatmap = dict(heatmap)
                 cache.set(cache_key, heatmap, 3600)
 
+            return StatusDone(heatmap)
+
+        if parameter == 'profile':
             return StatusDone({
                 'avatar': user.profile.get_thumbnail(),
                 'bio': user.profile.bio,
                 'homepage': user.profile.homepage,
                 'social': user.profile.collect_social(),
-                'heatmap': heatmap,
             })
 
         if parameter == 'posts':

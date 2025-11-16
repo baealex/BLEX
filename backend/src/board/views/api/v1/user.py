@@ -38,36 +38,6 @@ def users(request, username):
                 elif include == 'social':
                     data[include] = user_profile.collect_social()
 
-                elif include == 'heatmap':
-                    standard_date = timezone.now() - datetime.timedelta(days=365)
-                    posts = Post.objects.filter(
-                        created_date__gte=standard_date,
-                        created_date__lte=timezone.now(),
-                        author=user,
-                        config__hide=False
-                    )
-                    series = Series.objects.filter(
-                        created_date__gte=standard_date,
-                        created_date__lte=timezone.now(),
-                        owner=user
-                    )
-                    comments = Comment.objects.filter(
-                        created_date__gte=standard_date,
-                        created_date__lte=timezone.now(),
-                        author=user,
-                        post__config__hide=False
-                    )
-                    activity = chain(posts, series, comments)
-
-                    heatmap = dict()
-                    for element in activity:
-                        key = time_stamp(element.created_date, kind='grass')[:10]
-                        if key in heatmap:
-                            heatmap[key] += 1
-                        else:
-                            heatmap[key] = 1
-                    data[include] = heatmap
-
                 elif include == 'tags':
                     tags = Tag.objects.filter(
                         posts__author=user,

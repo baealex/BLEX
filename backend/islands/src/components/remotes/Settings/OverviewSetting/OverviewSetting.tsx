@@ -28,11 +28,11 @@ const OverviewSetting = () => {
     const { data: heatmapData, isLoading: isHeatmapLoading } = useFetch<{ [key: string]: number }>({
         queryKey: ['dashboard-heatmap'],
         queryFn: async () => {
-            const { data: response } = await http('/v1/setting/profile', { method: 'GET' });
+            const { data: response } = await http('/v1/setting/heatmap', { method: 'GET' });
             if (response.status === 'DONE') {
                 // Fix date format: humps.camelize converts '2024-11-21' to '20241121'
                 // We need to convert it back to 'YYYY-MM-DD' format for Frappe Charts
-                const rawHeatmap = response.body.heatmap || {};
+                const rawHeatmap = response.body || {};
                 const fixedHeatmap: { [key: string]: number } = {};
 
                 Object.entries(rawHeatmap).forEach(([date, count]) => {
