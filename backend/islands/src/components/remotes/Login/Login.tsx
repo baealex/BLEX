@@ -252,16 +252,16 @@ const Login = () => {
         <div className="max-w-md w-full space-y-8">
             {/* Logo & Title */}
             <div className="text-center">
-                <div className="mx-auto h-16 w-16 bg-gradient-to-br from-gray-600 to-gray-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <div className="mx-auto h-20 w-20 bg-gradient-to-br from-gray-900 to-gray-700 rounded-3xl flex items-center justify-center mt-8 mb-8 shadow-2xl">
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-4xl font-bold text-gray-900 mb-3 tracking-tight">
                     {state.showTwoFactor ? '이중 인증' : '다시 오신 것을 환영합니다'}
                 </h1>
-                <p className="text-gray-600">
-                    {state.showTwoFactor ? '텔레그램으로 전송된 인증 코드를 입력해주세요' : 'BLEX에서 새로운 아이디어를 발견해보세요'}
+                <p className="text-lg text-gray-600 leading-relaxed">
+                    {state.showTwoFactor ? '텔레그램으로 전송된 인증 코드를 입력해주세요' : '좋아하는 작가들의 새로운 글이 기다리고 있어요'}
                 </p>
             </div>
 
@@ -275,9 +275,11 @@ const Login = () => {
                         passwordError={state.passwordError}
                         loginError={state.loginError}
                         isLoading={state.isLoading}
+                        showCaptcha={state.showCaptcha}
                         onUsernameChange={(value) => updateState({ username: value })}
                         onPasswordChange={(value) => updateState({ password: value })}
                         onSubmit={submitForm}
+                        onCaptchaVerify={(token) => updateState({ captchaToken: token })}
                     />
                 ) : (
                     <TwoFactorForm
@@ -294,19 +296,21 @@ const Login = () => {
                 )}
 
                 {/* Footer Links */}
-                <div className="text-center space-y-4 pt-4 border-t border-gray-200">
+                <div className="text-center space-y-5 pt-6 border-t border-gray-100">
                     {!state.showTwoFactor && (
-                        <p className="text-gray-600">
-                            계정이 없으신가요?
-                            <a href="/sign" className="font-semibold text-gray-600 hover:text-gray-800 transition-colors duration-200 ml-1">
-                                회원가입하기
+                        <p className="text-base text-gray-600">
+                            아직 독자가 아니신가요?
+                            <a href="/sign" className="font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-1 underline decoration-2 underline-offset-2">
+                                가입하기
                             </a>
                         </p>
                     )}
-                    <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
-                        <a href="/about" className="hover:text-gray-700 transition-colors">서비스 소개</a>
-                        <a href="/privacy" className="hover:text-gray-700 transition-colors">개인정보처리방침</a>
-                        <a href="/terms" className="hover:text-gray-700 transition-colors">이용약관</a>
+                    <div className="flex items-center justify-center space-x-6 text-xs text-gray-400">
+                        <a href="/about" className="hover:text-gray-600 transition-colors">서비스 소개</a>
+                        <span className="text-gray-300">•</span>
+                        <a href="/privacy" className="hover:text-gray-600 transition-colors">개인정보처리방침</a>
+                        <span className="text-gray-300">•</span>
+                        <a href="/terms" className="hover:text-gray-600 transition-colors">이용약관</a>
                     </div>
                 </div>
             </div>
