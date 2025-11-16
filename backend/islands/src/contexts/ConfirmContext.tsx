@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import React, {
+ createContext, useContext, useState, useCallback, type ReactNode
+} from 'react';
 import Modal from '~/components/shared/Modal';
 
 interface ConfirmOptions {
@@ -53,12 +55,18 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({ children })
     }, []);
 
     const handleClose = useCallback(() => {
-        setDialogState((prev) => ({ ...prev, isOpen: false }));
+        setDialogState((prev) => ({
+ ...prev,
+isOpen: false
+}));
         dialogState.resolve(false);
     }, [dialogState]);
 
     const handleConfirm = useCallback(() => {
-        setDialogState((prev) => ({ ...prev, isOpen: false }));
+        setDialogState((prev) => ({
+ ...prev,
+isOpen: false
+}));
         dialogState.resolve(true);
     }, [dialogState]);
 
