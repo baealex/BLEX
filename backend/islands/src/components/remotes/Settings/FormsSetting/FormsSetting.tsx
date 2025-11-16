@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Response } from '~/modules/http.module';
-import { Button, Input, LoadingState } from '~/components/shared';
+import { Button, Input } from '~/components/shared';
 
 interface FormItem {
     id: number;
@@ -126,10 +126,6 @@ content: ''
 content: ''
 });
     };
-
-    if (isLoading) {
-        return <LoadingState type="list" rows={3} />;
-    }
 
     const forms = formsData?.forms || [];
 

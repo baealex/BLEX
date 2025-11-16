@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input, Card, LoadingState } from '~/components/shared';
+import { Button, Input, Card } from '~/components/shared';
 
 interface AccountData {
     username: string;
@@ -158,10 +158,6 @@ const AccountSettings: React.FC = () => {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         }
     };
-
-    if (isDataLoading) {
-        return <LoadingState type="form" rows={5} />;
-    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">

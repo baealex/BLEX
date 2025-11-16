@@ -21,7 +21,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, LoadingState } from '~/components/shared';
+import { Button } from '~/components/shared';
 
 interface Series {
     id: number;
@@ -216,10 +216,6 @@ const SeriesSetting = () => {
             notification('시리즈 삭제에 실패했습니다.', { type: 'error' });
         }
     };
-
-    if (isLoading) {
-        return <LoadingState type="list" rows={3} />;
-    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">

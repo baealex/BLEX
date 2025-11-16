@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, LoadingState } from '~/components/shared';
+import { Button } from '~/components/shared';
 
 interface TempPost {
     token: string;
@@ -48,10 +48,6 @@ const TempPostsSetting = () => {
             notification('임시저장 포스트 삭제에 실패했습니다.', { type: 'error' });
         }
     };
-
-    if (isLoading) {
-        return <LoadingState type="list" rows={3} />;
-    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
