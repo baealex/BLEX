@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import TiptapEditor from '../../TiptapEditor/TiptapEditor';
+import TiptapEditor from '../../../shared/TiptapEditor';
 import ImageUploader from './ImageUploader';
 import TagManager from './TagManager';
 import DangerZone from './DangerZone';
