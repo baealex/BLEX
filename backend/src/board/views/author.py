@@ -18,7 +18,8 @@ def author_posts(request, username):
     author = get_object_or_404(User, username=username)
 
     # If author is a reader (not an editor), redirect to about page
-    if not author.profile.is_editor():
+    # If profile doesn't exist, treat as reader
+    if not hasattr(author, 'profile') or not author.profile.is_editor():
         return redirect('user_about', username=username)
     
     # Get search query and filters
@@ -140,7 +141,8 @@ def author_series(request, username):
     author = get_object_or_404(User, username=username)
 
     # If author is a reader (not an editor), redirect to about page
-    if not author.profile.is_editor():
+    # If profile doesn't exist, treat as reader
+    if not hasattr(author, 'profile') or not author.profile.is_editor():
         return redirect('user_about', username=username)
     
     # Get search query and filters
