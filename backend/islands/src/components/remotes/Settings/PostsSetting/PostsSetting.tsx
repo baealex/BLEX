@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input, LoadingState } from '~/components/shared';
+import { Button, Input } from '~/components/shared';
 
 interface Post {
     url: string;
@@ -104,7 +104,7 @@ const PostsSetting = () => {
     const [postsMounted, setPostsMounted] = useState(false);
     const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const { data: postsData, isLoading, isError, refetch } = useFetch({
+    const { data: postsData, isError, refetch } = useFetch({
         queryKey: ['posts-setting', JSON.stringify(filters)],
         queryFn: async () => {
             setPostsMounted(false);
@@ -316,10 +316,6 @@ const PostsSetting = () => {
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('ko-KR');
     };
-
-    if (isLoading) {
-        return <LoadingState type="list" rows={3} />;
-    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">

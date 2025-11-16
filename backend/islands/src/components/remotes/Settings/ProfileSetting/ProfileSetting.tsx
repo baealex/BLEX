@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input, Card, LoadingState } from '~/components/shared';
+import { Button, Input, Card } from '~/components/shared';
 
 // Define Zod schema for profile form
 const profileSchema = z.object({
@@ -21,7 +21,7 @@ const ProfileSetting = () => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>({ resolver: zodResolver(profileSchema) });
 
-    const { data: profileData, isLoading: isDataLoading, isError, refetch } = useFetch({
+    const { data: profileData, isError, refetch } = useFetch({
         queryKey: ['profile-setting'],
         queryFn: async () => {
             const { data } = await http('v1/setting/profile', { method: 'GET' });
@@ -99,10 +99,6 @@ const ProfileSetting = () => {
             notification('프로필 이미지 업데이트에 실패했습니다.', { type: 'error' });
         }
     };
-
-    if (isDataLoading) {
-        return <LoadingState type="form" rows={3} />;
-    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">

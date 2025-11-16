@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input, Card, LoadingState } from '~/components/shared';
+import { Button, Input, Card } from '~/components/shared';
 
 interface AccountData {
     username: string;
@@ -49,7 +49,7 @@ const AccountSettings: React.FC = () => {
     const { register: registerName, handleSubmit: handleNameSubmit, reset: resetName, formState: { errors: errorsName } } = useForm<NameFormInputs>({ resolver: zodResolver(nameSchema) });
     const { register: registerPassword, handleSubmit: handlePasswordSubmit, reset: resetPassword, formState: { errors: errorsPassword } } = useForm<PasswordFormInputs>({ resolver: zodResolver(passwordSchema) });
 
-    const { data: accountData, isLoading: isDataLoading, isError, refetch } = useFetch({
+    const { data: accountData, isError, refetch } = useFetch({
         queryKey: ['account-setting'],
         queryFn: async () => {
             const { data } = await http<Response<AccountData>>('v1/setting/account', { method: 'GET' });
@@ -158,10 +158,6 @@ const AccountSettings: React.FC = () => {
             notification('네트워크 오류가 발생했습니다.', { type: 'error' });
         }
     };
-
-    if (isDataLoading) {
-        return <LoadingState type="form" rows={5} />;
-    }
 
     return (
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
