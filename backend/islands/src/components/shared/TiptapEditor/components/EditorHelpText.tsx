@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const EditorHelpText: React.FC = () => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
     return (
-        <div className="bg-gray-50 p-6 mb-6 rounded-xl border border-gray-100 shadow-sm">
-            <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                    <i className="fa fa-magic text-gray-600" />
-                </div>
-                <div className="flex-1">
-                    <h3 className="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <div className="bg-gray-50 mb-6 rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                        <i className="fa fa-magic text-gray-600 text-sm" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
                         ✨ 에디터 사용법
                     </h3>
+                </div>
+                <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'} text-gray-400 text-sm transition-transform`} />
+            </button>
+
+            {isExpanded && (
+                <div className="px-6 pb-4 pt-2 border-t border-gray-200">
                     <div className="space-y-2">
                         <div className="flex items-center gap-3 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
@@ -38,7 +49,7 @@ const EditorHelpText: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

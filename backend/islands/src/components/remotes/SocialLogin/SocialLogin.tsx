@@ -83,12 +83,7 @@ const SocialLogin: React.FC = () => {
     );
 
     if (loading) {
-        return (
-            <div className="space-y-3">
-                <div className="w-full h-12 bg-gray-200 rounded-lg animate-pulse" />
-                <div className="w-full h-12 bg-gray-200 rounded-lg animate-pulse" />
-            </div>
-        );
+        return null;
     }
 
     return (
