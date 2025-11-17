@@ -1,7 +1,7 @@
 import { http, type Response } from '~/modules/http.module';
 
 export interface TelegramStatus {
-    connected: boolean;
+    isConnected: boolean;
     username?: string;
 }
 

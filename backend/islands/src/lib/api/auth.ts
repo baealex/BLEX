@@ -29,21 +29,21 @@ export type SocialProvidersResponse = Response<SocialProvider[]>;
  * Login with username and password
  */
 export const login = async (data: LoginRequest) => {
-    return http.post<LoginResponse>('/v1/login', data);
+    return http.post<LoginResponse>('v1/login', data);
 };
 
 /**
  * Submit 2FA verification code
  */
 export const submit2FACode = async (data: SecurityCodeRequest) => {
-    return http.post<LoginResponse>('/v1/auth/security/send', data);
+    return http.post<LoginResponse>('v1/auth/security/send', data);
 };
 
 /**
  * Get available social login providers
  */
 export const getSocialProviders = async () => {
-    return http.get<SocialProvidersResponse>('/v1/social-providers');
+    return http.get<SocialProvidersResponse>('v1/social-providers');
 };
 
 /**

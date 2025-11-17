@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { notification } from '@baejino/ui';
 import { Button } from '~/components/shared';
-import { http } from '~/modules/http.module';
-import type { NotifyItem } from '../OverviewSetting';
+import { markNotificationAsRead, type NotifyItem } from '~/lib/api/settings';
 
 interface NotificationsSectionProps {
     notifyList: NotifyItem[];
@@ -26,12 +25,7 @@ const NotificationsSection = ({
     const handleClickNotify = async (notify: NotifyItem) => {
         if (!notify.isRead) {
             try {
-                const urlEncodedData = `id=${notify.id}`;
-                await http('v1/setting/notify', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    data: urlEncodedData
-                });
+                await markNotificationAsRead(notify.id);
             } catch {
                 // Silently handle error
             }

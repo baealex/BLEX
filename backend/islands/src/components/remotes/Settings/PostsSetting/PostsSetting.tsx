@@ -8,36 +8,14 @@ import {
     togglePostVisibility,
     deletePost,
     updatePostTags,
-    updatePostSeries
+    updatePostSeries,
+    type Post as ApiPost
 } from '~/lib/api/posts';
-import { getTags, getSeries } from '~/lib/api/settings';
+import { getTags, getSeries, type Tag, type Series } from '~/lib/api/settings';
 
-interface Post {
-    url: string;
-    title: string;
-    createdDate: string;
-    updatedDate: string;
-    isHide: boolean;
-    countLikes: number;
-    countComments: number;
-    todayCount: number;
-    yesterdayCount: number;
-    readTime: number;
-    tag: string;
-    series: string;
+interface Post extends ApiPost {
     hasTagChanged?: boolean;
     hasSeriesChanged?: boolean;
-}
-
-interface Tag {
-    name: string;
-    count: number;
-}
-
-interface Series {
-    url: string;
-    title: string;
-    totalPosts: number;
 }
 
 interface FilterOptions {
@@ -158,7 +136,7 @@ const PostsSetting = () => {
     useEffect(() => {
         if (postsData) {
             setPostsMounted(true);
-            setPosts(postsData.posts.map((post: Post) => ({
+            setPosts(postsData.posts.map((post) => ({
                 ...post,
                 hasTagChanged: false,
                 hasSeriesChanged: false
@@ -293,7 +271,7 @@ const PostsSetting = () => {
         if (!post) return;
 
         try {
-            const { data } = await updatePostSeries(postsData!.username, postUrl, post.series);
+            const { data } = await updatePostSeries(postsData!.username, postUrl, post.series || '');
 
             if (data.status === 'DONE') {
                 setPosts(prev => prev.map(p =>
@@ -540,11 +518,11 @@ const PostsSetting = () => {
                                         <i className="fas fa-book text-xs" />
                                     </div>
                                     <select
-                                        value={post.series}
+                                        value={post.series || ''}
                                         onChange={(e) => handleSeriesChange(post.url, e.target.value)}
                                         className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-500 bg-white">
                                         <option value="">시리즈 선택 안함</option>
-                                        {series?.map((item: Series, index: number) => (
+                                        {series?.map((item, index) => (
                                             <option key={index} value={item.url}>
                                                 {item.title}
                                             </option>

@@ -1,7 +1,6 @@
 import {
  useState, useEffect, useCallback, useMemo, useRef
 } from 'react';
-import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
@@ -10,6 +9,8 @@ import SettingsDrawer from './components/SettingsDrawer';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useFormSubmit } from './hooks/useFormSubmit';
+import { getSeries } from '~/lib/api/settings';
+import { getTempPost } from '~/lib/api/posts';
 
 interface Series {
     id: string;
@@ -111,18 +112,22 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
             setIsLoading(true);
             try {
                 // Fetch series list
-                const { data: seriesResponse } = await http('v1/series');
+                const { data: seriesResponse } = await getSeries();
                 if (seriesResponse.status === 'DONE') {
-                    setSeriesList(seriesResponse.body.series || []);
+                    const mappedSeries = (seriesResponse.body.series || []).map(s => ({
+                        id: s.url,
+                        name: s.title
+                    }));
+                    setSeriesList(mappedSeries);
                 }
 
                 // Fetch temp post data if tempToken exists
                 if (tempToken) {
-                    const { data: tempResponse } = await http(`v1/temp-posts/${tempToken}`);
+                    const { data: tempResponse } = await getTempPost(tempToken);
                     if (tempResponse.status === 'DONE' && tempResponse.body) {
                         const tempData = tempResponse.body;
                         const newTitle = tempData.title || '';
-                        const newContent = tempData.textMd || '';
+                        const newContent = tempData.text_md || '';
                         const newTags = tempData.tag ? tempData.tag.split(',').filter(Boolean) : [];
 
                         setFormData(prev => ({

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { http } from '~/modules/http.module';
+import { createTempPost, updateTempPost } from '~/lib/api/posts';
 
 interface AutoSaveData {
     title: string;
@@ -64,38 +64,25 @@ export const useAutoSave = (data: AutoSaveData, options: UseAutoSaveOptions) => 
         try {
             if (tempTokenRef.current) {
                 // Update temp post
-                const formData = new URLSearchParams();
-                formData.append('title', currentData.title || '제목 없음');
-                formData.append('text_md', currentData.content);
-                formData.append('tag', currentData.tags);
-
-                await http(`v1/temp-posts/${tempTokenRef.current}`, {
-                    method: 'PUT',
-                    data: formData,
-                    headers: {
-                        'X-CSRFToken': currentOptions.getCsrfToken(),
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+                await updateTempPost(tempTokenRef.current, {
+                    title: currentData.title || '제목 없음',
+                    text_md: currentData.content,
+                    tag: currentData.tags
                 });
             } else {
                 // Create temp post
-                const response = await http('v1/temp-posts', {
-                    method: 'POST',
-                    data: {
-                        title: currentData.title || '제목 없음',
-                        content: currentData.content,
-                        tags: currentData.tags
-                    },
-                    headers: {
-                        'X-CSRFToken': currentOptions.getCsrfToken(),
-                        'Content-Type': 'application/json'
-                    }
+                const response = await createTempPost({
+                    title: currentData.title || '제목 없음',
+                    content: currentData.content,
+                    tags: currentData.tags
                 });
-                const token = response.data?.body?.token;
-                if (token) {
-                    tempTokenRef.current = token;
+                if (response.data.status === 'DONE') {
+                    const token = response.data.body.token;
+                    if (token) {
+                        tempTokenRef.current = token;
+                    }
+                    currentOptions.onSuccess?.(token);
                 }
-                currentOptions.onSuccess?.(token);
             }
 
             setLastSaved(new Date());

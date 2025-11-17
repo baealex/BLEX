@@ -1,25 +1,18 @@
 import { useState } from 'react';
-import { http, type Response } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
 import HeatmapSection from './components/HeatmapSection';
 import RecentActivitiesSection from './components/RecentActivitiesSection';
 import NotificationsSection from './components/NotificationsSection';
 import NotifyConfigModal from './components/NotifyConfigModal';
+import {
+    getHeatmap,
+    getRecentActivities,
+    getNotifications,
+    getNotifyConfig,
+    type Activity
+} from '~/lib/api/settings';
 
-export interface Activity {
-    type: 'post' | 'comment' | 'like';
-    title?: string;
-    postTitle?: string;
-    date: string;
-}
-
-export interface NotifyItem {
-    id: number;
-    url: string;
-    isRead: boolean;
-    content: string;
-    createdDate: string;
-}
+export type { Activity };
 
 const OverviewSetting = () => {
     const [isOpenConfig, setIsOpenConfig] = useState(false);
@@ -28,7 +21,7 @@ const OverviewSetting = () => {
     const { data: heatmapData, isLoading: isHeatmapLoading } = useFetch<{ [key: string]: number }>({
         queryKey: ['dashboard-heatmap'],
         queryFn: async () => {
-            const { data: response } = await http('/v1/setting/heatmap', { method: 'GET' });
+            const { data: response } = await getHeatmap();
             if (response.status === 'DONE') {
                 // Fix date format: humps.camelize converts '2024-11-21' to '20241121'
                 // We need to convert it back to 'YYYY-MM-DD' format for Frappe Charts
@@ -58,7 +51,7 @@ const OverviewSetting = () => {
     const { data: activitiesData, isLoading: isActivitiesLoading } = useFetch<{ recentActivities: Activity[] }>({
         queryKey: ['dashboard-activities'],
         queryFn: async () => {
-            const { data: response } = await http('/v1/dashboard/activities', { method: 'GET' });
+            const { data: response } = await getRecentActivities();
             if (response.status === 'DONE') {
                 return response.body;
             }
@@ -70,7 +63,7 @@ const OverviewSetting = () => {
     const { data: notifyData, isLoading: isNotifyLoading, isError: isNotifyError } = useFetch({
         queryKey: ['notify-list'],
         queryFn: async () => {
-            const { data } = await http<Response<{ notify: NotifyItem[]; isTelegramSync: boolean }>>('v1/setting/notify', { method: 'GET' });
+            const { data } = await getNotifications();
             if (data.status === 'DONE') {
                 return data.body;
             }
@@ -82,7 +75,7 @@ const OverviewSetting = () => {
     const { data: notifyConfig, isLoading: isConfigLoading, isError: isConfigError, refetch: refetchConfig } = useFetch({
         queryKey: ['notify-config'],
         queryFn: async () => {
-            const { data } = await http<Response<{ config: { name: string; value: boolean }[] }>>('v1/setting/notify-config', { method: 'GET' });
+            const { data } = await getNotifyConfig();
             if (data.status === 'DONE') {
                 return data.body.config;
             }

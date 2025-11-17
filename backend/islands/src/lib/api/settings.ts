@@ -4,7 +4,8 @@ export interface AccountData {
     username: string;
     name: string;
     email: string;
-    has_two_factor: boolean;
+    has2fa: boolean;
+    createdDate: string;
 }
 
 export interface AccountUpdateData {
@@ -38,15 +39,16 @@ export interface Tag {
 }
 
 export interface Series {
-    name: string;
-    count: number;
+    url: string;
+    title: string;
+    totalPosts: number;
 }
 
 export interface TempPost {
     token: string;
     title: string;
     description: string;
-    created_date: string;
+    createdDate: string;
 }
 
 /**
@@ -114,14 +116,14 @@ export const updateNotifyConfig = async (config: NotifyConfig) => {
  * Get user tags
  */
 export const getTags = async () => {
-    return http.get<Response<Tag[]>>('v1/setting/tag');
+    return http.get<Response<{ tags: Tag[] }>>('v1/setting/tag');
 };
 
 /**
  * Get user series
  */
 export const getSeries = async () => {
-    return http.get<Response<Series[]>>('v1/setting/series');
+    return http.get<Response<{ series: Series[] }>>('v1/setting/series');
 };
 
 /**
@@ -136,4 +138,109 @@ export const getTempPosts = async () => {
  */
 export const deleteTempPost = async (token: string) => {
     return http.delete<Response<{ success: boolean }>>(`v1/temp-posts/${token}`);
+};
+
+export interface NotifyItem {
+    id: number;
+    url: string;
+    isRead: boolean;
+    content: string;
+    createdDate: string;
+}
+
+export interface Activity {
+    type: 'post' | 'comment' | 'like';
+    title?: string;
+    postTitle?: string;
+    date: string;
+}
+
+/**
+ * Get notifications list
+ */
+export const getNotifications = async () => {
+    return http.get<Response<{ notify: NotifyItem[]; isTelegramSync: boolean }>>('v1/setting/notify');
+};
+
+/**
+ * Mark notification as read
+ */
+export const markNotificationAsRead = async (notifyId: number) => {
+    const formData = new URLSearchParams();
+    formData.append('id', notifyId.toString());
+
+    return http.put<Response<{ success: boolean }>>('v1/setting/notify', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+};
+
+/**
+ * Get notification configuration
+ */
+export const getNotifyConfig = async () => {
+    return http.get<Response<{ config: { name: string; value: boolean }[] }>>('v1/setting/notify-config');
+};
+
+/**
+ * Get heatmap data
+ */
+export const getHeatmap = async () => {
+    return http.get<Response<{ [key: string]: number }>>('v1/setting/heatmap');
+};
+
+/**
+ * Get recent activities
+ */
+export const getRecentActivities = async () => {
+    return http.get<Response<{ recentActivities: Activity[] }>>('v1/dashboard/activities');
+};
+
+/**
+ * Get series list with username
+ */
+export interface SeriesWithId extends Series {
+    id: number;
+}
+
+export const getSeriesWithUsername = async () => {
+    return http.get<Response<{ username: string; series: SeriesWithId[] }>>('v1/setting/series');
+};
+
+/**
+ * Update series order
+ */
+export const updateSeriesOrder = async (order: [number, number][]) => {
+    return http.put<Response<{ success: boolean }>>('v1/series/order', { order }, { headers: { 'Content-Type': 'application/json' } });
+};
+
+/**
+ * Delete series
+ */
+export const deleteSeries = async (username: string, seriesUrl: string) => {
+    return http.delete<Response<{ success: boolean }>>(`v1/users/@${username}/series/${seriesUrl}`);
+};
+
+export interface SocialLink {
+    id: number;
+    name: string;
+    value: string;
+    order: number;
+}
+
+/**
+ * Get social links
+ */
+export const getSocialLinks = async () => {
+    const response = await http.get<Response<ProfileData & { social: SocialLink[] }>>('v1/setting/profile');
+    return response;
+};
+
+/**
+ * Update social links
+ */
+export const updateSocialLinks = async (data: { update: string; create: string; delete: string }) => {
+    const formData = new URLSearchParams();
+    formData.append('update', data.update);
+    formData.append('create', data.create);
+    formData.append('delete', data.delete);
+
+    return http.put<Response<SocialLink[]>>('v1/setting/social', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
