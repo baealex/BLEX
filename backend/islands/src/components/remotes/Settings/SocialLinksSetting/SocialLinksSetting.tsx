@@ -19,16 +19,12 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 
-import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button } from '~/components/shared';
+import { getSocialLinks, updateSocialLinks, type SocialLink as ApiSocialLink } from '~/lib/api/settings';
 
-interface SocialLink {
-    id: number;
-    name: string;
-    value: string;
-    order: number;
+interface SocialLink extends ApiSocialLink {
     prepare?: boolean;
 }
 
@@ -169,7 +165,7 @@ const SocialLinks = () => {
     const { data: socialData, isError } = useFetch({
         queryKey: ['social-links-setting'],
         queryFn: async () => {
-            const { data } = await http('v1/setting/profile', { method: 'GET' });
+            const { data } = await getSocialLinks();
             if (data.status === 'DONE') {
                 return data.body.social || [];
             }
@@ -281,15 +277,10 @@ const SocialLinks = () => {
                 (original) => !socials.some((current) => current.id === original.id)
             );
 
-            const params = new URLSearchParams();
-            params.append('update', updateItems.map((item) => `${item.id},${item.name},${item.value},${item.order}`).join('&'));
-            params.append('create', createItems.map((item) => `${item.name},${item.value},${item.order}`).join('&'));
-            params.append('delete', deletedItems.map((item) => item.id).join('&'));
-
-            const { data } = await http('v1/setting/social', {
-                method: 'PUT',
-                data: params.toString(),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            const { data } = await updateSocialLinks({
+                update: updateItems.map((item) => `${item.id},${item.name},${item.value},${item.order}`).join('&'),
+                create: createItems.map((item) => `${item.name},${item.value},${item.order}`).join('&'),
+                delete: deletedItems.map((item) => item.id).join('&')
             });
 
             if (data.status === 'DONE') {

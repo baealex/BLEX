@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import type { Editor } from '@tiptap/react';
-import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
+import { uploadImage as uploadImageAPI } from '~/lib/api/posts';
 
 export const useImageUpload = (editor: Editor | null) => {
     const isImageFile = useCallback((file: File) => {
@@ -18,14 +18,7 @@ export const useImageUpload = (editor: Editor | null) => {
         }
 
         try {
-            const formData = new FormData();
-            formData.append('image', file);
-
-            const { data } = await http('v1/image', {
-                method: 'POST',
-                data: formData,
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const { data } = await uploadImageAPI(file);
 
             if (data.status === 'DONE') {
                 const fileSrc = data.body.url;

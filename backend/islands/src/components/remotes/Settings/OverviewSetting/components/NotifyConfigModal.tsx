@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { notification } from '@baejino/ui';
 import { Modal } from '~/components/shared';
-import { http } from '~/modules/http.module';
+import { updateNotifyConfig } from '~/lib/api/settings';
 
 // Notify config labels
 const NOTIFY_CONFIG_LABEL = {
@@ -48,15 +48,13 @@ const NotifyConfigModal = ({
         });
 
         try {
-            const urlEncodedData = nextState
-                .map(item => `${item.name}=${encodeURIComponent(item.value.toString())}`)
-                .join('&');
-
-            const { data } = await http('v1/setting/notify-config', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: urlEncodedData
+            // Convert array to NotifyConfig object
+            const config: Record<string, boolean> = {};
+            nextState.forEach(item => {
+                config[item.name] = item.value;
             });
+
+            const { data } = await updateNotifyConfig(config);
 
             if (data.status === 'DONE') {
                 notification('알림 설정이 업데이트 되었습니다.', { type: 'success' });

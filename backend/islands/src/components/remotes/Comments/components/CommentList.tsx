@@ -1,5 +1,6 @@
-import { CommentItem, type Comment } from './CommentItem';
+import { CommentItem } from './CommentItem';
 import { EmptyState } from './EmptyState';
+import type { Comment } from '~/lib/api/comments';
 
 interface CommentListProps {
     comments: Comment[];

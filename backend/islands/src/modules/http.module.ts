@@ -8,6 +8,7 @@ export interface DoneResponse<T> {
 
 export interface ErrorResponse {
     status: 'ERROR';
+    errorCode: string;
     errorMessage: string;
 }
 

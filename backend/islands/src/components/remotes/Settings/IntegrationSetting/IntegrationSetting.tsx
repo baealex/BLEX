@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import type { Response } from '~/modules/http.module';
 import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
-
-interface TelegramStatusData {
-    isConnected: boolean;
-}
+import { getTelegramStatus, generateTelegramToken, disconnectTelegram as disconnectTelegramAPI } from '~/lib/api/telegram';
 
 const IntegrationSettings: React.FC = () => {
     const [telegramToken, setTelegramToken] = useState('');
@@ -19,7 +14,7 @@ const IntegrationSettings: React.FC = () => {
     const { data: telegramData, isLoading, refetch } = useFetch({
         queryKey: ['telegram-integration'],
         queryFn: async () => {
-            const { data } = await http<Response<TelegramStatusData>>('v1/setting/integration-telegram', { method: 'GET' });
+            const { data } = await getTelegramStatus();
             if (data.status === 'DONE') {
                 return data.body;
             }
@@ -34,7 +29,7 @@ const IntegrationSettings: React.FC = () => {
 
         setIsGeneratingToken(true);
         try {
-            const { data } = await http('v1/telegram/makeToken', { method: 'POST' });
+            const { data } = await generateTelegramToken();
             if (data.status === 'DONE' && data.body.token) {
                 setTelegramToken(data.body.token);
             } else {
@@ -59,7 +54,7 @@ const IntegrationSettings: React.FC = () => {
 
         setIsDisconnecting(true);
         try {
-            const { data } = await http('v1/telegram/unsync', { method: 'POST' });
+            const { data } = await disconnectTelegramAPI();
             if (data.status === 'DONE') {
                 notification('텔레그램 연동이 해제되었습니다.', { type: 'success' });
                 setTelegramToken('');

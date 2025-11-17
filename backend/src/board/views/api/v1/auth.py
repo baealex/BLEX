@@ -151,49 +151,46 @@ def login(request):
         # Server-side rate limiting check
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
         cache_key = f'login_attempts:{client_ip}'
-        
+
         attempts = cache.get(cache_key, 0)
-        
+
         # Block if too many attempts
         if attempts >= 5:
             return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
-        
+
         # Try to parse JSON first, then fallback to POST data
         try:
             data = json.loads(request.body.decode('utf-8')) if request.body else {}
-            social = data.get('social', '') or request.POST.get('social', '')
-            if not social:
-                username = data.get('username', '') or request.POST.get('username', '')
-                password = data.get('password', '') or request.POST.get('password', '')
-                # hcaptcha_response = data.get('h-captcha-response', '') or request.POST.get('h-captcha-response', '')
         except (json.JSONDecodeError, UnicodeDecodeError):
-            social = request.POST.get('social', '')
-            if not social:
-                username = request.POST.get('username', '')
-                password = request.POST.get('password', '')
-                # hcaptcha_response = request.POST.get('h-captcha-response', '')
+            data = {}
 
-            # Validate hCaptcha if attempts >= 3
-            # if attempts >= 3:
-            #     if not hcaptcha_response:
-            #         return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
-            #     
-            #     if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
-            #         # Increment attempts for failed captcha
-            #         cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-            #         return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
+        social = data.get('social', '') or request.POST.get('social', '')
+        if not social:
+            username = data.get('username', '') or request.POST.get('username', '')
+            password = data.get('password', '') or request.POST.get('password', '')
+            # hcaptcha_response = data.get('h-captcha-response', '') or request.POST.get('h-captcha-response', '')
 
-            user = auth.authenticate(username=username, password=password)
+        # Validate hCaptcha if attempts >= 3
+        # if attempts >= 3:
+        #     if not hcaptcha_response:
+        #         return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
+        #
+        #     if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
+        #         # Increment attempts for failed captcha
+        #         cache.set(cache_key, attempts + 1, 300)  # 5 minutes
+        #         return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
 
-            if user is not None:
-                if user.is_active:
-                    # Reset attempts on successful login
-                    cache.delete(cache_key)
-                    return common_auth(request, user)
-            else:
-                # Increment failed attempts
-                cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-                return StatusError(ErrorCode.AUTHENTICATION)
+        user = auth.authenticate(username=username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                # Reset attempts on successful login
+                cache.delete(cache_key)
+                return common_auth(request, user)
+        else:
+            # Increment failed attempts
+            cache.set(cache_key, attempts + 1, 300)  # 5 minutes
+            return StatusError(ErrorCode.AUTHENTICATION)
     raise Http404
 
 

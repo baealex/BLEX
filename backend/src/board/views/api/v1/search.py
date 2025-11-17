@@ -151,27 +151,3 @@ def search(request):
 
     raise Http404
 
-
-def search_history_list(request):
-    """Search history - removed, always returns empty"""
-    if request.method == 'GET':
-        return StatusDone({
-            'searches': [],
-        })
-    raise Http404
-
-
-def search_history_detail(request, item_id: int):
-    """Search history detail - removed"""
-    if request.method == 'DELETE':
-        return StatusDone()
-    raise Http404
-
-
-def search_suggest(request):
-    """Search suggestions - removed, always returns empty"""
-    if request.method == 'GET':
-        return StatusDone({
-            'results': []
-        })
-    raise Http404

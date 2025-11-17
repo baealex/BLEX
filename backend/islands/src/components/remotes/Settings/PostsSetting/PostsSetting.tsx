@@ -1,42 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
-import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button, Input } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import {
+    getPosts,
+    togglePostVisibility,
+    deletePost,
+    updatePostTags,
+    updatePostSeries,
+    type Post as ApiPost
+} from '~/lib/api/posts';
+import { getTags, getSeries, type Tag, type Series } from '~/lib/api/settings';
 
-interface Post {
-    url: string;
-    title: string;
-    createdDate: string;
-    updatedDate: string;
-    isHide: boolean;
-    countLikes: number;
-    countComments: number;
-    todayCount: number;
-    yesterdayCount: number;
-    readTime: number;
-    tag: string;
-    series: string;
+interface Post extends ApiPost {
     hasTagChanged?: boolean;
     hasSeriesChanged?: boolean;
-}
-
-interface PostsData {
-    username: string;
-    posts: Post[];
-    lastPage: number;
-}
-
-interface Tag {
-    name: string;
-    count: number;
-}
-
-interface Series {
-    url: string;
-    title: string;
-    totalPosts: number;
 }
 
 interface FilterOptions {
@@ -111,12 +90,19 @@ const PostsSetting = () => {
         queryFn: async () => {
             setPostsMounted(false);
 
-            const params = new URLSearchParams();
+            // Map filters to API format (order -> sort)
+            const apiFilters: Record<string, string | number> = {};
             Object.entries(filters).forEach(([key, value]) => {
-                if (value) params.append(key, value);
+                if (value) {
+                    if (key === 'order') {
+                        apiFilters['sort'] = value;
+                    } else {
+                        apiFilters[key] = value;
+                    }
+                }
             });
 
-            const { data } = await http<Response<PostsData>>(`v1/setting/posts?${params.toString()}`, { method: 'GET' });
+            const { data } = await getPosts(apiFilters);
 
             if (data.status === 'DONE') {
                 return data.body;
@@ -128,7 +114,7 @@ const PostsSetting = () => {
     const { data: tags } = useFetch({
         queryKey: ['setting-tags'],
         queryFn: async () => {
-            const { data } = await http<Response<{ tags: Tag[] }>>('v1/setting/tag', { method: 'GET' });
+            const { data } = await getTags();
             if (data.status === 'DONE') {
                 return data.body.tags;
             }
@@ -139,7 +125,7 @@ const PostsSetting = () => {
     const { data: series } = useFetch({
         queryKey: ['setting-series'],
         queryFn: async () => {
-            const { data } = await http<Response<{ series: Series[] }>>('v1/setting/series', { method: 'GET' });
+            const { data } = await getSeries();
             if (data.status === 'DONE') {
                 return data.body.series;
             }
@@ -150,7 +136,7 @@ const PostsSetting = () => {
     useEffect(() => {
         if (postsData) {
             setPostsMounted(true);
-            setPosts(postsData.posts.map(post => ({
+            setPosts(postsData.posts.map((post) => ({
                 ...post,
                 hasTagChanged: false,
                 hasSeriesChanged: false
@@ -186,11 +172,7 @@ const PostsSetting = () => {
 
     const handlePostVisibilityToggle = async (postUrl: string) => {
         try {
-            const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}?hide=hide`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: ''
-            });
+            const { data } = await togglePostVisibility(postsData!.username, postUrl);
 
             if (data.status === 'DONE') {
                 setPosts(prev => prev.map(post =>
@@ -221,7 +203,7 @@ const PostsSetting = () => {
         if (!confirmed) return;
 
         try {
-            const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}`, { method: 'DELETE' });
+            const { data } = await deletePost(postsData!.username, postUrl);
 
             if (data.status === 'DONE') {
                 notification('포스트가 삭제되었습니다.', { type: 'success' });
@@ -251,13 +233,7 @@ const PostsSetting = () => {
         if (!post) return;
 
         try {
-            const formData = `tag=${encodeURIComponent(post.tag)}`;
-
-            const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}?tag=tag`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: formData
-            });
+            const { data } = await updatePostTags(postsData!.username, postUrl, post.tag);
 
             if (data.status === 'DONE') {
                 setPosts(prev => prev.map(p =>
@@ -295,13 +271,7 @@ const PostsSetting = () => {
         if (!post) return;
 
         try {
-            const formData = `series=${encodeURIComponent(post.series)}`;
-
-            const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}?series=series`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: formData
-            });
+            const { data } = await updatePostSeries(postsData!.username, postUrl, post.series || '');
 
             if (data.status === 'DONE') {
                 setPosts(prev => prev.map(p =>
@@ -383,7 +353,7 @@ const PostsSetting = () => {
                             onChange={(e) => handleFilterChange('tag', e.target.value)}
                             className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
                             <option value="">태그 선택</option>
-                            {tags?.map((tag, index) => (
+                            {tags?.map((tag: Tag, index: number) => (
                                 <option key={index} value={tag.name}>
                                     {tag.name} ({tag.count})
                                 </option>
@@ -397,7 +367,7 @@ const PostsSetting = () => {
                             onChange={(e) => handleFilterChange('series', e.target.value)}
                             className="block w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-500 text-sm">
                             <option value="">시리즈 선택</option>
-                            {series?.map((item, index) => (
+                            {series?.map((item: Series, index: number) => (
                                 <option key={index} value={item.url}>
                                     {item.title} ({item.totalPosts})
                                 </option>
@@ -438,7 +408,7 @@ const PostsSetting = () => {
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {posts.map((post) => (
+                    {posts.map((post: Post) => (
                         <div key={post.url} className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
                             {/* 헤더 */}
                             <div className="p-4 border-b border-gray-200">
@@ -548,7 +518,7 @@ const PostsSetting = () => {
                                         <i className="fas fa-book text-xs" />
                                     </div>
                                     <select
-                                        value={post.series}
+                                        value={post.series || ''}
                                         onChange={(e) => handleSeriesChange(post.url, e.target.value)}
                                         className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-500 bg-white">
                                         <option value="">시리즈 선택 안함</option>

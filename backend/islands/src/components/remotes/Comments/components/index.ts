@@ -4,6 +4,7 @@ export { CommentContent } from './CommentContent';
 export { CommentActions } from './CommentActions';
 export { CommentEditForm } from './CommentEditForm';
 export { EmptyState } from './EmptyState';
-export { CommentItem, type Comment } from './CommentItem';
+export { CommentItem } from './CommentItem';
 export { CommentList } from './CommentList';
 export { CommentForm } from './CommentForm';
+export type { Comment } from '~/lib/api/comments';

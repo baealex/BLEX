@@ -1,0 +1,27 @@
+import { http, type Response } from '~/modules/http.module';
+
+export interface SearchResult {
+    url: string;
+    title: string;
+    image: string;
+    description: string;
+    createdDate: string;
+    author: string;
+    authorImage: string;
+    readTime?: number;
+    positions?: string[];
+}
+
+export interface SearchResponseBody {
+    posts: SearchResult[];
+    lastPage: number;
+}
+
+export type SearchResponse = Response<SearchResponseBody>;
+
+/**
+ * Search posts
+ */
+export const searchPosts = async (query: string, page: number = 1) => {
+    return http.get<SearchResponse>(`/v1/search?q=${encodeURIComponent(query)}&page=${page}`);
+};

@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { http } from '~/modules/http.module';
-
-interface TempPost {
-    token: string;
-    title: string;
-    createdDate: string;
-}
+import { getTempPosts, type TempPost } from '~/lib/api/settings';
 
 interface TempPostsPanelProps {
     isOpen: boolean;
@@ -32,7 +26,7 @@ const TempPostsPanel: React.FC<TempPostsPanelProps> = ({
     const fetchTempPosts = async () => {
         setIsLoading(true);
         try {
-            const { data } = await http('v1/temp-posts');
+            const { data } = await getTempPosts();
             if (data.status === 'DONE' && data.body?.temps) {
                 setTempPosts(Array.isArray(data.body.temps) ? data.body.temps : []);
             } else {

@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { http } from '~/modules/http.module';
-
-interface RelatedPost {
-    title: string;
-    url: string;
-    authorUsername: string;
-    metaDescription: string;
-    image?: string;
-    createdDate: string;
-    readTime: number;
-}
+import { getRelatedPosts, type RelatedPost } from '~/lib/api/posts';
 
 interface RelatedPostsProps {
     postUrl: string;
@@ -23,7 +13,7 @@ const RelatedPosts: React.FC<RelatedPostsProps> = ({ postUrl, username }) => {
     useEffect(() => {
         const fetchRelatedPosts = async () => {
             try {
-                const { data } = await http(`v1/users/@${username}/posts/${postUrl}/related`);
+                const { data } = await getRelatedPosts(username, postUrl);
                 if (data.status === 'DONE') {
                     setRelatedPosts(data.body.posts || []);
                 }
