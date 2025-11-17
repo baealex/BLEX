@@ -736,7 +736,7 @@ class SiteSetting(models.Model):
 
     class Meta:
         verbose_name = 'Site Setting'
-        verbose_name_plural = 'Site Settings'
+        verbose_name_plural = '# Site Settings'
 
     def __str__(self):
         return 'Site Settings'
@@ -778,8 +778,6 @@ class StaticPage(models.Model):
                                null=True, blank=True)
 
     class Meta:
-        verbose_name = '정적 페이지'
-        verbose_name_plural = '정적 페이지'
         ordering = ['order', 'slug']
 
     def __str__(self):

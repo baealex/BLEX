@@ -29,8 +29,6 @@ class Migration(migrations.Migration):
                 ('author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'verbose_name': '정적 페이지',
-                'verbose_name_plural': '정적 페이지',
                 'ordering': ['order', 'slug'],
             },
         ),
