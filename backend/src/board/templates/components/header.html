@@ -7,9 +7,9 @@
     style="transform: translateY(var(--translate-y, 0)); transition: transform 0.3s ease-in-out;"
 >
     <div class="container mx-auto">
-        <div class="flex justify-between items-center py-4 md:py-5">
+        <div class="flex justify-between items-center py-3 md:py-3.5">
             <a href="/" class="flex items-center group">
-                <img class="h-10 md:h-11 w-auto transition-all duration-300 group-hover:scale-105" src="{% resource 'logob.svg' %}" alt="BLEX">
+                <img class="h-8 md:h-9 w-auto transition-all duration-200 group-hover:scale-105" src="{% resource 'logob.svg' %}" alt="BLEX">
             </a>
             <nav class="flex items-center space-x-3">
                 {% if user.is_authenticated %}
@@ -22,17 +22,17 @@
                         <i class="fas fa-search text-lg"></i>
                     </button>
                     {% if not is_editor_page and user.profile.is_editor %}
-                    <a href="/write" class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2.5 transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105">
+                    <a href="/write" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md">
                         <i class="fas fa-pen text-sm"></i>
                         <span class="hidden sm:inline">글 작성</span>
                     </a>
                     {% endif %}
                 <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-xl transition-all duration-200 group">
-                        <div class="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                    <button @click="open = !open" class="flex items-center space-x-2 focus:outline-none bg-gray-50 hover:bg-gray-100 px-2.5 py-1.5 rounded-lg transition-all duration-200 group">
+                        <div class="w-7 h-7 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center text-white font-medium text-xs">
                             {{ user.username|first|upper }}
                         </div>
-                        <span class="font-medium text-gray-700 hidden md:inline">{{ user.username }}</span>
+                        <span class="font-medium text-gray-700 text-sm hidden md:inline">{{ user.username }}</span>
                         <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform duration-200 group-hover:text-gray-700" :class="{ 'transform rotate-180': open }"></i>
                     </button>
                     <div x-show="open" 
@@ -78,10 +78,10 @@
                 >
                     <i class="fas fa-search text-lg"></i>
                 </button>
-                <a href="/login" class="text-gray-600 hover:text-black font-semibold transition-all duration-300 px-4 py-3 rounded-2xl hover:bg-gray-50">
+                <a href="/login" class="text-gray-600 hover:text-black font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:bg-gray-50 text-sm">
                     로그인
                 </a>
-                <a href="/sign" class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105">
+                <a href="/sign" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-sm hover:shadow-md text-sm">
                     회원가입
                 </a>
                 {% endif %}
