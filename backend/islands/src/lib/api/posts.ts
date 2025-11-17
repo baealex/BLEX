@@ -121,11 +121,20 @@ export const updateTempPost = async (token: string, data: { title: string; text_
     return http.put<Response<{ success: boolean }>>(`v1/temp-posts/${token}`, formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 };
 
+export interface TempPostDetail {
+    token: string;
+    title: string;
+    textMd: string;
+    rawContent: string;
+    tags: string;
+    createdDate: string;
+}
+
 /**
  * Get temporary post by token
  */
 export const getTempPost = async (token: string) => {
-    return http.get<Response<{ title: string; text_md: string; tag: string }>>(`v1/temp-posts/${token}`);
+    return http.get<Response<TempPostDetail>>(`v1/temp-posts/${token}`);
 };
 
 export interface PostForEdit {

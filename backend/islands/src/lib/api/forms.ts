@@ -19,14 +19,12 @@ export interface FormField {
 
 export interface CreateFormData {
     title: string;
-    description: string;
-    fields: FormField[];
+    content: string;
 }
 
 export interface UpdateFormData {
     title?: string;
-    description?: string;
-    fields?: FormField[];
+    content?: string;
 }
 
 interface FormsListResponse {

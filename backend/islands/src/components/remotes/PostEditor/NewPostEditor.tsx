@@ -127,8 +127,8 @@ const NewPostEditor: React.FC<NewPostEditorProps> = ({ tempToken }) => {
                     if (tempResponse.status === 'DONE' && tempResponse.body) {
                         const tempData = tempResponse.body;
                         const newTitle = tempData.title || '';
-                        const newContent = tempData.text_md || '';
-                        const newTags = tempData.tag ? tempData.tag.split(',').filter(Boolean) : [];
+                        const newContent = tempData.textMd || '';
+                        const newTags = tempData.tags ? tempData.tags.split(',').filter(Boolean) : [];
 
                         setFormData(prev => ({
                             ...prev,

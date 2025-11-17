@@ -103,7 +103,7 @@ const FormsManagement: React.FC = () => {
             if (editingForm) {
                 const { data } = await updateForm(editingForm.id, {
                     title: formData.title,
-                    description: formData.content
+                    content: formData.content
                 });
                 if (data.status === 'DONE') {
                     notification('서식이 수정되었습니다.', { type: 'success' });
@@ -115,8 +115,7 @@ const FormsManagement: React.FC = () => {
             } else {
                 const { data } = await createForm({
                     title: formData.title,
-                    description: formData.content,
-                    fields: []
+                    content: formData.content
                 });
                 if (data.status === 'DONE') {
                     notification('서식이 생성되었습니다.', { type: 'success' });
