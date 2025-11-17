@@ -21,7 +21,16 @@ import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button } from '~/components/shared';
-import { getCardClass, getIconClass, CARD_PADDING, FLEX_ROW, TITLE, SUBTITLE, ACTIONS_CONTAINER, DRAG_HANDLE } from '~/components/shared/settingsStyles';
+import {
+ getCardClass,
+ getIconClass,
+ CARD_PADDING,
+ FLEX_ROW,
+ TITLE,
+ SUBTITLE,
+ ACTIONS_CONTAINER,
+ DRAG_HANDLE
+} from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import {
     getSeriesWithUsername,

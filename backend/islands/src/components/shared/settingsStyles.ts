@@ -17,7 +17,7 @@ export const ICON_SIZE = 'text-sm';
 export const ICON_VARIANTS = {
     default: 'bg-gray-100 text-gray-600',
     dark: 'bg-gray-800 text-white',
-    light: 'bg-gray-50 text-gray-500 border border-gray-200',
+    light: 'bg-gray-50 text-gray-500 border border-gray-200'
 } as const;
 
 // Typography
