@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { http, type Response } from '~/modules/http.module';
+import type { Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button, Input } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import { getPosts, togglePostVisibility, deletePost, updatePostTags, updatePostSeries } from '~/lib/api/posts';
+import { getTags, getSeries } from '~/lib/api/settings';
 
 interface Post {
     url: string;
@@ -111,12 +113,19 @@ const PostsSetting = () => {
         queryFn: async () => {
             setPostsMounted(false);
 
-            const params = new URLSearchParams();
+            // Map filters to API format (order -> sort)
+            const apiFilters: Record<string, string | number> = {};
             Object.entries(filters).forEach(([key, value]) => {
-                if (value) params.append(key, value);
+                if (value) {
+                    if (key === 'order') {
+                        apiFilters['sort'] = value;
+                    } else {
+                        apiFilters[key] = value;
+                    }
+                }
             });
 
-            const { data } = await http<Response<PostsData>>(`v1/setting/posts?${params.toString()}`, { method: 'GET' });
+            const { data } = await getPosts(apiFilters);
 
             if (data.status === 'DONE') {
                 return data.body;
@@ -128,7 +137,7 @@ const PostsSetting = () => {
     const { data: tags } = useFetch({
         queryKey: ['setting-tags'],
         queryFn: async () => {
-            const { data } = await http<Response<{ tags: Tag[] }>>('v1/setting/tag', { method: 'GET' });
+            const { data } = await getTags();
             if (data.status === 'DONE') {
                 return data.body.tags;
             }
@@ -139,7 +148,7 @@ const PostsSetting = () => {
     const { data: series } = useFetch({
         queryKey: ['setting-series'],
         queryFn: async () => {
-            const { data } = await http<Response<{ series: Series[] }>>('v1/setting/series', { method: 'GET' });
+            const { data } = await getSeries();
             if (data.status === 'DONE') {
                 return data.body.series;
             }
@@ -186,11 +195,7 @@ const PostsSetting = () => {
 
     const handlePostVisibilityToggle = async (postUrl: string) => {
         try {
-            const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}?hide=hide`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: ''
-            });
+            const { data } = await togglePostVisibility(postsData!.username, postUrl);
 
             if (data.status === 'DONE') {
                 setPosts(prev => prev.map(post =>
@@ -221,7 +226,7 @@ const PostsSetting = () => {
         if (!confirmed) return;
 
         try {
-            const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}`, { method: 'DELETE' });
+            const { data } = await deletePost(postsData!.username, postUrl);
 
             if (data.status === 'DONE') {
                 notification('포스트가 삭제되었습니다.', { type: 'success' });
@@ -251,13 +256,7 @@ const PostsSetting = () => {
         if (!post) return;
 
         try {
-            const formData = `tag=${encodeURIComponent(post.tag)}`;
-
-            const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}?tag=tag`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: formData
-            });
+            const { data } = await updatePostTags(postsData!.username, postUrl, post.tag);
 
             if (data.status === 'DONE') {
                 setPosts(prev => prev.map(p =>
@@ -295,13 +294,7 @@ const PostsSetting = () => {
         if (!post) return;
 
         try {
-            const formData = `series=${encodeURIComponent(post.series)}`;
-
-            const { data } = await http(`v1/users/@${postsData?.username}/posts/${postUrl}?series=series`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: formData
-            });
+            const { data } = await updatePostSeries(postsData!.username, postUrl, post.series);
 
             if (data.status === 'DONE') {
                 setPosts(prev => prev.map(p =>

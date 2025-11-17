@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button, Input, Card } from '~/components/shared';
+import { getProfileSettings, updateProfileSettings, uploadAvatar } from '~/lib/api/settings';
 
 // Define Zod schema for profile form
 const profileSchema = z.object({
@@ -24,7 +24,7 @@ const ProfileSetting = () => {
     const { data: profileData, isError, refetch } = useFetch({
         queryKey: ['profile-setting'],
         queryFn: async () => {
-            const { data } = await http('v1/setting/profile', { method: 'GET' });
+            const { data } = await getProfileSettings();
             if (data.status === 'DONE') {
                 return data.body;
             }
@@ -52,14 +52,9 @@ const ProfileSetting = () => {
         setIsLoading(true);
 
         try {
-            const params = new URLSearchParams();
-            params.append('bio', formData.bio || '');
-            params.append('homepage', formData.homepage || '');
-
-            const { data } = await http('v1/setting/profile', {
-                method: 'PUT',
-                data: params.toString(),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            const { data } = await updateProfileSettings({
+                bio: formData.bio || '',
+                homepage: formData.homepage || ''
             });
 
             if (data.status === 'DONE') {
@@ -79,14 +74,8 @@ const ProfileSetting = () => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const formData = new FormData();
-        formData.append('avatar', file);
-
         try {
-            const { data } = await http('v1/setting/avatar', {
-                method: 'POST',
-                data: formData
-            });
+            const { data } = await uploadAvatar(file);
 
             if (data.status === 'DONE') {
                 setAvatar(data.body.url);

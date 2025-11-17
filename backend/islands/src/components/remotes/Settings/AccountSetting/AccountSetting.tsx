@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { http, type Response } from '~/modules/http.module';
+import type { Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -7,6 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button, Input, Card } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import { getAccountSettings, updateAccountSettings } from '~/lib/api/settings';
+import { enable2FA, disable2FA } from '~/lib/api/auth';
 
 interface AccountData {
     username: string;
@@ -54,7 +56,7 @@ const AccountSettings: React.FC = () => {
     const { data: accountData, isLoading: isDataLoading, isError, refetch } = useFetch({
         queryKey: ['account-setting'],
         queryFn: async () => {
-            const { data } = await http<Response<AccountData>>('v1/setting/account', { method: 'GET' });
+            const { data } = await getAccountSettings();
             if (data.status === 'DONE') {
                 return data.body;
             }
@@ -78,10 +80,7 @@ const AccountSettings: React.FC = () => {
     const onSubmitUsername = async (formData: UsernameFormInputs) => {
         setIsUsernameLoading(true);
         try {
-            const { data } = await http('v1/setting/account', {
-                method: 'PUT',
-                data: { username: formData.username }
-            });
+            const { data } = await updateAccountSettings({ username: formData.username });
 
             if (data.status === 'DONE') {
                 notification('아이디가 변경되었습니다.', { type: 'success' });
@@ -99,10 +98,7 @@ const AccountSettings: React.FC = () => {
     const onSubmitName = async (formData: NameFormInputs) => {
         setIsNameLoading(true);
         try {
-            const { data } = await http('v1/setting/account', {
-                method: 'PUT',
-                data: { name: formData.name }
-            });
+            const { data } = await updateAccountSettings({ name: formData.name });
 
             if (data.status === 'DONE') {
                 notification('이름이 업데이트되었습니다.', { type: 'success' });
@@ -120,10 +116,7 @@ const AccountSettings: React.FC = () => {
     const onSubmitPassword = async (formData: PasswordFormInputs) => {
         setIsPasswordLoading(true);
         try {
-            const { data } = await http('v1/setting/account', {
-                method: 'PUT',
-                data: { password: formData.newPassword }
-            });
+            const { data } = await updateAccountSettings({ new_password: formData.newPassword });
 
             if (data.status === 'DONE') {
                 notification('비밀번호가 변경되었습니다.', { type: 'success' });
@@ -155,7 +148,7 @@ const AccountSettings: React.FC = () => {
         }
 
         try {
-            const { data } = await http('v1/auth/security', { method: enable ? 'POST' : 'DELETE' });
+            const { data } = enable ? await enable2FA() : await disable2FA();
 
             if (data.status === 'DONE') {
                 notification(`2차 인증이 ${enable ? '활성화' : '해제'}되었습니다.`, { type: 'success' });

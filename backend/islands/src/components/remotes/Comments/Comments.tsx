@@ -1,9 +1,16 @@
 import { useState, useMemo, useCallback } from 'react';
 import type { Response } from '~/modules/http.module';
-import { http } from '~/modules/http.module';
 import { useFetch } from '~/hooks/use-fetch';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import { isLoggedIn as checkIsLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
+import {
+    getComments,
+    createComment,
+    getComment,
+    updateComment,
+    deleteComment as deleteCommentAPI,
+    toggleCommentLike
+} from '~/lib/api';
 
 import { ErrorAlert } from './components/ErrorAlert';
 import { CommentList } from './components/CommentList';
@@ -35,10 +42,7 @@ const Comments = (props: CommentsProps) => {
     const { data, isError, isLoading, refetch } = useFetch({
         queryKey: [postUrl, 'comments'],
         queryFn: async () => {
-            const response = await http<Response<{ comments: Comment[] }>>(
-                `v1/posts/${postUrl}/comments`,
-                { method: 'GET' }
-            );
+            const response = await getComments(postUrl);
             if (response.data.status === 'ERROR') {
                 throw new Error(response.data.errorMessage);
             }
@@ -55,14 +59,7 @@ const Comments = (props: CommentsProps) => {
             }
 
             try {
-                const response = await http<Response<{ countLikes: number }>>(
-                    `v1/comments/${commentId}`,
-                    {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        data: 'like=like'
-                    }
-                );
+                const response = await toggleCommentLike(commentId);
 
                 if (response.data.status === 'DONE') {
                     refetch();
@@ -91,17 +88,7 @@ const Comments = (props: CommentsProps) => {
         setError(null);
 
         try {
-            const params = new URLSearchParams();
-            params.append('comment_md', commentText);
-
-            const response = await http<Response<Comment>>(
-                `v1/comments?url=${encodeURIComponent(postUrl)}`,
-                {
-                    method: 'POST',
-                    data: params.toString(),
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                }
-            );
+            const response = await createComment(postUrl, commentText);
 
             if (response.data.status === 'DONE') {
                 setCommentText('');
@@ -118,10 +105,7 @@ const Comments = (props: CommentsProps) => {
 
     const startEditing = async (commentId: number) => {
         try {
-            const response = await http<Response<CommentEditData>>(
-                `v1/comments/${commentId}`,
-                { method: 'GET' }
-            );
+            const response = await getComment(commentId);
 
             if (response.data.status === 'DONE' && response.data.body) {
                 setEditingCommentId(commentId);
@@ -149,15 +133,7 @@ const Comments = (props: CommentsProps) => {
         setError(null);
 
         try {
-            const params = new URLSearchParams();
-            params.append('comment', 'true');
-            params.append('comment_md', editText);
-
-            const response = await http<Response<Comment>>(`v1/comments/${commentId}`, {
-                method: 'PUT',
-                data: params.toString(),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
+            const response = await updateComment(commentId, editText);
 
             if (response.data.status === 'DONE') {
                 setEditingCommentId(null);
@@ -184,10 +160,7 @@ const Comments = (props: CommentsProps) => {
         if (!confirmed) return;
 
         try {
-            const response = await http<Response<Comment>>(
-                `v1/comments/${commentId}`,
-                { method: 'DELETE' }
-            );
+            const response = await deleteCommentAPI(commentId);
 
             if (response.data.status === 'DONE') {
                 refetch();

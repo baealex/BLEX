@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { http, type Response } from '~/modules/http.module';
+import type { Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import { getTempPosts, deleteTempPost } from '~/lib/api/settings';
 
 interface TempPost {
     token: string;
@@ -20,7 +21,7 @@ const TempPostsSetting = () => {
     const { data: tempPosts, isLoading, isError, refetch } = useFetch({
         queryKey: ['temp-posts'],
         queryFn: async () => {
-            const { data } = await http<Response<TempPostsData>>('v1/temp-posts', { method: 'GET' });
+            const { data } = await getTempPosts();
             if (data.status === 'DONE') {
                 return data.body.temps;
             }
@@ -45,7 +46,7 @@ const TempPostsSetting = () => {
         if (!confirmed) return;
 
         try {
-            const { data } = await http(`v1/temp-posts/${token}`, { method: 'DELETE' });
+            const { data } = await deleteTempPost(token);
 
             if (data.status === 'DONE') {
                 notification('임시저장 포스트가 삭제되었습니다.', { type: 'success' });

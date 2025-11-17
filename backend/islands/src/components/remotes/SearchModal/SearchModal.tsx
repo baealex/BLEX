@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getMediaPath } from '~/modules/static.module';
 import Modal from '~/components/shared/Modal';
+import { searchPosts } from '~/lib/api';
 
 interface SearchResult {
     url: string;
@@ -63,8 +64,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
         setHasSearched(true);
 
         try {
-            const response = await fetch(`/v1/search?q=${encodeURIComponent(searchQuery)}&page=${pageNum}`);
-            const data = await response.json();
+            const data = await searchPosts(searchQuery, pageNum);
 
             if (data.status === 'DONE') {
                 setSearchResults(data.body);

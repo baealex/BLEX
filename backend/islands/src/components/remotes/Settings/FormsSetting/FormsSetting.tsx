@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { useForm } from 'react-hook-form';
@@ -8,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { Response } from '~/modules/http.module';
 import { Button, Input, Modal } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
+import { getForms, getForm, createForm, updateForm, deleteForm } from '~/lib/api/forms';
 
 interface FormItem {
     id: number;
@@ -37,7 +37,7 @@ const FormsManagement: React.FC = () => {
     const { data: formsData, isLoading, refetch } = useFetch({
         queryKey: ['forms'],
         queryFn: async () => {
-            const { data } = await http.get<Response<FormsData>>('/v1/forms');
+            const { data } = await getForms();
             if (data.status === 'DONE') {
                 return data.body;
             }
@@ -56,7 +56,7 @@ const FormsManagement: React.FC = () => {
         if (!confirmed) return;
 
         try {
-            const { data } = await http.delete(`/v1/forms/${formId}`);
+            const { data } = await deleteForm(formId);
 
             if (data.status === 'DONE') {
                 notification('서식이 삭제되었습니다.', { type: 'success' });
@@ -80,7 +80,7 @@ content: ''
 
     const handleEditForm = async (formId: number) => {
         try {
-            const { data } = await http.get<Response<FormItem>>(`/v1/forms/${formId}`);
+            const { data } = await getForm(formId);
             if (data.status === 'DONE') {
                 setEditingForm(data.body);
                 reset({
@@ -100,7 +100,7 @@ content: ''
         setIsSubmitting(true);
         try {
             if (editingForm) {
-                const { data } = await http.put(`/v1/forms/${editingForm.id}`, formData);
+                const { data } = await updateForm(editingForm.id, formData);
                 if (data.status === 'DONE') {
                     notification('서식이 수정되었습니다.', { type: 'success' });
                     setIsModalOpen(false);
@@ -109,7 +109,7 @@ content: ''
                     notification('서식 수정에 실패했습니다.', { type: 'error' });
                 }
             } else {
-                const { data } = await http.post('/v1/forms', formData);
+                const { data } = await createForm(formData);
                 if (data.status === 'DONE') {
                     notification('서식이 생성되었습니다.', { type: 'success' });
                     setIsModalOpen(false);
