@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useConfirm } from '~/contexts/ConfirmContext';
 import PostHeader from './components/PostHeader';
 import PostForm from './components/PostForm';
 import SettingsDrawer from './components/SettingsDrawer';
+import { getSeries } from '~/lib/api/settings';
+import { getPostForEdit } from '~/lib/api/posts';
 
 interface Series {
     id: string;
@@ -55,13 +56,17 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
             setIsLoading(true);
             try {
                 // Fetch series list
-                const { data: seriesResponse } = await http('v1/series');
+                const { data: seriesResponse } = await getSeries();
                 if (seriesResponse.status === 'DONE') {
-                    setSeriesList(seriesResponse.body.series || []);
+                    const mappedSeries = (seriesResponse.body.series || []).map(s => ({
+                        id: s.url,
+                        name: s.title
+                    }));
+                    setSeriesList(mappedSeries);
                 }
 
                 // Fetch post data for editing
-                const { data: postResponse } = await http(`v1/users/@${username}/posts/${postUrl}?mode=edit`);
+                const { data: postResponse } = await getPostForEdit(username, postUrl);
                 if (postResponse.status === 'DONE') {
                     const postData = postResponse.body;
                     setFormData({

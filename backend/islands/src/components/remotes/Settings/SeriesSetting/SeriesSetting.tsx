@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import type { DragEndEvent } from '@dnd-kit/core';
 import {
@@ -24,13 +23,12 @@ import { useFetch } from '~/hooks/use-fetch';
 import { Button } from '~/components/shared';
 import { getCardClass, getIconClass, CARD_PADDING, FLEX_ROW, TITLE, SUBTITLE, ACTIONS_CONTAINER, DRAG_HANDLE } from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
-
-interface Series {
-    id: number;
-    url: string;
-    title: string;
-    totalPosts: number;
-}
+import {
+    getSeriesWithUsername,
+    updateSeriesOrder,
+    deleteSeries,
+    type SeriesWithId as Series
+} from '~/lib/api/settings';
 
 interface SortableSeriesItemProps {
     series: Series;
@@ -142,7 +140,7 @@ const SeriesSetting = () => {
     const { data: seriesData, isLoading, isError } = useFetch({
         queryKey: ['series-setting'],
         queryFn: async () => {
-            const { data } = await http<Response<{ username: string; series: Series[] }>>('v1/setting/series', { method: 'GET' });
+            const { data } = await getSeriesWithUsername();
             if (data.status === 'DONE') {
                 return data.body;
             }
@@ -185,13 +183,9 @@ const SeriesSetting = () => {
             setSeries(newSeries);
 
             try {
-                const orderData = newSeries.map((item, idx) => [item.id, idx]);
+                const orderData: [number, number][] = newSeries.map((item, idx) => [item.id, idx]);
 
-                const { data } = await http('v1/series/order', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    data: JSON.stringify({ order: orderData })
-                });
+                const { data } = await updateSeriesOrder(orderData);
 
                 if (data.status !== 'DONE') {
                     throw new Error('Order update failed');
@@ -214,7 +208,7 @@ const SeriesSetting = () => {
         if (!seriesItem) return;
 
         try {
-            const { data } = await http(`v1/users/@${username}/series/${seriesItem.url}`, { method: 'DELETE' });
+            const { data } = await deleteSeries(username, seriesItem.url);
 
             if (data.status === 'DONE') {
                 setSeries(series.filter(s => s.id !== seriesId));

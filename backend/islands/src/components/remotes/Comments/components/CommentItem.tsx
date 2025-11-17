@@ -2,17 +2,7 @@ import { CommentHeader } from './CommentHeader';
 import { CommentContent } from './CommentContent';
 import { CommentActions } from './CommentActions';
 import { CommentEditForm } from './CommentEditForm';
-
-export interface Comment {
-    id: number;
-    author: string;
-    authorImage: string;
-    renderedContent: string;
-    isEdited: boolean;
-    createdDate: string;
-    countLikes: number;
-    isLiked: boolean;
-}
+import type { Comment } from '~/lib/api/comments';
 
 interface CommentItemProps {
     comment: Comment;

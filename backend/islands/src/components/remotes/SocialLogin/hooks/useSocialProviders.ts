@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react';
-
-interface SocialProvider {
-  key: string;
-  name: string;
-  color: string;
-}
+import { getSocialProviders, type SocialProvider } from '~/lib/api';
 
 export const useSocialProviders = () => {
   const [providers, setProviders] = useState<SocialProvider[]>([]);
@@ -13,8 +8,7 @@ export const useSocialProviders = () => {
   useEffect(() => {
     const loadProviders = async () => {
       try {
-        const response = await fetch('/v1/social-providers');
-        const data = await response.json();
+        const { data } = await getSocialProviders();
 
         if (data.status === 'DONE' && data.body) {
           setProviders(data.body);

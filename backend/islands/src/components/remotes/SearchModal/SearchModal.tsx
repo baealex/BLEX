@@ -1,35 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getMediaPath } from '~/modules/static.module';
 import Modal from '~/components/shared/Modal';
-
-interface SearchResult {
-    url: string;
-    title: string;
-    image: string;
-    description: string;
-    readTime: number;
-    createdDate: string;
-    authorImage: string;
-    author: string;
-    positions: string[];
-}
-
-interface SearchResponse {
-    elapsedTime: number;
-    totalSize: number;
-    lastPage: number;
-    query: string;
-    results: SearchResult[];
-}
+import { searchPosts, type SearchResult } from '~/lib/api';
 
 interface SearchModalProps {
     isOpen?: boolean;
 }
 
+interface SearchResultsData {
+    posts: SearchResult[];
+    lastPage: number;
+    query?: string;
+    totalSize?: number;
+    elapsedTime?: number;
+}
+
 const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false }) => {
     const [isOpen, setIsOpen] = useState(initialIsOpen);
     const [query, setQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<SearchResponse | null>(null);
+    const [searchResults, setSearchResults] = useState<SearchResultsData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasSearched, setHasSearched] = useState(false);
@@ -63,8 +52,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
         setHasSearched(true);
 
         try {
-            const response = await fetch(`/v1/search?q=${encodeURIComponent(searchQuery)}&page=${pageNum}`);
-            const data = await response.json();
+            const { data } = await searchPosts(searchQuery, pageNum);
 
             if (data.status === 'DONE') {
                 setSearchResults(data.body);
@@ -206,9 +194,9 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                         </div>
 
                         {/* 포스트 목록 */}
-                        {searchResults.results.length > 0 ? (
+                        {searchResults.posts.length > 0 ? (
                             <div className="space-y-3">
-                                {searchResults.results.map((result, index) => (
+                                {searchResults.posts.map((result: SearchResult, index: number) => (
                                     <article key={index} className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 overflow-hidden">
                                         <div className="p-5">
                                             {/* 작성자 정보 */}
@@ -227,7 +215,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                                                 </a>
                                                 <div className="text-right flex-shrink-0">
                                                     <div className="text-xs text-gray-500">{result.createdDate}</div>
-                                                    {result.readTime > 0 && (
+                                                    {result.readTime && result.readTime > 0 && (
                                                         <div className="text-xs text-gray-400 flex items-center gap-1 justify-end mt-0.5">
                                                             <i className="far fa-clock text-xs" />
                                                             <span>{result.readTime}분</span>
@@ -251,9 +239,9 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen: initialIsOpen = false
                                             )}
 
                                             {/* 검색 위치 태그 */}
-                                            {result.positions.length > 0 && (
+                                            {result.positions && result.positions.length > 0 && (
                                                 <div className="flex flex-wrap gap-1.5 pt-3 border-t border-gray-100">
-                                                    {result.positions.map((position, idx) => (
+                                                    {result.positions.map((position: string, idx: number) => (
                                                         <span
                                                             key={idx}
                                                             className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${getPositionColor(position)}`}>

@@ -2,11 +2,7 @@ import React from 'react';
 import { useLoginState } from './hooks/useLoginState';
 import LoginForm from './components/LoginForm';
 import TwoFactorForm from './components/TwoFactorForm';
-
-const getCsrfToken = (): string => {
-    const token = document.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]')?.value;
-    return token || '';
-};
+import { login, submit2FACode } from '~/lib/api';
 
 const Login = () => {
     const {
@@ -142,24 +138,11 @@ const Login = () => {
         }
 
         try {
-            const requestBody = new URLSearchParams({
-                'username': state.username,
-                'password': state.password
+            const { data } = await login({
+                username: state.username,
+                password: state.password,
+                captcha_token: state.captchaToken || undefined
             });
-
-            if (state.captchaToken) {
-                requestBody.append('h-captcha-response', state.captchaToken);
-            }
-
-            const response = await fetch('/v1/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: requestBody
-            });
-            const data = await response.json();
 
             if (data.status === 'DONE') {
                 updateState({
@@ -168,7 +151,7 @@ const Login = () => {
                     captchaToken: null
                 });
 
-                if (data.body.security) {
+                if (data.body?.security) {
                     updateState({ showTwoFactor: true });
                 } else {
                     window.location.href = '/';
@@ -209,15 +192,7 @@ const Login = () => {
         }
 
         try {
-            const response = await fetch('/v1/auth/security/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: new URLSearchParams({ 'code': code })
-            });
-            const data = await response.json();
+            const { data } = await submit2FACode({ auth_code: code });
 
             if (data.status === 'DONE') {
                 updateState({
