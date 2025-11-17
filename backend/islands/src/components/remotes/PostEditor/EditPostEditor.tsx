@@ -72,17 +72,17 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ username, postUrl }) =>
                     setFormData({
                         title: postData.title || '',
                         url: postData.url || '',
-                        content: postData.text_md || '',
-                        metaDescription: postData.meta_description || '',
-                        hide: postData.hide || false,
-                        notice: postData.notice || false,
-                        advertise: postData.advertise || false
+                        content: postData.textHtml || '',
+                        metaDescription: postData.description || '',
+                        hide: postData.isHide || false,
+                        notice: postData.isNotice || false,
+                        advertise: postData.isAdvertise || false
                     });
-                    setTags(postData.tag ? postData.tag.split(',') : []);
+                    setTags(postData.tags || []);
                     setImagePreview(postData.image || null);
                     setSelectedSeries({
-                        id: postData.series || '',
-                        name: postData.series || ''
+                        id: postData.series?.id || '',
+                        name: postData.series?.name || ''
                     });
                 }
             } catch {

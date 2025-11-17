@@ -158,12 +158,17 @@ def login(request):
         if attempts >= 5:
             return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
 
-        data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        # Try to parse JSON first, then fallback to POST data
+        try:
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            data = {}
+
         social = data.get('social', '') or request.POST.get('social', '')
         if not social:
-            username = data.get('username', '')
-            password = data.get('password', '')
-            # hcaptcha_response = data.get('h-captcha-response', '')
+            username = data.get('username', '') or request.POST.get('username', '')
+            password = data.get('password', '') or request.POST.get('password', '')
+            # hcaptcha_response = data.get('h-captcha-response', '') or request.POST.get('h-captcha-response', '')
 
         # Validate hCaptcha if attempts >= 3
         # if attempts >= 3:

@@ -128,22 +128,27 @@ export const getTempPost = async (token: string) => {
     return http.get<Response<{ title: string; text_md: string; tag: string }>>(`v1/temp-posts/${token}`);
 };
 
+export interface PostForEdit {
+    title: string;
+    url: string;
+    textHtml: string;
+    image: string;
+    description: string;
+    tags: string[];
+    series: {
+        id: string;
+        name: string;
+    } | null;
+    isHide: boolean;
+    isNotice: boolean;
+    isAdvertise: boolean;
+}
+
 /**
  * Get post for editing
  */
 export const getPostForEdit = async (username: string, postUrl: string) => {
-    return http.get<Response<{
-        title: string;
-        url: string;
-        textMd: string;
-        image: string;
-        metaDescription: string;
-        tag: string;
-        series: string;
-        hide: boolean;
-        notice: boolean;
-        advertise: boolean;
-    }>>(`v1/users/@${username}/posts/${postUrl}?mode=edit`);
+    return http.get<Response<PostForEdit>>(`v1/users/@${username}/posts/${postUrl}?mode=edit`);
 };
 
 /**
