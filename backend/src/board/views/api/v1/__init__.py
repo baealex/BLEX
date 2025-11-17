@@ -1,6 +1,7 @@
 # export
 from .auth import *
 from .comment import *
+from .dashboard import *
 from .form import *
 from .image import *
 from .post import *
