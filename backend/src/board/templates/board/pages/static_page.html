@@ -1,0 +1,10 @@
+{% extends 'board/base.html' %}
+{% load static %}
+
+{% block title %}{{ page.title }} - BLEX{% endblock %}
+
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+{{ page.content|safe }}
+{% endblock %}
