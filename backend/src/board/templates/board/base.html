@@ -55,10 +55,15 @@
 
 <body class="bg-gray-50">
     {% include 'components/header.html' %}
-    <main class="min-h-[calc(100vh-10.5rem)] flex flex-col px-4 py-8">
+    <main class="min-h-[calc(100vh-10.5rem)] flex flex-col px-4 md:px-6 py-6 md:py-8">
         {% block content %}{% endblock %}
     </main>
     {% include 'components/footer.html' %}
+
+    <!-- 검색 모달 -->
+    <island-component name="SearchModal"></island-component>
+    <!-- 로그인 프롬프트 모달 -->
+    <island-component name="LoginPrompt"></island-component>
     <script>
         window.configuration = {
             media: "{% resource 'media/' %}",

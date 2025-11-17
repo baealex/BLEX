@@ -7,31 +7,19 @@
 
 
 {% block setting_content %}
-<!-- 헤더 섹션 -->
-<div class="mb-8">
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
-        <h1 class="text-2xl font-bold text-blue-900 mb-2 flex items-center">
-            <i class="fas fa-tachometer-alt mr-3 text-blue-700"></i>
-            대시보드
-        </h1>
-        <p class="text-blue-700">{{ user.username }}님의 블로그 활동을 한눈에 확인하세요</p>
-    </div>
-</div>
-
-<!-- 통계 카드 그리드 -->
-{% island_component 'DashboardStats' %}
-
-<!-- 최근 활동 섹션 -->
-{% island_component 'DashboardActivities' %}
-
 <!-- 활동 히트맵 섹션 -->
-<div class="mt-8 bg-white rounded-2xl shadow-sm p-6">
+<div class="bg-white rounded-2xl shadow-sm p-6">
     <div class="mb-6">
-        <h2 class="text-lg font-semibold text-slate-900 flex items-center mb-2">
-            <i class="fas fa-fire mr-2 text-orange-500"></i>
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center mb-2">
+            <i class="fas fa-fire mr-2 text-gray-900"></i>
             활동 히트맵
         </h2>
     </div>
     {% island_component 'Heatmap' %}
+</div>
+
+<!-- 최근 활동 섹션 -->
+<div class="mt-6">
+    {% island_component 'DashboardActivities' %}
 </div>
 {% endblock %}

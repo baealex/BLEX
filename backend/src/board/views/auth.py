@@ -28,7 +28,11 @@ def signup_view(request):
     # If user is already authenticated, redirect to home page
     if request.user.is_authenticated:
         return redirect('/')
-    
-    return render(request, 'board/auth/signup.html')
+
+    context = {
+        'HCAPTCHA_SITE_KEY': getattr(settings, 'HCAPTCHA_SITE_KEY', ''),
+    }
+
+    return render(request, 'board/auth/signup.html', context)
 
 

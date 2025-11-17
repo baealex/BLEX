@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { ConfirmProvider } from '~/contexts/ConfirmContext';
 
 interface AppProps {
     __name: keyof typeof LazyComponents;
@@ -7,41 +8,36 @@ interface AppProps {
 }
 
 const LazyComponents = {
-    Comments: lazy(() => import('./Comments')),
-    PostEditor: lazy(() => import('./PostEditor')),
-    Heatmap: lazy(() => import('./Heatmap')),
-    Login: lazy(() => import('./Login')),
-    SocialLogin: lazy(() => import('./SocialLogin')),
-    RelatedPosts: lazy(() => import('./RelatedPosts')),
-    InvitationRequest: lazy(() => import('./InvitationRequest')),
-
-    // Dashboard
-    DashboardStats: lazy(() => import('./DashboardStats')),
-    DashboardActivities: lazy(() => import('./DashboardActivities')),
+    Comments: lazy(() => import('./remotes/Comments')),
+    PostEditor: lazy(() => import('./remotes/PostEditor')),
+    Login: lazy(() => import('./remotes/Login')),
+    SocialLogin: lazy(() => import('./remotes/SocialLogin')),
+    RelatedPosts: lazy(() => import('./remotes/RelatedPosts')),
+    SearchModal: lazy(() => import('./remotes/SearchModal')),
+    LoginPrompt: lazy(() => import('./remotes/LoginPrompt')),
 
     // Settings
-    FormsSetting: lazy(() => import('./Settings/FormsSetting')),
-    IntegrationSetting: lazy(() => import('./Settings/IntegrationSetting')),
-    InvitationSetting: lazy(() => import('./Settings/InvitationSetting')),
-    PostsSetting: lazy(() => import('./Settings/PostsSetting')),
-    RefererAnalyticsSetting: lazy(() => import('./Settings/RefererAnalyticsSetting')),
-    SeriesSetting: lazy(() => import('./Settings/SeriesSetting')),
-    VisitorAnalyticsSetting: lazy(() => import('./Settings/VisitorAnalyticsSetting')),
-    NotifySetting: lazy(() => import('./Settings/NotifySetting')),
-    AccountSetting: lazy(() => import('./Settings/AccountSetting')),
-    ProfileSetting: lazy(() => import('./Settings/ProfileSetting')),
-    TempPostsSetting: lazy(() => import('./Settings/TempPostsSetting')),
-    SocialLinksSetting: lazy(() => import('./Settings/SocialLinksSetting'))
+    OverviewSetting: lazy(() => import('./remotes/Settings/OverviewSetting')),
+    FormsSetting: lazy(() => import('./remotes/Settings/FormsSetting')),
+    IntegrationSetting: lazy(() => import('./remotes/Settings/IntegrationSetting')),
+    PostsSetting: lazy(() => import('./remotes/Settings/PostsSetting')),
+    SeriesSetting: lazy(() => import('./remotes/Settings/SeriesSetting')),
+    AccountSetting: lazy(() => import('./remotes/Settings/AccountSetting')),
+    ProfileSetting: lazy(() => import('./remotes/Settings/ProfileSetting')),
+    TempPostsSetting: lazy(() => import('./remotes/Settings/TempPostsSetting')),
+    SocialLinksSetting: lazy(() => import('./remotes/Settings/SocialLinksSetting'))
 };
 
 const App = ({ __name, ...props }: AppProps) => {
     const Component = LazyComponents[__name];
 
     return (
-        <Suspense>
-            {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
-            <Component {...props} />
-        </Suspense>
+        <ConfirmProvider>
+            <Suspense>
+                {/* @ts-expect-error - 동적 컴포넌트 props 타입 처리를 위한 임시 방법 */}
+                <Component {...props} />
+            </Suspense>
+        </ConfirmProvider>
     );
 };
 

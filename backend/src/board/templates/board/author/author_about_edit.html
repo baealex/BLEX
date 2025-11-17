@@ -33,7 +33,7 @@
                 <div class="flex items-center"
                      x-show="currentIndex === index"
                      class="text-base leading-relaxed">
-                     <span class="bg-primary-50 text-primary-500 px-2 py-1 border border-solid border-primary-200 rounded-md mr-2 text-xs">TIP</span>
+                     <span class="bg-black text-black px-2 py-1 border border-solid border-gray-300 rounded-md mr-2 text-xs">TIP</span>
                      <span x-text="tip"
                            x-show="currentIndex === index"
                            x-transition:enter="transition ease-out duration-500"
@@ -105,13 +105,13 @@
             <button
                 @click="saveAbout()"
                 :disabled="isSaving"
-                class="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                class="mt-4 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50"
             >
                 <span x-show="!isSaving">저장</span>
                 <span x-show="isSaving">저장 중...</span>
             </button>
 
-            <div x-show="message" :class="isSuccess ? 'text-green-600' : 'text-red-600'" class="mt-4 text-sm">
+            <div x-show="message" :class="isSuccess ? 'text-gray-700' : 'text-gray-900'" class="mt-4 text-sm">
                 <span x-text="message"></span>
             </div>
         </div>

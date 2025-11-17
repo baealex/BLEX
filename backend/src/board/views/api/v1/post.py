@@ -12,386 +12,55 @@ from django.utils.text import slugify
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    Comment, Referer, PostAnalytics, Series,
+    Comment, Series,
     TempPosts, Post, PostContent, PostConfig, PinnedPost,
-    Invitation, PostLikes, PostThanks, PostNoThanks, calc_read_time)
-from board.modules.analytics import create_device, get_network_addr, view_count
+    PostLikes, calc_read_time)
 from board.modules.notify import create_notify
 from board.modules.paginator import Paginator
 from board.modules.post_description import create_post_description
 from board.modules.requests import BooleanType
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime, time_since
+from board.services.post_service import PostService, PostValidationError
 from modules import markdown
 from modules.sub_task import SubTaskProcessor
 from modules.discord import Discord
 
 
 def post_list(request):
+    """Create a new post using PostService"""
     if request.method == 'POST':
-        if not request.user.is_active:
+        if not request.user.is_authenticated:
             raise Http404
 
-        if not Invitation.objects.filter(receiver=request.user).exists(): 
-            return StatusError(ErrorCode.VALIDATE, '작성 권한이 없습니다.')
-
-        title = request.POST.get('title', '')
-        text_html = request.POST.get('text_html', '')
-
-        if not title:
-            return StatusError(ErrorCode.VALIDATE, '제목을 입력해주세요.')
-        if not text_html:
-            return StatusError(ErrorCode.VALIDATE, '내용을 입력해주세요.')
-
-        read_time = calc_read_time(text_html)
-
-        post = Post()
-        post.title = title
-        post.author = request.user
-        post.read_time = read_time
-
-        description = request.POST.get('description', '')
-        if description:
-            post.meta_description = request.POST.get('description', '')
-        else:
-            post.meta_description = create_post_description(
-                post_content_html=text_html)
-
-        reserved_date = request.POST.get('reserved_date', '')
-        if reserved_date:
-            reserved_date = parse_datetime(reserved_date)
-            if reserved_date < timezone.now():
-                return StatusError(ErrorCode.VALIDATE, '예약시간이 현재시간보다 이전입니다.')
-            post.created_date = reserved_date
-            post.updated_date = reserved_date
-
-        series_url = request.POST.get('series', '')
-        series = Series.objects.filter(
-            owner=request.user,
-            url=series_url
-        )
-        if series.exists():
-            post.series = series.first()
-
         try:
-            post.image = request.FILES['image']
-        except:
-            pass
+            # Get image from FILES if provided
+            image = request.FILES.get('image', None)
 
-        url = request.POST.get('url', '')
-        if url:
-            url = slugify(url, allow_unicode=True)
-        else:
-            url = slugify(post.title, allow_unicode=True)
-
-        post.create_unique_url(url)
-        post.save()
-
-        post.set_tags(request.POST.get('tag', ''))
-
-        post_content = PostContent.objects.create(
-            post=post,
-            text_md=text_html,  # Store HTML in both fields for compatibility
-            text_html=text_html
-        )
-
-        post_config = PostConfig.objects.create(
-            post=post,
-            hide=BooleanType(request.POST.get('is_hide', '')),
-            advertise=BooleanType(request.POST.get('is_advertise', ''))
-        )
-
-        if not post_config.hide and post.is_published() and settings.DISCORD_NEW_POSTS_WEBHOOK:
-            def func():
-                post_url = settings.SITE_URL + post.get_absolute_url()
-                Discord.send_webhook(
-                    url=settings.DISCORD_NEW_POSTS_WEBHOOK,
-                    content=f'[새 글이 발행되었어요!]({post_url})'
-                )
-            SubTaskProcessor.process(func)
-
-        token = request.POST.get('token')
-        if token:
-            try:
-                TempPosts.objects.get(
-                    token=token, author=request.user).delete()
-            except:
-                pass
-        return StatusDone({
-            'url': post.url,
-        })
-
-    raise Http404
-
-
-def trending_post_list(request):
-    if request.method == 'GET':
-        posts = Post.objects.select_related(
-            'author', 'author__profile', 'config'
-        ).prefetch_related(
-            'comments'
-        ).filter(
-            created_date__lte=timezone.now(),
-            config__notice=False,
-            config__hide=False,
-        ).annotate(
-            today_count=Subquery(
-                PostAnalytics.objects.filter(
-                    post__id=OuterRef('id'),
-                    created_date=timezone.now(),
-                ).values('post__id').annotate(
-                    count=Count('devices')
-                ).values('count')
-            ),
-        ).order_by('-today_count', '-created_date')
-
-        posts = Paginator(
-            objects=posts,
-            offset=5,
-            page=1
-        )
-        return StatusDone(list(map(lambda post: {
-            'url': post.url,
-            'title': post.title,
-            'image': str(post.image),
-            'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-            'author_image': post.author.profile.get_thumbnail(),
-            'author': post.author.username,
-        }, posts)))
-
-
-def newest_post_list(request):
-    if request.method == 'GET':
-        posts = Post.objects.select_related(
-            'config', 'series'
-        ).filter(
-            created_date__lte=timezone.now(),
-            config__notice=False,
-            config__hide=False,
-        ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar'),
-            count_likes=Count('likes', distinct=True),
-            count_comments=Count('comments', distinct=True),
-            has_liked=Exists(
-                PostLikes.objects.filter(
-                    post__id=OuterRef('id'),
-                    user__id=request.user.id if request.user.id else -1
-                )
-            ),
-        ).order_by('-created_date')
-
-        posts = Paginator(
-            objects=posts,
-            offset=24,
-            page=request.GET.get('page', 1)
-        )
-        return StatusDone({
-            'posts': list(map(lambda post: {
-                'url': post.url,
-                'title': post.title,
-                'image': str(post.image),
-                'description': post.meta_description,
-                'read_time': post.read_time,
-                'created_date': post.time_since(),
-                'author_image': post.author_image,
-                'author': post.author_username,
-                'is_ad': post.config.advertise,
-                'series': {
-                    'url': post.series.url,
-                    'name': post.series.name,
-                } if post.series else None,
-                'count_likes': post.count_likes,
-                'count_comments': post.count_comments,
-                'has_liked': post.has_liked,
-            }, posts)),
-            'last_page': posts.paginator.num_pages
-        })
-
-
-def liked_post_list(request):
-    if not request.user.id:
-        raise Http404
-
-    if request.method == 'GET':
-        posts = Post.objects.select_related(
-            'config', 'series'
-        ).filter(
-            created_date__lte=timezone.now(),
-            config__notice=False,
-            config__hide=False,
-            likes__user=request.user,
-        ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar'),
-            count_likes=Count('likes', distinct=True),
-            count_comments=Count('comments', distinct=True),
-            has_liked=Exists(
-                PostLikes.objects.filter(
-                    post__id=OuterRef('id'),
-                    user__id=request.user.id if request.user.id else -1
-                )
-            ),
-            liked_date=Subquery(
-                PostLikes.objects.filter(
-                    post__id=OuterRef('id'),
-                    user__id=request.user.id if request.user.id else -1
-                ).values('created_date')[:1]
-            ),
-        ).order_by('-liked_date')
-
-        posts = Paginator(
-            objects=posts,
-            offset=24,
-            page=request.GET.get('page', 1)
-        )
-        return StatusDone({
-            'posts': list(map(lambda post: {
-                'url': post.url,
-                'title': post.title,
-                'image': str(post.image),
-                'description': post.meta_description,
-                'read_time': post.read_time,
-                'liked_date': time_since(post.liked_date),
-                'created_date': post.time_since(),
-                'author_image': post.author_image,
-                'author': post.author_username,
-                'is_ad': post.config.advertise,
-                'series': {
-                    'url': post.series.url,
-                    'name': post.series.name,
-                } if post.series else None,
-                'count_likes': post.count_likes,
-                'count_comments': post.count_comments,
-                'has_liked': post.has_liked,
-            }, posts)),
-            'last_page': posts.paginator.num_pages
-        })
-
-
-def feature_post_list(request):
-    if request.method == 'GET':
-        username = request.GET.get('username', '')
-        if '@' in username:
-            username = username.replace('@', '')
-        if not username:
-            raise Http404('require username.')
-
-        posts = Post.objects.select_related(
-            'config'
-        ).filter(
-            created_date__lte=timezone.now(),
-            config__hide=False,
-            author__username=username
-        ).annotate(
-            author_username=F('author__username'),
-            author_image=F('author__profile__avatar')
-        )
-        exclude = request.GET.get('exclude', '')
-        if exclude:
-            posts = posts.exclude(url=exclude)
-        posts = posts.order_by('?')[:3]
-        return StatusDone({
-            'posts': list(map(lambda post: {
-                'url': post.url,
-                'title': post.title,
-                'image': str(post.image),
-                'read_time': post.read_time,
-                'description': post.meta_description,
-                'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                'author_image': post.author_image,
-                'author': post.author_username,
-                'is_ad': post.config.advertise,
-            }, posts))
-        })
-
-    raise Http404
-
-
-def pinned_post_list(request):
-    if not request.user:
-        raise Http404
-
-    if request.method == 'GET':
-        pinned_posts = PinnedPost.objects.select_related(
-            'post'
-        ).filter(
-            post__author=request.user
-        ).annotate(
-            count_likes=Count('post__likes', distinct=True)
-        ).order_by('order')
-
-        return StatusDone(list(map(lambda pinned_post: {
-            'url': pinned_post.post.url,
-            'title': pinned_post.post.title,
-            'count_likes': pinned_post.count_likes,
-        }, pinned_posts)))
-    
-    if request.method == 'POST':
-        post_urls = request.POST.get('posts', '').split(',')[:6]
-
-        pinned_posts = PinnedPost.objects.select_related('post').filter(user=request.user)
-        exists_urls = []
-
-        for pinned_post in pinned_posts:
-            exists_urls.append(pinned_post.post.url)
-
-            if not pinned_post.post.url in post_urls:
-                pinned_post.delete()
-
-            if pinned_post.post.url in post_urls:
-                pinned_post.order=post_urls.index(pinned_post.post.url)
-                pinned_post.save()
-
-        for index, post_url in enumerate(post_urls):
-            if post_url and not post_url in exists_urls:
-                PinnedPost.objects.create(
-                    user=request.user,
-                    post=Post.objects.get(url=post_url),
-                    order=index,
-                )
-
-        return StatusDone()
-
-    raise Http404
-
-
-def pinnable_post_list(request):
-    if not request.user:
-        raise Http404
-
-    if request.method == 'GET':
-        posts = Post.objects.select_related(
-            'config'
-        ).annotate(
-            count_likes=Count('likes', distinct=True),
-        ).filter(
-            author=request.user,
-            config__hide=False,
-            created_date__lte=timezone.now(),
-        ).order_by('-count_likes', '-created_date')
-
-        search = request.GET.get('search', '')
-        if search:
-            posts = posts.filter(
-                Q(title__icontains=search) |
-                Q(url__icontains=search)
+            # Create post using service
+            post, post_content, post_config = PostService.create_post(
+                user=request.user,
+                title=request.POST.get('title', ''),
+                text_html=request.POST.get('text_html', ''),
+                description=request.POST.get('description', ''),
+                reserved_date_str=request.POST.get('reserved_date', ''),
+                series_url=request.POST.get('series', ''),
+                custom_url=request.POST.get('url', ''),
+                tag=request.POST.get('tag', ''),
+                image=image,
+                is_hide=BooleanType(request.POST.get('is_hide', '')),
+                is_advertise=BooleanType(request.POST.get('is_advertise', '')),
+                temp_post_token=request.POST.get('token', '')
             )
 
-        posts = Paginator(
-            objects=posts,
-            offset=12,
-            page=request.GET.get('page', 1)
-        )
-
-        return StatusDone({
-            'posts': list(map(lambda post: {
+            return StatusDone({
                 'url': post.url,
-                'title': post.title,
-                'count_likes': post.count_likes,
-            }, posts)),
-            'last_page': posts.paginator.num_pages
-        })
+            })
+
+        except PostValidationError as e:
+            return StatusError(e.code, e.message)
+
+    raise Http404
 
 
 def post_comment_list(request, url):
@@ -429,138 +98,7 @@ def post_comment_list(request, url):
         })
 
 
-def post_analytics(request, url):
-    post = get_object_or_404(Post, url=url)
-    if request.method == 'GET':
-        if request.user != post.author:
-            raise Http404
-
-        seven_days = 7
-        seven_days_ago = timezone.now() - datetime.timedelta(days=7)
-
-        posts_views = PostAnalytics.objects.values(
-            'created_date'
-        ).filter(
-            post__id=post.pk,
-            created_date__gt=seven_days_ago
-        ).annotate(
-            table_count=Count('devices')
-        ).order_by('-created_date')
-
-        date_dict = dict()
-        for i in range(seven_days):
-            key = str(convert_to_localtime(
-                timezone.now() - datetime.timedelta(days=i)))[:10]
-            date_dict[key] = 0
-
-        for item in posts_views:
-            key = str(item['created_date'])[:10]
-            date_dict[key] = item['table_count']
-
-        posts_referers = Referer.objects.filter(
-            post__id=post.pk,
-            created_date__gt=seven_days_ago
-        ).select_related(
-            'referer_from'
-        ).order_by('-created_date')[:30]
-
-        one_month_ago = timezone.now() - datetime.timedelta(days=30)
-
-        post_thanks = PostThanks.objects.filter(
-            post=post,
-            created_date__gt=one_month_ago
-        ).count()
-        post_no_thanks = PostNoThanks.objects.filter(
-            post=post,
-            created_date__gt=one_month_ago
-        ).count()
-
-        return StatusDone({
-            'items': list(map(lambda item: {
-                'date': item,
-                'count': date_dict[item]
-            }, date_dict)),
-            'referers': list(map(lambda referer: {
-                'time': convert_to_localtime(referer.created_date).strftime('%Y-%m-%d %H:%M'),
-                'from': referer.referer_from.location,
-                'title': referer.referer_from.title
-            }, posts_referers)),
-            'thanks': {
-                'positive_count': post_thanks,
-                'negative_count': post_no_thanks,
-            }
-        })
-
-    if request.method == 'POST':
-        view_count(
-            post=post,
-            request=request,
-            ip=request.POST.get('ip', ''),
-            user_agent=request.POST.get('user_agent', ''),
-            referer=request.POST.get('referer', ''))
-        return StatusDone()
-
-
 def user_posts(request, username, url=None):
-    if not url:
-        if request.method == 'GET':
-            posts = Post.objects.select_related(
-                'config', 'content',
-            ).filter(
-                created_date__lte=timezone.now(),
-                author__username=username,
-                config__hide=False,
-            ).annotate(
-                author_username=F('author__username'),
-                author_image=F('author__profile__avatar'),
-            ).order_by('-created_date')
-            all_count = posts.count()
-
-            tag = request.GET.get('tag', '')
-            if tag:
-                posts = posts.filter(tags__value=tag)
-            
-            search = request.GET.get('search', '')
-            if search:
-                posts = posts.filter(title__icontains=search)
-
-            valid_orders = [
-                'title',
-                'created_date',
-                'updated_date',
-            ]
-            order = request.GET.get('order', '')
-            if order:
-                is_valid = False
-                for valid_order in valid_orders:
-                    if order == valid_order or order == '-' + valid_order:
-                        is_valid = True
-                if not is_valid:
-                    raise Http404
-
-                posts = posts.order_by(order)
-
-            posts = Paginator(
-                objects=posts,
-                offset=10,
-                page=request.GET.get('page', 1)
-            )
-            return StatusDone({
-                'all_count': all_count,
-                'posts': list(map(lambda post: {
-                    'url': post.url,
-                    'title': post.title,
-                    'image': str(post.image),
-                    'read_time': post.read_time,
-                    'description': post.meta_description,
-                    'created_date': convert_to_localtime(post.created_date).strftime('%Y년 %m월 %d일'),
-                    'author_image': post.author_image,
-                    'author': post.author_username,
-                    'is_ad': post.config.advertise,
-                    'tags': post.tagging(),
-                }, posts)),
-                'last_page': posts.paginator.num_pages
-            })
     if url:
         post = get_object_or_404(Post.objects.select_related(
             'config', 'content', 'series'
@@ -659,10 +197,19 @@ def user_posts(request, username, url=None):
                 if series.exists():
                     post.series = series.first()
 
-            try:
+            # Handle image updates and deletions
+            if 'image_delete' in request.POST and request.POST.get('image_delete') == 'true':
+                # User explicitly wants to delete the image
+                if post.image:
+                    post.image.delete(save=False)
+                    post.image = None
+            elif 'image' in request.FILES:
+                # User uploaded a new image
+                if post.image:
+                    # Delete old image before assigning new one
+                    post.image.delete(save=False)
                 post.image = request.FILES['image']
-            except:
-                pass
+            # If neither condition is met, keep the existing image unchanged
 
             post_content = post.content
             post_content.text_html = text_html

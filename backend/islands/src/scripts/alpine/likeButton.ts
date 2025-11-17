@@ -1,4 +1,5 @@
 import type Alpine from 'alpinejs';
+import { isLoggedIn, showLoginPrompt } from '~/utils/loginPrompt';
 
 interface LikeButtonOptions {
     count?: number;
@@ -24,6 +25,12 @@ const likeButton = (options: LikeButtonOptions = {}): Alpine.AlpineComponent<Sta
     postUrl: options.postUrl ?? '',
 
     async handleLike() {
+        // Check if user is logged in
+        if (!isLoggedIn()) {
+            showLoginPrompt('좋아요');
+            return;
+        }
+
         if (this.loading || !this.postUrl) return;
         this.loading = true;
 

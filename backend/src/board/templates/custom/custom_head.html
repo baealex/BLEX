@@ -1,1 +1,4 @@
-<!-- Custom head scripts can be added here -->
+<!-- Site-wide analytics and tracking scripts -->
+{% if site_setting.header_script %}
+{{ site_setting.header_script|safe }}
+{% endif %}

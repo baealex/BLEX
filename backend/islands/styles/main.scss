@@ -1,5 +1,6 @@
 @forward "@baejino/style/css/reset.css";
 @forward "@baejino/ui/css/main.css";
+@forward "./variables.css";
 @forward "./forwarded.scss";
 @forward "./tailwind.css";
 @forward "./fontawesome.scss";
@@ -22,8 +23,8 @@ a {
 }
 
 .notification__item {
-    background-color: #fff;
-    color: #000;
+    background-color: var(--color-white);
+    color: var(--color-black);
     border-right: none;
     border-bottom: none;
     border-top: none;
@@ -32,7 +33,7 @@ a {
     padding: 18px;
 
     .notification__close {
-        color: #000;
+        color: var(--color-black);
     }
 }
 

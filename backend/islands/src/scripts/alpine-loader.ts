@@ -6,9 +6,14 @@ import likeButton from './alpine/likeButton';
 Alpine.data('headerScroll', headerScroll);
 Alpine.data('likeButton', likeButton);
 
-document.addEventListener('DOMContentLoaded', () => {
+// Alpine 시작 - DOMContentLoaded 체크
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        Alpine.start();
+    });
+} else {
     Alpine.start();
-});
+}
 
 window.Alpine = Alpine;
 

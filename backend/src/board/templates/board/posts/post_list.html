@@ -1,7 +1,6 @@
 {% extends 'board/base.html' %}
 {% load island %}
 {% load resource %}
-{% load search_tags %}
 
 {% block title %}
     BLEX - 최신 포스트
@@ -12,74 +11,26 @@
 {% block content %}
 <div class="container mx-auto">
 {% if posts %}
-    <!-- Hero Section -->
-    <div class="relative bg-gradient-to-br from-zinc-800 to-zinc-900 text-white rounded-3xl shadow-2xl overflow-hidden mb-12">
-        <div class="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%)] bg-[length:20px_20px]"></div>
-        <div class="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-zinc-400/20 to-zinc-600/10 rounded-full blur-xl"></div>
-        <div class="absolute -bottom-20 -left-20 w-72 h-72 bg-gradient-to-tr from-zinc-500/10 to-zinc-700/5 rounded-full blur-xl"></div>
-        
-        <div class="relative z-10 text-center py-20 px-8">
-            <img src="{% resource 'logow.svg' %}" alt="BLEX Logo" class="w-24 h-24 mx-auto mb-6 drop-shadow-lg">
-            <h1 class="text-2xl md:text-3xl font-bold mb-4">개발자를 위한 블로그 플랫폼</h1>
-            <p class="text-lg text-white text-opacity-90 max-w-2xl mx-auto leading-relaxed">
-                개발자들이 모여 지식과 경험을 공유하는 공간입니다
-            </p>
-        </div>
-    </div>
-
-    <div class="container mx-auto">
-    <!-- Search and Navigation Section -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
-        <div class="space-y-4">
-            <!-- Navigation and Filter Section -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100">
-                <!-- 둘러보기 타이틀 -->
-                <div class="flex items-center gap-3 text-sm text-gray-500 font-medium">
-                    <i class="fas fa-compass"></i>
-                    <span>둘러보기</span>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                    <a href="/search" 
-                       class="w-full sm:w-auto px-3 py-2 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-lg text-sm font-medium hover:from-green-100 hover:to-green-200 transition-all duration-200 flex items-center justify-center gap-2 border border-green-200">
-                        <i class="fas fa-search text-xs"></i>
-                        <span>포스트 검색</span>
-                    </a>
-                    <a href="/authors" 
-                       class="w-full sm:w-auto px-3 py-2 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:from-purple-100 hover:to-purple-200 transition-all duration-200 flex items-center justify-center gap-2 border border-purple-200">
-                        <i class="fas fa-users text-xs"></i>
-                        <span>작가 검색</span>
-                    </a>
-                    <a href="/tags" 
-                       class="w-full sm:w-auto px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:from-blue-100 hover:to-blue-200 transition-all duration-200 flex items-center justify-center gap-2 border border-blue-200">
-                        <i class="fas fa-hashtag text-xs"></i>
-                        <span>태그 클라우드</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex justify-end mb-4">
-        <div class="flex gap-1 bg-gray-100 p-1 rounded-lg border border-gray-300">
-            <a href="?sort=latest" 
-               class="px-3 py-2 rounded-md text-sm font-medium transition-all {% if not request.GET.sort or request.GET.sort == 'latest' %}bg-white text-primary-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-white/50{% endif %}">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">전체 포스트</h1>
+        <div class="flex gap-1 bg-white p-1.5 rounded-xl border border-gray-200 shadow-sm">
+            <a href="?sort=latest"
+               class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 {% if not request.GET.sort or request.GET.sort == 'latest' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 최신순
             </a>
-            <a href="?sort=popular" 
-               class="px-3 py-2 rounded-md text-sm font-medium transition-all {% if request.GET.sort == 'popular' %}bg-white text-primary-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-white/50{% endif %}">
+            <a href="?sort=popular"
+               class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 {% if request.GET.sort == 'popular' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 인기순
             </a>
-            <a href="?sort=comments" 
-               class="px-3 py-2 rounded-md text-sm font-medium transition-all {% if request.GET.sort == 'comments' %}bg-white text-primary-600 shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-white/50{% endif %}">
+            <a href="?sort=comments"
+               class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 {% if request.GET.sort == 'comments' %}bg-black text-white shadow-sm{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-50{% endif %}">
                 댓글순
             </a>
         </div>
     </div>
 
     <!-- Posts Grid -->
-    <div class="masonry-grid">
+    <div class="masonry-grid gap-6 mb-12">
         {% for post in posts %}
             {% include 'components/post_card.html' with post=post show_author=true %}
         {% endfor %}
@@ -90,18 +41,20 @@
         {% include 'components/pagination.html' with style='numbered' page=page_number last=page_count %}
     </div>
 {% else %}
-    <div class="flex flex-col items-center justify-center min-h-96 text-center">
-        <div class="w-32 h-32 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-full flex items-center justify-center mb-8">
-            <i class="fas fa-pen-nib text-4xl text-primary-500"></i>
+    <div class="flex flex-col items-center justify-center min-h-[50vh] text-center py-12">
+        <div class="w-24 h-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full flex items-center justify-center mb-6">
+            <i class="fas fa-pen-nib text-3xl text-gray-900"></i>
         </div>
-        <h2 class="text-3xl font-bold text-gray-900 mb-4">아직 포스트가 없어요</h2>
-        <p class="text-lg text-gray-600 mb-8 max-w-md">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3">아직 포스트가 없어요</h2>
+        <p class="text-base md:text-lg text-gray-600 mb-8 max-w-xl">
             첫 번째 에디터가 되어 멋진 콘텐츠를 공유해보세요!
         </p>
-        <a href="/write" class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-xl font-medium transition-colors inline-flex items-center gap-2">
+        {% if user.is_authenticated and user.profile.is_editor %}
+        <a href="/write" class="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 inline-flex items-center gap-2 shadow-md hover:shadow-lg hover:scale-105">
             <i class="fas fa-edit"></i>
-            글 작성하기
+            <span>글 작성하기</span>
         </a>
+        {% endif %}
     </div>
 {% endif %}
 </div>

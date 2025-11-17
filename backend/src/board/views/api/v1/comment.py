@@ -11,70 +11,37 @@ from board.models import Comment, Post
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.paginator import Paginator
+from board.services.comment_service import CommentService, CommentValidationError
 from modules import markdown
 
 
 def comment_list(request):
+    """Create a new comment using CommentService"""
     if request.method == 'POST':
-        if not request.user.is_active:
-            return StatusError(ErrorCode.AUTHENTICATION)
+        try:
+            post = get_object_or_404(Post, url=request.GET.get('url'))
+            text_md = request.POST.get('comment_md', '')
 
-        post = get_object_or_404(Post, url=request.GET.get('url'))
+            # Create comment using service
+            comment = CommentService.create_comment(
+                user=request.user,
+                post=post,
+                text_md=text_md
+            )
 
-        text_md = request.POST.get('comment_md', '')
-        text_html = markdown.parse_to_html(text_md)
+            return StatusDone({
+                'id': comment.id,
+                'author': comment.author.username,
+                'author_image': comment.author.profile.get_thumbnail(),
+                'is_edited': comment.edited,
+                'rendered_content': comment.text_html,
+                'created_date': comment.time_since(),
+                'count_likes': 0,
+                'is_liked': False,
+            })
 
-        comment = Comment(
-            post=post,
-            author=request.user,
-            text_md=text_md,
-            text_html=text_html
-        )
-        comment.save()
-        comment.refresh_from_db()
-
-        if not comment.author == post.author and post.author.config.get_meta(CONFIG_TYPE.NOTIFY_POSTS_COMMENT):
-            send_notify_content = (
-                f"'{post.title}'글에 "
-                f"@{comment.author.username}님이 댓글을 남겼습니다. "
-                f"#{comment.pk}")
-            create_notify(
-                user=post.author,
-                url=post.get_absolute_url(),
-                content=send_notify_content)
-
-        regex = re.compile(r'\`\@([a-zA-Z0-9\.]*)\`\s?')
-        if regex.search(comment.text_md):
-            tag_user_list = regex.findall(comment.text_md)
-            tag_user_list = set(tag_user_list)
-
-            commentors = Comment.objects.filter(
-                post=post).values_list('author__username')
-            commentors = set(map(lambda instance: instance[0], commentors))
-
-            for tag_user in tag_user_list:
-                if tag_user in commentors:
-                    _user = User.objects.get(username=tag_user)
-                    if not _user == request.user and _user.config.get_meta(CONFIG_TYPE.NOTIFY_MENTION):
-                        send_notify_content = (
-                            f"'{post.title}' 글에서 "
-                            f"@{request.user.username}님이 "
-                            f"회원님을 태그했습니다. #{comment.pk}")
-                        create_notify(
-                            user=_user,
-                            url=post.get_absolute_url(),
-                            content=send_notify_content)
-
-        return StatusDone({
-            'id': comment.id,
-            'author': comment.author.username,
-            'author_image': comment.author.profile.get_thumbnail(),
-            'is_edited': comment.edited,
-            'rendered_content': comment.text_html,
-            'created_date': comment.time_since(),
-            'count_likes': 0,
-            'is_liked': False,
-        })
+        except CommentValidationError as e:
+            return StatusError(e.code, e.message)
 
     raise Http404
 

@@ -15,7 +15,7 @@ from django.utils import timezone
 
 from board.constants.config_meta import CONFIG_TYPE
 from board.models import (
-    TwoFactorAuth, Config, Profile, Post, Invitation,
+    TwoFactorAuth, Config, Profile, Post,
     UserLinkMeta, UsernameChangeLog, TelegramSync, SocialAuthProvider)
 from board.modules.notify import create_notify
 from board.modules.response import StatusDone, StatusError, ErrorCode
@@ -63,11 +63,6 @@ def login_response(user: User, is_first_login=False):
                 user_id=OuterRef('id')
             )
         ),
-        has_editor_role=Exists(
-            Invitation.objects.filter(
-                receiver_id=OuterRef('id'),
-            )
-        ),
     ), id=user.id)
 
     return StatusDone({
@@ -79,7 +74,7 @@ def login_response(user: User, is_first_login=False):
         'is_first_login': is_first_login,
         'has_connected_telegram': _user.has_connected_telegram,
         'has_connected_2fa': _user.has_connected_2fa,
-        'has_editor_role': _user.has_editor_role,
+        'has_editor_role': _user.profile.is_editor(),
     })
 
 
@@ -156,49 +151,46 @@ def login(request):
         # Server-side rate limiting check
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
         cache_key = f'login_attempts:{client_ip}'
-        
+
         attempts = cache.get(cache_key, 0)
-        
+
         # Block if too many attempts
         if attempts >= 5:
             return StatusError(ErrorCode.REJECT, '너무 많은 실패로 인해 잠시 후 다시 시도해주세요.')
-        
+
         # Try to parse JSON first, then fallback to POST data
         try:
             data = json.loads(request.body.decode('utf-8')) if request.body else {}
-            social = data.get('social', '') or request.POST.get('social', '')
-            if not social:
-                username = data.get('username', '') or request.POST.get('username', '')
-                password = data.get('password', '') or request.POST.get('password', '')
-                # hcaptcha_response = data.get('h-captcha-response', '') or request.POST.get('h-captcha-response', '')
         except (json.JSONDecodeError, UnicodeDecodeError):
-            social = request.POST.get('social', '')
-            if not social:
-                username = request.POST.get('username', '')
-                password = request.POST.get('password', '')
-                # hcaptcha_response = request.POST.get('h-captcha-response', '')
+            data = {}
 
-            # Validate hCaptcha if attempts >= 3
-            # if attempts >= 3:
-            #     if not hcaptcha_response:
-            #         return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
-            #     
-            #     if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
-            #         # Increment attempts for failed captcha
-            #         cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-            #         return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
+        social = data.get('social', '') or request.POST.get('social', '')
+        if not social:
+            username = data.get('username', '') or request.POST.get('username', '')
+            password = data.get('password', '') or request.POST.get('password', '')
+            # hcaptcha_response = data.get('h-captcha-response', '') or request.POST.get('h-captcha-response', '')
 
-            user = auth.authenticate(username=username, password=password)
+        # Validate hCaptcha if attempts >= 3
+        # if attempts >= 3:
+        #     if not hcaptcha_response:
+        #         return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
+        #
+        #     if settings.HCAPTCHA_SECRET_KEY and not auth_hcaptcha(hcaptcha_response):
+        #         # Increment attempts for failed captcha
+        #         cache.set(cache_key, attempts + 1, 300)  # 5 minutes
+        #         return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
 
-            if user is not None:
-                if user.is_active:
-                    # Reset attempts on successful login
-                    cache.delete(cache_key)
-                    return common_auth(request, user)
-            else:
-                # Increment failed attempts
-                cache.set(cache_key, attempts + 1, 300)  # 5 minutes
-                return StatusError(ErrorCode.AUTHENTICATION)
+        user = auth.authenticate(username=username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                # Reset attempts on successful login
+                cache.delete(cache_key)
+                return common_auth(request, user)
+        else:
+            # Increment failed attempts
+            cache.set(cache_key, attempts + 1, 300)  # 5 minutes
+            return StatusError(ErrorCode.AUTHENTICATION)
     raise Http404
 
 
@@ -228,6 +220,7 @@ def sign(request):
         name = request.POST.get('name', '')
         password = request.POST.get('password', '')
         email = request.POST.get('email', '')
+        hcaptcha_response = request.POST.get('h-captcha-response', '')
 
         username_error = check_username(username)
         if username_error:
@@ -237,6 +230,13 @@ def sign(request):
         if email_error:
             return StatusError(ErrorCode.REJECT, email_error)
 
+        # Verify HCaptcha if HCAPTCHA_SECRET_KEY is set
+        if settings.HCAPTCHA_SECRET_KEY:
+            if not hcaptcha_response:
+                return StatusError(ErrorCode.VALIDATE, '보안 검증이 필요합니다.')
+            if not auth_hcaptcha(hcaptcha_response):
+                return StatusError(ErrorCode.REJECT, '보안 검증에 실패했습니다.')
+
         new_user = User.objects.create_user(
             username,
             email,
@@ -244,27 +244,28 @@ def sign(request):
         )
         new_user.first_name = name
 
-        if not settings.DEBUG and not settings.TESTING:
-            token = randstr(35)
-            has_token = User.objects.filter(last_name='email:' + token)
-            while has_token.exists():
-                token = randstr(35)
-                has_token = User.objects.filter(last_name='email:' + token)
+        new_user.save()
 
-            new_user.last_name = 'email:' + token
-            new_user.is_active = False
-            # TODO: 이메일 인증 f'{settings.SITE_URL}/verify?token={token}'
-            new_user.save()
-        else:
-            new_user.save()
+        profile = Profile(user=new_user)
+        profile.save()
 
-            profile = Profile(user=new_user)
-            profile.save()
+        config = Config(user=new_user)
+        config.save()
+        config.create_or_update_meta(CONFIG_TYPE.NOTIFY_MENTION, 'true')
+        config.create_or_update_meta(CONFIG_TYPE.NOTIFY_COMMENT_LIKE, 'true')
 
-            config = Config(user=new_user)
-            config.save()
+        create_notify(
+            user=new_user,
+            url='https://www.notion.so/edfab7c5d5be4acd8d10f347c017fcca',
+            content=(
+                f'{new_user.first_name}님의 가입을 진심으로 환영합니다! '
+                f'블렉스의 다양한 기능을 활용하고 싶으시다면 개발자가 직접 작성한 '
+                f'\'블렉스 노션\'을 살펴보시는 것을 추천드립니다 :)'
+            )
+        )
 
-        return StatusDone()
+        auth.login(request, new_user)
+        return login_response(request.user, is_first_login=True)
 
     if request.method == 'PATCH':
         user = request.user
