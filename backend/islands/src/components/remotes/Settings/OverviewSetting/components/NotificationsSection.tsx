@@ -66,16 +66,7 @@ const NotificationsSection = ({
             </a>
 
             {/* Notification list */}
-            {isLoading ? (
-                <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                        <div key={i} className="animate-pulse bg-gray-50 rounded-2xl p-4">
-                            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                            <div className="h-3 bg-gray-200 rounded w-1/4" />
-                        </div>
-                    ))}
-                </div>
-            ) : (
+            {isLoading ? null : (
                 <div className="space-y-3">
                     {notifyList.length > 0 ? (
                         notifyList.slice(0, 5).map((item) => (

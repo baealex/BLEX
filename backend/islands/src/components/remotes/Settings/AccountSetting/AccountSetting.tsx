@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input, Card, LoadingState } from '~/components/shared';
+import { Button, Input, Card } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface AccountData {
@@ -169,7 +169,7 @@ const AccountSettings: React.FC = () => {
     };
 
     if (isDataLoading) {
-        return <LoadingState type="form" rows={5} />;
+        return null;
     }
 
     return (

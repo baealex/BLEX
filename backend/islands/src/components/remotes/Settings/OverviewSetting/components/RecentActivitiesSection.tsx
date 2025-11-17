@@ -42,20 +42,7 @@ const RecentActivitiesSection = ({ activities, isLoading }: RecentActivitiesSect
                 최근 활동
             </h2>
 
-            {isLoading ? (
-                <div className="space-y-3">
-                    {[...Array(3)].map((_, i) => (
-                        <div key={i} className="animate-pulse flex items-start gap-3 p-4 bg-gray-50 rounded-2xl">
-                            <div className="w-10 h-10 bg-gray-200 rounded-xl flex-shrink-0" />
-                            <div className="flex-1 space-y-2">
-                                <div className="h-4 bg-gray-200 rounded w-3/4" />
-                                <div className="h-3 bg-gray-200 rounded w-full" />
-                                <div className="h-3 bg-gray-200 rounded w-1/4" />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : (
+            {isLoading ? null : (
                 <div className="space-y-3">
                     {activities.length > 0 ? (
                         activities.slice(0, 5).map((activity, index) => {

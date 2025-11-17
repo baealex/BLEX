@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, Input, LoadingState } from '~/components/shared';
+import { Button, Input } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface Post {
@@ -327,7 +327,7 @@ const PostsSetting = () => {
     };
 
     if (isLoading) {
-        return <LoadingState type="list" rows={3} />;
+        return null;
     }
 
     return (
