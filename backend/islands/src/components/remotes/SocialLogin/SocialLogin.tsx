@@ -88,7 +88,7 @@ const SocialLogin: React.FC = () => {
 
     return (
         <div className="space-y-3">
-            {providers.map((provider) => (
+            {Array.isArray(providers) && providers.map((provider) => (
                 <button
                     key={provider.key}
                     onClick={() => handleSocialLogin(provider)}
