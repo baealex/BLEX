@@ -9,7 +9,6 @@ from .report import *
 from .search import *
 from .series import *
 from .setting import *
-from .tag import *
 from .telegram import *
 from .temp_post import *
 from .user import *

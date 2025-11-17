@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from board.models import User, Post, Series
+from board.services import SeriesService
+from board.services.series_service import SeriesValidationError
 from board.modules.paginator import Paginator
 from board.modules.response import StatusDone, StatusError, ErrorCode
 from board.modules.time import convert_to_localtime
@@ -15,39 +17,19 @@ def posts_can_add_series(request):
         if not request.user:
             raise Http404
 
-        posts = Post.objects.filter(
-            author=request.user,
-            series=None,
-            config__hide=False,
-            created_date__lte=timezone.now()
-        ).order_by('-created_date')
+        posts = SeriesService.get_posts_available_for_series(request.user)
         return StatusDone(list(map(lambda post: {
             'id': post.id,
             'title': post.title,
         }, posts)))
-    
+
     raise Http404
+
 
 def user_series(request, username, url=None):
     if not url:
         if request.method == 'GET':
-            series = Series.objects.annotate(
-                owner_username=F('owner__username'),
-                total_posts=Count(
-                    Case(
-                        When(
-                            posts__created_date__lte=timezone.now(),
-                            posts__config__hide=False,
-                            then=1
-                        )
-                    )
-                )
-            ).filter(
-                owner__username=username,
-                total_posts__gte=1,
-                hide=False,
-            ).order_by('order', '-id')
-
+            series = SeriesService.get_public_series_list(username)
             series = Paginator(
                 objects=series,
                 offset=10,
@@ -68,33 +50,33 @@ def user_series(request, username, url=None):
         if request.method == 'PUT':
             body = QueryDict(request.body)
             if request.GET.get('kind', '') == 'order':
-                series = Series.objects.filter(
-                    owner=request.user).order_by('order')
-                prev_state = {}
+                try:
+                    items = body.get('series').split(',')
+                    order_data = []
+                    for item in items:
+                        parts = item.split('=')
+                        if len(parts) == 2:
+                            url_part, order = parts
+                            # Find series by URL to get ID
+                            series_item = Series.objects.filter(
+                                owner=request.user,
+                                url=url_part
+                            ).first()
+                            if series_item:
+                                order_data.append((series_item.id, int(order)))
 
-                for item in series:
-                    prev_state[item.url] = (item.order, item)
+                    SeriesService.update_series_order(request.user, order_data)
 
-                items = body.get('series').split(',')
-                for item in items:
-                    [url, next_order] = item.split('=')
-                    [prev_order, series_item] = prev_state[url]
-                    if int(prev_order) != int(next_order):
-                        series_item.order = next_order
-                        series_item.save()
-
-                series = Series.objects.filter(
-                    owner=request.user
-                ).annotate(
-                    total_posts=Count('posts')
-                ).order_by('order')
-                return StatusDone({
-                    'series': list(map(lambda item: {
-                        'url': item.url,
-                        'title': item.name,
-                        'total_posts': item.total_posts
-                    }, series))
-                })
+                    series = SeriesService.get_user_series_list(request.user)
+                    return StatusDone({
+                        'series': list(map(lambda item: {
+                            'url': item.url,
+                            'title': item.name,
+                            'total_posts': item.total_posts
+                        }, series))
+                    })
+                except SeriesValidationError as e:
+                    return StatusError(e.code, e.message)
 
         if request.method == 'POST':
             try:
@@ -102,32 +84,27 @@ def user_series(request, username, url=None):
             except:
                 body = QueryDict(request.body)
 
-            if not body.get('title', ''):
-                return StatusError(ErrorCode.REQUIRE, '제목을 입력해주세요.')
+            try:
+                post_ids = []
+                if body.get('post_ids', ''):
+                    if isinstance(body.get('post_ids'), str):
+                        post_ids = [int(pid) for pid in body.get('post_ids').split(',') if pid]
+                    else:
+                        post_ids = [int(pid) for pid in body.get('post_ids') if pid]
 
-            series = Series(
-                owner=request.user,
-                name=body.get('title'),
-                text_md=body.get('description', ''),
-                text_html=body.get('description', ''),
-            )
-            series.save()
+                series = SeriesService.create_series(
+                    user=request.user,
+                    name=body.get('title', ''),
+                    url='',  # Will be auto-generated
+                    description=body.get('description', ''),
+                    post_ids=post_ids
+                )
 
-            if body.get('post_ids', ''):
-                if isinstance(body.get('post_ids'), str):
-                    post_ids = body.get('post_ids').split(',')
-                else:
-                    post_ids = body.get('post_ids')
-                    
-                for post_id in post_ids:
-                    if post_id:  # Empty string check
-                        post = Post.objects.get(id=post_id)
-                        post.series = series
-                        post.save()
-
-            return StatusDone({
-                'url': series.url
-            })
+                return StatusDone({
+                    'url': series.url
+                })
+            except SeriesValidationError as e:
+                return StatusError(e.code, e.message)
 
     if url:
         user = get_object_or_404(User, username=username)
@@ -200,7 +177,7 @@ def user_series(request, username, url=None):
                 'last_page': posts.paginator.num_pages
             })
 
-        if not request.user == series.owner:
+        if not SeriesService.can_user_edit_series(request.user, series):
             return StatusError(ErrorCode.AUTHENTICATION)
 
         if request.method == 'PUT':
@@ -208,37 +185,30 @@ def user_series(request, username, url=None):
                 put = json.loads(request.body)
             except:
                 put = QueryDict(request.body)
-                
-            series.name = put.get('title')
-            series.text_md = put.get('description')
-            series.save()
-            
-            # Handle post_ids if provided
-            if put.get('post_ids'):
-                # Remove all current posts from series
-                Post.objects.filter(series=series).update(series=None)
-                
-                # Add selected posts to series
-                if isinstance(put.get('post_ids'), str):
-                    post_ids = put.get('post_ids').split(',') if put.get('post_ids') else []
-                else:
-                    post_ids = put.get('post_ids')
-                    
-                for post_id in post_ids:
-                    if post_id:  # Empty string check
-                        try:
-                            post = Post.objects.get(id=post_id, author=request.user)
-                            post.series = series
-                            post.save()
-                        except Post.DoesNotExist:
-                            pass  # Skip invalid post IDs
 
-            return StatusDone({
-                'url': series.url
-            })
+            try:
+                post_ids = None
+                if put.get('post_ids'):
+                    if isinstance(put.get('post_ids'), str):
+                        post_ids = [int(pid) for pid in put.get('post_ids').split(',') if pid]
+                    else:
+                        post_ids = [int(pid) for pid in put.get('post_ids') if pid]
+
+                SeriesService.update_series(
+                    series=series,
+                    name=put.get('title'),
+                    description=put.get('description'),
+                    post_ids=post_ids
+                )
+
+                return StatusDone({
+                    'url': series.url
+                })
+            except SeriesValidationError as e:
+                return StatusError(e.code, e.message)
 
         if request.method == 'DELETE':
-            series.delete()
+            SeriesService.delete_series(series)
             return StatusDone()
 
         raise Http404
@@ -250,31 +220,23 @@ def series_order(request):
     Expects JSON data with 'order' field containing array of [id, order] pairs.
     """
     if request.method == 'PUT':
-        if not request.user.is_authenticated:
-            return StatusError(ErrorCode.AUTHENTICATION)
-            
         try:
             body = json.loads(request.body)
         except:
             return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
-        
+
         order_data = body.get('order', [])
         if not order_data:
             return StatusError(ErrorCode.INVALID_PARAMETER, '순서 정보가 필요합니다.')
-        
-        # Update series order
-        for item in order_data:
-            if len(item) >= 2:
-                series_id, new_order = item[0], item[1]
-                try:
-                    series = Series.objects.get(id=series_id, owner=request.user)
-                    series.order = new_order
-                    series.save()
-                except Series.DoesNotExist:
-                    pass  # Skip invalid series IDs
-        
-        return StatusDone({'message': '시리즈 순서가 변경되었습니다.'})
-    
+
+        try:
+            # Convert order_data to list of tuples
+            order_tuples = [(item[0], item[1]) for item in order_data if len(item) >= 2]
+            SeriesService.update_series_order(request.user, order_tuples)
+            return StatusDone({'message': '시리즈 순서가 변경되었습니다.'})
+        except SeriesValidationError as e:
+            return StatusError(e.code, e.message)
+
     raise Http404
 
 
@@ -283,15 +245,13 @@ def series_create_update(request):
     Get series list (GET) or Create new series (POST) for the current user.
     """
     if request.method == 'GET':
-        if not request.user.is_authenticated:
-            return StatusError(ErrorCode.AUTHENTICATION)
-            
-        series = Series.objects.filter(
-            owner=request.user
-        ).annotate(
-            total_posts=Count('posts')
-        ).order_by('order', '-id')
-        
+        try:
+            SeriesService.validate_user_permissions(request.user)
+        except SeriesValidationError as e:
+            return StatusError(e.code, e.message)
+
+        series = SeriesService.get_user_series_list(request.user)
+
         return StatusDone({
             'series': list(map(lambda item: {
                 'id': str(item.id),
@@ -301,56 +261,32 @@ def series_create_update(request):
                 'created_date': convert_to_localtime(item.created_date).strftime('%Y년 %m월 %d일'),
             }, series))
         })
-    
+
     elif request.method == 'POST':
-        if not request.user.is_authenticated:
-            return StatusError(ErrorCode.AUTHENTICATION)
-            
         try:
             body = json.loads(request.body)
         except:
             return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
-        
-        name = body.get('name', '').strip()
-        url = body.get('url', '').strip()
-        description = body.get('description', '').strip()
-        thumbnail = body.get('thumbnail', '').strip()
-        
-        if not name:
-            return StatusError(ErrorCode.REQUIRE, '시리즈 이름을 입력해주세요.')
-        
-        if not url:
-            return StatusError(ErrorCode.REQUIRE, 'URL을 입력해주세요.')
-        
-        # Check if URL is unique for this user
-        if Series.objects.filter(owner=request.user, url=url).exists():
-            return StatusError(ErrorCode.DUPLICATE, '이미 존재하는 URL입니다.')
-        
-        # Create series
-        series = Series(
-            owner=request.user,
-            name=name,
-            url=url,
-            text_md=description,
-            text_html=description
-        )
-        
-        if thumbnail:
-            # Handle thumbnail upload - for now just store the URL
-            # You might want to validate and process the thumbnail here
-            pass
-            
-        series.save()
-        
-        return StatusDone({
-            'id': series.id,
-            'name': series.name,
-            'url': series.url,
-            'description': series.text_md,
-            'thumbnail': thumbnail,
-            'postCount': 0
-        })
-    
+
+        try:
+            series = SeriesService.create_series(
+                user=request.user,
+                name=body.get('name', ''),
+                url=body.get('url', ''),
+                description=body.get('description', '')
+            )
+
+            return StatusDone({
+                'id': series.id,
+                'name': series.name,
+                'url': series.url,
+                'description': series.text_md,
+                'thumbnail': body.get('thumbnail', ''),
+                'postCount': 0
+            })
+        except SeriesValidationError as e:
+            return StatusError(e.code, e.message)
+
     raise Http404
 
 
@@ -358,54 +294,43 @@ def series_detail(request, series_id):
     """
     Update (PUT) or delete (DELETE) a specific series by ID.
     """
-    if not request.user.is_authenticated:
-        return StatusError(ErrorCode.AUTHENTICATION)
-        
+    try:
+        SeriesService.validate_user_permissions(request.user)
+    except SeriesValidationError as e:
+        return StatusError(e.code, e.message)
+
     try:
         series = Series.objects.get(id=series_id, owner=request.user)
     except Series.DoesNotExist:
         return StatusError(ErrorCode.NOT_FOUND, '시리즈를 찾을 수 없습니다.')
-    
+
     if request.method == 'PUT':
         try:
             body = json.loads(request.body)
         except:
             return StatusError(ErrorCode.INVALID_PARAMETER, '잘못된 요청 데이터입니다.')
-        
-        name = body.get('name', '').strip()
-        url = body.get('url', '').strip()
-        description = body.get('description', '').strip()
-        thumbnail = body.get('thumbnail', '').strip()
-        
-        if not name:
-            return StatusError(ErrorCode.REQUIRE, '시리즈 이름을 입력해주세요.')
-        
-        if not url:
-            return StatusError(ErrorCode.REQUIRE, 'URL을 입력해주세요.')
-        
-        # Check if URL is unique for this user (excluding current series)
-        if Series.objects.filter(owner=request.user, url=url).exclude(id=series_id).exists():
-            return StatusError(ErrorCode.DUPLICATE, '이미 존재하는 URL입니다.')
-        
-        # Update series
-        series.name = name
-        series.url = url
-        series.text_md = description
-        series.text_html = description
-        # Handle thumbnail update here if needed
-        series.save()
-        
-        return StatusDone({
-            'id': series.id,
-            'name': series.name,
-            'url': series.url,
-            'description': series.text_md,
-            'thumbnail': thumbnail,
-            'postCount': series.posts.count()
-        })
-    
+
+        try:
+            SeriesService.update_series(
+                series=series,
+                name=body.get('name'),
+                url=body.get('url'),
+                description=body.get('description')
+            )
+
+            return StatusDone({
+                'id': series.id,
+                'name': series.name,
+                'url': series.url,
+                'description': series.text_md,
+                'thumbnail': body.get('thumbnail', ''),
+                'postCount': series.posts.count()
+            })
+        except SeriesValidationError as e:
+            return StatusError(e.code, e.message)
+
     elif request.method == 'DELETE':
-        series.delete()
+        SeriesService.delete_series(series)
         return StatusDone({'message': '시리즈가 삭제되었습니다.'})
-    
+
     raise Http404

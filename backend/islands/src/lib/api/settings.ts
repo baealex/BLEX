@@ -149,9 +149,10 @@ export interface NotifyItem {
 }
 
 export interface Activity {
-    type: 'post' | 'comment' | 'like';
+    type: 'post' | 'comment' | 'like' | 'series';
     title?: string;
     postTitle?: string;
+    url: string;
     date: string;
 }
 

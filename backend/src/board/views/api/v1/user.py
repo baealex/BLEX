@@ -1,20 +1,11 @@
-import datetime
-
-from itertools import chain
-from django.conf import settings
-from django.db.models import F, Count, Case, When
 from django.http import Http404, QueryDict
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 
-from board.constants.config_meta import CONFIG_TYPE
-from board.models import (
-    User, UsernameChangeLog, Post, PinnedPost, Profile, Series,
-    Comment, Tag)
-from board.modules.notify import create_notify
+from board.models import User
+from board.services import UserService
+from board.services.user_service import UserValidationError
 from board.modules.response import StatusDone, StatusError, ErrorCode
-from board.modules.time import convert_to_localtime, time_since, time_stamp
-from modules.markdown import parse_to_html
+from board.modules.time import convert_to_localtime, time_since
 
 
 def users(request, username):
@@ -23,39 +14,31 @@ def users(request, username):
     if request.method == 'PUT':
         put = QueryDict(request.body)
         if put.get('about'):
-            if not request.user == user:
-                return StatusError(ErrorCode.AUTHENTICATION)
+            try:
+                UserService.validate_user_permissions(request.user, user)
+                about_md = put.get('about_md')
+                UserService.update_user_about(user, about_md)
+                return StatusDone()
+            except UserValidationError as e:
+                return StatusError(e.code, e.message)
 
-            about_md = put.get('about_md')
-            about_html = parse_to_html(about_md)
-            if hasattr(user, 'profile'):
-                user.profile.about_md = about_md
-                user.profile.about_html = about_html
-                user.profile.save()
-            else:
-                profile = Profile(user=user)
-                profile.about_md = about_md
-                profile.about_html = about_html
-                profile.save()
-
-            return StatusDone()
     raise Http404
+
 
 def check_redirect(request, username):
     if request.method == 'GET':
         if not username:
             return StatusError(ErrorCode.INVALID_PARAMETER)
 
-        log = UsernameChangeLog.objects.filter(
-            username=username
-        ).annotate(
-            user_username=F('user__username'),
-        ).first()
+        redirect_info = UserService.check_username_redirect(username)
 
-        if log:
+        if redirect_info:
             return StatusDone({
-                'old_username': log.username,
-                'new_username': log.user_username,
-                'created_date': convert_to_localtime(log.created_date).strftime('%Y년 %m월 %d일'),
+                'old_username': redirect_info['old_username'],
+                'new_username': redirect_info['new_username'],
+                'created_date': convert_to_localtime(
+                    redirect_info['created_date']
+                ).strftime('%Y년 %m월 %d일'),
             })
+
     raise Http404

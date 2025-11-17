@@ -31,7 +31,6 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
 
         const baseInputStyles = 'block w-full rounded-md border border-solid border-gray-200 shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors';
         const errorStyles = error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '';
-        const iconPadding = leftIcon ? 'pl-10' : rightIcon ? 'pr-10' : '';
 
         return (
             <div className="w-full">
@@ -53,7 +52,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                         <textarea
                             id={inputId}
                             ref={ref as ForwardedRef<HTMLTextAreaElement>}
-                            className={`${baseInputStyles} ${errorStyles} ${iconPadding} ${className}`}
+                            className={`${baseInputStyles} ${errorStyles} ${className}`}
                             rows={rows}
                             {...(props as InputHTMLAttributes<HTMLTextAreaElement>)}
                         />
@@ -61,7 +60,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
                         <input
                             id={inputId}
                             ref={ref as ForwardedRef<HTMLInputElement>}
-                            className={`${baseInputStyles} ${errorStyles} ${iconPadding} ${className}`}
+                            className={`${baseInputStyles} ${errorStyles} ${className}`}
                             {...(props as InputHTMLAttributes<HTMLInputElement>)}
                         />
                     )}

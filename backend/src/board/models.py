@@ -423,6 +423,9 @@ class PostLikes(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
 
+    def time_since(self):
+        return time_since(self.created_date)
+
     def __str__(self):
         return str(self.post)
 
@@ -541,8 +544,11 @@ class Series(models.Model):
         return posts[0].get_thumbnail() if posts else ''
 
     def get_absolute_url(self):
-        return reverse('series_list', args=[self.owner, self.url])
-    
+        return reverse('series_detail', args=[self.owner, self.url])
+
+    def time_since(self):
+        return time_since(self.created_date)
+
     def save(self, *args, **kwargs):
         # URL이 없거나 새로 생성하는 경우에만 URL 생성
         if not self.url:
