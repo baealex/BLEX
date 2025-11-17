@@ -3,6 +3,7 @@ import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button, Input } from '~/components/shared';
+import { getIconClass } from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface Post {
@@ -336,7 +337,7 @@ const PostsSetting = () => {
             <div className="mb-6">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">포스트 ({posts.length})</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">포스트</h2>
                         <p className="text-gray-600">포스트를 관리하고 태그, 시리즈를 편집하세요.</p>
                     </div>
                     <Button
@@ -439,17 +440,23 @@ const PostsSetting = () => {
             ) : (
                 <div className="space-y-3">
                     {posts.map((post) => (
-                        <div key={post.url} className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
+                        <div key={post.url} className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden hover:bg-white hover:border-gray-300 transition-all duration-200">
                             {/* 헤더 */}
-                            <div className="p-4 border-b border-gray-200">
-                                <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="p-4 border-b border-gray-100">
+                                <div className="flex items-center gap-3 mb-3">
+                                    {/* 아이콘 */}
+                                    <div className={getIconClass('dark')}>
+                                        <i className="fas fa-file-alt text-sm" />
+                                    </div>
+
+                                    {/* 컨텐츠 */}
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-bold text-gray-900 mb-1.5 truncate">
+                                        <h3 className="text-base font-semibold text-gray-900 truncate mb-1">
                                             <a
                                                 href={`/@${postsData?.username}/${post.url}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="hover:text-black transition-colors">
+                                                className="hover:text-gray-600 transition-colors">
                                                 {post.title}
                                             </a>
                                         </h3>
@@ -465,7 +472,7 @@ const PostsSetting = () => {
                                                 </span>
                                             )}
                                             {post.isHide && (
-                                                <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs flex items-center font-medium">
+                                                <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-lg text-xs flex items-center font-medium">
                                                     <i className="fas fa-lock mr-1" />
                                                     비공개
                                                 </span>
@@ -473,7 +480,8 @@ const PostsSetting = () => {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2">
+                                    {/* 액션 */}
+                                    <div className="flex items-center gap-2 flex-shrink-0">
                                         <Button
                                             variant="secondary"
                                             size="md"
@@ -501,7 +509,7 @@ const PostsSetting = () => {
                                 </div>
 
                                 {/* 통계 */}
-                                <div className="flex items-center gap-4 text-sm">
+                                <div className="flex items-center gap-4 text-sm ml-13">
                                     <span className="flex items-center text-gray-700">
                                         <i className="fas fa-heart text-red-500 mr-1.5" />
                                         <span className="font-semibold">{post.countLikes}</span>
@@ -518,11 +526,11 @@ const PostsSetting = () => {
                             </div>
 
                             {/* 편집 영역 */}
-                            <div className="p-4 space-y-3">
+                            <div className="p-4 space-y-3 border-t border-solid border-gray-100">
                                 {/* 태그 */}
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                                        <i className="fas fa-tag text-xs" />
+                                <div className="flex items-center gap-3">
+                                    <div className={getIconClass('light')}>
+                                        <i className="fas fa-tag text-sm" />
                                     </div>
                                     <Input
                                         type="text"
@@ -543,9 +551,9 @@ const PostsSetting = () => {
                                 </div>
 
                                 {/* 시리즈 */}
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                                        <i className="fas fa-book text-xs" />
+                                <div className="flex items-center gap-3">
+                                    <div className={getIconClass('light')}>
+                                        <i className="fas fa-book text-sm" />
                                     </div>
                                     <select
                                         value={post.series}

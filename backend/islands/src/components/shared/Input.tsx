@@ -29,7 +29,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
     ) => {
         const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
-        const baseInputStyles = 'block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors';
+        const baseInputStyles = 'block w-full rounded-md border border-solid border-gray-200 shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm p-3 transition-colors';
         const errorStyles = error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '';
         const iconPadding = leftIcon ? 'pl-10' : rightIcon ? 'pr-10' : '';
 

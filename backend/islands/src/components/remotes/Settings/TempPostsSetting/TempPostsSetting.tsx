@@ -3,6 +3,15 @@ import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button } from '~/components/shared';
+import {
+    getCardClass,
+    getIconClass,
+    CARD_PADDING,
+    FLEX_ROW,
+    TITLE,
+    SUBTITLE,
+    ACTIONS_CONTAINER
+} from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface TempPost {
@@ -66,7 +75,7 @@ const TempPostsSetting = () => {
         <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
             {/* 헤더 섹션 */}
             <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">임시저장 포스트</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">임시저장</h2>
                 <p className="text-gray-600">총 {tempPosts?.length || 0}개의 임시저장 포스트가 있습니다.</p>
             </div>
 
@@ -89,36 +98,47 @@ const TempPostsSetting = () => {
                 ) : (
                     <div className="space-y-3">
                         {[...tempPosts].reverse().map((tempPost) => (
-                            <div key={tempPost.token} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 hover:bg-gray-100 hover:shadow-sm transition-all duration-300">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-base font-semibold text-gray-900 truncate mb-1.5">
-                                            {tempPost.title || '제목 없음'}
-                                        </h3>
-                                        <div className="flex items-center gap-3 text-xs text-gray-500">
-                                            <span className="flex items-center">
-                                                <i className="fas fa-clock mr-2" />
-                                                {tempPost.createdDate}
-                                            </span>
-                                            <span className="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-xl text-xs font-medium">
-                                                임시저장
-                                            </span>
+                            <div key={tempPost.token} className={getCardClass()}>
+                                <div className={CARD_PADDING}>
+                                    <div className={FLEX_ROW}>
+                                        {/* Icon */}
+                                        <div className={getIconClass('default')}>
+                                            <i className="fas fa-file-alt text-sm" />
                                         </div>
-                                    </div>
 
-                                    <div className="flex items-center gap-2 ml-4">
-                                        <Button
-                                            variant="secondary"
-                                            size="md"
-                                            onClick={() => window.location.href = `/write?tempToken=${tempPost.token}`}>
-                                            편집
-                                        </Button>
-                                        <Button
-                                            variant="secondary"
-                                            size="md"
-                                            onClick={() => handleTempPostDelete(tempPost.token)}>
-                                            삭제
-                                        </Button>
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className={`${TITLE} mb-0.5`}>
+                                                {tempPost.title || '제목 없음'}
+                                            </h3>
+                                            <div className={`${SUBTITLE} flex items-center gap-3`}>
+                                                <span className="flex items-center">
+                                                    <i className="fas fa-clock mr-1.5" />
+                                                    {tempPost.createdDate}
+                                                </span>
+                                                <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md text-xs font-medium">
+                                                    임시저장
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className={ACTIONS_CONTAINER}>
+                                            <Button
+                                                variant="secondary"
+                                                size="md"
+                                                onClick={() => window.location.href = `/write?tempToken=${tempPost.token}`}
+                                                title="편집">
+                                                <i className="fas fa-edit" />
+                                            </Button>
+                                            <Button
+                                                variant="secondary"
+                                                size="md"
+                                                onClick={() => handleTempPostDelete(tempPost.token)}
+                                                title="삭제">
+                                                <i className="fas fa-trash" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

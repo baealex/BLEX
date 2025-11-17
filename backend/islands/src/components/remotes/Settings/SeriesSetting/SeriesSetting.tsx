@@ -22,6 +22,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useFetch } from '~/hooks/use-fetch';
 import { Button } from '~/components/shared';
+import { getCardClass, getIconClass, CARD_PADDING, FLEX_ROW, TITLE, SUBTITLE, ACTIONS_CONTAINER, DRAG_HANDLE } from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface Series {
@@ -77,12 +78,12 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
 
     return (
         <div ref={setNodeRef} style={style} className="mb-3">
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
-                <div className="p-4">
-                    <div className="flex items-center gap-3">
+            <div className={getCardClass()}>
+                <div className={CARD_PADDING}>
+                    <div className={FLEX_ROW}>
                         {/* Drag handle */}
                         <div
-                            className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            className={DRAG_HANDLE}
                             style={{ touchAction: 'none' }}
                             {...attributes}
                             {...listeners}>
@@ -90,21 +91,21 @@ const SortableSeriesItem = ({ series, username, onDelete }: SortableSeriesItemPr
                         </div>
 
                         {/* Icon */}
-                        <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white flex-shrink-0">
-                            <i className="fas fa-book" />
+                        <div className={getIconClass('dark')}>
+                            <i className="fas fa-book text-sm" />
                         </div>
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-bold text-gray-900 truncate mb-1">{series.title}</h3>
-                            <div className="text-xs text-gray-500 flex items-center">
+                            <h3 className={`${TITLE} mb-0.5`}>{series.title}</h3>
+                            <div className={SUBTITLE}>
                                 <i className="fas fa-file-alt mr-1.5" />
                                 {series.totalPosts}개의 포스트
                             </div>
                         </div>
 
                         {/* Actions */}
-                        <div className="flex gap-2">
+                        <div className={ACTIONS_CONTAINER}>
                             <Button
                                 variant="secondary"
                                 size="md"

@@ -7,6 +7,14 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Response } from '~/modules/http.module';
 import { Button, Input, Modal } from '~/components/shared';
+import {
+ getCardClass,
+ getIconClass,
+ CARD_PADDING,
+ FLEX_ROW,
+ TITLE,
+ ACTIONS_CONTAINER
+} from '~/components/shared/settingsStyles';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface FormItem {
@@ -169,27 +177,45 @@ content: ''
             ) : (
                 <div className="space-y-3">
                     {forms.map((form) => (
-                        <div key={form.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-4 hover:bg-gray-100 hover:shadow-sm transition-all duration-300">
-                            <div className="flex items-center justify-between gap-3">
-                                <button
-                                    type="button"
-                                    className="flex-1 text-left text-gray-900 font-semibold hover:text-gray-600 transition-colors focus:outline-none"
-                                    onClick={() => handleEditForm(form.id)}>
-                                    {form.title}
-                                </button>
-                                <div className="flex gap-2">
-                                    <Button
-                                        variant="secondary"
-                                        size="md"
-                                        onClick={() => handleEditForm(form.id)}>
-                                        <i className="fas fa-edit" />
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        size="md"
-                                        onClick={() => handleDeleteForm(form.id)}>
-                                        <i className="fas fa-trash" />
-                                    </Button>
+                        <div
+                            key={form.id}
+                            className={getCardClass('cursor-pointer')}
+                            onClick={() => handleEditForm(form.id)}>
+                            <div className={CARD_PADDING}>
+                                <div className={FLEX_ROW}>
+                                    {/* Icon */}
+                                    <div className={getIconClass('default')}>
+                                        <i className="fas fa-file-lines text-sm" />
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className={TITLE}>{form.title}</h3>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className={ACTIONS_CONTAINER}>
+                                        <Button
+                                            variant="secondary"
+                                            size="md"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEditForm(form.id);
+                                            }}
+                                            title="서식 수정">
+                                            <i className="fas fa-edit" />
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            size="md"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteForm(form.id);
+                                            }}
+                                            title="서식 삭제">
+                                            <i className="fas fa-trash" />
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
