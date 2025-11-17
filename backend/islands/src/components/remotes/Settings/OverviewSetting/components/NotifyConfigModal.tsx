@@ -76,18 +76,7 @@ const NotifyConfigModal = ({
             title="알림 설정"
             maxWidth="md">
             <div className="p-6 space-y-4">
-                {isLoading ? (
-                    <div className="space-y-4">
-                        {[...Array(4)].map((_, i) => (
-                            <div key={i} className="animate-pulse">
-                                <div className="flex items-center justify-between py-3">
-                                    <div className="h-4 bg-gray-200 rounded w-3/4" />
-                                    <div className="h-6 w-11 bg-gray-200 rounded-full" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
+                {isLoading ? null : (
                     notifyConfig?.map((item) => (
                         <div key={item.name} className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                             <span className="text-sm font-medium text-gray-900">

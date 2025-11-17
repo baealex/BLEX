@@ -16,15 +16,6 @@ def setting_overview(request):
     }
     return render(request, 'board/setting/setting_overview.html', context)
 
-@login_required
-def setting_dashboard(request):
-    """
-    Dashboard settings page view.
-    DEPRECATED: Use setting_overview instead.
-    Redirects to the new overview page for backward compatibility.
-    """
-    return redirect('setting_overview')
-
 
 @login_required
 def setting_profile(request):
@@ -48,16 +39,6 @@ def setting_account(request):
         'active': 'account'
     }
     return render(request, 'board/setting/setting_account.html', context)
-
-
-@login_required
-def setting_notify(request):
-    """
-    Notification settings page view.
-    DEPRECATED: Use setting_overview instead.
-    Redirects to the new overview page for backward compatibility.
-    """
-    return redirect('setting_overview')
 
 
 @login_required
@@ -92,34 +73,6 @@ def setting_posts(request):
         'active': 'posts'
     }
     return render(request, 'board/setting/setting_posts.html', context)
-
-
-@login_required
-def setting_analytics(request):
-    """
-    Analytics settings page view.
-    Allows users to set their analytics share URL for personal analytics.
-    Only accessible by users with EDITOR or ADMIN role.
-    """
-    # Check if user has editor role or higher
-    if not request.user.profile.is_editor():
-        raise PermissionDenied("편집자 권한이 필요합니다.")
-
-    if request.method == 'POST':
-        analytics_share_url = request.POST.get('analytics_share_url', '').strip()
-
-        # Update profile
-        profile = request.user.profile
-        profile.analytics_share_url = analytics_share_url
-        profile.save()
-
-        messages.success(request, '통계 설정이 저장되었습니다.')
-        return redirect('setting_analytics')
-
-    context = {
-        'active': 'analytics'
-    }
-    return render(request, 'board/setting/setting_analytics.html', context)
 
 
 @login_required

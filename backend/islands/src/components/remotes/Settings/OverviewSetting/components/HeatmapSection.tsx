@@ -36,20 +36,7 @@ const HeatmapSection = ({ heatmapData, isLoading }: HeatmapSectionProps) => {
     }, [heatmapData]);
 
     if (isLoading) {
-        return (
-            <div className="p-6 bg-white shadow-sm rounded-2xl border border-gray-200">
-                <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center">
-                        <i className="fas fa-fire mr-3" />
-                        활동 히트맵
-                    </h2>
-                </div>
-                <div className="animate-pulse space-y-4">
-                    <div className="h-6 bg-gray-200 rounded w-3/4" />
-                    <div className="h-48 bg-gray-200 rounded" />
-                </div>
-            </div>
-        );
+        return null;
     }
 
     if (!heatmapData || Object.keys(heatmapData).length === 0) {

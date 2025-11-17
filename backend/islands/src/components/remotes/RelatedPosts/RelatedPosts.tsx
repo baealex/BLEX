@@ -38,24 +38,7 @@ const RelatedPosts: React.FC<RelatedPostsProps> = ({ postUrl, username }) => {
     }, [postUrl, username]);
 
     if (isLoading) {
-        return (
-            <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm">
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">관련 포스트</h3>
-                <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {[...Array(3)].map((_, index) => (
-                        <div key={index} className="animate-pulse">
-                            <div className="aspect-video mb-4 bg-gray-200 rounded-lg" />
-                            <div className="h-4 bg-gray-200 rounded mb-2" />
-                            <div className="h-3 bg-gray-200 rounded mb-3 w-3/4" />
-                            <div className="flex gap-4">
-                                <div className="h-3 bg-gray-200 rounded w-20" />
-                                <div className="h-3 bg-gray-200 rounded w-16" />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
+        return null;
     }
 
     if (relatedPosts.length === 0) {

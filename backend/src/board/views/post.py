@@ -227,7 +227,7 @@ def post_editor(request, username=None, post_url=None):
             image = request.FILES.get('image', None)
 
             # Get temp post token if exists
-            temp_token = request.POST.get('temp_token', '')
+            temp_token = request.POST.get('token', '')
 
             # Create new post using service
             try:

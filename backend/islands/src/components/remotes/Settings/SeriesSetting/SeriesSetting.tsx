@@ -21,7 +21,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, LoadingState } from '~/components/shared';
+import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface Series {
@@ -227,7 +227,7 @@ const SeriesSetting = () => {
     };
 
     if (isLoading) {
-        return <LoadingState type="list" rows={3} />;
+        return null;
     }
 
     return (

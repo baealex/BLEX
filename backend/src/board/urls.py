@@ -18,8 +18,8 @@ from board.views.oauth_callback import oauth_callback
 from board.views.tag import tag_list_view, tag_detail_view
 from board.views.static_pages import about_view, privacy_view, terms_view
 from board.views.settings import (
-    setting_overview, setting_dashboard, setting_profile, setting_account, setting_notify, setting_series,
-    setting_posts, setting_analytics,
+    setting_overview, setting_profile, setting_account, setting_series,
+    setting_posts,
     setting_integration, setting_forms, setting_temp_posts
 )
 from board.decorators import staff_member_required
@@ -43,13 +43,10 @@ urlpatterns = [
 
     # Settings Pages
     path('settings/overview', setting_overview, name='setting_overview'),
-    path('settings/dashboard', setting_dashboard, name='setting_dashboard'),  # Redirects to overview
     path('settings/profile', setting_profile, name='setting_profile'),
     path('settings/account', setting_account, name='setting_account'),
-    path('settings/notify', setting_notify, name='setting_notify'),  # Redirects to overview
     path('settings/series', setting_series, name='setting_series'),
     path('settings/posts', setting_posts, name='setting_posts'),
-    path('settings/analytics', setting_analytics, name='setting_analytics'),
     path('settings/integration', setting_integration, name='setting_integration'),
     path('settings/forms', setting_forms, name='setting_forms'),
     path('settings/temp-posts', setting_temp_posts, name='setting_temp_posts'),
@@ -132,6 +129,4 @@ urlpatterns = [
     path('v1/forms', api_v1.forms_list),
     path('v1/forms/<int:id>', api_v1.forms_detail),
     path('v1/telegram/<parameter>', api_v1.telegram),
-    path('v1/dashboard/stats', api_v1.dashboard_stats),
-    path('v1/dashboard/activities', api_v1.dashboard_activities),
 ]

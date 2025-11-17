@@ -3,7 +3,7 @@ import { http } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
 import type { Response } from '~/modules/http.module';
-import { Button, LoadingState } from '~/components/shared';
+import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface TelegramStatusData {
@@ -98,7 +98,7 @@ const IntegrationSettings: React.FC = () => {
     }, [isConnected, refetch]);
 
     if (isLoading) {
-        return <LoadingState type="form" rows={2} />;
+        return null;
     }
 
     return (

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { http, type Response } from '~/modules/http.module';
 import { notification } from '@baejino/ui';
 import { useFetch } from '~/hooks/use-fetch';
-import { Button, LoadingState } from '~/components/shared';
+import { Button } from '~/components/shared';
 import { useConfirm } from '~/contexts/ConfirmContext';
 
 interface TempPost {
@@ -59,7 +59,7 @@ const TempPostsSetting = () => {
     };
 
     if (isLoading) {
-        return <LoadingState type="list" rows={3} />;
+        return null;
     }
 
     return (

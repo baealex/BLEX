@@ -107,9 +107,7 @@ const PostForm: React.FC<PostFormProps> = ({
                 <input type="hidden" name="hide" value={formData.hide ? 'true' : 'false'} />
                 <input type="hidden" name="notice" value={formData.notice ? 'true' : 'false'} />
                 <input type="hidden" name="advertise" value={formData.advertise ? 'true' : 'false'} />
-                {tags.map((tag, index) => (
-                    <input key={index} type="hidden" name="tag" value={tag} />
-                ))}
+                <input type="hidden" name="tag" value={tags.join(',')} />
                 {selectedSeries.id && <input type="hidden" name="series" value={selectedSeries.id} />}
             </div>
 

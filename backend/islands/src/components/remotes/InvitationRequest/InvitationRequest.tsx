@@ -59,24 +59,7 @@ const InvitationRequest = () => {
     };
 
     if (isLoading) {
-        return (
-            <div className="p-4 sm:p-6 bg-white shadow-sm rounded-lg">
-                <div className="animate-pulse">
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                        <div className="h-6 bg-gray-200 rounded w-64 mb-2" />
-                        <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                        <div className="h-4 bg-gray-200 rounded w-3/4" />
-                    </div>
-                    <div className="space-y-4">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                <div className="h-16 bg-gray-200 rounded" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
+        return null;
     }
 
     const ownersList = owners?.owners || [];
