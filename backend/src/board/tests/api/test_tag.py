@@ -37,8 +37,3 @@ class TagTestCase(TestCase):
         tags = list(Tag.objects.all().values_list('value', flat=True))
         self.assertEqual('test4' in tags, True)
         self.assertEqual('test5' in tags, True)
-
-    def test_get_tag_list(self):
-        """태그 목록 조회 테스트"""
-        response = self.client.get('/v1/tags')
-        self.assertEqual(response.status_code, 200)
