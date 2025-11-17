@@ -1,10 +1,8 @@
-from django.db.models import F, Count, Case, When, Subquery, OuterRef, Exists
 from django.http import Http404
 from django.shortcuts import render
-from django.utils import timezone
 from board.modules.paginator import Paginator
 
-from board.models import Tag, Post, PostLikes
+from board.services import TagService
 
 
 def tag_list_view(request):
@@ -13,28 +11,17 @@ def tag_list_view(request):
     """
     # Get search query
     search_query = request.GET.get('q', '').strip()
-    
+
     # Get sort parameter
     sort = request.GET.get('sort', 'popular')
-    
-    # Build base queryset
-    tags = Tag.objects.filter(
-        posts__config__hide=False
-    ).annotate(
-        count=Count(
-            Case(
-                When(
-                    posts__config__hide=False,
-                    then='posts'
-                ),
-            )
-        ),
-    )
-    
+
+    # Get base queryset from TagService
+    tags = TagService.get_tag_list_with_count()
+
     # Apply search filter
     if search_query:
         tags = tags.filter(value__icontains=search_query)
-    
+
     # Apply sorting
     if sort == 'popular':
         tags = tags.order_by('-count', 'value')
@@ -52,9 +39,9 @@ def tag_list_view(request):
         offset=50,
         page=page
     )
-    
+
     tags_page = paginated_tags
-    
+
     tag_list = []
     for tag in tags_page:
         tag_list.append({
@@ -76,7 +63,7 @@ def tag_list_view(request):
         'last_page': paginated_tags.paginator.num_pages,
         'sort_options': sort_options,
     }
-    
+
     return render(request, 'board/tags/tag_list.html', context)
 
 
@@ -84,25 +71,8 @@ def tag_detail_view(request, name):
     """
     View function for displaying posts with a specific tag.
     """
-    posts = Post.objects.select_related(
-        'config', 'series', 'author', 'author__profile'
-    ).filter(
-        created_date__lte=timezone.now(),
-        config__notice=False,
-        config__hide=False,
-        tags__value=name
-    ).annotate(
-        author_username=F('author__username'),
-        author_image=F('author__profile__avatar'),
-        count_likes=Count('likes', distinct=True),
-        count_comments=Count('comments', distinct=True),
-        has_liked=Exists(
-            PostLikes.objects.filter(
-                post__id=OuterRef('id'),
-                user__id=request.user.id if request.user.id else -1
-            )
-        ),
-    ).order_by('-created_date')
+    user_id = request.user.id if request.user.is_authenticated else None
+    posts = TagService.get_posts_by_tag(name, user_id)
 
     if len(posts) == 0:
         raise Http404()
@@ -114,17 +84,11 @@ def tag_detail_view(request, name):
         offset=24,
         page=page
     )
-    
+
     posts_page = paginated_posts
 
     # Get head post if exists
-    head_post = Post.objects.filter(
-        url=name,
-        config__hide=False
-    ).annotate(
-        author_username=F('author__username'),
-        author_image=F('author__profile__avatar'),
-    ).first()
+    head_post = TagService.get_head_post_by_tag(name)
 
     head_post_data = None
     if head_post:
@@ -144,5 +108,5 @@ def tag_detail_view(request, name):
         'page': page,
         'last_page': paginated_posts.paginator.num_pages,
     }
-    
+
     return render(request, 'board/tags/tag_detail.html', context)
