@@ -14,6 +14,12 @@ const RecentActivitiesSection = ({ activities, isLoading }: RecentActivitiesSect
                     bgColor: 'bg-black',
                     text: '새 포스트를 작성했습니다'
                 };
+            case 'series':
+                return {
+                    icon: 'fas fa-bookmark',
+                    bgColor: 'bg-black',
+                    text: '새 시리즈를 생성했습니다'
+                };
             case 'comment':
                 return {
                     icon: 'fas fa-comment',
@@ -47,10 +53,13 @@ const RecentActivitiesSection = ({ activities, isLoading }: RecentActivitiesSect
                     {activities.length > 0 ? (
                         activities.slice(0, 5).map((activity, index) => {
                             const activityConfig = getActivityIcon(activity.type);
-                            const displayTitle = activity.type === 'post' ? activity.title : activity.postTitle;
+                            const displayTitle = activity.type === 'post' || activity.type === 'series' ? activity.title : activity.postTitle;
 
                             return (
-                                <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all duration-300">
+                                <a
+                                    key={index}
+                                    href={activity.url}
+                                    className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
                                     <div className={`w-10 h-10 ${activityConfig.bgColor} rounded-xl flex items-center justify-center text-white flex-shrink-0`}>
                                         <i className={`${activityConfig.icon} text-sm`} />
                                     </div>
@@ -59,7 +68,7 @@ const RecentActivitiesSection = ({ activities, isLoading }: RecentActivitiesSect
                                         <p className="text-gray-600 truncate text-sm mb-1">"{displayTitle}"</p>
                                         <p className="text-xs text-gray-500">{activity.date}</p>
                                     </div>
-                                </div>
+                                </a>
                             );
                         })
                     ) : (

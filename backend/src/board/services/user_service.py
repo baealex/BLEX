@@ -338,3 +338,132 @@ class UserService:
                 data[include] = UserService.get_user_about(user)['about_html']
 
         return data
+
+    @staticmethod
+    def get_user_dashboard_stats(user: User) -> Dict[str, int]:
+        """
+        Get dashboard statistics for user.
+        Optimized with single query to get all stats at once.
+
+        Args:
+            user: User instance
+
+        Returns:
+            Dictionary with total_posts, total_views, total_likes, total_comments
+        """
+        stats_query = Post.objects.filter(
+            author=user,
+            created_date__lte=timezone.now(),
+        ).aggregate(
+            total_posts=Count('id'),
+            total_likes=Count('likes', distinct=True),
+            total_comments=Count('comments', distinct=True),
+        )
+
+        return {
+            'total_posts': stats_query['total_posts'] or 0,
+            'total_views': 0,  # Analytics moved to external services (Umami, GA, etc.)
+            'total_likes': stats_query['total_likes'] or 0,
+            'total_comments': stats_query['total_comments'] or 0,
+        }
+
+    @staticmethod
+    def get_user_dashboard_activities(user: User, days: int = 30) -> List[Dict[str, Any]]:
+        """
+        Get recent activities for user's dashboard.
+        Optimized with efficient queries, select_related, and limited date range.
+        Returns posts, series, comments, and likes activities combined and sorted.
+
+        Args:
+            user: User instance
+            days: Number of days to look back (default: 30)
+
+        Returns:
+            List of activity dictionaries (max 5 items, sorted by date)
+        """
+        from board.models import PostLikes
+
+        cutoff_date = timezone.now() - datetime.timedelta(days=days)
+
+        # Optimized queries with proper select_related and limited date range
+        recent_posts = Post.objects.filter(
+            author=user,
+            created_date__gte=cutoff_date,
+            created_date__lte=timezone.now(),
+        ).select_related('author').only(
+            'title', 'url', 'created_date', 'author__username'
+        ).order_by('-created_date')[:5]
+
+        recent_series = Series.objects.filter(
+            owner=user,
+            created_date__gte=cutoff_date,
+            created_date__lte=timezone.now(),
+        ).select_related('owner').only(
+            'name', 'url', 'created_date', 'owner__username'
+        ).order_by('-created_date')[:5]
+
+        recent_comments = Comment.objects.filter(
+            author=user,
+            created_date__gte=cutoff_date,
+        ).select_related('post', 'post__author').only(
+            'created_date', 'post__title', 'post__url', 'post__author__username'
+        ).order_by('-created_date')[:5]
+
+        recent_likes = PostLikes.objects.filter(
+            user=user,
+            created_date__gte=cutoff_date,
+        ).select_related('post', 'post__author').only(
+            'created_date', 'post__title', 'post__url', 'post__author__username'
+        ).order_by('-created_date')[:5]
+
+        # Convert to activities list efficiently
+        activities = []
+
+        # Add posts
+        for post in recent_posts:
+            activities.append({
+                'type': 'post',
+                'title': post.title,
+                'url': post.get_absolute_url(),
+                'date': post.time_since(),
+                'sort_date': post.created_date,
+            })
+
+        # Add series
+        for series_item in recent_series:
+            activities.append({
+                'type': 'series',
+                'title': series_item.name,
+                'url': series_item.get_absolute_url(),
+                'date': series_item.time_since(),
+                'sort_date': series_item.created_date,
+            })
+
+        # Add comments
+        for comment in recent_comments:
+            activities.append({
+                'type': 'comment',
+                'postTitle': comment.post.title,
+                'url': comment.get_absolute_url(),
+                'date': comment.time_since(),
+                'sort_date': comment.created_date,
+            })
+
+        # Add likes
+        for like in recent_likes:
+            activities.append({
+                'type': 'like',
+                'postTitle': like.post.title,
+                'url': like.post.get_absolute_url(),
+                'date': like.time_since(),
+                'sort_date': like.created_date,
+            })
+
+        # Sort by actual datetime and limit to 5
+        recent_activities = sorted(activities, key=lambda x: x['sort_date'], reverse=True)[:5]
+
+        # Remove sort_date from final output
+        for activity in recent_activities:
+            del activity['sort_date']
+
+        return recent_activities
